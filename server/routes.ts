@@ -5,6 +5,8 @@ import { insertDocumentSchema } from "@shared/schema";
 import { analyzeDocument } from "./openai";
 import multer from "multer";
 import { z } from "zod";
+import pdf from "pdf-parse";
+import mammoth from "mammoth";
 
 // Configure multer for file uploads
 const upload = multer({

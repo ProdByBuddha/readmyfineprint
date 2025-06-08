@@ -6,7 +6,9 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Loader2 } from "lucide-react";
 import { FileUpload } from "@/components/FileUpload";
 import { AnalysisResults } from "@/components/AnalysisResults";
-import { analyzeDocument, getDocument } from "@/lib/api";
+import { SampleContracts } from "@/components/SampleContracts";
+import { DocumentHistory } from "@/components/DocumentHistory";
+import { analyzeDocument, getDocument, createDocument } from "@/lib/api";
 import { useToast } from "@/hooks/use-toast";
 import { useTheme } from "@/components/ThemeProvider";
 import type { Document } from "@shared/schema";
@@ -57,6 +59,24 @@ export default function Home() {
   const handleNewAnalysis = () => {
     setCurrentDocumentId(null);
     setIsAnalyzing(false);
+  };
+
+  const handleSampleContract = async (title: string, content: string) => {
+    setIsAnalyzing(true);
+    try {
+      const document = await createDocument({
+        title: `Sample: ${title}`,
+        content,
+      });
+      await handleDocumentCreated(document.id);
+    } catch (error) {
+      setIsAnalyzing(false);
+      toast({
+        title: "Failed to load sample",
+        description: error instanceof Error ? error.message : "Failed to load sample contract",
+        variant: "destructive",
+      });
+    }
   };
 
   return (
@@ -118,6 +138,12 @@ export default function Home() {
       </header>
 
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        {/* Document History */}
+        <DocumentHistory 
+          onSelectDocument={setCurrentDocumentId}
+          currentDocumentId={currentDocumentId}
+        />
+
         {/* Hero Section */}
         {!currentDocumentId && (
           <div className="text-center mb-12">
@@ -147,7 +173,14 @@ export default function Home() {
 
         {/* Upload Interface */}
         {!currentDocumentId && !isAnalyzing && (
-          <FileUpload onDocumentCreated={handleDocumentCreated} />
+          <>
+            <FileUpload onDocumentCreated={handleDocumentCreated} />
+            
+            {/* Sample Contracts Section */}
+            <div className="mt-16">
+              <SampleContracts onSelectContract={handleSampleContract} />
+            </div>
+          </>
         )}
 
         {/* Analysis Results */}
