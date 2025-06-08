@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useMutation, useQuery } from "@tanstack/react-query";
-import { File, Menu } from "lucide-react";
+import { File, Menu, Moon, Sun } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Loader2 } from "lucide-react";
@@ -8,12 +8,14 @@ import { FileUpload } from "@/components/FileUpload";
 import { AnalysisResults } from "@/components/AnalysisResults";
 import { analyzeDocument, getDocument } from "@/lib/api";
 import { useToast } from "@/hooks/use-toast";
+import { useTheme } from "@/components/ThemeProvider";
 import type { Document } from "@shared/schema";
 
 export default function Home() {
   const [currentDocumentId, setCurrentDocumentId] = useState<number | null>(null);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const { toast } = useToast();
+  const { theme, toggleTheme } = useTheme();
 
   const { data: currentDocument, isLoading: isLoadingDocument } = useQuery({
     queryKey: ['/api/documents', currentDocumentId],
@@ -60,32 +62,57 @@ export default function Home() {
   return (
     <div className="min-h-screen bg-background">
       {/* Header */}
-      <header className="bg-white border-b border-gray-200 sticky top-0 z-50">
+      <header className="bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-800 sticky top-0 z-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
             <div className="flex items-center space-x-3">
               <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center">
                 <File className="text-white text-sm" />
               </div>
-              <h1 className="text-xl font-bold text-text">LegalClear</h1>
+              <h1 className="text-xl font-bold text-gray-900 dark:text-white">LegalClear</h1>
             </div>
             <nav className="hidden md:flex items-center space-x-6">
-              <a href="#" className="text-gray-600 hover:text-primary transition-colors">
+              <a href="#" className="text-gray-600 dark:text-gray-300 hover:text-primary transition-colors">
                 Features
               </a>
-              <a href="#" className="text-gray-600 hover:text-primary transition-colors">
+              <a href="#" className="text-gray-600 dark:text-gray-300 hover:text-primary transition-colors">
                 Pricing
               </a>
-              <a href="#" className="text-gray-600 hover:text-primary transition-colors">
+              <a href="#" className="text-gray-600 dark:text-gray-300 hover:text-primary transition-colors">
                 About
               </a>
+              <Button
+                onClick={toggleTheme}
+                variant="ghost"
+                size="sm"
+                className="mr-2"
+              >
+                {theme === "light" ? (
+                  <Moon className="w-4 h-4" />
+                ) : (
+                  <Sun className="w-4 h-4" />
+                )}
+              </Button>
               <Button className="bg-primary text-white hover:bg-primary/90">
                 Get Started
               </Button>
             </nav>
-            <button className="md:hidden p-2">
-              <Menu className="text-gray-600" />
-            </button>
+            <div className="md:hidden flex items-center space-x-2">
+              <Button
+                onClick={toggleTheme}
+                variant="ghost"
+                size="sm"
+              >
+                {theme === "light" ? (
+                  <Moon className="w-4 h-4" />
+                ) : (
+                  <Sun className="w-4 h-4" />
+                )}
+              </Button>
+              <button className="p-2">
+                <Menu className="text-gray-600 dark:text-gray-300" />
+              </button>
+            </div>
           </div>
         </div>
       </header>
@@ -94,11 +121,11 @@ export default function Home() {
         {/* Hero Section */}
         {!currentDocumentId && (
           <div className="text-center mb-12">
-            <h2 className="text-4xl md:text-5xl font-bold text-text mb-4">
+            <h2 className="text-4xl md:text-5xl font-bold text-gray-900 dark:text-white mb-4">
               Understand Any Contract in{" "}
               <span className="text-primary">Plain English</span>
             </h2>
-            <p className="text-xl text-gray-600 mb-8 max-w-3xl mx-auto">
+            <p className="text-xl text-gray-600 dark:text-gray-300 mb-8 max-w-3xl mx-auto">
               Upload or paste any legal document and get instant, clear summaries that
               highlight what matters most. No legal degree required.
             </p>
@@ -186,7 +213,7 @@ export default function Home() {
       </main>
 
       {/* Footer */}
-      <footer className="bg-white border-t border-gray-200 mt-16">
+      <footer className="bg-white dark:bg-gray-900 border-t border-gray-200 dark:border-gray-800 mt-16">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
           <div className="grid md:grid-cols-4 gap-8">
             <div>
@@ -194,15 +221,15 @@ export default function Home() {
                 <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center">
                   <File className="text-white text-sm" />
                 </div>
-                <h3 className="text-lg font-bold text-text">LegalClear</h3>
+                <h3 className="text-lg font-bold text-gray-900 dark:text-white">LegalClear</h3>
               </div>
-              <p className="text-gray-600 text-sm">
+              <p className="text-gray-600 dark:text-gray-300 text-sm">
                 Making legal documents understandable for everyone.
               </p>
             </div>
             <div>
-              <h4 className="font-semibold text-text mb-4">Product</h4>
-              <ul className="space-y-2 text-sm text-gray-600">
+              <h4 className="font-semibold text-gray-900 dark:text-white mb-4">Product</h4>
+              <ul className="space-y-2 text-sm text-gray-600 dark:text-gray-300">
                 <li>
                   <a href="#" className="hover:text-primary transition-colors">
                     Features
@@ -221,8 +248,8 @@ export default function Home() {
               </ul>
             </div>
             <div>
-              <h4 className="font-semibold text-text mb-4">Company</h4>
-              <ul className="space-y-2 text-sm text-gray-600">
+              <h4 className="font-semibold text-gray-900 dark:text-white mb-4">Company</h4>
+              <ul className="space-y-2 text-sm text-gray-600 dark:text-gray-300">
                 <li>
                   <a href="#" className="hover:text-primary transition-colors">
                     About
@@ -241,8 +268,8 @@ export default function Home() {
               </ul>
             </div>
             <div>
-              <h4 className="font-semibold text-text mb-4">Support</h4>
-              <ul className="space-y-2 text-sm text-gray-600">
+              <h4 className="font-semibold text-gray-900 dark:text-white mb-4">Support</h4>
+              <ul className="space-y-2 text-sm text-gray-600 dark:text-gray-300">
                 <li>
                   <a href="#" className="hover:text-primary transition-colors">
                     Help Center
@@ -261,7 +288,7 @@ export default function Home() {
               </ul>
             </div>
           </div>
-          <div className="border-t border-gray-200 mt-8 pt-8 text-center text-sm text-gray-600">
+          <div className="border-t border-gray-200 dark:border-gray-800 mt-8 pt-8 text-center text-sm text-gray-600 dark:text-gray-300">
             <p>&copy; 2024 LegalClear. All rights reserved.</p>
           </div>
         </div>
