@@ -207,7 +207,7 @@ export default function Home() {
         {!currentDocumentId && !isAnalyzing && (
           <Card className="p-8 mt-16">
             <CardContent>
-              <h3 className="text-2xl font-semibold text-text mb-8 text-center">
+              <h3 className="text-2xl font-semibold mb-8 text-center text-[#c7d3d9]">
                 Frequently Asked Questions
               </h3>
               <div className="max-w-3xl mx-auto space-y-6">
