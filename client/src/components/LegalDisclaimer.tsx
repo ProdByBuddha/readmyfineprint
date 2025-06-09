@@ -48,9 +48,7 @@ export function LegalDisclaimer({ onAccept }: LegalDisclaimerProps) {
             <AlertTriangle className="text-amber-500" />
             Important Legal Notice
           </DialogTitle>
-          <DialogDescription>
-            Please read and acknowledge the following important information before using LegalClear.
-          </DialogDescription>
+          <DialogDescription>Please read and acknowledge the following important information before using ReadMyFinePrint.</DialogDescription>
         </DialogHeader>
 
         <div className="space-y-4">
