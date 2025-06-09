@@ -225,7 +225,7 @@ export function FileUpload({ onDocumentCreated }: FileUploadProps) {
                   <CloudUpload className="w-4 h-4 text-white" />
                 </div>
                 <div>
-                  <h4 className="font-semibold text-text mb-1">Export Summary</h4>
+                  <h4 className="font-semibold mb-1 text-[#c7d3d9]">Export Summary</h4>
                   <p className="text-gray-600 text-sm">
                     Download your analysis as PDF or share with others
                   </p>
