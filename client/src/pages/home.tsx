@@ -248,7 +248,8 @@ export default function Home() {
               <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center">
                 <File className="text-white text-sm" />
               </div>
-              <h3 className="text-lg font-bold text-gray-900 dark:text-white">LegalClear</h3>
+              <h3 className="text-lg font-bold text-gray-900 dark:text-white">ReadMyFinePrint
+</h3>
             </div>
             <p className="text-gray-600 dark:text-gray-300 text-sm mb-4">
               Making legal documents understandable for everyone.
