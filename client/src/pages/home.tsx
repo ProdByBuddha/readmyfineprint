@@ -254,9 +254,7 @@ export default function Home() {
             <p className="text-gray-600 dark:text-gray-300 text-sm mb-4">
               Making legal documents understandable for everyone.
             </p>
-            <p className="text-sm text-gray-600 dark:text-gray-300">
-              © 2025 LegalClear. All rights reserved.
-            </p>
+            <p className="text-sm text-gray-600 dark:text-gray-300">© 2025 ReadMyFinePrint. All rights reserved.</p>
           </div>
         </div>
       </footer>
