@@ -212,7 +212,7 @@ export default function Home() {
               </h3>
               <div className="max-w-3xl mx-auto space-y-6">
                 <div className="border border-gray-200 rounded-lg p-6">
-                  <h4 className="font-medium text-text mb-2">How accurate are the summaries?</h4>
+                  <h4 className="font-medium mb-2 text-[#c7d3d9]">How accurate are the summaries?</h4>
                   <p className="text-sm leading-relaxed text-[#8a9cb8]">
                     Our AI analyzes thousands of legal documents and is trained to identify
                     common patterns and concerning clauses. While highly accurate, we recommend
