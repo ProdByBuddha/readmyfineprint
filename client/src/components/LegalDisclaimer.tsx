@@ -24,7 +24,7 @@ export function LegalDisclaimer({ onAccept }: LegalDisclaimerProps) {
 
   useEffect(() => {
     // Check if user has already accepted the disclaimer
-    const hasAccepted = localStorage.getItem('legalclear-disclaimer-accepted');
+    const hasAccepted = localStorage.getItem('readmyfineprint-disclaimer-accepted');
     if (!hasAccepted) {
       setIsOpen(true);
     } else {
@@ -33,7 +33,7 @@ export function LegalDisclaimer({ onAccept }: LegalDisclaimerProps) {
   }, [onAccept]);
 
   const handleAccept = () => {
-    localStorage.setItem('legalclear-disclaimer-accepted', 'true');
+    localStorage.setItem('readmyfineprint-disclaimer-accepted', 'true');
     setIsOpen(false);
     onAccept();
   };
@@ -65,7 +65,7 @@ export function LegalDisclaimer({ onAccept }: LegalDisclaimerProps) {
                     Not Legal Advice
                   </label>
                   <p className="text-sm text-gray-700 dark:text-gray-300">
-                    LegalClear is an AI-powered tool designed to help you understand legal documents. 
+                    ReadMyFinePrint is an AI-powered tool designed to help you understand legal documents. 
                     <strong> The analysis provided is NOT legal advice</strong> and should not be relied upon 
                     as a substitute for consultation with a qualified attorney. We strongly recommend 
                     consulting with a licensed attorney for any legal matters or before making any 
@@ -89,8 +89,7 @@ export function LegalDisclaimer({ onAccept }: LegalDisclaimerProps) {
                     Limitation of Liability & Hold Harmless
                   </label>
                   <p className="text-sm text-gray-700 dark:text-gray-300">
-                    By using LegalClear, you agree to <strong>hold harmless and indemnify</strong> 
-                    LegalClear, its developers, and associated parties from any claims, damages, 
+                    By using ReadMyFinePrint, you agree to <strong>hold harmless and indemnify</strong> ReadMyFinePrint, its developers, and associated parties from any claims, damages, 
                     losses, or liabilities arising from your use of this service or any decisions 
                     made based on the analysis provided. We make no warranties regarding the 
                     accuracy, completeness, or reliability of the analysis.
@@ -113,7 +112,7 @@ export function LegalDisclaimer({ onAccept }: LegalDisclaimerProps) {
                     Terms of Use & Data Handling
                   </label>
                   <p className="text-sm text-gray-700 dark:text-gray-300">
-                    Documents uploaded to LegalClear are processed using AI services. While we 
+                    Documents uploaded to ReadMyFinePrint are processed using AI services. While we 
                     take reasonable measures to protect your data, you acknowledge the risks 
                     inherent in digital processing. Do not upload highly sensitive or confidential 
                     documents. We recommend removing personal identifying information before analysis.
