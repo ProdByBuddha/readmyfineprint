@@ -36,9 +36,11 @@ export default function Home() {
         title: "Analysis complete",
         description: "Your document has been analyzed successfully.",
       });
-      // Invalidate and refetch document data
-      queryClient.invalidateQueries({ queryKey: ['/api/documents', updatedDocument.id] });
+      // Set the updated document directly and invalidate cache
+      queryClient.setQueryData(['/api/documents', updatedDocument.id], updatedDocument);
       queryClient.invalidateQueries({ queryKey: ['/api/documents'] });
+      // Force a refetch to ensure UI updates
+      refetchDocument();
     },
     onError: (error) => {
       setIsAnalyzing(false);
