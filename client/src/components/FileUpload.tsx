@@ -122,7 +122,7 @@ export function FileUpload({ onDocumentCreated }: FileUploadProps) {
                   Drop your file here or click to browse
                 </p>
                 <p className="text-sm text-gray-500 mb-4">
-                  Supports PDF, DOC, DOCX, TXT files up to 10MB
+                  Supports DOCX and TXT files up to 10MB
                 </p>
                 <Button
                   type="button"
@@ -143,7 +143,7 @@ export function FileUpload({ onDocumentCreated }: FileUploadProps) {
               ref={fileInputRef}
               type="file"
               className="hidden"
-              accept=".pdf,.doc,.docx,.txt"
+              accept=".docx,.txt"
               onChange={(e) => {
                 if (e.target.files && e.target.files[0]) {
                   handleFileUpload(e.target.files[0]);

@@ -12,6 +12,7 @@ import { AnalysisProgress } from "@/components/LoadingStates";
 import { analyzeDocument, getDocument, createDocument } from "@/lib/api";
 import { useToast } from "@/hooks/use-toast";
 import { useTheme } from "@/components/ThemeProvider";
+import { queryClient } from "@/lib/queryClient";
 import type { Document } from "@shared/schema";
 
 export default function Home() {
@@ -20,10 +21,11 @@ export default function Home() {
   const { toast } = useToast();
   const { theme, toggleTheme } = useTheme();
 
-  const { data: currentDocument, isLoading: isLoadingDocument } = useQuery({
+  const { data: currentDocument, isLoading: isLoadingDocument, refetch: refetchDocument } = useQuery({
     queryKey: ['/api/documents', currentDocumentId],
     queryFn: () => currentDocumentId ? getDocument(currentDocumentId) : null,
     enabled: !!currentDocumentId,
+    refetchInterval: isAnalyzing ? 2000 : false, // Poll every 2 seconds while analyzing
   });
 
   const analyzeDocumentMutation = useMutation({
@@ -34,8 +36,9 @@ export default function Home() {
         title: "Analysis complete",
         description: "Your document has been analyzed successfully.",
       });
-      // Update the current document data
-      setCurrentDocumentId(updatedDocument.id);
+      // Invalidate and refetch document data
+      queryClient.invalidateQueries({ queryKey: ['/api/documents', updatedDocument.id] });
+      queryClient.invalidateQueries({ queryKey: ['/api/documents'] });
     },
     onError: (error) => {
       setIsAnalyzing(false);
