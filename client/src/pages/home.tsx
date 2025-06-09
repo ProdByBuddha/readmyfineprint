@@ -95,7 +95,8 @@ export default function Home() {
               <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center">
                 <File className="text-white text-sm" />
               </div>
-              <h1 className="text-xl font-bold text-gray-900 dark:text-white">LegalClear</h1>
+              <h1 className="text-xl font-bold text-gray-900 dark:text-white">ReadMyFinePrint
+</h1>
             </div>
             <nav className="hidden md:flex items-center space-x-6">
               <a href="#" className="text-gray-600 dark:text-gray-300 hover:text-primary transition-colors">
@@ -142,7 +143,6 @@ export default function Home() {
           </div>
         </div>
       </header>
-
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Document History */}
         <DocumentHistory 
@@ -240,7 +240,6 @@ export default function Home() {
           </Card>
         )}
       </main>
-
       {/* Footer */}
       <footer className="bg-white dark:bg-gray-900 border-t border-gray-200 dark:border-gray-800 mt-16">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
