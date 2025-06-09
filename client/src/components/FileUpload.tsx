@@ -158,7 +158,7 @@ export function FileUpload({ onDocumentCreated }: FileUploadProps) {
 
             {/* Text Input */}
             <div>
-              <Label className="block text-sm font-medium text-text mb-3">
+              <Label className="peer-disabled:cursor-not-allowed peer-disabled:opacity-70 block text-sm font-medium mb-3 text-[#c7d3d9]">
                 Paste Your Contract Text
               </Label>
               <Textarea
@@ -192,7 +192,7 @@ export function FileUpload({ onDocumentCreated }: FileUploadProps) {
                   <FileText className="w-4 h-4 text-white" />
                 </div>
                 <div>
-                  <h4 className="font-semibold text-text mb-1">Plain English Summary</h4>
+                  <h4 className="font-semibold mb-1 text-[#c7d3d9]">Plain English Summary</h4>
                   <p className="text-gray-600 text-sm">
                     Complex legal jargon translated into clear, understandable language
                   </p>
