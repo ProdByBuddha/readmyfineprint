@@ -221,7 +221,7 @@ export default function Home() {
                 </div>
                 <div className="border border-gray-200 rounded-lg p-6">
                   <h4 className="font-medium text-text mb-2">Is my document data secure?</h4>
-                  <p className="text-gray-700 text-sm leading-relaxed">
+                  <p className="text-sm leading-relaxed text-[#8a9cb8]">
                     Yes, all documents are encrypted in transit and at rest. We don't store your
                     documents after analysis, and you can delete your summaries at any time.
                   </p>
