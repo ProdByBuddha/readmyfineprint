@@ -101,7 +101,7 @@ export function FileUpload({ onDocumentCreated }: FileUploadProps) {
         <div className="flex flex-col lg:flex-row gap-8">
           {/* Upload Area */}
           <div className="lg:w-1/2">
-            <h3 className="text-2xl font-semibold text-text mb-6">Upload Your Document</h3>
+            <h3 className="text-2xl font-semibold mb-6 text-[#c7d3d9]">Upload Your Document</h3>
             
             {/* File Upload */}
             <div
