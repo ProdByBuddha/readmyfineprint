@@ -5,7 +5,6 @@ import { insertDocumentSchema } from "@shared/schema";
 import { analyzeDocument } from "./openai";
 import multer from "multer";
 import { z } from "zod";
-import pdf from "pdf-parse";
 import mammoth from "mammoth";
 
 // Configure multer for file uploads
@@ -15,24 +14,32 @@ const upload = multer({
     fileSize: 10 * 1024 * 1024, // 10MB limit
   },
   fileFilter: (req, file, cb) => {
-    const allowedTypes = ['text/plain', 'application/pdf', 'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'];
+    const allowedTypes = ['text/plain', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'];
     if (allowedTypes.includes(file.mimetype)) {
       cb(null, true);
     } else {
-      cb(new Error('Invalid file type. Only TXT, PDF, DOC, and DOCX files are allowed.'));
+      cb(new Error('Invalid file type. Only TXT and DOCX files are supported.'));
     }
   }
 });
 
-function extractTextFromFile(buffer: Buffer, mimetype: string): string {
-  // For now, we'll handle text files only
-  // In a production app, you'd want to add PDF parsing libraries
-  if (mimetype === 'text/plain') {
-    return buffer.toString('utf-8');
+async function extractTextFromFile(buffer: Buffer, mimetype: string): Promise<string> {
+  try {
+    switch (mimetype) {
+      case 'text/plain':
+        return buffer.toString('utf-8');
+      
+      case 'application/vnd.openxmlformats-officedocument.wordprocessingml.document':
+        const docxResult = await mammoth.extractRawText({ buffer });
+        return docxResult.value;
+      
+      default:
+        throw new Error(`File type ${mimetype} is not supported. Please use TXT or DOCX files, or paste the content directly.`);
+    }
+  } catch (error) {
+    console.error('Error extracting text from file:', error);
+    throw new Error(`Failed to extract text from file: ${error instanceof Error ? error.message : 'Unknown error'}`);
   }
-  
-  // For other file types, we'll return an error message
-  throw new Error('File type not supported. Please paste the text content instead.');
 }
 
 export async function registerRoutes(app: Express): Promise<Server> {
@@ -70,7 +77,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(400).json({ error: "No file uploaded" });
       }
 
-      const content = extractTextFromFile(req.file.buffer, req.file.mimetype);
+      const content = await extractTextFromFile(req.file.buffer, req.file.mimetype);
       
       const document = await storage.createDocument({
         title: req.file.originalname || "Uploaded Document",

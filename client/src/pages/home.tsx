@@ -8,6 +8,7 @@ import { FileUpload } from "@/components/FileUpload";
 import { AnalysisResults } from "@/components/AnalysisResults";
 import { SampleContracts } from "@/components/SampleContracts";
 import { DocumentHistory } from "@/components/DocumentHistory";
+import { AnalysisProgress } from "@/components/LoadingStates";
 import { analyzeDocument, getDocument, createDocument } from "@/lib/api";
 import { useToast } from "@/hooks/use-toast";
 import { useTheme } from "@/components/ThemeProvider";
@@ -159,17 +160,7 @@ export default function Home() {
         )}
 
         {/* Analysis in Progress */}
-        {isAnalyzing && (
-          <Card className="p-8 mb-8">
-            <CardContent className="text-center">
-              <Loader2 className="w-12 h-12 mx-auto mb-4 animate-spin text-primary" />
-              <h3 className="text-xl font-semibold text-text mb-2">Analyzing Document</h3>
-              <p className="text-gray-600">
-                Our AI is carefully reviewing your document. This may take a minute...
-              </p>
-            </CardContent>
-          </Card>
-        )}
+        {isAnalyzing && <AnalysisProgress />}
 
         {/* Upload Interface */}
         {!currentDocumentId && !isAnalyzing && (
