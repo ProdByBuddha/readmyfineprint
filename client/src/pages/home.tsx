@@ -9,6 +9,7 @@ import { AnalysisResults } from "@/components/AnalysisResults";
 import { SampleContracts } from "@/components/SampleContracts";
 import { DocumentHistory } from "@/components/DocumentHistory";
 import { AnalysisProgress } from "@/components/LoadingStates";
+import { LegalDisclaimer } from "@/components/LegalDisclaimer";
 import { analyzeDocument, getDocument, createDocument } from "@/lib/api";
 import { useToast } from "@/hooks/use-toast";
 import { useTheme } from "@/components/ThemeProvider";
@@ -18,6 +19,7 @@ import type { Document } from "@shared/schema";
 export default function Home() {
   const [currentDocumentId, setCurrentDocumentId] = useState<number | null>(null);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
+  const [disclaimerAccepted, setDisclaimerAccepted] = useState(false);
   const { toast } = useToast();
   const { theme, toggleTheme } = useTheme();
 
@@ -85,6 +87,11 @@ export default function Home() {
     }
   };
 
+  // Show disclaimer if not accepted
+  if (!disclaimerAccepted) {
+    return <LegalDisclaimer onAccept={() => setDisclaimerAccepted(true)} />;
+  }
+
   return (
     <div className="min-h-screen bg-background">
       {/* Header */}
@@ -99,15 +106,6 @@ export default function Home() {
 </h1>
             </div>
             <nav className="hidden md:flex items-center space-x-6">
-              <a href="#" className="text-gray-600 dark:text-gray-300 hover:text-primary transition-colors">
-                Features
-              </a>
-              <a href="#" className="text-gray-600 dark:text-gray-300 hover:text-primary transition-colors">
-                Pricing
-              </a>
-              <a href="#" className="text-gray-600 dark:text-gray-300 hover:text-primary transition-colors">
-                About
-              </a>
               <Button
                 onClick={toggleTheme}
                 variant="ghost"
