@@ -1,7 +1,6 @@
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Separator } from "@/components/ui/separator";
 import { Download, Share, Shield, ThumbsUp, AlertTriangle, XCircle, InfoIcon } from "lucide-react";
 import type { Document, DocumentAnalysis } from "@shared/schema";
 

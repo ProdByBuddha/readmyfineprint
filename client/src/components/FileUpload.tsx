@@ -9,9 +9,10 @@ import { useToast } from "@/hooks/use-toast";
 
 interface FileUploadProps {
   onDocumentCreated: (documentId: number) => void;
+  disabled?: boolean;
 }
 
-export function FileUpload({ onDocumentCreated }: FileUploadProps) {
+export function FileUpload({ onDocumentCreated, disabled = false }: FileUploadProps) {
   const [isUploading, setIsUploading] = useState(false);
   const [textContent, setTextContent] = useState("");
   const [dragActive, setDragActive] = useState(false);
@@ -32,14 +33,14 @@ export function FileUpload({ onDocumentCreated }: FileUploadProps) {
     e.preventDefault();
     e.stopPropagation();
     setDragActive(false);
-    
+
     if (e.dataTransfer.files && e.dataTransfer.files[0]) {
       handleFileUpload(e.dataTransfer.files[0]);
     }
   };
 
   const handleFileUpload = async (file: File) => {
-    if (!file) return;
+    if (!file || disabled) return;
 
     setIsUploading(true);
     try {
@@ -62,6 +63,8 @@ export function FileUpload({ onDocumentCreated }: FileUploadProps) {
   };
 
   const handleTextSubmit = async () => {
+    if (disabled) return;
+
     if (!textContent.trim()) {
       toast({
         title: "No content",
@@ -96,13 +99,13 @@ export function FileUpload({ onDocumentCreated }: FileUploadProps) {
   };
 
   return (
-    <Card className="p-8">
+    <Card className={`p-8 ${disabled ? 'opacity-50 pointer-events-none' : ''}`}>
       <CardContent className="p-0">
         <div className="flex flex-col lg:flex-row gap-8">
           {/* Upload Area */}
           <div className="lg:w-1/2">
             <h3 className="text-2xl font-semibold mb-6 text-[#c7d3d9]">Upload Your Document</h3>
-            
+
             {/* File Upload */}
             <div
               className={`border-2 border-dashed rounded-lg p-8 text-center cursor-pointer transition-colors ${

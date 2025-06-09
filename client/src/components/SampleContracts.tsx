@@ -116,7 +116,7 @@ Employee Signature: [Signature]`
   {
     id: "rental-agreement",
     title: "Residential Lease Agreement",
-    type: "Rental Agreement", 
+    type: "Rental Agreement",
     description: "Apartment rental lease with standard terms",
     riskLevel: "high",
     content: `RESIDENTIAL LEASE AGREEMENT
@@ -178,9 +178,10 @@ Emergency: (503) 555-0199`
 
 interface SampleContractsProps {
   onSelectContract: (title: string, content: string) => void;
+  disabled?: boolean;
 }
 
-export function SampleContracts({ onSelectContract }: SampleContractsProps) {
+export function SampleContracts({ onSelectContract, disabled = false }: SampleContractsProps) {
   const getRiskColor = (risk: string) => {
     switch (risk) {
       case 'low':
@@ -195,7 +196,7 @@ export function SampleContracts({ onSelectContract }: SampleContractsProps) {
   };
 
   return (
-    <div className="space-y-6">
+    <div className={`space-y-6 ${disabled ? 'opacity-50 pointer-events-none' : ''}`}>
       <div className="text-center mb-8">
         <h3 className="text-2xl font-semibold text-gray-900 dark:text-white mb-2">
           Try Sample Contracts
@@ -224,9 +225,10 @@ export function SampleContracts({ onSelectContract }: SampleContractsProps) {
               </p>
               <div className="flex space-x-2">
                 <Button
-                  onClick={() => onSelectContract(contract.title, contract.content)}
+                  onClick={() => !disabled && onSelectContract(contract.title, contract.content)}
                   className="flex-1 bg-primary text-white hover:bg-primary/90"
                   size="sm"
+                  disabled={disabled}
                 >
                   <Eye className="w-4 h-4 mr-2" />
                   Analyze
@@ -242,7 +244,7 @@ export function SampleContracts({ onSelectContract }: SampleContractsProps) {
           Why Use Sample Contracts?
         </h4>
         <p className="text-sm text-gray-600 dark:text-gray-300">
-          These examples demonstrate different risk levels and contract types. Each one shows 
+          These examples demonstrate different risk levels and contract types. Each one shows
           how our AI identifies key terms, potential issues, and explains complex language in plain English.
         </p>
       </div>

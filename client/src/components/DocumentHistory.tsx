@@ -1,30 +1,58 @@
 import { useState } from "react";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useMutation } from "@tanstack/react-query";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { FileText, Clock, AlertTriangle, Shield, XCircle, Trash2 } from "lucide-react";
-import { getAllDocuments } from "@/lib/api";
+import { getAllDocuments, clearAllDocuments } from "@/lib/api";
 import { formatDistanceToNow } from "date-fns";
+import { useToast } from "@/hooks/use-toast";
+import { queryClient } from "@/lib/queryClient";
 import type { Document, DocumentAnalysis } from "@shared/schema";
 
 interface DocumentHistoryProps {
-  onSelectDocument: (documentId: number) => void;
+  onSelectDocument: (documentId: number | null) => void;
   currentDocumentId?: number | null;
 }
 
 export function DocumentHistory({ onSelectDocument, currentDocumentId }: DocumentHistoryProps) {
   const [isExpanded, setIsExpanded] = useState(false);
+  const { toast } = useToast();
 
   const { data: documents = [], isLoading } = useQuery({
     queryKey: ['/api/documents'],
     queryFn: getAllDocuments,
   });
 
+  const clearDocumentsMutation = useMutation({
+    mutationFn: clearAllDocuments,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['/api/documents'] });
+      onSelectDocument(null);
+      toast({
+        title: "Documents cleared",
+        description: "All documents have been cleared. You can start fresh!",
+      });
+    },
+    onError: (error) => {
+      toast({
+        title: "Failed to clear documents",
+        description: error instanceof Error ? error.message : "An error occurred",
+        variant: "destructive",
+      });
+    },
+  });
+
+  const handleClearAll = () => {
+    if (window.confirm("Are you sure you want to clear all documents? This action cannot be undone.")) {
+      clearDocumentsMutation.mutate();
+    }
+  };
+
   const getRiskIcon = (analysis: DocumentAnalysis | null) => {
     if (!analysis) return <Clock className="w-4 h-4 text-gray-400" />;
-    
+
     switch (analysis.overallRisk) {
       case 'low':
         return <Shield className="w-4 h-4 text-green-600" />;
@@ -39,7 +67,7 @@ export function DocumentHistory({ onSelectDocument, currentDocumentId }: Documen
 
   const getRiskColor = (analysis: DocumentAnalysis | null) => {
     if (!analysis) return 'bg-gray-100 text-gray-600';
-    
+
     switch (analysis.overallRisk) {
       case 'low':
         return 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300';
@@ -82,20 +110,31 @@ export function DocumentHistory({ onSelectDocument, currentDocumentId }: Documen
         <CardTitle className="flex items-center justify-between">
           <div className="flex items-center space-x-2">
             <FileText className="w-5 h-5 text-primary" />
-            <span>Recent Analysis</span>
+            <span>Current Session</span>
             <Badge variant="secondary" className="ml-2">
               {documents.length}
             </Badge>
           </div>
-          {documents.length > 3 && (
+          <div className="flex items-center space-x-2">
+            {documents.length > 3 && (
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => setIsExpanded(!isExpanded)}
+              >
+                {isExpanded ? 'Show Less' : 'Show All'}
+              </Button>
+            )}
             <Button
-              variant="ghost"
+              variant="outline"
               size="sm"
-              onClick={() => setIsExpanded(!isExpanded)}
+              onClick={handleClearAll}
+              disabled={clearDocumentsMutation.isPending}
             >
-              {isExpanded ? 'Show Less' : 'Show All'}
+              <Trash2 className="w-4 h-4 mr-1" />
+              Clear All
             </Button>
-          )}
+          </div>
         </CardTitle>
       </CardHeader>
       <CardContent>
@@ -104,7 +143,7 @@ export function DocumentHistory({ onSelectDocument, currentDocumentId }: Documen
             {recentDocuments.map((document) => {
               const analysis = document.analysis as DocumentAnalysis | null;
               const isActive = currentDocumentId === document.id;
-              
+
               return (
                 <div
                   key={document.id}
@@ -121,14 +160,14 @@ export function DocumentHistory({ onSelectDocument, currentDocumentId }: Documen
                           {document.title}
                         </h4>
                         {analysis && (
-                          <Badge 
+                          <Badge
                             className={`text-xs ${getRiskColor(analysis)}`}
                           >
                             {analysis.overallRisk} risk
                           </Badge>
                         )}
                       </div>
-                      
+
                       <div className="flex items-center justify-between">
                         <div className="flex items-center space-x-4 text-sm text-gray-500 dark:text-gray-400">
                           <span>
@@ -138,14 +177,14 @@ export function DocumentHistory({ onSelectDocument, currentDocumentId }: Documen
                             {formatDistanceToNow(new Date(document.createdAt), { addSuffix: true })}
                           </span>
                         </div>
-                        
+
                         {!analysis && (
                           <Badge variant="outline" className="text-xs">
                             Pending Analysis
                           </Badge>
                         )}
                       </div>
-                      
+
                       {analysis && (
                         <p className="text-sm text-gray-600 dark:text-gray-300 mt-2 line-clamp-2">
                           {analysis.summary}
@@ -158,14 +197,12 @@ export function DocumentHistory({ onSelectDocument, currentDocumentId }: Documen
             })}
           </div>
         </ScrollArea>
-        
-        {documents.length > 0 && (
-          <div className="mt-4 pt-4 border-t border-gray-200 dark:border-gray-700">
-            <p className="text-xs text-gray-500 dark:text-gray-400 text-center">
-              Click any document to view its full analysis
-            </p>
-          </div>
-        )}
+
+        <div className="mt-4 pt-4 border-t border-gray-200 dark:border-gray-700">
+          <p className="text-xs text-gray-500 dark:text-gray-400 text-center">
+            Documents are stored in your current session only. Refreshing will clear all data.
+          </p>
+        </div>
       </CardContent>
     </Card>
   );

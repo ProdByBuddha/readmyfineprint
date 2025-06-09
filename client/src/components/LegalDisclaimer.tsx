@@ -11,6 +11,7 @@ import {
 } from "@/components/ui/dialog";
 import { Card, CardContent } from "@/components/ui/card";
 import { Checkbox } from "@/components/ui/checkbox";
+import { logConsent } from "@/lib/api";
 
 interface LegalDisclaimerProps {
   onAccept: () => void;
@@ -21,6 +22,7 @@ export function LegalDisclaimer({ onAccept }: LegalDisclaimerProps) {
   const [hasReadTerms, setHasReadTerms] = useState(false);
   const [hasReadLiability, setHasReadLiability] = useState(false);
   const [hasReadNoAdvice, setHasReadNoAdvice] = useState(false);
+  const [isLogging, setIsLogging] = useState(false);
 
   useEffect(() => {
     // Check if user has already accepted the disclaimer
@@ -32,10 +34,38 @@ export function LegalDisclaimer({ onAccept }: LegalDisclaimerProps) {
     }
   }, [onAccept]);
 
-  const handleAccept = () => {
-    localStorage.setItem('readmyfineprint-disclaimer-accepted', 'true');
-    setIsOpen(false);
-    onAccept();
+  const handleAccept = async () => {
+    setIsLogging(true);
+
+    try {
+      // Log consent to server (anonymous, PII-protected)
+      const result = await logConsent();
+
+      // Store acceptance locally regardless of server logging result
+      const acceptanceDate = new Date().toISOString();
+      localStorage.setItem('readmyfineprint-disclaimer-accepted', 'true');
+      localStorage.setItem('readmyfineprint-disclaimer-date', acceptanceDate);
+
+      // Store consent verification data if provided
+      if (result.consentId && result.verificationToken) {
+        sessionStorage.setItem('readmyfineprint-consent-id', result.consentId);
+        sessionStorage.setItem('readmyfineprint-verification-token', result.verificationToken);
+      }
+
+      if (!result.success) {
+        console.warn('Consent logging warning:', result.message);
+      }
+
+    } catch (error) {
+      console.warn('Consent logging failed, but continuing:', error);
+      // Still store locally and continue - don't block user
+      localStorage.setItem('readmyfineprint-disclaimer-accepted', 'true');
+      localStorage.setItem('readmyfineprint-disclaimer-date', new Date().toISOString());
+    } finally {
+      setIsLogging(false);
+      setIsOpen(false);
+      onAccept();
+    }
   };
 
   const canAccept = hasReadTerms && hasReadLiability && hasReadNoAdvice;
@@ -65,10 +95,10 @@ export function LegalDisclaimer({ onAccept }: LegalDisclaimerProps) {
                     Not Legal Advice
                   </label>
                   <p className="text-sm text-gray-700 dark:text-gray-300">
-                    ReadMyFinePrint is an AI-powered tool designed to help you understand legal documents. 
-                    <strong> The analysis provided is NOT legal advice</strong> and should not be relied upon 
-                    as a substitute for consultation with a qualified attorney. We strongly recommend 
-                    consulting with a licensed attorney for any legal matters or before making any 
+                    ReadMyFinePrint is an AI-powered tool designed to help you understand legal documents.
+                    <strong> The analysis provided is NOT legal advice</strong> and should not be relied upon
+                    as a substitute for consultation with a qualified attorney. We strongly recommend
+                    consulting with a licensed attorney for any legal matters or before making any
                     legal decisions.
                   </p>
                 </div>
@@ -89,9 +119,9 @@ export function LegalDisclaimer({ onAccept }: LegalDisclaimerProps) {
                     Limitation of Liability & Hold Harmless
                   </label>
                   <p className="text-sm text-gray-700 dark:text-gray-300">
-                    By using ReadMyFinePrint, you agree to <strong>hold harmless and indemnify</strong> ReadMyFinePrint, its developers, and associated parties from any claims, damages, 
-                    losses, or liabilities arising from your use of this service or any decisions 
-                    made based on the analysis provided. We make no warranties regarding the 
+                    By using ReadMyFinePrint, you agree to <strong>hold harmless and indemnify</strong> ReadMyFinePrint, its developers, and associated parties from any claims, damages,
+                    losses, or liabilities arising from your use of this service or any decisions
+                    made based on the analysis provided. We make no warranties regarding the
                     accuracy, completeness, or reliability of the analysis.
                   </p>
                 </div>
@@ -109,13 +139,14 @@ export function LegalDisclaimer({ onAccept }: LegalDisclaimerProps) {
                 />
                 <div className="space-y-2">
                   <label htmlFor="terms" className="text-sm font-medium cursor-pointer">
-                    Terms of Use & Data Handling
+                    Data Handling & Session-Based Tool
                   </label>
                   <p className="text-sm text-gray-700 dark:text-gray-300">
-                    Documents uploaded to ReadMyFinePrint are processed using AI services. While we 
-                    take reasonable measures to protect your data, you acknowledge the risks 
-                    inherent in digital processing. Do not upload highly sensitive or confidential 
-                    documents. We recommend removing personal identifying information before analysis.
+                    ReadMyFinePrint is a <strong>session-based tool</strong>. Documents are processed temporarily
+                    and are never permanently stored. All analysis data is cleared when you refresh the page.
+                    Documents are processed using AI services, so avoid uploading highly sensitive information.
+                    <strong>Your consent to these terms is logged anonymously</strong> (without any personal information)
+                    for compliance purposes, and stored locally to avoid repeated prompts.
                   </p>
                 </div>
               </div>
@@ -125,15 +156,24 @@ export function LegalDisclaimer({ onAccept }: LegalDisclaimerProps) {
 
         <DialogFooter className="flex flex-col gap-2">
           <div className="text-xs text-gray-500 dark:text-gray-400 text-center">
-            Your acceptance will be stored locally and you won't be asked again on this device.
+            Your acceptance is logged anonymously for compliance. No personal data is stored with your consent record.
+            <br />
+            Read our full{' '}
+            <a href="/privacy" className="text-blue-600 hover:text-blue-700 underline" target="_blank">
+              Privacy Policy
+            </a>{' '}
+            and{' '}
+            <a href="/terms" className="text-blue-600 hover:text-blue-700 underline" target="_blank">
+              Terms of Service
+            </a>
           </div>
-          <Button 
-            onClick={handleAccept} 
-            disabled={!canAccept}
+          <Button
+            onClick={handleAccept}
+            disabled={!canAccept || isLogging}
             className="w-full"
           >
             <Check className="mr-2 h-4 w-4" />
-            I Understand and Accept These Terms
+            {isLogging ? 'Processing...' : 'I Understand and Accept These Terms'}
           </Button>
         </DialogFooter>
       </DialogContent>

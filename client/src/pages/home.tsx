@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useMutation, useQuery } from "@tanstack/react-query";
-import { File, Menu, Moon, Sun } from "lucide-react";
+import { File, Menu, Moon, Sun, Cookie } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Loader2 } from "lucide-react";
@@ -10,6 +10,8 @@ import { SampleContracts } from "@/components/SampleContracts";
 import { DocumentHistory } from "@/components/DocumentHistory";
 import { AnalysisProgress } from "@/components/LoadingStates";
 import { LegalDisclaimer } from "@/components/LegalDisclaimer";
+import { Footer } from "@/components/Footer";
+import { useCookieConsent } from "@/components/CookieConsent";
 import { analyzeDocument, getDocument, createDocument } from "@/lib/api";
 import { useToast } from "@/hooks/use-toast";
 import { useTheme } from "@/components/ThemeProvider";
@@ -22,6 +24,7 @@ export default function Home() {
   const [disclaimerAccepted, setDisclaimerAccepted] = useState(false);
   const { toast } = useToast();
   const { theme, toggleTheme } = useTheme();
+  const { isAccepted: cookiesAccepted } = useCookieConsent();
 
   const { data: currentDocument, isLoading: isLoadingDocument, refetch: refetchDocument } = useQuery({
     queryKey: ['/api/documents', currentDocumentId],
@@ -55,6 +58,16 @@ export default function Home() {
   });
 
   const handleDocumentCreated = async (documentId: number) => {
+    // Check if both disclaimer and cookies are accepted
+    if (!disclaimerAccepted || !cookiesAccepted) {
+      toast({
+        title: "Consent Required",
+        description: "Please accept both the legal disclaimer and cookie consent to process documents.",
+        variant: "destructive",
+      });
+      return;
+    }
+
     setCurrentDocumentId(documentId);
     setIsAnalyzing(true);
     try {
@@ -64,12 +77,27 @@ export default function Home() {
     }
   };
 
+  const handleDocumentSelect = (documentId: number | null) => {
+    setCurrentDocumentId(documentId);
+    setIsAnalyzing(false);
+  };
+
   const handleNewAnalysis = () => {
     setCurrentDocumentId(null);
     setIsAnalyzing(false);
   };
 
   const handleSampleContract = async (title: string, content: string) => {
+    // Check if both disclaimer and cookies are accepted
+    if (!disclaimerAccepted || !cookiesAccepted) {
+      toast({
+        title: "Consent Required",
+        description: "Please accept both the legal disclaimer and cookie consent to process documents.",
+        variant: "destructive",
+      });
+      return;
+    }
+
     setIsAnalyzing(true);
     try {
       const document = await createDocument({
@@ -102,8 +130,7 @@ export default function Home() {
               <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center">
                 <File className="text-white text-sm" />
               </div>
-              <h1 className="text-xl font-bold text-gray-900 dark:text-white">ReadMyFinePrint
-</h1>
+              <h1 className="text-xl font-bold text-gray-900 dark:text-white">ReadMyFinePrint</h1>
             </div>
             <nav className="hidden md:flex items-center space-x-6">
               <Button
@@ -118,8 +145,11 @@ export default function Home() {
                   <Sun className="w-4 h-4" />
                 )}
               </Button>
-              <Button className="bg-primary text-white hover:bg-primary/90">
-                Get Started
+              <Button
+                className="bg-primary text-white hover:bg-primary/90"
+                onClick={handleNewAnalysis}
+              >
+                New Analysis
               </Button>
             </nav>
             <div className="md:hidden flex items-center space-x-2">
@@ -143,8 +173,8 @@ export default function Home() {
       </header>
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Document History */}
-        <DocumentHistory 
-          onSelectDocument={setCurrentDocumentId}
+        <DocumentHistory
+          onSelectDocument={handleDocumentSelect}
           currentDocumentId={currentDocumentId}
         />
 
@@ -155,10 +185,16 @@ export default function Home() {
               Understand Any Contract in{" "}
               <span className="text-primary">Plain English</span>
             </h2>
-            <p className="text-xl text-gray-600 dark:text-gray-300 mb-8 max-w-3xl mx-auto">
+            <p className="text-xl text-gray-600 dark:text-gray-300 mb-4 max-w-3xl mx-auto">
               Upload or paste any legal document and get instant, clear summaries that
               highlight what matters most. No legal degree required.
             </p>
+            <div className="bg-amber-50 dark:bg-amber-950/20 border border-amber-200 dark:border-amber-800 rounded-lg p-4 max-w-2xl mx-auto">
+              <p className="text-sm text-amber-800 dark:text-amber-200">
+                <strong>Session-based tool:</strong> All data is temporary and will be cleared when you refresh the page.
+                Your documents are never permanently stored.
+              </p>
+            </div>
           </div>
         )}
 
@@ -168,11 +204,38 @@ export default function Home() {
         {/* Upload Interface */}
         {!currentDocumentId && !isAnalyzing && (
           <>
-            <FileUpload onDocumentCreated={handleDocumentCreated} />
-            
+            {/* Cookie Consent Required Notice */}
+            {!cookiesAccepted && (
+              <Card className="mb-8 border-amber-200 bg-amber-50 dark:bg-amber-950/20 dark:border-amber-800">
+                <CardContent className="p-6 text-center">
+                  <div className="flex items-center justify-center gap-2 mb-3">
+                    <Cookie className="w-6 h-6 text-amber-600" />
+                    <h3 className="text-lg font-semibold text-amber-800 dark:text-amber-200">
+                      Cookie Consent Required
+                    </h3>
+                  </div>
+                  <p className="text-amber-700 dark:text-amber-300 mb-4">
+                    To process documents, please accept our essential cookies. We use minimal,
+                    privacy-first cookies for session management only.
+                  </p>
+                  <p className="text-sm text-amber-600 dark:text-amber-400">
+                    Look for the cookie banner at the bottom of the page to accept.
+                  </p>
+                </CardContent>
+              </Card>
+            )}
+
+            <FileUpload
+              onDocumentCreated={handleDocumentCreated}
+              disabled={!cookiesAccepted}
+            />
+
             {/* Sample Contracts Section */}
             <div className="mt-16">
-              <SampleContracts onSelectContract={handleSampleContract} />
+              <SampleContracts
+                onSelectContract={handleSampleContract}
+                disabled={!cookiesAccepted}
+              />
             </div>
           </>
         )}
@@ -198,7 +261,7 @@ export default function Home() {
           <Card className="p-8">
             <CardContent className="text-center">
               <Loader2 className="w-8 h-8 mx-auto mb-4 animate-spin text-primary" />
-              <p className="text-gray-600">Loading document...</p>
+              <p className="text-gray-600 dark:text-gray-300">Loading document...</p>
             </CardContent>
           </Card>
         )}
@@ -238,24 +301,7 @@ export default function Home() {
           </Card>
         )}
       </main>
-      {/* Footer */}
-      <footer className="bg-white dark:bg-gray-900 border-t border-gray-200 dark:border-gray-800 mt-16">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-          <div className="flex flex-col items-center justify-center text-center">
-            <div className="flex items-center space-x-3 mb-4">
-              <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center">
-                <File className="text-white text-sm" />
-              </div>
-              <h3 className="text-lg font-bold text-gray-900 dark:text-white">ReadMyFinePrint
-</h3>
-            </div>
-            <p className="text-gray-600 dark:text-gray-300 text-sm mb-4">
-              Making legal documents understandable for everyone.
-            </p>
-            <p className="text-sm text-gray-600 dark:text-gray-300">© 2025 ReadMyFinePrint. All rights reserved.</p>
-          </div>
-        </div>
-      </footer>
+      <Footer />
     </div>
   );
 }

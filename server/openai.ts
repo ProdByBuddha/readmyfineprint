@@ -1,13 +1,18 @@
 import OpenAI from "openai";
 import type { DocumentAnalysis } from "@shared/schema";
+import { securityLogger } from "./security-logger";
 
 // the newest OpenAI model is "gpt-4o" which was released May 13, 2024. do not change this unless explicitly requested by the user
-const openai = new OpenAI({ 
-  apiKey: process.env.OPENAI_API_KEY || process.env.OPENAI_API_KEY_ENV_VAR || "default_key" 
+const openai = new OpenAI({
+  apiKey: process.env.OPENAI_API_KEY
 });
 
-export async function analyzeDocument(content: string, title: string): Promise<DocumentAnalysis> {
+export async function analyzeDocument(content: string, title: string, ip?: string, userAgent?: string, sessionId?: string): Promise<DocumentAnalysis> {
   try {
+    // Log OpenAI API usage for audit purposes
+    if (ip && userAgent && sessionId) {
+      securityLogger.logOpenAIUsage(ip, userAgent, sessionId, title);
+    }
     const prompt = `You are a legal document analysis expert. Analyze the following legal document and provide a comprehensive analysis in JSON format.
 
 Document Title: ${title}
@@ -63,7 +68,7 @@ Provide practical, actionable insights that help everyday users understand what 
     }
 
     const analysis: DocumentAnalysis = JSON.parse(analysisText);
-    
+
     // Validate the response structure
     if (!analysis.summary || !analysis.overallRisk || !analysis.keyFindings || !analysis.sections) {
       throw new Error("Invalid analysis structure received from OpenAI");
