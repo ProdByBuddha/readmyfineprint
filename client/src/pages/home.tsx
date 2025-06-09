@@ -228,7 +228,7 @@ export default function Home() {
                 </div>
                 <div className="border border-gray-200 rounded-lg p-6">
                   <h4 className="font-medium text-text mb-2">What types of documents can I analyze?</h4>
-                  <p className="text-gray-700 text-sm leading-relaxed">
+                  <p className="text-sm leading-relaxed text-[#8a9cb8]">
                     We support contracts, terms of service, privacy policies, employment
                     agreements, rental agreements, and most other legal documents in English.
                   </p>
