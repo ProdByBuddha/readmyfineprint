@@ -214,7 +214,7 @@ export function FileUpload({ onDocumentCreated }: FileUploadProps) {
                   <span className="text-white text-sm">✓</span>
                 </div>
                 <div>
-                  <h4 className="font-semibold text-text mb-1">Key Points Breakdown</h4>
+                  <h4 className="font-semibold mb-1 text-[#c7d3d9]">Key Points Breakdown</h4>
                   <p className="text-gray-600 text-sm">
                     Important terms and conditions highlighted and explained
                   </p>
