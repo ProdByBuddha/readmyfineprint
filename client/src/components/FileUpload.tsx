@@ -158,7 +158,7 @@ export function FileUpload({ onDocumentCreated }: FileUploadProps) {
 
             {/* Text Input */}
             <div>
-              <Label className="peer-disabled:cursor-not-allowed peer-disabled:opacity-70 block text-sm font-medium mb-3 text-[#c7d3d9]">
+              <Label className="peer-disabled:cursor-not-allowed peer-disabled:opacity-70 block text-sm font-medium mb-3 text-gray-700 dark:text-[#c7d3d9]">
                 Paste Your Contract Text
               </Label>
               <Textarea
@@ -185,15 +185,15 @@ export function FileUpload({ onDocumentCreated }: FileUploadProps) {
 
           {/* Features Preview */}
           <div className="lg:w-1/2">
-            <h3 className="text-2xl font-semibold mb-6 text-[#c7d3d9]">What You'll Get</h3>
+            <h3 className="text-2xl font-semibold mb-6 text-gray-900 dark:text-[#c7d3d9]">What You'll Get</h3>
             <div className="space-y-4">
               <div className="flex items-start space-x-4 p-4 bg-secondary/10 rounded-lg">
                 <div className="w-8 h-8 bg-secondary rounded-full flex items-center justify-center flex-shrink-0">
                   <FileText className="w-4 h-4 text-white" />
                 </div>
                 <div>
-                  <h4 className="font-semibold mb-1 text-[#c7d3d9]">Plain English Summary</h4>
-                  <p className="text-gray-600 text-sm">
+                  <h4 className="font-semibold mb-1 text-gray-900 dark:text-[#c7d3d9]">Plain English Summary</h4>
+                  <p className="text-gray-600 dark:text-gray-300 text-sm">
                     Complex legal jargon translated into clear, understandable language
                   </p>
                 </div>
@@ -203,8 +203,8 @@ export function FileUpload({ onDocumentCreated }: FileUploadProps) {
                   <span className="text-white text-sm font-bold">!</span>
                 </div>
                 <div>
-                  <h4 className="font-semibold mb-1 text-[#c7d3d9]">Red Flag Detection</h4>
-                  <p className="text-gray-600 text-sm">
+                  <h4 className="font-semibold mb-1 text-gray-900 dark:text-[#c7d3d9]">Red Flag Detection</h4>
+                  <p className="text-gray-600 dark:text-gray-300 text-sm">
                     Automatically identify concerning clauses and potential issues
                   </p>
                 </div>
@@ -214,8 +214,8 @@ export function FileUpload({ onDocumentCreated }: FileUploadProps) {
                   <span className="text-white text-sm">✓</span>
                 </div>
                 <div>
-                  <h4 className="font-semibold mb-1 text-[#c7d3d9]">Key Points Breakdown</h4>
-                  <p className="text-gray-600 text-sm">
+                  <h4 className="font-semibold mb-1 text-gray-900 dark:text-[#c7d3d9]">Key Points Breakdown</h4>
+                  <p className="text-gray-600 dark:text-gray-300 text-sm">
                     Important terms and conditions highlighted and explained
                   </p>
                 </div>
@@ -225,8 +225,8 @@ export function FileUpload({ onDocumentCreated }: FileUploadProps) {
                   <CloudUpload className="w-4 h-4 text-white" />
                 </div>
                 <div>
-                  <h4 className="font-semibold mb-1 text-[#c7d3d9]">Export Summary</h4>
-                  <p className="text-gray-600 text-sm">
+                  <h4 className="font-semibold mb-1 text-gray-900 dark:text-[#c7d3d9]">Export Summary</h4>
+                  <p className="text-gray-600 dark:text-gray-300 text-sm">
                     Download your analysis as PDF or share with others
                   </p>
                 </div>
