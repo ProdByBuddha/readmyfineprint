@@ -242,82 +242,20 @@ export default function Home() {
       </main>
       {/* Footer */}
       <footer className="bg-white dark:bg-gray-900 border-t border-gray-200 dark:border-gray-800 mt-16">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-          <div className="grid md:grid-cols-4 gap-8">
-            <div>
-              <div className="flex items-center space-x-3 mb-4">
-                <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center">
-                  <File className="text-white text-sm" />
-                </div>
-                <h3 className="text-lg font-bold text-gray-900 dark:text-white">ReadMyFinePrint</h3>
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+          <div className="flex flex-col items-center justify-center text-center">
+            <div className="flex items-center space-x-3 mb-4">
+              <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center">
+                <File className="text-white text-sm" />
               </div>
-              <p className="text-gray-600 dark:text-gray-300 text-sm">
-                Making legal documents understandable for everyone.
-              </p>
+              <h3 className="text-lg font-bold text-gray-900 dark:text-white">LegalClear</h3>
             </div>
-            <div>
-              <h4 className="font-semibold text-gray-900 dark:text-white mb-4">Product</h4>
-              <ul className="space-y-2 text-sm text-gray-600 dark:text-gray-300">
-                <li>
-                  <a href="#" className="hover:text-primary transition-colors">
-                    Features
-                  </a>
-                </li>
-                <li>
-                  <a href="#" className="hover:text-primary transition-colors">
-                    Pricing
-                  </a>
-                </li>
-                <li>
-                  <a href="#" className="hover:text-primary transition-colors">
-                    API
-                  </a>
-                </li>
-              </ul>
-            </div>
-            <div>
-              <h4 className="font-semibold text-gray-900 dark:text-white mb-4">Company</h4>
-              <ul className="space-y-2 text-sm text-gray-600 dark:text-gray-300">
-                <li>
-                  <a href="#" className="hover:text-primary transition-colors">
-                    About
-                  </a>
-                </li>
-                <li>
-                  <a href="#" className="hover:text-primary transition-colors">
-                    Blog
-                  </a>
-                </li>
-                <li>
-                  <a href="#" className="hover:text-primary transition-colors">
-                    Careers
-                  </a>
-                </li>
-              </ul>
-            </div>
-            <div>
-              <h4 className="font-semibold text-gray-900 dark:text-white mb-4">Support</h4>
-              <ul className="space-y-2 text-sm text-gray-600 dark:text-gray-300">
-                <li>
-                  <a href="#" className="hover:text-primary transition-colors">
-                    Help Center
-                  </a>
-                </li>
-                <li>
-                  <a href="#" className="hover:text-primary transition-colors">
-                    Contact
-                  </a>
-                </li>
-                <li>
-                  <a href="#" className="hover:text-primary transition-colors">
-                    Privacy
-                  </a>
-                </li>
-              </ul>
-            </div>
-          </div>
-          <div className="border-t border-gray-200 dark:border-gray-800 mt-8 pt-8 text-center text-sm text-gray-600 dark:text-gray-300">
-            <p>© 2025 Nexus Integrated Technologies. All rights reserved.</p>
+            <p className="text-gray-600 dark:text-gray-300 text-sm mb-4">
+              Making legal documents understandable for everyone.
+            </p>
+            <p className="text-sm text-gray-600 dark:text-gray-300">
+              © 2025 LegalClear. All rights reserved.
+            </p>
           </div>
         </div>
       </footer>
