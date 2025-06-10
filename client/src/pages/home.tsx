@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { File, Menu, Moon, Sun, Cookie } from "lucide-react";
+import logoImage from "@assets/ChatGPT Image Jun 9, 2025, 07_07_26 AM_1749598570251.png";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Loader2 } from "lucide-react";
@@ -127,9 +128,11 @@ export default function Home() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
             <div className="flex items-center space-x-3">
-              <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center">
-                <File className="text-white text-sm" />
-              </div>
+              <img 
+                src={logoImage} 
+                alt="ReadMyFinePrint Logo" 
+                className="w-8 h-8 object-contain" 
+              />
               <h1 className="text-xl font-bold text-gray-900 dark:text-white">ReadMyFinePrint</h1>
             </div>
             <nav className="hidden md:flex items-center space-x-6">
