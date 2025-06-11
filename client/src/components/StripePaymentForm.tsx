@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { loadStripe } from "@stripe/stripe-js";
 import {
   Elements,
@@ -11,9 +11,14 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Heart, Loader2, Lock, CreditCard } from "lucide-react";
+import { Heart, Loader2, Lock, CreditCard, AlertCircle } from "lucide-react";
 
-const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLIC_KEY!);
+// Check if Stripe public key is available
+const stripePublicKey = import.meta.env.VITE_STRIPE_PUBLIC_KEY;
+console.log('Stripe Public Key available:', !!stripePublicKey);
+console.log('Stripe Public Key starts with:', stripePublicKey?.substring(0, 10));
+
+const stripePromise = stripePublicKey ? loadStripe(stripePublicKey) : null;
 
 interface PaymentFormProps {
   amount: number;
@@ -204,6 +209,39 @@ interface StripePaymentFormProps {
 }
 
 export default function StripePaymentForm({ amount, onSuccess, onError }: StripePaymentFormProps) {
+  // If Stripe public key is not available, show error
+  if (!stripePublicKey) {
+    return (
+      <Card>
+        <CardContent className="p-6">
+          <Alert variant="destructive">
+            <AlertCircle className="h-4 w-4" />
+            <AlertDescription>
+              Payment processing is currently unavailable. Stripe configuration is missing.
+              Please contact support for assistance.
+            </AlertDescription>
+          </Alert>
+        </CardContent>
+      </Card>
+    );
+  }
+
+  // If stripePromise is null (shouldn't happen if key exists, but safety check)
+  if (!stripePromise) {
+    return (
+      <Card>
+        <CardContent className="p-6">
+          <Alert variant="destructive">
+            <AlertCircle className="h-4 w-4" />
+            <AlertDescription>
+              Failed to initialize payment processor. Please refresh the page and try again.
+            </AlertDescription>
+          </Alert>
+        </CardContent>
+      </Card>
+    );
+  }
+
   return (
     <Elements stripe={stripePromise}>
       <PaymentForm amount={amount} onSuccess={onSuccess} onError={onError} />
