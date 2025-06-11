@@ -369,27 +369,22 @@ export async function registerRoutes(app: Express): Promise<Server> {
         details: { amount }
       });
 
-      // Use Stripe test tokens for demo purposes (secure approach)
-      let paymentMethodId;
-      
-      // Map test card numbers to Stripe test tokens
-      const testTokenMap: Record<string, string> = {
-        '4242424242424242': 'pm_card_visa',
-        '4000000000000002': 'pm_card_visa_chargeDeclined',
-        '4000000000000341': 'pm_card_visa_chargeDeclinedInsufficientFunds',
-        '4000002500003155': 'pm_card_threeDSecure2Required'
-      };
+      // Create payment method from real card data for live mode
+      const paymentMethod = await stripe.paymentMethods.create({
+        type: 'card',
+        card: {
+          number: card.number.replace(/\s/g, ''),
+          exp_month: parseInt(card.exp_month),
+          exp_year: parseInt(card.exp_year),
+          cvc: card.cvc,
+        },
+        billing_details: {
+          name: card.name,
+        },
+      });
 
+      const paymentMethodId = paymentMethod.id;
       const cardNumber = card.number.replace(/\s/g, '');
-      
-      if (testTokenMap[cardNumber]) {
-        // Use test payment method for known test cards
-        paymentMethodId = testTokenMap[cardNumber];
-      } else {
-        // For production, would create payment method from card data
-        // For demo, use default test card
-        paymentMethodId = 'pm_card_visa';
-      }
 
       // Create and confirm payment intent in one step
       const paymentIntent = await stripe.paymentIntents.create({

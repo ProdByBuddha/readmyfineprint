@@ -1,0 +1,77 @@
+Payment processing failed: StripeInvalidRequestError: You cannot use the test ID 'pm_card_visa' in livemode. If you are testing your integration, please use your testmode API keys instead.
+    at generateV1Error (file:///home/runner/workspace/node_modules/stripe/esm/Error.js:8:20)
+    at res.toJSON.then.StripeAPIError.message (file:///home/runner/workspace/node_modules/stripe/esm/RequestSender.js:105:31)
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5) {
+  type: 'StripeInvalidRequestError',
+  raw: {
+    message: "You cannot use the test ID 'pm_card_visa' in livemode. If you are testing your integration, please use your testmode API keys instead.",
+    param: 'payment_method',
+    request_log_url: 'https://dashboard.stripe.com/logs/req_b48tsfctyQV4W4?t=1749679331',
+    type: 'invalid_request_error',
+    headers: {
+      server: 'nginx',
+      date: 'Wed, 11 Jun 2025 22:02:11 GMT',
+      'content-type': 'application/json',
+      'content-length': '333',
+      connection: 'keep-alive',
+      'access-control-allow-credentials': 'true',
+      'access-control-allow-methods': 'GET, HEAD, PUT, PATCH, POST, DELETE',
+      'access-control-allow-origin': '*',
+      'access-control-expose-headers': 'Request-Id, Stripe-Manage-Version, Stripe-Should-Retry, X-Stripe-External-Auth-Required, X-Stripe-Privileged-Session-Required',
+      'access-control-max-age': '300',
+      'cache-control': 'no-cache, no-store',
+      'content-security-policy': "base-uri 'none'; default-src 'none'; form-action 'none'; frame-ancestors 'none'; img-src 'self'; script-src 'self' 'report-sample'; style-src 'self'; worker-src 'none'; upgrade-insecure-requests; report-uri https://q.stripe.com/csp-violation?q=C7N9dkDjDW6USIROB7FI9UWNM7DY8QSweROzMSlA57OGrYUoZ1Tmz8frkj2VSPiLZOq_y7srOagJCuRy",
+      'idempotency-key': 'stripe-node-retry-552bcbdf-d450-4b71-9dca-8dc9be44f618',
+      'original-request': 'req_b48tsfctyQV4W4',
+      'request-id': 'req_b48tsfctyQV4W4',
+      'stripe-version': '2025-05-28.basil',
+      vary: 'Origin',
+      'x-stripe-priority-routing-enabled': 'true',
+      'x-stripe-routing-context-priority-tier': 'livemode-critical',
+      'x-wc': 'ABGHI',
+      'strict-transport-security': 'max-age=63072000; includeSubDomains; preload'
+    },
+    statusCode: 400,
+    requestId: 'req_b48tsfctyQV4W4'
+  },
+  rawType: 'invalid_request_error',
+  code: undefined,
+  doc_url: undefined,
+  param: 'payment_method',
+  detail: undefined,
+  headers: {
+    server: 'nginx',
+    date: 'Wed, 11 Jun 2025 22:02:11 GMT',
+    'content-type': 'application/json',
+    'content-length': '333',
+    connection: 'keep-alive',
+    'access-control-allow-credentials': 'true',
+    'access-control-allow-methods': 'GET, HEAD, PUT, PATCH, POST, DELETE',
+    'access-control-allow-origin': '*',
+    'access-control-expose-headers': 'Request-Id, Stripe-Manage-Version, Stripe-Should-Retry, X-Stripe-External-Auth-Required, X-Stripe-Privileged-Session-Required',
+    'access-control-max-age': '300',
+    'cache-control': 'no-cache, no-store',
+    'content-security-policy': "base-uri 'none'; default-src 'none'; form-action 'none'; frame-ancestors 'none'; img-src 'self'; script-src 'self' 'report-sample'; style-src 'self'; worker-src 'none'; upgrade-insecure-requests; report-uri https://q.stripe.com/csp-violation?q=C7N9dkDjDW6USIROB7FI9UWNM7DY8QSweROzMSlA57OGrYUoZ1Tmz8frkj2VSPiLZOq_y7srOagJCuRy",
+    'idempotency-key': 'stripe-node-retry-552bcbdf-d450-4b71-9dca-8dc9be44f618',
+    'original-request': 'req_b48tsfctyQV4W4',
+    'request-id': 'req_b48tsfctyQV4W4',
+    'stripe-version': '2025-05-28.basil',
+    vary: 'Origin',
+    'x-stripe-priority-routing-enabled': 'true',
+    'x-stripe-routing-context-priority-tier': 'livemode-critical',
+    'x-wc': 'ABGHI',
+    'strict-transport-security': 'max-age=63072000; includeSubDomains; preload'
+  },
+  requestId: 'req_b48tsfctyQV4W4',
+  statusCode: 400,
+  userMessage: undefined,
+  charge: undefined,
+  decline_code: undefined,
+  payment_intent: undefined,
+  payment_method: undefined,
+  payment_method_type: undefined,
+  setup_intent: undefined,
+  source: undefined
+}
+⚠️ [SECURITY] API_ACCESS | HIGH | 3695dcc5 | Payment processing failed: You cannot use the test ID 'pm_card_visa' in livemode. If you are testing your integration, please use your testmode API keys instead. | /api/process-donation | {"error":"You cannot use the test ID 'pm_card_visa' in livemode. If you are testing your integration, please use your testmode API keys instead."}
+10:02:11 PM [express] POST /api/process-donation 400 in 169ms :: {"error":"Payment processing failed.…
