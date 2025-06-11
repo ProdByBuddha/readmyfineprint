@@ -110,7 +110,7 @@ const DonateContent = () => {
           </h1>
           <p className="text-xl text-gray-600 dark:text-gray-300 max-w-2xl mx-auto">
             Help us make legal documents accessible to everyone. Your donation keeps our
-            AI-powered analysis free and available to those who need it most.
+            advanced analysis service free and available to those who need it most.
           </p>
         </div>
 
@@ -139,9 +139,9 @@ const DonateContent = () => {
               <div className="flex items-start gap-3">
                 <div className="w-2 h-2 bg-primary rounded-full mt-2"></div>
                 <div>
-                  <h4 className="font-semibold mb-1">Improve Our AI</h4>
+                  <h4 className="font-semibold mb-1">Improve Our Service</h4>
                   <p className="text-sm text-gray-600 dark:text-gray-300">
-                    Funding helps us train better models and support more document types.
+                    Funding helps us enhance our analysis capabilities and support more document types.
                   </p>
                 </div>
               </div>

@@ -76,7 +76,7 @@ export function AnalysisProgress() {
               Analyzing Your Document
             </h3>
             <p className="text-gray-600 dark:text-gray-300 max-w-md">
-              Our AI is carefully reviewing your document, identifying key terms, 
+              Our advanced system is carefully reviewing your document, identifying key terms, 
               and translating legal language into plain English.
             </p>
           </div>

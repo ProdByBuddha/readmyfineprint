@@ -292,7 +292,7 @@ export default function Home() {
                 <div className="border border-gray-200 rounded-lg p-6">
                   <h4 className="font-medium mb-2 text-[#c7d3d9]">How accurate are the summaries?</h4>
                   <p className="text-sm leading-relaxed text-[#8a9cb8]">
-                    Our AI analyzes thousands of legal documents and is trained to identify
+                    Our advanced analysis engine has processed thousands of legal documents and is trained to identify
                     common patterns and concerning clauses. While highly accurate, we recommend
                     consulting with a legal professional for critical decisions.
                   </p>

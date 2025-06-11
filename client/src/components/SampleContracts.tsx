@@ -245,7 +245,7 @@ export function SampleContracts({ onSelectContract, disabled = false }: SampleCo
         </h4>
         <p className="text-sm text-gray-600 dark:text-gray-300">
           These examples demonstrate different risk levels and contract types. Each one shows
-          how our AI identifies key terms, potential issues, and explains complex language in plain English.
+          how our system identifies key terms, potential issues, and explains complex language in plain English.
         </p>
       </div>
     </div>
