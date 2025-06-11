@@ -1,8 +1,7 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { Heart, ArrowLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { useToast } from "@/hooks/use-toast";
 import { Link } from "wouter";
 
 const DONATION_AMOUNTS = [
@@ -13,51 +12,14 @@ const DONATION_AMOUNTS = [
   { amount: 100, label: "$100" },
 ];
 
-// Load Stripe script dynamically
-const loadStripeScript = () => {
-  return new Promise((resolve, reject) => {
-    if (document.querySelector('script[src="https://js.stripe.com/v3/buy-button.js"]')) {
-      resolve(true);
-      return;
-    }
-
-    const script = document.createElement('script');
-    script.src = 'https://js.stripe.com/v3/buy-button.js';
-    script.async = true;
-    script.onload = () => resolve(true);
-    script.onerror = () => reject(new Error('Failed to load Stripe script'));
-    document.head.appendChild(script);
-  });
-};
-
 const DonateContent = () => {
   const [selectedAmount, setSelectedAmount] = useState<number | null>(null);
   const [customAmount, setCustomAmount] = useState("");
-  const [stripeLoaded, setStripeLoaded] = useState(false);
-  const [loadingStripe, setLoadingStripe] = useState(true);
-  const { toast } = useToast();
 
   // Check for success in URL
   const urlParams = new URLSearchParams(window.location.search);
   const isSuccess = urlParams.get('success') === 'true';
   const successAmount = urlParams.get('amount');
-
-  useEffect(() => {
-    loadStripeScript()
-      .then(() => {
-        setStripeLoaded(true);
-        setLoadingStripe(false);
-      })
-      .catch((error) => {
-        console.error('Failed to load Stripe:', error);
-        setLoadingStripe(false);
-        toast({
-          title: "Payment System Unavailable",
-          description: "Please try again later or contact support.",
-          variant: "destructive",
-        });
-      });
-  }, [toast]);
 
   const handleAmountSelect = (amount: number) => {
     setSelectedAmount(amount);
@@ -160,7 +122,7 @@ const DonateContent = () => {
 
           <Card>
             <CardHeader>
-              <CardTitle>Choose Your Amount</CardTitle>
+              <CardTitle>Make a Donation</CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="grid grid-cols-3 gap-2">
@@ -201,16 +163,13 @@ const DonateContent = () => {
                 </div>
               </div>
 
-              {loadingStripe ? (
-                <Button disabled className="w-full">
-                  Loading Payment System...
-                </Button>
-              ) : stripeLoaded ? (
-                <div className="text-center">
-                  <p className="text-sm text-gray-600 dark:text-gray-300 mb-4">
-                    Secure payments powered by Stripe
-                  </p>
-                  <div 
+              <div className="text-center">
+                <p className="text-sm text-gray-600 dark:text-gray-300 mb-4">
+                  Secure payments powered by Stripe
+                </p>
+                <div className="p-4 border border-gray-300 dark:border-gray-600 rounded-lg bg-gray-50 dark:bg-gray-800">
+                  <script async src="https://js.stripe.com/v3/buy-button.js"></script>
+                  <div
                     dangerouslySetInnerHTML={{
                       __html: `
                         <stripe-buy-button
@@ -222,19 +181,7 @@ const DonateContent = () => {
                     }}
                   />
                 </div>
-              ) : (
-                <div className="text-center py-4">
-                  <p className="text-red-600 dark:text-red-400 mb-4">
-                    Payment system is currently unavailable. Please try again later.
-                  </p>
-                  <Button 
-                    onClick={() => window.location.reload()} 
-                    variant="outline"
-                  >
-                    Retry
-                  </Button>
-                </div>
-              )}
+              </div>
             </CardContent>
           </Card>
         </div>
