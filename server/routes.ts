@@ -369,68 +369,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
         details: { amount }
       });
 
-      // Create payment method from real card data for live mode
-      const paymentMethod = await stripe.paymentMethods.create({
-        type: 'card',
-        card: {
-          number: card.number.replace(/\s/g, ''),
-          exp_month: parseInt(card.exp_month),
-          exp_year: parseInt(card.exp_year),
-          cvc: card.cvc,
-        },
-        billing_details: {
-          name: card.name,
-        },
+      // This endpoint is deprecated - use /api/create-payment-intent with Stripe Elements instead
+      return res.status(400).json({
+        error: "Direct card processing is disabled for security. Please use the secure payment form."
       });
-
-      const paymentMethodId = paymentMethod.id;
-      const cardNumber = card.number.replace(/\s/g, '');
-
-      // Create and confirm payment intent in one step
-      const paymentIntent = await stripe.paymentIntents.create({
-        amount: Math.round(amount * 100),
-        currency: "usd",
-        payment_method: paymentMethodId,
-        confirm: true,
-        return_url: `${req.headers.origin}/donate?success=true`,
-        metadata: {
-          type: "donation",
-          source: "readmyfineprint",
-          ip: ip,
-          timestamp: new Date().toISOString(),
-          cardLast4: cardNumber.slice(-4)
-        },
-        description: `Donation to ReadMyFinePrint - $${amount.toFixed(2)}`
-      });
-
-      if (paymentIntent.status === 'succeeded') {
-        securityLogger.logSecurityEvent({
-          eventType: "API_ACCESS" as any,
-          severity: "LOW" as any,
-          message: `Donation payment successful: $${amount.toFixed(2)}`,
-          ip,
-          userAgent,
-          endpoint: "/api/process-donation",
-          details: { amount, paymentIntentId: paymentIntent.id }
-        });
-
-        res.json({
-          success: true,
-          paymentIntentId: paymentIntent.id,
-          amount: amount,
-          message: "Thank you for your donation!"
-        });
-      } else if (paymentIntent.status === 'requires_action') {
-        res.json({
-          requires_action: true,
-          payment_intent: {
-            id: paymentIntent.id,
-            client_secret: paymentIntent.client_secret
-          }
-        });
-      } else {
-        throw new Error(`Payment failed with status: ${paymentIntent.status}`);
-      }
 
     } catch (error: any) {
       console.error("Payment processing failed:", error);

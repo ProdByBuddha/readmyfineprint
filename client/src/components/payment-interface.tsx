@@ -1,4 +1,4 @@
-import DonationForm from "@/components/donation-form";
+import StripePaymentForm from "@/components/StripePaymentForm";
 
 interface PaymentInterfaceProps {
   amount: number;
@@ -8,7 +8,7 @@ interface PaymentInterfaceProps {
 
 export default function PaymentInterface({ amount, onSuccess, onError }: PaymentInterfaceProps) {
   return (
-    <DonationForm
+    <StripePaymentForm
       amount={amount}
       onSuccess={onSuccess}
       onError={onError}
