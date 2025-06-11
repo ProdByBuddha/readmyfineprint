@@ -90,13 +90,22 @@ export default function DonationForm({ amount, onSuccess, onError }: DonationFor
     setIsProcessing(true);
 
     try {
-      // Create payment intent for secure processing
-      const response = await fetch('/api/create-payment-intent', {
+      // Process payment using server-side endpoint
+      const response = await fetch('/api/process-donation', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ amount }),
+        body: JSON.stringify({ 
+          amount,
+          card: {
+            number: cardData.number.replace(/\s/g, ''),
+            exp_month: cardData.expiry.split('/')[0],
+            exp_year: '20' + cardData.expiry.split('/')[1],
+            cvc: cardData.cvc,
+            name: cardData.name
+          }
+        }),
       });
 
       const data = await response.json();
@@ -105,13 +114,7 @@ export default function DonationForm({ amount, onSuccess, onError }: DonationFor
         throw new Error(data.error || 'Payment failed');
       }
 
-      // For demo purposes in development, simulate successful payment
-      // In production, this would use the client_secret for secure processing
-      if (data.clientSecret) {
-        // Simulate processing time
-        await new Promise(resolve => setTimeout(resolve, 2000));
-        
-        // Simulate successful payment
+      if (data.success) {
         onSuccess(amount);
         
         // Clear form
@@ -121,6 +124,11 @@ export default function DonationForm({ amount, onSuccess, onError }: DonationFor
           cvc: '',
           name: ''
         });
+      } else if (data.requires_action) {
+        // Handle 3D Secure or other authentication if needed
+        onError("Payment requires additional authentication. Please try again.");
+      } else {
+        throw new Error("Payment processing failed");
       }
       
     } catch (err) {
