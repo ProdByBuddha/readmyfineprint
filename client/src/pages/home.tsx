@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useMutation, useQuery } from "@tanstack/react-query";
-import { File, Menu, Moon, Sun, Cookie, Heart } from "lucide-react";
+import { File, Plus, Moon, Sun, Cookie, Heart } from "lucide-react";
 import { Link } from "wouter";
 import logoImage from "@assets/ChatGPT Image Jun 9, 2025, 07_07_26 AM_1749598570251.png";
 import { Button } from "@/components/ui/button";
@@ -179,8 +179,8 @@ export default function Home() {
                   <Sun className="w-4 h-4" />
                 )}
               </Button>
-              <button className="p-2">
-                <Menu className="text-gray-600 dark:text-gray-300" />
+              <button className="p-2" onClick={handleNewAnalysis}>
+                <Plus className="text-gray-600 dark:text-gray-300" />
               </button>
             </div>
           </div>
@@ -259,15 +259,7 @@ export default function Home() {
         {currentDocument && currentDocument.analysis && !isAnalyzing && (
           <>
             <AnalysisResults document={currentDocument} />
-            <div className="text-center">
-              <Button
-                onClick={handleNewAnalysis}
-                variant="outline"
-                className="mr-4"
-              >
-                Analyze Another Document
-              </Button>
-            </div>
+            
           </>
         )}
 
