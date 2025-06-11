@@ -1,6 +1,7 @@
-import { Heart, Shield, Users, Zap } from "lucide-react";
+import { Heart, Shield, Users, Zap, ArrowLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Link } from "wouter";
 
 export default function DonateSimple() {
   const handleDonate = () => {
@@ -9,6 +10,15 @@ export default function DonateSimple() {
 
   return (
     <div className="container mx-auto px-4 py-8 max-w-2xl">
+      <div className="mb-6">
+        <Link href="/">
+          <Button variant="ghost" className="mb-4">
+            <ArrowLeft className="h-4 w-4 mr-2" />
+            Back to Home
+          </Button>
+        </Link>
+      </div>
+      
       <div className="text-center mb-8">
         <Heart className="h-12 w-12 text-red-500 mx-auto mb-4" />
         <h1 className="text-3xl font-bold mb-2">Support ReadMyFinePrint</h1>
@@ -44,7 +54,7 @@ export default function DonateSimple() {
             <div className="flex items-start space-x-3">
               <Zap className="h-5 w-5 text-blue-500 mt-1" />
               <div>
-                <h3 className="font-semibold text-sm">AI-Powered Analysis</h3>
+                <h3 className="font-semibold text-sm">Technological Accessibility</h3>
                 <p className="text-xs text-muted-foreground">
                   Advanced document processing and analysis
                 </p>
@@ -101,7 +111,7 @@ export default function DonateSimple() {
           <h3 className="font-semibold mb-2">How Your Donation Helps</h3>
           <ul className="text-sm space-y-1 text-muted-foreground">
             <li>• Maintain server infrastructure and processing power</li>
-            <li>• Improve AI analysis accuracy and capabilities</li>
+            <li>• Improve analysis accuracy and capabilities</li>
             <li>• Keep the service free for everyone to use</li>
             <li>• Add new features and document types</li>
             <li>• Ensure data privacy and security compliance</li>
