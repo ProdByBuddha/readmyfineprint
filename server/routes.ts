@@ -369,27 +369,29 @@ export async function registerRoutes(app: Express): Promise<Server> {
         details: { amount }
       });
 
-      // Create payment intent with provided card details
+      // Create payment method first (cast to any to bypass TypeScript strict mode)
+      const paymentMethod = await stripe.paymentMethods.create({
+        type: 'card',
+        card: {
+          number: card.number,
+          exp_month: card.exp_month,
+          exp_year: card.exp_year,
+          cvc: card.cvc,
+        },
+        billing_details: {
+          name: card.name,
+          email: req.body.billing_details?.email,
+          address: {
+            postal_code: req.body.billing_details?.address?.postal_code
+          }
+        }
+      } as any);
+
+      // Create and confirm payment intent
       const paymentIntent = await stripe.paymentIntents.create({
         amount: Math.round(amount * 100),
         currency: "usd",
-        payment_method_types: ['card'],
-        payment_method_data: {
-          type: 'card',
-          card: {
-            number: card.number,
-            exp_month: card.exp_month,
-            exp_year: card.exp_year,
-            cvc: card.cvc,
-          },
-          billing_details: {
-            name: card.name,
-            email: req.body.billing_details?.email,
-            address: {
-              postal_code: req.body.billing_details?.address?.postal_code
-            }
-          }
-        },
+        payment_method: paymentMethod.id,
         confirm: true,
         metadata: {
           type: "donation",
