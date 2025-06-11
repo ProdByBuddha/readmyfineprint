@@ -90,6 +90,10 @@ app.use('/api/', apiLimiter);
 app.use('/api/documents/*/analyze', processLimiter);
 app.use('/api/documents/upload', processLimiter);
 
+// Special middleware for Stripe webhooks (needs raw body)
+app.use('/api/stripe-webhook', express.raw({ type: 'application/json' }));
+
+// Regular JSON parsing for other routes
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 
@@ -193,7 +197,7 @@ app.use((req, res, next) => {
   // Try to use port 5000 first, but fall back to available ports if needed
   const preferredPort = 5000;
   const tryPorts = [preferredPort, 3000, 3001, 8000, 8080, 0]; // 0 means any available port
-  
+
   let serverStarted = false;
   for (const port of tryPorts) {
     try {
@@ -207,7 +211,7 @@ app.use((req, res, next) => {
           serverStarted = true;
           resolve();
         });
-        
+
         serverInstance.on('error', (err: any) => {
           if (err.code === 'EADDRINUSE') {
             reject(err);
@@ -226,7 +230,7 @@ app.use((req, res, next) => {
       }
     }
   }
-  
+
   if (!serverStarted) {
     throw new Error('Unable to start server on any available port');
   }

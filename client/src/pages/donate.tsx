@@ -1,8 +1,10 @@
 import { useState } from "react";
-import { Heart, ArrowLeft } from "lucide-react";
+import { Heart, ArrowLeft, AlertCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Link } from "wouter";
+import StripeCheckout from "@/components/stripe-checkout";
 
 const DONATION_AMOUNTS = [
   { amount: 5, label: "$5" },
@@ -15,25 +17,53 @@ const DONATION_AMOUNTS = [
 const DonateContent = () => {
   const [selectedAmount, setSelectedAmount] = useState<number | null>(null);
   const [customAmount, setCustomAmount] = useState("");
-
-  // Check for success in URL
-  const urlParams = new URLSearchParams(window.location.search);
-  const isSuccess = urlParams.get('success') === 'true';
-  const successAmount = urlParams.get('amount');
+  const [showCheckout, setShowCheckout] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [isSuccess, setIsSuccess] = useState(false);
+  const [successAmount, setSuccessAmount] = useState<number | null>(null);
 
   const handleAmountSelect = (amount: number) => {
     setSelectedAmount(amount);
     setCustomAmount("");
+    setError(null);
   };
 
   const handleCustomAmountChange = (value: string) => {
     setCustomAmount(value);
     setSelectedAmount(null);
+    setError(null);
+  };
+
+  const handleProceedToCheckout = () => {
+    const amount = selectedAmount || parseFloat(customAmount) || 0;
+    if (amount < 1) {
+      setError("Please select or enter a valid donation amount (minimum $1).");
+      return;
+    }
+    setShowCheckout(true);
+    setError(null);
+  };
+
+  const handlePaymentSuccess = (amount: number) => {
+    setIsSuccess(true);
+    setSuccessAmount(amount);
+    setShowCheckout(false);
+    setError(null);
+  };
+
+  const handlePaymentError = (errorMessage: string) => {
+    setError(errorMessage);
+    setShowCheckout(false);
+  };
+
+  const handleBackToSelection = () => {
+    setShowCheckout(false);
+    setError(null);
   };
 
   const currentAmount = selectedAmount || parseFloat(customAmount) || 0;
 
-  if (isSuccess) {
+  if (isSuccess && successAmount) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-green-50 to-emerald-100 dark:from-gray-900 dark:to-gray-800 flex items-center justify-center p-4">
         <Card className="max-w-md w-full">
@@ -45,7 +75,7 @@ const DonateContent = () => {
               Thank You!
             </h2>
             <p className="text-gray-600 dark:text-gray-300 mb-6">
-              Your donation of ${successAmount} has been processed successfully. 
+              Your donation of ${successAmount.toFixed(2)} has been processed successfully.
               Thank you for supporting our mission to make legal documents more accessible!
             </p>
             <Link to="/">
@@ -79,10 +109,17 @@ const DonateContent = () => {
             Support Our Mission
           </h1>
           <p className="text-xl text-gray-600 dark:text-gray-300 max-w-2xl mx-auto">
-            Help us make legal documents accessible to everyone. Your donation keeps our 
+            Help us make legal documents accessible to everyone. Your donation keeps our
             AI-powered analysis free and available to those who need it most.
           </p>
         </div>
+
+        {error && (
+          <Alert variant="destructive" className="mb-6">
+            <AlertCircle className="h-4 w-4" />
+            <AlertDescription>{error}</AlertDescription>
+          </Alert>
+        )}
 
         <div className="grid md:grid-cols-2 gap-8 mb-8">
           <Card>
@@ -120,82 +157,87 @@ const DonateContent = () => {
             </CardContent>
           </Card>
 
-          <Card>
-            <CardHeader>
-              <CardTitle>Make a Donation</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="grid grid-cols-3 gap-2">
-                {DONATION_AMOUNTS.map((option) => (
-                  <Button
-                    key={option.amount}
-                    variant={selectedAmount === option.amount ? "default" : "outline"}
-                    onClick={() => handleAmountSelect(option.amount)}
-                    className="h-12"
-                  >
-                    {option.label}
-                  </Button>
-                ))}
-              </div>
-              
-              <div className="relative">
-                <div className="absolute inset-0 flex items-center">
-                  <span className="w-full border-t" />
+          {showCheckout ? (
+            <div className="space-y-4">
+              <Button
+                variant="outline"
+                onClick={handleBackToSelection}
+                className="w-full"
+              >
+                <ArrowLeft className="w-4 h-4 mr-2" />
+                Back to Amount Selection
+              </Button>
+              <StripeCheckout
+                amount={currentAmount}
+                onSuccess={handlePaymentSuccess}
+                onError={handlePaymentError}
+              />
+            </div>
+          ) : (
+            <Card>
+              <CardHeader>
+                <CardTitle>Make a Donation</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="grid grid-cols-3 gap-2">
+                  {DONATION_AMOUNTS.map((option) => (
+                    <Button
+                      key={option.amount}
+                      variant={selectedAmount === option.amount ? "default" : "outline"}
+                      onClick={() => handleAmountSelect(option.amount)}
+                      className="h-12"
+                    >
+                      {option.label}
+                    </Button>
+                  ))}
                 </div>
-                <div className="relative flex justify-center text-xs uppercase">
-                  <span className="bg-background px-2 text-muted-foreground">Or</span>
-                </div>
-              </div>
 
-              <div>
-                <label className="block text-sm font-medium mb-2">Custom Amount</label>
                 <div className="relative">
-                  <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500">$</span>
-                  <input
-                    type="number"
-                    min="1"
-                    step="0.01"
-                    placeholder="Enter amount"
-                    value={customAmount}
-                    onChange={(e) => handleCustomAmountChange(e.target.value)}
-                    className="w-full pl-8 pr-4 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:ring-2 focus:ring-primary focus:border-transparent bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
-                  />
+                  <div className="absolute inset-0 flex items-center">
+                    <span className="w-full border-t" />
+                  </div>
+                  <div className="relative flex justify-center text-xs uppercase">
+                    <span className="bg-background px-2 text-muted-foreground">Or</span>
+                  </div>
                 </div>
-              </div>
 
-              <div className="space-y-4">
+                <div>
+                  <label className="block text-sm font-medium mb-2">Custom Amount</label>
+                  <div className="relative">
+                    <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500">$</span>
+                    <input
+                      type="number"
+                      min="1"
+                      step="0.01"
+                      placeholder="Enter amount"
+                      value={customAmount}
+                      onChange={(e) => handleCustomAmountChange(e.target.value)}
+                      className="w-full pl-8 pr-4 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:ring-2 focus:ring-primary focus:border-transparent bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
+                    />
+                  </div>
+                </div>
+
+                <Button
+                  onClick={handleProceedToCheckout}
+                  disabled={currentAmount < 1}
+                  className="w-full"
+                  size="lg"
+                >
+                  {currentAmount >= 1 ? `Donate $${currentAmount.toFixed(2)}` : 'Select Amount to Continue'}
+                </Button>
+
                 <p className="text-sm text-gray-600 dark:text-gray-300 text-center">
                   Secure payments powered by Stripe
                 </p>
-                
-                <div className="text-center">
-                  <div className="p-4 border border-gray-300 dark:border-gray-600 rounded-lg bg-gray-50 dark:bg-gray-800">
-                    <script async src="https://js.stripe.com/v3/buy-button.js"></script>
-                    <div
-                      dangerouslySetInnerHTML={{
-                        __html: `
-                          <stripe-buy-button
-                            buy-button-id="buy_btn_1RY6rDPxX1dXZoQGmXsNpzwU"
-                            publishable-key="${import.meta.env.VITE_STRIPE_PUBLIC_KEY}"
-                          >
-                          </stripe-buy-button>
-                        `
-                      }}
-                    />
-                  </div>
-                  <p className="text-xs text-gray-500 dark:text-gray-400 mt-2">
-                    Secure payment processing by Stripe
-                  </p>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
+              </CardContent>
+            </Card>
+          )}
         </div>
 
         <Card className="bg-amber-50 dark:bg-amber-950/20 border-amber-200 dark:border-amber-800">
           <CardContent className="p-6 text-center">
             <p className="text-sm text-amber-800 dark:text-amber-200">
-              <strong>Secure & Safe:</strong> All donations are processed securely through Stripe. 
+              <strong>Secure & Safe:</strong> All donations are processed securely through Stripe.
               We never store your payment information and all transactions are encrypted.
             </p>
           </CardContent>
