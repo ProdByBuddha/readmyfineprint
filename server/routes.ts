@@ -11,6 +11,13 @@ import multer from "multer";
 import { z } from "zod";
 import mammoth from "mammoth";
 import crypto from "crypto";
+import Stripe from "stripe";
+
+// Initialize Stripe
+if (!process.env.STRIPE_SECRET_KEY) {
+  throw new Error('Missing required Stripe secret: STRIPE_SECRET_KEY');
+}
+const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
 
 // Configure multer for file uploads with enhanced security
 const upload = multer({
@@ -323,6 +330,46 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error("Error clearing documents:", error);
       res.status(500).json({ error: "Failed to clear documents" });
+    }
+  });
+
+  // Stripe payment route for donations
+  app.post("/api/create-payment-intent", async (req, res) => {
+    try {
+      const { amount } = req.body;
+      
+      // Validate amount
+      if (!amount || amount < 1) {
+        return res.status(400).json({ error: "Invalid amount. Minimum donation is $1." });
+      }
+      
+      // Log the donation attempt
+      const { ip, userAgent } = getClientInfo(req);
+      securityLogger.logSecurityEvent({
+        eventType: "API_ACCESS" as any,
+        severity: "LOW" as any,
+        message: `Donation payment intent created for $${amount}`,
+        ip,
+        userAgent,
+        endpoint: "/api/create-payment-intent",
+        details: { amount }
+      });
+
+      const paymentIntent = await stripe.paymentIntents.create({
+        amount: Math.round(amount * 100), // Convert to cents
+        currency: "usd",
+        metadata: {
+          type: "donation",
+          source: "readmyfineprint"
+        }
+      });
+
+      res.json({ clientSecret: paymentIntent.client_secret });
+    } catch (error: any) {
+      console.error("Stripe payment intent creation failed:", error);
+      res.status(500).json({ 
+        error: "Failed to create payment intent: " + error.message 
+      });
     }
   });
 

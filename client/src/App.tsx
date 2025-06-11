@@ -9,6 +9,7 @@ import { CookieConsent } from "@/components/CookieConsent";
 import Home from "@/pages/home";
 import Privacy from "@/pages/privacy";
 import Terms from "@/pages/terms";
+import Donate from "@/pages/donate";
 import NotFound from "@/pages/not-found";
 
 function Router() {
