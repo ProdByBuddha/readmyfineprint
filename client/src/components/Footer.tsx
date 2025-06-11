@@ -38,23 +38,17 @@ export function Footer() {
       isExpanded ? 'translate-y-0' : 'translate-y-[calc(100%-2.5rem)]'
     }`}>
       {/* Toggle Button */}
-      <div className="absolute -top-10 left-1/2 transform -translate-x-1/2">
+      <div className="absolute -top-8 left-1/2 transform -translate-x-1/2 z-50">
         <Button
           onClick={() => setIsExpanded(!isExpanded)}
           variant="outline"
           size="sm"
-          className="bg-white/95 dark:bg-gray-900/95 backdrop-blur-sm border-t border-l border-r border-b-0 rounded-t-lg rounded-b-none shadow-lg hover:shadow-xl transition-all duration-200"
+          className="bg-white/95 dark:bg-gray-900/95 backdrop-blur-sm border border-gray-200 dark:border-gray-700 rounded-full shadow-lg hover:shadow-xl transition-all duration-200 h-8 w-16"
         >
           {isExpanded ? (
-            <>
-              <ChevronDown className="w-4 h-4 mr-1" />
-              Hide
-            </>
+            <ChevronDown className="w-4 h-4" />
           ) : (
-            <>
-              <ChevronUp className="w-4 h-4 mr-1" />
-              Info
-            </>
+            <ChevronUp className="w-4 h-4" />
           )}
         </Button>
       </div>
