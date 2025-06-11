@@ -79,7 +79,7 @@ export function CookieConsent({ onAccept }: CookieConsentProps) {
               <div className="flex flex-col sm:flex-row gap-2">
                 <Button
                   onClick={acceptCookies}
-                  className="flex-1 bg-blue-600 hover:bg-blue-700 text-white"
+                  className="flex-1 bg-blue-600 hover:bg-blue-700 text-white text-[#1d283a]"
                 >
                   Accept Essential Cookies
                 </Button>
