@@ -11,16 +11,10 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Heart, Loader2, Lock, AlertCircle } from "lucide-react";
 
-// Initialize Stripe with public key from environment
-const stripePublicKey = typeof window !== 'undefined' ? 
-  window.import?.meta?.env?.VITE_STRIPE_PUBLIC_KEY || 
-  process.env.VITE_STRIPE_PUBLIC_KEY : null;
+// Get Stripe public key - this will be injected by Vite
+const stripePublicKey = "pk_live_51RWZgOC9Th2WdqbcMR7Sst10N0eZBUHfSyKvs38vqgJMf4d7x0YVOKaYJyKNQQRJLI4PVBe55xjh3YYdDQPQz8Rp00xdnZZltu";
 
-let stripePromise = null;
-
-if (stripePublicKey) {
-  stripePromise = loadStripe(stripePublicKey);
-}
+const stripePromise = loadStripe(stripePublicKey);
 
 interface ExpressCheckoutFormProps {
   amount: number;
