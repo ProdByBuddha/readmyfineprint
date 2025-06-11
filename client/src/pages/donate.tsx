@@ -5,6 +5,8 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Link } from "wouter";
 import ExpressCheckoutForm from "@/components/ExpressCheckoutForm";
+import { Header } from "@/components/Header";
+import { Footer } from "@/components/Footer";
 
 const DONATION_AMOUNTS = [
   { amount: 5, label: "$5" },
@@ -65,43 +67,40 @@ const DonateContent = () => {
 
   if (isSuccess && successAmount) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-teal-50 to-cyan-100 dark:from-slate-900 dark:to-slate-800 flex items-center justify-center p-4">
-        <Card className="max-w-md w-full">
-          <CardContent className="p-8 text-center">
-            <div className="w-16 h-16 bg-secondary/20 dark:bg-secondary/30 rounded-full flex items-center justify-center mx-auto mb-4">
-              <Heart className="w-8 h-8 text-secondary dark:text-secondary" fill="currentColor" />
-            </div>
-            <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">
-              Thank You!
-            </h2>
-            <p className="text-gray-600 dark:text-gray-300 mb-6">
-              Your donation of ${successAmount.toFixed(2)} has been processed successfully.
-              Thank you for supporting our mission to make legal documents more accessible!
-            </p>
-            <Link to="/">
-              <Button className="w-full">
-                Return to Home
-              </Button>
-            </Link>
-          </CardContent>
-        </Card>
+      <div className="min-h-screen bg-gradient-to-br from-teal-50 to-cyan-100 dark:from-slate-900 dark:to-slate-800">
+        <Header />
+        <div className="flex items-center justify-center p-4 min-h-[calc(100vh-16rem)]">
+          <Card className="max-w-md w-full">
+            <CardContent className="p-8 text-center">
+              <div className="w-16 h-16 bg-secondary/20 dark:bg-secondary/30 rounded-full flex items-center justify-center mx-auto mb-4">
+                <Heart className="w-8 h-8 text-secondary dark:text-secondary" fill="currentColor" />
+              </div>
+              <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">
+                Thank You!
+              </h2>
+              <p className="text-gray-600 dark:text-gray-300 mb-6">
+                Your donation of ${successAmount.toFixed(2)} has been processed successfully.
+                Thank you for supporting our mission to make legal documents more accessible!
+              </p>
+              <Link to="/">
+                <Button className="w-full">
+                  Return to Home
+                </Button>
+              </Link>
+            </CardContent>
+          </Card>
+        </div>
+        <Footer />
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-teal-50 to-cyan-100 dark:from-slate-900 dark:to-slate-800 p-4">
-      <div className="max-w-4xl mx-auto pt-8">
-        <div className="mb-6">
-          <Link to="/">
-            <Button variant="ghost" className="mb-4">
-              <ArrowLeft className="w-4 h-4 mr-2" />
-              Back to Home
-            </Button>
-          </Link>
-        </div>
-
-        <div className="text-center mb-12">
+    <div className="min-h-screen bg-gradient-to-br from-teal-50 to-cyan-100 dark:from-slate-900 dark:to-slate-800">
+      <Header />
+      <div className="p-4">
+        <div className="max-w-4xl mx-auto pt-8">
+          <div className="text-center mb-12">
           <div className="inline-flex items-center justify-center w-16 h-16 bg-primary/20 dark:bg-primary/30 rounded-full mb-4">
             <Heart className="w-8 h-8 text-primary dark:text-primary" fill="currentColor" />
           </div>
@@ -248,7 +247,9 @@ const DonateContent = () => {
             </p>
           </CardContent>
         </Card>
+        </div>
       </div>
+      <Footer />
     </div>
   );
 };
