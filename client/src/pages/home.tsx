@@ -28,11 +28,10 @@ export default function Home() {
   const { theme, toggleTheme } = useTheme();
   const { isAccepted: cookiesAccepted } = useCookieConsent();
 
-  const { data: currentDocument, isLoading: isLoadingDocument, refetch: refetchDocument } = useQuery({
+  const { data: currentDocument, isLoading: isLoadingDocument } = useQuery({
     queryKey: ['/api/documents', currentDocumentId],
     queryFn: () => currentDocumentId ? getDocument(currentDocumentId) : null,
     enabled: !!currentDocumentId,
-    refetchInterval: isAnalyzing ? 2000 : false, // Poll every 2 seconds while analyzing
   });
 
   const analyzeDocumentMutation = useMutation({
@@ -43,11 +42,9 @@ export default function Home() {
         title: "Analysis complete",
         description: "Your document has been analyzed successfully.",
       });
-      // Set the updated document directly and invalidate cache
+      // Update the query cache with the analyzed document
       queryClient.setQueryData(['/api/documents', updatedDocument.id], updatedDocument);
       queryClient.invalidateQueries({ queryKey: ['/api/documents'] });
-      // Force a refetch to ensure UI updates
-      refetchDocument();
     },
     onError: (error) => {
       setIsAnalyzing(false);
