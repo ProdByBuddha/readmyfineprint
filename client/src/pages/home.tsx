@@ -125,7 +125,7 @@ export default function Home() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-teal-50 to-cyan-100 dark:from-gray-900 dark:to-slate-800">
       {/* Header */}
-      <header className="bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-800 sticky top-0 z-50">
+      <header className="bg-white dark:bg-slate-900 border-b border-teal-200 dark:border-slate-700 sticky top-0 z-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
             <div className="flex items-center space-x-3">
@@ -134,7 +134,7 @@ export default function Home() {
                 alt="ReadMyFinePrint Logo" 
                 className="w-12 h-12 object-contain" 
               />
-              <h1 className="text-xl font-bold text-gray-900 dark:text-white">ReadMyFinePrint</h1>
+              <h1 className="text-xl font-bold text-primary dark:text-primary">ReadMyFinePrint</h1>
             </div>
             <nav className="hidden md:flex items-center space-x-6">
               <Link to="/donate">
