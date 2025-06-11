@@ -1,6 +1,7 @@
-import { Shield, Scale, Cookie, Github, ExternalLink } from "lucide-react";
+import { Shield, Scale, Cookie, Github, ExternalLink, Heart } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useCookieConsent } from "@/components/CookieConsent";
+import { Link } from "wouter";
 
 export function Footer() {
   const { revokeCookies } = useCookieConsent();
@@ -60,12 +61,18 @@ export function Footer() {
             </nav>
           </div>
 
-          {/* Resources & Contact */}
+          {/* Support & Resources */}
           <div className="space-y-3">
             <h3 className="font-semibold text-gray-900 dark:text-white">
-              Resources
+              Support & Resources
             </h3>
             <div className="space-y-2">
+              <Link to="/donate">
+                <Button variant="outline" size="sm" className="w-full">
+                  <Heart className="w-4 h-4 mr-2 text-red-500" fill="currentColor" />
+                  Support Our Mission
+                </Button>
+              </Link>
               <div className="text-sm text-gray-600 dark:text-gray-400">
                 <strong>Not Legal Advice:</strong> This tool provides AI-powered analysis for informational purposes only. Consult qualified attorneys for legal matters.
               </div>

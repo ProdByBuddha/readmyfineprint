@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useMutation, useQuery } from "@tanstack/react-query";
-import { File, Menu, Moon, Sun, Cookie } from "lucide-react";
+import { File, Menu, Moon, Sun, Cookie, Heart } from "lucide-react";
+import { Link } from "wouter";
 import logoImage from "@assets/ChatGPT Image Jun 9, 2025, 07_07_26 AM_1749598570251.png";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -136,6 +137,12 @@ export default function Home() {
               <h1 className="text-xl font-bold text-gray-900 dark:text-white">ReadMyFinePrint</h1>
             </div>
             <nav className="hidden md:flex items-center space-x-6">
+              <Link to="/donate">
+                <Button variant="outline" size="sm" className="mr-2">
+                  <Heart className="w-4 h-4 mr-2 text-red-500" />
+                  Donate
+                </Button>
+              </Link>
               <Button
                 onClick={toggleTheme}
                 variant="ghost"
@@ -156,6 +163,11 @@ export default function Home() {
               </Button>
             </nav>
             <div className="md:hidden flex items-center space-x-2">
+              <Link to="/donate">
+                <Button variant="outline" size="sm">
+                  <Heart className="w-4 h-4 text-red-500" />
+                </Button>
+              </Link>
               <Button
                 onClick={toggleTheme}
                 variant="ghost"

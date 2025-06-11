@@ -18,6 +18,7 @@ function Router() {
       <Route path="/" component={Home} />
       <Route path="/privacy" component={Privacy} />
       <Route path="/terms" component={Terms} />
+      <Route path="/donate" component={Donate} />
       <Route component={NotFound} />
     </Switch>
   );
