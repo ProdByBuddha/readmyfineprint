@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Link } from "wouter";
-import StripeCheckout from "@/components/stripe-checkout";
+import PaymentForm from "@/components/payment-form";
 
 const DONATION_AMOUNTS = [
   { amount: 5, label: "$5" },

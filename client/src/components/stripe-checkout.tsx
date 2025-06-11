@@ -26,38 +26,44 @@ const getStripe = () => {
     
     console.log('Attempting to load Stripe.js...', { attempt: loadAttempts + 1, publicKey: publicKey.substring(0, 8) + '...' });
     
-    stripePromise = loadStripe(publicKey, {
-      // Additional options for better loading reliability
-      apiVersion: '2023-10-16',
-      stripeAccount: undefined, // Explicitly set to avoid any confusion
-    }).then((stripe) => {
-      console.log('Stripe.js loaded successfully:', !!stripe);
-      if (!stripe) {
-        throw new Error('Stripe.js loaded but returned null');
-      }
-      return stripe;
-    }).catch((error) => {
-      console.error('Failed to load Stripe.js:', {
-        error: error.message,
-        attempt: loadAttempts + 1,
-        userAgent: navigator.userAgent,
-        location: window.location.href,
-      });
-      
-      stripePromise = null; // Reset so we can retry
-      loadAttempts++;
-      
-      // Provide more specific error messages
-      let errorMessage = 'Failed to load payment system';
-      if (error.message.includes('network')) {
-        errorMessage = 'Network error loading payment system';
-      } else if (error.message.includes('blocked')) {
-        errorMessage = 'Payment system blocked by browser or extension';
-      } else if (error.message.includes('timeout')) {
-        errorMessage = 'Payment system loading timed out';
-      }
-      
-      throw new Error(errorMessage);
+    stripePromise = new Promise((resolve, reject) => {
+      const timeout = setTimeout(() => {
+        reject(new Error('Stripe.js loading timed out'));
+      }, 10000); // 10 second timeout
+
+      loadStripe(publicKey)
+        .then((stripe) => {
+          clearTimeout(timeout);
+          console.log('Stripe.js loaded successfully:', !!stripe);
+          if (!stripe) {
+            throw new Error('Stripe.js loaded but returned null');
+          }
+          resolve(stripe);
+        })
+        .catch((error) => {
+          clearTimeout(timeout);
+          console.error('Failed to load Stripe.js:', {
+            error: error.message,
+            attempt: loadAttempts + 1,
+            userAgent: navigator.userAgent,
+            location: window.location.href,
+          });
+          
+          stripePromise = null; // Reset so we can retry
+          loadAttempts++;
+          
+          // Provide more specific error messages
+          let errorMessage = 'Failed to load payment system';
+          if (error.message.includes('network') || error.message.includes('fetch')) {
+            errorMessage = 'Network connection issue - please check your internet connection';
+          } else if (error.message.includes('blocked') || error.message.includes('Content Security Policy')) {
+            errorMessage = 'Payment system blocked by security settings';
+          } else if (error.message.includes('timeout')) {
+            errorMessage = 'Payment system loading timed out';
+          }
+          
+          reject(new Error(errorMessage));
+        });
     });
   }
   return stripePromise;
@@ -204,16 +210,7 @@ const StripeProvider = ({ children, onError }: { children: React.ReactNode; onEr
     setError(null);
     
     try {
-      // Add connection test before loading Stripe
-      console.log('Testing Stripe.js connectivity...');
-      
-      // Test if we can reach Stripe's CDN
-      const testResponse = await fetch('https://js.stripe.com/v3/', { 
-        method: 'HEAD',
-        mode: 'no-cors'
-      }).catch(() => null);
-      
-      console.log('Stripe CDN test result:', testResponse ? 'accessible' : 'blocked');
+      console.log('Initializing Stripe.js...');
       
       const stripeInstance = await getStripe();
       setStripe(stripeInstance);
