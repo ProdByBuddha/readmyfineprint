@@ -132,7 +132,7 @@ export default function Home() {
               <img 
                 src={logoImage} 
                 alt="ReadMyFinePrint Logo" 
-                className="w-8 h-8 object-contain" 
+                className="w-12 h-12 object-contain" 
               />
               <h1 className="text-xl font-bold text-gray-900 dark:text-white">ReadMyFinePrint</h1>
             </div>
