@@ -167,11 +167,17 @@ const DonateContent = () => {
                 <ArrowLeft className="w-4 h-4 mr-2" />
                 Back to Amount Selection
               </Button>
-              <ExpressCheckoutForm
-                amount={currentAmount}
-                onSuccess={handlePaymentSuccess}
-                onError={handlePaymentError}
-              />
+              <div className="space-y-4">
+                <Button 
+                  onClick={() => window.open('https://donate.stripe.com/4gM6oI5ZLfCV7Qu8hHb7y00', '_blank')}
+                  className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-6 rounded-lg"
+                >
+                  Donate ${currentAmount.toFixed(2)} Now
+                </Button>
+                <p className="text-sm text-muted-foreground text-center">
+                  Secure payment powered by Stripe
+                </p>
+              </div>
             </div>
           ) : (
             <Card>

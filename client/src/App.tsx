@@ -9,7 +9,7 @@ import { CookieConsent } from "@/components/CookieConsent";
 import Home from "@/pages/home";
 import Privacy from "@/pages/privacy";
 import Terms from "@/pages/terms";
-import Donate from "@/pages/donate";
+import DonateSimple from "@/pages/donate-simple";
 import NotFound from "@/pages/not-found";
 
 function Router() {
@@ -18,7 +18,7 @@ function Router() {
       <Route path="/" component={Home} />
       <Route path="/privacy" component={Privacy} />
       <Route path="/terms" component={Terms} />
-      <Route path="/donate" component={Donate} />
+      <Route path="/donate" component={DonateSimple} />
       <Route component={NotFound} />
     </Switch>
   );
