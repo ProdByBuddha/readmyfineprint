@@ -101,17 +101,17 @@ const DonateContent = () => {
       <div className="p-4">
         <div className="max-w-4xl mx-auto pt-8">
           <div className="text-center mb-12">
-          <div className="inline-flex items-center justify-center w-16 h-16 bg-primary/20 dark:bg-primary/30 rounded-full mb-4">
-            <Heart className="w-8 h-8 text-primary dark:text-primary" fill="currentColor" />
+            <div className="inline-flex items-center justify-center w-16 h-16 bg-primary/20 dark:bg-primary/30 rounded-full mb-4">
+              <Heart className="w-8 h-8 text-primary dark:text-primary" fill="currentColor" />
+            </div>
+            <h1 className="text-4xl font-bold text-gray-900 dark:text-white mb-4">
+              Support Our Mission
+            </h1>
+            <p className="text-xl text-gray-600 dark:text-gray-300 max-w-2xl mx-auto">
+              Help us make legal documents accessible to everyone. Your donation keeps our
+              advanced analysis service free and available to those who need it most.
+            </p>
           </div>
-          <h1 className="text-4xl font-bold text-gray-900 dark:text-white mb-4">
-            Support Our Mission
-          </h1>
-          <p className="text-xl text-gray-600 dark:text-gray-300 max-w-2xl mx-auto">
-            Help us make legal documents accessible to everyone. Your donation keeps our
-            advanced analysis service free and available to those who need it most.
-          </p>
-        </div>
 
         {error && (
           <Alert variant="destructive" className="mb-6">

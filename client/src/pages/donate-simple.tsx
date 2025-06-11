@@ -1,7 +1,8 @@
-import { Heart, Shield, Users, Zap, ArrowLeft } from "lucide-react";
+import { Heart, Shield, Users, Zap } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Link } from "wouter";
+import { Header } from "@/components/Header";
+import { Footer } from "@/components/Footer";
 
 export default function DonateSimple() {
   const handleDonate = () => {
@@ -10,15 +11,8 @@ export default function DonateSimple() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-teal-50 to-cyan-100 dark:from-slate-900 dark:to-slate-800">
+      <Header />
       <div className="container mx-auto px-4 py-8 max-w-2xl">
-        <div className="mb-6">
-          <Link href="/">
-            <Button variant="ghost" className="mb-4">
-              <ArrowLeft className="h-4 w-4 mr-2" />
-              Back to Home
-            </Button>
-          </Link>
-        </div>
         
         <div className="text-center mb-8">
           <Heart className="h-12 w-12 text-primary mx-auto mb-4" />
@@ -120,6 +114,7 @@ export default function DonateSimple() {
           </CardContent>
         </Card>
       </div>
+      <Footer />
     </div>
   );
 }
