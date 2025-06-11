@@ -1,4 +1,4 @@
-import { Shield, Scale, Cookie, Github, ExternalLink, Heart } from "lucide-react";
+import { Shield, Scale, Cookie, Github, ExternalLink, Heart, Mail } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useCookieConsent } from "@/components/CookieConsent";
 import { Link } from "wouter";
@@ -10,6 +10,25 @@ export function Footer() {
     revokeCookies();
     // This will cause the cookie banner to show again
     window.location.reload();
+  };
+
+  const handleContactClick = () => {
+    // Anti-abuse protection: construct email dynamically
+    const domain = 'readmyfineprint.com';
+    const user = 'admin';
+    const subject = encodeURIComponent('ReadMyFinePrint Contact');
+    const body = encodeURIComponent('Hello,\n\nI am reaching out regarding ReadMyFinePrint.\n\nBest regards,');
+    
+    // Rate limiting check
+    const lastContact = localStorage.getItem('last-contact-attempt');
+    const now = Date.now();
+    if (lastContact && (now - parseInt(lastContact)) < 60000) { // 1 minute cooldown
+      alert('Please wait a moment before sending another message.');
+      return;
+    }
+    
+    localStorage.setItem('last-contact-attempt', now.toString());
+    window.open(`mailto:${user}@${domain}?subject=${subject}&body=${body}`, '_self');
   };
 
   return (
@@ -73,6 +92,15 @@ export function Footer() {
                   Support Our Mission
                 </Button>
               </Link>
+              <Button
+                variant="outline"
+                size="sm"
+                className="w-full"
+                onClick={handleContactClick}
+              >
+                <Mail className="w-4 h-4 mr-2" />
+                Contact Us
+              </Button>
               <div className="text-sm text-gray-600 dark:text-gray-400">
                 <strong>Not Legal Advice:</strong> This tool provides AI-powered analysis for informational purposes only. Consult qualified attorneys for legal matters.
               </div>

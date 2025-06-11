@@ -194,7 +194,7 @@ export function CookiePolicy() {
           <p className="text-blue-800 dark:text-blue-300 text-sm">
             Our cookie policy is designed to be simple and transparent. We believe in using
             only what's necessary for a great user experience. If you have questions about
-            our cookie practices, please contact us through our support channels.
+            our cookie practices, please contact us through our support channels at <a href="mailto:admin@readmyfineprint.com">admin@readmyfineprint.com</a>.
           </p>
         </CardContent>
       </Card>

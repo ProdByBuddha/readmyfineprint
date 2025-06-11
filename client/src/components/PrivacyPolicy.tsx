@@ -193,7 +193,7 @@ export function PrivacyPolicy() {
           </h4>
           <p className="text-blue-800 dark:text-blue-300 text-sm">
             Our privacy-first approach means we collect minimal data and store nothing permanently.
-            If you have questions about our data practices, please contact us through our support channels.
+            If you have questions about our data practices, please contact us through our support channels at <a href="mailto:admin@readmyfineprint.com">admin@readmyfineprint.com</a>.
           </p>
         </CardContent>
       </Card>

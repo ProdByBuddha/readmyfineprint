@@ -219,7 +219,7 @@ export function TermsOfService() {
           </h4>
           <p className="text-blue-800 dark:text-blue-300 text-sm">
             These terms are governed by applicable law. For questions about these terms,
-            please contact us through our support channels. By using ReadMyFinePrint,
+            please contact us through our support channels at <a href="mailto:admin@readmyfineprint.com">admin@readmyfineprint.com</a>. By using ReadMyFinePrint,
             you agree to these terms and conditions.
           </p>
         </CardContent>
