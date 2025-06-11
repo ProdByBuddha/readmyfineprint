@@ -9,7 +9,7 @@ export default function NotFound() {
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
       <Header />
-      <div className="flex-1 flex items-center justify-center py-16">
+      <div className="flex-1 flex items-center justify-center py-16 pb-32">
         <Card className="w-full max-w-md mx-4">
           <CardContent className="pt-6 text-center">
             <div className="flex justify-center mb-4">
