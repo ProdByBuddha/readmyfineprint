@@ -1,0 +1,256 @@
+import { useState, useEffect } from "react";
+import { loadStripe } from "@stripe/stripe-js";
+import {
+  Elements,
+  ExpressCheckoutElement,
+  useStripe,
+  useElements
+} from "@stripe/react-stripe-js";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Heart, Loader2, Lock, AlertCircle } from "lucide-react";
+
+// Initialize Stripe with public key
+const stripePublicKey = import.meta.env.VITE_STRIPE_PUBLIC_KEY;
+let stripePromise: Promise<any> | null = null;
+
+if (stripePublicKey) {
+  stripePromise = loadStripe(stripePublicKey);
+}
+
+interface ExpressCheckoutFormProps {
+  amount: number;
+  onSuccess: (amount: number) => void;
+  onError: (error: string) => void;
+}
+
+function ExpressCheckoutFormElement({ amount, onSuccess, onError }: ExpressCheckoutFormProps) {
+  const stripe = useStripe();
+  const elements = useElements();
+  const [isProcessing, setIsProcessing] = useState(false);
+  const [paymentIntent, setPaymentIntent] = useState<any>(null);
+
+  // Create payment intent when component mounts
+  useEffect(() => {
+    const createPaymentIntent = async () => {
+      try {
+        const response = await fetch("/api/create-payment-intent", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ amount }),
+        });
+
+        if (!response.ok) {
+          throw new Error("Failed to create payment intent");
+        }
+
+        const { clientSecret, paymentIntentId } = await response.json();
+        setPaymentIntent({ clientSecret, paymentIntentId });
+      } catch (error: any) {
+        console.error("Payment intent creation failed:", error);
+        onError("Failed to initialize payment. Please try again.");
+      }
+    };
+
+    createPaymentIntent();
+  }, [amount, onError]);
+
+  const onConfirm = async (event: any) => {
+    if (!stripe || !elements || !paymentIntent) {
+      return;
+    }
+
+    setIsProcessing(true);
+
+    try {
+      const { error } = await stripe.confirmPayment({
+        elements,
+        confirmParams: {
+          return_url: `${window.location.origin}/donate?success=true`,
+        },
+        redirect: "if_required",
+      });
+
+      if (error) {
+        console.error("Payment confirmation failed:", error);
+        onError(error.message || "Payment failed. Please try again.");
+      } else {
+        onSuccess(amount);
+      }
+    } catch (error: any) {
+      console.error("Payment error:", error);
+      onError("Payment processing failed. Please try again.");
+    } finally {
+      setIsProcessing(false);
+    }
+  };
+
+  const onClick = (event: any) => {
+    // Handle click events if needed
+    console.log("Express checkout clicked:", event);
+  };
+
+  const onCancel = () => {
+    setIsProcessing(false);
+  };
+
+  if (!paymentIntent) {
+    return (
+      <Card>
+        <CardContent className="p-6">
+          <div className="flex items-center justify-center space-x-2">
+            <Loader2 className="h-4 w-4 animate-spin" />
+            <span>Loading payment options...</span>
+          </div>
+        </CardContent>
+      </Card>
+    );
+  }
+
+  return (
+    <Card>
+      <CardHeader>
+        <CardTitle className="flex items-center space-x-2">
+          <Heart className="h-5 w-5 text-red-500" />
+          <span>Quick Donation - ${amount.toFixed(2)}</span>
+        </CardTitle>
+      </CardHeader>
+      <CardContent className="space-y-4">
+        <ExpressCheckoutElement
+          onConfirm={onConfirm}
+          onClick={onClick}
+          onCancel={onCancel}
+          options={{
+            buttonTheme: {
+              applePay: "black",
+              googlePay: "black",
+              paypal: "gold",
+            },
+            layout: {
+              maxColumns: 1,
+              maxRows: 4,
+              overflow: "auto",
+            },
+            buttonHeight: 48,
+            buttonType: {
+              applePay: "donate",
+              googlePay: "donate",
+              paypal: "donate",
+            },
+            paymentMethods: {
+              applePay: "auto",
+              googlePay: "auto",
+              link: "auto",
+              paypal: "auto",
+            },
+          }}
+        />
+
+        <Alert>
+          <Lock className="h-4 w-4" />
+          <AlertDescription>
+            Secure one-click payment with Apple Pay, Google Pay, Link, or PayPal.
+            Your payment information is processed securely through Stripe.
+          </AlertDescription>
+        </Alert>
+
+        {isProcessing && (
+          <div className="flex items-center justify-center space-x-2 py-4">
+            <Loader2 className="h-4 w-4 animate-spin" />
+            <span>Processing payment...</span>
+          </div>
+        )}
+
+        <p className="text-xs text-muted-foreground text-center">
+          Powered by Stripe • Secure Payment Processing
+        </p>
+      </CardContent>
+    </Card>
+  );
+}
+
+function ExpressCheckoutWrapper({ amount, onSuccess, onError }: ExpressCheckoutFormProps) {
+  const [stripeLoaded, setStripeLoaded] = useState(false);
+  const [stripeError, setStripeError] = useState<string | null>(null);
+  const [stripe, setStripe] = useState<any>(null);
+
+  useEffect(() => {
+    if (!stripePublicKey) {
+      setStripeError("Stripe configuration is missing");
+      return;
+    }
+
+    const initializeStripe = async () => {
+      try {
+        if (stripePromise) {
+          const stripeInstance = await stripePromise;
+          if (stripeInstance) {
+            setStripe(stripeInstance);
+            setStripeLoaded(true);
+          } else {
+            setStripeError("Failed to load Stripe");
+          }
+        } else {
+          setStripeError("Stripe not initialized");
+        }
+      } catch (error) {
+        console.error("Stripe initialization error:", error);
+        setStripeError("Failed to initialize payment processor");
+      }
+    };
+
+    initializeStripe();
+  }, []);
+
+  if (stripeError) {
+    return (
+      <Card>
+        <CardContent className="p-6">
+          <Alert variant="destructive">
+            <AlertCircle className="h-4 w-4" />
+            <AlertDescription>
+              {stripeError}. Please refresh the page and try again.
+            </AlertDescription>
+          </Alert>
+        </CardContent>
+      </Card>
+    );
+  }
+
+  if (!stripeLoaded || !stripe) {
+    return (
+      <Card>
+        <CardContent className="p-6">
+          <div className="flex items-center justify-center space-x-2">
+            <Loader2 className="h-4 w-4 animate-spin" />
+            <span>Loading secure payment processor...</span>
+          </div>
+        </CardContent>
+      </Card>
+    );
+  }
+
+  return (
+    <Elements 
+      stripe={stripe}
+      options={{
+        mode: "payment",
+        amount: Math.round(amount * 100),
+        currency: "usd",
+      }}
+    >
+      <ExpressCheckoutFormElement
+        amount={amount}
+        onSuccess={onSuccess}
+        onError={onError}
+      />
+    </Elements>
+  );
+}
+
+export default function ExpressCheckoutForm({ amount, onSuccess, onError }: ExpressCheckoutFormProps) {
+  return <ExpressCheckoutWrapper amount={amount} onSuccess={onSuccess} onError={onError} />;
+}
