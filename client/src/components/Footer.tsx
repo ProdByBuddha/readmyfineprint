@@ -51,28 +51,28 @@ export function Footer() {
           </div>
 
           {/* Legal Links */}
-          <div className="space-y-3">
-            <h3 className="font-semibold text-gray-900 dark:text-white">
+          <div className="space-y-4">
+            <h3 className="font-semibold text-gray-900 dark:text-white mb-1">
               Legal
             </h3>
-            <nav className="space-y-2">
+            <nav className="space-y-3">
               <Link to="/privacy">
-                <a className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white transition-colors">
-                  <Shield className="w-3 h-3" />
+                <a className="flex items-center gap-3 text-sm text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white transition-colors py-1">
+                  <Shield className="w-4 h-4 flex-shrink-0" />
                   Privacy Policy
                 </a>
               </Link>
               <Link to="/terms">
-                <a className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white transition-colors">
-                  <Scale className="w-3 h-3" />
+                <a className="flex items-center gap-3 text-sm text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white transition-colors py-1">
+                  <Scale className="w-4 h-4 flex-shrink-0" />
                   Terms of Service
                 </a>
               </Link>
               <button
                 onClick={handleCookieSettings}
-                className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white transition-colors"
+                className="flex items-center gap-3 text-sm text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white transition-colors py-1 text-left"
               >
-                <Cookie className="w-3 h-3" />
+                <Cookie className="w-4 h-4 flex-shrink-0" />
                 Cookie Preferences
               </button>
             </nav>
