@@ -34,8 +34,8 @@ export function Footer() {
   };
 
   return (
-    <footer className={`fixed bottom-0 left-0 right-0 border-t bg-white/95 dark:bg-gray-900/95 backdrop-blur-sm transition-transform duration-300 ease-in-out z-40 ${
-      isExpanded ? 'translate-y-0' : 'translate-y-[calc(100%-3rem)]'
+    <footer className={`fixed bottom-0 left-0 right-0 border-t bg-white/95 dark:bg-gray-900/95 backdrop-blur-sm transition-transform duration-300 ease-in-out z-40 max-h-screen overflow-y-auto ${
+      isExpanded ? 'translate-y-0' : 'translate-y-[calc(100%-2.5rem)]'
     }`}>
       {/* Toggle Button */}
       <div className="absolute -top-10 left-1/2 transform -translate-x-1/2">
@@ -59,9 +59,9 @@ export function Footer() {
         </Button>
       </div>
 
-      <div className="container mx-auto px-4 py-8">
+      <div className={`container mx-auto px-4 ${isExpanded ? 'py-8' : 'py-0'}`}>
         {/* Collapsed view - just the copyright */}
-        <div className={`${isExpanded ? 'hidden' : 'block'} text-center`}>
+        <div className={`${isExpanded ? 'hidden' : 'block'} text-center py-2`}>
           <div className="text-sm text-gray-500 dark:text-gray-400">
             © {new Date().getFullYear()} <span className="hidden md:inline">ReadMyFinePrint</span><span className="md:hidden">RMFP</span>
           </div>
