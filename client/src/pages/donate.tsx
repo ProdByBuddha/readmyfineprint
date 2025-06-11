@@ -1,18 +1,9 @@
-import { useState } from "react";
-import { useStripe, Elements, PaymentElement, useElements } from '@stripe/react-stripe-js';
-import { loadStripe } from '@stripe/stripe-js';
+import { useState, useEffect } from "react";
 import { Heart, ArrowLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
-import { apiRequest } from "@/lib/queryClient";
 import { Link } from "wouter";
-
-// Load Stripe
-if (!import.meta.env.VITE_STRIPE_PUBLIC_KEY) {
-  throw new Error('Missing required Stripe key: VITE_STRIPE_PUBLIC_KEY');
-}
-const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLIC_KEY);
 
 const DONATION_AMOUNTS = [
   { amount: 5, label: "$5" },
@@ -22,72 +13,51 @@ const DONATION_AMOUNTS = [
   { amount: 100, label: "$100" },
 ];
 
-const CheckoutForm = ({ amount }: { amount: number }) => {
-  const stripe = useStripe();
-  const elements = useElements();
-  const { toast } = useToast();
-  const [isLoading, setIsLoading] = useState(false);
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-
-    if (!stripe || !elements) {
+// Load Stripe script dynamically
+const loadStripeScript = () => {
+  return new Promise((resolve, reject) => {
+    if (document.querySelector('script[src="https://js.stripe.com/v3/buy-button.js"]')) {
+      resolve(true);
       return;
     }
 
-    setIsLoading(true);
-
-    try {
-      const { error } = await stripe.confirmPayment({
-        elements,
-        confirmParams: {
-          return_url: `${window.location.origin}/donate?success=true&amount=${amount}`,
-        },
-      });
-
-      if (error) {
-        toast({
-          title: "Payment Failed",
-          description: error.message,
-          variant: "destructive",
-        });
-      }
-    } catch (err) {
-      toast({
-        title: "Payment Failed",
-        description: "An unexpected error occurred",
-        variant: "destructive",
-      });
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  return (
-    <form onSubmit={handleSubmit} className="space-y-6">
-      <PaymentElement />
-      <Button 
-        type="submit" 
-        disabled={!stripe || isLoading}
-        className="w-full bg-primary hover:bg-primary/90"
-      >
-        {isLoading ? "Processing..." : `Donate $${amount}`}
-      </Button>
-    </form>
-  );
+    const script = document.createElement('script');
+    script.src = 'https://js.stripe.com/v3/buy-button.js';
+    script.async = true;
+    script.onload = () => resolve(true);
+    script.onerror = () => reject(new Error('Failed to load Stripe script'));
+    document.head.appendChild(script);
+  });
 };
 
 const DonateContent = () => {
   const [selectedAmount, setSelectedAmount] = useState<number | null>(null);
   const [customAmount, setCustomAmount] = useState("");
-  const [clientSecret, setClientSecret] = useState("");
-  const [isCreatingPayment, setIsCreatingPayment] = useState(false);
+  const [stripeLoaded, setStripeLoaded] = useState(false);
+  const [loadingStripe, setLoadingStripe] = useState(true);
   const { toast } = useToast();
 
   // Check for success in URL
   const urlParams = new URLSearchParams(window.location.search);
   const isSuccess = urlParams.get('success') === 'true';
   const successAmount = urlParams.get('amount');
+
+  useEffect(() => {
+    loadStripeScript()
+      .then(() => {
+        setStripeLoaded(true);
+        setLoadingStripe(false);
+      })
+      .catch((error) => {
+        console.error('Failed to load Stripe:', error);
+        setLoadingStripe(false);
+        toast({
+          title: "Payment System Unavailable",
+          description: "Please try again later or contact support.",
+          variant: "destructive",
+        });
+      });
+  }, [toast]);
 
   const handleAmountSelect = (amount: number) => {
     setSelectedAmount(amount);
@@ -97,37 +67,6 @@ const DonateContent = () => {
   const handleCustomAmountChange = (value: string) => {
     setCustomAmount(value);
     setSelectedAmount(null);
-  };
-
-  const createPaymentIntent = async () => {
-    const amount = selectedAmount || parseFloat(customAmount);
-    
-    if (!amount || amount < 1) {
-      toast({
-        title: "Invalid Amount",
-        description: "Please select or enter a valid donation amount (minimum $1)",
-        variant: "destructive",
-      });
-      return;
-    }
-
-    setIsCreatingPayment(true);
-
-    try {
-      const response = await apiRequest("POST", "/api/create-payment-intent", { 
-        amount: amount 
-      });
-      const data = await response.json();
-      setClientSecret(data.clientSecret);
-    } catch (error) {
-      toast({
-        title: "Error",
-        description: "Failed to initialize payment. Please try again.",
-        variant: "destructive",
-      });
-    } finally {
-      setIsCreatingPayment(false);
-    }
   };
 
   const currentAmount = selectedAmount || parseFloat(customAmount) || 0;
@@ -154,40 +93,6 @@ const DonateContent = () => {
             </Link>
           </CardContent>
         </Card>
-      </div>
-    );
-  }
-
-  if (clientSecret) {
-    return (
-      <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-gray-900 dark:to-gray-800 p-4">
-        <div className="max-w-2xl mx-auto pt-8">
-          <div className="mb-6">
-            <Link to="/donate">
-              <Button variant="ghost" className="mb-4">
-                <ArrowLeft className="w-4 h-4 mr-2" />
-                Back to Donation Options
-              </Button>
-            </Link>
-          </div>
-          
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Heart className="w-5 h-5 text-red-500" />
-                Complete Your Donation
-              </CardTitle>
-              <p className="text-gray-600 dark:text-gray-300">
-                Donating ${currentAmount} to support ReadMyFinePrint
-              </p>
-            </CardHeader>
-            <CardContent>
-              <Elements stripe={stripePromise} options={{ clientSecret }}>
-                <CheckoutForm amount={currentAmount} />
-              </Elements>
-            </CardContent>
-          </Card>
-        </div>
       </div>
     );
   }
@@ -296,13 +201,40 @@ const DonateContent = () => {
                 </div>
               </div>
 
-              <Button
-                onClick={createPaymentIntent}
-                disabled={(!selectedAmount && !customAmount) || isCreatingPayment}
-                className="w-full"
-              >
-                {isCreatingPayment ? "Preparing..." : `Donate ${currentAmount > 0 ? `$${currentAmount}` : ""}`}
-              </Button>
+              {loadingStripe ? (
+                <Button disabled className="w-full">
+                  Loading Payment System...
+                </Button>
+              ) : stripeLoaded ? (
+                <div className="text-center">
+                  <p className="text-sm text-gray-600 dark:text-gray-300 mb-4">
+                    Secure payments powered by Stripe
+                  </p>
+                  <div 
+                    dangerouslySetInnerHTML={{
+                      __html: `
+                        <stripe-buy-button
+                          buy-button-id="buy_btn_1RY6rDPxX1dXZoQGmXsNpzwU"
+                          publishable-key="${import.meta.env.VITE_STRIPE_PUBLIC_KEY}"
+                        >
+                        </stripe-buy-button>
+                      `
+                    }}
+                  />
+                </div>
+              ) : (
+                <div className="text-center py-4">
+                  <p className="text-red-600 dark:text-red-400 mb-4">
+                    Payment system is currently unavailable. Please try again later.
+                  </p>
+                  <Button 
+                    onClick={() => window.location.reload()} 
+                    variant="outline"
+                  >
+                    Retry
+                  </Button>
+                </div>
+              )}
             </CardContent>
           </Card>
         </div>
