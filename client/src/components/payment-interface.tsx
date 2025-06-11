@@ -4,7 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Loader2, Lock, CreditCard, AlertTriangle, RefreshCw } from "lucide-react";
 import StripeCheckout from "@/components/stripe-checkout";
-import PaymentForm from "@/components/payment-form";
+import DonationForm from "@/components/donation-form";
 
 interface PaymentInterfaceProps {
   amount: number;
@@ -90,23 +90,11 @@ export default function PaymentInterface({ amount, onSuccess, onError }: Payment
               </AlertDescription>
             </Alert>
             
-            <div className="text-center p-4 border border-dashed border-gray-300 dark:border-gray-600 rounded-lg">
-              <CreditCard className="w-8 h-8 mx-auto mb-2 text-gray-400" />
-              <p className="text-sm text-gray-600 dark:text-gray-400 mb-2">
-                Secure payment processing temporarily unavailable
-              </p>
-              <p className="text-xs text-gray-500 dark:text-gray-500">
-                Please contact support or try again later
-              </p>
-              <Button 
-                variant="outline" 
-                className="mt-3"
-                onClick={handleTryStripeAgain}
-              >
-                <RefreshCw className="w-4 h-4 mr-2" />
-                Retry Payment System
-              </Button>
-            </div>
+            <DonationForm
+              amount={amount}
+              onSuccess={onSuccess}
+              onError={onError}
+            />
           </CardContent>
         </Card>
       </div>
