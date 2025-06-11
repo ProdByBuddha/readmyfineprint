@@ -230,7 +230,7 @@ export function FileUpload({ onDocumentCreated, disabled = false }: FileUploadPr
                 <div>
                   <h4 className="font-semibold mb-1 text-gray-900 dark:text-[#c7d3d9]">Export Summary</h4>
                   <p className="text-gray-600 dark:text-gray-300 text-sm">
-                    Download your analysis as PDF or share with others
+                    Download your analysis as a PDF
                   </p>
                 </div>
               </div>
