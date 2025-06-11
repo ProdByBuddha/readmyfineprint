@@ -528,7 +528,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
           amount: paymentIntent.amount / 100,
           currency: paymentIntent.currency,
           metadata: paymentIntent.metadata,
-          created: new Date(paymentIntent.created * 1000).toISOString()
+          created: paymentIntent.created ? new Date(paymentIntent.created * 1000).toISOString() : 'N/A'
         });
 
         // Log successful payment

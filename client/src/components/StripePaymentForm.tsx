@@ -15,8 +15,6 @@ import { Heart, Loader2, Lock, CreditCard, AlertCircle } from "lucide-react";
 
 // Check if Stripe public key is available
 const stripePublicKey = import.meta.env.VITE_STRIPE_PUBLIC_KEY;
-console.log('Stripe Public Key available:', !!stripePublicKey);
-console.log('Stripe Public Key starts with:', stripePublicKey?.substring(0, 10));
 
 const stripePromise = stripePublicKey ? loadStripe(stripePublicKey) : null;
 
