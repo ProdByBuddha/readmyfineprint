@@ -285,28 +285,28 @@ export default function Home() {
         {!currentDocumentId && !isAnalyzing && (
           <Card className="p-8 mt-16">
             <CardContent>
-              <h3 className="text-2xl font-semibold mb-8 text-center text-[#c7d3d9]">
+              <h3 className="text-2xl font-semibold mb-8 text-center text-gray-900 dark:text-[#c7d3d9]">
                 Frequently Asked Questions
               </h3>
               <div className="max-w-3xl mx-auto space-y-6">
-                <div className="border border-gray-200 rounded-lg p-6">
-                  <h4 className="font-medium mb-2 text-[#c7d3d9]">How accurate are the summaries?</h4>
-                  <p className="text-sm leading-relaxed text-[#8a9cb8]">
+                <div className="border border-gray-200 dark:border-gray-700 rounded-lg p-6">
+                  <h4 className="font-medium mb-2 text-gray-900 dark:text-[#c7d3d9]">How accurate are the summaries?</h4>
+                  <p className="text-sm leading-relaxed text-gray-700 dark:text-[#8a9cb8]">
                     Our advanced analysis engine has processed thousands of legal documents and is trained to identify
                     common patterns and concerning clauses. While highly accurate, we recommend
                     consulting with a legal professional for critical decisions.
                   </p>
                 </div>
-                <div className="border border-gray-200 rounded-lg p-6">
-                  <h4 className="font-medium mb-2 text-[#c7d3d9]">Is my document data secure?</h4>
-                  <p className="text-sm leading-relaxed text-[#8a9cb8]">
+                <div className="border border-gray-200 dark:border-gray-700 rounded-lg p-6">
+                  <h4 className="font-medium mb-2 text-gray-900 dark:text-[#c7d3d9]">Is my document data secure?</h4>
+                  <p className="text-sm leading-relaxed text-gray-700 dark:text-[#8a9cb8]">
                     Yes, all documents are encrypted in transit and at rest. We don't store your
                     documents after analysis, and you can delete your summaries at any time.
                   </p>
                 </div>
-                <div className="border border-gray-200 rounded-lg p-6">
-                  <h4 className="font-medium mb-2 text-[#c7d3d9]">What types of documents can I analyze?</h4>
-                  <p className="text-sm leading-relaxed text-[#8a9cb8]">
+                <div className="border border-gray-200 dark:border-gray-700 rounded-lg p-6">
+                  <h4 className="font-medium mb-2 text-gray-900 dark:text-[#c7d3d9]">What types of documents can I analyze?</h4>
+                  <p className="text-sm leading-relaxed text-gray-700 dark:text-[#8a9cb8]">
                     We support contracts, terms of service, privacy policies, employment
                     agreements, rental agreements, and most other legal documents in English.
                   </p>

@@ -41,7 +41,7 @@ export function Footer() {
               ReadMyFinePrint
             </h3>
             <p className="text-sm text-gray-600 dark:text-gray-400">
-              Privacy-first document analysis tool powered by AI.
+              Privacy-first document analysis tool for understanding legal documents.
               Session-based processing with no permanent storage of your documents.
             </p>
             <div className="flex items-center gap-2 text-xs text-gray-500 dark:text-gray-400">
@@ -100,7 +100,7 @@ export function Footer() {
                 Contact Us
               </Button>
               <div className="text-sm text-gray-600 dark:text-gray-400">
-                <strong>Not Legal Advice:</strong> This tool provides AI-powered analysis for informational purposes only. Consult qualified attorneys for legal matters.
+                <strong>Not Legal Advice:</strong> This tool provides analysis for informational purposes only. Consult qualified attorneys for legal matters.
               </div>
             </div>
           </div>
@@ -121,7 +121,7 @@ export function Footer() {
             </span>
             <span className="flex items-center gap-1">
               <div className="w-2 h-2 bg-purple-500 rounded-full"></div>
-              AI-Powered
+              Advanced Analysis
             </span>
           </div>
         </div>
