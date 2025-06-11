@@ -27,12 +27,36 @@ export function StripeWrapper({ children }: StripeWrapperProps) {
           throw new Error("Invalid Stripe public key format");
         }
 
-        const stripeInstance = await loadStripe(stripePublicKey);
-        
-        if (!stripeInstance) {
-          throw new Error("Failed to initialize Stripe");
-        }
+        // Add retry logic and timeout for Replit environment
+        const loadWithRetry = async (retries = 3): Promise<any> => {
+          for (let i = 0; i < retries; i++) {
+            try {
+              // Use a longer timeout for Replit
+              const timeoutPromise = new Promise((_, reject) =>
+                setTimeout(() => reject(new Error("Stripe loading timeout")), 10000)
+              );
+              
+              const stripePromise = loadStripe(stripePublicKey, {
+                stripeAccount: undefined, // Ensure no extra parameters
+              });
+              
+              const stripeInstance = await Promise.race([stripePromise, timeoutPromise]);
+              
+              if (!stripeInstance) {
+                throw new Error(`Failed to initialize Stripe (attempt ${i + 1})`);
+              }
+              
+              return stripeInstance;
+            } catch (error) {
+              console.warn(`Stripe loading attempt ${i + 1} failed:`, error);
+              if (i === retries - 1) throw error;
+              // Wait before retry
+              await new Promise(resolve => setTimeout(resolve, 1000));
+            }
+          }
+        };
 
+        const stripeInstance = await loadWithRetry();
         setStripe(stripeInstance);
       } catch (err: any) {
         console.error("Stripe initialization error:", err);
