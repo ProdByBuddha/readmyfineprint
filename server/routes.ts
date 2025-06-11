@@ -369,10 +369,61 @@ export async function registerRoutes(app: Express): Promise<Server> {
         details: { amount }
       });
 
-      // This endpoint is deprecated - use /api/create-payment-intent with Stripe Elements instead
-      return res.status(400).json({
-        error: "Direct card processing is disabled for security. Please use the secure payment form."
+      // Create payment intent with provided card details
+      const paymentIntent = await stripe.paymentIntents.create({
+        amount: Math.round(amount * 100),
+        currency: "usd",
+        payment_method_types: ['card'],
+        payment_method_data: {
+          type: 'card',
+          card: {
+            number: card.number,
+            exp_month: card.exp_month,
+            exp_year: card.exp_year,
+            cvc: card.cvc,
+          },
+          billing_details: {
+            name: card.name,
+            email: req.body.billing_details?.email,
+            address: {
+              postal_code: req.body.billing_details?.address?.postal_code
+            }
+          }
+        },
+        confirm: true,
+        metadata: {
+          type: "donation",
+          source: "readmyfineprint",
+          ip: ip,
+          timestamp: new Date().toISOString()
+        },
+        description: `Donation to ReadMyFinePrint - $${amount.toFixed(2)}`
       });
+
+      if (paymentIntent.status === 'succeeded') {
+        securityLogger.logSecurityEvent({
+          eventType: "API_ACCESS" as any,
+          severity: "LOW" as any,
+          message: `Donation payment completed: $${amount.toFixed(2)}`,
+          ip,
+          userAgent,
+          endpoint: "/api/process-donation",
+          details: {
+            paymentIntentId: paymentIntent.id,
+            amount: amount,
+            currency: "usd"
+          }
+        });
+
+        res.json({
+          success: true,
+          paymentIntentId: paymentIntent.id,
+          amount: amount,
+          message: "Payment successful! Thank you for your donation."
+        });
+      } else {
+        throw new Error(`Payment requires additional action: ${paymentIntent.status}`);
+      }
 
     } catch (error: any) {
       console.error("Payment processing failed:", error);
