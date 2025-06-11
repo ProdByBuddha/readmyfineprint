@@ -1,8 +1,6 @@
 import { useState } from "react";
 import { useMutation, useQuery } from "@tanstack/react-query";
-import { File, Plus, Moon, Sun, Cookie, Heart } from "lucide-react";
-import { Link } from "wouter";
-import logoImage from "@assets/ChatGPT Image Jun 9, 2025, 07_07_26 AM_1749598570251.png";
+import { File, Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Loader2 } from "lucide-react";
@@ -12,11 +10,11 @@ import { SampleContracts } from "@/components/SampleContracts";
 import { DocumentHistory } from "@/components/DocumentHistory";
 import { AnalysisProgress } from "@/components/LoadingStates";
 import { LegalDisclaimer } from "@/components/LegalDisclaimer";
+import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
 import { useCookieConsent } from "@/components/CookieConsent";
 import { analyzeDocument, getDocument, createDocument } from "@/lib/api";
 import { useToast } from "@/hooks/use-toast";
-import { useTheme } from "@/components/ThemeProvider";
 import { queryClient } from "@/lib/queryClient";
 import type { Document } from "@shared/schema";
 
@@ -25,7 +23,6 @@ export default function Home() {
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [disclaimerAccepted, setDisclaimerAccepted] = useState(false);
   const { toast } = useToast();
-  const { theme, toggleTheme } = useTheme();
   const { isAccepted: cookiesAccepted } = useCookieConsent();
 
   const { data: currentDocument, isLoading: isLoadingDocument } = useQuery({
@@ -121,68 +118,7 @@ export default function Home() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-teal-50 to-cyan-100 dark:from-gray-900 dark:to-slate-800">
-      {/* Header */}
-      <header className="bg-white dark:bg-slate-900 border-b border-teal-200 dark:border-slate-700 sticky top-0 z-50">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center h-16">
-            <div className="flex items-center space-x-3">
-              <img 
-                src={logoImage} 
-                alt="ReadMyFinePrint Logo" 
-                className="w-12 h-12 object-contain" 
-              />
-              <h1 className="text-xl font-bold text-primary dark:text-primary hidden md:block">ReadMyFinePrint</h1>
-            </div>
-            <nav className="hidden md:flex items-center space-x-6">
-              <Link to="/donate">
-                <Button variant="outline" size="sm" className="mr-2">
-                  <Heart className="w-4 h-4 mr-2 text-red-500" />
-                  Donate
-                </Button>
-              </Link>
-              <Button
-                onClick={toggleTheme}
-                variant="ghost"
-                size="sm"
-                className="mr-2"
-              >
-                {theme === "light" ? (
-                  <Moon className="w-4 h-4" />
-                ) : (
-                  <Sun className="w-4 h-4" />
-                )}
-              </Button>
-              <Button
-                className="bg-primary text-white hover:bg-primary/90"
-                onClick={handleNewAnalysis}
-              >
-                New Analysis
-              </Button>
-            </nav>
-            <div className="md:hidden flex items-center space-x-2">
-              <Link to="/donate">
-                <Button variant="outline" size="sm">
-                  <Heart className="w-4 h-4 text-red-500" />
-                </Button>
-              </Link>
-              <Button
-                onClick={toggleTheme}
-                variant="ghost"
-                size="sm"
-              >
-                {theme === "light" ? (
-                  <Moon className="w-4 h-4" />
-                ) : (
-                  <Sun className="w-4 h-4" />
-                )}
-              </Button>
-              <button className="p-2" onClick={handleNewAnalysis}>
-                <Plus className="text-gray-600 dark:text-gray-300" />
-              </button>
-            </div>
-          </div>
-        </div>
-      </header>
+      <Header />
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Document History */}
         <DocumentHistory
