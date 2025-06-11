@@ -56,17 +56,13 @@ export function Footer() {
               Legal
             </h3>
             <nav className="space-y-3">
-              <Link to="/privacy">
-                <a className="flex items-center gap-3 text-sm text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white transition-colors py-1">
-                  <Shield className="w-4 h-4 flex-shrink-0" />
-                  Privacy Policy
-                </a>
+              <Link to="/privacy" className="flex items-center gap-3 text-sm text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white transition-colors py-1">
+                <Shield className="w-4 h-4 flex-shrink-0" />
+                Privacy Policy
               </Link>
-              <Link to="/terms">
-                <a className="flex items-center gap-3 text-sm text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white transition-colors py-1">
-                  <Scale className="w-4 h-4 flex-shrink-0" />
-                  Terms of Service
-                </a>
+              <Link to="/terms" className="flex items-center gap-3 text-sm text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white transition-colors py-1">
+                <Scale className="w-4 h-4 flex-shrink-0" />
+                Terms of Service
               </Link>
               <button
                 onClick={handleCookieSettings}
