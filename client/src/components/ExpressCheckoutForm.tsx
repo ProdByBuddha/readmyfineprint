@@ -11,9 +11,12 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Heart, Loader2, Lock, AlertCircle } from "lucide-react";
 
-// Initialize Stripe with public key
-const stripePublicKey = import.meta.env.VITE_STRIPE_PUBLIC_KEY;
-let stripePromise: Promise<any> | null = null;
+// Initialize Stripe with public key from environment
+const stripePublicKey = typeof window !== 'undefined' ? 
+  window.import?.meta?.env?.VITE_STRIPE_PUBLIC_KEY || 
+  process.env.VITE_STRIPE_PUBLIC_KEY : null;
+
+let stripePromise = null;
 
 if (stripePublicKey) {
   stripePromise = loadStripe(stripePublicKey);
