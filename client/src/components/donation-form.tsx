@@ -170,10 +170,9 @@ export default function DonationForm({ amount, onSuccess, onError }: DonationFor
           <CreditCard className="h-4 w-4" />
           <AlertDescription>
             <div className="text-sm">
-              <p className="font-medium mb-1">Demo Mode - Test Card Numbers:</p>
-              <p>• Success: 4242 4242 4242 4242</p>
-              <p>• Declined: 4000 0000 0000 0002</p>
-              <p>Use any future date and any 3-digit CVC</p>
+              <p className="font-medium mb-1">Secure Payment Processing</p>
+              <p>Your donation will be processed securely through Stripe.</p>
+              <p>All transactions are encrypted and protected.</p>
             </div>
           </AlertDescription>
         </Alert>
@@ -259,11 +258,7 @@ export default function DonationForm({ amount, onSuccess, onError }: DonationFor
             )}
           </Button>
 
-          <div className="text-center space-y-2">
-            <div className="flex items-center justify-center gap-2 text-sm text-green-600 dark:text-green-400">
-              <CheckCircle className="w-4 h-4" />
-              <span>Demo mode - no actual charges will be made</span>
-            </div>
+          <div className="text-center">
             <div className="flex items-center justify-center gap-1 text-xs text-gray-400">
               <Lock className="w-3 h-3" />
               <span>Secure SSL encryption</span>
