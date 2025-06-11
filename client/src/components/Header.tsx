@@ -37,7 +37,25 @@ export function Header() {
               )}
             </Button>
           </nav>
-          {/* Mobile menu button could be added here in the future */}
+          {/* Mobile navigation */}
+          <nav className="md:hidden flex items-center space-x-2">
+            <Link to="/donate">
+              <Button variant="outline" size="sm">
+                <Heart className="w-4 h-4 text-red-500" />
+              </Button>
+            </Link>
+            <Button
+              onClick={toggleTheme}
+              variant="ghost"
+              size="sm"
+            >
+              {theme === "light" ? (
+                <Moon className="w-4 h-4" />
+              ) : (
+                <Sun className="w-4 h-4" />
+              )}
+            </Button>
+          </nav>
         </div>
       </div>
     </header>
