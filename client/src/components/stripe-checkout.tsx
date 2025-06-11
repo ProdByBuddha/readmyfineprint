@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { loadStripe } from "@stripe/stripe-js";
 import {
   Elements,
@@ -8,10 +8,60 @@ import {
 } from "@stripe/react-stripe-js";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Loader2, Lock } from "lucide-react";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Loader2, Lock, AlertTriangle, RefreshCw } from "lucide-react";
 
-// Load Stripe
-const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLIC_KEY);
+// Enhanced Stripe loading with comprehensive error handling
+let stripePromise: Promise<any> | null = null;
+let loadAttempts = 0;
+const MAX_LOAD_ATTEMPTS = 3;
+
+const getStripe = () => {
+  if (!stripePromise) {
+    const publicKey = import.meta.env.VITE_STRIPE_PUBLIC_KEY;
+    if (!publicKey) {
+      console.error('VITE_STRIPE_PUBLIC_KEY is not configured');
+      return Promise.reject(new Error('Stripe public key not configured'));
+    }
+    
+    console.log('Attempting to load Stripe.js...', { attempt: loadAttempts + 1, publicKey: publicKey.substring(0, 8) + '...' });
+    
+    stripePromise = loadStripe(publicKey, {
+      // Additional options for better loading reliability
+      apiVersion: '2023-10-16',
+      stripeAccount: undefined, // Explicitly set to avoid any confusion
+    }).then((stripe) => {
+      console.log('Stripe.js loaded successfully:', !!stripe);
+      if (!stripe) {
+        throw new Error('Stripe.js loaded but returned null');
+      }
+      return stripe;
+    }).catch((error) => {
+      console.error('Failed to load Stripe.js:', {
+        error: error.message,
+        attempt: loadAttempts + 1,
+        userAgent: navigator.userAgent,
+        location: window.location.href,
+      });
+      
+      stripePromise = null; // Reset so we can retry
+      loadAttempts++;
+      
+      // Provide more specific error messages
+      let errorMessage = 'Failed to load payment system';
+      if (error.message.includes('network')) {
+        errorMessage = 'Network error loading payment system';
+      } else if (error.message.includes('blocked')) {
+        errorMessage = 'Payment system blocked by browser or extension';
+      } else if (error.message.includes('timeout')) {
+        errorMessage = 'Payment system loading timed out';
+      }
+      
+      throw new Error(errorMessage);
+    });
+  }
+  return stripePromise;
+};
 
 interface CheckoutFormProps {
   amount: number;
@@ -142,6 +192,125 @@ const CheckoutForm = ({ amount, onSuccess, onError }: CheckoutFormProps) => {
   );
 };
 
+// Stripe Provider with loading and error states
+const StripeProvider = ({ children, onError }: { children: React.ReactNode; onError: (error: string) => void }) => {
+  const [stripe, setStripe] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [retryCount, setRetryCount] = useState(0);
+
+  const initStripe = async () => {
+    setLoading(true);
+    setError(null);
+    
+    try {
+      // Add connection test before loading Stripe
+      console.log('Testing Stripe.js connectivity...');
+      
+      // Test if we can reach Stripe's CDN
+      const testResponse = await fetch('https://js.stripe.com/v3/', { 
+        method: 'HEAD',
+        mode: 'no-cors'
+      }).catch(() => null);
+      
+      console.log('Stripe CDN test result:', testResponse ? 'accessible' : 'blocked');
+      
+      const stripeInstance = await getStripe();
+      setStripe(stripeInstance);
+      setError(null);
+      loadAttempts = 0; // Reset global counter on success
+      console.log('Stripe initialization successful');
+    } catch (err) {
+      const errorMessage = err instanceof Error ? err.message : 'Failed to load payment system';
+      console.error('StripeProvider initialization failed:', {
+        error: errorMessage,
+        attempt: retryCount + 1,
+        userAgent: navigator.userAgent,
+        onlineStatus: navigator.onLine,
+        currentUrl: window.location.href
+      });
+      setError(errorMessage);
+      onError(errorMessage);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    initStripe();
+  }, [onError, retryCount]);
+
+  const handleRetry = () => {
+    if (retryCount < MAX_LOAD_ATTEMPTS) {
+      setRetryCount(prev => prev + 1);
+    }
+  };
+
+  if (loading) {
+    return (
+      <Card>
+        <CardContent className="p-6 text-center">
+          <Loader2 className="w-6 h-6 mx-auto mb-2 animate-spin" />
+          <p className="text-gray-600 dark:text-gray-400">Loading payment system...</p>
+        </CardContent>
+      </Card>
+    );
+  }
+
+  if (error) {
+    return (
+      <Card>
+        <CardContent className="p-6 text-center">
+          <Alert className="mb-4">
+            <AlertTriangle className="h-4 w-4" />
+            <AlertDescription>
+              <div className="text-left">
+                <p className="mb-2">Unable to load payment system: {error}</p>
+                <p className="text-sm mb-2">This may be due to:</p>
+                <ul className="text-sm list-disc list-inside mb-2">
+                  <li>Network connectivity issues</li>
+                  <li>Ad blockers or privacy extensions blocking Stripe</li>
+                  <li>Firewall or corporate network restrictions</li>
+                  <li>Browser security settings</li>
+                </ul>
+                <p className="text-sm font-medium">Attempts: {retryCount + 1} of {MAX_LOAD_ATTEMPTS}</p>
+              </div>
+            </AlertDescription>
+          </Alert>
+          <div className="flex gap-2 justify-center">
+            {retryCount < MAX_LOAD_ATTEMPTS && (
+              <Button 
+                onClick={handleRetry} 
+                variant="outline"
+                disabled={loading}
+              >
+                <RefreshCw className="w-4 h-4 mr-2" />
+                Retry ({MAX_LOAD_ATTEMPTS - retryCount} left)
+              </Button>
+            )}
+            <Button 
+              onClick={() => window.location.reload()} 
+              variant="default"
+            >
+              <RefreshCw className="w-4 h-4 mr-2" />
+              Refresh Page
+            </Button>
+          </div>
+          <div className="mt-4 text-xs text-gray-500 dark:text-gray-400">
+            <p>If the issue persists, try disabling browser extensions or contact support.</p>
+          </div>
+        </CardContent>
+      </Card>
+    );
+  }
+
+  return (
+    <Elements stripe={stripe}>
+      {children}
+    </Elements>
+  );
+};
+
 interface StripeCheckoutProps {
   amount: number;
   onSuccess: (amount: number) => void;
@@ -153,12 +322,16 @@ export default function StripeCheckout({ amount, onSuccess, onError }: StripeChe
     return (
       <Card>
         <CardContent className="p-6 text-center">
-          <p className="text-red-600 dark:text-red-400 mb-2">
-            Stripe is not configured. Please contact the administrator.
-          </p>
-          <p className="text-sm text-gray-500 dark:text-gray-400">
-            Missing VITE_STRIPE_PUBLIC_KEY environment variable.
-          </p>
+          <Alert>
+            <AlertTriangle className="h-4 w-4" />
+            <AlertDescription>
+              Stripe is not configured. Please contact the administrator.
+              <br />
+              <span className="text-sm text-gray-500 dark:text-gray-400">
+                Missing VITE_STRIPE_PUBLIC_KEY environment variable.
+              </span>
+            </AlertDescription>
+          </Alert>
         </CardContent>
       </Card>
     );
@@ -173,13 +346,13 @@ export default function StripeCheckout({ amount, onSuccess, onError }: StripeChe
         </CardTitle>
       </CardHeader>
       <CardContent>
-        <Elements stripe={stripePromise}>
+        <StripeProvider onError={onError}>
           <CheckoutForm
             amount={amount}
             onSuccess={onSuccess}
             onError={onError}
           />
-        </Elements>
+        </StripeProvider>
       </CardContent>
     </Card>
   );
