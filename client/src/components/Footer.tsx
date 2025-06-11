@@ -36,12 +36,14 @@ export function Footer() {
   return (
     <div>
       {/* Toggle Button - positioned outside footer */}
-      <div className="fixed bottom-10 left-1/2 transform -translate-x-1/2 z-50">
+      <div className={`fixed left-1/2 transform -translate-x-1/2 z-50 transition-all duration-500 ease-out ${
+        isExpanded ? 'bottom-[calc(80vh-2rem)]' : 'bottom-12'
+      }`}>
         <Button
           onClick={() => setIsExpanded(!isExpanded)}
           variant="outline"
           size="sm"
-          className="bg-white/95 dark:bg-gray-900/95 backdrop-blur-sm border border-gray-200 dark:border-gray-700 rounded-full shadow-lg hover:shadow-xl transition-all duration-200 h-8 w-8"
+          className="bg-white/95 dark:bg-gray-900/95 backdrop-blur-sm border border-gray-200 dark:border-gray-700 rounded-full shadow-lg hover:shadow-xl transition-all duration-300 h-8 w-8"
         >
           {isExpanded ? (
             <ChevronDown className="w-3 h-3" />
@@ -51,9 +53,12 @@ export function Footer() {
         </Button>
       </div>
 
-      <footer className={`fixed bottom-0 left-0 right-0 border-t bg-white/95 dark:bg-gray-900/95 backdrop-blur-sm transition-transform duration-300 ease-in-out z-40 max-h-screen overflow-y-auto ${
-        isExpanded ? 'translate-y-0' : 'translate-y-[calc(100%-2.5rem)]'
-      }`}>
+      <footer 
+        className={`fixed bottom-0 left-0 right-0 border-t bg-white/95 dark:bg-gray-900/95 backdrop-blur-sm z-40 max-h-[80vh] overflow-y-auto transform transition-transform duration-700 ease-out`}
+        style={{
+          transform: isExpanded ? 'translateY(0)' : 'translateY(calc(100% - 3rem))'
+        }}
+      >
         <div className={`container mx-auto px-4 ${isExpanded ? 'py-8' : 'py-0'}`}>
           {/* Collapsed view - just the copyright */}
           <div className={`${isExpanded ? 'hidden' : 'block'} text-center py-2`}>
