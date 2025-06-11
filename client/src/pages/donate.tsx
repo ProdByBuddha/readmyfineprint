@@ -163,24 +163,38 @@ const DonateContent = () => {
                 </div>
               </div>
 
-              <div className="text-center">
-                <p className="text-sm text-gray-600 dark:text-gray-300 mb-4">
+              <div className="space-y-4">
+                <p className="text-sm text-gray-600 dark:text-gray-300 text-center">
                   Secure payments powered by Stripe
                 </p>
-                <div className="p-4 border border-gray-300 dark:border-gray-600 rounded-lg bg-gray-50 dark:bg-gray-800">
-                  <script async src="https://js.stripe.com/v3/buy-button.js"></script>
-                  <div
-                    dangerouslySetInnerHTML={{
-                      __html: `
-                        <stripe-buy-button
-                          buy-button-id="buy_btn_1RY6rDPxX1dXZoQGmXsNpzwU"
-                          publishable-key="${import.meta.env.VITE_STRIPE_PUBLIC_KEY}"
-                        >
-                        </stripe-buy-button>
-                      `
-                    }}
-                  />
-                </div>
+                
+                {currentAmount > 0 ? (
+                  <div className="text-center">
+                    <Button 
+                      size="lg" 
+                      className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-6"
+                      onClick={() => window.open(`https://buy.stripe.com/test_00gaHN5Gr36T7E4cMM`, '_blank')}
+                    >
+                      Donate ${currentAmount}
+                    </Button>
+                    <p className="text-xs text-gray-500 dark:text-gray-400 mt-2">
+                      Opens secure Stripe payment page in new tab
+                    </p>
+                  </div>
+                ) : (
+                  <div className="text-center">
+                    <Button 
+                      size="lg" 
+                      className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-6"
+                      onClick={() => window.open(`https://buy.stripe.com/test_00gaHN5Gr36T7E4cMM`, '_blank')}
+                    >
+                      Make a Donation
+                    </Button>
+                    <p className="text-xs text-gray-500 dark:text-gray-400 mt-2">
+                      Opens secure Stripe payment page in new tab
+                    </p>
+                  </div>
+                )}
               </div>
             </CardContent>
           </Card>
