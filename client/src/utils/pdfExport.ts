@@ -1,6 +1,7 @@
 import jsPDF from 'jspdf';
 import QRCode from 'qrcode';
 import type { Document, DocumentAnalysis } from '@shared/schema';
+import logoImage from '@assets/ChatGPT Image Jun 9, 2025, 07_07_26 AM_1749598570251.png';
 
 interface PDFExportOptions {
   includeHeader?: boolean;
@@ -33,14 +34,16 @@ export class AnalysisPDFExporter {
   }
 
   private addLogo(): void {
-    // Add logo as a blue circle with initials for now (simplified)
-    this.doc.setFillColor(37, 99, 235); // Blue color
-    this.doc.circle(this.leftMargin + 10, this.currentY + 5, 8, 'F');
-    
-    this.doc.setTextColor(255, 255, 255);
-    this.doc.setFontSize(8);
-    this.doc.setFont('helvetica', 'bold');
-    this.doc.text('RMFP', this.leftMargin + 10, this.currentY + 7, { align: 'center' });
+    // Add custom C logo
+    try {
+      this.doc.addImage(logoImage, 'PNG', this.leftMargin, this.currentY, 16, 16);
+    } catch (error) {
+      // Fallback to text if image fails to load
+      this.doc.setTextColor(37, 99, 235);
+      this.doc.setFontSize(16);
+      this.doc.setFont('helvetica', 'bold');
+      this.doc.text('C', this.leftMargin + 8, this.currentY + 10, { align: 'center' });
+    }
     
     this.currentY += 20;
   }

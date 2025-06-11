@@ -2,7 +2,7 @@ import { Button } from "@/components/ui/button";
 import { Moon, Sun, Heart } from "lucide-react";
 import { Link } from "wouter";
 import { useTheme } from "@/components/ThemeProvider";
-import { Logo } from "@/components/Logo";
+import logoImage from "@assets/ChatGPT Image Jun 9, 2025, 07_07_26 AM_1749598570251.png";
 
 export function Header() {
   const { theme, toggleTheme } = useTheme();
@@ -13,7 +13,7 @@ export function Header() {
         <div className="flex justify-between items-center h-16">
           <Link to="/">
             <div className="flex items-center space-x-3 cursor-pointer">
-              <Logo size={48} />
+              <img src={logoImage} alt="ReadMyFinePrint Logo" className="w-12 h-12 object-contain" />
               <h1 className="text-xl font-bold text-primary dark:text-primary hidden md:block">ReadMyFinePrint</h1>
             </div>
           </Link>
