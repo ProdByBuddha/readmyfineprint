@@ -364,86 +364,26 @@ export async function registerRoutes(app: Express): Promise<Server> {
         details: { amount }
       });
 
-      if (card) {
-        // Process payment with provided card data (server-side)
-        const paymentMethod = await stripe.paymentMethods.create({
-          type: 'card',
-          card: {
-            number: card.number,
-            exp_month: parseInt(card.exp_month),
-            exp_year: parseInt(card.exp_year),
-            cvc: card.cvc,
-          },
-          billing_details: {
-            name: card.name,
-          },
-        });
+      // Create payment intent for secure processing
+      const paymentIntent = await stripe.paymentIntents.create({
+        amount: Math.round(amount * 100), // Convert to cents
+        currency: "usd",
+        automatic_payment_methods: {
+          enabled: true,
+        },
+        metadata: {
+          type: "donation",
+          source: "readmyfineprint",
+          ip: ip,
+          timestamp: new Date().toISOString()
+        },
+        description: `Donation to ReadMyFinePrint - $${amount.toFixed(2)}`
+      });
 
-        const paymentIntent = await stripe.paymentIntents.create({
-          amount: Math.round(amount * 100), // Convert to cents
-          currency: "usd",
-          payment_method: paymentMethod.id,
-          confirm: true,
-          return_url: `${req.headers.origin}/donate?success=true`,
-          metadata: {
-            type: "donation",
-            source: "readmyfineprint",
-            ip: ip,
-            timestamp: new Date().toISOString()
-          },
-          description: `Donation to ReadMyFinePrint - $${amount.toFixed(2)}`
-        });
-
-        if (paymentIntent.status === 'succeeded') {
-          securityLogger.logSecurityEvent({
-            eventType: "API_ACCESS" as any,
-            severity: "LOW" as any,
-            message: `Donation payment successful: $${amount.toFixed(2)}`,
-            ip,
-            userAgent,
-            endpoint: "/api/create-payment-intent",
-            details: { amount, paymentIntentId: paymentIntent.id }
-          });
-
-          res.json({
-            success: true,
-            paymentIntentId: paymentIntent.id,
-            amount: amount
-          });
-        } else if (paymentIntent.status === 'requires_action') {
-          // Handle 3D Secure or other authentication requirements
-          res.json({
-            requires_action: true,
-            payment_intent: {
-              id: paymentIntent.id,
-              client_secret: paymentIntent.client_secret
-            }
-          });
-        } else {
-          throw new Error(`Payment failed with status: ${paymentIntent.status}`);
-        }
-      } else {
-        // Create payment intent for client-side completion (fallback)
-        const paymentIntent = await stripe.paymentIntents.create({
-          amount: Math.round(amount * 100), // Convert to cents
-          currency: "usd",
-          automatic_payment_methods: {
-            enabled: true,
-          },
-          metadata: {
-            type: "donation",
-            source: "readmyfineprint",
-            ip: ip,
-            timestamp: new Date().toISOString()
-          },
-          description: `Donation to ReadMyFinePrint - $${amount.toFixed(2)}`
-        });
-
-        res.json({
-          clientSecret: paymentIntent.client_secret,
-          paymentIntentId: paymentIntent.id
-        });
-      }
+      res.json({
+        clientSecret: paymentIntent.client_secret,
+        paymentIntentId: paymentIntent.id
+      });
     } catch (error: any) {
       console.error("Stripe payment processing failed:", error);
 

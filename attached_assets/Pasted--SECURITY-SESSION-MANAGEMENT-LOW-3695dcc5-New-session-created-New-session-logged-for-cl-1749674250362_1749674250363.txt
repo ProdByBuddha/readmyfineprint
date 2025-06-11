@@ -1,0 +1,81 @@
+ℹ️ [SECURITY] SESSION_MANAGEMENT | LOW | 3695dcc5 | New session created
+📝 New session logged for client: c743a8a463a4139af3a59fd199e43e7b
+ℹ️ [SECURITY] API_ACCESS | LOW | 3695dcc5 | Processing donation payment for $5.00 | /api/create-payment-intent | {"amount":5}
+Stripe payment processing failed: StripeInvalidRequestError: Sending credit card numbers directly to the Stripe API is generally unsafe. We suggest you use test tokens that map to the test card you are using, see https://stripe.com/docs/testing. To enable testing raw card data APIs, see https://support.stripe.com/questions/enabling-access-to-raw-card-data-apis.
+    at generateV1Error (file:///home/runner/workspace/node_modules/stripe/esm/Error.js:8:20)
+    at res.toJSON.then.StripeAPIError.message (file:///home/runner/workspace/node_modules/stripe/esm/RequestSender.js:105:31)
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5) {
+  type: 'StripeInvalidRequestError',
+  raw: {
+    message: 'Sending credit card numbers directly to the Stripe API is generally unsafe. We suggest you use test tokens that map to the test card you are using, see https://stripe.com/docs/testing. To enable testing raw card data APIs, see https://support.stripe.com/questions/enabling-access-to-raw-card-data-apis.',
+    request_log_url: 'https://dashboard.stripe.com/test/logs/req_HZRScEuPbdJiGY?t=1749674219',
+    type: 'invalid_request_error',
+    headers: {
+      server: 'nginx',
+      date: 'Wed, 11 Jun 2025 20:36:59 GMT',
+      'content-type': 'application/json',
+      'content-length': '475',
+      connection: 'keep-alive',
+      'access-control-allow-credentials': 'true',
+      'access-control-allow-methods': 'GET, HEAD, PUT, PATCH, POST, DELETE',
+      'access-control-allow-origin': '*',
+      'access-control-expose-headers': 'Request-Id, Stripe-Manage-Version, Stripe-Should-Retry, X-Stripe-External-Auth-Required, X-Stripe-Privileged-Session-Required',
+      'access-control-max-age': '300',
+      'cache-control': 'no-cache, no-store',
+      'content-security-policy': "base-uri 'none'; default-src 'none'; form-action 'none'; frame-ancestors 'none'; img-src 'self'; script-src 'self' 'report-sample'; style-src 'self'; worker-src 'none'; upgrade-insecure-requests; report-uri https://q.stripe.com/csp-violation?q=QY0suwNYKxma5PKIiF7Jk_x2YB6sNkC6iCoo7jsALBW1Y38B-VLq93_8TRZOfLNl5pTU6qDcVMOD7msw",
+      'idempotency-key': 'stripe-node-retry-d580bf27-8c8e-4dbb-aeaa-6ad74d4b7ffd',
+      'original-request': 'req_HZRScEuPbdJiGY',
+      'request-id': 'req_HZRScEuPbdJiGY',
+      'stripe-should-retry': 'false',
+      'stripe-version': '2025-05-28.basil',
+      vary: 'Origin',
+      'x-stripe-priority-routing-enabled': 'true',
+      'x-stripe-routing-context-priority-tier': 'api-testmode',
+      'x-wc': 'ABGHI',
+      'strict-transport-security': 'max-age=63072000; includeSubDomains; preload'
+    },
+    statusCode: 402,
+    requestId: 'req_HZRScEuPbdJiGY'
+  },
+  rawType: 'invalid_request_error',
+  code: undefined,
+  doc_url: undefined,
+  param: undefined,
+  detail: undefined,
+  headers: {
+    server: 'nginx',
+    date: 'Wed, 11 Jun 2025 20:36:59 GMT',
+    'content-type': 'application/json',
+    'content-length': '475',
+    connection: 'keep-alive',
+    'access-control-allow-credentials': 'true',
+    'access-control-allow-methods': 'GET, HEAD, PUT, PATCH, POST, DELETE',
+    'access-control-allow-origin': '*',
+    'access-control-expose-headers': 'Request-Id, Stripe-Manage-Version, Stripe-Should-Retry, X-Stripe-External-Auth-Required, X-Stripe-Privileged-Session-Required',
+    'access-control-max-age': '300',
+    'cache-control': 'no-cache, no-store',
+    'content-security-policy': "base-uri 'none'; default-src 'none'; form-action 'none'; frame-ancestors 'none'; img-src 'self'; script-src 'self' 'report-sample'; style-src 'self'; worker-src 'none'; upgrade-insecure-requests; report-uri https://q.stripe.com/csp-violation?q=QY0suwNYKxma5PKIiF7Jk_x2YB6sNkC6iCoo7jsALBW1Y38B-VLq93_8TRZOfLNl5pTU6qDcVMOD7msw",
+    'idempotency-key': 'stripe-node-retry-d580bf27-8c8e-4dbb-aeaa-6ad74d4b7ffd',
+    'original-request': 'req_HZRScEuPbdJiGY',
+    'request-id': 'req_HZRScEuPbdJiGY',
+    'stripe-should-retry': 'false',
+    'stripe-version': '2025-05-28.basil',
+    vary: 'Origin',
+    'x-stripe-priority-routing-enabled': 'true',
+    'x-stripe-routing-context-priority-tier': 'api-testmode',
+    'x-wc': 'ABGHI',
+    'strict-transport-security': 'max-age=63072000; includeSubDomains; preload'
+  },
+  requestId: 'req_HZRScEuPbdJiGY',
+  statusCode: 402,
+  userMessage: undefined,
+  charge: undefined,
+  decline_code: undefined,
+  payment_intent: undefined,
+  payment_method: undefined,
+  payment_method_type: undefined,
+  setup_intent: undefined,
+  source: undefined
+}
+⚠️ [SECURITY] API_ACCESS | HIGH | 3695dcc5 | Stripe payment processing failed: Sending credit card numbers directly to the Stripe API is generally unsafe. We suggest you use test tokens that map to the test card you are using, see https://stripe.com/docs/testing. To enable testing raw card data APIs, see https://support.stripe.com/questions/enabling-access-to-raw-card-data-apis. | /api/create-payment-intent | {"error":"Sending credit card numbers directly to the Stripe API is generally unsafe. We suggest you use test tokens that map to the test card you are using, see https://stripe.com/docs/testing. To enable testing raw card data APIs, see https://support.stripe.com/questions/enabling-access-to-raw-card-data-apis."}
+8:36:59 PM [express] POST /api/create-payment-intent 400 in 179ms :: {"error":"Payment processing fa…

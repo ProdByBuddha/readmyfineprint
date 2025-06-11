@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Link } from "wouter";
-import PaymentForm from "@/components/payment-form";
+import PaymentInterface from "@/components/payment-interface";
 
 const DONATION_AMOUNTS = [
   { amount: 5, label: "$5" },
@@ -167,7 +167,7 @@ const DonateContent = () => {
                 <ArrowLeft className="w-4 h-4 mr-2" />
                 Back to Amount Selection
               </Button>
-              <PaymentForm
+              <PaymentInterface
                 amount={currentAmount}
                 onSuccess={handlePaymentSuccess}
                 onError={handlePaymentError}
