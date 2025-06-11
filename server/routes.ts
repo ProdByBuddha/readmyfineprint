@@ -410,7 +410,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
             paymentIntentId: paymentIntent.id,
             amount: amount
           });
-        } else if (paymentIntent.status === 'requires_action' || paymentIntent.status === 'requires_source_action') {
+        } else if (paymentIntent.status === 'requires_action') {
           // Handle 3D Secure or other authentication requirements
           res.json({
             requires_action: true,
