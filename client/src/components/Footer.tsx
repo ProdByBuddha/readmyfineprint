@@ -38,7 +38,8 @@ export function Footer() {
           {/* About */}
           <div className="space-y-3">
             <h3 className="font-semibold text-gray-900 dark:text-white">
-              ReadMyFinePrint
+              <span className="hidden md:inline">ReadMyFinePrint</span>
+              <span className="md:hidden">RMFP</span>
             </h3>
             <p className="text-sm text-gray-600 dark:text-gray-400">
               Privacy-first document analysis tool for understanding legal documents.
@@ -104,7 +105,7 @@ export function Footer() {
 
         <div className="border-t mt-8 pt-8 flex flex-col md:flex-row justify-between items-center gap-4">
           <div className="text-sm text-gray-500 dark:text-gray-400">
-            © {new Date().getFullYear()} ReadMyFinePrint.
+            © {new Date().getFullYear()} <span className="hidden md:inline">ReadMyFinePrint</span><span className="md:hidden">RMFP</span>.
           </div>
           <div className="flex items-center gap-4 text-xs text-gray-400 dark:text-gray-500">
             <span className="flex items-center gap-1">

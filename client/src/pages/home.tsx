@@ -131,7 +131,7 @@ export default function Home() {
                 alt="ReadMyFinePrint Logo" 
                 className="w-12 h-12 object-contain" 
               />
-              <h1 className="text-xl font-bold text-primary dark:text-primary">ReadMyFinePrint</h1>
+              <h1 className="text-xl font-bold text-primary dark:text-primary hidden md:block">ReadMyFinePrint</h1>
             </div>
             <nav className="hidden md:flex items-center space-x-6">
               <Link to="/donate">
