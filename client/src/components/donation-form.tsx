@@ -166,7 +166,7 @@ export default function DonationForm({ amount, onSuccess, onError }: DonationFor
         </CardTitle>
       </CardHeader>
       <CardContent>
-        <Alert className="mb-4">
+        <Alert className="mb-4 bg-blue-50 dark:bg-gray-800 border-blue-200 dark:border-gray-600">
           <CreditCard className="h-4 w-4" />
           <AlertDescription>
             <div className="text-sm">
