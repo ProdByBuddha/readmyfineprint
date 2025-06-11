@@ -9,7 +9,8 @@ export default function DonateSimple() {
   };
 
   return (
-    <div className="container mx-auto px-4 py-8 max-w-2xl">
+    <div className="min-h-screen bg-gradient-to-br from-teal-50 to-cyan-100 dark:from-slate-900 dark:to-slate-800">
+      <div className="container mx-auto px-4 py-8 max-w-2xl">
       <div className="mb-6">
         <Link href="/">
           <Button variant="ghost" className="mb-4">
@@ -20,7 +21,7 @@ export default function DonateSimple() {
       </div>
       
       <div className="text-center mb-8">
-        <Heart className="h-12 w-12 text-red-500 mx-auto mb-4" />
+        <Heart className="h-12 w-12 text-primary mx-auto mb-4" />
         <h1 className="text-3xl font-bold mb-2">Support ReadMyFinePrint</h1>
         <p className="text-lg text-muted-foreground">
           Help us keep legal document analysis free and accessible for everyone
@@ -37,7 +38,7 @@ export default function DonateSimple() {
         <CardContent className="space-y-6">
           <Button
             onClick={handleDonate}
-            className="w-full h-14 text-lg font-semibold bg-blue-600 hover:bg-blue-700 text-white"
+            className="w-full h-14 text-lg font-semibold bg-primary hover:bg-primary/90 text-primary-foreground"
           >
             Donate Now
           </Button>
@@ -52,7 +53,7 @@ export default function DonateSimple() {
         <Card>
           <CardContent className="p-4">
             <div className="flex items-start space-x-3">
-              <Zap className="h-5 w-5 text-blue-500 mt-1" />
+              <Zap className="h-5 w-5 text-primary mt-1" />
               <div>
                 <h3 className="font-semibold text-sm">Technological Accessibility</h3>
                 <p className="text-xs text-muted-foreground">
@@ -66,7 +67,7 @@ export default function DonateSimple() {
         <Card>
           <CardContent className="p-4">
             <div className="flex items-start space-x-3">
-              <Users className="h-5 w-5 text-green-500 mt-1" />
+              <Users className="h-5 w-5 text-secondary mt-1" />
               <div>
                 <h3 className="font-semibold text-sm">Free for Everyone</h3>
                 <p className="text-xs text-muted-foreground">
@@ -80,7 +81,7 @@ export default function DonateSimple() {
         <Card>
           <CardContent className="p-4">
             <div className="flex items-start space-x-3">
-              <Shield className="h-5 w-5 text-purple-500 mt-1" />
+              <Shield className="h-5 w-5 text-primary mt-1" />
               <div>
                 <h3 className="font-semibold text-sm">Privacy Focused</h3>
                 <p className="text-xs text-muted-foreground">
@@ -94,7 +95,7 @@ export default function DonateSimple() {
         <Card>
           <CardContent className="p-4">
             <div className="flex items-start space-x-3">
-              <Heart className="h-5 w-5 text-red-500 mt-1" />
+              <Heart className="h-5 w-5 text-primary mt-1" />
               <div>
                 <h3 className="font-semibold text-sm">Community Driven</h3>
                 <p className="text-xs text-muted-foreground">
@@ -118,6 +119,7 @@ export default function DonateSimple() {
           </ul>
         </CardContent>
       </Card>
+      </div>
     </div>
   );
 }

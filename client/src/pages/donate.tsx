@@ -65,11 +65,11 @@ const DonateContent = () => {
 
   if (isSuccess && successAmount) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-green-50 to-emerald-100 dark:from-gray-900 dark:to-gray-800 flex items-center justify-center p-4">
+      <div className="min-h-screen bg-gradient-to-br from-teal-50 to-cyan-100 dark:from-slate-900 dark:to-slate-800 flex items-center justify-center p-4">
         <Card className="max-w-md w-full">
           <CardContent className="p-8 text-center">
-            <div className="w-16 h-16 bg-green-100 dark:bg-green-900 rounded-full flex items-center justify-center mx-auto mb-4">
-              <Heart className="w-8 h-8 text-green-600 dark:text-green-400" fill="currentColor" />
+            <div className="w-16 h-16 bg-secondary/20 dark:bg-secondary/30 rounded-full flex items-center justify-center mx-auto mb-4">
+              <Heart className="w-8 h-8 text-secondary dark:text-secondary" fill="currentColor" />
             </div>
             <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">
               Thank You!
@@ -90,7 +90,7 @@ const DonateContent = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-gray-900 dark:to-gray-800 p-4">
+    <div className="min-h-screen bg-gradient-to-br from-teal-50 to-cyan-100 dark:from-slate-900 dark:to-slate-800 p-4">
       <div className="max-w-4xl mx-auto pt-8">
         <div className="mb-6">
           <Link to="/">
@@ -102,8 +102,8 @@ const DonateContent = () => {
         </div>
 
         <div className="text-center mb-12">
-          <div className="inline-flex items-center justify-center w-16 h-16 bg-red-100 dark:bg-red-900 rounded-full mb-4">
-            <Heart className="w-8 h-8 text-red-600 dark:text-red-400" fill="currentColor" />
+          <div className="inline-flex items-center justify-center w-16 h-16 bg-primary/20 dark:bg-primary/30 rounded-full mb-4">
+            <Heart className="w-8 h-8 text-primary dark:text-primary" fill="currentColor" />
           </div>
           <h1 className="text-4xl font-bold text-gray-900 dark:text-white mb-4">
             Support Our Mission
@@ -170,7 +170,7 @@ const DonateContent = () => {
               <div className="space-y-4">
                 <Button 
                   onClick={() => window.open('https://donate.stripe.com/4gM6oI5ZLfCV7Qu8hHb7y00', '_blank')}
-                  className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-6 rounded-lg"
+                  className="w-full bg-primary hover:bg-primary/90 text-primary-foreground font-semibold py-3 px-6 rounded-lg"
                 >
                   Donate ${currentAmount.toFixed(2)} Now
                 </Button>
