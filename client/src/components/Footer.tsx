@@ -56,7 +56,9 @@ export function Footer() {
       <footer 
         className={`fixed bottom-0 left-0 right-0 border-t bg-white/95 dark:bg-gray-900/95 backdrop-blur-sm z-40 max-h-[80vh] overflow-y-auto transform transition-transform duration-700 ease-out`}
         style={{
-          transform: isExpanded ? 'translateY(0)' : 'translateY(calc(100% - 3rem))'
+          transform: isExpanded ? 'translateY(0)' : 'translateY(calc(100% - 3rem))',
+          marginBottom: '-1px',
+          marginTop: '-1px'
         }}
       >
         <div className={`container mx-auto px-4 ${isExpanded ? 'py-8' : 'py-0'}`}>
