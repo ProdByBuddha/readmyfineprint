@@ -34,7 +34,7 @@ export function Footer() {
   };
 
   return (
-    <div>
+    <div className="relative z-20">
       {/* Toggle Button - positioned outside footer */}
       <div className={`fixed left-1/2 transform -translate-x-1/2 z-50 transition-all duration-700 ease-out ${
         isExpanded ? 'bottom-[calc(40vh-2.5rem)]' : 'bottom-12'
@@ -54,7 +54,7 @@ export function Footer() {
       </div>
 
       <footer 
-        className="fixed inset-x-0 bottom-0 bg-white dark:bg-gray-900 z-40 border-t border-gray-200 dark:border-gray-700 transition-all duration-700 ease-out"
+        className="fixed inset-x-0 bottom-0 bg-white dark:bg-gray-900 z-30 border-t border-gray-200 dark:border-gray-700 transition-all duration-700 ease-out"
         style={{
           height: isExpanded ? '40vh' : '3rem',
           paddingBottom: '1px',
@@ -63,9 +63,9 @@ export function Footer() {
           overflowY: isExpanded ? 'auto' : 'hidden'
         }}
       >
-        <div className="w-full h-full" style={{ paddingBottom: isExpanded ? '0.5rem' : '0' }}>
+        <div className="w-full h-full relative" style={{ paddingBottom: isExpanded ? '0.5rem' : '0' }}>
           <div className="w-full h-full">
-            <div className={`${isExpanded ? 'container mx-auto px-4 py-4' : 'w-full h-full'}`}>
+            <div className={`${isExpanded ? 'container mx-auto px-4 py-4' : 'w-full h-full'} relative`}>
               {/* Collapsed view - just the copyright */}
               <div className={`${isExpanded ? 'hidden' : 'flex justify-center items-center h-full'}`}>
                 <div className="text-sm text-gray-500 dark:text-gray-400">
