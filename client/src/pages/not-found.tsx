@@ -6,7 +6,7 @@ import { Link } from "wouter";
 export default function NotFound() {
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
-      <div className="flex-1 flex items-center justify-center py-20 pb-32">
+      <div className="flex-1 flex items-center justify-center py-20 pb-6">
         <Card className="w-full max-w-md mx-4">
           <CardContent className="pt-6 text-center">
             <div className="flex justify-center mb-4">

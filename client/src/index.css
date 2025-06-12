@@ -136,19 +136,46 @@ html, body {
   position: relative;
 }
 
-/* Add padding to main content to prevent footer overlap */
+/* Main content area constrained to not overflow past footer */
 main, .main-content {
-  padding-bottom: 160px !important;
+  max-height: calc(100vh - 160px); /* Account for header (80px) + footer (80px) */
+  overflow-y: auto;
+  padding-bottom: 20px;
+  /* Smooth scrolling */
+  scroll-behavior: smooth;
+}
+
+/* Page containers should respect viewport boundaries */
+.min-h-screen {
+  min-height: calc(100vh - 160px); /* Account for header + footer */
+  max-height: calc(100vh - 160px);
+  overflow-y: auto;
+  /* Custom scrollbar styling */
+  scrollbar-width: thin;
+  scrollbar-color: rgba(156, 163, 175, 0.5) transparent;
+}
+
+/* Webkit scrollbar styling for better UX */
+.min-h-screen::-webkit-scrollbar {
+  width: 6px;
+}
+
+.min-h-screen::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.min-h-screen::-webkit-scrollbar-thumb {
+  background-color: rgba(156, 163, 175, 0.5);
+  border-radius: 3px;
+}
+
+.min-h-screen::-webkit-scrollbar-thumb:hover {
+  background-color: rgba(156, 163, 175, 0.7);
 }
 
 /* Consistent page layout spacing */
 .page-transition {
   transition: opacity 0.2s ease-in-out;
-}
-
-/* Remove default margins from page containers */
-.min-h-screen {
-  min-height: calc(100vh - 80px); /* Account for header height */
 }
 
 /* Ensure proper spacing for app-level navigation */
