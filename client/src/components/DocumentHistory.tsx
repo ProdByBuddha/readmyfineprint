@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -20,9 +20,11 @@ export function DocumentHistory({ onSelectDocument, currentDocumentId }: Documen
   const [isExpanded, setIsExpanded] = useState(false);
   const { toast } = useToast();
 
-  const { data: documents = [], isLoading } = useQuery({
+  const { data: documents = [], isLoading, isFetching } = useQuery({
     queryKey: ['/api/documents'],
     queryFn: getAllDocuments,
+    staleTime: 30 * 1000, // Keep fresh for 30 seconds
+    refetchOnMount: false,
   });
 
   const clearDocumentsMutation = useMutation({
@@ -80,15 +82,16 @@ export function DocumentHistory({ onSelectDocument, currentDocumentId }: Documen
     }
   };
 
-  if (isLoading) {
+  // Only show loading skeleton on initial load, not on background refetches
+  if (isLoading && !documents.length) {
     return (
       <Card className="mb-8">
         <CardContent className="p-6">
           <div className="animate-pulse space-y-4">
-            <div className="h-4 bg-gray-200 rounded w-1/4"></div>
+            <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-1/4"></div>
             <div className="space-y-2">
-              <div className="h-3 bg-gray-200 rounded"></div>
-              <div className="h-3 bg-gray-200 rounded w-5/6"></div>
+              <div className="h-3 bg-gray-200 dark:bg-gray-700 rounded"></div>
+              <div className="h-3 bg-gray-200 dark:bg-gray-700 rounded w-5/6"></div>
             </div>
           </div>
         </CardContent>
@@ -100,9 +103,12 @@ export function DocumentHistory({ onSelectDocument, currentDocumentId }: Documen
     return null;
   }
 
-  const recentDocuments = documents
-    .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
-    .slice(0, isExpanded ? documents.length : 3);
+  const recentDocuments = useMemo(() => 
+    documents
+      .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
+      .slice(0, isExpanded ? documents.length : 3),
+    [documents, isExpanded]
+  );
 
   return (
     <Card className="mb-8">
@@ -139,7 +145,7 @@ export function DocumentHistory({ onSelectDocument, currentDocumentId }: Documen
       </CardHeader>
       <CardContent>
         <ScrollArea className={isExpanded ? "h-96" : "h-auto"}>
-          <div className="space-y-3">
+          <div className="space-y-3" style={{ minHeight: isFetching ? '100px' : 'auto' }}>
             {recentDocuments.map((document) => {
               const analysis = document.analysis as DocumentAnalysis | null;
               const isActive = currentDocumentId === document.id;

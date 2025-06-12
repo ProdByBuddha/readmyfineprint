@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { File, Plus, Cookie } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -29,6 +29,8 @@ export default function Home() {
     queryKey: ['/api/documents', currentDocumentId],
     queryFn: () => currentDocumentId ? getDocument(currentDocumentId) : null,
     enabled: !!currentDocumentId,
+    staleTime: 30 * 1000, // Keep fresh for 30 seconds
+    refetchOnMount: false,
   });
 
   const analyzeDocumentMutation = useMutation({
