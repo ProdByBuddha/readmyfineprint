@@ -33,21 +33,58 @@ export class AnalysisPDFExporter {
     }
   }
 
-  private addLogo(): void {
-    // Add custom C logo - use fallback text for now
+  private async addLogo(): Promise<void> {
+    // Add company logo
     try {
-      // Skip image loading for now, use text fallback
-      this.doc.setTextColor(37, 99, 235);
-      this.doc.setFontSize(16);
-      this.doc.setFont('helvetica', 'bold');
-      this.doc.text('C', this.leftMargin + 8, this.currentY + 10, { align: 'center' });
+      console.log('Attempting to load logo image:', logoImage);
+      
+      // Convert image to proper format for jsPDF
+      const img = new Image();
+      img.crossOrigin = 'anonymous';
+      
+      await new Promise<void>((resolve, reject) => {
+        img.onload = () => {
+          try {
+            // Create canvas to convert image
+            const canvas = document.createElement('canvas');
+            const ctx = canvas.getContext('2d');
+            if (!ctx) throw new Error('Canvas context not available');
+            
+            canvas.width = img.width;
+            canvas.height = img.height;
+            
+            // Draw image to canvas with white background (for transparency)
+            ctx.fillStyle = 'white';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            ctx.drawImage(img, 0, 0);
+            
+            // Convert to base64 JPEG
+            const dataUrl = canvas.toDataURL('image/jpeg', 0.9);
+            
+            // Add to PDF
+            this.doc.addImage(dataUrl, 'JPEG', this.leftMargin, this.currentY, 16, 16);
+            console.log('Logo image loaded successfully');
+            resolve();
+          } catch (err) {
+            reject(err);
+          }
+        };
+        
+        img.onerror = () => reject(new Error('Failed to load image'));
+        img.src = logoImage;
+      });
+      
     } catch (error) {
-      console.error('Logo rendering failed:', error);
-      // Simple fallback
-      this.doc.setTextColor(37, 99, 235);
-      this.doc.setFontSize(16);
+      console.error('Logo image loading failed:', error);
+      // Fallback to styled text logo
+      this.doc.setFillColor(37, 99, 235);
+      this.doc.roundedRect(this.leftMargin, this.currentY, 16, 16, 2, 2, 'F');
+      
+      this.doc.setTextColor(255, 255, 255);
+      this.doc.setFontSize(14);
       this.doc.setFont('helvetica', 'bold');
-      this.doc.text('C', this.leftMargin + 8, this.currentY + 10, { align: 'center' });
+      this.doc.text('C', this.leftMargin + 8, this.currentY + 11, { align: 'center' });
+      console.log('Using styled text fallback for logo');
     }
     
     this.currentY += 20;
@@ -375,7 +412,7 @@ export class AnalysisPDFExporter {
       console.log('Adding logo...');
       // Add logo
       if (includeLogo) {
-        this.addLogo();
+        await this.addLogo();
       }
 
       console.log('Adding header...');
