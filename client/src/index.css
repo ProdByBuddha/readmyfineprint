@@ -128,6 +128,8 @@ html, body {
     -webkit-text-size-adjust: 100%;
     /* Smooth scrolling */
     scroll-behavior: smooth;
+    /* Prevent bounce scrolling */
+    overscroll-behavior: none;
   }
   
   body {
@@ -138,6 +140,32 @@ html, body {
     -webkit-transform: translateZ(0);
     /* Touch optimization */
     touch-action: manipulation;
+    /* Disable pull-to-refresh on mobile browsers */
+    overscroll-behavior-y: none;
+  }
+  
+  /* Enhance main content scrolling */
+  main {
+    /* Enable momentum scrolling */
+    -webkit-overflow-scrolling: touch;
+    /* Smooth scroll behavior */
+    scroll-behavior: smooth;
+    /* Prevent overscroll bounce */
+    overscroll-behavior: none;
+    /* Enable hardware acceleration for scrolling */
+    transform: translateZ(0);
+    -webkit-transform: translateZ(0);
+    /* Optimize for touch scrolling */
+    touch-action: pan-y;
+  }
+  
+  /* Scrollable content optimization */
+  .overflow-y-auto {
+    -webkit-overflow-scrolling: touch;
+    scroll-behavior: smooth;
+    overscroll-behavior: none;
+    transform: translateZ(0);
+    -webkit-transform: translateZ(0);
   }
 }
 

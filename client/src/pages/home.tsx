@@ -13,6 +13,7 @@ import { DocumentHistory } from "@/components/DocumentHistory";
 import { AnalysisProgress } from "@/components/LoadingStates";
 import { LegalDisclaimer } from "@/components/LegalDisclaimer";
 import { MobileAppWrapper } from "@/components/MobileAppWrapper";
+import { TouchScrollContainer } from "@/components/TouchScrollContainer";
 import { useCookieConsent } from "@/components/CookieConsent";
 import { analyzeDocument, getDocument, createDocument } from "@/lib/api";
 import { useToast } from "@/hooks/use-toast";
@@ -126,7 +127,7 @@ export default function Home() {
   }
 
   return (
-    <div ref={containerRef} className="h-full bg-gradient-to-br from-teal-50 to-cyan-100 dark:from-gray-900 dark:to-slate-800 page-transition">
+    <TouchScrollContainer ref={containerRef} className="h-full bg-gradient-to-br from-teal-50 to-cyan-100 dark:from-gray-900 dark:to-slate-800 page-transition" enablePullToRefresh={true}>
       <MobileAppWrapper className="h-full">
         <div className="h-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
           {/* Document History */}
@@ -256,6 +257,6 @@ export default function Home() {
           )}
         </div>
       </MobileAppWrapper>
-    </div>
+    </TouchScrollContainer>
   );
 }

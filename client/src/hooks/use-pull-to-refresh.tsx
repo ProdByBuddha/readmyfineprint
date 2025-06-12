@@ -21,20 +21,31 @@ export function usePullToRefresh({
   const containerRef = useRef<HTMLDivElement | null>(null);
 
   const handleTouchStart = useCallback((e: TouchEvent) => {
-    if (!enabled || window.scrollY > 0) return;
+    if (!enabled) return;
+    
+    // Check if we're at the top of the scrollable container
+    const target = e.target as HTMLElement;
+    const scrollContainer = target.closest('.overflow-y-auto') || document.documentElement;
+    if (scrollContainer.scrollTop > 0) return;
     
     touchStartY.current = e.touches[0].clientY;
     currentY.current = e.touches[0].clientY;
   }, [enabled]);
 
   const handleTouchMove = useCallback((e: TouchEvent) => {
-    if (!enabled || window.scrollY > 0 || !touchStartY.current) return;
+    if (!enabled || !touchStartY.current) return;
+
+    // Check if we're at the top of the scrollable container
+    const target = e.target as HTMLElement;
+    const scrollContainer = target.closest('.overflow-y-auto') || document.documentElement;
+    if (scrollContainer.scrollTop > 0) return;
 
     currentY.current = e.touches[0].clientY;
     const deltaY = currentY.current - touchStartY.current;
 
-    if (deltaY > 0) {
-      // Prevent default scroll behavior when pulling down
+    // Only activate pull-to-refresh for significant downward pulls
+    if (deltaY > 20) {
+      // Only prevent default for actual pull-to-refresh gesture
       e.preventDefault();
       
       const distance = Math.min(deltaY / resistance, threshold * 1.5);
