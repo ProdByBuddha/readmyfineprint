@@ -2,6 +2,22 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Reset browser defaults to eliminate gaps */
+* {
+  box-sizing: border-box;
+}
+
+html, body {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+  overflow-x: hidden;
+}
+
+#root {
+  height: 100%;
+}
+
 :root {
   --background: hsl(180, 20%, 98%);
   --foreground: hsl(185, 10%, 12%);
