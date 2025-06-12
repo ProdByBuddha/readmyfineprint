@@ -1,7 +1,8 @@
-import { Heart, Shield, Users, Zap } from "lucide-react";
+import { Heart, Shield, Users, Zap, MapPin } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { TouchScrollContainer } from "@/components/TouchScrollContainer";
+import { Link } from "wouter";
 
 export default function DonateSimple() {
   const handleDonate = () => {
@@ -15,9 +16,15 @@ export default function DonateSimple() {
         <div className="text-center mb-8">
           <Heart className="h-12 w-12 text-primary mx-auto mb-4" />
           <h1 className="text-3xl font-bold mb-2">Support ReadMyFinePrint</h1>
-          <p className="text-lg text-muted-foreground">
+          <p className="text-lg text-muted-foreground mb-4">
             Help us keep legal document analysis free and accessible for everyone
           </p>
+          <Link to="/roadmap">
+            <Button variant="outline" className="inline-flex items-center">
+              <MapPin className="w-4 h-4 mr-2" />
+              View Development Roadmap
+            </Button>
+          </Link>
         </div>
 
         <Card className="mb-6">
