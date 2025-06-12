@@ -1,5 +1,4 @@
 import type { Express } from "express";
-import express from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
 import { consentLogger } from "./consent";
@@ -526,9 +525,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Stripe webhook endpoint for payment confirmations
-  // This endpoint needs raw body for signature verification
-  app.use("/api/stripe-webhook", express.raw({ type: 'application/json' }));
+  // Stripe webhook endpoint for payment confirmations  
   app.post("/api/stripe-webhook", async (req, res) => {
     console.log('🔔 Webhook received:', {
       headers: {
