@@ -199,24 +199,7 @@ html, body {
   position: relative;
 }
 
-/* Main content area constrained to not overflow past footer */
-main, .main-content {
-  max-height: calc(100vh - 160px); /* Account for header (80px) + footer (80px) */
-  overflow-y: auto;
-  padding-bottom: 20px;
-  /* Smooth scrolling */
-  scroll-behavior: smooth;
-}
-
-/* Page containers should respect viewport boundaries */
-.min-h-screen {
-  min-height: calc(100vh - 160px); /* Account for header + footer */
-  max-height: calc(100vh - 160px);
-  overflow-y: auto;
-  /* Custom scrollbar styling */
-  scrollbar-width: thin;
-  scrollbar-color: rgba(156, 163, 175, 0.5) transparent;
-}
+/* Remove old main content constraints since we're using flexbox */
 
 /* Webkit scrollbar styling for better UX */
 .min-h-screen::-webkit-scrollbar {
