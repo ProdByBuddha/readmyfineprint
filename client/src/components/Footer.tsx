@@ -1,13 +1,7 @@
 import { Shield, Scale, Cookie, Heart, Mail, Home } from "lucide-react";
-import { useCookieConsent } from "@/components/CookieConsent";
 import { Link } from "wouter";
 
 export function Footer() {
-  const { revokeCookies } = useCookieConsent();
-
-  const handleCookieSettings = () => {
-    revokeCookies();
-  };
 
   const handleContactClick = () => {
     const user = 'support';
@@ -49,13 +43,10 @@ Best regards`);
             <Scale className="w-5 h-5 md:w-6 md:h-6 text-gray-600 dark:text-gray-400" />
             <span className="text-xs md:text-sm text-gray-500 dark:text-gray-400">Terms</span>
           </Link>
-          <button
-            onClick={handleCookieSettings}
-            className="flex flex-col items-center gap-1 p-3 rounded-md hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
-          >
+          <Link to="/cookies" className="flex flex-col items-center gap-1 p-3 rounded-md hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors">
             <Cookie className="w-5 h-5 md:w-6 md:h-6 text-gray-600 dark:text-gray-400" />
             <span className="text-xs md:text-sm text-gray-500 dark:text-gray-400">Cookies</span>
-          </button>
+          </Link>
           <Link to="/donate" className="flex flex-col items-center gap-1 p-3 rounded-md hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors">
             <Heart className="w-5 h-5 md:w-6 md:h-6 text-red-500" fill="currentColor" />
             <span className="text-xs md:text-sm text-gray-500 dark:text-gray-400">Donate</span>
