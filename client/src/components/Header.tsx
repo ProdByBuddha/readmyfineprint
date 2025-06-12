@@ -8,7 +8,7 @@ export function Header() {
   const { theme, toggleTheme } = useTheme();
 
   return (
-    <header className="bg-white dark:bg-slate-900 border-b border-teal-200 dark:border-slate-700 sticky top-0 z-50 inset-x-0">
+    <header className="bg-white dark:bg-slate-900 border-b border-teal-200 dark:border-slate-700 fixed top-0 left-0 right-0 z-50">
       <div className="w-full px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16">
           <Link to="/">

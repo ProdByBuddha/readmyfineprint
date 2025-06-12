@@ -69,7 +69,7 @@ const DonateContent = () => {
     return (
       <div className="min-h-screen bg-gradient-to-br from-teal-50 to-cyan-100 dark:from-slate-900 dark:to-slate-800">
         <Header />
-        <div className="flex items-center justify-center p-4 min-h-[calc(100vh-16rem)]">
+        <div className="flex items-center justify-center p-4 pt-24 min-h-[calc(100vh-16rem)]">
           <Card className="max-w-md w-full">
             <CardContent className="p-8 text-center">
               <div className="w-16 h-16 bg-secondary/20 dark:bg-secondary/30 rounded-full flex items-center justify-center mx-auto mb-4">
@@ -99,7 +99,7 @@ const DonateContent = () => {
     <div className="min-h-screen bg-gradient-to-br from-teal-50 to-cyan-100 dark:from-slate-900 dark:to-slate-800">
       <Header />
       <div className="p-4 pb-32">
-        <div className="max-w-4xl mx-auto pt-8">
+        <div className="max-w-4xl mx-auto pt-24">
           <div className="text-center mb-12">
             <div className="inline-flex items-center justify-center w-16 h-16 bg-primary/20 dark:bg-primary/30 rounded-full mb-4">
               <Heart className="w-8 h-8 text-primary dark:text-primary" fill="currentColor" />
