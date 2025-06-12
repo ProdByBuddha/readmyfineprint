@@ -54,13 +54,13 @@ export function Footer() {
       </div>
 
       <footer 
-        className="fixed inset-x-0 bottom-0 bg-white dark:bg-gray-900 z-40 max-h-[80vh] overflow-y-auto transform transition-transform duration-700 ease-out border-t border-gray-200 dark:border-gray-700"
+        className="fixed inset-x-0 bottom-0 bg-white dark:bg-gray-900 z-40 border-t border-gray-200 dark:border-gray-700 transition-all duration-700 ease-out"
         style={{
-          height: isExpanded ? 'auto' : '3rem',
-          maxHeight: isExpanded ? '50vh' : '3rem',
+          height: isExpanded ? '40vh' : '3rem',
           paddingBottom: '1px',
           marginBottom: '0',
-          transform: isExpanded ? 'translateY(0)' : 'translateY(calc(100% - 3rem))'
+          transform: isExpanded ? 'translateY(0)' : 'translateY(calc(100% - 3rem))',
+          overflowY: isExpanded ? 'auto' : 'hidden'
         }}
       >
         <div className={`${isExpanded ? 'container mx-auto px-4 py-6' : 'w-full h-full'}`} style={{ paddingBottom: isExpanded ? '1rem' : '0' }}>
