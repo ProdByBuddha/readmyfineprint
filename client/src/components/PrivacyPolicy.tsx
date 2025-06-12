@@ -1,5 +1,6 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Shield, Eye, Clock, Trash2, Lock, Globe } from "lucide-react";
+import { SecurityBadges } from "@/components/SecurityBadges";
 
 export function PrivacyPolicy() {
   return (
@@ -182,6 +183,12 @@ export function PrivacyPolicy() {
               </table>
             </div>
           </div>
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardContent className="pt-6">
+          <SecurityBadges variant="privacy" />
         </CardContent>
       </Card>
 

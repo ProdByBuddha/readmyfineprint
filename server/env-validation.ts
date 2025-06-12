@@ -36,6 +36,18 @@ const ENV_VARIABLES: EnvConfig[] = [
     description: 'Node environment (development, production)',
     defaultValue: 'development',
     validator: (value) => ['development', 'production', 'test'].includes(value)
+  },
+  {
+    name: 'SESSION_ENCRYPTION_KEY',
+    required: false,
+    description: 'Optional encryption key for session data at rest (enhances security)',
+    validator: (value) => value.length >= 32 && value.length <= 256
+  },
+  {
+    name: 'SECURITY_WEBHOOK_URL',
+    required: false,
+    description: 'Optional webhook URL for security alerts (for external monitoring)',
+    validator: (value) => value.startsWith('http://') || value.startsWith('https://')
   }
 ];
 

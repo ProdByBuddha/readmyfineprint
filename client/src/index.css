@@ -201,20 +201,11 @@ html, body {
   padding-right: var(--app-safe-area-right);
 }
 
-/* Mobile-specific footer positioning for app-like experience */
+/* Mobile-specific adjustments */
 @media (max-width: 768px) {
-  footer {
-    position: fixed !important;
-    bottom: var(--app-safe-area-bottom) !important;
-    left: var(--app-safe-area-left) !important;
-    right: var(--app-safe-area-right) !important;
-    width: calc(100vw - var(--app-safe-area-left) - var(--app-safe-area-right)) !important;
-    z-index: 50 !important;
-  }
-  
-  /* Adjust main content padding on mobile to account for fixed footer */
+  /* Adjust main content padding on mobile */
   main {
-    padding-bottom: 80px !important;
+    padding-bottom: 20px;
   }
 }
 
@@ -443,4 +434,240 @@ html, body {
 
 .hover\:bg-secondary:hover {
   background-color: hsl(185, 60%, 20%);
+}
+
+/* Accessibility Enhancements */
+
+/* Screen reader only content */
+.sr-only {
+  position: absolute !important;
+  width: 1px !important;
+  height: 1px !important;
+  padding: 0 !important;
+  margin: -1px !important;
+  overflow: hidden !important;
+  clip: rect(0, 0, 0, 0) !important;
+  white-space: nowrap !important;
+  border: 0 !important;
+}
+
+/* Focus management */
+.js-focus-visible :focus:not(.focus-visible) {
+  outline: none;
+}
+
+.keyboard-navigation :focus,
+.focus-visible {
+  outline: 2px solid #3b82f6;
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+/* Skip links */
+.skip-link {
+  position: absolute;
+  top: -40px;
+  left: 6px;
+  background: #000;
+  color: #fff;
+  padding: 8px;
+  text-decoration: none;
+  z-index: 9999;
+  border-radius: 4px;
+  font-weight: 600;
+}
+
+.skip-link:focus {
+  top: 6px;
+  outline: 2px solid #fff;
+}
+
+/* High contrast mode support */
+.high-contrast {
+  --tw-bg-opacity: 1;
+  --tw-text-opacity: 1;
+}
+
+.high-contrast * {
+  background-color: transparent !important;
+  border-color: currentColor !important;
+}
+
+.high-contrast .bg-primary {
+  background-color: #000 !important;
+  color: #fff !important;
+}
+
+.high-contrast .text-gray-500,
+.high-contrast .text-gray-600 {
+  color: #000 !important;
+}
+
+.high-contrast .border-gray-300 {
+  border-color: #000 !important;
+}
+
+/* Reduced motion support */
+.reduce-motion *,
+.reduce-motion *::before,
+.reduce-motion *::after {
+  animation-duration: 0.01ms !important;
+  animation-iteration-count: 1 !important;
+  transition-duration: 0.01ms !important;
+  transition-delay: 0ms !important;
+  scroll-behavior: auto !important;
+}
+
+/* Enhanced button focus states */
+button:focus-visible,
+[role="button"]:focus-visible,
+input[type="button"]:focus-visible,
+input[type="submit"]:focus-visible,
+input[type="reset"]:focus-visible {
+  outline: 2px solid #3b82f6;
+  outline-offset: 2px;
+  box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.1);
+}
+
+/* Enhanced form focus states */
+input:focus-visible,
+textarea:focus-visible,
+select:focus-visible {
+  outline: 2px solid #3b82f6;
+  outline-offset: 2px;
+  border-color: #3b82f6;
+}
+
+/* Link focus states */
+a:focus-visible {
+  outline: 2px solid #3b82f6;
+  outline-offset: 2px;
+  border-radius: 2px;
+}
+
+/* Ensure minimum contrast ratios */
+.text-gray-500 {
+  color: rgb(75 85 99); /* Improved contrast */
+}
+
+.text-gray-400 {
+  color: rgb(156 163 175); /* Improved contrast */
+}
+
+/* Better focus indicators for interactive elements */
+[tabindex]:focus-visible,
+[role="button"]:focus-visible,
+[role="link"]:focus-visible,
+[role="tab"]:focus-visible,
+[role="menuitem"]:focus-visible {
+  outline: 2px solid #3b82f6;
+  outline-offset: 2px;
+}
+
+/* Error state styling for accessibility */
+[aria-invalid="true"] {
+  border-color: #ef4444 !important;
+  box-shadow: 0 0 0 1px #ef4444;
+}
+
+[aria-invalid="true"]:focus {
+  box-shadow: 0 0 0 1px #ef4444, 0 0 0 3px rgba(239, 68, 68, 0.1);
+}
+
+/* Loading state accessibility */
+[aria-busy="true"] {
+  position: relative;
+  overflow: hidden;
+}
+
+[aria-busy="true"]::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(255, 255, 255, 0.7);
+  z-index: 1;
+  pointer-events: none;
+}
+
+/* Dark mode accessibility improvements */
+@media (prefers-color-scheme: dark) {
+  .keyboard-navigation :focus,
+  .focus-visible {
+    outline-color: #60a5fa;
+  }
+  
+  button:focus-visible,
+  [role="button"]:focus-visible,
+  input[type="button"]:focus-visible,
+  input[type="submit"]:focus-visible,
+  input[type="reset"]:focus-visible {
+    outline-color: #60a5fa;
+    box-shadow: 0 0 0 4px rgba(96, 165, 250, 0.1);
+  }
+  
+  input:focus-visible,
+  textarea:focus-visible,
+  select:focus-visible {
+    outline-color: #60a5fa;
+    border-color: #60a5fa;
+  }
+  
+  a:focus-visible {
+    outline-color: #60a5fa;
+  }
+}
+
+/* Ensure proper spacing for touch targets */
+@media (max-width: 768px) {
+  button,
+  [role="button"],
+  input[type="button"],
+  input[type="submit"],
+  input[type="reset"],
+  a {
+    min-height: 44px;
+    min-width: 44px;
+  }
+  
+  /* Increase spacing between interactive elements */
+  button + button,
+  [role="button"] + [role="button"] {
+    margin-left: 8px;
+  }
+}
+
+/* Print accessibility */
+@media print {
+  .skip-link,
+  [aria-hidden="true"] {
+    display: none !important;
+  }
+  
+  a::after {
+    content: " (" attr(href) ")";
+    font-size: 0.8em;
+  }
+}
+
+/* Prefers reduced data */
+@media (prefers-reduced-data: reduce) {
+  * {
+    background-image: none !important;
+  }
+}
+
+/* Animation preferences */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    transition-delay: 0ms !important;
+    scroll-behavior: auto !important;
+  }
 }

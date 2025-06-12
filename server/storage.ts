@@ -173,3 +173,8 @@ export class SessionStorage implements IStorage {
 }
 
 export const storage = new SessionStorage();
+
+// Option to use encrypted storage for enhanced security
+// Uncomment the line below to enable session encryption
+// import { EncryptedSessionStorage } from './encrypted-storage';
+// export const encryptedStorage = new EncryptedSessionStorage();

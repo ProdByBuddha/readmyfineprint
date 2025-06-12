@@ -1,0 +1,89 @@
+{
+  "name": "ReadMyFinePrint - AI-Powered Legal Document Analysis",
+  "short_name": "ReadMyFinePrint",
+  "description": "Transform complex legal documents into accessible summaries with AI-powered analysis. Upload your contracts, terms of service, and legal documents for instant insights.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#1E90A0",
+  "orientation": "portrait-primary",
+  "categories": ["productivity", "business", "legal"],
+  "lang": "en-US",
+  "scope": "/",
+  "icons": [
+    {
+      "src": "/favicon.ico",
+      "sizes": "32x32",
+      "type": "image/x-icon"
+    },
+    {
+      "src": "/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/icon-256.png",
+      "sizes": "256x256",
+      "type": "image/png"
+    },
+    {
+      "src": "/icon-384.png",
+      "sizes": "384x384",
+      "type": "image/png"
+    },
+    {
+      "src": "/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/apple-touch-icon.png",
+      "sizes": "180x180",
+      "type": "image/png"
+    }
+  ],
+  "screenshots": [
+    {
+      "src": "/screenshot-desktop.png",
+      "sizes": "1280x720",
+      "type": "image/png",
+      "form_factor": "wide",
+      "label": "ReadMyFinePrint desktop interface"
+    },
+    {
+      "src": "/screenshot-mobile.png",
+      "sizes": "390x844",
+      "type": "image/png",
+      "form_factor": "narrow",
+      "label": "ReadMyFinePrint mobile interface"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Upload Document",
+      "short_name": "Upload",
+      "description": "Upload a legal document for analysis",
+      "url": "/?action=upload",
+      "icons": [
+        {
+          "src": "/upload-icon.png",
+          "sizes": "96x96"
+        }
+      ]
+    },
+    {
+      "name": "Donate",
+      "short_name": "Support",
+      "description": "Support ReadMyFinePrint development",
+      "url": "/donate",
+      "icons": [
+        {
+          "src": "/heart-icon.png",
+          "sizes": "96x96"
+        }
+      ]
+    }
+  ]
+} 

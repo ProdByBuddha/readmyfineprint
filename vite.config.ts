@@ -27,11 +27,36 @@ export default defineConfig({
   build: {
     outDir: path.resolve(import.meta.dirname, "dist/public"),
     emptyOutDir: true,
+    // SEO and Performance optimizations
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          vendor: ['react', 'react-dom'],
+          ui: ['@radix-ui/react-dialog', '@radix-ui/react-button', '@radix-ui/react-card'],
+        },
+      },
+    },
+    // Asset optimization
+    assetsInlineLimit: 4096,
+    cssCodeSplit: true,
+    // Source maps for better debugging in production
+    sourcemap: true,
+    // Minification settings
+    minify: 'esbuild',
+    target: ['es2020', 'edge88', 'firefox78', 'chrome87', 'safari13.1'],
   },
   server: {
     fs: {
       strict: true,
       deny: ["**/.*"],
     },
+  },
+  // Performance optimizations
+  optimizeDeps: {
+    include: ['react', 'react-dom', '@tanstack/react-query'],
+  },
+  // Enable CSS preprocessing optimizations
+  css: {
+    devSourcemap: true,
   },
 });

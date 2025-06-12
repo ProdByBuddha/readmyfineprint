@@ -1,4 +1,4 @@
-import { useState, useMemo, useCallback } from "react";
+import { useState, useMemo, useCallback, useEffect } from "react";
 import { useStableCallback } from "@/hooks/useStableCallback";
 import { usePreventFlicker } from "@/hooks/usePreventFlicker";
 import { useMutation, useQuery } from "@tanstack/react-query";
@@ -15,9 +15,11 @@ import { LegalDisclaimer } from "@/components/LegalDisclaimer";
 import { MobileAppWrapper } from "@/components/MobileAppWrapper";
 import { TouchScrollContainer } from "@/components/TouchScrollContainer";
 import { useCookieConsent } from "@/components/CookieConsent";
+import { useAccessibility } from "@/hooks/useAccessibility";
 import { analyzeDocument, getDocument, createDocument } from "@/lib/api";
 import { useToast } from "@/hooks/use-toast";
 import { queryClient } from "@/lib/queryClient";
+import { generateFAQSchema, updateSEO } from "@/lib/seo";
 import type { Document } from "@shared/schema";
 
 export default function Home() {
@@ -26,7 +28,30 @@ export default function Home() {
   const [disclaimerAccepted, setDisclaimerAccepted] = useState(false);
   const { toast } = useToast();
   const { isAccepted: cookiesAccepted } = useCookieConsent();
+  const { announce } = useAccessibility();
   const containerRef = usePreventFlicker();
+
+  // Add FAQ structured data for SEO
+  useEffect(() => {
+    const faqData = [
+      {
+        question: "How accurate are the summaries?",
+        answer: "Our advanced analysis engine has processed thousands of legal documents and is trained to identify common patterns and concerning clauses. While highly accurate, we recommend consulting with a legal professional for critical decisions."
+      },
+      {
+        question: "Is my document data secure?",
+        answer: "Yes, all documents are encrypted in transit and at rest. We don't store your documents after analysis, and you can delete your summaries at any time."
+      },
+      {
+        question: "What types of documents can I analyze?",
+        answer: "We support contracts, terms of service, privacy policies, employment agreements, rental agreements, and most other legal documents in English."
+      }
+    ];
+
+    updateSEO({
+      structuredData: generateFAQSchema(faqData)
+    });
+  }, []);
 
   const { data: currentDocument, isLoading: isLoadingDocument } = useQuery({
     queryKey: ['/api/documents', currentDocumentId],
@@ -45,6 +70,7 @@ export default function Home() {
     mutationFn: (documentId: number) => analyzeDocument(documentId),
     onSuccess: (updatedDocument: Document) => {
       setIsAnalyzing(false);
+      announce("Document analysis completed successfully", 'polite');
       toast({
         title: "Analysis complete",
         description: "Your document has been analyzed successfully.",
@@ -55,9 +81,11 @@ export default function Home() {
     },
     onError: (error) => {
       setIsAnalyzing(false);
+      const errorMessage = error instanceof Error ? error.message : "Failed to analyze document";
+      announce(`Analysis failed: ${errorMessage}`, 'assertive');
       toast({
         title: "Analysis failed",
-        description: error instanceof Error ? error.message : "Failed to analyze document",
+        description: errorMessage,
         variant: "destructive",
       });
     },
@@ -66,9 +94,11 @@ export default function Home() {
   const handleDocumentCreated = useCallback(async (documentId: number) => {
     // Check if both disclaimer and cookies are accepted
     if (!disclaimerAccepted || !cookiesAccepted) {
+      const message = "Please accept both the legal disclaimer and cookie consent to process documents.";
+      announce(message, 'assertive');
       toast({
         title: "Consent Required",
-        description: "Please accept both the legal disclaimer and cookie consent to process documents.",
+        description: message,
         variant: "destructive",
       });
       return;
@@ -76,35 +106,43 @@ export default function Home() {
 
     setCurrentDocumentId(documentId);
     setIsAnalyzing(true);
+    announce("Starting document analysis", 'polite');
     try {
       await analyzeDocumentMutation.mutateAsync(documentId);
     } catch (error) {
       console.error("Analysis error:", error);
     }
-  }, [disclaimerAccepted, cookiesAccepted, toast, analyzeDocumentMutation]);
+  }, [disclaimerAccepted, cookiesAccepted, toast, analyzeDocumentMutation, announce]);
 
   const handleDocumentSelect = useStableCallback((documentId: number | null) => {
     setCurrentDocumentId(documentId);
     setIsAnalyzing(false);
+    if (documentId) {
+      announce("Document selected from history", 'polite');
+    }
   });
 
   const handleNewAnalysis = useCallback(() => {
     setCurrentDocumentId(null);
     setIsAnalyzing(false);
-  }, []);
+    announce("Starting new document analysis", 'polite');
+  }, [announce]);
 
   const handleSampleContract = useCallback(async (title: string, content: string) => {
     // Check if both disclaimer and cookies are accepted
     if (!disclaimerAccepted || !cookiesAccepted) {
+      const message = "Please accept both the legal disclaimer and cookie consent to process documents.";
+      announce(message, 'assertive');
       toast({
         title: "Consent Required",
-        description: "Please accept both the legal disclaimer and cookie consent to process documents.",
+        description: message,
         variant: "destructive",
       });
       return;
     }
 
     setIsAnalyzing(true);
+    announce(`Loading sample contract: ${title}`, 'polite');
     try {
       const document = await createDocument({
         title: `Sample: ${title}`,
@@ -113,13 +151,15 @@ export default function Home() {
       await handleDocumentCreated(document.id);
     } catch (error) {
       setIsAnalyzing(false);
+      const errorMessage = error instanceof Error ? error.message : "Failed to load sample contract";
+      announce(`Failed to load sample: ${errorMessage}`, 'assertive');
       toast({
         title: "Failed to load sample",
-        description: error instanceof Error ? error.message : "Failed to load sample contract",
+        description: errorMessage,
         variant: "destructive",
       });
     }
-  }, [disclaimerAccepted, cookiesAccepted, toast, handleDocumentCreated]);
+  }, [disclaimerAccepted, cookiesAccepted, toast, handleDocumentCreated, announce]);
 
   // Show disclaimer if not accepted
   if (!disclaimerAccepted) {
@@ -131,139 +171,113 @@ export default function Home() {
       <MobileAppWrapper className="h-full">
         <div className="h-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
           {/* Document History */}
-          <div className="animate-fade-in-scale">
+          <section aria-label="Document history" className="animate-fade-in-scale">
             <DocumentHistory
               onSelectDocument={handleDocumentSelect}
               currentDocumentId={currentDocumentId}
             />
-          </div>
+          </section>
 
           {/* Hero Section */}
           {!currentDocumentId && (
-            <div className="text-center mb-12 animate-fade-in-scale">
-              <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold text-gray-900 dark:text-white mb-4">
+            <section className="text-center mb-12 animate-fade-in-scale" role="banner" aria-labelledby="main-heading">
+              <h1 id="main-heading" className="text-3xl md:text-4xl lg:text-5xl font-bold text-gray-900 dark:text-white mb-4">
                 Understand Any Contract in{" "}
                 <span className="text-primary">Plain English</span>
-              </h2>
+              </h1>
               <p className="text-lg md:text-xl text-gray-600 dark:text-gray-300 mb-4 max-w-3xl mx-auto">
                 Upload or paste any legal document and get instant, clear summaries that
                 highlight what matters most. No legal degree required.
               </p>
-              <div className="bg-amber-50 dark:bg-amber-950/20 border border-amber-200 dark:border-amber-800 rounded-xl p-4 max-w-2xl mx-auto">
+              
+              {/* Features highlight for SEO */}
+              <div className="mb-6 max-w-4xl mx-auto">
+                <h2 className="sr-only">Key Features</h2>
+                <ul className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm text-gray-600 dark:text-gray-300" role="list">
+                  <li className="flex items-center justify-center gap-2">
+                    <span className="w-2 h-2 bg-primary rounded-full" aria-hidden="true"></span>
+                    <span>AI-Powered Analysis</span>
+                  </li>
+                  <li className="flex items-center justify-center gap-2">
+                    <span className="w-2 h-2 bg-primary rounded-full" aria-hidden="true"></span>
+                    <span>Privacy-First Processing</span>
+                  </li>
+                  <li className="flex items-center justify-center gap-2">
+                    <span className="w-2 h-2 bg-primary rounded-full" aria-hidden="true"></span>
+                    <span>Instant Results</span>
+                  </li>
+                </ul>
+              </div>
+              
+              <div className="bg-amber-50 dark:bg-amber-950/20 border border-amber-200 dark:border-amber-800 rounded-xl p-4 max-w-2xl mx-auto" role="alert" aria-labelledby="privacy-notice">
+                <h3 id="privacy-notice" className="sr-only">Privacy Notice</h3>
                 <p className="text-sm text-amber-800 dark:text-amber-200">
                   <strong>Session-based tool:</strong> All data is temporary and will be cleared when you refresh the page.
                   Your documents are never permanently stored.
                 </p>
               </div>
-            </div>
+            </section>
           )}
 
-          {/* Analysis in Progress */}
-          {isAnalyzing && (
+          {/* Main Content Area */}
+          {!currentDocumentId && (
             <div className="animate-fade-in-scale">
-              <AnalysisProgress />
+              <section aria-labelledby="upload-heading" className="mb-8">
+                <h2 id="upload-heading" className="sr-only">Upload Document</h2>
+                <FileUpload 
+                  onDocumentCreated={handleDocumentCreated} 
+                  disabled={isAnalyzing}
+                />
+              </section>
+
+              <section aria-labelledby="samples-heading" className="mb-8">
+                <h2 id="samples-heading" className="sr-only">Sample Contracts</h2>
+                <SampleContracts 
+                  onSampleSelect={handleSampleContract}
+                  disabled={isAnalyzing}
+                />
+              </section>
             </div>
           )}
 
-          {/* Upload Interface */}
-          {!currentDocumentId && !isAnalyzing && (
-            <div className="animate-slide-in-up">
-              {/* Cookie Consent Required Notice */}
-              {!cookiesAccepted && (
-                <Card className="mb-8 border-amber-200 bg-amber-50 dark:bg-amber-950/20 dark:border-amber-800 card-interactive">
-                  <CardContent className="p-6 text-center">
-                    <div className="flex items-center justify-center gap-2 mb-3">
-                      <Cookie className="w-6 h-6 text-amber-600" />
-                      <h3 className="text-lg font-semibold text-amber-800 dark:text-amber-200">
-                        Cookie Consent Required
-                      </h3>
-                    </div>
-                    <p className="text-amber-700 dark:text-amber-300 mb-4">
-                      To process documents, please accept our essential cookies. We use minimal,
-                      privacy-first cookies for session management only.
-                    </p>
-                    <p className="text-sm text-amber-600 dark:text-amber-400">
-                      Look for the cookie banner at the bottom of the page to accept.
-                    </p>
-                  </CardContent>
-                </Card>
-              )}
-
-              <FileUpload
-                onDocumentCreated={handleDocumentCreated}
-                disabled={!cookiesAccepted}
-              />
-
-              {/* Sample Contracts Section */}
-              <div className="mt-16">
-                <SampleContracts
-                  onSelectContract={handleSampleContract}
-                  disabled={!cookiesAccepted}
-                />
-              </div>
-            </div>
+          {/* Analysis Progress */}
+          {isAnalyzing && (
+            <section aria-labelledby="analysis-progress" aria-live="polite" className="animate-fade-in-scale">
+              <h2 id="analysis-progress" className="sr-only">Analysis in Progress</h2>
+              <AnalysisProgress />
+            </section>
           )}
 
           {/* Analysis Results */}
-          {currentDocument && currentDocument.analysis && !isAnalyzing && (
-            <div className="animate-slide-in-up">
+          {currentDocument && !isAnalyzing && (
+            <section aria-labelledby="analysis-results" className="animate-fade-in-scale">
+              <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-4">
+                <h2 id="analysis-results" className="text-2xl font-bold text-gray-900 dark:text-white">
+                  Analysis Results
+                </h2>
+                <Button 
+                  onClick={handleNewAnalysis}
+                  variant="outline"
+                  className="flex items-center gap-2"
+                  aria-label="Start a new document analysis"
+                >
+                  <Plus className="w-4 h-4" aria-hidden="true" />
+                  New Analysis
+                </Button>
+              </div>
               <AnalysisResults document={currentDocument} />
-            </div>
+            </section>
           )}
 
-          {/* Loading Document */}
-          {isLoadingDocument && currentDocumentId && (
-            <Card className="p-6 animate-fade-in-scale bg-gradient-to-r from-purple-50 to-indigo-50 dark:from-purple-950/30 dark:to-indigo-950/30 border-purple-200 dark:border-purple-800 shadow-lg">
-              <CardContent className="text-center p-0">
-                <div className="flex flex-col items-center space-y-4">
-                  <div className="relative">
-                    <div className="w-16 h-16 rounded-full bg-gradient-to-r from-purple-500 to-indigo-500 opacity-20 animate-pulse"></div>
-                    <div className="absolute inset-0 flex items-center justify-center">
-                      <Loader2 className="w-8 h-8 text-purple-600 dark:text-purple-400 animate-spin" />
-                    </div>
-                  </div>
-                  <div className="space-y-1">
-                    <h3 className="font-semibold text-gray-900 dark:text-white">Loading Document</h3>
-                    <p className="text-sm text-gray-600 dark:text-gray-300">Retrieving your document...</p>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          )}
-
-          {/* FAQ Section */}
-          {!currentDocumentId && !isAnalyzing && (
-            <Card className="p-6 md:p-8 mt-16 animate-fade-in-scale card-interactive">
-              <CardContent>
-                <h3 className="text-xl md:text-2xl font-semibold mb-6 md:mb-8 text-center text-gray-900 dark:text-[#c7d3d9]">
-                  Frequently Asked Questions
-                </h3>
-                <div className="max-w-3xl mx-auto space-y-4 md:space-y-6">
-                  <div className="border border-gray-200 dark:border-gray-700 rounded-xl p-4 md:p-6 card-interactive">
-                    <h4 className="font-medium mb-2 text-gray-900 dark:text-[#c7d3d9]">How accurate are the summaries?</h4>
-                    <p className="text-sm leading-relaxed text-gray-700 dark:text-[#8a9cb8]">
-                      Our advanced analysis engine has processed thousands of legal documents and is trained to identify
-                      common patterns and concerning clauses. While highly accurate, we recommend
-                      consulting with a legal professional for critical decisions.
-                    </p>
-                  </div>
-                  <div className="border border-gray-200 dark:border-gray-700 rounded-xl p-4 md:p-6 card-interactive">
-                    <h4 className="font-medium mb-2 text-gray-900 dark:text-[#c7d3d9]">Is my document data secure?</h4>
-                    <p className="text-sm leading-relaxed text-gray-700 dark:text-[#8a9cb8]">
-                      Yes, all documents are encrypted in transit and at rest. We don't store your
-                      documents after analysis, and you can delete your summaries at any time.
-                    </p>
-                  </div>
-                  <div className="border border-gray-200 dark:border-gray-700 rounded-xl p-4 md:p-6 card-interactive">
-                    <h4 className="font-medium mb-2 text-gray-900 dark:text-[#c7d3d9]">What types of documents can I analyze?</h4>
-                    <p className="text-sm leading-relaxed text-gray-700 dark:text-[#8a9cb8]">
-                      We support contracts, terms of service, privacy policies, employment
-                      agreements, rental agreements, and most other legal documents in English.
-                    </p>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
+          {/* Loading State */}
+          {isLoadingDocument && (
+            <section aria-labelledby="loading-document" aria-live="polite" className="flex justify-center items-center py-12">
+              <h2 id="loading-document" className="sr-only">Loading Document</h2>
+              <div className="flex items-center space-x-3 text-gray-600 dark:text-gray-300">
+                <Loader2 className="w-6 h-6 animate-spin" aria-hidden="true" />
+                <span>Loading document...</span>
+              </div>
+            </section>
           )}
         </div>
       </MobileAppWrapper>

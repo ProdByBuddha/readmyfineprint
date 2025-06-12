@@ -428,6 +428,8 @@ class SecurityLogger {
 // Export singleton instance
 export const securityLogger = SecurityLogger.getInstance();
 
+// Alert integration removed to prevent circular imports
+
 // Helper function to get client IP and User Agent from request
 export function getClientInfo(req: any): { ip: string; userAgent: string } {
   const ip = req.ip || req.socket.remoteAddress || 'unknown';

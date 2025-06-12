@@ -10,21 +10,25 @@ export function Header() {
   const isMobile = useIsMobile();
 
   return (
-    <header className={`
-      ${isMobile 
-        ? 'bg-white/95 dark:bg-slate-900/95 backdrop-blur-lg border-b-0 shadow-sm' 
-        : 'bg-white dark:bg-slate-900 border-b border-teal-200 dark:border-slate-700'
-      } 
-      flex-shrink-0 z-50 transition-all duration-300
-    `} 
-    style={isMobile ? {
-      paddingTop: 'var(--app-safe-area-top)',
-      paddingLeft: 'var(--app-safe-area-left)',
-      paddingRight: 'var(--app-safe-area-right)'
-    } : {}}>
+    <header 
+      id="navigation"
+      role="banner"
+      className={`
+        ${isMobile 
+          ? 'bg-white/95 dark:bg-slate-900/95 backdrop-blur-lg border-b-0 shadow-sm' 
+          : 'bg-white dark:bg-slate-900 border-b border-teal-200 dark:border-slate-700'
+        } 
+        flex-shrink-0 z-50 transition-all duration-300
+      `} 
+      style={isMobile ? {
+        paddingTop: 'var(--app-safe-area-top)',
+        paddingLeft: 'var(--app-safe-area-left)',
+        paddingRight: 'var(--app-safe-area-right)'
+      } : {}}
+    >
       <div className="w-full px-4 sm:px-6 lg:px-8">
         <div className={`flex justify-between items-center ${isMobile ? 'h-14' : 'h-16'}`}>
-          <Link to="/">
+          <Link to="/" aria-label="ReadMyFinePrint - Go to homepage">
             <div className="flex items-center space-x-3 cursor-pointer group">
               <img 
                 src={logoImage} 
@@ -42,10 +46,19 @@ export function Header() {
             </div>
           </Link>
           
-          <nav className="hidden md:flex items-center space-x-6">
+          <nav 
+            className="hidden md:flex items-center space-x-6"
+            role="navigation"
+            aria-label="Main navigation"
+          >
             <Link to="/donate">
-              <Button variant="outline" size="sm" className="mr-2">
-                <Heart className="w-4 h-4 mr-2 text-red-500" />
+              <Button 
+                variant="outline" 
+                size="sm" 
+                className="mr-2"
+                aria-label="Support us with a donation"
+              >
+                <Heart className="w-4 h-4 mr-2 text-red-500" aria-hidden="true" />
                 Donate
               </Button>
             </Link>
@@ -54,24 +67,34 @@ export function Header() {
               variant="ghost"
               size="sm"
               className="mr-2"
+              aria-label={`Switch to ${theme === "light" ? "dark" : "light"} theme`}
+              aria-pressed={theme === "dark"}
             >
               {theme === "light" ? (
-                <Moon className="w-4 h-4" />
+                <Moon className="w-4 h-4" aria-hidden="true" />
               ) : (
-                <Sun className="w-4 h-4" />
+                <Sun className="w-4 h-4" aria-hidden="true" />
               )}
+              <span className="sr-only">
+                {theme === "light" ? "Switch to dark theme" : "Switch to light theme"}
+              </span>
             </Button>
           </nav>
           
           {/* Mobile navigation */}
-          <nav className="md:hidden flex items-center space-x-1">
+          <nav 
+            className="md:hidden flex items-center space-x-1"
+            role="navigation"
+            aria-label="Mobile navigation"
+          >
             <Link to="/donate">
               <Button 
                 variant="outline" 
                 size="sm"
                 className="h-10 w-10 p-0 rounded-full transition-all duration-200 active:scale-95"
+                aria-label="Support us with a donation"
               >
-                <Heart className="w-4 h-4 text-red-500" />
+                <Heart className="w-4 h-4 text-red-500" aria-hidden="true" />
               </Button>
             </Link>
             <Button
@@ -79,12 +102,17 @@ export function Header() {
               variant="ghost"
               size="sm"
               className="h-10 w-10 p-0 rounded-full transition-all duration-200 active:scale-95"
+              aria-label={`Switch to ${theme === "light" ? "dark" : "light"} theme`}
+              aria-pressed={theme === "dark"}
             >
               {theme === "light" ? (
-                <Moon className="w-4 h-4" />
+                <Moon className="w-4 h-4" aria-hidden="true" />
               ) : (
-                <Sun className="w-4 h-4" />
+                <Sun className="w-4 h-4" aria-hidden="true" />
               )}
+              <span className="sr-only">
+                {theme === "light" ? "Switch to dark theme" : "Switch to light theme"}
+              </span>
             </Button>
           </nav>
         </div>

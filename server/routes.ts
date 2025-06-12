@@ -12,6 +12,7 @@ import { z } from "zod";
 import mammoth from "mammoth";
 import crypto from "crypto";
 import Stripe from "stripe";
+import { securityAlertManager } from './security-alert';
 
 // Initialize Stripe
 if (!process.env.STRIPE_SECRET_KEY) {
@@ -654,6 +655,82 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error("Error getting file types:", error);
       res.status(500).json({ error: "Failed to get file type information" });
+    }
+  });
+
+  // Add new admin security endpoints
+  app.get("/api/admin/security/alerts", requireAdminAuth, (req, res) => {
+    try {
+      const { limit } = req.query;
+      const alerts = securityAlertManager.getRecentAlerts(limit ? parseInt(limit as string) : 50);
+      
+      const alertStats = {
+        totalAlerts: alerts.length,
+        criticalAlerts: alerts.filter(a => a.threshold.severity === 'CRITICAL').length,
+        highAlerts: alerts.filter(a => a.threshold.severity === 'HIGH').length,
+        unacknowledged: alerts.filter(a => !a.acknowledged).length,
+        last24Hours: alerts.filter(a => 
+          new Date().getTime() - new Date(a.timestamp).getTime() < 24 * 60 * 60 * 1000
+        ).length
+      };
+
+      res.json({
+        alerts,
+        stats: alertStats,
+        timestamp: new Date().toISOString()
+      });
+    } catch (error) {
+      console.error("Failed to get security alerts:", error);
+      res.status(500).json({ error: "Failed to retrieve security alerts" });
+    }
+  });
+
+  // Acknowledge a security alert
+  app.post("/api/admin/security/alerts/:alertId/acknowledge", requireAdminAuth, (req, res) => {
+    try {
+      const { alertId } = req.params;
+      const acknowledged = securityAlertManager.acknowledgeAlert(alertId);
+      
+      if (acknowledged) {
+        res.json({ success: true, message: `Alert ${alertId} acknowledged` });
+      } else {
+        res.status(404).json({ error: "Alert not found" });
+      }
+    } catch (error) {
+      console.error("Failed to acknowledge alert:", error);
+      res.status(500).json({ error: "Failed to acknowledge alert" });
+    }
+  });
+
+  // Enhanced security status endpoint
+  app.get("/api/admin/security/status", requireAdminAuth, (req, res) => {
+    try {
+      const securityStats = securityLogger.getSecurityStats();
+      const alerts = securityAlertManager.getRecentAlerts(10);
+      
+      // Optional: Get encryption status if encrypted storage is enabled
+      // const encryptionStatus = encryptedStorage?.getEncryptionStatus();
+      
+      const enhancedStatus = {
+        ...securityStats,
+        alerts: {
+          recentCount: alerts.length,
+          criticalCount: alerts.filter(a => a.threshold.severity === 'CRITICAL').length,
+          unacknowledgedCount: alerts.filter(a => !a.acknowledged).length
+        },
+        // encryption: encryptionStatus,
+        enhancements: {
+          alertingEnabled: true,
+          // encryptionEnabled: !!encryptionStatus?.encryptionEnabled,
+          enhancedFileValidation: true
+        },
+        timestamp: new Date().toISOString()
+      };
+
+      res.json(enhancedStatus);
+    } catch (error) {
+      console.error("Failed to get enhanced security status:", error);
+      res.status(500).json({ error: "Failed to retrieve enhanced security status" });
     }
   });
 
