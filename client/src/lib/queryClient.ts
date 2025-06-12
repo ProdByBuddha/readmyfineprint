@@ -1,27 +1,26 @@
 import { QueryClient, QueryFunction } from "@tanstack/react-query";
 
-// Session ID management
-let currentSessionId: string | null = null;
-
+// Session ID management - use sessionStorage for consistency
 function getSessionId(): string {
-  if (!currentSessionId) {
-    // Generate a new session ID
-    currentSessionId = crypto.getRandomValues(new Uint8Array(16))
+  let sessionId = sessionStorage.getItem('app-session-id');
+  if (!sessionId) {
+    sessionId = crypto.getRandomValues(new Uint8Array(16))
       .reduce((str, byte) => str + byte.toString(16).padStart(2, '0'), '');
-    console.log('Generated new session ID:', currentSessionId);
+    sessionStorage.setItem('app-session-id', sessionId);
+    console.log('Generated new session ID:', sessionId);
   }
-  return currentSessionId;
+  return sessionId;
 }
 
 function updateSessionId(sessionId: string) {
+  const currentSessionId = sessionStorage.getItem('app-session-id');
   if (sessionId && sessionId !== currentSessionId) {
-    currentSessionId = sessionId;
-    console.log('Updated session ID:', currentSessionId);
+    sessionStorage.setItem('app-session-id', sessionId);
+    console.log('Updated session ID:', sessionId);
   }
 }
 
 export function clearSession() {
-  currentSessionId = null;
   sessionStorage.removeItem('app-session-id');
   console.log('Cleared session ID');
 }
