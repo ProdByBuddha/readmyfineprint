@@ -15,7 +15,7 @@ export function Header() {
         ? 'bg-white/95 dark:bg-slate-900/95 backdrop-blur-lg border-b-0 shadow-sm' 
         : 'bg-white dark:bg-slate-900 border-b border-teal-200 dark:border-slate-700'
       } 
-      fixed top-0 left-0 right-0 z-50 transition-all duration-300
+      flex-shrink-0 z-50 transition-all duration-300
     `} 
     style={isMobile ? {
       paddingTop: 'var(--app-safe-area-top)',

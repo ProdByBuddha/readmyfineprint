@@ -83,7 +83,7 @@ Best regards`);
   };
 
   return (
-    <footer className="footer-fixed animate-slide-in-up">
+    <footer className="flex-shrink-0 animate-slide-in-up bg-white/95 dark:bg-gray-900/95 backdrop-blur-lg border-t border-gray-200/50 dark:border-gray-700/50">
       <div className={`px-4 ${isMobile ? 'py-2' : 'py-4'} md:px-6`}>
         {/* Icon Navigation */}
         <div className={`
