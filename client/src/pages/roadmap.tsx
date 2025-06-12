@@ -131,7 +131,7 @@ const getStatusIcon = (status: string) => {
 
 export default function Roadmap() {
   return (
-    <div className="p-4 pb-40 md:pb-40">
+    <div className="min-h-screen bg-gradient-to-br from-teal-50 to-cyan-100 dark:from-slate-900 dark:to-slate-800 p-4 pb-40 md:pb-40">
       <div className="max-w-6xl mx-auto pt-24">
         {/* Header Section */}
         <div className="text-center mb-12">
