@@ -54,22 +54,24 @@ export function Footer() {
       </div>
 
       <footer 
-        className="fixed inset-x-0 bottom-0 bg-white dark:bg-gray-900 z-40 border-t border-gray-200 dark:border-gray-700 transition-all duration-700 ease-out"
+        className="fixed left-0 right-0 bottom-0 bg-white dark:bg-gray-900 z-40 border-t border-gray-200 dark:border-gray-700 transition-all duration-700 ease-out"
         style={{
           height: isExpanded ? '40vh' : '3rem',
           paddingBottom: '1px',
           marginBottom: '0',
+          width: '100vw',
           transform: isExpanded ? 'translateY(0)' : 'translateY(calc(100% - 3rem))',
           overflowY: isExpanded ? 'auto' : 'hidden'
         }}
       >
-        <div className={`${isExpanded ? 'container mx-auto px-4 py-4' : 'w-full h-full'}`} style={{ paddingBottom: isExpanded ? '0.5rem' : '0' }}>
-          {/* Collapsed view - just the copyright */}
-          <div className={`${isExpanded ? 'hidden' : 'flex justify-center items-center h-full'}`}>
-            <div className="text-sm text-gray-500 dark:text-gray-400">
-              © {new Date().getFullYear()} <span className="hidden md:inline">ReadMyFinePrint</span><span className="md:hidden">RMFP</span>
+        <div className="w-full h-full" style={{ paddingBottom: isExpanded ? '0.5rem' : '0' }}>
+          <div className={`${isExpanded ? 'container mx-auto px-4 py-4' : 'w-full h-full'}`}>
+            {/* Collapsed view - just the copyright */}
+            <div className={`${isExpanded ? 'hidden' : 'flex justify-center items-center h-full'}`}>
+              <div className="text-sm text-gray-500 dark:text-gray-400">
+                © {new Date().getFullYear()} <span className="hidden md:inline">ReadMyFinePrint</span><span className="md:hidden">RMFP</span>
+              </div>
             </div>
-          </div>
 
           {/* Expanded view - full footer */}
           <div className={`${isExpanded ? 'block' : 'hidden'}`}>
@@ -161,6 +163,7 @@ export function Footer() {
                 </span>
               </div>
             </div>
+          </div>
           </div>
         </div>
       </footer>
