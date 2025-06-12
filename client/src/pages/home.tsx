@@ -13,7 +13,6 @@ import { DocumentHistory } from "@/components/DocumentHistory";
 import { AnalysisProgress } from "@/components/LoadingStates";
 import { LegalDisclaimer } from "@/components/LegalDisclaimer";
 import { Header } from "@/components/Header";
-import { Footer } from "@/components/Footer";
 import { useCookieConsent } from "@/components/CookieConsent";
 import { analyzeDocument, getDocument, createDocument } from "@/lib/api";
 import { useToast } from "@/hooks/use-toast";
@@ -251,7 +250,6 @@ export default function Home() {
           </Card>
         )}
       </main>
-      <Footer />
     </div>
   );
 }

@@ -1,5 +1,4 @@
 import { PrivacyPolicy } from "@/components/PrivacyPolicy";
-import { Footer } from "@/components/Footer";
 import { Header } from "@/components/Header";
 
 export default function Privacy() {
@@ -9,7 +8,6 @@ export default function Privacy() {
       <div className="container mx-auto px-4 py-8 pt-24 pb-40">
         <PrivacyPolicy />
       </div>
-      <Footer />
     </div>
   );
 }

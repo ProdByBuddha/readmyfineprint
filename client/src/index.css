@@ -111,15 +111,16 @@ html, body {
   transform: translateZ(0);
 }
 
-/* Ensure footer stickiness */
-footer[class*="fixed"] {
+/* Force footer to viewport bottom */
+.footer-fixed {
   position: fixed !important;
   bottom: 0 !important;
   left: 0 !important;
   right: 0 !important;
-  z-index: 9999 !important;
   width: 100vw !important;
-  transform: translateZ(0) !important;
+  z-index: 99999 !important;
+  transform: translate3d(0, 0, 0) !important;
+  -webkit-transform: translate3d(0, 0, 0) !important;
 }
 
 /* Ensure body and html allow for proper footer positioning */

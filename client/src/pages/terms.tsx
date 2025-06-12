@@ -1,5 +1,4 @@
 import { TermsOfService } from "@/components/TermsOfService";
-import { Footer } from "@/components/Footer";
 import { Header } from "@/components/Header";
 
 export default function Terms() {
@@ -9,7 +8,6 @@ export default function Terms() {
       <div className="container mx-auto px-4 py-8 pt-24 pb-40">
         <TermsOfService />
       </div>
-      <Footer />
     </div>
   );
 }
