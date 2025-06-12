@@ -53,8 +53,6 @@ export function AnalysisResults({ document }: AnalysisResultsProps) {
   const handleExport = async () => {
     try {
       setIsExporting(true);
-      console.log('Starting PDF export for document:', document.title);
-      console.log('Document analysis:', document.analysis);
       
       await exportAnalysisToPDF(document, {
         includeHeader: true,
@@ -63,13 +61,8 @@ export function AnalysisResults({ document }: AnalysisResultsProps) {
         donateUrl: window.location.origin + '/donate'
       });
       
-      console.log('PDF export completed successfully');
     } catch (error) {
-      console.error('PDF export failed with error:', error);
-      console.error('Error stack:', error instanceof Error ? error.stack : 'No stack trace');
-      
-      // Show user-friendly error message
-      alert('PDF export failed. Downloading as text file instead.');
+      console.error('PDF export failed:', error);
       
       // Fallback to text export
       const exportContent = `
