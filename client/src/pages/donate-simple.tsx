@@ -1,7 +1,6 @@
 import { Heart, Shield, Users, Zap } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Header } from "@/components/Header";
 
 export default function DonateSimple() {
   const handleDonate = () => {
@@ -10,7 +9,6 @@ export default function DonateSimple() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-teal-50 to-cyan-100 dark:from-slate-900 dark:to-slate-800">
-      <Header />
       <div className="container mx-auto px-4 py-8 pb-32 max-w-2xl">
         
         <div className="text-center mb-8">

@@ -2,12 +2,10 @@ import { Card, CardContent } from "@/components/ui/card";
 import { AlertCircle, Home } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Link } from "wouter";
-import { Header } from "@/components/Header";
 
 export default function NotFound() {
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
-      <Header />
       <div className="flex-1 flex items-center justify-center py-16 pb-32">
         <Card className="w-full max-w-md mx-4">
           <CardContent className="pt-6 text-center">

@@ -12,7 +12,6 @@ import { SampleContracts } from "@/components/SampleContracts";
 import { DocumentHistory } from "@/components/DocumentHistory";
 import { AnalysisProgress } from "@/components/LoadingStates";
 import { LegalDisclaimer } from "@/components/LegalDisclaimer";
-import { Header } from "@/components/Header";
 import { useCookieConsent } from "@/components/CookieConsent";
 import { analyzeDocument, getDocument, createDocument } from "@/lib/api";
 import { useToast } from "@/hooks/use-toast";
@@ -127,7 +126,6 @@ export default function Home() {
 
   return (
     <div ref={containerRef} className="min-h-screen bg-gradient-to-br from-teal-50 to-cyan-100 dark:from-gray-900 dark:to-slate-800 page-transition">
-      <Header />
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-24 py-8 pb-48">
         {/* Document History */}
         <DocumentHistory

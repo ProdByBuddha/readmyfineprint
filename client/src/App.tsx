@@ -6,6 +6,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { ThemeProvider } from "@/components/ThemeProvider";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
 import { CookieConsent } from "@/components/CookieConsent";
+import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
 import Home from "@/pages/home";
 import Privacy from "@/pages/privacy";
@@ -33,6 +34,7 @@ function App() {
       <ThemeProvider>
         <TooltipProvider>
           <ErrorBoundary>
+            <Header />
             <Toaster />
             <Router />
             <CookieConsent />
