@@ -8,6 +8,8 @@ import { ErrorBoundary } from "@/components/ErrorBoundary";
 import { CookieConsent } from "@/components/CookieConsent";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
+import { ScrollToTop } from "@/components/ScrollToTop";
+import { useScrollToTop } from "@/hooks/useScrollToTop";
 import Home from "@/pages/home";
 import Privacy from "@/pages/privacy";
 import Terms from "@/pages/terms";
@@ -29,6 +31,8 @@ function Router() {
 }
 
 function App() {
+  useScrollToTop();
+  
   return (
     <QueryClientProvider client={queryClient}>
       <ThemeProvider>
@@ -38,6 +42,7 @@ function App() {
             <Toaster />
             <Router />
             <CookieConsent />
+            <ScrollToTop />
             <Footer />
           </ErrorBoundary>
         </TooltipProvider>
