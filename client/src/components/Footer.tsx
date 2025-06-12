@@ -63,7 +63,7 @@ export function Footer() {
           overflowY: isExpanded ? 'auto' : 'hidden'
         }}
       >
-        <div className={`${isExpanded ? 'container mx-auto px-4 py-6' : 'w-full h-full'}`} style={{ paddingBottom: isExpanded ? '1rem' : '0' }}>
+        <div className={`${isExpanded ? 'container mx-auto px-4 py-4' : 'w-full h-full'}`} style={{ paddingBottom: isExpanded ? '0.5rem' : '0' }}>
           {/* Collapsed view - just the copyright */}
           <div className={`${isExpanded ? 'hidden' : 'flex justify-center items-center h-full'}`}>
             <div className="text-sm text-gray-500 dark:text-gray-400">
@@ -73,9 +73,9 @@ export function Footer() {
 
           {/* Expanded view - full footer */}
           <div className={`${isExpanded ? 'block' : 'hidden'}`}>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               {/* About */}
-              <div className="space-y-3">
+              <div className="space-y-2">
                 <h3 className="font-semibold text-gray-900 dark:text-white">
                   <span className="hidden md:inline">ReadMyFinePrint</span>
                   <span className="md:hidden">RMFP</span>
@@ -91,7 +91,7 @@ export function Footer() {
               </div>
 
               {/* Legal Links */}
-              <div className="space-y-3">
+              <div className="space-y-2">
                 <h3 className="font-semibold text-gray-900 dark:text-white">
                   Legal
                 </h3>
@@ -115,7 +115,7 @@ export function Footer() {
               </div>
 
               {/* Support & Resources */}
-              <div className="space-y-3">
+              <div className="space-y-2">
                 <h3 className="font-semibold text-gray-900 dark:text-white">
                   Support & Resources
                 </h3>
@@ -142,7 +142,7 @@ export function Footer() {
               </div>
             </div>
 
-            <div className="border-t mt-6 pt-6 flex flex-col md:flex-row justify-between items-center gap-4">
+            <div className="border-t mt-4 pt-3 flex flex-col md:flex-row justify-between items-center gap-3">
               <div className="text-sm text-gray-500 dark:text-gray-400">
                 © {new Date().getFullYear()} <span className="hidden md:inline">ReadMyFinePrint</span><span className="md:hidden">RMFP</span>.
               </div>
