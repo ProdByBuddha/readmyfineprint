@@ -43,7 +43,7 @@ export function Footer() {
           onClick={() => setIsExpanded(!isExpanded)}
           variant="outline"
           size="sm"
-          className="bg-white/95 dark:bg-gray-900/95 backdrop-blur-sm border border-gray-200 dark:border-gray-700 rounded-full shadow-lg hover:shadow-xl transition-all duration-300 h-8 w-8"
+          className="bg-white/95 dark:bg-gray-900/95 backdrop-blur-sm border border-gray-200 dark:border-gray-700 rounded-full shadow-lg hover:shadow-xl transition-all duration-700 ease-out h-8 w-8"
         >
           {isExpanded ? (
             <ChevronDown className="w-3 h-3" />
