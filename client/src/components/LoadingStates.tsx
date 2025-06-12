@@ -80,10 +80,10 @@ export function AnalysisProgress() {
           {/* Title and Description */}
           <div className="space-y-2">
             <h3 className="text-xl font-bold text-gray-900 dark:text-white">
-              AI Analysis in Progress
+              Analysis in Progress
             </h3>
             <p className="text-sm text-gray-600 dark:text-gray-300 max-w-sm leading-relaxed">
-              Reviewing your document with advanced AI to identify key terms, risks, and translate legal language into clear insights.
+              Reviewing your document with advanced document analysis to identify key terms, risks, and translate legal language into clear insights.
             </p>
           </div>
           
