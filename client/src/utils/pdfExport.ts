@@ -15,8 +15,8 @@ export class AnalysisPDFExporter {
   private currentY: number = 20;
   private pageWidth: number;
   private pageHeight: number;
-  private leftMargin: number = 20;
-  private rightMargin: number = 20;
+  private leftMargin: number = 25;
+  private rightMargin: number = 25;
   private contentWidth: number;
 
   constructor() {
@@ -178,7 +178,7 @@ export class AnalysisPDFExporter {
     this.doc.setFontSize(11);
     this.doc.setFont('helvetica', 'normal');
     
-    const summaryLines = this.doc.splitTextToSize(analysis.summary, this.contentWidth);
+    const summaryLines = this.doc.splitTextToSize(analysis.summary, this.contentWidth - 5);
     this.doc.text(summaryLines, this.leftMargin, this.currentY);
     this.currentY += summaryLines.length * 6 + 25;
   }
@@ -207,7 +207,7 @@ export class AnalysisPDFExporter {
       
       analysis.keyFindings.goodTerms.forEach(term => {
         this.addNewPageIfNeeded(12);
-        const termLines = this.doc.splitTextToSize(`• ${term}`, this.contentWidth - 10);
+        const termLines = this.doc.splitTextToSize(`• ${term}`, this.contentWidth - 15);
         this.doc.text(termLines, this.leftMargin + 8, this.currentY);
         this.currentY += termLines.length * 6 + 2;
       });
@@ -229,7 +229,7 @@ export class AnalysisPDFExporter {
       
       analysis.keyFindings.reviewNeeded.forEach(term => {
         this.addNewPageIfNeeded(12);
-        const termLines = this.doc.splitTextToSize(`• ${term}`, this.contentWidth - 10);
+        const termLines = this.doc.splitTextToSize(`• ${term}`, this.contentWidth - 15);
         this.doc.text(termLines, this.leftMargin + 8, this.currentY);
         this.currentY += termLines.length * 6 + 2;
       });
@@ -251,7 +251,7 @@ export class AnalysisPDFExporter {
       
       analysis.keyFindings.redFlags.forEach(term => {
         this.addNewPageIfNeeded(12);
-        const termLines = this.doc.splitTextToSize(`• ${term}`, this.contentWidth - 10);
+        const termLines = this.doc.splitTextToSize(`• ${term}`, this.contentWidth - 15);
         this.doc.text(termLines, this.leftMargin + 8, this.currentY);
         this.currentY += termLines.length * 6 + 2;
       });
@@ -301,7 +301,7 @@ export class AnalysisPDFExporter {
       this.doc.setTextColor(71, 85, 105);
       this.doc.setFontSize(11);
       this.doc.setFont('helvetica', 'normal');
-      const summaryLines = this.doc.splitTextToSize(section.summary, this.contentWidth);
+      const summaryLines = this.doc.splitTextToSize(section.summary, this.contentWidth - 5);
       this.doc.text(summaryLines, this.leftMargin, this.currentY);
       this.currentY += summaryLines.length * 6 + 10;
       
@@ -319,7 +319,7 @@ export class AnalysisPDFExporter {
         
         section.concerns.forEach(concern => {
           this.addNewPageIfNeeded(15);
-          const concernLines = this.doc.splitTextToSize(`• ${concern}`, this.contentWidth - 10);
+          const concernLines = this.doc.splitTextToSize(`• ${concern}`, this.contentWidth - 15);
           this.doc.text(concernLines, this.leftMargin + 8, this.currentY);
           this.currentY += concernLines.length * 6 + 3;
         });
