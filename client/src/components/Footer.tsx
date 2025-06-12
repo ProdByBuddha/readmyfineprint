@@ -56,13 +56,14 @@ export function Footer() {
       <footer 
         className="fixed inset-x-0 bottom-0 bg-white dark:bg-gray-900 z-40 max-h-[80vh] overflow-y-auto transform transition-transform duration-700 ease-out border-t border-gray-200 dark:border-gray-700"
         style={{
-          height: isExpanded ? '60vh' : '3rem',
+          height: isExpanded ? 'auto' : '3rem',
+          maxHeight: isExpanded ? '50vh' : '3rem',
           paddingBottom: '1px',
           marginBottom: '0',
           transform: isExpanded ? 'translateY(0)' : 'translateY(calc(100% - 3rem))'
         }}
       >
-        <div className={`${isExpanded ? 'container mx-auto px-4 py-8' : 'w-full h-full'}`} style={{ paddingBottom: isExpanded ? '2rem' : '0' }}>
+        <div className={`${isExpanded ? 'container mx-auto px-4 py-6' : 'w-full h-full'}`} style={{ paddingBottom: isExpanded ? '1rem' : '0' }}>
           {/* Collapsed view - just the copyright */}
           <div className={`${isExpanded ? 'hidden' : 'flex justify-center items-center h-full'}`}>
             <div className="text-sm text-gray-500 dark:text-gray-400">
@@ -72,7 +73,7 @@ export function Footer() {
 
           {/* Expanded view - full footer */}
           <div className={`${isExpanded ? 'block' : 'hidden'}`}>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
               {/* About */}
               <div className="space-y-3">
                 <h3 className="font-semibold text-gray-900 dark:text-white">
@@ -141,7 +142,7 @@ export function Footer() {
               </div>
             </div>
 
-            <div className="border-t mt-8 pt-8 flex flex-col md:flex-row justify-between items-center gap-4">
+            <div className="border-t mt-6 pt-6 flex flex-col md:flex-row justify-between items-center gap-4">
               <div className="text-sm text-gray-500 dark:text-gray-400">
                 © {new Date().getFullYear()} <span className="hidden md:inline">ReadMyFinePrint</span><span className="md:hidden">RMFP</span>.
               </div>
