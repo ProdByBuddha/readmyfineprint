@@ -127,128 +127,135 @@ export default function Home() {
 
   return (
     <div ref={containerRef} className="min-h-screen bg-gradient-to-br from-teal-50 to-cyan-100 dark:from-gray-900 dark:to-slate-800 page-transition app-container">
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-20 pb-24 md:pb-6">
-        {/* Document History */}
-        <DocumentHistory
-          onSelectDocument={handleDocumentSelect}
-          currentDocumentId={currentDocumentId}
-        />
-
-        {/* Hero Section */}
-        {!currentDocumentId && (
-          <div className="text-center mb-12">
-            <h2 className="text-4xl md:text-5xl font-bold text-gray-900 dark:text-white mb-4">
-              Understand Any Contract in{" "}
-              <span className="text-primary">Plain English</span>
-            </h2>
-            <p className="text-xl text-gray-600 dark:text-gray-300 mb-4 max-w-3xl mx-auto">
-              Upload or paste any legal document and get instant, clear summaries that
-              highlight what matters most. No legal degree required.
-            </p>
-            <div className="bg-amber-50 dark:bg-amber-950/20 border border-amber-200 dark:border-amber-800 rounded-lg p-4 max-w-2xl mx-auto">
-              <p className="text-sm text-amber-800 dark:text-amber-200">
-                <strong>Session-based tool:</strong> All data is temporary and will be cleared when you refresh the page.
-                Your documents are never permanently stored.
-              </p>
-            </div>
-          </div>
-        )}
-
-        {/* Analysis in Progress */}
-        {isAnalyzing && <AnalysisProgress />}
-
-        {/* Upload Interface */}
-        {!currentDocumentId && !isAnalyzing && (
-          <>
-            {/* Cookie Consent Required Notice */}
-            {!cookiesAccepted && (
-              <Card className="mb-8 border-amber-200 bg-amber-50 dark:bg-amber-950/20 dark:border-amber-800">
-                <CardContent className="p-6 text-center">
-                  <div className="flex items-center justify-center gap-2 mb-3">
-                    <Cookie className="w-6 h-6 text-amber-600" />
-                    <h3 className="text-lg font-semibold text-amber-800 dark:text-amber-200">
-                      Cookie Consent Required
-                    </h3>
-                  </div>
-                  <p className="text-amber-700 dark:text-amber-300 mb-4">
-                    To process documents, please accept our essential cookies. We use minimal,
-                    privacy-first cookies for session management only.
-                  </p>
-                  <p className="text-sm text-amber-600 dark:text-amber-400">
-                    Look for the cookie banner at the bottom of the page to accept.
-                  </p>
-                </CardContent>
-              </Card>
-            )}
-
-            <FileUpload
-              onDocumentCreated={handleDocumentCreated}
-              disabled={!cookiesAccepted}
+      <MobileAppWrapper className="min-h-screen">
+        <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-20 pb-24 md:pb-6">
+          {/* Document History */}
+          <div className="animate-fade-in-scale">
+            <DocumentHistory
+              onSelectDocument={handleDocumentSelect}
+              currentDocumentId={currentDocumentId}
             />
+          </div>
 
-            {/* Sample Contracts Section */}
-            <div className="mt-16">
-              <SampleContracts
-                onSelectContract={handleSampleContract}
+          {/* Hero Section */}
+          {!currentDocumentId && (
+            <div className="text-center mb-12 animate-fade-in-scale">
+              <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold text-gray-900 dark:text-white mb-4">
+                Understand Any Contract in{" "}
+                <span className="text-primary">Plain English</span>
+              </h2>
+              <p className="text-lg md:text-xl text-gray-600 dark:text-gray-300 mb-4 max-w-3xl mx-auto">
+                Upload or paste any legal document and get instant, clear summaries that
+                highlight what matters most. No legal degree required.
+              </p>
+              <div className="bg-amber-50 dark:bg-amber-950/20 border border-amber-200 dark:border-amber-800 rounded-xl p-4 max-w-2xl mx-auto">
+                <p className="text-sm text-amber-800 dark:text-amber-200">
+                  <strong>Session-based tool:</strong> All data is temporary and will be cleared when you refresh the page.
+                  Your documents are never permanently stored.
+                </p>
+              </div>
+            </div>
+          )}
+
+          {/* Analysis in Progress */}
+          {isAnalyzing && (
+            <div className="animate-fade-in-scale">
+              <AnalysisProgress />
+            </div>
+          )}
+
+          {/* Upload Interface */}
+          {!currentDocumentId && !isAnalyzing && (
+            <div className="animate-slide-in-up">
+              {/* Cookie Consent Required Notice */}
+              {!cookiesAccepted && (
+                <Card className="mb-8 border-amber-200 bg-amber-50 dark:bg-amber-950/20 dark:border-amber-800 card-interactive">
+                  <CardContent className="p-6 text-center">
+                    <div className="flex items-center justify-center gap-2 mb-3">
+                      <Cookie className="w-6 h-6 text-amber-600" />
+                      <h3 className="text-lg font-semibold text-amber-800 dark:text-amber-200">
+                        Cookie Consent Required
+                      </h3>
+                    </div>
+                    <p className="text-amber-700 dark:text-amber-300 mb-4">
+                      To process documents, please accept our essential cookies. We use minimal,
+                      privacy-first cookies for session management only.
+                    </p>
+                    <p className="text-sm text-amber-600 dark:text-amber-400">
+                      Look for the cookie banner at the bottom of the page to accept.
+                    </p>
+                  </CardContent>
+                </Card>
+              )}
+
+              <FileUpload
+                onDocumentCreated={handleDocumentCreated}
                 disabled={!cookiesAccepted}
               />
-            </div>
-          </>
-        )}
 
-        {/* Analysis Results */}
-        {currentDocument && currentDocument.analysis && !isAnalyzing && (
-          <>
-            <AnalysisResults document={currentDocument} />
-            
-          </>
-        )}
-
-        {/* Loading Document */}
-        {isLoadingDocument && currentDocumentId && (
-          <Card className="p-8">
-            <CardContent className="text-center">
-              <Loader2 className="w-8 h-8 mx-auto mb-4 animate-spin text-primary" />
-              <p className="text-gray-600 dark:text-gray-300">Loading document...</p>
-            </CardContent>
-          </Card>
-        )}
-
-        {/* FAQ Section */}
-        {!currentDocumentId && !isAnalyzing && (
-          <Card className="p-8 mt-16">
-            <CardContent>
-              <h3 className="text-2xl font-semibold mb-8 text-center text-gray-900 dark:text-[#c7d3d9]">
-                Frequently Asked Questions
-              </h3>
-              <div className="max-w-3xl mx-auto space-y-6">
-                <div className="border border-gray-200 dark:border-gray-700 rounded-lg p-6">
-                  <h4 className="font-medium mb-2 text-gray-900 dark:text-[#c7d3d9]">How accurate are the summaries?</h4>
-                  <p className="text-sm leading-relaxed text-gray-700 dark:text-[#8a9cb8]">
-                    Our advanced analysis engine has processed thousands of legal documents and is trained to identify
-                    common patterns and concerning clauses. While highly accurate, we recommend
-                    consulting with a legal professional for critical decisions.
-                  </p>
-                </div>
-                <div className="border border-gray-200 dark:border-gray-700 rounded-lg p-6">
-                  <h4 className="font-medium mb-2 text-gray-900 dark:text-[#c7d3d9]">Is my document data secure?</h4>
-                  <p className="text-sm leading-relaxed text-gray-700 dark:text-[#8a9cb8]">
-                    Yes, all documents are encrypted in transit and at rest. We don't store your
-                    documents after analysis, and you can delete your summaries at any time.
-                  </p>
-                </div>
-                <div className="border border-gray-200 dark:border-gray-700 rounded-lg p-6">
-                  <h4 className="font-medium mb-2 text-gray-900 dark:text-[#c7d3d9]">What types of documents can I analyze?</h4>
-                  <p className="text-sm leading-relaxed text-gray-700 dark:text-[#8a9cb8]">
-                    We support contracts, terms of service, privacy policies, employment
-                    agreements, rental agreements, and most other legal documents in English.
-                  </p>
-                </div>
+              {/* Sample Contracts Section */}
+              <div className="mt-16">
+                <SampleContracts
+                  onSelectContract={handleSampleContract}
+                  disabled={!cookiesAccepted}
+                />
               </div>
-            </CardContent>
-          </Card>
-        )}
-      </main>
+            </div>
+          )}
+
+          {/* Analysis Results */}
+          {currentDocument && currentDocument.analysis && !isAnalyzing && (
+            <div className="animate-slide-in-up">
+              <AnalysisResults document={currentDocument} />
+            </div>
+          )}
+
+          {/* Loading Document */}
+          {isLoadingDocument && currentDocumentId && (
+            <Card className="p-8 animate-fade-in-scale">
+              <CardContent className="text-center">
+                <Loader2 className="w-8 h-8 mx-auto mb-4 animate-spin text-primary" />
+                <p className="text-gray-600 dark:text-gray-300">Loading document...</p>
+              </CardContent>
+            </Card>
+          )}
+
+          {/* FAQ Section */}
+          {!currentDocumentId && !isAnalyzing && (
+            <Card className="p-6 md:p-8 mt-16 animate-fade-in-scale card-interactive">
+              <CardContent>
+                <h3 className="text-xl md:text-2xl font-semibold mb-6 md:mb-8 text-center text-gray-900 dark:text-[#c7d3d9]">
+                  Frequently Asked Questions
+                </h3>
+                <div className="max-w-3xl mx-auto space-y-4 md:space-y-6">
+                  <div className="border border-gray-200 dark:border-gray-700 rounded-xl p-4 md:p-6 card-interactive">
+                    <h4 className="font-medium mb-2 text-gray-900 dark:text-[#c7d3d9]">How accurate are the summaries?</h4>
+                    <p className="text-sm leading-relaxed text-gray-700 dark:text-[#8a9cb8]">
+                      Our advanced analysis engine has processed thousands of legal documents and is trained to identify
+                      common patterns and concerning clauses. While highly accurate, we recommend
+                      consulting with a legal professional for critical decisions.
+                    </p>
+                  </div>
+                  <div className="border border-gray-200 dark:border-gray-700 rounded-xl p-4 md:p-6 card-interactive">
+                    <h4 className="font-medium mb-2 text-gray-900 dark:text-[#c7d3d9]">Is my document data secure?</h4>
+                    <p className="text-sm leading-relaxed text-gray-700 dark:text-[#8a9cb8]">
+                      Yes, all documents are encrypted in transit and at rest. We don't store your
+                      documents after analysis, and you can delete your summaries at any time.
+                    </p>
+                  </div>
+                  <div className="border border-gray-200 dark:border-gray-700 rounded-xl p-4 md:p-6 card-interactive">
+                    <h4 className="font-medium mb-2 text-gray-900 dark:text-[#c7d3d9]">What types of documents can I analyze?</h4>
+                    <p className="text-sm leading-relaxed text-gray-700 dark:text-[#8a9cb8]">
+                      We support contracts, terms of service, privacy policies, employment
+                      agreements, rental agreements, and most other legal documents in English.
+                    </p>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          )}
+        </main>
+      </MobileAppWrapper>
     </div>
   );
 }
