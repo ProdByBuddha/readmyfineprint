@@ -56,15 +56,15 @@ export function Footer() {
       <footer 
         className="fixed inset-x-0 bottom-0 bg-white dark:bg-gray-900 z-40 max-h-[80vh] overflow-y-auto transform transition-transform duration-700 ease-out border-t border-gray-200 dark:border-gray-700"
         style={{
-          minHeight: isExpanded ? '60vh' : '3rem',
+          height: isExpanded ? '60vh' : '3rem',
           paddingBottom: '1px',
           marginBottom: '0',
           transform: isExpanded ? 'translateY(0)' : 'translateY(calc(100% - 3rem))'
         }}
       >
-        <div className={`${isExpanded ? 'container mx-auto px-4 py-8' : 'w-full'}`} style={{ paddingBottom: isExpanded ? '2rem' : '1rem' }}>
+        <div className={`${isExpanded ? 'container mx-auto px-4 py-8' : 'w-full h-full'}`} style={{ paddingBottom: isExpanded ? '2rem' : '0' }}>
           {/* Collapsed view - just the copyright */}
-          <div className={`${isExpanded ? 'hidden' : 'flex justify-center items-center py-2'}`}>
+          <div className={`${isExpanded ? 'hidden' : 'flex justify-center items-center h-full'}`}>
             <div className="text-sm text-gray-500 dark:text-gray-400">
               © {new Date().getFullYear()} <span className="hidden md:inline">ReadMyFinePrint</span><span className="md:hidden">RMFP</span>
             </div>
