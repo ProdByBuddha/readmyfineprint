@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Heart, ArrowLeft, AlertCircle } from "lucide-react";
+import { Heart, ArrowLeft, AlertCircle, MapPin } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Alert, AlertDescription } from "@/components/ui/alert";
@@ -152,6 +152,15 @@ const DonateContent = () => {
                     Support our mission to democratize legal document understanding.
                   </p>
                 </div>
+              </div>
+              
+              <div className="pt-4 border-t border-gray-200 dark:border-gray-700">
+                <Link to="/roadmap">
+                  <Button variant="outline" size="sm" className="w-full">
+                    <MapPin className="w-4 h-4 mr-2" />
+                    View Development Roadmap
+                  </Button>
+                </Link>
               </div>
             </CardContent>
           </Card>
