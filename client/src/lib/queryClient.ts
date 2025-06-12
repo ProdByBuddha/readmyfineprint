@@ -97,9 +97,12 @@ export const queryClient = new QueryClient({
       refetchOnWindowFocus: false,
       refetchOnMount: false,
       refetchOnReconnect: false,
-      staleTime: 5 * 60 * 1000, // 5 minutes
-      gcTime: 10 * 60 * 1000, // 10 minutes (was cacheTime)
+      refetchIntervalInBackground: false,
+      notifyOnChangeProps: ['data', 'error'],
+      staleTime: Infinity, // Never consider data stale
+      gcTime: 24 * 60 * 60 * 1000, // 24 hours
       retry: false,
+      structuralSharing: false, // Disable to prevent unnecessary re-renders
     },
     mutations: {
       retry: false,

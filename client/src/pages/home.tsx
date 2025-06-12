@@ -1,4 +1,5 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useCallback } from "react";
+import { useStableCallback } from "@/hooks/useStableCallback";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { File, Plus, Cookie } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -29,8 +30,13 @@ export default function Home() {
     queryKey: ['/api/documents', currentDocumentId],
     queryFn: () => currentDocumentId ? getDocument(currentDocumentId) : null,
     enabled: !!currentDocumentId,
-    staleTime: 30 * 1000, // Keep fresh for 30 seconds
+    staleTime: Infinity,
+    gcTime: Infinity,
     refetchOnMount: false,
+    refetchOnWindowFocus: false,
+    refetchOnReconnect: false,
+    notifyOnChangeProps: ['data', 'error'],
+    structuralSharing: false,
   });
 
   const analyzeDocumentMutation = useMutation({
@@ -55,7 +61,7 @@ export default function Home() {
     },
   });
 
-  const handleDocumentCreated = async (documentId: number) => {
+  const handleDocumentCreated = useCallback(async (documentId: number) => {
     // Check if both disclaimer and cookies are accepted
     if (!disclaimerAccepted || !cookiesAccepted) {
       toast({
@@ -73,19 +79,19 @@ export default function Home() {
     } catch (error) {
       console.error("Analysis error:", error);
     }
-  };
+  }, [disclaimerAccepted, cookiesAccepted, toast, analyzeDocumentMutation]);
 
-  const handleDocumentSelect = (documentId: number | null) => {
+  const handleDocumentSelect = useStableCallback((documentId: number | null) => {
     setCurrentDocumentId(documentId);
     setIsAnalyzing(false);
-  };
+  });
 
-  const handleNewAnalysis = () => {
+  const handleNewAnalysis = useCallback(() => {
     setCurrentDocumentId(null);
     setIsAnalyzing(false);
-  };
+  }, []);
 
-  const handleSampleContract = async (title: string, content: string) => {
+  const handleSampleContract = useCallback(async (title: string, content: string) => {
     // Check if both disclaimer and cookies are accepted
     if (!disclaimerAccepted || !cookiesAccepted) {
       toast({
@@ -111,7 +117,7 @@ export default function Home() {
         variant: "destructive",
       });
     }
-  };
+  }, [disclaimerAccepted, cookiesAccepted, toast, handleDocumentCreated]);
 
   // Show disclaimer if not accepted
   if (!disclaimerAccepted) {

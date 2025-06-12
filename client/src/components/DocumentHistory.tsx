@@ -1,4 +1,4 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useCallback, memo } from "react";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -16,15 +16,20 @@ interface DocumentHistoryProps {
   currentDocumentId?: number | null;
 }
 
-export function DocumentHistory({ onSelectDocument, currentDocumentId }: DocumentHistoryProps) {
+const DocumentHistoryComponent = ({ onSelectDocument, currentDocumentId }: DocumentHistoryProps) => {
   const [isExpanded, setIsExpanded] = useState(false);
   const { toast } = useToast();
 
   const { data: documents = [], isLoading, isFetching } = useQuery({
     queryKey: ['/api/documents'],
     queryFn: getAllDocuments,
-    staleTime: 30 * 1000, // Keep fresh for 30 seconds
+    staleTime: Infinity,
+    gcTime: Infinity,
     refetchOnMount: false,
+    refetchOnWindowFocus: false,
+    refetchOnReconnect: false,
+    notifyOnChangeProps: ['data', 'error'],
+    structuralSharing: false,
   });
 
   const clearDocumentsMutation = useMutation({
@@ -46,11 +51,11 @@ export function DocumentHistory({ onSelectDocument, currentDocumentId }: Documen
     },
   });
 
-  const handleClearAll = () => {
+  const handleClearAll = useCallback(() => {
     if (window.confirm("Are you sure you want to clear all documents? This action cannot be undone.")) {
       clearDocumentsMutation.mutate();
     }
-  };
+  }, [clearDocumentsMutation]);
 
   const getRiskIcon = (analysis: DocumentAnalysis | null) => {
     if (!analysis) return <Clock className="w-4 h-4 text-gray-400" />;
@@ -212,4 +217,6 @@ export function DocumentHistory({ onSelectDocument, currentDocumentId }: Documen
       </CardContent>
     </Card>
   );
-}
+};
+
+export const DocumentHistory = memo(DocumentHistoryComponent);
