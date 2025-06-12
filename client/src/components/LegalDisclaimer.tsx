@@ -87,12 +87,13 @@ export function LegalDisclaimer({ onAccept }: LegalDisclaimerProps) {
           <div className="flex-1 overflow-y-auto px-3 py-2" style={{ WebkitOverflowScrolling: 'touch' }}>
             <div className="space-y-2">
               <Card className="border-amber-200 bg-amber-50 dark:bg-amber-950/20 dark:border-amber-800">
-                <CardContent className="p-3">
-                  <div className="flex items-start gap-2">
+                <CardContent className="p-2">
+                  <div className="flex items-start gap-1.5">
                     <Checkbox
                       id="no-advice"
                       checked={hasReadNoAdvice}
                       onCheckedChange={(checked) => setHasReadNoAdvice(checked as boolean)}
+                      className="w-3 h-3 mt-0.5"
                     />
                     <div className="space-y-1">
                       <label htmlFor="no-advice" className="text-xs font-medium cursor-pointer">
@@ -109,12 +110,13 @@ export function LegalDisclaimer({ onAccept }: LegalDisclaimerProps) {
               </Card>
 
               <Card className="border-red-200 bg-red-50 dark:bg-red-950/20 dark:border-red-800">
-                <CardContent className="p-3">
-                  <div className="flex items-start gap-2">
+                <CardContent className="p-2">
+                  <div className="flex items-start gap-1.5">
                     <Checkbox
                       id="liability"
                       checked={hasReadLiability}
                       onCheckedChange={(checked) => setHasReadLiability(checked as boolean)}
+                      className="w-3 h-3 mt-0.5"
                     />
                     <div className="space-y-1">
                       <label htmlFor="liability" className="text-xs font-medium cursor-pointer">
@@ -131,12 +133,13 @@ export function LegalDisclaimer({ onAccept }: LegalDisclaimerProps) {
               </Card>
 
               <Card className="border-blue-200 bg-blue-50 dark:bg-blue-950/20 dark:border-blue-800">
-                <CardContent className="p-3">
-                  <div className="flex items-start gap-2">
+                <CardContent className="p-2">
+                  <div className="flex items-start gap-1.5">
                     <Checkbox
                       id="terms"
                       checked={hasReadTerms}
                       onCheckedChange={(checked) => setHasReadTerms(checked as boolean)}
+                      className="w-3 h-3 mt-0.5"
                     />
                     <div className="space-y-1">
                       <label htmlFor="terms" className="text-xs font-medium cursor-pointer">
