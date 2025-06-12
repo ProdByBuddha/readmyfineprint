@@ -116,7 +116,7 @@ const DocumentHistoryComponent = ({ onSelectDocument, currentDocumentId }: Docum
   );
 
   return (
-    <Card className="mb-8 query-container">
+    <Card className="mb-8">
       <CardHeader className="pb-3">
         <CardTitle className="flex items-center justify-between">
           <div className="flex items-center space-x-2">

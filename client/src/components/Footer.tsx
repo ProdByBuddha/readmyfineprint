@@ -33,9 +33,9 @@ Best regards`);
   };
 
   return (
-    <div className="relative z-20">
+    <div className="relative z-50">
       {/* Unified Static Footer for Both Mobile and Desktop */}
-      <footer className="fixed inset-x-0 bottom-0 bg-white dark:bg-gray-900 z-30 border-t border-gray-200 dark:border-gray-700">
+      <footer className="fixed inset-x-0 bottom-0 bg-white dark:bg-gray-900 z-50 border-t border-gray-200 dark:border-gray-700">
         <div className="px-4 py-4 md:px-6">
           {/* Icon Navigation */}
           <div className="flex justify-center md:justify-around items-center py-3 bg-gray-50 dark:bg-gray-800 rounded-lg mb-4">

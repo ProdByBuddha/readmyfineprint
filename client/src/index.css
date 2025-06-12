@@ -107,7 +107,7 @@ html, body {
 
 /* Memory optimization for query components */
 .query-container {
-  contain: layout style paint;
+  contain: layout style;
   transform: translateZ(0);
 }
 
