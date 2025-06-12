@@ -60,12 +60,12 @@ export function Footer() {
           paddingBottom: '1px',
           marginBottom: '0',
           transform: isExpanded ? 'translateY(0)' : 'translateY(calc(100% - 3rem))',
-          overflowY: isExpanded ? 'auto' : 'hidden'
+          overflow: 'hidden'
         }}
       >
-        <div className="w-full h-full relative" style={{ paddingBottom: isExpanded ? '0.5rem' : '0' }}>
+        <div className="w-full h-full relative" style={{ paddingBottom: isExpanded ? '0.25rem' : '0' }}>
           <div className="w-full h-full">
-            <div className={`${isExpanded ? 'container mx-auto px-4 py-4' : 'w-full h-full'} relative`}>
+            <div className={`${isExpanded ? 'container mx-auto px-3 py-2' : 'w-full h-full'} relative`}>
               {/* Collapsed view - just the copyright */}
               <div className={`${isExpanded ? 'hidden' : 'flex justify-center items-center h-full'}`}>
                 <div className="text-sm text-gray-500 dark:text-gray-400">
@@ -75,9 +75,9 @@ export function Footer() {
 
           {/* Expanded view - full footer */}
           <div className={`${isExpanded ? 'block' : 'hidden'}`}>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-2 md:gap-4">
               {/* About */}
-              <div className="space-y-2">
+              <div className="space-y-1 md:space-y-2">
                 <h3 className="font-semibold text-gray-900 dark:text-white">
                   <span className="hidden md:inline">ReadMyFinePrint</span>
                   <span className="md:hidden">RMFP</span>
@@ -93,11 +93,11 @@ export function Footer() {
               </div>
 
               {/* Legal Links */}
-              <div className="space-y-2">
+              <div className="space-y-1 md:space-y-2">
                 <h3 className="font-semibold text-gray-900 dark:text-white">
                   Legal
                 </h3>
-                <nav className="space-y-2">
+                <nav className="space-y-1 md:space-y-2">
                   <Link to="/privacy" className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white transition-colors">
                     <Shield className="w-3 h-3" />
                     Privacy Policy
@@ -117,11 +117,11 @@ export function Footer() {
               </div>
 
               {/* Support & Resources */}
-              <div className="space-y-2">
+              <div className="space-y-1 md:space-y-2">
                 <h3 className="font-semibold text-gray-900 dark:text-white">
                   Support & Resources
                 </h3>
-                <div className="space-y-2">
+                <div className="space-y-1 md:space-y-2">
                   <Link to="/donate">
                     <Button variant="outline" size="sm" className="w-full">
                       <Heart className="w-4 h-4 mr-2 text-red-500" fill="currentColor" />
@@ -144,7 +144,7 @@ export function Footer() {
               </div>
             </div>
 
-            <div className="border-t mt-4 pt-3 flex flex-col md:flex-row justify-between items-center gap-3">
+            <div className="border-t mt-2 md:mt-4 pt-2 md:pt-3 flex flex-col md:flex-row justify-between items-center gap-2 md:gap-3">
               <div className="text-sm text-gray-500 dark:text-gray-400">
                 © {new Date().getFullYear()} <span className="hidden md:inline">ReadMyFinePrint</span><span className="md:hidden">RMFP</span>.
               </div>
