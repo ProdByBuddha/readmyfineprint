@@ -118,22 +118,23 @@ const DocumentHistoryComponent = ({ onSelectDocument, currentDocumentId }: Docum
   return (
     <Card className="mb-8">
       <CardHeader className="pb-3">
-        <CardTitle className="flex items-center justify-between">
-          <div className="flex items-center space-x-2">
-            <FileText className="w-5 h-5 text-primary" />
-            <span>Current Session</span>
-            <Badge variant="secondary" className="ml-2">
+        <CardTitle className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+          <div className="flex items-center space-x-2 min-w-0">
+            <FileText className="w-5 h-5 text-primary flex-shrink-0" />
+            <span className="text-sm sm:text-base">Current Session</span>
+            <Badge variant="secondary" className="flex-shrink-0">
               {documents.length}
             </Badge>
           </div>
-          <div className="flex items-center space-x-2">
+          <div className="flex items-center space-x-2 flex-shrink-0">
             {documents.length > 3 && (
               <Button
                 variant="ghost"
                 size="sm"
                 onClick={() => setIsExpanded(!isExpanded)}
+                className="text-xs px-2 py-1 h-7"
               >
-                {isExpanded ? 'Show Less' : 'Show All'}
+                {isExpanded ? 'Less' : 'All'}
               </Button>
             )}
             <Button
@@ -141,9 +142,10 @@ const DocumentHistoryComponent = ({ onSelectDocument, currentDocumentId }: Docum
               size="sm"
               onClick={handleClearAll}
               disabled={clearDocumentsMutation.isPending}
+              className="text-xs px-2 py-1 h-7"
             >
-              <Trash2 className="w-4 h-4 mr-1" />
-              Clear All
+              <Trash2 className="w-3 h-3 mr-1" />
+              Clear
             </Button>
           </div>
         </CardTitle>
@@ -158,50 +160,52 @@ const DocumentHistoryComponent = ({ onSelectDocument, currentDocumentId }: Docum
               return (
                 <div
                   key={document.id}
-                  className={`border rounded-lg p-4 cursor-pointer transition-colors hover:bg-gray-50 dark:hover:bg-gray-800 ${
+                  className={`border rounded-lg p-3 cursor-pointer transition-colors hover:bg-gray-50 dark:hover:bg-gray-800 ${
                     isActive ? 'border-primary bg-primary/5' : 'border-gray-200 dark:border-gray-700'
                   }`}
                   onClick={() => onSelectDocument(document.id)}
                 >
-                  <div className="flex items-start justify-between">
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-center space-x-2 mb-2">
+                  <div className="space-y-2">
+                    {/* Title and Risk Badge Row */}
+                    <div className="flex items-start gap-2 min-w-0">
+                      <div className="flex-shrink-0 mt-0.5">
                         {getRiskIcon(analysis)}
-                        <h4 className="font-medium text-gray-900 dark:text-white truncate">
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <h4 className="font-medium text-gray-900 dark:text-white text-sm leading-tight line-clamp-2">
                           {document.title}
                         </h4>
-                        {analysis && (
-                          <Badge
-                            className={`text-xs ${getRiskColor(analysis)}`}
-                          >
-                            {analysis.overallRisk} risk
-                          </Badge>
-                        )}
                       </div>
-
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center space-x-4 text-sm text-gray-500 dark:text-gray-400">
-                          <span>
-                            {document.content.split(' ').length} words
-                          </span>
-                          <span>
-                            {formatDistanceToNow(new Date(document.createdAt), { addSuffix: true })}
-                          </span>
-                        </div>
-
-                        {!analysis && (
-                          <Badge variant="outline" className="text-xs">
-                            Pending Analysis
-                          </Badge>
-                        )}
-                      </div>
-
                       {analysis && (
-                        <p className="text-sm text-gray-600 dark:text-gray-300 mt-2 line-clamp-2">
-                          {analysis.summary}
-                        </p>
+                        <Badge className={`text-[10px] px-1.5 py-0.5 flex-shrink-0 ${getRiskColor(analysis)}`}>
+                          {analysis.overallRisk}
+                        </Badge>
                       )}
                     </div>
+
+                    {/* Meta Information */}
+                    <div className="flex items-center justify-between gap-2 text-xs text-gray-500 dark:text-gray-400">
+                      <div className="flex items-center gap-2 min-w-0 flex-1">
+                        <span className="flex-shrink-0">
+                          {document.content.split(' ').length}w
+                        </span>
+                        <span className="truncate">
+                          {formatDistanceToNow(new Date(document.createdAt), { addSuffix: true })}
+                        </span>
+                      </div>
+                      {!analysis && (
+                        <Badge variant="outline" className="text-[10px] px-1.5 py-0.5 flex-shrink-0">
+                          Pending
+                        </Badge>
+                      )}
+                    </div>
+
+                    {/* Summary */}
+                    {analysis && (
+                      <p className="text-xs text-gray-600 dark:text-gray-300 line-clamp-2 leading-relaxed">
+                        {analysis.summary}
+                      </p>
+                    )}
                   </div>
                 </div>
               );
