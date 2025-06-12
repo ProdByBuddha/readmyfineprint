@@ -38,12 +38,16 @@ function App() {
       <ThemeProvider>
         <TooltipProvider>
           <ErrorBoundary>
-            <Header />
+            <div className="min-h-screen flex flex-col app-container">
+              <Header />
+              <main className="flex-1 overflow-y-auto">
+                <Router />
+              </main>
+              <Footer />
+            </div>
             <Toaster />
-            <Router />
             <CookieConsent />
             <ScrollToTop />
-            <Footer />
           </ErrorBoundary>
         </TooltipProvider>
       </ThemeProvider>

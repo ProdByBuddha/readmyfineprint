@@ -151,13 +151,13 @@ html, body {
   padding-right: var(--app-safe-area-right);
 }
 
-/* Force footer to viewport bottom */
+/* Footer styling for app layout */
 .footer-fixed {
-  position: fixed !important;
-  bottom: var(--app-safe-area-bottom) !important;
-  left: var(--app-safe-area-left) !important;
-  right: var(--app-safe-area-right) !important;
-  width: calc(100vw - var(--app-safe-area-left) - var(--app-safe-area-right)) !important;
+  position: relative !important;
+  bottom: auto !important;
+  left: auto !important;
+  right: auto !important;
+  width: 100% !important;
   z-index: 99999 !important;
   transform: translate3d(0, 0, 0) !important;
   -webkit-transform: translate3d(0, 0, 0) !important;
@@ -166,11 +166,24 @@ html, body {
   -webkit-backdrop-filter: blur(20px);
   background: rgba(255, 255, 255, 0.95);
   border-top: 0.5px solid rgba(0, 0, 0, 0.1);
+  padding-left: var(--app-safe-area-left);
+  padding-right: var(--app-safe-area-right);
+  padding-bottom: var(--app-safe-area-bottom);
 }
 
 .dark .footer-fixed {
   background: rgba(17, 24, 39, 0.95);
   border-top: 0.5px solid rgba(255, 255, 255, 0.1);
+}
+
+@media (max-width: 768px) {
+  .footer-fixed {
+    position: fixed !important;
+    bottom: var(--app-safe-area-bottom) !important;
+    left: var(--app-safe-area-left) !important;
+    right: var(--app-safe-area-right) !important;
+    width: calc(100vw - var(--app-safe-area-left) - var(--app-safe-area-right)) !important;
+  }
 }
 
 /* Ensure body and html allow for proper footer positioning */
