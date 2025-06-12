@@ -95,15 +95,10 @@ export function LegalDisclaimer({ onAccept }: LegalDisclaimerProps) {
                       onCheckedChange={(checked) => setHasReadNoAdvice(checked as boolean)}
                       className="w-3 h-3 mt-0.5"
                     />
-                    <div className="space-y-1">
+                    <div>
                       <label htmlFor="no-advice" className="text-xs font-medium cursor-pointer">
-                        Not Legal Advice
+                        I understand this is <strong>NOT legal advice</strong> and will consult an attorney for legal decisions.
                       </label>
-                      <p className="text-xs text-gray-700 dark:text-gray-300">
-                        ReadMyFinePrint is an AI-powered tool designed to help you understand legal documents.
-                        <strong> The analysis provided is NOT legal advice</strong> and should not be relied upon
-                        as a substitute for consultation with a qualified attorney.
-                      </p>
                     </div>
                   </div>
                 </CardContent>
@@ -118,15 +113,10 @@ export function LegalDisclaimer({ onAccept }: LegalDisclaimerProps) {
                       onCheckedChange={(checked) => setHasReadLiability(checked as boolean)}
                       className="w-3 h-3 mt-0.5"
                     />
-                    <div className="space-y-1">
+                    <div>
                       <label htmlFor="liability" className="text-xs font-medium cursor-pointer">
-                        No Liability for Analysis Accuracy
+                        I accept <strong>AI analysis may contain errors</strong> and use this service at my own risk.
                       </label>
-                      <p className="text-xs text-gray-700 dark:text-gray-300">
-                        While we strive for accuracy, AI analysis may contain errors or miss important details.
-                        <strong> We cannot guarantee the completeness or accuracy of any analysis.</strong> You use
-                        this service at your own risk.
-                      </p>
                     </div>
                   </div>
                 </CardContent>
@@ -141,15 +131,10 @@ export function LegalDisclaimer({ onAccept }: LegalDisclaimerProps) {
                       onCheckedChange={(checked) => setHasReadTerms(checked as boolean)}
                       className="w-3 h-3 mt-0.5"
                     />
-                    <div className="space-y-1">
+                    <div>
                       <label htmlFor="terms" className="text-xs font-medium cursor-pointer">
-                        Terms of Service & Privacy Policy
+                        I agree to the <strong>Terms of Service</strong> and understand documents are processed by AI services.
                       </label>
-                      <p className="text-xs text-gray-700 dark:text-gray-300">
-                        By using this service, you agree to our Terms of Service and Privacy Policy.
-                        Documents are processed using AI services, so avoid uploading highly sensitive information.
-                        <strong> Your consent is logged anonymously</strong> for compliance purposes.
-                      </p>
                     </div>
                   </div>
                 </CardContent>
