@@ -34,13 +34,13 @@ export function MobileAppWrapper({ children, className = '' }: MobileAppWrapperP
   });
 
   if (!isMobile) {
-    return <div className={className}>{children}</div>;
+    return <div className={`${className} overflow-y-auto`}>{children}</div>;
   }
 
   return (
     <div 
       ref={containerRef}
-      className={`relative ${className}`}
+      className={`relative ${className} overflow-y-auto`}
       style={{
         transform: pullDistance > 0 ? `translateY(${Math.min(pullDistance, 100)}px)` : 'none',
         transition: isPulling ? 'none' : 'transform 0.3s cubic-bezier(0.4, 0, 0.2, 1)'

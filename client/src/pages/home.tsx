@@ -126,9 +126,9 @@ export default function Home() {
   }
 
   return (
-    <div ref={containerRef} className="min-h-full bg-gradient-to-br from-teal-50 to-cyan-100 dark:from-gray-900 dark:to-slate-800 page-transition">
-      <MobileAppWrapper className="min-h-full">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 md:py-8">
+    <div ref={containerRef} className="h-full bg-gradient-to-br from-teal-50 to-cyan-100 dark:from-gray-900 dark:to-slate-800 page-transition">
+      <MobileAppWrapper className="h-full">
+        <div className="h-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 md:py-8">
           {/* Document History */}
           <div className="animate-fade-in-scale">
             <DocumentHistory

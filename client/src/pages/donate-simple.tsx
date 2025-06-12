@@ -8,7 +8,7 @@ export default function DonateSimple() {
   };
 
   return (
-    <div className="min-h-full bg-gradient-to-br from-teal-50 to-cyan-100 dark:from-slate-900 dark:to-slate-800">
+    <div className="h-full bg-gradient-to-br from-teal-50 to-cyan-100 dark:from-slate-900 dark:to-slate-800 overflow-y-auto">
       <div className="container mx-auto px-4 py-6 max-w-2xl">
         
         <div className="text-center mb-8">

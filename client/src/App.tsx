@@ -38,9 +38,9 @@ function App() {
       <ThemeProvider>
         <TooltipProvider>
           <ErrorBoundary>
-            <div className="min-h-screen flex flex-col app-container">
+            <div className="h-screen flex flex-col app-container">
               <Header />
-              <main className="flex-1 overflow-y-auto">
+              <main className="flex-1 overflow-y-auto min-h-0">
                 <Router />
               </main>
               <Footer />
