@@ -1,144 +1,169 @@
-import { useState } from 'react';
-import { ChevronUp, ChevronDown } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { Link } from 'wouter';
-import customLogo from '@assets/ChatGPT Image Jun 9, 2025, 07_07_26 AM_1749598570251.png';
+import { Shield, Scale, Cookie, Github, ExternalLink, Heart, Mail, ChevronUp, ChevronDown } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { useCookieConsent } from "@/components/CookieConsent";
+import { Link } from "wouter";
+import { useState } from "react";
 
 export function Footer() {
+  const { revokeCookies } = useCookieConsent();
   const [isExpanded, setIsExpanded] = useState(false);
 
-  const toggleFooter = () => {
-    setIsExpanded(!isExpanded);
+  const handleCookieSettings = () => {
+    revokeCookies();
+    // This will cause the cookie banner to show again
+    window.location.reload();
+  };
+
+  const handleContactClick = () => {
+    // Anti-abuse protection: construct email dynamically
+    const domain = 'readmyfineprint.com';
+    const user = 'admin';
+    const subject = encodeURIComponent('ReadMyFinePrint Contact');
+    const body = encodeURIComponent('Hello,\n\nI am reaching out regarding ReadMyFinePrint.\n\nBest regards,');
+    
+    // Rate limiting check
+    const lastContact = localStorage.getItem('last-contact-attempt');
+    const now = Date.now();
+    if (lastContact && (now - parseInt(lastContact)) < 60000) { // 1 minute cooldown
+      alert('Please wait a moment before sending another message.');
+      return;
+    }
+    
+    localStorage.setItem('last-contact-attempt', now.toString());
+    window.open(`mailto:${user}@${domain}?subject=${subject}&body=${body}`, '_self');
   };
 
   return (
     <div>
-      {/* Toggle Button */}
-      <div className="fixed bottom-0 right-4 z-50">
+      {/* Toggle Button - positioned outside footer */}
+      <div className={`fixed left-1/2 transform -translate-x-1/2 z-50 transition-all duration-500 ease-out ${
+        isExpanded ? 'bottom-[calc(80vh-2rem)]' : 'bottom-12'
+      }`}>
         <Button
-          onClick={toggleFooter}
-          size="sm"
+          onClick={() => setIsExpanded(!isExpanded)}
           variant="outline"
-          className="mb-2 bg-white dark:bg-gray-800 shadow-lg hover:shadow-xl transition-all duration-300 border-gray-200 dark:border-gray-700"
-          style={{
-            transform: `translateY(${isExpanded ? '-40vh' : '-3rem'})`,
-            transition: 'transform 0.7s ease-out'
-          }}
+          size="sm"
+          className="bg-white/95 dark:bg-gray-900/95 backdrop-blur-sm border border-gray-200 dark:border-gray-700 rounded-full shadow-lg hover:shadow-xl transition-all duration-300 h-8 w-8"
         >
           {isExpanded ? (
-            <>
-              <ChevronDown className="h-4 w-4 mr-1" />
-              <span className="hidden sm:inline">Collapse</span>
-            </>
+            <ChevronDown className="w-3 h-3" />
           ) : (
-            <>
-              <ChevronUp className="h-4 w-4 mr-1" />
-              <span className="hidden sm:inline">More Info</span>
-            </>
+            <ChevronUp className="w-3 h-3" />
           )}
         </Button>
       </div>
 
       <footer 
-        className="fixed bottom-0 left-0 right-0 bg-white dark:bg-gray-900 z-40 border-t border-gray-200 dark:border-gray-700"
+        className="fixed left-0 right-0 bottom-0 bg-white dark:bg-gray-900 z-40 border-t border-gray-200 dark:border-gray-700 transition-all duration-700 ease-out"
         style={{
-          width: '100vw',
           height: isExpanded ? '40vh' : '3rem',
+          paddingBottom: '1px',
+          marginBottom: '0',
+          width: '100vw',
           transform: isExpanded ? 'translateY(0)' : 'translateY(calc(100% - 3rem))',
-          overflowY: isExpanded ? 'auto' : 'hidden',
-          transition: 'transform 0.7s ease-out, height 0.7s ease-out',
-          willChange: 'transform, height'
+          overflowY: isExpanded ? 'auto' : 'hidden'
         }}
       >
-        <div className="w-full h-full" style={{ width: '100vw' }}>
-          {/* Collapsed view - just the copyright */}
-          <div className={`${isExpanded ? 'hidden' : 'flex justify-center items-center h-full'}`}>
-            <div className="text-sm text-gray-500 dark:text-gray-400">
-              © {new Date().getFullYear()} <span className="hidden md:inline">ReadMyFinePrint</span><span className="md:hidden">RMFP</span>
+        <div className="w-full h-full" style={{ paddingBottom: isExpanded ? '0.5rem' : '0' }}>
+          <div className={`${isExpanded ? 'container mx-auto px-4 py-4' : 'w-full h-full'}`}>
+            {/* Collapsed view - just the copyright */}
+            <div className={`${isExpanded ? 'hidden' : 'flex justify-center items-center h-full'}`}>
+              <div className="text-sm text-gray-500 dark:text-gray-400">
+                © {new Date().getFullYear()} <span className="hidden md:inline">ReadMyFinePrint</span><span className="md:hidden">RMFP</span>
+              </div>
             </div>
-          </div>
 
           {/* Expanded view - full footer */}
-          <div className={`${isExpanded ? 'block' : 'hidden'} h-full`}>
-            <div className="container mx-auto px-4 py-4 h-full">
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                {/* About */}
-                <div className="space-y-2">
-                  <h3 className="font-semibold text-gray-900 dark:text-white">
-                    <span className="hidden md:inline">ReadMyFinePrint</span>
-                    <span className="md:hidden">RMFP</span>
-                  </h3>
-                  <p className="text-sm text-gray-600 dark:text-gray-300">
-                    Transform complex legal documents into accessible summaries with AI-powered analysis.
-                  </p>
-                  <div className="flex items-center gap-2">
-                    <img 
-                      src={customLogo} 
-                      alt="ReadMyFinePrint Logo" 
-                      className="w-6 h-6"
-                    />
-                    <span className="text-sm font-medium text-gray-900 dark:text-white">
-                      <span className="hidden md:inline">ReadMyFinePrint</span>
-                      <span className="md:hidden">RMFP</span>
-                    </span>
-                  </div>
+          <div className={`${isExpanded ? 'block' : 'hidden'}`}>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              {/* About */}
+              <div className="space-y-2">
+                <h3 className="font-semibold text-gray-900 dark:text-white">
+                  <span className="hidden md:inline">ReadMyFinePrint</span>
+                  <span className="md:hidden">RMFP</span>
+                </h3>
+                <p className="text-sm text-gray-600 dark:text-gray-400">
+                  Privacy-first document analysis tool for understanding legal documents.
+                  Session-based processing with no permanent storage of your documents.
+                </p>
+                <div className="flex items-center gap-2 text-xs text-gray-500 dark:text-gray-400">
+                  <Shield className="w-3 h-3" />
+                  <span>Privacy-First Design</span>
                 </div>
+              </div>
 
-                {/* Quick Links */}
-                <div className="space-y-2">
-                  <h3 className="font-semibold text-gray-900 dark:text-white">Quick Links</h3>
-                  <div className="space-y-1">
-                    <div>
-                      <Link href="/" className="text-sm text-gray-600 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 transition-colors">
-                        Document Analysis
-                      </Link>
-                    </div>
-                    <div>
-                      <Link href="/donate" className="text-sm text-gray-600 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 transition-colors">
-                        Support Us
-                      </Link>
-                    </div>
-                    <div>
-                      <Link href="/privacy" className="text-sm text-gray-600 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 transition-colors">
-                        Privacy Policy
-                      </Link>
-                    </div>
-                    <div>
-                      <Link href="/cookies" className="text-sm text-gray-600 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 transition-colors">
-                        Cookie Policy
-                      </Link>
-                    </div>
-                  </div>
-                </div>
+              {/* Legal Links */}
+              <div className="space-y-2">
+                <h3 className="font-semibold text-gray-900 dark:text-white">
+                  Legal
+                </h3>
+                <nav className="space-y-2">
+                  <Link to="/privacy" className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white transition-colors">
+                    <Shield className="w-3 h-3" />
+                    Privacy Policy
+                  </Link>
+                  <Link to="/terms" className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white transition-colors">
+                    <Scale className="w-3 h-3" />
+                    Terms of Service
+                  </Link>
+                  <button
+                    onClick={handleCookieSettings}
+                    className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white transition-colors"
+                  >
+                    <Cookie className="w-3 h-3" />
+                    Cookie Preferences
+                  </button>
+                </nav>
+              </div>
 
-                {/* Features */}
+              {/* Support & Resources */}
+              <div className="space-y-2">
+                <h3 className="font-semibold text-gray-900 dark:text-white">
+                  Support & Resources
+                </h3>
                 <div className="space-y-2">
-                  <h3 className="font-semibold text-gray-900 dark:text-white">Features</h3>
-                  <div className="space-y-1 text-sm text-gray-600 dark:text-gray-300">
-                    <div className="flex items-center gap-2">
-                      <div className="w-2 h-2 bg-green-500 rounded-full"></div>
-                      <span>AI-Powered Analysis</span>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
-                      <span>PDF Export with QR</span>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <div className="w-2 h-2 bg-orange-500 rounded-full"></div>
-                      <span>Privacy-First Design</span>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
-                      <span>Session-Based</span>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <div className="w-2 h-2 bg-purple-500 rounded-full"></div>
-                      <span>Advanced Analysis</span>
-                    </div>
+                  <Link to="/donate">
+                    <Button variant="outline" size="sm" className="w-full">
+                      <Heart className="w-4 h-4 mr-2 text-red-500" fill="currentColor" />
+                      Support Our Mission
+                    </Button>
+                  </Link>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="w-full"
+                    onClick={handleContactClick}
+                  >
+                    <Mail className="w-4 h-4 mr-2" />
+                    Contact Us
+                  </Button>
+                  <div className="text-sm text-gray-600 dark:text-gray-400">
+                    <strong>Not Legal Advice:</strong> This tool provides analysis for informational purposes only. Consult qualified attorneys for legal matters.
                   </div>
                 </div>
               </div>
             </div>
+
+            <div className="border-t mt-4 pt-3 flex flex-col md:flex-row justify-between items-center gap-3">
+              <div className="text-sm text-gray-500 dark:text-gray-400">
+                © {new Date().getFullYear()} <span className="hidden md:inline">ReadMyFinePrint</span><span className="md:hidden">RMFP</span>.
+              </div>
+              <div className="flex items-center gap-4 text-xs text-gray-400 dark:text-gray-500">
+                <span className="flex items-center gap-1">
+                  <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+                  Privacy-First
+                </span>
+                <span className="flex items-center gap-1">
+                  <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
+                  Session-Based
+                </span>
+                <span className="flex items-center gap-1">
+                  <div className="w-2 h-2 bg-purple-500 rounded-full"></div>
+                  Advanced Analysis
+                </span>
+              </div>
+            </div>
+          </div>
           </div>
         </div>
       </footer>
