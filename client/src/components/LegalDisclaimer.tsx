@@ -72,33 +72,33 @@ export function LegalDisclaimer({ onAccept }: LegalDisclaimerProps) {
 
   return (
     <Dialog open={isOpen} onOpenChange={() => {}}>
-      <DialogContent className="w-[90vw] h-[75vh] max-w-lg max-h-[600px] p-0 m-0 rounded-xl shadow-xl" hideCloseButton>
-        <div className="flex flex-col h-full bg-gradient-to-b from-white to-gray-50 dark:from-gray-900 dark:to-gray-950 rounded-xl overflow-hidden">
-          <DialogHeader className="px-4 py-3 border-b border-gray-200 dark:border-gray-700 shrink-0 bg-white/80 dark:bg-gray-900/80 backdrop-blur-sm">
-            <DialogTitle className="flex items-center gap-2 text-base font-semibold text-gray-900 dark:text-gray-100">
-              <div className="p-1.5 bg-amber-100 dark:bg-amber-900/30 rounded-lg">
-                <AlertTriangle className="text-amber-600 dark:text-amber-400 h-4 w-4" />
+      <DialogContent className="w-[90vw] max-w-lg p-0 m-0 rounded-xl shadow-xl" hideCloseButton>
+        <div className="bg-gradient-to-b from-white to-gray-50 dark:from-gray-900 dark:to-gray-950 rounded-xl overflow-hidden">
+          <DialogHeader className="px-4 py-2.5 border-b border-gray-200 dark:border-gray-700 bg-white/80 dark:bg-gray-900/80 backdrop-blur-sm">
+            <DialogTitle className="flex items-center gap-2 text-sm font-semibold text-gray-900 dark:text-gray-100">
+              <div className="p-1 bg-amber-100 dark:bg-amber-900/30 rounded-lg">
+                <AlertTriangle className="text-amber-600 dark:text-amber-400 h-3.5 w-3.5" />
               </div>
               Legal Consent Required
             </DialogTitle>
-            <DialogDescription className="text-xs text-gray-600 dark:text-gray-400 mt-1">
-              Please review and acknowledge these terms before proceeding.
+            <DialogDescription className="text-[10px] text-gray-600 dark:text-gray-400 mt-0.5">
+              Review and acknowledge these terms to proceed.
             </DialogDescription>
           </DialogHeader>
           
-          <div className="flex-1 overflow-y-auto px-4 py-3" style={{ WebkitOverflowScrolling: 'touch' }}>
-            <div className="space-y-3">
+          <div className="px-4 py-2.5">
+            <div className="space-y-2">
               <Card className="border border-amber-200/60 bg-gradient-to-r from-amber-50 to-amber-100/50 dark:from-amber-950/30 dark:to-amber-900/20 dark:border-amber-800/60 shadow-sm hover:shadow-md transition-shadow">
-                <CardContent className="p-3">
-                  <div className="flex items-start gap-2.5">
+                <CardContent className="p-2">
+                  <div className="flex items-start gap-2">
                     <Checkbox
                       id="no-advice"
                       checked={hasReadNoAdvice}
                       onCheckedChange={(checked) => setHasReadNoAdvice(checked as boolean)}
-                      className="w-4 h-4 mt-0.5 data-[state=checked]:bg-amber-600 data-[state=checked]:border-amber-600"
+                      className="w-3.5 h-3.5 mt-0.5 data-[state=checked]:bg-amber-600 data-[state=checked]:border-amber-600"
                     />
                     <div>
-                      <label htmlFor="no-advice" className="text-xs font-medium cursor-pointer text-gray-800 dark:text-gray-200 leading-relaxed">
+                      <label htmlFor="no-advice" className="text-[11px] font-medium cursor-pointer text-gray-800 dark:text-gray-200 leading-tight">
                         I understand this is <strong className="text-amber-700 dark:text-amber-300">NOT legal advice</strong> and will consult an attorney for legal decisions.
                       </label>
                     </div>
@@ -107,16 +107,16 @@ export function LegalDisclaimer({ onAccept }: LegalDisclaimerProps) {
               </Card>
 
               <Card className="border border-red-200/60 bg-gradient-to-r from-red-50 to-red-100/50 dark:from-red-950/30 dark:to-red-900/20 dark:border-red-800/60 shadow-sm hover:shadow-md transition-shadow">
-                <CardContent className="p-3">
-                  <div className="flex items-start gap-2.5">
+                <CardContent className="p-2">
+                  <div className="flex items-start gap-2">
                     <Checkbox
                       id="liability"
                       checked={hasReadLiability}
                       onCheckedChange={(checked) => setHasReadLiability(checked as boolean)}
-                      className="w-4 h-4 mt-0.5 data-[state=checked]:bg-red-600 data-[state=checked]:border-red-600"
+                      className="w-3.5 h-3.5 mt-0.5 data-[state=checked]:bg-red-600 data-[state=checked]:border-red-600"
                     />
                     <div>
-                      <label htmlFor="liability" className="text-xs font-medium cursor-pointer text-gray-800 dark:text-gray-200 leading-relaxed">
+                      <label htmlFor="liability" className="text-[11px] font-medium cursor-pointer text-gray-800 dark:text-gray-200 leading-tight">
                         I accept <strong className="text-red-700 dark:text-red-300">AI analysis may contain errors</strong> and use this service at my own risk.
                       </label>
                     </div>
@@ -125,16 +125,16 @@ export function LegalDisclaimer({ onAccept }: LegalDisclaimerProps) {
               </Card>
 
               <Card className="border border-blue-200/60 bg-gradient-to-r from-blue-50 to-blue-100/50 dark:from-blue-950/30 dark:to-blue-900/20 dark:border-blue-800/60 shadow-sm hover:shadow-md transition-shadow">
-                <CardContent className="p-3">
-                  <div className="flex items-start gap-2.5">
+                <CardContent className="p-2">
+                  <div className="flex items-start gap-2">
                     <Checkbox
                       id="terms"
                       checked={hasReadTerms}
                       onCheckedChange={(checked) => setHasReadTerms(checked as boolean)}
-                      className="w-4 h-4 mt-0.5 data-[state=checked]:bg-blue-600 data-[state=checked]:border-blue-600"
+                      className="w-3.5 h-3.5 mt-0.5 data-[state=checked]:bg-blue-600 data-[state=checked]:border-blue-600"
                     />
                     <div>
-                      <label htmlFor="terms" className="text-xs font-medium cursor-pointer text-gray-800 dark:text-gray-200 leading-relaxed">
+                      <label htmlFor="terms" className="text-[11px] font-medium cursor-pointer text-gray-800 dark:text-gray-200 leading-tight">
                         I agree to the <strong className="text-blue-700 dark:text-blue-300">Terms of Service</strong> and understand documents are processed by AI services.
                       </label>
                     </div>
@@ -144,10 +144,10 @@ export function LegalDisclaimer({ onAccept }: LegalDisclaimerProps) {
             </div>
           </div>
           
-          <DialogFooter className="px-4 py-3 border-t border-gray-200 dark:border-gray-700 shrink-0 bg-white/50 dark:bg-gray-900/50 backdrop-blur-sm">
-            <div className="space-y-2 w-full">
-              <div className="text-[10px] text-gray-500 dark:text-gray-400 text-center leading-tight">
-                Acceptance logged anonymously for compliance.{' '}
+          <DialogFooter className="px-4 py-2 border-t border-gray-200 dark:border-gray-700 bg-white/50 dark:bg-gray-900/50 backdrop-blur-sm">
+            <div className="space-y-1.5 w-full">
+              <div className="text-[9px] text-gray-500 dark:text-gray-400 text-center leading-tight">
+                Logged anonymously for compliance •{' '}
                 <a href="/privacy" className="text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300 underline transition-colors" target="_blank">
                   Privacy
                 </a>{' '}
@@ -159,7 +159,7 @@ export function LegalDisclaimer({ onAccept }: LegalDisclaimerProps) {
               <Button
                 onClick={handleAccept}
                 disabled={!canAccept || isLogging}
-                className={`w-full h-9 text-xs font-medium transition-all duration-200 ${
+                className={`w-full h-8 text-xs font-medium transition-all duration-200 ${
                   canAccept 
                     ? 'bg-gradient-to-r from-teal-600 to-cyan-600 hover:from-teal-700 hover:to-cyan-700 text-white shadow-sm hover:shadow-md' 
                     : 'bg-gray-200 dark:bg-gray-700 text-gray-500 dark:text-gray-400 cursor-not-allowed'
@@ -172,7 +172,7 @@ export function LegalDisclaimer({ onAccept }: LegalDisclaimerProps) {
                   </>
                 ) : (
                   <>
-                    <Check className="mr-2 h-3 w-3" />
+                    <Check className="mr-1.5 h-3 w-3" />
                     Accept & Continue
                   </>
                 )}
