@@ -57,7 +57,14 @@ const DocumentHistoryComponent = ({ onSelectDocument, currentDocumentId }: Docum
     }
   }, [clearDocumentsMutation]);
 
-  const getRiskIcon = (analysis: DocumentAnalysis | null) => {
+  const recentDocuments = useMemo(() => 
+    documents
+      .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
+      .slice(0, isExpanded ? documents.length : 3),
+    [documents, isExpanded]
+  );
+
+  const getRiskIcon = useCallback((analysis: DocumentAnalysis | null) => {
     if (!analysis) return <Clock className="w-4 h-4 text-gray-400" />;
 
     switch (analysis.overallRisk) {
@@ -70,9 +77,9 @@ const DocumentHistoryComponent = ({ onSelectDocument, currentDocumentId }: Docum
       default:
         return <Clock className="w-4 h-4 text-gray-400" />;
     }
-  };
+  }, []);
 
-  const getRiskColor = (analysis: DocumentAnalysis | null) => {
+  const getRiskColor = useCallback((analysis: DocumentAnalysis | null) => {
     if (!analysis) return 'bg-gray-100 text-gray-600';
 
     switch (analysis.overallRisk) {
@@ -85,7 +92,7 @@ const DocumentHistoryComponent = ({ onSelectDocument, currentDocumentId }: Docum
       default:
         return 'bg-gray-100 text-gray-600';
     }
-  };
+  }, []);
 
   // Only show loading skeleton on initial load, not on background refetches
   if (isLoading && !documents.length) {
@@ -107,13 +114,6 @@ const DocumentHistoryComponent = ({ onSelectDocument, currentDocumentId }: Docum
   if (documents.length === 0) {
     return null;
   }
-
-  const recentDocuments = useMemo(() => 
-    documents
-      .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
-      .slice(0, isExpanded ? documents.length : 3),
-    [documents, isExpanded]
-  );
 
   return (
     <Card className="mb-8">
