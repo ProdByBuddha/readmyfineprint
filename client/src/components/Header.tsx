@@ -2,21 +2,46 @@ import { Button } from "@/components/ui/button";
 import { Moon, Sun, Heart } from "lucide-react";
 import { Link } from "wouter";
 import { useTheme } from "@/components/ThemeProvider";
+import { useIsMobile } from "@/hooks/use-mobile";
 import logoImage from "@assets/ChatGPT Image Jun 9, 2025, 07_07_26 AM_1749598570251.png";
 
 export function Header() {
   const { theme, toggleTheme } = useTheme();
+  const isMobile = useIsMobile();
 
   return (
-    <header className="bg-white dark:bg-slate-900 border-b border-teal-200 dark:border-slate-700 fixed top-0 left-0 right-0 z-50">
+    <header className={`
+      ${isMobile 
+        ? 'bg-white/95 dark:bg-slate-900/95 backdrop-blur-lg border-b-0 shadow-sm' 
+        : 'bg-white dark:bg-slate-900 border-b border-teal-200 dark:border-slate-700'
+      } 
+      fixed top-0 left-0 right-0 z-50 transition-all duration-300
+    `} 
+    style={isMobile ? {
+      paddingTop: 'var(--app-safe-area-top)',
+      paddingLeft: 'var(--app-safe-area-left)',
+      paddingRight: 'var(--app-safe-area-right)'
+    } : {}}>
       <div className="w-full px-4 sm:px-6 lg:px-8">
-        <div className="flex justify-between items-center h-16">
+        <div className={`flex justify-between items-center ${isMobile ? 'h-14' : 'h-16'}`}>
           <Link to="/">
-            <div className="flex items-center space-x-3 cursor-pointer">
-              <img src={logoImage} alt="ReadMyFinePrint Logo" className="w-12 h-12 object-contain" />
-              <h1 className="text-xl font-bold text-primary dark:text-primary hidden md:block">ReadMyFinePrint</h1>
+            <div className="flex items-center space-x-3 cursor-pointer group">
+              <img 
+                src={logoImage} 
+                alt="ReadMyFinePrint Logo" 
+                className={`${isMobile ? 'w-10 h-10' : 'w-12 h-12'} object-contain transition-transform duration-200 group-active:scale-95`} 
+              />
+              <h1 className="text-xl font-bold text-primary dark:text-primary hidden md:block">
+                ReadMyFinePrint
+              </h1>
+              {isMobile && (
+                <h1 className="text-lg font-bold text-primary dark:text-primary">
+                  RMFP
+                </h1>
+              )}
             </div>
           </Link>
+          
           <nav className="hidden md:flex items-center space-x-6">
             <Link to="/donate">
               <Button variant="outline" size="sm" className="mr-2">
@@ -37,10 +62,15 @@ export function Header() {
               )}
             </Button>
           </nav>
+          
           {/* Mobile navigation */}
-          <nav className="md:hidden flex items-center space-x-2">
+          <nav className="md:hidden flex items-center space-x-1">
             <Link to="/donate">
-              <Button variant="outline" size="sm">
+              <Button 
+                variant="outline" 
+                size="sm"
+                className="h-10 w-10 p-0 rounded-full transition-all duration-200 active:scale-95"
+              >
                 <Heart className="w-4 h-4 text-red-500" />
               </Button>
             </Link>
@@ -48,6 +78,7 @@ export function Header() {
               onClick={toggleTheme}
               variant="ghost"
               size="sm"
+              className="h-10 w-10 p-0 rounded-full transition-all duration-200 active:scale-95"
             >
               {theme === "light" ? (
                 <Moon className="w-4 h-4" />
