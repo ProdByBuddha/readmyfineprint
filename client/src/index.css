@@ -138,7 +138,24 @@ html, body {
 
 /* Add padding to main content to prevent footer overlap */
 main, .main-content {
-  padding-bottom: 200px !important;
+  padding-bottom: 160px !important;
+}
+
+/* Consistent page layout spacing */
+.page-transition {
+  transition: opacity 0.2s ease-in-out;
+}
+
+/* Remove default margins from page containers */
+.min-h-screen {
+  min-height: calc(100vh - 80px); /* Account for header height */
+}
+
+/* Ensure proper spacing for app-level navigation */
+.container {
+  width: 100%;
+  margin-left: auto;
+  margin-right: auto;
 }
 
 /* Prevent layout shifts during loading */

@@ -16,7 +16,7 @@ export default function Cookies() {
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
-      <div className="container mx-auto px-4 py-8 pt-24 pb-40 max-w-4xl">
+      <div className="container mx-auto px-4 py-6 pt-20 pb-32 max-w-4xl">
         <div className="text-center mb-8">
           <Cookie className="h-12 w-12 text-primary mx-auto mb-4" />
           <h1 className="text-3xl font-bold mb-2">Cookie Settings</h1>
