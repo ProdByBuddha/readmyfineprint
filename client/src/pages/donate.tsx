@@ -98,7 +98,7 @@ const DonateContent = () => {
   return (
     <div className="min-h-screen bg-gradient-to-br from-teal-50 to-cyan-100 dark:from-slate-900 dark:to-slate-800">
       <Header />
-      <div className="p-4 pb-40 md:pb-32">
+      <div className="p-4 pb-40 md:pb-40">
         <div className="max-w-4xl mx-auto pt-24">
           <div className="text-center mb-12">
             <div className="inline-flex items-center justify-center w-16 h-16 bg-primary/20 dark:bg-primary/30 rounded-full mb-4">
