@@ -61,43 +61,72 @@ export function DocumentLoadingSkeleton() {
 
 export function AnalysisProgress() {
   return (
-    <Card className="p-8 mb-8">
-      <CardContent className="text-center">
-        <div className="flex flex-col items-center space-y-6">
+    <Card className="p-6 mb-8 bg-gradient-to-br from-blue-50 via-white to-cyan-50 dark:from-blue-950/30 dark:via-gray-900 dark:to-cyan-950/30 border-0 shadow-xl">
+      <CardContent className="text-center p-0">
+        <div className="flex flex-col items-center space-y-5">
+          {/* Animated Loading Icon */}
           <div className="relative">
-            <Loader2 className="w-16 h-16 text-primary animate-spin" />
+            <div className="w-20 h-20 rounded-full bg-gradient-to-r from-blue-500 to-cyan-500 opacity-20 animate-pulse"></div>
             <div className="absolute inset-0 flex items-center justify-center">
-              <Brain className="w-8 h-8 text-primary/60" />
+              <div className="relative">
+                <Loader2 className="w-12 h-12 text-blue-600 dark:text-blue-400 animate-spin" />
+                <div className="absolute inset-0 flex items-center justify-center">
+                  <Brain className="w-6 h-6 text-blue-500 dark:text-blue-300" />
+                </div>
+              </div>
             </div>
           </div>
           
+          {/* Title and Description */}
           <div className="space-y-2">
-            <h3 className="text-xl font-semibold text-gray-900 dark:text-white">
-              Analyzing Your Document
+            <h3 className="text-xl font-bold text-gray-900 dark:text-white">
+              AI Analysis in Progress
             </h3>
-            <p className="text-gray-600 dark:text-gray-300 max-w-md">
-              Our advanced system is carefully reviewing your document, identifying key terms, 
-              and translating legal language into plain English.
+            <p className="text-sm text-gray-600 dark:text-gray-300 max-w-sm leading-relaxed">
+              Reviewing your document with advanced AI to identify key terms, risks, and translate legal language into clear insights.
             </p>
           </div>
           
-          <div className="flex items-center space-x-8 text-sm text-gray-500 dark:text-gray-400">
-            <div className="flex items-center space-x-2">
-              <CheckCircle className="w-4 h-4 text-green-500" />
-              <span>Document uploaded</span>
-            </div>
-            <div className="flex items-center space-x-2">
-              <Loader2 className="w-4 h-4 animate-spin text-primary" />
-              <span>Analyzing content</span>
-            </div>
-            <div className="flex items-center space-x-2">
-              <FileText className="w-4 h-4 text-gray-400" />
-              <span>Generating summary</span>
+          {/* Progress Steps - Mobile Optimized */}
+          <div className="w-full max-w-sm">
+            <div className="space-y-3">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center space-x-2">
+                  <div className="w-6 h-6 rounded-full bg-green-500 flex items-center justify-center">
+                    <CheckCircle className="w-4 h-4 text-white" />
+                  </div>
+                  <span className="text-sm font-medium text-green-700 dark:text-green-400">Document Uploaded</span>
+                </div>
+                <div className="w-4 h-0.5 bg-green-500 rounded"></div>
+              </div>
+              
+              <div className="flex items-center justify-between">
+                <div className="flex items-center space-x-2">
+                  <div className="w-6 h-6 rounded-full bg-blue-500 flex items-center justify-center animate-pulse">
+                    <Loader2 className="w-3 h-3 text-white animate-spin" />
+                  </div>
+                  <span className="text-sm font-medium text-blue-700 dark:text-blue-400">Analyzing Content</span>
+                </div>
+                <div className="w-4 h-0.5 bg-blue-500 rounded animate-pulse"></div>
+              </div>
+              
+              <div className="flex items-center justify-between">
+                <div className="flex items-center space-x-2">
+                  <div className="w-6 h-6 rounded-full bg-gray-300 dark:bg-gray-600 flex items-center justify-center">
+                    <FileText className="w-3 h-3 text-gray-500 dark:text-gray-400" />
+                  </div>
+                  <span className="text-sm text-gray-500 dark:text-gray-400">Generating Summary</span>
+                </div>
+                <div className="w-4 h-0.5 bg-gray-300 dark:bg-gray-600 rounded"></div>
+              </div>
             </div>
           </div>
           
-          <div className="text-xs text-gray-400 dark:text-gray-500">
-            This typically takes 30-60 seconds depending on document length
+          {/* Estimated Time */}
+          <div className="bg-blue-50 dark:bg-blue-950/50 rounded-lg px-4 py-2 mt-2">
+            <p className="text-xs text-blue-700 dark:text-blue-300 font-medium">
+              Estimated time: 10-30 seconds
+            </p>
           </div>
         </div>
       </CardContent>
@@ -107,22 +136,36 @@ export function AnalysisProgress() {
 
 export function UploadProgress({ fileName, progress }: { fileName: string; progress: number }) {
   return (
-    <Card className="p-6 mb-8">
+    <Card className="p-5 mb-8 bg-gradient-to-r from-green-50 to-emerald-50 dark:from-green-950/30 dark:to-emerald-950/30 border-green-200 dark:border-green-800 shadow-lg">
       <CardContent className="p-0">
         <div className="flex items-center space-x-4">
-          <FileText className="w-8 h-8 text-primary" />
-          <div className="flex-1">
+          <div className="relative">
+            <div className="w-12 h-12 rounded-full bg-green-100 dark:bg-green-900/50 flex items-center justify-center">
+              <FileText className="w-6 h-6 text-green-600 dark:text-green-400" />
+            </div>
+            {progress < 100 && (
+              <div className="absolute -top-1 -right-1 w-4 h-4 bg-blue-500 rounded-full flex items-center justify-center">
+                <Loader2 className="w-2.5 h-2.5 text-white animate-spin" />
+              </div>
+            )}
+          </div>
+          <div className="flex-1 min-w-0">
             <div className="flex items-center justify-between mb-2">
-              <span className="font-medium text-gray-900 dark:text-white truncate">
+              <span className="font-medium text-gray-900 dark:text-white truncate text-sm">
                 {fileName}
               </span>
-              <span className="text-sm text-gray-500">{progress}%</span>
+              <span className="text-sm font-semibold text-green-600 dark:text-green-400">
+                {progress}%
+              </span>
             </div>
-            <div className="w-full bg-gray-200 rounded-full h-2">
+            <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2.5 overflow-hidden">
               <div 
-                className="bg-primary h-2 rounded-full transition-all duration-300"
+                className="bg-gradient-to-r from-green-500 to-emerald-500 h-2.5 rounded-full transition-all duration-500 ease-out"
                 style={{ width: `${progress}%` }}
               />
+            </div>
+            <div className="mt-2 text-xs text-gray-500 dark:text-gray-400">
+              {progress < 100 ? 'Uploading...' : 'Upload complete'}
             </div>
           </div>
         </div>

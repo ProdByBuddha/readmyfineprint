@@ -213,10 +213,20 @@ export default function Home() {
 
           {/* Loading Document */}
           {isLoadingDocument && currentDocumentId && (
-            <Card className="p-8 animate-fade-in-scale">
-              <CardContent className="text-center">
-                <Loader2 className="w-8 h-8 mx-auto mb-4 animate-spin text-primary" />
-                <p className="text-gray-600 dark:text-gray-300">Loading document...</p>
+            <Card className="p-6 animate-fade-in-scale bg-gradient-to-r from-purple-50 to-indigo-50 dark:from-purple-950/30 dark:to-indigo-950/30 border-purple-200 dark:border-purple-800 shadow-lg">
+              <CardContent className="text-center p-0">
+                <div className="flex flex-col items-center space-y-4">
+                  <div className="relative">
+                    <div className="w-16 h-16 rounded-full bg-gradient-to-r from-purple-500 to-indigo-500 opacity-20 animate-pulse"></div>
+                    <div className="absolute inset-0 flex items-center justify-center">
+                      <Loader2 className="w-8 h-8 text-purple-600 dark:text-purple-400 animate-spin" />
+                    </div>
+                  </div>
+                  <div className="space-y-1">
+                    <h3 className="font-semibold text-gray-900 dark:text-white">Loading Document</h3>
+                    <p className="text-sm text-gray-600 dark:text-gray-300">Retrieving your document...</p>
+                  </div>
+                </div>
               </CardContent>
             </Card>
           )}
