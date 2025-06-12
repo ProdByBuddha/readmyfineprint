@@ -117,8 +117,27 @@ footer[class*="fixed"] {
   bottom: 0 !important;
   left: 0 !important;
   right: 0 !important;
-  z-index: 50 !important;
+  z-index: 9999 !important;
   width: 100vw !important;
+  transform: translateZ(0) !important;
+}
+
+/* Ensure body and html allow for proper footer positioning */
+html, body {
+  height: 100%;
+  overflow-x: hidden;
+  position: relative;
+}
+
+/* Root div needs to be full height */
+#root {
+  min-height: 100vh;
+  position: relative;
+}
+
+/* Add padding to main content to prevent footer overlap */
+main, .main-content {
+  padding-bottom: 200px !important;
 }
 
 /* Prevent layout shifts during loading */

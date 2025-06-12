@@ -33,7 +33,21 @@ Best regards`);
   };
 
   return (
-    <footer className="fixed bottom-0 left-0 right-0 w-full bg-white dark:bg-gray-900 z-50 border-t border-gray-200 dark:border-gray-700">
+    <footer 
+      className="bg-white dark:bg-gray-900 border-t border-gray-200 dark:border-gray-700"
+      style={{ 
+        position: 'fixed', 
+        bottom: '0px', 
+        left: '0px', 
+        right: '0px', 
+        zIndex: 99999,
+        width: '100vw',
+        height: 'auto',
+        transform: 'translate3d(0, 0, 0)',
+        WebkitTransform: 'translate3d(0, 0, 0)',
+        willChange: 'transform'
+      }}
+    >
       <div className="px-4 py-4 md:px-6">
         {/* Icon Navigation */}
         <div className="flex justify-center md:justify-around items-center py-3 bg-gray-50 dark:bg-gray-800 rounded-lg mb-4">

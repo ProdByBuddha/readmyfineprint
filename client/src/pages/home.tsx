@@ -129,7 +129,7 @@ export default function Home() {
   return (
     <div ref={containerRef} className="min-h-screen bg-gradient-to-br from-teal-50 to-cyan-100 dark:from-gray-900 dark:to-slate-800 page-transition">
       <Header />
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-24 py-8 pb-40 md:pb-40">
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-24 py-8 pb-48">
         {/* Document History */}
         <DocumentHistory
           onSelectDocument={handleDocumentSelect}
