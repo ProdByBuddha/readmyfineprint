@@ -62,9 +62,9 @@ export function Footer() {
           transform: isExpanded ? 'translateY(0)' : 'translateY(calc(100% - 3rem))'
         }}
       >
-        <div className={`container mx-auto px-4 ${isExpanded ? 'py-8' : 'py-0'}`} style={{ paddingBottom: isExpanded ? '2rem' : '1rem' }}>
+        <div className={`${isExpanded ? 'container mx-auto px-4 py-8' : 'w-full'}`} style={{ paddingBottom: isExpanded ? '2rem' : '1rem' }}>
           {/* Collapsed view - just the copyright */}
-          <div className={`${isExpanded ? 'hidden' : 'block'} text-center py-2`}>
+          <div className={`${isExpanded ? 'hidden' : 'flex justify-center items-center py-2'}`}>
             <div className="text-sm text-gray-500 dark:text-gray-400">
               © {new Date().getFullYear()} <span className="hidden md:inline">ReadMyFinePrint</span><span className="md:hidden">RMFP</span>
             </div>
