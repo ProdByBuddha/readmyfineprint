@@ -93,6 +93,16 @@ html, body {
   color: hsl(210, 40%, 96%);
 }
 
+/* Reduce navigation flickering */
+.page-transition {
+  opacity: 1;
+  transition: opacity 0.15s ease-in-out;
+}
+
+.page-transition.loading {
+  opacity: 0.9;
+}
+
 .bg-background {
   background-color: hsl(210, 40%, 96%);
 }
