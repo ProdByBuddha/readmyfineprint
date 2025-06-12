@@ -1,8 +1,6 @@
-import { Shield, Scale, Cookie, Github, ExternalLink, Heart, Mail, ChevronUp, ChevronDown, Home, HelpCircle } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { Shield, Scale, Cookie, Heart, Mail, Home } from "lucide-react";
 import { useCookieConsent } from "@/components/CookieConsent";
 import { Link } from "wouter";
-import { useState } from "react";
 
 export function Footer() {
   const { revokeCookies } = useCookieConsent();
@@ -89,7 +87,7 @@ Best regards`);
               </span>
               <span className="flex items-center gap-1">
                 <div className="w-1.5 h-1.5 md:w-2 md:h-2 bg-purple-500 rounded-full"></div>
-                AI Analysis
+                Advanced Analysis
               </span>
             </div>
           </div>
