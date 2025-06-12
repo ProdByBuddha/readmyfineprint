@@ -54,13 +54,15 @@ export function Footer() {
       </div>
 
       <footer 
-        className="fixed left-0 right-0 bottom-0 bg-white dark:bg-gray-900 z-40 max-h-[80vh] overflow-y-auto transform transition-transform duration-700 ease-out border-t border-gray-200 dark:border-gray-700"
+        className="fixed inset-x-0 bottom-0 bg-white dark:bg-gray-900 z-40 max-h-[80vh] overflow-y-auto transform transition-transform duration-700 ease-out border-t border-gray-200 dark:border-gray-700"
         style={{
-          paddingBottom: 'env(safe-area-inset-bottom)',
+          minHeight: isExpanded ? '60vh' : '3rem',
+          paddingBottom: '1px',
+          marginBottom: '0',
           transform: isExpanded ? 'translateY(0)' : 'translateY(calc(100% - 3rem))'
         }}
       >
-        <div className={`container mx-auto px-4 ${isExpanded ? 'py-8 pb-8' : 'py-0'}`} style={{ paddingBottom: isExpanded ? '2rem' : '0.5rem' }}>
+        <div className={`container mx-auto px-4 ${isExpanded ? 'py-8' : 'py-0'}`} style={{ paddingBottom: isExpanded ? '2rem' : '1rem' }}>
           {/* Collapsed view - just the copyright */}
           <div className={`${isExpanded ? 'hidden' : 'block'} text-center py-2`}>
             <div className="text-sm text-gray-500 dark:text-gray-400">
