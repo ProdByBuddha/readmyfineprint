@@ -1,11 +1,12 @@
 import { PrivacyPolicy } from "@/components/PrivacyPolicy";
+import { TouchScrollContainer } from "@/components/TouchScrollContainer";
 
 export default function Privacy() {
   return (
-    <div className="h-full bg-gray-50 dark:bg-gray-900 page-transition overflow-y-auto">
+    <TouchScrollContainer className="h-full bg-gray-50 dark:bg-gray-900 page-transition">
       <div className="container mx-auto px-4 py-4">
         <PrivacyPolicy />
       </div>
-    </div>
+    </TouchScrollContainer>
   );
 }

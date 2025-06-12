@@ -1,6 +1,7 @@
 import { Heart, Shield, Users, Zap } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { TouchScrollContainer } from "@/components/TouchScrollContainer";
 
 export default function DonateSimple() {
   const handleDonate = () => {
@@ -8,7 +9,7 @@ export default function DonateSimple() {
   };
 
   return (
-    <div className="h-full bg-gradient-to-br from-teal-50 to-cyan-100 dark:from-slate-900 dark:to-slate-800 overflow-y-auto">
+    <TouchScrollContainer className="h-full bg-gradient-to-br from-teal-50 to-cyan-100 dark:from-slate-900 dark:to-slate-800">
       <div className="container mx-auto px-4 py-4 max-w-2xl">
         
         <div className="text-center mb-8">
@@ -111,6 +112,6 @@ export default function DonateSimple() {
           </CardContent>
         </Card>
       </div>
-    </div>
+    </TouchScrollContainer>
   );
 }

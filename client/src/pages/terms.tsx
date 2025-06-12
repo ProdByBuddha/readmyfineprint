@@ -1,11 +1,12 @@
 import { TermsOfService } from "@/components/TermsOfService";
+import { TouchScrollContainer } from "@/components/TouchScrollContainer";
 
 export default function Terms() {
   return (
-    <div className="h-full bg-gray-50 dark:bg-gray-900 page-transition overflow-y-auto">
+    <TouchScrollContainer className="h-full bg-gray-50 dark:bg-gray-900 page-transition">
       <div className="container mx-auto px-4 py-4">
         <TermsOfService />
       </div>
-    </div>
+    </TouchScrollContainer>
   );
 }

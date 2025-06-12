@@ -1,6 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { TouchScrollContainer } from "@/components/TouchScrollContainer";
 import { Cookie, Shield, CheckCircle, AlertCircle, Info } from "lucide-react";
 import { useCookieConsent } from "@/components/CookieConsent";
 import { useLocation } from "wouter";
@@ -15,7 +16,7 @@ export default function Cookies() {
   };
 
   return (
-    <div className="h-full bg-gray-50 dark:bg-gray-900 overflow-y-auto">
+    <TouchScrollContainer className="h-full bg-gray-50 dark:bg-gray-900">
       <div className="container mx-auto px-4 py-4 max-w-4xl">
         <div className="text-center mb-8">
           <Cookie className="h-12 w-12 text-primary mx-auto mb-4" />
@@ -165,6 +166,6 @@ export default function Cookies() {
           </CardContent>
         </Card>
       </div>
-    </div>
+    </TouchScrollContainer>
   );
 }
