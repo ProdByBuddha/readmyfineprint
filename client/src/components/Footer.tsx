@@ -36,8 +36,8 @@ export function Footer() {
   return (
     <div>
       {/* Toggle Button - positioned outside footer */}
-      <div className={`fixed left-1/2 transform -translate-x-1/2 z-50 transition-all duration-500 ease-out ${
-        isExpanded ? 'bottom-[calc(80vh-2rem)]' : 'bottom-12'
+      <div className={`fixed left-1/2 transform -translate-x-1/2 z-50 transition-all duration-700 ease-out ${
+        isExpanded ? 'bottom-[calc(40vh-2.5rem)]' : 'bottom-12'
       }`}>
         <Button
           onClick={() => setIsExpanded(!isExpanded)}
