@@ -34,11 +34,16 @@ export class AnalysisPDFExporter {
   }
 
   private addLogo(): void {
-    // Add custom C logo
+    // Add custom C logo - use fallback text for now
     try {
-      this.doc.addImage(logoImage, 'PNG', this.leftMargin, this.currentY, 16, 16);
+      // Skip image loading for now, use text fallback
+      this.doc.setTextColor(37, 99, 235);
+      this.doc.setFontSize(16);
+      this.doc.setFont('helvetica', 'bold');
+      this.doc.text('C', this.leftMargin + 8, this.currentY + 10, { align: 'center' });
     } catch (error) {
-      // Fallback to text if image fails to load
+      console.error('Logo rendering failed:', error);
+      // Simple fallback
       this.doc.setTextColor(37, 99, 235);
       this.doc.setFontSize(16);
       this.doc.setFont('helvetica', 'bold');
@@ -356,52 +361,68 @@ export class AnalysisPDFExporter {
       donateUrl = window.location.origin + '/donate'
     } = options;
 
+    console.log('PDF Export starting with options:', options);
+
     if (!document.analysis) {
+      console.error('Document analysis missing:', document);
       throw new Error('Document analysis is required for PDF export');
     }
 
     const analysis = document.analysis;
+    console.log('Analysis found:', analysis);
 
     try {
+      console.log('Adding logo...');
       // Add logo
       if (includeLogo) {
         this.addLogo();
       }
 
+      console.log('Adding header...');
       // Add header
       if (includeHeader) {
         this.addHeader(document);
       }
 
+      console.log('Adding overall risk...');
       // Add overall risk assessment
       this.addOverallRisk(analysis);
 
+      console.log('Adding summary...');
       // Add summary
       this.addSummary(analysis);
 
+      console.log('Adding key findings...');
       // Add key findings
       this.addKeyFindings(analysis);
 
+      console.log('Adding detailed sections...');
       // Add detailed sections
       this.addDetailedSections(analysis);
 
+      console.log('Adding QR code...');
       // Add QR code for donations
       if (includeQRCode) {
         await this.addQRCode(donateUrl);
       }
 
+      console.log('Adding footer...');
       // Add footer to all pages
       this.addFooter();
 
       // Generate filename
       const filename = `${document.title.replace(/[^a-z0-9]/gi, '_').toLowerCase()}-analysis.pdf`;
+      console.log('Generated filename:', filename);
 
+      console.log('Saving PDF...');
       // Save the PDF
       this.doc.save(filename);
+      console.log('PDF save completed');
 
     } catch (error) {
-      console.error('PDF export failed:', error);
-      throw new Error('Failed to generate PDF export');
+      console.error('PDF export failed at step:', error);
+      console.error('Error details:', error);
+      throw new Error(`Failed to generate PDF export: ${error instanceof Error ? error.message : 'Unknown error'}`);
     }
   }
 }
