@@ -99,10 +99,16 @@ const DonateContent = () => {
           <h1 className="text-4xl font-bold text-gray-900 dark:text-white mb-4">
             Support Our Mission
           </h1>
-          <p className="text-xl text-gray-600 dark:text-gray-300 max-w-2xl mx-auto">
+          <p className="text-xl text-gray-600 dark:text-gray-300 max-w-2xl mx-auto mb-6">
             Help us make legal documents accessible to everyone. Your donation keeps our
             advanced analysis service free and available to those who need it most.
           </p>
+          <Link to="/roadmap">
+            <Button variant="outline" className="inline-flex items-center">
+              <MapPin className="w-4 h-4 mr-2" />
+              View Development Roadmap
+            </Button>
+          </Link>
         </div>
 
         {error && (
