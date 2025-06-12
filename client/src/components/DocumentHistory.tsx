@@ -90,7 +90,7 @@ const DocumentHistoryComponent = ({ onSelectDocument, currentDocumentId }: Docum
   // Only show loading skeleton on initial load, not on background refetches
   if (isLoading && !documents.length) {
     return (
-      <Card className="mb-8">
+      <Card className="mb-8 stable-height">
         <CardContent className="p-6">
           <div className="animate-pulse space-y-4">
             <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-1/4"></div>
@@ -116,7 +116,7 @@ const DocumentHistoryComponent = ({ onSelectDocument, currentDocumentId }: Docum
   );
 
   return (
-    <Card className="mb-8">
+    <Card className="mb-8 query-container">
       <CardHeader className="pb-3">
         <CardTitle className="flex items-center justify-between">
           <div className="flex items-center space-x-2">

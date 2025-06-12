@@ -96,11 +96,24 @@ html, body {
 /* Reduce navigation flickering */
 .page-transition {
   opacity: 1;
-  transition: opacity 0.15s ease-in-out;
+  transition: opacity 0.1s ease-out;
+  transform: translateZ(0); /* Enable hardware acceleration */
+  will-change: opacity;
 }
 
 .page-transition.loading {
-  opacity: 0.9;
+  opacity: 0.95;
+}
+
+/* Memory optimization for query components */
+.query-container {
+  contain: layout style paint;
+  transform: translateZ(0);
+}
+
+/* Prevent layout shifts during loading */
+.stable-height {
+  min-height: 200px;
 }
 
 .bg-background {

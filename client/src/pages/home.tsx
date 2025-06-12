@@ -1,5 +1,6 @@
 import { useState, useMemo, useCallback } from "react";
 import { useStableCallback } from "@/hooks/useStableCallback";
+import { usePreventFlicker } from "@/hooks/usePreventFlicker";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { File, Plus, Cookie } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -25,6 +26,7 @@ export default function Home() {
   const [disclaimerAccepted, setDisclaimerAccepted] = useState(false);
   const { toast } = useToast();
   const { isAccepted: cookiesAccepted } = useCookieConsent();
+  const containerRef = usePreventFlicker();
 
   const { data: currentDocument, isLoading: isLoadingDocument } = useQuery({
     queryKey: ['/api/documents', currentDocumentId],
@@ -125,9 +127,9 @@ export default function Home() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-teal-50 to-cyan-100 dark:from-gray-900 dark:to-slate-800 page-transition">
+    <div ref={containerRef} className="min-h-screen bg-gradient-to-br from-teal-50 to-cyan-100 dark:from-gray-900 dark:to-slate-800 page-transition">
       <Header />
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-24 py-8 pb-40 md:pb-40">
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-24 py-8 pb-40 md:pb-40 query-container">
         {/* Document History */}
         <DocumentHistory
           onSelectDocument={handleDocumentSelect}
