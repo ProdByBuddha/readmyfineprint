@@ -91,161 +91,219 @@ export class AnalysisPDFExporter {
   }
 
   private addHeader(document: Document): void {
-    // Company branding
+    // Modern header with subtle background
+    this.doc.setFillColor(248, 250, 252);
+    this.doc.rect(0, 0, this.pageWidth, 50, 'F');
+    
+    // Company branding with modern styling
     this.doc.setTextColor(37, 99, 235);
-    this.doc.setFontSize(24);
+    this.doc.setFontSize(22);
     this.doc.setFont('helvetica', 'bold');
-    this.doc.text('ReadMyFinePrint', this.leftMargin + 25, this.currentY);
+    this.doc.text('ReadMyFinePrint', this.leftMargin + 25, this.currentY + 12);
     
-    this.doc.setTextColor(100, 100, 100);
-    this.doc.setFontSize(10);
+    this.doc.setTextColor(100, 116, 139);
+    this.doc.setFontSize(11);
     this.doc.setFont('helvetica', 'normal');
-    this.doc.text('Document Analysis Report', this.leftMargin + 25, this.currentY + 6);
+    this.doc.text('Legal Document Analysis', this.leftMargin + 25, this.currentY + 22);
     
-    this.currentY += 20;
+    // Add generation date in top right
+    this.doc.setTextColor(148, 163, 184);
+    this.doc.setFontSize(9);
+    this.doc.text(`Generated: ${new Date().toLocaleDateString('en-US', { 
+      year: 'numeric', 
+      month: 'short', 
+      day: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit'
+    })}`, this.pageWidth - this.rightMargin, this.currentY + 12, { align: 'right' });
     
-    // Document info section
-    this.doc.setTextColor(0, 0, 0);
+    this.currentY = 65;
+
+    // Document title section with modern card styling
+    this.doc.setFillColor(255, 255, 255);
+    this.doc.setDrawColor(226, 232, 240);
+    this.doc.setLineWidth(1);
+    this.doc.roundedRect(this.leftMargin, this.currentY, this.contentWidth, 40, 6, 6, 'FD');
+    
+    this.doc.setTextColor(15, 23, 42);
     this.doc.setFontSize(18);
     this.doc.setFont('helvetica', 'bold');
-    this.doc.text('Analysis Report', this.leftMargin, this.currentY);
+    this.doc.text(document.title, this.leftMargin + 16, this.currentY + 16);
     
-    this.currentY += 12;
-    
-    this.doc.setFontSize(10);
+    this.doc.setTextColor(71, 85, 105);
+    this.doc.setFontSize(11);
     this.doc.setFont('helvetica', 'normal');
-    this.doc.text(`Document: ${document.title}`, this.leftMargin, this.currentY);
-    this.currentY += 6;
+    const wordCount = document.content.split(' ').length;
+    const fileType = document.fileType ? document.fileType.toUpperCase() : 'TEXT';
+    this.doc.text(`${wordCount.toLocaleString()} words • ${fileType} document`, 
+                  this.leftMargin + 16, this.currentY + 30);
     
-    this.doc.text(`Generated: ${new Date().toLocaleString()}`, this.leftMargin, this.currentY);
-    this.currentY += 6;
-    
-    this.doc.text(`Word Count: ${document.content.split(' ').length} words`, this.leftMargin, this.currentY);
-    this.currentY += 15;
-    
-    // Add divider line
-    this.doc.setDrawColor(200, 200, 200);
-    this.doc.line(this.leftMargin, this.currentY, this.pageWidth - this.rightMargin, this.currentY);
-    this.currentY += 10;
+    this.currentY += 55;
   }
 
   private addOverallRisk(analysis: DocumentAnalysis): void {
-    this.addNewPageIfNeeded(40);
+    this.addNewPageIfNeeded(60);
     
-    this.doc.setFontSize(16);
+    // Section card background
+    this.doc.setFillColor(255, 255, 255);
+    this.doc.setDrawColor(226, 232, 240);
+    this.doc.setLineWidth(1);
+    this.doc.roundedRect(this.leftMargin, this.currentY, this.contentWidth, 55, 6, 6, 'FD');
+    
+    // Section title
+    this.doc.setFontSize(18);
     this.doc.setFont('helvetica', 'bold');
-    this.doc.setTextColor(0, 0, 0);
-    this.doc.text('Overall Risk Assessment', this.leftMargin, this.currentY);
-    this.currentY += 12;
+    this.doc.setTextColor(15, 23, 42);
+    this.doc.text('Risk Assessment', this.leftMargin + 16, this.currentY + 18);
     
-    // Risk level with color coding
-    const riskColors = {
-      low: [34, 197, 94],     // Green
-      moderate: [251, 191, 36], // Yellow
-      high: [239, 68, 68]      // Red
+    // Risk level badge with modern styling
+    const riskConfig = {
+      low: { color: [34, 197, 94], bg: [240, 253, 244], text: 'LOW RISK' },
+      moderate: { color: [251, 191, 36], bg: [255, 251, 235], text: 'MODERATE RISK' },
+      high: { color: [239, 68, 68], bg: [254, 242, 242], text: 'HIGH RISK' }
     };
     
-    const color = riskColors[analysis.overallRisk] || [100, 100, 100];
-    this.doc.setFillColor(color[0], color[1], color[2]);
-    this.doc.roundedRect(this.leftMargin, this.currentY - 2, 60, 12, 3, 3, 'F');
+    const config = riskConfig[analysis.overallRisk] || riskConfig.moderate;
     
-    this.doc.setTextColor(255, 255, 255);
-    this.doc.setFont('helvetica', 'bold');
+    // Risk badge background
+    this.doc.setFillColor(config.bg[0], config.bg[1], config.bg[2]);
+    this.doc.setDrawColor(config.color[0], config.color[1], config.color[2]);
+    this.doc.setLineWidth(1);
+    this.doc.roundedRect(this.leftMargin + 16, this.currentY + 25, 85, 18, 4, 4, 'FD');
+    
+    // Risk badge text
+    this.doc.setTextColor(config.color[0], config.color[1], config.color[2]);
     this.doc.setFontSize(12);
-    this.doc.text(analysis.overallRisk.toUpperCase() + ' RISK', this.leftMargin + 30, this.currentY + 6, { align: 'center' });
+    this.doc.setFont('helvetica', 'bold');
+    this.doc.text(config.text, this.leftMargin + 58.5, this.currentY + 37, { align: 'center' });
     
-    this.currentY += 20;
+    this.currentY += 70;
   }
 
   private addSummary(analysis: DocumentAnalysis): void {
-    this.addNewPageIfNeeded(30);
+    this.addNewPageIfNeeded(80);
     
-    this.doc.setTextColor(0, 0, 0);
-    this.doc.setFontSize(14);
+    // Summary card background
+    this.doc.setFillColor(255, 255, 255);
+    this.doc.setDrawColor(226, 232, 240);
+    this.doc.setLineWidth(1);
+    const summaryHeight = Math.max(60, this.doc.splitTextToSize(analysis.summary, this.contentWidth - 32).length * 5 + 40);
+    this.doc.roundedRect(this.leftMargin, this.currentY, this.contentWidth, summaryHeight, 6, 6, 'FD');
+    
+    // Section title
+    this.doc.setTextColor(15, 23, 42);
+    this.doc.setFontSize(18);
     this.doc.setFont('helvetica', 'bold');
-    this.doc.text('Executive Summary', this.leftMargin, this.currentY);
-    this.currentY += 10;
+    this.doc.text('Executive Summary', this.leftMargin + 16, this.currentY + 18);
     
-    this.doc.setFontSize(10);
+    // Summary content
+    this.doc.setTextColor(71, 85, 105);
+    this.doc.setFontSize(11);
     this.doc.setFont('helvetica', 'normal');
-    const summaryLines = this.doc.splitTextToSize(analysis.summary, this.contentWidth);
-    this.doc.text(summaryLines, this.leftMargin, this.currentY);
-    this.currentY += summaryLines.length * 5 + 10;
+    
+    const summaryLines = this.doc.splitTextToSize(analysis.summary, this.contentWidth - 32);
+    this.doc.text(summaryLines, this.leftMargin + 16, this.currentY + 35);
+    
+    this.currentY += summaryHeight + 15;
   }
 
   private addKeyFindings(analysis: DocumentAnalysis): void {
-    this.addNewPageIfNeeded(60);
+    this.addNewPageIfNeeded(120);
     
-    this.doc.setFontSize(14);
+    // Calculate total height needed for the card
+    const estimatedHeight = 60 + 
+      (analysis.keyFindings.goodTerms.length * 7) +
+      (analysis.keyFindings.reviewNeeded.length * 7) +
+      (analysis.keyFindings.redFlags.length * 7);
+    
+    // Key findings card background
+    this.doc.setFillColor(255, 255, 255);
+    this.doc.setDrawColor(226, 232, 240);
+    this.doc.setLineWidth(1);
+    this.doc.roundedRect(this.leftMargin, this.currentY, this.contentWidth, estimatedHeight, 6, 6, 'FD');
+    
+    // Section title
+    this.doc.setTextColor(15, 23, 42);
+    this.doc.setFontSize(18);
     this.doc.setFont('helvetica', 'bold');
-    this.doc.setTextColor(0, 0, 0);
-    this.doc.text('Key Findings', this.leftMargin, this.currentY);
-    this.currentY += 15;
+    this.doc.text('Key Findings', this.leftMargin + 16, this.currentY + 18);
     
-    // Good Terms
+    let cardY = this.currentY + 35;
+    
+    // Good Terms Section
     if (analysis.keyFindings.goodTerms.length > 0) {
+      // Section header with colored background
+      this.doc.setFillColor(240, 253, 244);
+      this.doc.setDrawColor(34, 197, 94);
+      this.doc.setLineWidth(0.5);
+      this.doc.roundedRect(this.leftMargin + 16, cardY, this.contentWidth - 32, 16, 3, 3, 'FD');
+      
+      this.doc.setTextColor(34, 197, 94);
       this.doc.setFontSize(12);
       this.doc.setFont('helvetica', 'bold');
-      this.doc.setTextColor(34, 197, 94);
-      this.doc.text('✓ Positive Terms', this.leftMargin, this.currentY);
-      this.currentY += 8;
+      this.doc.text('✓ Positive Terms', this.leftMargin + 24, cardY + 11);
+      cardY += 22;
       
+      // Terms list
+      this.doc.setTextColor(71, 85, 105);
       this.doc.setFontSize(10);
       this.doc.setFont('helvetica', 'normal');
-      this.doc.setTextColor(0, 0, 0);
       
       analysis.keyFindings.goodTerms.forEach(term => {
-        this.addNewPageIfNeeded(8);
-        const termLines = this.doc.splitTextToSize(`• ${term}`, this.contentWidth - 10);
-        this.doc.text(termLines, this.leftMargin + 5, this.currentY);
-        this.currentY += termLines.length * 5;
+        this.doc.text(`• ${term}`, this.leftMargin + 24, cardY);
+        cardY += 7;
       });
-      this.currentY += 5;
+      cardY += 8;
     }
     
-    // Review Needed
+    // Review Needed Section
     if (analysis.keyFindings.reviewNeeded.length > 0) {
-      this.addNewPageIfNeeded(15);
+      this.doc.setFillColor(255, 251, 235);
+      this.doc.setDrawColor(251, 191, 36);
+      this.doc.setLineWidth(0.5);
+      this.doc.roundedRect(this.leftMargin + 16, cardY, this.contentWidth - 32, 16, 3, 3, 'FD');
+      
+      this.doc.setTextColor(251, 191, 36);
       this.doc.setFontSize(12);
       this.doc.setFont('helvetica', 'bold');
-      this.doc.setTextColor(251, 191, 36);
-      this.doc.text('⚠ Requires Review', this.leftMargin, this.currentY);
-      this.currentY += 8;
+      this.doc.text('⚠ Requires Review', this.leftMargin + 24, cardY + 11);
+      cardY += 22;
       
+      this.doc.setTextColor(71, 85, 105);
       this.doc.setFontSize(10);
       this.doc.setFont('helvetica', 'normal');
-      this.doc.setTextColor(0, 0, 0);
       
       analysis.keyFindings.reviewNeeded.forEach(term => {
-        this.addNewPageIfNeeded(8);
-        const termLines = this.doc.splitTextToSize(`• ${term}`, this.contentWidth - 10);
-        this.doc.text(termLines, this.leftMargin + 5, this.currentY);
-        this.currentY += termLines.length * 5;
+        this.doc.text(`• ${term}`, this.leftMargin + 24, cardY);
+        cardY += 7;
       });
-      this.currentY += 5;
+      cardY += 8;
     }
     
-    // Red Flags
+    // Red Flags Section
     if (analysis.keyFindings.redFlags.length > 0) {
-      this.addNewPageIfNeeded(15);
+      this.doc.setFillColor(254, 242, 242);
+      this.doc.setDrawColor(239, 68, 68);
+      this.doc.setLineWidth(0.5);
+      this.doc.roundedRect(this.leftMargin + 16, cardY, this.contentWidth - 32, 16, 3, 3, 'FD');
+      
+      this.doc.setTextColor(239, 68, 68);
       this.doc.setFontSize(12);
       this.doc.setFont('helvetica', 'bold');
-      this.doc.setTextColor(239, 68, 68);
-      this.doc.text('⚠ Red Flags', this.leftMargin, this.currentY);
-      this.currentY += 8;
+      this.doc.text('⚠ Red Flags', this.leftMargin + 24, cardY + 11);
+      cardY += 22;
       
+      this.doc.setTextColor(71, 85, 105);
       this.doc.setFontSize(10);
       this.doc.setFont('helvetica', 'normal');
-      this.doc.setTextColor(0, 0, 0);
       
       analysis.keyFindings.redFlags.forEach(term => {
-        this.addNewPageIfNeeded(8);
-        const termLines = this.doc.splitTextToSize(`• ${term}`, this.contentWidth - 10);
-        this.doc.text(termLines, this.leftMargin + 5, this.currentY);
-        this.currentY += termLines.length * 5;
+        this.doc.text(`• ${term}`, this.leftMargin + 24, cardY);
+        cardY += 7;
       });
-      this.currentY += 10;
     }
+    
+    this.currentY += estimatedHeight + 15;
   }
 
   private addDetailedSections(analysis: DocumentAnalysis): void {
