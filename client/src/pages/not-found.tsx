@@ -3,7 +3,6 @@ import { AlertCircle, Home } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Link } from "wouter";
 import { Header } from "@/components/Header";
-import { Footer } from "@/components/Footer";
 
 export default function NotFound() {
   return (
@@ -30,7 +29,6 @@ export default function NotFound() {
           </CardContent>
         </Card>
       </div>
-      <Footer />
     </div>
   );
 }

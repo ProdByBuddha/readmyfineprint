@@ -2,7 +2,6 @@ import { Heart, Shield, Users, Zap } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Header } from "@/components/Header";
-import { Footer } from "@/components/Footer";
 
 export default function DonateSimple() {
   const handleDonate = () => {
@@ -114,7 +113,6 @@ export default function DonateSimple() {
           </CardContent>
         </Card>
       </div>
-      <Footer />
     </div>
   );
 }
