@@ -132,7 +132,7 @@ const getStatusIcon = (status: string) => {
 export default function Roadmap() {
   return (
     <div className="min-h-screen bg-background p-4 pb-40 md:pb-40">
-      <div className="max-w-6xl mx-auto pt-24">
+      <div className="max-w-6xl mx-auto pt-8">
         {/* Header Section */}
         <div className="text-center mb-12">
           <div className="inline-flex items-center justify-center w-16 h-16 bg-primary/20 dark:bg-primary/30 rounded-full mb-4">
