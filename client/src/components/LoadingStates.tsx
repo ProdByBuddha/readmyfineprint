@@ -5,65 +5,69 @@ import { useEffect } from "react";
 
 export function DocumentLoadingSkeleton() {
   return (
-    <Card className="p-8 mb-8">
-      <CardContent className="p-0">
-        <div className="animate-pulse space-y-6">
-          <div className="flex items-center justify-between">
-            <div className="space-y-2">
-              <Skeleton className="h-6 w-48" />
-              <Skeleton className="h-4 w-32" />
-            </div>
-            <div className="flex space-x-2">
-              <Skeleton className="h-10 w-20" />
-              <Skeleton className="h-10 w-20" />
-            </div>
-          </div>
-          
-          <Skeleton className="h-32 w-full" />
-          
-          <div className="grid md:grid-cols-3 gap-6">
-            {[1, 2, 3].map((i) => (
-              <div key={i} className="border rounded-lg p-6">
-                <div className="flex items-center space-x-3 mb-3">
-                  <Skeleton className="h-5 w-5 rounded-full" />
-                  <Skeleton className="h-5 w-24" />
-                </div>
+    <div className="flex items-center justify-center min-h-screen py-8">
+      <div className="max-w-md mx-auto w-full space-y-6">
+        <Card className="p-8 mb-8">
+          <CardContent className="p-0">
+            <div className="animate-pulse space-y-6">
+              <div className="flex items-center justify-between">
                 <div className="space-y-2">
-                  <Skeleton className="h-3 w-full" />
-                  <Skeleton className="h-3 w-4/5" />
-                  <Skeleton className="h-3 w-3/4" />
+                  <Skeleton className="h-6 w-48" />
+                  <Skeleton className="h-4 w-32" />
+                </div>
+                <div className="flex space-x-2">
+                  <Skeleton className="h-10 w-20" />
+                  <Skeleton className="h-10 w-20" />
                 </div>
               </div>
-            ))}
-          </div>
-          
-          <div className="space-y-4">
-            {[1, 2, 3].map((i) => (
-              <div key={i} className="border rounded-lg">
-                <div className="bg-gray-50 p-4 border-b">
-                  <div className="flex items-center justify-between">
-                    <Skeleton className="h-5 w-32" />
-                    <Skeleton className="h-6 w-16 rounded-full" />
+              
+              <Skeleton className="h-32 w-full" />
+              
+              <div className="grid md:grid-cols-3 gap-6">
+                {[1, 2, 3].map((i) => (
+                  <div key={i} className="border rounded-lg p-6">
+                    <div className="flex items-center space-x-3 mb-3">
+                      <Skeleton className="h-5 w-5 rounded-full" />
+                      <Skeleton className="h-5 w-24" />
+                    </div>
+                    <div className="space-y-2">
+                      <Skeleton className="h-3 w-full" />
+                      <Skeleton className="h-3 w-4/5" />
+                      <Skeleton className="h-3 w-3/4" />
+                    </div>
                   </div>
-                </div>
-                <div className="p-6">
-                  <Skeleton className="h-4 w-full mb-2" />
-                  <Skeleton className="h-4 w-4/5 mb-4" />
-                  <Skeleton className="h-16 w-full" />
-                </div>
+                ))}
               </div>
-            ))}
-          </div>
-        </div>
-      </CardContent>
-    </Card>
+              
+              <div className="space-y-4">
+                {[1, 2, 3].map((i) => (
+                  <div key={i} className="border rounded-lg">
+                    <div className="bg-gray-50 p-4 border-b">
+                      <div className="flex items-center justify-between">
+                        <Skeleton className="h-5 w-32" />
+                        <Skeleton className="h-6 w-16 rounded-full" />
+                      </div>
+                    </div>
+                    <div className="p-6">
+                      <Skeleton className="h-4 w-full mb-2" />
+                      <Skeleton className="h-4 w-4/5 mb-4" />
+                      <Skeleton className="h-16 w-full" />
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+    </div>
   );
 }
 
 export function AnalysisProgress() {
   return (
-    <div className="flex items-center justify-center min-h-[50vh] py-8">
-      <div className="max-w-md mx-auto text-center space-y-4">
+    <div className="flex items-center justify-center min-h-screen py-8">
+      <div className="max-w-md mx-auto w-full text-center space-y-4">
         {/* Main Status */}
         <div className="flex items-center justify-center space-x-3">
           <Loader2 className="w-5 h-5 text-blue-600 dark:text-blue-400 animate-spin" />
