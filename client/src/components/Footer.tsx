@@ -13,23 +13,23 @@ export function Footer() {
     >
       {/* Mobile Layout - Ultra Compact */}
       <div className="md:hidden px-2 py-0.5">
-        <div className="flex items-center justify-between text-xs whitespace-nowrap overflow-hidden">
+        <div className="flex items-center justify-between text-xs whitespace-nowrap overflow-hidden min-h-[20px]">
           <div className="flex items-center gap-1.5 flex-shrink min-w-0">
-            <Link to="/privacy" className="text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 flex-shrink-0">Privacy</Link>
-            <Link to="/terms" className="text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 flex-shrink-0">Terms</Link>
+            <Link to="/privacy" className="text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 flex-shrink-0 flex items-center h-4">Privacy</Link>
+            <Link to="/terms" className="text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 flex-shrink-0 flex items-center h-4">Terms</Link>
             <CookieManagement 
               trigger={
-                <button className="text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 flex items-center flex-shrink-0">
+                <button className="text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 flex items-center flex-shrink-0 h-4">
                   <Cookie className="w-2 h-2 mr-0.5" />Cookies
                 </button>
               }
             />
-            <Link to="/donate" className="text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 flex items-center flex-shrink-0">
+            <Link to="/donate" className="text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 flex items-center flex-shrink-0 h-4">
               <Heart className="w-2 h-2 mr-0.5 text-red-500" />Donate
             </Link>
-            <a href="mailto:admin@readmyfineprint.com" className="text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 flex-shrink-0">Contact</a>
+            <a href="mailto:admin@readmyfineprint.com" className="text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 flex-shrink-0 flex items-center h-4">Contact</a>
           </div>
-          <p className="text-gray-400 dark:text-gray-500 text-xs flex-shrink-0 ml-2">© {new Date().getFullYear()}</p>
+          <p className="text-gray-400 dark:text-gray-500 text-xs flex-shrink-0 ml-2 flex items-center h-4">© {new Date().getFullYear()}</p>
         </div>
       </div>
 
