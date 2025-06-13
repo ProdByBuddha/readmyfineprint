@@ -50,13 +50,13 @@ export function Footer() {
           <div className="flex items-center gap-4 text-xs">
             <Link
               to="/privacy"
-              className="text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white transition-colors duration-200"
+              className="text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white transition-all duration-300 ease-in-out"
             >
               Privacy
             </Link>
             <Link
               to="/terms"
-              className="text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white transition-colors duration-200"
+              className="text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white transition-all duration-300 ease-in-out"
             >
               Terms
             </Link>
@@ -77,7 +77,7 @@ export function Footer() {
             </Link>
             <a
               href="mailto:admin@readmyfineprint.com"
-              className="text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white transition-colors duration-200"
+              className="text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white transition-all duration-300 ease-in-out"
             >
               Contact
             </a>

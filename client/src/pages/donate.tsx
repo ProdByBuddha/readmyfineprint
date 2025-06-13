@@ -178,7 +178,7 @@ const DonateContent = () => {
                   href="https://donate.stripe.com/4gM6oI5ZLfCV7Qu8hHb7y00"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="w-full bg-primary hover:bg-primary/90 text-primary-foreground font-semibold py-3 px-6 rounded-lg inline-flex items-center justify-center transition-colors"
+                  className="w-full bg-primary hover:bg-primary/90 text-primary-foreground font-semibold py-3 px-6 rounded-lg inline-flex items-center justify-center transition-all duration-300 ease-in-out hover:scale-105"
                 >
                   Donate ${currentAmount.toFixed(2)} Now
                 </a>

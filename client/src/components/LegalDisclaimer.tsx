@@ -149,11 +149,11 @@ export function LegalDisclaimer({ onAccept }: LegalDisclaimerProps) {
             <div className="space-y-1.5 w-full">
               <div className="text-[9px] text-gray-500 dark:text-gray-400 text-center leading-tight">
                 Logged anonymously for compliance •{' '}
-                <Link to="/privacy" className="text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300 underline transition-colors">
+                <Link to="/privacy" className="text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300 underline transition-all duration-300 ease-in-out">
                   Privacy
                 </Link>{' '}
                 •{' '}
-                <Link to="/terms" className="text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300 underline transition-colors">
+                <Link to="/terms" className="text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300 underline transition-all duration-300 ease-in-out">
                   Terms
                 </Link>
               </div>

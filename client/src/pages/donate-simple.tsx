@@ -36,7 +36,7 @@ export default function DonateSimple() {
               href="https://donate.stripe.com/4gM6oI5ZLfCV7Qu8hHb7y00"
               target="_blank"
               rel="noopener noreferrer"
-              className="w-full h-14 text-lg font-semibold bg-primary hover:bg-primary/90 text-primary-foreground inline-flex items-center justify-center rounded-md transition-colors"
+              className="w-full h-14 text-lg font-semibold bg-primary hover:bg-primary/90 text-primary-foreground inline-flex items-center justify-center rounded-md transition-all duration-300 ease-in-out hover:scale-105"
             >
               Donate Now
             </a>
