@@ -1,0 +1,45 @@
+
+# Public Repository .gitignore
+# Only expose technical architecture and development practices
+
+# Hide all environment and secrets
+.env*
+*.key
+*.pem
+secrets.json
+env.example
+
+# Hide business logic and proprietary implementations
+server/openai.ts
+server/consent.ts
+server/routes.ts
+shared/schema.ts
+
+# Hide business documents and assessments
+*ASSESSMENT*.md
+*INVESTOR*.md
+*COMPANY*.md
+STRIPE_SETUP.md
+CONSENT_*.md
+
+# Hide production builds and configs
+dist/
+.replit
+replit.nix
+minimal-build.js
+production-build.js
+build-*.js
+start-server.js
+run.js
+deploy.sh
+
+# Hide attached assets and user data
+attached_assets/
+sample_*.pdf
+*.png
+*.jpg
+
+# Keep standard ignores
+node_modules/
+.DS_Store
+*.log
