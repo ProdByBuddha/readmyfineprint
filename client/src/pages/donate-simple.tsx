@@ -5,9 +5,6 @@ import { TouchScrollContainer } from "@/components/TouchScrollContainer";
 import { Link } from "wouter";
 
 export default function DonateSimple() {
-  const handleDonate = () => {
-    window.open('https://donate.stripe.com/4gM6oI5ZLfCV7Qu8hHb7y00', '_blank');
-  };
 
   return (
     <TouchScrollContainer className="h-full bg-gradient-to-br from-teal-50 to-cyan-100 dark:from-slate-900 dark:to-slate-800">
@@ -35,12 +32,14 @@ export default function DonateSimple() {
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-6">
-            <Button
-              onClick={handleDonate}
-              className="w-full h-14 text-lg font-semibold bg-primary hover:bg-primary/90 text-primary-foreground"
+            <a
+              href="https://donate.stripe.com/4gM6oI5ZLfCV7Qu8hHb7y00"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="w-full h-14 text-lg font-semibold bg-primary hover:bg-primary/90 text-primary-foreground inline-flex items-center justify-center rounded-md transition-colors"
             >
               Donate Now
-            </Button>
+            </a>
             
             <p className="text-center text-sm text-muted-foreground">
               Secure payment powered by Stripe

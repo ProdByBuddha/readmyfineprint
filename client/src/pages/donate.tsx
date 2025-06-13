@@ -174,12 +174,14 @@ const DonateContent = () => {
                 Back to Amount Selection
               </Button>
               <div className="space-y-4">
-                <Button 
-                  onClick={() => window.open('https://donate.stripe.com/4gM6oI5ZLfCV7Qu8hHb7y00', '_blank')}
-                  className="w-full bg-primary hover:bg-primary/90 text-primary-foreground font-semibold py-3 px-6 rounded-lg"
+                <a
+                  href="https://donate.stripe.com/4gM6oI5ZLfCV7Qu8hHb7y00"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="w-full bg-primary hover:bg-primary/90 text-primary-foreground font-semibold py-3 px-6 rounded-lg inline-flex items-center justify-center transition-colors"
                 >
                   Donate ${currentAmount.toFixed(2)} Now
-                </Button>
+                </a>
                 <p className="text-sm text-muted-foreground text-center">
                   Secure payment powered by Stripe
                 </p>

@@ -17,7 +17,7 @@ export function useCookieConsent() {
   const revokeCookies = () => {
     localStorage.removeItem('cookie-consent-accepted');
     setIsAccepted(false);
-    window.location.reload();
+    // Trigger re-render instead of page reload for better UX
   };
 
   return {
