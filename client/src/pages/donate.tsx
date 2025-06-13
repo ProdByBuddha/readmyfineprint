@@ -184,12 +184,21 @@ const DonateContent = () => {
                 </div>
 
                 <a
-                  href={`https://donate.stripe.com/4gM6oI5ZLfCV7Qu8ww?__prefilled_amount=${Math.round(currentAmount * 100)}`}
+                  href={`https://donate.stripe.com/4gM6oI5ZLfCV7Qu8ww?prefilled_amount=${Math.round(currentAmount * 100)}`}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="w-full bg-secondary hover:bg-secondary/90 text-secondary-foreground border border-border font-medium py-2 px-4 rounded-lg inline-flex items-center justify-center transition-all duration-300 text-sm"
+                  onClick={(e) => {
+                    // Fallback if the link doesn't work
+                    const fallbackUrl = 'https://donate.stripe.com/4gM6oI5ZLfCV7Qu8ww';
+                    setTimeout(() => {
+                      if (!document.hidden) {
+                        console.warn('External checkout may not have opened, trying fallback');
+                      }
+                    }, 2000);
+                  }}
                 >
-                  External Stripe Checkout
+                  External Stripe Checkout (${currentAmount.toFixed(2)})
                 </a>
               </div>
             </div>

@@ -95,6 +95,13 @@ export default function DonationForm({ amount, onSuccess, onError }: DonationFor
     setIsProcessing(true);
 
     try {
+      // Check if the API endpoint exists first
+      const healthCheck = await fetch('/api/health', { method: 'GET' });
+      
+      if (!healthCheck.ok) {
+        throw new Error('Payment service is currently unavailable. Please try the external Stripe checkout link below.');
+      }
+
       // Process payment using server-side endpoint
       const response = await fetch('/api/process-donation', {
         method: 'POST',
@@ -116,7 +123,10 @@ export default function DonationForm({ amount, onSuccess, onError }: DonationFor
       const data = await response.json();
 
       if (!response.ok) {
-        throw new Error(data.error || 'Payment failed');
+        if (response.status === 404) {
+          throw new Error('Payment endpoint not configured. Please use the external Stripe checkout link below.');
+        }
+        throw new Error(data.error || `Payment failed (${response.status})`);
       }
 
       if (data.success) {
@@ -137,7 +147,20 @@ export default function DonationForm({ amount, onSuccess, onError }: DonationFor
       }
 
     } catch (err) {
-      onError(err instanceof Error ? err.message : 'An unexpected error occurred');
+      console.error('Donation processing error:', err);
+      let errorMessage = 'An unexpected error occurred';
+      
+      if (err instanceof Error) {
+        if (err.message.includes('fetch')) {
+          errorMessage = 'Network error. Please check your connection and try again.';
+        } else if (err.message.includes('endpoint not configured') || err.message.includes('unavailable')) {
+          errorMessage = err.message;
+        } else {
+          errorMessage = err.message;
+        }
+      }
+      
+      onError(errorMessage);
     } finally {
       setIsProcessing(false);
     }

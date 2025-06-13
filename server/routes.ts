@@ -334,6 +334,42 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Donation processing endpoint
+  app.post('/api/process-donation', async (req, res) => {
+    try {
+      // Basic validation
+      const { amount, card } = req.body;
+
+      if (!amount || amount < 1) {
+        return res.status(400).json({ error: 'Invalid donation amount' });
+      }
+
+      if (!card || !card.number || !card.cvc || !card.exp_month || !card.exp_year) {
+        return res.status(400).json({ error: 'Invalid card information' });
+      }
+
+      // For now, return an error indicating this needs proper Stripe integration
+      res.status(501).json({ 
+        error: 'Donation processing not fully implemented. Please use the external Stripe checkout link.',
+        external_link: 'https://donate.stripe.com/4gM6oI5ZLfCV7Qu8ww'
+      });
+
+    } catch (error) {
+      console.error('Donation processing error:', error);
+      res.status(500).json({ error: 'Internal server error' });
+    }
+  });
+
+  app.get('/api/documents', async (req, res) => {
+    try {
+      const documents = await storage.getAllDocuments(req.sessionId);
+      res.json(documents);
+    } catch (error) {
+      console.error("Error fetching documents:", error);
+      res.status(500).json({ error: "Failed to fetch documents" });
+    }
+  });
+
   // Server-side payment processing endpoint
   app.post("/api/process-donation", async (req, res) => {
     try {
@@ -444,7 +480,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       // Handle specific Stripe errors
       let errorMessage = "Payment processing failed. Please try again.";
-      
+
       if (error.type === 'StripeCardError') {
         switch (error.code) {
           case 'card_declined':
@@ -537,7 +573,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       bodyType: typeof req.body,
       bodyLength: req.body ? req.body.length : 0
     });
-    
+
     let event;
 
     try {
@@ -563,7 +599,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         event = JSON.parse(bodyString);
         console.log('⚠️ Webhook processed without signature verification (development mode)');
       }
-      
+
       console.log('📋 Parsed event type:', event.type, 'Event ID:', event.id);
     } catch (err: any) {
       console.error('❌ Webhook signature verification failed:', err.message);
@@ -573,7 +609,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
     // Handle the event
     console.log('📋 Processing webhook event:', event.type);
-    
+
     switch (event.type) {
       case 'payment_intent.succeeded':
         const paymentIntent = event.data.object;
@@ -663,7 +699,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const { limit } = req.query;
       const alerts = securityAlertManager.getRecentAlerts(limit ? parseInt(limit as string) : 50);
-      
+
       const alertStats = {
         totalAlerts: alerts.length,
         criticalAlerts: alerts.filter(a => a.threshold.severity === 'CRITICAL').length,
@@ -690,7 +726,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const { alertId } = req.params;
       const acknowledged = securityAlertManager.acknowledgeAlert(alertId);
-      
+
       if (acknowledged) {
         res.json({ success: true, message: `Alert ${alertId} acknowledged` });
       } else {
@@ -707,10 +743,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const securityStats = securityLogger.getSecurityStats();
       const alerts = securityAlertManager.getRecentAlerts(10);
-      
+
       // Optional: Get encryption status if encrypted storage is enabled
       // const encryptionStatus = encryptedStorage?.getEncryptionStatus();
-      
+
       const enhancedStatus = {
         ...securityStats,
         alerts: {
@@ -732,6 +768,18 @@ export async function registerRoutes(app: Express): Promise<Server> {
       console.error("Failed to get enhanced security status:", error);
       res.status(500).json({ error: "Failed to retrieve enhanced security status" });
     }
+  });
+
+  // API Routes
+  app.get('/api/health', (req, res) => {
+    res.json({ 
+      status: 'ok', 
+      timestamp: new Date().toISOString(),
+      payment_endpoints: {
+        donation_processing: '/api/process-donation',
+        stripe_configured: !!process.env.STRIPE_SECRET_KEY
+      }
+    });
   });
 
   const httpServer = createServer(app);
