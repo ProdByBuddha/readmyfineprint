@@ -10,44 +10,41 @@ export function Footer() {
       className="bg-gray-50 dark:bg-gray-900 border-t border-gray-200 dark:border-gray-700 z-40 backdrop-blur-sm bg-opacity-95 dark:bg-opacity-95 transition-all duration-300 ease-in-out flex-shrink-0"
       aria-label="Site footer"
     >
-      {/* Mobile Layout - Minimal with all links */}
-      <div className="md:hidden px-4 py-2">
-        <div className="text-center space-y-2">
+      {/* Mobile Layout - Touch-friendly */}
+      <div className="md:hidden px-4 py-3">
+        <div className="text-center space-y-3">
           <p className="text-gray-600 dark:text-gray-300 text-xs">
             © {new Date().getFullYear()} ReadMyFinePrint
           </p>
-          <div className="flex items-center justify-center flex-wrap gap-2 text-xs">
+          <div className="grid grid-cols-2 gap-2 max-w-xs mx-auto">
             <Link
               to="/privacy"
-              className="text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 px-1"
+              className="text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white transition-colors text-sm py-2 px-3 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 text-center"
             >
               Privacy
             </Link>
-            <span className="text-gray-400">•</span>
             <Link
               to="/terms"
-              className="text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 px-1"
+              className="text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white transition-colors text-sm py-2 px-3 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 text-center"
             >
               Terms
             </Link>
-            <span className="text-gray-400">•</span>
             <Link
               to="/donate"
-              className="text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 inline-flex items-center px-1"
+              className="text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white transition-colors text-sm py-2 px-3 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 inline-flex items-center justify-center"
             >
-              <Heart className="w-2.5 h-2.5 mr-1 text-red-500" aria-hidden="true" />
+              <Heart className="w-3 h-3 mr-1 text-red-500" aria-hidden="true" />
               Donate
             </Link>
-            <span className="text-gray-400">•</span>
             <a
               href="mailto:admin@readmyfineprint.com"
-              className="text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 px-1"
+              className="text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white transition-colors text-sm py-2 px-3 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 text-center"
             >
               Contact
             </a>
           </div>
           <div className="flex justify-center">
-            <SecurityBadges variant="footer" className="scale-50" />
+            <SecurityBadges variant="footer" className="scale-75" />
           </div>
         </div>
       </div>
