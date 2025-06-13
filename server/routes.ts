@@ -13,6 +13,7 @@ import mammoth from "mammoth";
 import crypto from "crypto";
 import Stripe from "stripe";
 import { securityAlertManager } from './security-alert';
+import { emailService } from './email-service';
 
 // Initialize Stripe
 if (!process.env.STRIPE_SECRET_KEY) {
@@ -349,7 +350,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
 
       // For now, return an error indicating this needs proper Stripe integration
-      res.status(501).json({ 
+      res.status(501).json({
         error: 'Donation processing not fully implemented. Please use the external Stripe checkout link.',
         external_link: 'https://donate.stripe.com/4gM6oI5ZLfCV7Qu8ww'
       });
@@ -508,7 +509,115 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Test email configuration (admin only)
+  app.post("/api/test-email", requireAdminAuth, async (req, res) => {
+    try {
+      const testResult = await emailService.testEmailConfiguration();
+
+      if (testResult) {
+        // Send a test email
+        const testEmailSent = await emailService.sendDonationThankYou({
+          amount: 25.00,
+          currency: 'usd',
+          paymentIntentId: 'test_payment_intent',
+          customerEmail: process.env.DEFAULT_DONATION_EMAIL || 'admin@readmyfineprint.com',
+          customerName: 'Test User',
+          timestamp: new Date()
+        });
+
+        res.json({
+          success: true,
+          configured: true,
+          testEmailSent,
+          message: testEmailSent ? 'Test email sent successfully' : 'Email service configured but test email failed'
+        });
+      } else {
+        res.json({
+          success: false,
+          configured: false,
+          message: 'Email service not configured. Please set SMTP or Gmail environment variables.'
+        });
+      }
+    } catch (error) {
+      console.error('Email test failed:', error);
+      res.status(500).json({
+        success: false,
+        error: 'Email test failed',
+        message: error instanceof Error ? error.message : 'Unknown error'
+      });
+    }
+  });
+
   // Keep original endpoint for compatibility
+  // Create Stripe Checkout Session (works without client-side Stripe.js)
+  app.get("/api/create-checkout-session", async (req, res) => {
+    try {
+      const amount = parseFloat(req.query.amount as string);
+
+      if (!amount || amount < 1 || amount > 10000) {
+        return res.status(400).json({
+          error: "Invalid amount. Must be between $1 and $10,000."
+        });
+      }
+
+      const { ip, userAgent } = getClientInfo(req);
+      securityLogger.logSecurityEvent({
+        eventType: "API_ACCESS" as any,
+        severity: "LOW" as any,
+        message: `Creating checkout session for $${amount.toFixed(2)}`,
+        ip,
+        userAgent,
+        endpoint: "/api/create-checkout-session",
+        details: { amount }
+      });
+
+      // Create Stripe Checkout Session
+      const session = await stripe.checkout.sessions.create({
+        payment_method_types: ['card'],
+        line_items: [{
+          price_data: {
+            currency: 'usd',
+            product_data: {
+              name: 'Donation to ReadMyFinePrint',
+              description: 'Support our mission to make legal documents accessible to everyone',
+            },
+            unit_amount: Math.round(amount * 100),
+          },
+          quantity: 1,
+        }],
+        mode: 'payment',
+        success_url: `${req.protocol}://${req.get('host')}/donate?success=true&amount=${amount}`,
+        cancel_url: `${req.protocol}://${req.get('host')}/donate?canceled=true`,
+        metadata: {
+          type: "donation",
+          source: "readmyfineprint",
+          ip: ip,
+          timestamp: new Date().toISOString()
+        }
+      });
+
+      // Redirect to Stripe Checkout
+      res.redirect(303, session.url!);
+
+    } catch (error: any) {
+      console.error("Checkout session creation failed:", error);
+      const { ip, userAgent } = getClientInfo(req);
+      securityLogger.logSecurityEvent({
+        eventType: "API_ACCESS" as any,
+        severity: "HIGH" as any,
+        message: `Checkout session creation failed: ${error.message}`,
+        ip,
+        userAgent,
+        endpoint: "/api/create-checkout-session",
+        details: { error: error.message }
+      });
+
+      res.status(500).json({
+        error: "Failed to create checkout session. Please try the external Stripe link."
+      });
+    }
+  });
+
   app.post("/api/create-payment-intent", async (req, res) => {
     try {
       const { amount } = req.body;
@@ -562,7 +671,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Stripe webhook endpoint for payment confirmations  
+  // Stripe webhook endpoint for payment confirmations
   app.post("/api/stripe-webhook", async (req, res) => {
     console.log('🔔 Webhook received:', {
       headers: {
@@ -637,8 +746,26 @@ export async function registerRoutes(app: Express): Promise<Server> {
           }
         });
 
-        // Here you could add logic to send confirmation emails,
-        // update database records, etc.
+        // Send thank you email
+        try {
+          const emailSent = await emailService.sendDonationThankYou({
+            amount: paymentIntent.amount / 100,
+            currency: paymentIntent.currency,
+            paymentIntentId: paymentIntent.id,
+            customerEmail: paymentIntent.receipt_email || undefined,
+            customerName: paymentIntent.metadata?.customer_name || undefined,
+            timestamp: new Date(paymentIntent.created * 1000)
+          });
+
+          if (emailSent) {
+            console.log('✅ Thank you email sent for donation:', paymentIntent.id);
+          } else {
+            console.log('⚠️ Thank you email not sent (service not configured)');
+          }
+        } catch (error) {
+          console.error('❌ Error sending thank you email:', error);
+          // Don't fail the webhook if email fails
+        }
         break;
 
       case 'payment_intent.payment_failed':
@@ -705,7 +832,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         criticalAlerts: alerts.filter(a => a.threshold.severity === 'CRITICAL').length,
         highAlerts: alerts.filter(a => a.threshold.severity === 'HIGH').length,
         unacknowledged: alerts.filter(a => !a.acknowledged).length,
-        last24Hours: alerts.filter(a => 
+        last24Hours: alerts.filter(a =>
           new Date().getTime() - new Date(a.timestamp).getTime() < 24 * 60 * 60 * 1000
         ).length
       };
@@ -772,8 +899,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   // API Routes
   app.get('/api/health', (req, res) => {
-    res.json({ 
-      status: 'ok', 
+    res.json({
+      status: 'ok',
       timestamp: new Date().toISOString(),
       payment_endpoints: {
         donation_processing: '/api/process-donation',

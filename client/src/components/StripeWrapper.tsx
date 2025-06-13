@@ -36,11 +36,10 @@ export function StripeWrapper({ children }: StripeWrapperProps) {
                 setTimeout(() => reject(new Error("Stripe loading timeout")), 10000)
               );
 
-              const stripePromise = loadStripe(stripePublicKey, {
-                stripeAccount: undefined, // Ensure no extra parameters
-              });
+                      // Load Stripe.js according to official docs: https://docs.stripe.com/js
+        const stripePromise = loadStripe(stripePublicKey);
 
-              const stripeInstance = await Promise.race([stripePromise, timeoutPromise]);
+              const stripeInstance = await Promise.race([stripePromise, timeoutPromise]) as Stripe;
 
               if (!stripeInstance) {
                 throw new Error(`Failed to initialize Stripe (attempt ${i + 1})`);
@@ -57,7 +56,11 @@ export function StripeWrapper({ children }: StripeWrapperProps) {
         };
 
         const stripeInstance = await loadWithRetry();
-        setStripe(stripeInstance);
+        if (stripeInstance) {
+          setStripe(stripeInstance);
+        } else {
+          throw new Error("Stripe failed to initialize");
+        }
       } catch (err: unknown) {
         console.error("Stripe initialization error:", err);
         setError(err instanceof Error ? err.message : "Failed to load payment processor");

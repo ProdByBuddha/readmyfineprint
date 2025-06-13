@@ -1,11 +1,59 @@
+import { useState } from "react";
 import { Link } from "wouter";
-import { Heart, Cookie } from "lucide-react";
+import { Heart, Cookie, Share2, X } from "lucide-react";
 import { SecurityBadges } from "@/components/SecurityBadges";
 import { CookieManagement } from "@/components/CookieManagement";
+import { SocialShare } from "@/components/SocialShare";
 
 export function Footer() {
-  return (
-    <footer
+  const [showShareModal, setShowShareModal] = useState(false);
+
+      return (
+    <>
+      {/* Share Modal */}
+      {showShareModal && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black bg-opacity-50"
+          onClick={() => setShowShareModal(false)}
+        >
+          <div
+            className="bg-white dark:bg-gray-800 rounded-lg shadow-xl max-w-md w-full animate-in fade-in-0 zoom-in-95 duration-300"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="p-6">
+              {/* Close button */}
+              <button
+                onClick={() => setShowShareModal(false)}
+                className="absolute top-4 right-4 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
+              >
+                <X className="w-5 h-5" />
+              </button>
+
+              {/* Header */}
+              <div className="text-center mb-6">
+                <div className="w-12 h-12 bg-blue-100 dark:bg-blue-900 rounded-full flex items-center justify-center mx-auto mb-3">
+                  <Share2 className="w-6 h-6 text-blue-600 dark:text-blue-400" />
+                </div>
+                <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">
+                  Share Read My Fine Print
+                </h3>
+                <p className="text-sm text-gray-600 dark:text-gray-300">
+                  Help others discover our mission to make legal documents accessible!
+                </p>
+              </div>
+
+              {/* Social sharing component */}
+              <SocialShare
+                title="Read My Fine Print - Making Legal Documents Accessible"
+                description="Check out this amazing platform that makes legal documents easier to understand for everyone!"
+                hashtags={["legaltech", "accessibility", "transparency", "legal"]}
+              />
+            </div>
+          </div>
+        </div>
+      )}
+
+      <footer
       id="footer"
       role="contentinfo"
       className="bg-gray-50 dark:bg-gray-900 border-t border-gray-200 dark:border-gray-700 z-40 backdrop-blur-sm bg-opacity-95 dark:bg-opacity-95 transition-all duration-300 ease-in-out flex-shrink-0"
@@ -27,6 +75,12 @@ export function Footer() {
             <Link to="/donate" className="text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 flex items-center flex-shrink-0 h-4">
               <Heart className="w-2 h-2 mr-0.5 text-red-500" />Donate
             </Link>
+            <button
+              onClick={() => setShowShareModal(true)}
+              className="text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 flex items-center flex-shrink-0 h-4"
+            >
+              <Share2 className="w-2 h-2 mr-0.5" />Share
+            </button>
             <a href="mailto:admin@readmyfineprint.com" className="text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 flex-shrink-0 flex items-center h-4">Contact</a>
           </div>
           <p className="text-gray-400 dark:text-gray-500 text-xs flex-shrink-0 ml-2 flex items-center h-4">© {new Date().getFullYear()}</p>
@@ -75,6 +129,13 @@ export function Footer() {
               <Heart className="w-3 h-3 mr-1 text-red-500" aria-hidden="true" />
               Donate
             </Link>
+            <button
+              onClick={() => setShowShareModal(true)}
+              className="text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white transition-all duration-300 ease-in-out inline-flex items-center"
+            >
+              <Share2 className="w-3 h-3 mr-1" aria-hidden="true" />
+              Share
+            </button>
             <a
               href="mailto:admin@readmyfineprint.com"
               className="text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white transition-all duration-300 ease-in-out"
@@ -90,5 +151,6 @@ export function Footer() {
         </div>
       </div>
     </footer>
+    </>
   );
 }
