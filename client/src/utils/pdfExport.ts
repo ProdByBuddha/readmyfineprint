@@ -1,7 +1,6 @@
 import jsPDF from 'jspdf';
 import QRCode from 'qrcode';
 import type { Document, DocumentAnalysis } from '@shared/schema';
-import logoImage from '@assets/ChatGPT Image Jun 9, 2025, 07_07_26 AM_1749598570251.png';
 
 interface PDFExportOptions {
   includeHeader?: boolean;
@@ -47,8 +46,7 @@ export class AnalysisPDFExporter {
       title: 'Document Analysis Report',
       subject: 'Legal Document Analysis by ReadMyFinePrint',
       author: 'ReadMyFinePrint',
-      creator: 'ReadMyFinePrint Analysis Tool',
-      producer: 'jsPDF with Enhanced Quality Settings'
+      creator: 'ReadMyFinePrint Analysis Tool'
     });
   }
 
@@ -106,7 +104,8 @@ export class AnalysisPDFExporter {
         };
         
         img.onerror = () => reject(new Error('Failed to load image'));
-        img.src = logoImage;
+        // No logo image available, skip to fallback
+        reject(new Error('No logo image configured'));
       });
       
     } catch (error) {
@@ -292,7 +291,7 @@ export class AnalysisPDFExporter {
     
     // Add summary text with proper padding and line spacing
     let textY = this.currentY + 0.2;
-    summaryLines.forEach((line, index) => {
+    summaryLines.forEach((line: string, index: number) => {
       this.doc.text(line, this.leftMargin + 0.15, textY);
       textY += this.lineHeight;
     });
@@ -353,7 +352,7 @@ export class AnalysisPDFExporter {
       
       const itemLines = this.doc.splitTextToSize(item, this.contentWidth - 0.4);
       let itemY = this.currentY + 0.12;
-      itemLines.forEach((line, lineIndex) => {
+      itemLines.forEach((line: string, lineIndex: number) => {
         this.doc.text(line, this.leftMargin + 0.25, itemY);
         itemY += this.lineHeight;
       });
@@ -390,7 +389,7 @@ export class AnalysisPDFExporter {
       const titleLines = this.doc.splitTextToSize(sectionTitle, this.contentWidth - 0.3);
       
       let titleY = this.currentY + 0.25;
-      titleLines.forEach((line, lineIndex) => {
+      titleLines.forEach((line: string, lineIndex: number) => {
         this.doc.text(line, this.leftMargin + 0.15, titleY);
         titleY += 0.2; // Proper line spacing for titles
       });

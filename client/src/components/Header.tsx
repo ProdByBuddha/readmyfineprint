@@ -1,9 +1,8 @@
 import { Button } from "@/components/ui/button";
-import { Moon, Sun, Heart } from "lucide-react";
+import { Moon, Sun, Heart, FileText } from "lucide-react";
 import { Link } from "wouter";
 import { useTheme } from "@/components/ThemeProvider";
 import { useIsMobile } from "@/hooks/use-mobile";
-import logoImage from "@assets/ChatGPT Image Jun 9, 2025, 07_07_26 AM_1749598570251.png";
 
 export function Header() {
   const { theme, toggleTheme } = useTheme();
@@ -30,11 +29,9 @@ export function Header() {
         <div className={`flex justify-between items-center ${isMobile ? 'h-14' : 'h-16'}`}>
           <Link to="/" aria-label="ReadMyFinePrint - Go to homepage">
             <div className="flex items-center space-x-3 cursor-pointer group">
-              <img
-                src={logoImage}
-                alt="ReadMyFinePrint Logo"
-                className={`${isMobile ? 'w-10 h-10' : 'w-12 h-12'} object-contain transition-transform duration-200 group-active:scale-95`}
-              />
+              <div className={`${isMobile ? 'w-10 h-10' : 'w-12 h-12'} flex items-center justify-center bg-primary rounded-lg transition-transform duration-200 group-active:scale-95`}>
+                <FileText className={`${isMobile ? 'w-6 h-6' : 'w-7 h-7'} text-white`} />
+              </div>
               <h1 className="text-xl font-bold text-primary dark:text-primary hidden md:block">
                 ReadMyFinePrint
               </h1>
