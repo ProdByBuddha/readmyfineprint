@@ -11,8 +11,8 @@ export function Footer() {
       aria-label="Site footer"
     >
       {/* Mobile Layout - Minimal */}
-      <div className="md:hidden px-4 py-2">
-        <div className="text-center space-y-1">
+      <div className="md:hidden px-4 py-1">
+        <div className="text-center space-y-0.5">
           <div className="flex items-center justify-center flex-wrap gap-3 text-xs">
             <Link
               to="/privacy"
