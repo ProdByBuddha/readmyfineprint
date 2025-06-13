@@ -62,62 +62,48 @@ export function DocumentLoadingSkeleton() {
 
 export function AnalysisProgress() {
   return (
-    <Card className="mb-8 bg-gradient-to-br from-blue-50 via-white to-cyan-50 dark:from-blue-950/30 dark:via-gray-900 dark:to-cyan-950/30 border-blue-200 dark:border-blue-800 shadow-lg">
-      <CardContent className="p-6">
-        <div className="flex items-center justify-between mb-4">
-          <div className="flex items-center space-x-3">
-            <div className="relative">
-              <div className="w-10 h-10 rounded-full bg-gradient-to-r from-blue-500 to-cyan-500 opacity-20 animate-pulse"></div>
-              <div className="absolute inset-0 flex items-center justify-center">
-                <Loader2 className="w-6 h-6 text-blue-600 dark:text-blue-400 animate-spin" />
+    <div className="space-y-6">
+      {/* Simple Status Bar */}
+      <div className="flex items-center justify-center space-x-4 py-8">
+        <div className="flex items-center space-x-3">
+          <Loader2 className="w-5 h-5 text-blue-600 dark:text-blue-400 animate-spin" />
+          <span className="text-gray-700 dark:text-gray-300 font-medium">
+            Analyzing document...
+          </span>
+        </div>
+        <div className="text-sm text-gray-500 dark:text-gray-400">
+          Est. 10-30 seconds
+        </div>
+      </div>
+
+      {/* Progress Steps as Simple List */}
+      <div className="max-w-2xl mx-auto">
+        <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-4">
+          <div className="space-y-3">
+            <div className="flex items-center space-x-3 text-sm">
+              <div className="w-4 h-4 rounded-full bg-green-500 flex items-center justify-center flex-shrink-0">
+                <CheckCircle className="w-2.5 h-2.5 text-white" />
               </div>
+              <span className="text-green-700 dark:text-green-400">Document uploaded</span>
             </div>
-            <div>
-              <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
-                Analyzing Document
-              </h3>
-              <p className="text-sm text-gray-600 dark:text-gray-300">
-                Processing legal language and identifying key terms
-              </p>
+            
+            <div className="flex items-center space-x-3 text-sm">
+              <div className="w-4 h-4 rounded-full bg-blue-500 flex items-center justify-center flex-shrink-0">
+                <div className="w-1.5 h-1.5 bg-white rounded-full animate-pulse"></div>
+              </div>
+              <span className="text-blue-700 dark:text-blue-400">Processing content</span>
             </div>
-          </div>
-          <div className="text-right">
-            <div className="text-xs text-blue-600 dark:text-blue-400 font-medium mb-1">
-              Est. 10-30 seconds
-            </div>
-            <div className="flex items-center space-x-1">
-              <div className="w-2 h-2 bg-blue-500 rounded-full animate-bounce"></div>
-              <div className="w-2 h-2 bg-blue-500 rounded-full animate-bounce" style={{ animationDelay: '0.1s' }}></div>
-              <div className="w-2 h-2 bg-blue-500 rounded-full animate-bounce" style={{ animationDelay: '0.2s' }}></div>
+            
+            <div className="flex items-center space-x-3 text-sm">
+              <div className="w-4 h-4 rounded-full bg-gray-300 dark:bg-gray-600 flex items-center justify-center flex-shrink-0">
+                <div className="w-1.5 h-1.5 bg-gray-500 rounded-full"></div>
+              </div>
+              <span className="text-gray-500 dark:text-gray-400">Generating summary</span>
             </div>
           </div>
         </div>
-        
-        {/* Progress Steps */}
-        <div className="space-y-3">
-          <div className="flex items-center space-x-3">
-            <div className="w-5 h-5 rounded-full bg-green-500 flex items-center justify-center flex-shrink-0">
-              <CheckCircle className="w-3 h-3 text-white" />
-            </div>
-            <span className="text-sm font-medium text-green-700 dark:text-green-400">Document uploaded successfully</span>
-          </div>
-          
-          <div className="flex items-center space-x-3">
-            <div className="w-5 h-5 rounded-full bg-blue-500 flex items-center justify-center flex-shrink-0 animate-pulse">
-              <Loader2 className="w-3 h-3 text-white animate-spin" />
-            </div>
-            <span className="text-sm font-medium text-blue-700 dark:text-blue-400">Analyzing content and structure</span>
-          </div>
-          
-          <div className="flex items-center space-x-3">
-            <div className="w-5 h-5 rounded-full bg-gray-300 dark:bg-gray-600 flex items-center justify-center flex-shrink-0">
-              <Brain className="w-3 h-3 text-gray-500 dark:text-gray-400" />
-            </div>
-            <span className="text-sm text-gray-500 dark:text-gray-400">Generating insights and summary</span>
-          </div>
-        </div>
-      </CardContent>
-    </Card>
+      </div>
+    </div>
   );
 }
 
