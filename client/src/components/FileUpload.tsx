@@ -259,7 +259,7 @@ export function FileUpload({ onDocumentCreated, disabled = false, consentAccepte
 
             <div className="relative flex py-5 items-center" role="separator" aria-label="Alternative upload method">
               <div className="flex-grow border-t border-gray-200 dark:border-gray-700"></div>
-              <span className="flex-shrink mx-4 text-gray-500 text-sm">or</span>
+              <span className="flex-shrink mx-4 text-gray-500 dark:text-gray-400 text-sm">or</span>
               <div className="flex-grow border-t border-gray-200 dark:border-gray-700"></div>
             </div>
 
