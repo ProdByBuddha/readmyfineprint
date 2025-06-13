@@ -241,13 +241,7 @@ export default function Home() {
             </div>
           )}
 
-          {/* Analysis Progress */}
-          {isAnalyzing && (
-            <section aria-labelledby="analysis-progress" aria-live="polite" className="animate-fade-in-scale">
-              <h2 id="analysis-progress" className="sr-only">Analysis in Progress</h2>
-              <AnalysisProgress />
-            </section>
-          )}
+
 
           {/* Analysis Results */}
           {currentDocument && !isAnalyzing && (
@@ -319,6 +313,9 @@ export default function Home() {
           )}
         </div>
       </MobileAppWrapper>
+      
+      {/* Analysis Progress Modal - Rendered outside main layout */}
+      {isAnalyzing && <AnalysisProgress />}
     </div>
   );
 }
