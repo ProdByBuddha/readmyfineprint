@@ -30,22 +30,7 @@ export default function Home() {
   const { announce } = useAccessibility();
   const containerRef = usePreventFlicker();
 
-  // Disable scrolling during analysis
-  useEffect(() => {
-    if (isAnalyzing) {
-      document.body.style.overflow = 'hidden';
-      document.body.style.height = '100vh';
-    } else {
-      document.body.style.overflow = '';
-      document.body.style.height = '';
-    }
 
-    // Cleanup on unmount
-    return () => {
-      document.body.style.overflow = '';
-      document.body.style.height = '';
-    };
-  }, [isAnalyzing]);
 
   // Add FAQ structured data for SEO
   useEffect(() => {

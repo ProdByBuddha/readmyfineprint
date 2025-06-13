@@ -62,39 +62,39 @@ export function DocumentLoadingSkeleton() {
 
 export function AnalysisProgress() {
   return (
-    <div className="fixed inset-0 bg-gray-50 dark:bg-gray-900 flex items-center justify-center z-50">
-      <div className="text-center space-y-4">
+    <div className="py-16">
+      <div className="max-w-md mx-auto text-center space-y-6">
         {/* Main Status */}
-        <div className="flex items-center justify-center space-x-3">
-          <Loader2 className="w-6 h-6 text-blue-600 dark:text-blue-400 animate-spin" />
-          <span className="text-lg text-gray-700 dark:text-gray-300 font-medium">
-            Analyzing document...
-          </span>
-        </div>
-        
-        <div className="text-sm text-gray-500 dark:text-gray-400">
-          Est. 10-30 seconds
+        <div className="space-y-3">
+          <Loader2 className="w-8 h-8 text-blue-600 dark:text-blue-400 animate-spin mx-auto" />
+          <div>
+            <h3 className="text-xl font-semibold text-gray-900 dark:text-white">
+              Analyzing Document
+            </h3>
+            <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
+              This usually takes 10-30 seconds
+            </p>
+          </div>
         </div>
 
-        {/* Compact Progress Steps */}
-        <div className="flex items-center justify-center space-x-6 mt-6">
-          <div className="flex items-center space-x-2">
-            <div className="w-3 h-3 rounded-full bg-green-500 flex items-center justify-center">
-              <CheckCircle className="w-2 h-2 text-white" />
-            </div>
-            <span className="text-xs text-green-700 dark:text-green-400">Uploaded</span>
+        {/* Simple Progress Bar */}
+        <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
+          <div className="bg-blue-600 h-2 rounded-full animate-pulse" style={{ width: '60%' }}></div>
+        </div>
+
+        {/* Status Steps */}
+        <div className="space-y-2 text-sm">
+          <div className="flex items-center justify-center space-x-2 text-green-600 dark:text-green-400">
+            <CheckCircle className="w-4 h-4" />
+            <span>Document uploaded successfully</span>
           </div>
-          
-          <div className="flex items-center space-x-2">
-            <div className="w-3 h-3 rounded-full bg-blue-500 flex items-center justify-center">
-              <div className="w-1 h-1 bg-white rounded-full animate-pulse"></div>
-            </div>
-            <span className="text-xs text-blue-700 dark:text-blue-400">Processing</span>
+          <div className="flex items-center justify-center space-x-2 text-blue-600 dark:text-blue-400">
+            <div className="w-4 h-4 rounded-full border-2 border-blue-600 border-t-transparent animate-spin"></div>
+            <span>Processing content and extracting key terms</span>
           </div>
-          
-          <div className="flex items-center space-x-2">
-            <div className="w-3 h-3 rounded-full bg-gray-300 dark:bg-gray-600"></div>
-            <span className="text-xs text-gray-500 dark:text-gray-400">Summary</span>
+          <div className="flex items-center justify-center space-x-2 text-gray-400 dark:text-gray-500">
+            <div className="w-4 h-4 rounded-full border-2 border-gray-300 dark:border-gray-600"></div>
+            <span>Generating summary and recommendations</span>
           </div>
         </div>
       </div>
