@@ -33,19 +33,19 @@ export function CookieManagement({ trigger, className }: CookieManagementProps) 
       <DialogTrigger asChild>
         {trigger || defaultTrigger}
       </DialogTrigger>
-      <DialogContent className="max-w-md">
+      <DialogContent className="max-w-md bg-white dark:bg-gray-900 border dark:border-gray-700">
         <DialogHeader>
-          <DialogTitle className="flex items-center gap-2">
+          <DialogTitle className="flex items-center gap-2 text-gray-900 dark:text-gray-100">
             <Shield className="w-5 h-5 text-primary" />
             Cookie Management
           </DialogTitle>
         </DialogHeader>
 
         <div className="space-y-4">
-          <div className="bg-muted/50 rounded-lg p-4">
-            <h4 className="font-medium text-sm mb-2">Current Status</h4>
+          <div className="bg-gray-50 dark:bg-gray-800 rounded-lg p-4">
+            <h4 className="font-medium text-sm mb-2 text-gray-900 dark:text-gray-100">Current Status</h4>
             <div className="flex items-center justify-between">
-              <span className="text-sm text-muted-foreground">
+              <span className="text-sm text-gray-600 dark:text-gray-400">
                 All consents: {isAccepted ? "Accepted" : "Not accepted"}
               </span>
               <div className={`px-2 py-1 rounded text-xs font-medium ${
@@ -59,22 +59,22 @@ export function CookieManagement({ trigger, className }: CookieManagementProps) 
           </div>
 
           <div className="space-y-3">
-            <h4 className="font-medium text-sm">What we use cookies for:</h4>
+            <h4 className="font-medium text-sm text-gray-900 dark:text-gray-100">What we use cookies for:</h4>
             
             <div className="space-y-2 text-sm">
-              <div className="flex items-start gap-3 p-2 bg-muted/30 rounded">
+              <div className="flex items-start gap-3 p-2 bg-gray-50 dark:bg-gray-800 rounded">
                 <div className="w-2 h-2 bg-green-500 rounded-full mt-2 flex-shrink-0" />
                 <div>
-                  <div className="font-medium">Essential Functionality</div>
-                  <div className="text-xs text-muted-foreground">Session management, security, user preferences</div>
+                  <div className="font-medium text-gray-900 dark:text-gray-100">Essential Functionality</div>
+                  <div className="text-xs text-gray-600 dark:text-gray-400">Session management, security, user preferences</div>
                 </div>
               </div>
               
-              <div className="flex items-start gap-3 p-2 bg-muted/30 rounded">
+              <div className="flex items-start gap-3 p-2 bg-gray-50 dark:bg-gray-800 rounded">
                 <div className="w-2 h-2 bg-blue-500 rounded-full mt-2 flex-shrink-0" />
                 <div>
-                  <div className="font-medium">Legal Compliance</div>
-                  <div className="text-xs text-muted-foreground">Consent tracking for regulatory requirements</div>
+                  <div className="font-medium text-gray-900 dark:text-gray-100">Legal Compliance</div>
+                  <div className="text-xs text-gray-600 dark:text-gray-400">Consent tracking for regulatory requirements</div>
                 </div>
               </div>
             </div>
@@ -102,16 +102,16 @@ export function CookieManagement({ trigger, className }: CookieManagementProps) 
                 Revoke All Consents
               </Button>
             ) : (
-              <div className="text-center text-sm text-muted-foreground">
+              <div className="text-center text-sm text-gray-600 dark:text-gray-400">
                 Visit the main page to provide consent
               </div>
             )}
             
             <div className="flex gap-2 text-xs">
-              <a href="/privacy" className="flex-1 text-center text-muted-foreground hover:text-foreground">
+              <a href="/privacy" className="flex-1 text-center text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100">
                 Privacy Policy
               </a>
-              <a href="/terms" className="flex-1 text-center text-muted-foreground hover:text-foreground">
+              <a href="/terms" className="flex-1 text-center text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100">
                 Terms of Service
               </a>
             </div>
