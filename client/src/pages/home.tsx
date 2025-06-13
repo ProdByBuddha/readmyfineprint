@@ -166,7 +166,7 @@ export default function Home() {
         {/* Cookie Consent Banner */}
         {!consentAccepted && (
           <CookieConsentBanner onAccept={() => {
-            // The hook will automatically update and trigger a re-render
+            // The event listener in the hook will trigger the update
           }} />
         )}
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">

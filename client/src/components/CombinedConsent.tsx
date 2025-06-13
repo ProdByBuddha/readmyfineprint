@@ -15,21 +15,29 @@ export function useCombinedConsent() {
   const checkConsent = useCallback(() => {
     const legalAccepted = localStorage.getItem('readmyfineprint-disclaimer-accepted');
     const cookiesAccepted = localStorage.getItem('cookie-consent-accepted');
-    setIsAccepted(legalAccepted === 'true' && cookiesAccepted === 'true');
+    const newState = legalAccepted === 'true' && cookiesAccepted === 'true';
+    console.log('Checking consent:', { legalAccepted, cookiesAccepted, newState });
+    setIsAccepted(newState);
   }, []);
 
   useEffect(() => {
     checkConsent();
     
+    // Create event handler with logging
+    const handleConsentChange = () => {
+      console.log('Received consentChanged event');
+      checkConsent();
+    };
+    
     // Listen for storage changes from other components
     window.addEventListener('storage', checkConsent);
     
     // Listen for custom consent events
-    window.addEventListener('consentChanged', checkConsent);
+    window.addEventListener('consentChanged', handleConsentChange);
     
     return () => {
       window.removeEventListener('storage', checkConsent);
-      window.removeEventListener('consentChanged', checkConsent);
+      window.removeEventListener('consentChanged', handleConsentChange);
     };
   }, [checkConsent]);
 
@@ -38,6 +46,8 @@ export function useCombinedConsent() {
     localStorage.setItem('readmyfineprint-disclaimer-date', new Date().toISOString());
     localStorage.setItem('cookie-consent-accepted', 'true');
     setIsAccepted(true);
+    // Dispatch custom event to notify other components
+    window.dispatchEvent(new CustomEvent('consentChanged'));
   };
 
   const revokeConsent = () => {
