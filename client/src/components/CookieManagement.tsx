@@ -110,14 +110,34 @@ export function CookieManagement({ trigger, className }: CookieManagementProps) 
               <Link 
                 to="/privacy" 
                 className="flex-1 text-center text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 transition-all duration-300 ease-in-out"
-                onClick={() => setIsOpen(false)}
+                onClick={() => {
+                  setIsOpen(false);
+                  // Scroll to top when navigating
+                  setTimeout(() => {
+                    const mainContent = document.getElementById('main-content');
+                    if (mainContent) {
+                      mainContent.scrollTo({ top: 0, behavior: 'smooth' });
+                    }
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                  }, 100);
+                }}
               >
                 Privacy Policy
               </Link>
               <Link 
                 to="/terms" 
                 className="flex-1 text-center text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 transition-all duration-300 ease-in-out"
-                onClick={() => setIsOpen(false)}
+                onClick={() => {
+                  setIsOpen(false);
+                  // Scroll to top when navigating
+                  setTimeout(() => {
+                    const mainContent = document.getElementById('main-content');
+                    if (mainContent) {
+                      mainContent.scrollTo({ top: 0, behavior: 'smooth' });
+                    }
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                  }, 100);
+                }}
               >
                 Terms of Service
               </Link>
