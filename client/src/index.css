@@ -40,6 +40,13 @@ a:hover, button:hover {
   transform: translateY(-1px);
 }
 
+/* Prevent body scroll when modal is active */
+body.modal-open {
+  overflow: hidden;
+  position: fixed;
+  width: 100%;
+}
+
 /* Smooth focus transitions */
 *:focus-visible {
   transition: all 200ms ease-in-out;
