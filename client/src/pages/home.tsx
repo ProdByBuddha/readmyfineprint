@@ -311,8 +311,13 @@ export default function Home() {
               </div>
             </section>
           )}
-          {/* Analysis Progress Modal - Inside main content */}
-          {isAnalyzing && <AnalysisProgress />}
+          {/* Analysis Progress - Inline */}
+          {isAnalyzing && (
+            <section aria-labelledby="analysis-progress" aria-live="polite" className="animate-fade-in-scale">
+              <h2 id="analysis-progress" className="sr-only">Analysis in Progress</h2>
+              <AnalysisProgress />
+            </section>
+          )}
         </div>
       </MobileAppWrapper>
     </div>

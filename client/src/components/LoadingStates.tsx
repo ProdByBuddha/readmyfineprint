@@ -61,117 +61,63 @@ export function DocumentLoadingSkeleton() {
 }
 
 export function AnalysisProgress() {
-  useEffect(() => {
-    // Prevent body scrolling when modal is mounted
-    document.body.style.overflow = 'hidden';
-    document.body.style.position = 'fixed';
-    document.body.style.width = '100%';
-    document.body.style.height = '100%';
-    
-    return () => {
-      // Re-enable body scrolling when modal is unmounted
-      document.body.style.overflow = '';
-      document.body.style.position = '';
-      document.body.style.width = '';
-      document.body.style.height = '';
-    };
-  }, []);
-
   return (
-    <div 
-      className="absolute inset-0 z-50 flex items-center justify-center p-4"
-      style={{ 
-        position: 'absolute',
-        top: 0,
-        left: 0,
-        right: 0,
-        bottom: 0,
-        backgroundColor: 'rgba(0, 0, 0, 0.8)',
-        backdropFilter: 'blur(4px)'
-      }}
-    >
-      <div className="w-full max-w-md">
-        <Card 
-          className="p-6 border-0 shadow-2xl"
-          style={{ 
-            borderRadius: '12px',
-            backgroundColor: 'var(--card)',
-            color: 'var(--card-foreground)'
-          }}>
-          <CardContent className="text-center p-0">
-            <div className="flex flex-col items-center space-y-5">
-              {/* Animated Loading Icon */}
-              <div className="relative">
-                <div className="w-20 h-20 rounded-full bg-gradient-to-r from-blue-500 to-cyan-500 opacity-20 animate-pulse"></div>
-                <div className="absolute inset-0 flex items-center justify-center">
-                  <div className="relative">
-                    <Loader2 className="w-12 h-12 text-blue-600 dark:text-blue-400 animate-spin" />
-                    <div className="absolute inset-0 flex items-center justify-center">
-                      <Brain className="w-6 h-6 text-blue-500 dark:text-blue-300" />
-                    </div>
-                  </div>
-                </div>
-              </div>
-              
-              {/* Title and Description */}
-              <div className="space-y-2">
-                <h3 className="text-xl font-bold" style={{ color: 'var(--foreground)' }}>
-                  Analysis in Progress
-                </h3>
-                <p className="text-sm max-w-sm leading-relaxed" style={{ color: 'var(--muted-foreground)' }}>
-                  Reviewing your document with advanced document analysis to identify key terms, risks, and translate legal language into clear insights.
-                </p>
-              </div>
-              
-              {/* Progress Steps - Mobile Optimized */}
-              <div className="w-full max-w-sm">
-                <div className="space-y-3">
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center space-x-2">
-                      <div className="w-6 h-6 rounded-full bg-green-500 flex items-center justify-center">
-                        <CheckCircle className="w-4 h-4 text-white" />
-                      </div>
-                      <span className="text-sm font-medium text-green-600">Document Uploaded</span>
-                    </div>
-                    <div className="w-4 h-0.5 bg-green-500 rounded"></div>
-                  </div>
-                  
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center space-x-2">
-                      <div className="w-6 h-6 rounded-full bg-blue-500 flex items-center justify-center animate-pulse">
-                        <Loader2 className="w-3 h-3 text-white animate-spin" />
-                      </div>
-                      <span className="text-sm font-medium text-blue-600">Analyzing Content</span>
-                    </div>
-                    <div className="w-4 h-0.5 bg-blue-500 rounded animate-pulse"></div>
-                  </div>
-                  
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center space-x-2">
-                      <div className="w-6 h-6 rounded-full bg-gray-400 flex items-center justify-center">
-                        <FileText className="w-3 h-3 text-gray-600" />
-                      </div>
-                      <span className="text-sm" style={{ color: 'var(--muted-foreground)' }}>Generating Summary</span>
-                    </div>
-                    <div className="w-4 h-0.5 bg-gray-400 rounded"></div>
-                  </div>
-                </div>
-              </div>
-              
-              {/* Estimated Time */}
-              <div 
-                className="rounded-lg px-4 py-2 mt-2"
-                style={{ backgroundColor: 'var(--muted)', color: 'var(--muted-foreground)' }}
-              >
-                <p className="text-xs font-medium">
-                  Estimated time: 10-30 seconds
-                </p>
+    <Card className="mb-8 bg-gradient-to-br from-blue-50 via-white to-cyan-50 dark:from-blue-950/30 dark:via-gray-900 dark:to-cyan-950/30 border-blue-200 dark:border-blue-800 shadow-lg">
+      <CardContent className="p-6">
+        <div className="flex items-center justify-between mb-4">
+          <div className="flex items-center space-x-3">
+            <div className="relative">
+              <div className="w-10 h-10 rounded-full bg-gradient-to-r from-blue-500 to-cyan-500 opacity-20 animate-pulse"></div>
+              <div className="absolute inset-0 flex items-center justify-center">
+                <Loader2 className="w-6 h-6 text-blue-600 dark:text-blue-400 animate-spin" />
               </div>
             </div>
-          </CardContent>
-        </Card>
-      </div>
-    </div>
+            <div>
+              <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
+                Analyzing Document
+              </h3>
+              <p className="text-sm text-gray-600 dark:text-gray-300">
+                Processing legal language and identifying key terms
+              </p>
+            </div>
+          </div>
+          <div className="text-right">
+            <div className="text-xs text-blue-600 dark:text-blue-400 font-medium mb-1">
+              Est. 10-30 seconds
+            </div>
+            <div className="flex items-center space-x-1">
+              <div className="w-2 h-2 bg-blue-500 rounded-full animate-bounce"></div>
+              <div className="w-2 h-2 bg-blue-500 rounded-full animate-bounce" style={{ animationDelay: '0.1s' }}></div>
+              <div className="w-2 h-2 bg-blue-500 rounded-full animate-bounce" style={{ animationDelay: '0.2s' }}></div>
+            </div>
+          </div>
+        </div>
+        
+        {/* Progress Steps */}
+        <div className="space-y-3">
+          <div className="flex items-center space-x-3">
+            <div className="w-5 h-5 rounded-full bg-green-500 flex items-center justify-center flex-shrink-0">
+              <CheckCircle className="w-3 h-3 text-white" />
+            </div>
+            <span className="text-sm font-medium text-green-700 dark:text-green-400">Document uploaded successfully</span>
+          </div>
+          
+          <div className="flex items-center space-x-3">
+            <div className="w-5 h-5 rounded-full bg-blue-500 flex items-center justify-center flex-shrink-0 animate-pulse">
+              <Loader2 className="w-3 h-3 text-white animate-spin" />
+            </div>
+            <span className="text-sm font-medium text-blue-700 dark:text-blue-400">Analyzing content and structure</span>
+          </div>
+          
+          <div className="flex items-center space-x-3">
+            <div className="w-5 h-5 rounded-full bg-gray-300 dark:bg-gray-600 flex items-center justify-center flex-shrink-0">
+              <Brain className="w-3 h-3 text-gray-500 dark:text-gray-400" />
+            </div>
+            <span className="text-sm text-gray-500 dark:text-gray-400">Generating insights and summary</span>
+          </div>
+        </div>
+      </CardContent>
+    </Card>
   );
 }
 
