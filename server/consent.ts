@@ -28,6 +28,8 @@ class ConsentLogger {
 
     if (!this.dbUrl) {
       console.warn('REPLIT_DB_URL not found. Consent logging will be disabled.');
+    } else {
+      console.log('✓ Consent logging enabled with Replit KV store');
     }
   }
 
