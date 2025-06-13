@@ -62,7 +62,7 @@ export function Footer() {
             </Link>
             <CookieManagement 
               trigger={
-                <button className="text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white transition-colors duration-200 inline-flex items-center">
+                <button className="text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white transition-all duration-300 ease-in-out inline-flex items-center">
                   <Cookie className="w-3 h-3 mr-1" aria-hidden="true" />
                   Cookie Settings
                 </button>
@@ -70,7 +70,7 @@ export function Footer() {
             />
             <Link
               to="/donate"
-              className="text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white transition-colors duration-200 inline-flex items-center"
+              className="text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white transition-all duration-300 ease-in-out inline-flex items-center"
             >
               <Heart className="w-3 h-3 mr-1 text-red-500" aria-hidden="true" />
               Donate
