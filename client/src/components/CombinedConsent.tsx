@@ -51,6 +51,13 @@ export function CombinedConsent({ onAccept }: CombinedConsentProps) {
   const handleAccept = async () => {
     setIsLogging(true);
 
+    // If not all consents are enabled, enable them all first
+    if (!legalAdviceConsent || !liabilityConsent || !cookieConsent) {
+      setLegalAdviceConsent(true);
+      setLiabilityConsent(true);
+      setCookieConsent(true);
+    }
+
     try {
       // Log consent to server (anonymous, PII-protected)
       const result = await logConsent();
@@ -84,7 +91,7 @@ export function CombinedConsent({ onAccept }: CombinedConsentProps) {
     }
   };
 
-  const canAccept = legalAdviceConsent && liabilityConsent && cookieConsent;
+  const allEnabled = legalAdviceConsent && liabilityConsent && cookieConsent;
 
   return (
     <Dialog open={isOpen} onOpenChange={() => {}}>
@@ -157,7 +164,7 @@ export function CombinedConsent({ onAccept }: CombinedConsentProps) {
         <div className="flex flex-col gap-2 pt-3">
           <Button
             onClick={handleAccept}
-            disabled={!canAccept || isLogging}
+            disabled={isLogging}
             className="w-full text-sm"
             size="sm"
           >
@@ -166,10 +173,8 @@ export function CombinedConsent({ onAccept }: CombinedConsentProps) {
                 <div className="w-3 h-3 border-2 border-white/30 border-t-white rounded-full animate-spin" />
                 Processing...
               </div>
-            ) : canAccept ? (
-              "Accept All & Continue"
             ) : (
-              "Enable all switches above"
+              "Accept All & Continue"
             )}
           </Button>
           
