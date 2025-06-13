@@ -169,7 +169,7 @@ export default function Home() {
             // The event listener in the hook will trigger the update
           }} />
         )}
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
           {/* Document History */}
           <section aria-label="Document history" className="animate-fade-in-scale">
             <DocumentHistory
@@ -311,11 +311,10 @@ export default function Home() {
               </div>
             </section>
           )}
+          {/* Analysis Progress Modal - Inside main content */}
+          {isAnalyzing && <AnalysisProgress />}
         </div>
       </MobileAppWrapper>
-      
-      {/* Analysis Progress Modal - Rendered outside main layout */}
-      {isAnalyzing && <AnalysisProgress />}
     </div>
   );
 }

@@ -79,9 +79,9 @@ export function AnalysisProgress() {
 
   return (
     <div 
-      className="fixed inset-0 z-[9999] bg-black/70 backdrop-blur-sm"
+      className="absolute inset-0 z-[9999] bg-gray-900/90 dark:bg-black/90 backdrop-blur-sm"
       style={{ 
-        position: 'fixed',
+        position: 'absolute',
         top: 0,
         left: 0,
         right: 0,
