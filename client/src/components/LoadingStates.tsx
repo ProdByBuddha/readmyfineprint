@@ -62,44 +62,39 @@ export function DocumentLoadingSkeleton() {
 
 export function AnalysisProgress() {
   return (
-    <div className="space-y-6">
-      {/* Simple Status Bar */}
-      <div className="flex items-center justify-center space-x-4 py-8">
-        <div className="flex items-center space-x-3">
-          <Loader2 className="w-5 h-5 text-blue-600 dark:text-blue-400 animate-spin" />
-          <span className="text-gray-700 dark:text-gray-300 font-medium">
+    <div className="flex items-center justify-center min-h-[50vh]">
+      <div className="text-center space-y-4">
+        {/* Main Status */}
+        <div className="flex items-center justify-center space-x-3">
+          <Loader2 className="w-6 h-6 text-blue-600 dark:text-blue-400 animate-spin" />
+          <span className="text-lg text-gray-700 dark:text-gray-300 font-medium">
             Analyzing document...
           </span>
         </div>
+        
         <div className="text-sm text-gray-500 dark:text-gray-400">
           Est. 10-30 seconds
         </div>
-      </div>
 
-      {/* Progress Steps as Simple List */}
-      <div className="max-w-2xl mx-auto">
-        <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-4">
-          <div className="space-y-3">
-            <div className="flex items-center space-x-3 text-sm">
-              <div className="w-4 h-4 rounded-full bg-green-500 flex items-center justify-center flex-shrink-0">
-                <CheckCircle className="w-2.5 h-2.5 text-white" />
-              </div>
-              <span className="text-green-700 dark:text-green-400">Document uploaded</span>
+        {/* Compact Progress Steps */}
+        <div className="flex items-center justify-center space-x-6 mt-6">
+          <div className="flex items-center space-x-2">
+            <div className="w-3 h-3 rounded-full bg-green-500 flex items-center justify-center">
+              <CheckCircle className="w-2 h-2 text-white" />
             </div>
-            
-            <div className="flex items-center space-x-3 text-sm">
-              <div className="w-4 h-4 rounded-full bg-blue-500 flex items-center justify-center flex-shrink-0">
-                <div className="w-1.5 h-1.5 bg-white rounded-full animate-pulse"></div>
-              </div>
-              <span className="text-blue-700 dark:text-blue-400">Processing content</span>
+            <span className="text-xs text-green-700 dark:text-green-400">Uploaded</span>
+          </div>
+          
+          <div className="flex items-center space-x-2">
+            <div className="w-3 h-3 rounded-full bg-blue-500 flex items-center justify-center">
+              <div className="w-1 h-1 bg-white rounded-full animate-pulse"></div>
             </div>
-            
-            <div className="flex items-center space-x-3 text-sm">
-              <div className="w-4 h-4 rounded-full bg-gray-300 dark:bg-gray-600 flex items-center justify-center flex-shrink-0">
-                <div className="w-1.5 h-1.5 bg-gray-500 rounded-full"></div>
-              </div>
-              <span className="text-gray-500 dark:text-gray-400">Generating summary</span>
-            </div>
+            <span className="text-xs text-blue-700 dark:text-blue-400">Processing</span>
+          </div>
+          
+          <div className="flex items-center space-x-2">
+            <div className="w-3 h-3 rounded-full bg-gray-300 dark:bg-gray-600"></div>
+            <span className="text-xs text-gray-500 dark:text-gray-400">Summary</span>
           </div>
         </div>
       </div>
