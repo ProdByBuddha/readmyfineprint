@@ -55,6 +55,8 @@ function App() {
               <Header />
 
               {/* Scrollable Main Content Area */}
+              <SEOBreadcrumbs />
+              
               <main
                 id="main-content"
                 role="main"
@@ -62,7 +64,6 @@ function App() {
                 className="flex-1 overflow-y-auto"
                 aria-label="Main content"
               >
-                <SEOBreadcrumbs />
                 <Router />
               </main>
 

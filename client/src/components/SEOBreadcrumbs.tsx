@@ -78,31 +78,32 @@ export function SEOBreadcrumbs({ items, className = '' }: SEOBreadcrumbsProps) {
             {breadcrumbItems.map((item, index) => (
               <li 
                 key={item.url} 
-                className="flex items-center"
+                className="flex items-center min-h-[1rem]"
                 itemProp="itemListElement" 
                 itemScope 
                 itemType="https://schema.org/ListItem"
               >
                 {index > 0 && (
-                  <ChevronRight className="w-3 h-3 mx-1 text-gray-400 dark:text-gray-500" aria-hidden="true" />
+                  <ChevronRight className="w-3 h-3 mx-1 text-gray-400 dark:text-gray-500 flex-shrink-0" aria-hidden="true" />
                 )}
                 
                 {item.current ? (
                   <span 
-                    className="text-gray-700 dark:text-gray-300 font-medium"
+                    className="text-gray-700 dark:text-gray-300 font-medium flex items-center"
                     itemProp="name"
                     aria-current="page"
                   >
+                    {index === 0 && <Home className="w-3 h-3 mr-1 flex-shrink-0" aria-hidden="true" />}
                     {item.name}
                   </span>
                 ) : (
                   <Link 
                     to={item.url}
-                    className="hover:text-gray-700 dark:hover:text-gray-200 transition-colors duration-150"
+                    className="hover:text-gray-700 dark:hover:text-gray-200 transition-colors duration-150 flex items-center"
                     itemProp="item"
                   >
                     <span itemProp="name" className="flex items-center">
-                      {index === 0 && <Home className="w-3 h-3 mr-1" aria-hidden="true" />}
+                      {index === 0 && <Home className="w-3 h-3 mr-1 flex-shrink-0" aria-hidden="true" />}
                       {item.name}
                     </span>
                   </Link>
