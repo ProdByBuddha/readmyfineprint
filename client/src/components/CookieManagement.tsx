@@ -17,8 +17,6 @@ export function CookieManagement({ trigger, className }: CookieManagementProps) 
   const handleRevokeAll = () => {
     revokeConsent();
     setIsOpen(false);
-    // Refresh page to show consent dialog again
-    window.location.reload();
   };
 
   const defaultTrigger = (
