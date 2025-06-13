@@ -19,7 +19,7 @@ import Home from "@/pages/home";
 import Privacy from "@/pages/privacy";
 import Terms from "@/pages/terms";
 import Cookies from "@/pages/cookies";
-import DonateSimple from "@/pages/donate-simple";
+import Donate from "@/pages/donate";
 import Roadmap from "@/pages/roadmap";
 import NotFound from "@/pages/not-found";
 
@@ -30,7 +30,7 @@ function Router() {
       <Route path="/privacy" component={Privacy} />
       <Route path="/terms" component={Terms} />
       <Route path="/cookies" component={Cookies} />
-      <Route path="/donate" component={DonateSimple} />
+      <Route path="/donate" component={Donate} />
       <Route path="/roadmap" component={Roadmap} />
       <Route component={NotFound} />
     </Switch>
