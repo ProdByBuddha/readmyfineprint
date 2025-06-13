@@ -1,8 +1,8 @@
 import { useState, useEffect } from "react";
 import { AlertTriangle, Cookie, Shield, Check, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
-import { Checkbox } from "@/components/ui/checkbox";
+import { Switch } from "@/components/ui/switch";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { logConsent } from "@/lib/api";
 
 interface CombinedConsentProps {
@@ -40,10 +40,12 @@ export function useCombinedConsent() {
   };
 }
 
+// Modal popup version for unobtrusive consent
 export function CombinedConsent({ onAccept }: CombinedConsentProps) {
-  const [hasReadTerms, setHasReadTerms] = useState(false);
-  const [hasReadLiability, setHasReadLiability] = useState(false);
-  const [hasReadCookies, setHasReadCookies] = useState(false);
+  const [isOpen, setIsOpen] = useState(true);
+  const [legalAdviceConsent, setLegalAdviceConsent] = useState(false);
+  const [liabilityConsent, setLiabilityConsent] = useState(false);
+  const [cookieConsent, setCookieConsent] = useState(false);
   const [isLogging, setIsLogging] = useState(false);
 
   const handleAccept = async () => {
@@ -77,123 +79,96 @@ export function CombinedConsent({ onAccept }: CombinedConsentProps) {
       localStorage.setItem('cookie-consent-accepted', 'true');
     } finally {
       setIsLogging(false);
+      setIsOpen(false);
       onAccept();
     }
   };
 
-  const canAccept = hasReadTerms && hasReadLiability && hasReadCookies;
+  const canAccept = legalAdviceConsent && liabilityConsent && cookieConsent;
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-teal-50 to-cyan-100 dark:from-gray-900 dark:to-slate-800 flex items-center justify-center p-4">
-      <div className="max-w-2xl w-full bg-white dark:bg-gray-800 rounded-2xl shadow-xl p-6 space-y-6">
-        <div className="text-center">
-          <div className="flex items-center justify-center gap-3 mb-4">
-            <div className="p-2 bg-primary/10 rounded-lg">
-              <Shield className="w-6 h-6 text-primary" />
-            </div>
-            <div className="p-2 bg-amber-100 dark:bg-amber-900/30 rounded-lg">
-              <AlertTriangle className="w-6 h-6 text-amber-600 dark:text-amber-400" />
-            </div>
-            <div className="p-2 bg-blue-100 dark:bg-blue-900/30 rounded-lg">
-              <Cookie className="w-6 h-6 text-blue-600 dark:text-blue-400" />
-            </div>
+    <Dialog open={isOpen} onOpenChange={() => {}}>
+      <DialogContent className="max-w-lg p-6 rounded-xl" hideCloseButton>
+        <DialogHeader className="text-center mb-4">
+          <div className="flex items-center justify-center gap-2 mb-3">
+            <Shield className="w-5 h-5 text-primary" />
+            <Cookie className="w-5 h-5 text-blue-600" />
+            <AlertTriangle className="w-5 h-5 text-amber-600" />
           </div>
-          <h1 className="text-2xl md:text-3xl font-bold text-gray-900 dark:text-white mb-2">
-            Terms & Privacy Agreement
-          </h1>
-          <p className="text-gray-600 dark:text-gray-300">
-            Please review and accept our terms to use ReadMyFinePrint
+          <DialogTitle className="text-xl font-bold">Privacy & Terms</DialogTitle>
+          <p className="text-sm text-muted-foreground">
+            Quick consent setup to get started
           </p>
-        </div>
+        </DialogHeader>
 
         <div className="space-y-4">
-          {/* Legal Disclaimer Section */}
-          <Card className="border border-amber-200/60 bg-gradient-to-r from-amber-50 to-amber-100/50 dark:from-amber-950/30 dark:to-amber-900/20 dark:border-amber-800/60">
-            <CardContent className="p-4">
-              <div className="flex items-start gap-3">
-                <Checkbox
-                  id="no-advice"
-                  checked={hasReadTerms}
-                  onCheckedChange={(checked) => setHasReadTerms(checked as boolean)}
-                  className="w-4 h-4 mt-1 data-[state=checked]:bg-amber-600 data-[state=checked]:border-amber-600"
-                />
-                <div className="flex-1">
-                  <label htmlFor="no-advice" className="text-sm font-medium text-amber-900 dark:text-amber-200 cursor-pointer">
-                    Not Legal Advice
-                  </label>
-                  <p className="text-xs text-amber-800 dark:text-amber-300 mt-1">
-                    I understand this service provides informational summaries only, not legal advice. 
-                    For legal decisions, I should consult a qualified attorney.
-                  </p>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
+          {/* Legal Advice Switch */}
+          <div className="flex items-start justify-between gap-3 p-3 border rounded-lg">
+            <div className="flex-1">
+              <label className="text-sm font-medium cursor-pointer">
+                Not Legal Advice
+              </label>
+              <p className="text-xs text-muted-foreground mt-1">
+                This provides informational summaries only, not legal advice
+              </p>
+            </div>
+            <Switch
+              checked={legalAdviceConsent}
+              onCheckedChange={setLegalAdviceConsent}
+              className="mt-1"
+            />
+          </div>
 
-          <Card className="border border-red-200/60 bg-gradient-to-r from-red-50 to-red-100/50 dark:from-red-950/30 dark:to-red-900/20 dark:border-red-800/60">
-            <CardContent className="p-4">
-              <div className="flex items-start gap-3">
-                <Checkbox
-                  id="liability"
-                  checked={hasReadLiability}
-                  onCheckedChange={(checked) => setHasReadLiability(checked as boolean)}
-                  className="w-4 h-4 mt-1 data-[state=checked]:bg-red-600 data-[state=checked]:border-red-600"
-                />
-                <div className="flex-1">
-                  <label htmlFor="liability" className="text-sm font-medium text-red-900 dark:text-red-200 cursor-pointer">
-                    Limitation of Liability
-                  </label>
-                  <p className="text-xs text-red-800 dark:text-red-300 mt-1">
-                    I acknowledge this is an educational tool. The service and its creators are not liable 
-                    for decisions made based on AI-generated summaries.
-                  </p>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
+          {/* Liability Switch */}
+          <div className="flex items-start justify-between gap-3 p-3 border rounded-lg">
+            <div className="flex-1">
+              <label className="text-sm font-medium cursor-pointer">
+                Limitation of Liability
+              </label>
+              <p className="text-xs text-muted-foreground mt-1">
+                Educational tool only - not liable for decisions made
+              </p>
+            </div>
+            <Switch
+              checked={liabilityConsent}
+              onCheckedChange={setLiabilityConsent}
+              className="mt-1"
+            />
+          </div>
 
-          {/* Cookie Consent Section */}
-          <Card className="border border-blue-200/60 bg-gradient-to-r from-blue-50 to-blue-100/50 dark:from-blue-950/30 dark:to-blue-900/20 dark:border-blue-800/60">
-            <CardContent className="p-4">
-              <div className="flex items-start gap-3">
-                <Checkbox
-                  id="cookies"
-                  checked={hasReadCookies}
-                  onCheckedChange={(checked) => setHasReadCookies(checked as boolean)}
-                  className="w-4 h-4 mt-1 data-[state=checked]:bg-blue-600 data-[state=checked]:border-blue-600"
-                />
-                <div className="flex-1">
-                  <label htmlFor="cookies" className="text-sm font-medium text-blue-900 dark:text-blue-200 cursor-pointer">
-                    Essential Cookies & Privacy
-                  </label>
-                  <p className="text-xs text-blue-800 dark:text-blue-300 mt-1">
-                    I consent to essential cookies for functionality (session, security). 
-                    No tracking or advertising cookies are used.
-                  </p>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
+          {/* Cookie Switch */}
+          <div className="flex items-start justify-between gap-3 p-3 border rounded-lg">
+            <div className="flex-1">
+              <label className="text-sm font-medium cursor-pointer">
+                Essential Cookies
+              </label>
+              <p className="text-xs text-muted-foreground mt-1">
+                Session cookies only - no tracking or ads
+              </p>
+            </div>
+            <Switch
+              checked={cookieConsent}
+              onCheckedChange={setCookieConsent}
+              className="mt-1"
+            />
+          </div>
 
-          {/* Privacy Summary */}
-          <div className="bg-gray-50 dark:bg-gray-700 rounded-lg p-4">
-            <h3 className="font-semibold text-gray-900 dark:text-white mb-2 text-sm">
-              Our Privacy Promise
-            </h3>
-            <ul className="text-xs text-gray-700 dark:text-gray-300 space-y-1">
-              <li>• Documents processed temporarily, never stored permanently</li>
-              <li>• All data encrypted in transit and at rest</li>
-              <li>• No data sharing with third parties</li>
-              <li>• You control your analysis results</li>
+          {/* Privacy Promise */}
+          <div className="bg-muted/50 rounded-lg p-3">
+            <h4 className="text-xs font-medium mb-2">Privacy Promise</h4>
+            <ul className="text-xs text-muted-foreground space-y-1">
+              <li>• Temporary document processing</li>
+              <li>• Encrypted data in transit</li>
+              <li>• No third-party sharing</li>
             </ul>
           </div>
         </div>
 
-        <div className="flex flex-col gap-3 pt-2">
+        <div className="flex flex-col gap-3 pt-4">
           <Button
             onClick={handleAccept}
             disabled={!canAccept || isLogging}
-            className="w-full bg-primary hover:bg-primary/90 text-white font-medium py-3 px-6 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed"
+            className="w-full"
           >
             {isLogging ? (
               <div className="flex items-center gap-2">
@@ -201,36 +176,23 @@ export function CombinedConsent({ onAccept }: CombinedConsentProps) {
                 Processing...
               </div>
             ) : canAccept ? (
-              <div className="flex items-center gap-2">
-                <Check className="w-4 h-4" />
-                Accept All & Continue
-              </div>
+              "Accept All & Continue"
             ) : (
-              "Please review all sections above"
+              "Enable all switches above"
             )}
           </Button>
           
-          <div className="flex gap-2">
-            <a
-              href="/terms"
-              className="flex-1 text-center bg-gray-100 dark:bg-gray-600 hover:bg-gray-200 dark:hover:bg-gray-500 text-gray-900 dark:text-white text-sm font-medium py-2 px-4 rounded-lg transition-colors"
-            >
-              Terms of Service
+          <div className="flex gap-2 text-xs">
+            <a href="/terms" className="flex-1 text-center text-muted-foreground hover:text-foreground">
+              Terms
             </a>
-            <a
-              href="/privacy"
-              className="flex-1 text-center bg-gray-100 dark:bg-gray-600 hover:bg-gray-200 dark:hover:bg-gray-500 text-gray-900 dark:text-white text-sm font-medium py-2 px-4 rounded-lg transition-colors"
-            >
-              Privacy Policy
+            <a href="/privacy" className="flex-1 text-center text-muted-foreground hover:text-foreground">
+              Privacy
             </a>
           </div>
         </div>
-
-        <p className="text-xs text-gray-500 dark:text-gray-400 text-center">
-          By accepting, you agree to our terms and acknowledge the disclaimers above.
-        </p>
-      </div>
-    </div>
+      </DialogContent>
+    </Dialog>
   );
 }
 

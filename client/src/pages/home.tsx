@@ -162,8 +162,7 @@ export default function Home() {
   // Show combined consent if not accepted
   if (!consentAccepted) {
     return <CombinedConsent onAccept={() => {
-      // Force a re-render by triggering a state update
-      window.location.reload();
+      // The hook will automatically update and trigger a re-render
     }} />;
   }
 
