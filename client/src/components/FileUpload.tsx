@@ -173,7 +173,6 @@ export function FileUpload({ onDocumentCreated, disabled = false, consentAccepte
           <div className="mb-6 p-4 bg-amber-50 dark:bg-amber-950/20 border border-amber-200 dark:border-amber-800 rounded-lg">
             <p className="text-sm text-amber-800 dark:text-amber-200">
               <strong>Consent Required:</strong> To analyze documents, please accept the terms and privacy policy using the banner below.
-              You can still browse sample contracts without consent.
             </p>
           </div>
         )}
