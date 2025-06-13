@@ -1,5 +1,6 @@
 import express from 'express';
 import path from 'path';
+import fs from 'fs';
 import { fileURLToPath } from 'url';
 import { registerRoutes } from './routes.js';
 
@@ -24,7 +25,7 @@ async function startProductionServer() {
     const indexPath = path.join(staticPath, 'index.html');
     
     // Check if index.html exists
-    if (!require('fs').existsSync(indexPath)) {
+    if (!fs.existsSync(indexPath)) {
       console.error('❌ index.html not found at:', indexPath);
       console.error('Build may have failed. Please run: npm run build');
       return res.status(500).send('Application build files not found. Please rebuild the application.');
