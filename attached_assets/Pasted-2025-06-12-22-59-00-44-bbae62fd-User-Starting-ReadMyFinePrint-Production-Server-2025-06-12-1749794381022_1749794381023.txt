@@ -1,0 +1,111 @@
+2025-06-12 22:59:00.44
+bbae62fd
+User
+🚀 Starting ReadMyFinePrint Production Server...
+2025-06-12 22:59:00.44
+bbae62fd
+User
+🔍 Validating environment variables...
+2025-06-12 22:59:00.44
+bbae62fd
+User
+✅ OPENAI_API_KEY: sk-***
+2025-06-12 22:59:00.44
+bbae62fd
+User
+✅ ADMIN_API_KEY: 56fe020d923e89b5a8c39962e3e29dd4cb3ad58fcb46800782...
+2025-06-12 22:59:00.44
+bbae62fd
+User
+✅ ALLOWED_ORIGINS: https://readmyfineprint.com,https://edcf3ef7-a826-...
+2025-06-12 22:59:00.44
+bbae62fd
+User
+✅ NODE_ENV: production
+2025-06-12 22:59:00.44
+bbae62fd
+User
+✅ SESSION_ENCRYPTION_KEY: 2651fc8605cabc8b756adbc6861138afe8cf520d54417763ee...
+2025-06-12 22:59:00.44
+bbae62fd
+User
+📋 Warnings:
+2025-06-12 22:59:00.44
+bbae62fd
+User
+⚠️ Optional SECURITY_WEBHOOK_URL not set - Optional webhook URL for security alerts (for external monitoring)
+2025-06-12 22:59:00.44
+bbae62fd
+User
+✅ Environment validation passed
+2025-06-12 22:59:00.44
+bbae62fd
+User
+(1 warning)
+2025-06-12 22:59:00.44
+bbae62fd
+User
+🔧 Environment Configuration:
+2025-06-12 22:59:00.44
+bbae62fd
+User
+Environment: production
+2025-06-12 22:59:00.44
+bbae62fd
+User
+OpenAI API: ✅ Configured
+2025-06-12 22:59:00.44
+bbae62fd
+User
+Admin Auth: ✅ Configured
+2025-06-12 22:59:00.44
+bbae62fd
+User
+CORS Origins: https://readmyfineprint.com,https://edcf3ef7-a826-4eed-8e04-7a485b2e183a-00-1wyt...
+2025-06-12 22:59:00.44
+bbae62fd
+User
+2025-06-12 22:59:00.46
+bbae62fd
+User
+📋 Production server running on http://0.0.0.0:5000
+2025-06-12 22:59:00.84
+bbae62fd
+User
+ValidationError: The Express 'trust proxy' setting is true, which allows anyone to trivially bypass IP-based rate limiting. See https://express-rate-limit.github.io/ERR_ERL_PERMISSIVE_TRUST_PROXY/ for more information.
+2025-06-12 22:59:00.84
+bbae62fd
+User
+at Object.trustProxy (file:///home/runner/workspace/node_modules/express-rate-limit/dist/index.mjs:141:13)
+2025-06-12 22:59:00.84
+bbae62fd
+User
+at wrappedValidations. [as trustProxy] (file:///home/runner/workspace/node_modules/express-rate-limit/dist/index.mjs:370:22)
+2025-06-12 22:59:00.84
+bbae62fd
+User
+at Object.keyGenerator (file:///home/runner/workspace/node_modules/express-rate-limit/dist/index.mjs:642:20)
+2025-06-12 22:59:00.84
+bbae62fd
+User
+at file:///home/runner/workspace/node_modules/express-rate-limit/dist/index.mjs:696:32
+2025-06-12 22:59:00.84
+bbae62fd
+User
+at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+2025-06-12 22:59:00.84
+bbae62fd
+User
+at async file:///home/runner/workspace/node_modules/express-rate-limit/dist/index.mjs:676:5 {
+2025-06-12 22:59:00.84
+bbae62fd
+User
+code: 'ERR_ERL_PERMISSIVE_TRUST_PROXY',
+2025-06-12 22:59:00.84
+bbae62fd
+User
+help: 'https://express-rate-limit.github.io/ERR_ERL_PERMISSIVE_TRUST_PROXY/'
+2025-06-12 22:59:00.84
+bbae62fd
+User
+}
