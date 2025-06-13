@@ -88,91 +88,82 @@ export function CombinedConsent({ onAccept }: CombinedConsentProps) {
 
   return (
     <Dialog open={isOpen} onOpenChange={() => {}}>
-      <DialogContent className="max-w-lg p-6 rounded-xl" hideCloseButton>
-        <DialogHeader className="text-center mb-4">
-          <div className="flex items-center justify-center gap-2 mb-3">
-            <Shield className="w-5 h-5 text-primary" />
-            <Cookie className="w-5 h-5 text-blue-600" />
-            <AlertTriangle className="w-5 h-5 text-amber-600" />
+      <DialogContent className="max-w-sm p-4 rounded-xl" hideCloseButton>
+        <DialogHeader className="text-center mb-3">
+          <div className="flex items-center justify-center gap-2 mb-2">
+            <Shield className="w-4 h-4 text-primary" />
+            <Cookie className="w-4 h-4 text-blue-600" />
+            <AlertTriangle className="w-4 h-4 text-amber-600" />
           </div>
-          <DialogTitle className="text-xl font-bold">Privacy & Terms</DialogTitle>
-          <p className="text-sm text-muted-foreground">
+          <DialogTitle className="text-lg font-bold">Privacy & Terms</DialogTitle>
+          <p className="text-xs text-muted-foreground">
             Quick consent setup to get started
           </p>
         </DialogHeader>
 
-        <div className="space-y-4">
+        <div className="space-y-3">
           {/* Legal Advice Switch */}
-          <div className="flex items-start justify-between gap-3 p-3 border rounded-lg">
+          <div className="flex items-center justify-between gap-3 p-2 border rounded">
             <div className="flex-1">
-              <label className="text-sm font-medium cursor-pointer">
+              <label className="text-xs font-medium cursor-pointer">
                 Not Legal Advice
               </label>
-              <p className="text-xs text-muted-foreground mt-1">
-                This provides informational summaries only, not legal advice
+              <p className="text-[10px] text-muted-foreground">
+                Informational summaries only
               </p>
             </div>
             <Switch
               checked={legalAdviceConsent}
               onCheckedChange={setLegalAdviceConsent}
-              className="mt-1"
+              className="scale-75"
             />
           </div>
 
           {/* Liability Switch */}
-          <div className="flex items-start justify-between gap-3 p-3 border rounded-lg">
+          <div className="flex items-center justify-between gap-3 p-2 border rounded">
             <div className="flex-1">
-              <label className="text-sm font-medium cursor-pointer">
+              <label className="text-xs font-medium cursor-pointer">
                 Limitation of Liability
               </label>
-              <p className="text-xs text-muted-foreground mt-1">
-                Educational tool only - not liable for decisions made
+              <p className="text-[10px] text-muted-foreground">
+                Educational tool only
               </p>
             </div>
             <Switch
               checked={liabilityConsent}
               onCheckedChange={setLiabilityConsent}
-              className="mt-1"
+              className="scale-75"
             />
           </div>
 
           {/* Cookie Switch */}
-          <div className="flex items-start justify-between gap-3 p-3 border rounded-lg">
+          <div className="flex items-center justify-between gap-3 p-2 border rounded">
             <div className="flex-1">
-              <label className="text-sm font-medium cursor-pointer">
+              <label className="text-xs font-medium cursor-pointer">
                 Essential Cookies
               </label>
-              <p className="text-xs text-muted-foreground mt-1">
-                Session cookies only - no tracking or ads
+              <p className="text-[10px] text-muted-foreground">
+                Session cookies only
               </p>
             </div>
             <Switch
               checked={cookieConsent}
               onCheckedChange={setCookieConsent}
-              className="mt-1"
+              className="scale-75"
             />
-          </div>
-
-          {/* Privacy Promise */}
-          <div className="bg-muted/50 rounded-lg p-3">
-            <h4 className="text-xs font-medium mb-2">Privacy Promise</h4>
-            <ul className="text-xs text-muted-foreground space-y-1">
-              <li>• Temporary document processing</li>
-              <li>• Encrypted data in transit</li>
-              <li>• No third-party sharing</li>
-            </ul>
           </div>
         </div>
 
-        <div className="flex flex-col gap-3 pt-4">
+        <div className="flex flex-col gap-2 pt-3">
           <Button
             onClick={handleAccept}
             disabled={!canAccept || isLogging}
-            className="w-full"
+            className="w-full text-sm"
+            size="sm"
           >
             {isLogging ? (
               <div className="flex items-center gap-2">
-                <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                <div className="w-3 h-3 border-2 border-white/30 border-t-white rounded-full animate-spin" />
                 Processing...
               </div>
             ) : canAccept ? (
@@ -182,7 +173,7 @@ export function CombinedConsent({ onAccept }: CombinedConsentProps) {
             )}
           </Button>
           
-          <div className="flex gap-2 text-xs">
+          <div className="flex gap-2 text-[10px]">
             <a href="/terms" className="flex-1 text-center text-muted-foreground hover:text-foreground">
               Terms
             </a>
