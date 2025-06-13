@@ -62,7 +62,7 @@ function App() {
                 id="main-content"
                 role="main"
                 tabIndex={-1}
-                className="flex-1 overflow-y-auto bg-gray-50 dark:bg-gray-900"
+                className="flex-1 overflow-y-auto bg-gray-50 dark:bg-gray-900 scroll-smooth custom-scrollbar"
                 aria-label="Main content"
               >
                 <PageTransition>
