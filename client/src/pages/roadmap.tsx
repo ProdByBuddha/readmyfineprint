@@ -134,7 +134,17 @@ export default function Roadmap() {
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900 p-4 pb-40 md:pb-40">
       <div className="max-w-6xl mx-auto pt-8">
         {/* Header Section */}
-        <div className="text-center mb-12">
+        <div className="relative text-center mb-12">
+          {/* Back to Donate Button - Top Right */}
+          <div className="absolute top-0 right-0">
+            <Link to="/donate">
+              <Button variant="outline" className="inline-flex items-center">
+                <ArrowLeft className="w-4 h-4 mr-2" />
+                Back to Donate
+              </Button>
+            </Link>
+          </div>
+          
           <div className="inline-flex items-center justify-center w-16 h-16 bg-primary/20 dark:bg-primary/30 rounded-full mb-4">
             <Target className="w-8 h-8 text-primary dark:text-primary" />
           </div>
@@ -144,16 +154,6 @@ export default function Roadmap() {
           <p className="text-xl text-gray-600 dark:text-gray-300 max-w-3xl mx-auto">
             Our commitment to making legal documents more accessible through continuous innovation and feature development.
           </p>
-        </div>
-
-        {/* Back to Donate Button */}
-        <div className="mb-8">
-          <Link to="/donate">
-            <Button variant="outline" className="inline-flex items-center">
-              <ArrowLeft className="w-4 h-4 mr-2" />
-              Back to Donate
-            </Button>
-          </Link>
         </div>
 
         {/* Roadmap Timeline */}
