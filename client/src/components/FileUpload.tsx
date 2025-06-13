@@ -258,7 +258,7 @@ export function FileUpload({ onDocumentCreated, disabled = false, consentAccepte
             />
 
             <div className="text-center my-6" role="separator" aria-label="Alternative upload method">
-              <span className="text-gray-500 bg-gray-50 dark:bg-gray-900 px-4 relative">or</span>
+              <span className="text-gray-500 bg-gray-50 dark:bg-transparent px-4 relative">or</span>
               <hr className="border-gray-200 dark:border-gray-700 -mt-3 -z-10" aria-hidden="true" />
             </div>
 
