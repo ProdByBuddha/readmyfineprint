@@ -103,6 +103,22 @@ html, body {
   height: 100%;
   overflow-x: hidden;
   position: relative;
+  background-color: #f9fafb; /* Light mode background */
+}
+
+/* Dark mode background for root elements */
+.dark html, .dark body {
+  background-color: #111827; /* Dark mode background */
+}
+
+/* Ensure root div also has proper background */
+#root {
+  min-height: 100vh;
+  background-color: #f9fafb;
+}
+
+.dark #root {
+  background-color: #111827;
 }
 
 /* Custom Scrollbar Styling - Auto-hiding */
