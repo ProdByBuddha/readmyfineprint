@@ -257,9 +257,10 @@ export function FileUpload({ onDocumentCreated, disabled = false, consentAccepte
               aria-describedby="file-upload-description"
             />
 
-            <div className="text-center my-6" role="separator" aria-label="Alternative upload method">
-              <span className="text-gray-500 bg-transparent px-4 relative">or</span>
-              <hr className="border-gray-200 dark:border-gray-700 -mt-3 -z-10" aria-hidden="true" />
+            <div className="relative flex py-5 items-center" role="separator" aria-label="Alternative upload method">
+              <div className="flex-grow border-t border-gray-200 dark:border-gray-700"></div>
+              <span className="flex-shrink mx-4 text-gray-500 text-sm">or</span>
+              <div className="flex-grow border-t border-gray-200 dark:border-gray-700"></div>
             </div>
 
             {/* Text Input */}
