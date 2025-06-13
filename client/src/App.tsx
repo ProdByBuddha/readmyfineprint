@@ -11,6 +11,7 @@ import { Footer } from "@/components/Footer";
 import { ScrollToTop } from "@/components/ScrollToTop";
 import { SEOBreadcrumbs } from "@/components/SEOBreadcrumbs";
 import { SkipLinks } from "@/components/SkipLinks";
+import { PageTransition } from "@/components/PageTransition";
 import { useScrollToTop } from "@/hooks/useScrollToTop";
 import { useFocusVisible, useReducedMotion, useHighContrast } from "@/hooks/useAccessibility";
 import { useSEO } from "@/lib/seo";
@@ -64,7 +65,9 @@ function App() {
                 className="flex-1 overflow-y-auto"
                 aria-label="Main content"
               >
-                <Router />
+                <PageTransition>
+                  <Router />
+                </PageTransition>
               </main>
 
               {/* Fixed Footer */}
