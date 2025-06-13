@@ -219,14 +219,14 @@ export default function Home() {
             </section>
           )}
 
-          {/* Main Content Area */}
-          {!currentDocumentId && (
+          {/* Main Content Area - Upload and Samples */}
+          {!currentDocumentId && !isAnalyzing && (
             <div className="animate-fade-in-scale">
               <section aria-labelledby="upload-heading" className="mb-8">
                 <h2 id="upload-heading" className="sr-only">Upload Document</h2>
                 <FileUpload
                   onDocumentCreated={handleDocumentCreated}
-                  disabled={isAnalyzing || !consentAccepted}
+                  disabled={!consentAccepted}
                   consentAccepted={consentAccepted}
                 />
               </section>
@@ -235,13 +235,19 @@ export default function Home() {
                 <h2 id="samples-heading" className="sr-only">Sample Contracts</h2>
                 <SampleContracts
                   onSelectContract={handleSampleContract}
-                  disabled={isAnalyzing}
+                  disabled={false}
                 />
               </section>
             </div>
           )}
 
-
+          {/* Analysis Progress */}
+          {isAnalyzing && (
+            <section aria-labelledby="analysis-progress" aria-live="polite" className="animate-fade-in-scale">
+              <h2 id="analysis-progress" className="sr-only">Analysis in Progress</h2>
+              <AnalysisProgress />
+            </section>
+          )}
 
           {/* Analysis Results */}
           {currentDocument && !isAnalyzing && (
@@ -309,13 +315,6 @@ export default function Home() {
                 <Loader2 className="w-6 h-6 animate-spin" aria-hidden="true" />
                 <span>Loading document...</span>
               </div>
-            </section>
-          )}
-          {/* Analysis Progress - Inline */}
-          {isAnalyzing && (
-            <section aria-labelledby="analysis-progress" aria-live="polite" className="animate-fade-in-scale">
-              <h2 id="analysis-progress" className="sr-only">Analysis in Progress</h2>
-              <AnalysisProgress />
             </section>
           )}
         </div>
