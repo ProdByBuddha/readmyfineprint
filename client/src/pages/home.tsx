@@ -268,6 +268,43 @@ export default function Home() {
             </section>
           )}
 
+          {/* FAQ Section */}
+          {!currentDocumentId && !isAnalyzing && (
+            <section aria-labelledby="faq-heading" className="mt-16 animate-fade-in-scale">
+              <Card className="p-6 md:p-8">
+                <CardContent>
+                  <h3 id="faq-heading" className="text-xl md:text-2xl font-semibold mb-6 md:mb-8 text-center text-gray-900 dark:text-white">
+                    Frequently Asked Questions
+                  </h3>
+                  <div className="max-w-3xl mx-auto space-y-4 md:space-y-6">
+                    <div className="border border-gray-200 dark:border-gray-700 rounded-xl p-4 md:p-6 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors">
+                      <h4 className="font-medium mb-2 text-gray-900 dark:text-white">How accurate are the summaries?</h4>
+                      <p className="text-sm leading-relaxed text-gray-700 dark:text-gray-300">
+                        Our advanced analysis engine has processed thousands of legal documents and is trained to identify
+                        common patterns and concerning clauses. While highly accurate, we recommend
+                        consulting with a legal professional for critical decisions.
+                      </p>
+                    </div>
+                    <div className="border border-gray-200 dark:border-gray-700 rounded-xl p-4 md:p-6 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors">
+                      <h4 className="font-medium mb-2 text-gray-900 dark:text-white">Is my document data secure?</h4>
+                      <p className="text-sm leading-relaxed text-gray-700 dark:text-gray-300">
+                        Yes, all documents are encrypted in transit and at rest. We don't store your documents after analysis, 
+                        and you can delete your summaries at any time. Your privacy is our top priority.
+                      </p>
+                    </div>
+                    <div className="border border-gray-200 dark:border-gray-700 rounded-xl p-4 md:p-6 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors">
+                      <h4 className="font-medium mb-2 text-gray-900 dark:text-white">What types of documents can I analyze?</h4>
+                      <p className="text-sm leading-relaxed text-gray-700 dark:text-gray-300">
+                        We support contracts, terms of service, privacy policies, employment agreements, rental agreements, 
+                        and most other legal documents in English. Upload PDFs, Word docs, or paste text directly.
+                      </p>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            </section>
+          )}
+
           {/* Loading State */}
           {isLoadingDocument && (
             <section aria-labelledby="loading-document" aria-live="polite" className="flex justify-center items-center py-12">
