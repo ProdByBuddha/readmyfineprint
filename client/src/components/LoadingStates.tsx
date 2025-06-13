@@ -79,22 +79,25 @@ export function AnalysisProgress() {
 
   return (
     <div 
-      className="absolute inset-0 z-[9999] bg-gray-900/90 dark:bg-black/90 backdrop-blur-sm"
+      className="absolute inset-0 z-50 flex items-center justify-center p-4"
       style={{ 
         position: 'absolute',
         top: 0,
         left: 0,
         right: 0,
         bottom: 0,
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        padding: '1rem'
+        backgroundColor: 'rgba(0, 0, 0, 0.8)',
+        backdropFilter: 'blur(4px)'
       }}
     >
       <div className="w-full max-w-md">
-        <Card className="p-6 bg-white dark:bg-gray-900 border-0 shadow-2xl"
-              style={{ borderRadius: '12px' }}>
+        <Card 
+          className="p-6 border-0 shadow-2xl"
+          style={{ 
+            borderRadius: '12px',
+            backgroundColor: 'var(--card)',
+            color: 'var(--card-foreground)'
+          }}>
           <CardContent className="text-center p-0">
             <div className="flex flex-col items-center space-y-5">
               {/* Animated Loading Icon */}
@@ -112,10 +115,10 @@ export function AnalysisProgress() {
               
               {/* Title and Description */}
               <div className="space-y-2">
-                <h3 className="text-xl font-bold text-gray-900 dark:text-white">
+                <h3 className="text-xl font-bold" style={{ color: 'var(--foreground)' }}>
                   Analysis in Progress
                 </h3>
-                <p className="text-sm text-gray-600 dark:text-gray-300 max-w-sm leading-relaxed">
+                <p className="text-sm max-w-sm leading-relaxed" style={{ color: 'var(--muted-foreground)' }}>
                   Reviewing your document with advanced document analysis to identify key terms, risks, and translate legal language into clear insights.
                 </p>
               </div>
@@ -128,7 +131,7 @@ export function AnalysisProgress() {
                       <div className="w-6 h-6 rounded-full bg-green-500 flex items-center justify-center">
                         <CheckCircle className="w-4 h-4 text-white" />
                       </div>
-                      <span className="text-sm font-medium text-green-700 dark:text-green-400">Document Uploaded</span>
+                      <span className="text-sm font-medium text-green-600">Document Uploaded</span>
                     </div>
                     <div className="w-4 h-0.5 bg-green-500 rounded"></div>
                   </div>
@@ -138,26 +141,29 @@ export function AnalysisProgress() {
                       <div className="w-6 h-6 rounded-full bg-blue-500 flex items-center justify-center animate-pulse">
                         <Loader2 className="w-3 h-3 text-white animate-spin" />
                       </div>
-                      <span className="text-sm font-medium text-blue-700 dark:text-blue-400">Analyzing Content</span>
+                      <span className="text-sm font-medium text-blue-600">Analyzing Content</span>
                     </div>
                     <div className="w-4 h-0.5 bg-blue-500 rounded animate-pulse"></div>
                   </div>
                   
                   <div className="flex items-center justify-between">
                     <div className="flex items-center space-x-2">
-                      <div className="w-6 h-6 rounded-full bg-gray-300 dark:bg-gray-600 flex items-center justify-center">
-                        <FileText className="w-3 h-3 text-gray-500 dark:text-gray-400" />
+                      <div className="w-6 h-6 rounded-full bg-gray-400 flex items-center justify-center">
+                        <FileText className="w-3 h-3 text-gray-600" />
                       </div>
-                      <span className="text-sm text-gray-500 dark:text-gray-400">Generating Summary</span>
+                      <span className="text-sm" style={{ color: 'var(--muted-foreground)' }}>Generating Summary</span>
                     </div>
-                    <div className="w-4 h-0.5 bg-gray-300 dark:bg-gray-600 rounded"></div>
+                    <div className="w-4 h-0.5 bg-gray-400 rounded"></div>
                   </div>
                 </div>
               </div>
               
               {/* Estimated Time */}
-              <div className="bg-blue-50 dark:bg-blue-950/50 rounded-lg px-4 py-2 mt-2">
-                <p className="text-xs text-blue-700 dark:text-blue-300 font-medium">
+              <div 
+                className="rounded-lg px-4 py-2 mt-2"
+                style={{ backgroundColor: 'var(--muted)', color: 'var(--muted-foreground)' }}
+              >
+                <p className="text-xs font-medium">
                   Estimated time: 10-30 seconds
                 </p>
               </div>
