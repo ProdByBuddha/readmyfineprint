@@ -62,39 +62,36 @@ export function DocumentLoadingSkeleton() {
 
 export function AnalysisProgress() {
   return (
-    <div className="py-4">
-      <div className="max-w-sm mx-auto text-center space-y-3">
+    <div className="py-2">
+      <div className="max-w-xs mx-auto text-center space-y-2">
         {/* Main Status */}
-        <div className="space-y-1">
-          <Loader2 className="w-5 h-5 text-blue-600 dark:text-blue-400 animate-spin mx-auto" />
+        <div className="flex items-center justify-center space-x-2">
+          <Loader2 className="w-4 h-4 text-blue-600 dark:text-blue-400 animate-spin" />
           <div>
-            <h3 className="text-base font-medium text-gray-900 dark:text-white">
+            <h3 className="text-sm font-medium text-gray-900 dark:text-white">
               Analyzing Document
             </h3>
-            <p className="text-xs text-gray-500 dark:text-gray-400">
-              This usually takes 10-30 seconds
-            </p>
           </div>
         </div>
 
         {/* Simple Progress Bar */}
-        <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-1.5">
-          <div className="bg-blue-600 h-1.5 rounded-full animate-pulse" style={{ width: '60%' }}></div>
+        <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-1">
+          <div className="bg-blue-600 h-1 rounded-full animate-pulse" style={{ width: '60%' }}></div>
         </div>
 
-        {/* Status Steps */}
-        <div className="space-y-1 text-xs">
-          <div className="flex items-center justify-center space-x-1.5 text-green-600 dark:text-green-400">
-            <CheckCircle className="w-3 h-3" />
-            <span>Document uploaded successfully</span>
+        {/* Status Steps - Compact */}
+        <div className="space-y-0.5 text-xs">
+          <div className="flex items-center justify-center space-x-1 text-green-600 dark:text-green-400">
+            <CheckCircle className="w-2.5 h-2.5" />
+            <span>Uploaded</span>
           </div>
-          <div className="flex items-center justify-center space-x-1.5 text-blue-600 dark:text-blue-400">
-            <div className="w-3 h-3 rounded-full border border-blue-600 border-t-transparent animate-spin"></div>
-            <span>Processing content and extracting key terms</span>
+          <div className="flex items-center justify-center space-x-1 text-blue-600 dark:text-blue-400">
+            <div className="w-2.5 h-2.5 rounded-full border border-blue-600 border-t-transparent animate-spin"></div>
+            <span>Processing...</span>
           </div>
-          <div className="flex items-center justify-center space-x-1.5 text-gray-400 dark:text-gray-500">
-            <div className="w-3 h-3 rounded-full border border-gray-300 dark:border-gray-600"></div>
-            <span>Generating summary and recommendations</span>
+          <div className="flex items-center justify-center space-x-1 text-gray-400 dark:text-gray-500">
+            <div className="w-2.5 h-2.5 rounded-full border border-gray-300 dark:border-gray-600"></div>
+            <span>Generating summary</span>
           </div>
         </div>
       </div>
