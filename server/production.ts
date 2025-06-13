@@ -12,16 +12,25 @@ const PORT = parseInt(process.env.PORT || '5000');
 async function startProductionServer() {
   console.log('🚀 Starting ReadMyFinePrint Production Server...');
 
+  // Register API routes first
+  await registerRoutes(app);
+
   // Serve static files from the dist/public directory (where Vite builds to)
   const staticPath = path.join(__dirname, '../dist/public');
   app.use(express.static(staticPath));
 
-  // Register API routes
-  await registerRoutes(app);
-
   // Serve index.html for all other routes (SPA fallback)
   app.get('*', (req, res) => {
-    res.sendFile(path.join(staticPath, 'index.html'));
+    const indexPath = path.join(staticPath, 'index.html');
+    
+    // Check if index.html exists
+    if (!require('fs').existsSync(indexPath)) {
+      console.error('❌ index.html not found at:', indexPath);
+      console.error('Build may have failed. Please run: npm run build');
+      return res.status(500).send('Application build files not found. Please rebuild the application.');
+    }
+    
+    res.sendFile(indexPath);
   });
 
   app.listen(PORT, '0.0.0.0', () => {
