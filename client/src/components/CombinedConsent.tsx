@@ -16,16 +16,14 @@ export function useCombinedConsent() {
     const legalAccepted = localStorage.getItem('readmyfineprint-disclaimer-accepted');
     const cookiesAccepted = localStorage.getItem('cookie-consent-accepted');
     const newState = legalAccepted === 'true' && cookiesAccepted === 'true';
-    console.log('Checking consent:', { legalAccepted, cookiesAccepted, newState });
     setIsAccepted(newState);
   }, []);
 
   useEffect(() => {
     checkConsent();
     
-    // Create event handler with logging
+    // Create event handler
     const handleConsentChange = () => {
-      console.log('Received consentChanged event');
       checkConsent();
     };
     
@@ -55,6 +53,8 @@ export function useCombinedConsent() {
     localStorage.removeItem('readmyfineprint-disclaimer-date');
     localStorage.removeItem('cookie-consent-accepted');
     setIsAccepted(false);
+    // Dispatch custom event to notify other components
+    window.dispatchEvent(new CustomEvent('consentChanged'));
   };
 
   return {
