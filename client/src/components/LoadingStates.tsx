@@ -62,31 +62,40 @@ export function DocumentLoadingSkeleton() {
 
 export function AnalysisProgress() {
   return (
-    <div className="py-1">
-      <div className="max-w-sm mx-auto text-center">
-        {/* Inline Status with Progress */}
-        <div className="flex items-center justify-center space-x-2 mb-1">
-          <Loader2 className="w-3 h-3 text-blue-600 dark:text-blue-400 animate-spin" />
-          <span className="text-xs font-medium text-gray-900 dark:text-white">
-            Analyzing Document...
-          </span>
+    <div className="flex items-center justify-center min-h-[50vh] py-8">
+      <div className="max-w-md mx-auto text-center space-y-4">
+        {/* Main Status */}
+        <div className="flex items-center justify-center space-x-3">
+          <Loader2 className="w-5 h-5 text-blue-600 dark:text-blue-400 animate-spin" />
+          <div>
+            <h3 className="text-lg font-medium text-gray-900 dark:text-white">
+              Analyzing Document
+            </h3>
+            <p className="text-sm text-gray-500 dark:text-gray-400">
+              This usually takes 10-30 seconds
+            </p>
+          </div>
         </div>
 
-        {/* Minimal Progress Bar */}
-        <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-0.5 mb-1">
-          <div className="bg-blue-600 h-0.5 rounded-full animate-pulse" style={{ width: '60%' }}></div>
+        {/* Progress Bar */}
+        <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
+          <div className="bg-blue-600 h-2 rounded-full animate-pulse" style={{ width: '60%' }}></div>
         </div>
 
-        {/* Single Line Status */}
-        <div className="flex items-center justify-center space-x-3 text-xs">
-          <span className="flex items-center space-x-1 text-green-600 dark:text-green-400">
-            <CheckCircle className="w-2 h-2" />
+        {/* Status Steps */}
+        <div className="flex items-center justify-center space-x-6 text-sm">
+          <div className="flex items-center space-x-2 text-green-600 dark:text-green-400">
+            <CheckCircle className="w-4 h-4" />
             <span>Uploaded</span>
-          </span>
-          <span className="flex items-center space-x-1 text-blue-600 dark:text-blue-400">
-            <div className="w-2 h-2 rounded-full border border-blue-600 border-t-transparent animate-spin"></div>
+          </div>
+          <div className="flex items-center space-x-2 text-blue-600 dark:text-blue-400">
+            <div className="w-4 h-4 rounded-full border-2 border-blue-600 border-t-transparent animate-spin"></div>
             <span>Processing</span>
-          </span>
+          </div>
+          <div className="flex items-center space-x-2 text-gray-400 dark:text-gray-500">
+            <div className="w-4 h-4 rounded-full border-2 border-gray-300 dark:border-gray-600"></div>
+            <span>Generating</span>
+          </div>
         </div>
       </div>
     </div>
