@@ -1,12 +1,16 @@
 #!/bin/bash
 
-# Create public repository directory
-mkdir -p ../readmyfineprint-public
+# Create public repository directory structure
+mkdir -p ../readmyfineprint-public/client/src/components
+mkdir -p ../readmyfineprint-public/client/src/hooks
+mkdir -p ../readmyfineprint-public/client/src/lib
+mkdir -p ../readmyfineprint-public/server
+mkdir -p ../readmyfineprint-public/scripts
 
 # Copy safe technical files
 cp -r client/src/components/ui ../readmyfineprint-public/client/src/components/
-cp -r client/src/hooks ../readmyfineprint-public/client/src/hooks/
-cp -r client/src/lib ../readmyfineprint-public/client/src/lib/
+cp -r client/src/hooks ../readmyfineprint-public/client/src/
+cp -r client/src/lib ../readmyfineprint-public/client/src/
 cp -r scripts ../readmyfineprint-public/
 
 # Copy security architecture (without business logic)
