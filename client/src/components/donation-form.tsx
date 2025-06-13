@@ -59,8 +59,13 @@ export default function DonationForm({ amount, onSuccess, onError }: DonationFor
       newErrors.number = 'Please enter a valid card number';
     }
 
-    if (!cardData.expiry || cardData.expiry.length < 5) {
+    if (!cardData.expiry || cardData.expiry.length < 5 || !cardData.expiry.includes('/')) {
       newErrors.expiry = 'Please enter expiry date (MM/YY)';
+    } else {
+      const [month, year] = cardData.expiry.split('/');
+      if (!month || !year || parseInt(month) < 1 || parseInt(month) > 12) {
+        newErrors.expiry = 'Please enter a valid expiry date';
+      }
     }
 
     if (!cardData.cvc || cardData.cvc.length < 3) {
@@ -100,8 +105,8 @@ export default function DonationForm({ amount, onSuccess, onError }: DonationFor
           amount,
           card: {
             number: cardData.number.replace(/\s/g, ''),
-            exp_month: cardData.expiry.split('/')[0],
-            exp_year: '20' + cardData.expiry.split('/')[1],
+            exp_month: parseInt(cardData.expiry.split('/')[0]),
+            exp_year: parseInt('20' + cardData.expiry.split('/')[1]),
             cvc: cardData.cvc,
             name: cardData.name
           }

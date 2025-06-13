@@ -4,6 +4,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Link } from "wouter";
 import { Button } from "@/components/ui/button";
 import { Alert, AlertDescription } from "@/components/ui/alert";
+import DonationForm from "@/components/donation-form";
 
 const DONATION_AMOUNTS = [
   { amount: 5, label: "$5" },
@@ -18,8 +19,8 @@ const DonateContent = () => {
   const [customAmount, setCustomAmount] = useState("");
   const [showCheckout, setShowCheckout] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [isSuccess] = useState(false);
-  const [successAmount] = useState<number | null>(null);
+  const [isSuccess, setIsSuccess] = useState(false);
+  const [successAmount, setSuccessAmount] = useState<number | null>(null);
 
   const handleAmountSelect = (amount: number) => {
     setSelectedAmount(amount);
@@ -160,17 +161,36 @@ const DonateContent = () => {
                 Back to Amount Selection
               </Button>
               <div className="space-y-4">
+                <DonationForm
+                  amount={currentAmount}
+                  onSuccess={(donatedAmount) => {
+                    setIsSuccess(true);
+                    setSuccessAmount(donatedAmount);
+                  }}
+                  onError={(errorMessage) => {
+                    setError(errorMessage);
+                  }}
+                />
+                
+                <div className="text-center">
+                  <div className="relative">
+                    <div className="absolute inset-0 flex items-center">
+                      <span className="w-full border-t" />
+                    </div>
+                    <div className="relative flex justify-center text-xs uppercase">
+                      <span className="bg-background px-2 text-muted-foreground">Or</span>
+                    </div>
+                  </div>
+                </div>
+
                 <a
-                  href="https://donate.stripe.com/4gM6oI5ZLfCV7Qu8hHb7y00"
+                  href={`https://donate.stripe.com/4gM6oI5ZLfCV7Qu8hH?prefilled_amount=${Math.round(currentAmount * 100)}`}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="w-full bg-primary hover:bg-primary/90 text-primary-foreground font-semibold py-3 px-6 rounded-lg inline-flex items-center justify-center transition-all duration-300 ease-in-out hover:scale-105"
+                  className="w-full bg-secondary hover:bg-secondary/90 text-secondary-foreground border border-border font-medium py-2 px-4 rounded-lg inline-flex items-center justify-center transition-all duration-300 text-sm"
                 >
-                  Donate ${currentAmount.toFixed(2)} Now
+                  External Stripe Checkout
                 </a>
-                <p className="text-sm text-muted-foreground text-center">
-                  Secure payment powered by Stripe
-                </p>
               </div>
             </div>
           ) : (
