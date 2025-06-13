@@ -15,8 +15,8 @@ logEnvironmentStatus();
 
 const app = express();
 
-// Enable trust proxy to get real IP addresses (for consent logging)
-app.set('trust proxy', true);
+// Configure trust proxy securely - only trust the first proxy
+app.set('trust proxy', 1);
 
 // Add security headers
 app.use(addSecurityHeaders);
@@ -40,6 +40,9 @@ const apiLimiter = rateLimit({
   },
   standardHeaders: true,
   legacyHeaders: false,
+  validate: {
+    trustProxy: false, // Disable trust proxy validation since we handle it securely
+  } as any,
   // Use a more secure key generator that combines IP with user agent hash
   keyGenerator: (req) => {
     // Use real IP when behind proxy, fallback to connection IP
@@ -68,6 +71,9 @@ const processLimiter = rateLimit({
   },
   standardHeaders: true,
   legacyHeaders: false,
+  validate: {
+    trustProxy: false, // Disable trust proxy validation since we handle it securely
+  } as any,
   // Use the same secure key generator
   keyGenerator: (req) => {
     const ip = req.ip || req.socket.remoteAddress || 'unknown';

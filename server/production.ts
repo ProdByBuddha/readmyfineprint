@@ -22,8 +22,8 @@ const app = express();
 const PORT = parseInt(process.env.PORT || '5000');
 
 async function startProductionServer() {
-  // Enable trust proxy to get real IP addresses
-  app.set('trust proxy', true);
+  // Configure trust proxy securely - only trust the first proxy
+  app.set('trust proxy', 1);
 
   // Add security headers
   app.use(addSecurityHeaders);
