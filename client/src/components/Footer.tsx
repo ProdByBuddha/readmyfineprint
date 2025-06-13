@@ -16,26 +16,26 @@ export function Footer() {
           <div className="flex items-center justify-center flex-wrap gap-3 text-xs">
             <Link
               to="/privacy"
-              className="text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white transition-colors py-1 px-2"
+              className="text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white transition-colors py-1 px-2 flex items-center"
             >
               Privacy
             </Link>
             <Link
               to="/terms"
-              className="text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white transition-colors py-1 px-2"
+              className="text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white transition-colors py-1 px-2 flex items-center"
             >
               Terms
             </Link>
             <Link
               to="/donate"
-              className="text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white transition-colors inline-flex items-center py-1 px-2"
+              className="text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white transition-colors py-1 px-2 flex items-center"
             >
-              <Heart className="w-2.5 h-2.5 mr-1 text-red-500" aria-hidden="true" />
+              <Heart className="w-2.5 h-2.5 mr-0.5 text-red-500" aria-hidden="true" />
               Donate
             </Link>
             <a
               href="mailto:admin@readmyfineprint.com"
-              className="text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white transition-colors py-1 px-2"
+              className="text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white transition-colors py-1 px-2 flex items-center"
             >
               Contact
             </a>
