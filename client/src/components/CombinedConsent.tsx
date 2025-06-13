@@ -84,24 +84,24 @@ export function CombinedConsent({ onAccept }: CombinedConsentProps) {
 
   return (
     <Dialog open={isOpen} onOpenChange={() => {}}>
-      <DialogContent className="max-w-sm p-4 rounded-xl" hideCloseButton>
+      <DialogContent className="max-w-sm p-4 rounded-xl bg-white dark:bg-gray-900 border dark:border-gray-700" hideCloseButton>
         <DialogHeader className="text-center mb-3">
           <div className="flex items-center justify-center gap-2 mb-2">
             <Shield className="w-4 h-4 text-primary" />
-            <Cookie className="w-4 h-4 text-blue-600" />
-            <AlertTriangle className="w-4 h-4 text-amber-600" />
+            <Cookie className="w-4 h-4 text-blue-600 dark:text-blue-400" />
+            <AlertTriangle className="w-4 h-4 text-amber-600 dark:text-amber-400" />
           </div>
-          <DialogTitle className="text-lg font-bold">Privacy & Terms</DialogTitle>
-          <p className="text-xs text-muted-foreground">
+          <DialogTitle className="text-lg font-bold text-gray-900 dark:text-gray-100">Privacy & Terms</DialogTitle>
+          <p className="text-xs text-gray-600 dark:text-gray-400">
             Quick consent setup to get started
           </p>
         </DialogHeader>
 
         <div className="space-y-3">
           {/* Unified consent summary */}
-          <div className="bg-muted/50 rounded-lg p-3">
-            <h4 className="text-sm font-medium mb-2">By continuing, you agree to:</h4>
-            <ul className="text-xs text-muted-foreground space-y-1">
+          <div className="bg-gray-50 dark:bg-gray-800 rounded-lg p-3">
+            <h4 className="text-sm font-medium mb-2 text-gray-900 dark:text-gray-100">By continuing, you agree to:</h4>
+            <ul className="text-xs text-gray-600 dark:text-gray-400 space-y-1">
               <li>• Service provides informational summaries, not legal advice</li>
               <li>• Educational tool only - we're not liable for decisions made</li>
               <li>• Essential cookies for session management</li>
@@ -128,10 +128,10 @@ export function CombinedConsent({ onAccept }: CombinedConsentProps) {
           </Button>
           
           <div className="flex gap-2 text-[10px]">
-            <a href="/terms" className="flex-1 text-center text-muted-foreground hover:text-foreground">
+            <a href="/terms" className="flex-1 text-center text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100">
               Terms
             </a>
-            <a href="/privacy" className="flex-1 text-center text-muted-foreground hover:text-foreground">
+            <a href="/privacy" className="flex-1 text-center text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100">
               Privacy
             </a>
           </div>
