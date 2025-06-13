@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { AlertTriangle, Cookie, Shield, Check } from "lucide-react";
+import { AlertTriangle, Cookie, Shield, Check, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -229,6 +229,49 @@ export function CombinedConsent({ onAccept }: CombinedConsentProps) {
         <p className="text-xs text-gray-500 dark:text-gray-400 text-center">
           By accepting, you agree to our terms and acknowledge the disclaimers above.
         </p>
+      </div>
+    </div>
+  );
+}
+
+// Simple cookie banner for non-blocking consent
+export function CookieConsent() {
+  const { isAccepted, acceptAll } = useCombinedConsent();
+
+  // Don't show banner if already accepted
+  if (isAccepted) {
+    return null;
+  }
+
+  return (
+    <div className="fixed bottom-0 left-0 right-0 z-50 p-4">
+      <div className="max-w-4xl mx-auto bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow-lg">
+        <div className="p-4 flex flex-col sm:flex-row items-start sm:items-center gap-4">
+          <div className="flex items-start gap-3 flex-1">
+            <Cookie className="w-5 h-5 text-primary mt-0.5 flex-shrink-0" />
+            <div className="flex-1 min-w-0">
+              <p className="text-sm text-gray-900 dark:text-white font-medium mb-1">
+                We use essential cookies for functionality
+              </p>
+              <p className="text-xs text-gray-600 dark:text-gray-300">
+                No tracking, no ads, just the basics to make the app work. 
+                <a href="/cookies" className="text-primary hover:underline ml-1">
+                  Learn more
+                </a>
+              </p>
+            </div>
+          </div>
+          
+          <div className="flex items-center gap-2 flex-shrink-0">
+            <Button
+              onClick={acceptAll}
+              size="sm"
+              className="bg-primary hover:bg-primary/90 text-white"
+            >
+              Accept All
+            </Button>
+          </div>
+        </div>
       </div>
     </div>
   );

@@ -1,10 +1,10 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Cookie, CheckCircle, X, Shield } from "lucide-react";
-import { useCookieConsent } from "@/components/CookieConsent";
+import { useCombinedConsent } from "@/components/CombinedConsent";
 
 export function CookiePolicy() {
-  const { isAccepted, acceptCookies, revokeCookies } = useCookieConsent();
+  const { isAccepted, acceptAll, revokeConsent } = useCombinedConsent();
 
   return (
     <div className="max-w-4xl mx-auto p-6 space-y-8">
@@ -140,11 +140,11 @@ export function CookiePolicy() {
             </div>
             <div className="flex gap-2">
               {!isAccepted ? (
-                <Button onClick={acceptCookies} className="bg-green-600 hover:bg-green-700">
-                  Accept Cookies
+                <Button onClick={acceptAll} className="bg-green-600 hover:bg-green-700">
+                  Accept All
                 </Button>
               ) : (
-                <Button onClick={revokeCookies} variant="outline">
+                <Button onClick={revokeConsent} variant="outline">
                   Reset Preferences
                 </Button>
               )}

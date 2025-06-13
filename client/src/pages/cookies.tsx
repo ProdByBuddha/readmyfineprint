@@ -3,15 +3,15 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Badge } from "@/components/ui/badge";
 import { TouchScrollContainer } from "@/components/TouchScrollContainer";
 import { Cookie, Shield, CheckCircle, AlertCircle, Info } from "lucide-react";
-import { useCookieConsent } from "@/components/CookieConsent";
+import { useCombinedConsent } from "@/components/CombinedConsent";
 import { useLocation } from "wouter";
 
 export default function Cookies() {
-  const { isAccepted, acceptCookies, revokeCookies } = useCookieConsent();
+  const { isAccepted, acceptAll, revokeConsent } = useCombinedConsent();
   const [, setLocation] = useLocation();
 
   const handleAcceptAndReturn = () => {
-    acceptCookies();
+    acceptAll();
     setLocation('/');
   };
 
@@ -60,7 +60,7 @@ export default function Cookies() {
                     Accept Cookies
                   </Button>
                 ) : (
-                  <Button onClick={revokeCookies} variant="outline" className="text-red-600 border-red-600 hover:bg-red-50">
+                  <Button onClick={revokeConsent} variant="outline" className="text-red-600 border-red-600 hover:bg-red-50">
                     Revoke Consent
                   </Button>
                 )}
