@@ -1,7 +1,6 @@
 import { useState, useEffect } from "react";
-import { AlertTriangle, Cookie, Shield, Check, X } from "lucide-react";
+import { AlertTriangle, Cookie, Shield } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Switch } from "@/components/ui/switch";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { logConsent } from "@/lib/api";
 
@@ -43,20 +42,10 @@ export function useCombinedConsent() {
 // Modal popup version for unobtrusive consent
 export function CombinedConsent({ onAccept }: CombinedConsentProps) {
   const [isOpen, setIsOpen] = useState(true);
-  const [legalAdviceConsent, setLegalAdviceConsent] = useState(false);
-  const [liabilityConsent, setLiabilityConsent] = useState(false);
-  const [cookieConsent, setCookieConsent] = useState(false);
   const [isLogging, setIsLogging] = useState(false);
 
   const handleAccept = async () => {
     setIsLogging(true);
-
-    // If not all consents are enabled, enable them all first
-    if (!legalAdviceConsent || !liabilityConsent || !cookieConsent) {
-      setLegalAdviceConsent(true);
-      setLiabilityConsent(true);
-      setCookieConsent(true);
-    }
 
     try {
       // Log consent to server (anonymous, PII-protected)
@@ -91,7 +80,7 @@ export function CombinedConsent({ onAccept }: CombinedConsentProps) {
     }
   };
 
-  const allEnabled = legalAdviceConsent && liabilityConsent && cookieConsent;
+
 
   return (
     <Dialog open={isOpen} onOpenChange={() => {}}>
@@ -109,55 +98,15 @@ export function CombinedConsent({ onAccept }: CombinedConsentProps) {
         </DialogHeader>
 
         <div className="space-y-3">
-          {/* Legal Advice Switch */}
-          <div className="flex items-center justify-between gap-3 p-2 border rounded">
-            <div className="flex-1">
-              <label className="text-xs font-medium cursor-pointer">
-                Not Legal Advice
-              </label>
-              <p className="text-[10px] text-muted-foreground">
-                Informational summaries only
-              </p>
-            </div>
-            <Switch
-              checked={legalAdviceConsent}
-              onCheckedChange={setLegalAdviceConsent}
-              className="scale-75"
-            />
-          </div>
-
-          {/* Liability Switch */}
-          <div className="flex items-center justify-between gap-3 p-2 border rounded">
-            <div className="flex-1">
-              <label className="text-xs font-medium cursor-pointer">
-                Limitation of Liability
-              </label>
-              <p className="text-[10px] text-muted-foreground">
-                Educational tool only
-              </p>
-            </div>
-            <Switch
-              checked={liabilityConsent}
-              onCheckedChange={setLiabilityConsent}
-              className="scale-75"
-            />
-          </div>
-
-          {/* Cookie Switch */}
-          <div className="flex items-center justify-between gap-3 p-2 border rounded">
-            <div className="flex-1">
-              <label className="text-xs font-medium cursor-pointer">
-                Essential Cookies
-              </label>
-              <p className="text-[10px] text-muted-foreground">
-                Session cookies only
-              </p>
-            </div>
-            <Switch
-              checked={cookieConsent}
-              onCheckedChange={setCookieConsent}
-              className="scale-75"
-            />
+          {/* Unified consent summary */}
+          <div className="bg-muted/50 rounded-lg p-3">
+            <h4 className="text-sm font-medium mb-2">By continuing, you agree to:</h4>
+            <ul className="text-xs text-muted-foreground space-y-1">
+              <li>• Service provides informational summaries, not legal advice</li>
+              <li>• Educational tool only - we're not liable for decisions made</li>
+              <li>• Essential cookies for session management</li>
+              <li>• Privacy promise: temporary processing, encrypted data, no sharing</li>
+            </ul>
           </div>
         </div>
 
