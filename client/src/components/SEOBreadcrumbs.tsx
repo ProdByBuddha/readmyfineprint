@@ -61,8 +61,8 @@ export function SEOBreadcrumbs({ items, className = '' }: SEOBreadcrumbsProps) {
     }
   }, [breadcrumbItems]);
 
-  // Don't render breadcrumbs for home page or if only one item
-  if (location === '/' || breadcrumbItems.length <= 1) {
+  // Don't render breadcrumbs for home page, roadmap page, or if only one item
+  if (location === '/' || location === '/roadmap' || breadcrumbItems.length <= 1) {
     return null;
   }
 
