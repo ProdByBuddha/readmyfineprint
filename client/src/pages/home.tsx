@@ -226,7 +226,8 @@ export default function Home() {
                 <h2 id="upload-heading" className="sr-only">Upload Document</h2>
                 <FileUpload
                   onDocumentCreated={handleDocumentCreated}
-                  disabled={isAnalyzing}
+                  disabled={isAnalyzing || !consentAccepted}
+                  consentAccepted={consentAccepted}
                 />
               </section>
 
