@@ -10,16 +10,16 @@ export function Header() {
   const isMobile = useIsMobile();
 
   return (
-    <header 
+    <header
       id="navigation"
       role="banner"
       className={`
-        ${isMobile 
-          ? 'bg-white/95 dark:bg-slate-900/95 backdrop-blur-lg border-b-0 shadow-sm' 
+        ${isMobile
+          ? 'bg-white/95 dark:bg-slate-900/95 backdrop-blur-lg border-b-0 shadow-sm'
           : 'bg-white dark:bg-slate-900 border-b border-teal-200 dark:border-slate-700'
-        } 
+        }
         flex-shrink-0 z-50 transition-all duration-300
-      `} 
+      `}
       style={isMobile ? {
         paddingTop: 'var(--app-safe-area-top)',
         paddingLeft: 'var(--app-safe-area-left)',
@@ -30,10 +30,10 @@ export function Header() {
         <div className={`flex justify-between items-center ${isMobile ? 'h-14' : 'h-16'}`}>
           <Link to="/" aria-label="ReadMyFinePrint - Go to homepage">
             <div className="flex items-center space-x-3 cursor-pointer group">
-              <img 
-                src={logoImage} 
-                alt="ReadMyFinePrint Logo" 
-                className={`${isMobile ? 'w-10 h-10' : 'w-12 h-12'} object-contain transition-transform duration-200 group-active:scale-95`} 
+              <img
+                src={logoImage}
+                alt="ReadMyFinePrint Logo"
+                className={`${isMobile ? 'w-10 h-10' : 'w-12 h-12'} object-contain transition-transform duration-200 group-active:scale-95`}
               />
               <h1 className="text-xl font-bold text-primary dark:text-primary hidden md:block">
                 ReadMyFinePrint
@@ -45,16 +45,16 @@ export function Header() {
               )}
             </div>
           </Link>
-          
-          <nav 
+
+          <nav
             className="hidden md:flex items-center space-x-6"
             role="navigation"
             aria-label="Main navigation"
           >
             <Link to="/donate">
-              <Button 
-                variant="outline" 
-                size="sm" 
+              <Button
+                variant="outline"
+                size="sm"
                 className="mr-2"
                 aria-label="Support us with a donation"
               >
@@ -80,16 +80,16 @@ export function Header() {
               </span>
             </Button>
           </nav>
-          
+
           {/* Mobile navigation */}
-          <nav 
+          <nav
             className="md:hidden flex items-center space-x-1"
             role="navigation"
             aria-label="Mobile navigation"
           >
             <Link to="/donate">
-              <Button 
-                variant="outline" 
+              <Button
+                variant="outline"
                 size="sm"
                 className="h-10 w-10 p-0 rounded-full transition-all duration-200 active:scale-95"
                 aria-label="Support us with a donation"

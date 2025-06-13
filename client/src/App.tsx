@@ -43,20 +43,23 @@ function App() {
   useFocusVisible();
   useReducedMotion();
   useHighContrast();
-  
+
   return (
     <QueryClientProvider client={queryClient}>
       <ThemeProvider>
         <TooltipProvider>
           <ErrorBoundary>
             <SkipLinks />
-            <div className="min-h-screen flex flex-col app-container">
+            <div className="h-screen flex flex-col app-container">
+              {/* Fixed Header */}
               <Header />
-              <main 
+
+              {/* Scrollable Main Content Area */}
+              <main
                 id="main-content"
                 role="main"
                 tabIndex={-1}
-                className="flex-1"
+                className="flex-1 overflow-y-auto"
                 aria-label="Main content"
               >
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-4">
@@ -64,16 +67,18 @@ function App() {
                 </div>
                 <Router />
               </main>
+
+              {/* Fixed Footer */}
               <Footer />
             </div>
             <Toaster />
             <CookieConsent />
             <ScrollToTop />
             {/* Live region for announcements */}
-            <div 
-              id="announcements" 
-              aria-live="polite" 
-              aria-atomic="true" 
+            <div
+              id="announcements"
+              aria-live="polite"
+              aria-atomic="true"
               className="sr-only"
             ></div>
           </ErrorBoundary>

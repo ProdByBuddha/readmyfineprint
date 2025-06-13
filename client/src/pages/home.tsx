@@ -13,7 +13,6 @@ import { DocumentHistory } from "@/components/DocumentHistory";
 import { AnalysisProgress } from "@/components/LoadingStates";
 import { LegalDisclaimer } from "@/components/LegalDisclaimer";
 import { MobileAppWrapper } from "@/components/MobileAppWrapper";
-import { TouchScrollContainer } from "@/components/TouchScrollContainer";
 import { useCookieConsent } from "@/components/CookieConsent";
 import { useAccessibility } from "@/hooks/useAccessibility";
 import { analyzeDocument, getDocument, createDocument } from "@/lib/api";
@@ -167,7 +166,7 @@ export default function Home() {
   }
 
   return (
-    <TouchScrollContainer ref={containerRef} className="bg-gradient-to-br from-teal-50 to-cyan-100 dark:from-gray-900 dark:to-slate-800 page-transition" enablePullToRefresh={true}>
+    <div ref={containerRef} className="bg-gradient-to-br from-teal-50 to-cyan-100 dark:from-gray-900 dark:to-slate-800 page-transition min-h-full">
       <MobileAppWrapper>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
           {/* Document History */}
@@ -189,7 +188,7 @@ export default function Home() {
                 Upload or paste any legal document and get instant, clear summaries that
                 highlight what matters most. No legal degree required.
               </p>
-              
+
               {/* Features highlight for SEO */}
               <div className="mb-6 max-w-4xl mx-auto">
                 <h2 className="sr-only">Key Features</h2>
@@ -208,7 +207,7 @@ export default function Home() {
                   </li>
                 </ul>
               </div>
-              
+
               <div className="bg-amber-50 dark:bg-amber-950/20 border border-amber-200 dark:border-amber-800 rounded-xl p-4 max-w-2xl mx-auto" role="alert" aria-labelledby="privacy-notice">
                 <h3 id="privacy-notice" className="sr-only">Privacy Notice</h3>
                 <p className="text-sm text-amber-800 dark:text-amber-200">
@@ -224,15 +223,15 @@ export default function Home() {
             <div className="animate-fade-in-scale">
               <section aria-labelledby="upload-heading" className="mb-8">
                 <h2 id="upload-heading" className="sr-only">Upload Document</h2>
-                <FileUpload 
-                  onDocumentCreated={handleDocumentCreated} 
+                <FileUpload
+                  onDocumentCreated={handleDocumentCreated}
                   disabled={isAnalyzing}
                 />
               </section>
 
               <section aria-labelledby="samples-heading" className="mb-8">
                 <h2 id="samples-heading" className="sr-only">Sample Contracts</h2>
-                <SampleContracts 
+                <SampleContracts
                   onSelectContract={handleSampleContract}
                   disabled={isAnalyzing}
                 />
@@ -255,7 +254,7 @@ export default function Home() {
                 <h2 id="analysis-results" className="text-2xl font-bold text-gray-900 dark:text-white">
                   Analysis Results
                 </h2>
-                <Button 
+                <Button
                   onClick={handleNewAnalysis}
                   variant="outline"
                   className="flex items-center gap-2"
@@ -281,6 +280,6 @@ export default function Home() {
           )}
         </div>
       </MobileAppWrapper>
-    </TouchScrollContainer>
+    </div>
   );
 }

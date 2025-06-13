@@ -34,10 +34,13 @@ html, body {
   padding: 0;
   height: 100%;
   overflow-x: hidden;
+  position: relative;
 }
 
 #root {
   height: 100%;
+  min-height: 100vh;
+  position: relative;
 }
 
 :root {
@@ -153,7 +156,7 @@ html, body {
     /* Prevent bounce scrolling */
     overscroll-behavior: none;
   }
-  
+
   body {
     /* Prevent overscroll bounce on iOS */
     overscroll-behavior: none;
@@ -165,7 +168,7 @@ html, body {
     /* Disable pull-to-refresh on mobile browsers */
     overscroll-behavior-y: none;
   }
-  
+
   /* Enhance main content scrolling */
   main {
     /* Enable momentum scrolling */
@@ -180,7 +183,7 @@ html, body {
     /* Optimize for touch scrolling */
     touch-action: pan-y;
   }
-  
+
   /* Scrollable content optimization */
   .overflow-y-auto {
     -webkit-overflow-scrolling: touch;
@@ -203,27 +206,23 @@ html, body {
 
 /* Mobile-specific adjustments */
 @media (max-width: 768px) {
-  /* Adjust main content padding on mobile */
-  main {
-    padding-bottom: 20px;
+  /* Ensure proper app container behavior on mobile */
+  .app-container {
+    height: 100vh;
+    height: 100dvh; /* Use dynamic viewport height on mobile for better support */
+  }
+
+  /* Add shadow for better visual separation on mobile */
+  footer[role="contentinfo"] {
+    box-shadow: 0 -2px 8px rgba(0, 0, 0, 0.1);
+  }
+
+  /* Optimize scrolling on mobile */
+  main[role="main"] {
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior: contain;
   }
 }
-
-/* Ensure body and html allow for proper footer positioning */
-html, body {
-  margin: 0;
-  padding: 0;
-  overflow-x: hidden;
-  position: relative;
-}
-
-/* Root div needs to be full height */
-#root {
-  min-height: 100vh;
-  position: relative;
-}
-
-/* Remove old main content constraints since we're using flexbox */
 
 /* Webkit scrollbar styling for better UX */
 .min-h-screen::-webkit-scrollbar {
@@ -253,24 +252,24 @@ html, body {
     -webkit-tap-highlight-color: transparent;
     transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
   }
-  
+
   /* Active states for touch feedback */
   button:active, .button:active, [role="button"]:active {
     transform: scale(0.98);
     transition: transform 0.1s ease-out;
   }
-  
+
   /* Card interactions */
   .card-interactive {
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     cursor: pointer;
   }
-  
+
   .card-interactive:active {
     transform: scale(0.99);
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
   }
-  
+
   /* Input styling */
   input, textarea, select {
     -webkit-appearance: none;
@@ -279,7 +278,7 @@ html, body {
     border-radius: 12px;
     transition: all 0.2s ease;
   }
-  
+
   input:focus, textarea:focus, select:focus {
     transform: translateY(-1px);
     box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
@@ -599,7 +598,7 @@ a:focus-visible {
   .focus-visible {
     outline-color: #60a5fa;
   }
-  
+
   button:focus-visible,
   [role="button"]:focus-visible,
   input[type="button"]:focus-visible,
@@ -608,14 +607,14 @@ a:focus-visible {
     outline-color: #60a5fa;
     box-shadow: 0 0 0 4px rgba(96, 165, 250, 0.1);
   }
-  
+
   input:focus-visible,
   textarea:focus-visible,
   select:focus-visible {
     outline-color: #60a5fa;
     border-color: #60a5fa;
   }
-  
+
   a:focus-visible {
     outline-color: #60a5fa;
   }
@@ -632,7 +631,7 @@ a:focus-visible {
     min-height: 44px;
     min-width: 44px;
   }
-  
+
   /* Increase spacing between interactive elements */
   button + button,
   [role="button"] + [role="button"] {
@@ -646,7 +645,7 @@ a:focus-visible {
   [aria-hidden="true"] {
     display: none !important;
   }
-  
+
   a::after {
     content: " (" attr(href) ")";
     font-size: 0.8em;
@@ -671,4 +670,33 @@ a:focus-visible {
     transition-delay: 0ms !important;
     scroll-behavior: auto !important;
   }
+}
+
+/* App layout styles - header and footer fixed, content scrollable */
+.app-container {
+  /* Ensure full viewport height */
+  height: 100vh;
+  overflow: hidden;
+  /* Flexbox layout for header, main, footer */
+  display: flex;
+  flex-direction: column;
+}
+
+/* Header and footer are flex items that don't shrink */
+header[role="banner"],
+footer[role="contentinfo"] {
+  flex-shrink: 0;
+  z-index: 40;
+}
+
+/* Main content area scrolls between header and footer */
+main[role="main"] {
+  /* Takes remaining space and scrolls */
+  flex: 1;
+  overflow-y: auto;
+  overflow-x: hidden;
+  /* Smooth scrolling */
+  scroll-behavior: smooth;
+  /* Ensure content can't overflow horizontally */
+  min-height: 0;
 }
