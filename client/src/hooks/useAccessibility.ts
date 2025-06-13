@@ -9,9 +9,9 @@ interface UseAccessibilityOptions {
 }
 
 export function useAccessibility(options: UseAccessibilityOptions = {}) {
-  const { focusOnMount = false, trapFocus = false, announceChanges = false } = options;
+  const { focusOnMount = false, trapFocus: _trapFocus = false, announceChanges: _announceChanges = false } = options;
   const elementRef = useRef<HTMLElement>(null);
-  const announceRef = useRef<HTMLDivElement>(null);
+  const screenReaderRef = useRef<HTMLDivElement>(null);
 
   // Focus management
   useEffect(() => {
@@ -22,7 +22,7 @@ export function useAccessibility(options: UseAccessibilityOptions = {}) {
 
   // Announce changes to screen readers
   const announce = useCallback((message: string, priority: 'polite' | 'assertive' = 'polite') => {
-    if (!announceRef.current) {
+    if (!screenReaderRef.current) {
       const announcer = document.createElement('div');
       announcer.setAttribute('aria-live', priority);
       announcer.setAttribute('aria-atomic', 'true');
@@ -33,15 +33,15 @@ export function useAccessibility(options: UseAccessibilityOptions = {}) {
       announcer.style.height = '1px';
       announcer.style.overflow = 'hidden';
       document.body.appendChild(announcer);
-      announceRef.current = announcer;
+      screenReaderRef.current = announcer;
     }
-    
-    announceRef.current.textContent = message;
-    
+
+    screenReaderRef.current.textContent = message;
+
     // Clear the message after a delay to allow re-announcement
     setTimeout(() => {
-      if (announceRef.current) {
-        announceRef.current.textContent = '';
+      if (screenReaderRef.current) {
+        screenReaderRef.current.textContent = '';
       }
     }, 1000);
   }, []);
@@ -75,7 +75,7 @@ export function useAccessibility(options: UseAccessibilityOptions = {}) {
 // Hook for managing reduced motion preferences
 export function useReducedMotion() {
   const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-  
+
   useEffect(() => {
     if (prefersReducedMotion) {
       document.documentElement.classList.add('reduce-motion');
@@ -88,7 +88,7 @@ export function useReducedMotion() {
 // Hook for managing high contrast preferences
 export function useHighContrast() {
   const prefersHighContrast = window.matchMedia('(prefers-contrast: high)').matches;
-  
+
   useEffect(() => {
     if (prefersHighContrast) {
       document.documentElement.classList.add('high-contrast');
@@ -103,13 +103,13 @@ export function useFocusVisible() {
   useEffect(() => {
     // Apply focus-visible polyfill class
     document.documentElement.classList.add('js-focus-visible');
-    
+
     // Remove focus styles when clicking
     const handleMouseDown = () => {
       document.documentElement.classList.add('mouse-navigation');
       document.documentElement.classList.remove('keyboard-navigation');
     };
-    
+
     // Add focus styles when using keyboard
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === 'Tab') {
@@ -126,4 +126,4 @@ export function useFocusVisible() {
       document.removeEventListener('keydown', handleKeyDown);
     };
   }, []);
-} 
+}

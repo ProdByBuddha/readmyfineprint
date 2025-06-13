@@ -107,9 +107,8 @@ export class AnalysisPDFExporter {
         img.src = '/og-image.png';
       });
 
-    } catch (_error) {
-      // Enhanced fallback logo with gradient effect (inches)
-      const _gradient = this.doc.internal.pages[1];
+          } catch {
+        // Enhanced fallback logo with gradient effect (inches)
 
       // Create a rounded rectangle with gradient-like effect (inches)
       const logoSize = 0.45; // Consistent size with image logo
@@ -290,7 +289,7 @@ export class AnalysisPDFExporter {
 
     // Add summary text with proper padding and line spacing
     let textY = this.currentY + 0.2;
-    summaryLines.forEach((line: string, index: number) => {
+    summaryLines.forEach((line: string) => {
       this.doc.text(line, this.leftMargin + 0.15, textY);
       textY += this.lineHeight;
     });
@@ -342,7 +341,7 @@ export class AnalysisPDFExporter {
     this.doc.setFontSize(10);
     this.doc.setFont('helvetica', 'normal');
 
-    items.forEach((item, index) => {
+    items.forEach((item) => {
       this.addNewPageIfNeeded(0.4);
 
       // Add bullet point with custom styling
@@ -351,7 +350,7 @@ export class AnalysisPDFExporter {
 
       const itemLines = this.doc.splitTextToSize(item, this.contentWidth - 0.4);
       let itemY = this.currentY + 0.12;
-      itemLines.forEach((line: string, _lineIndex: number) => {
+      itemLines.forEach((line: string) => {
         this.doc.text(line, this.leftMargin + 0.25, itemY);
         itemY += this.lineHeight;
       });
@@ -388,7 +387,7 @@ export class AnalysisPDFExporter {
       const titleLines = this.doc.splitTextToSize(sectionTitle, this.contentWidth - 0.3);
 
       let titleY = this.currentY + 0.25;
-      titleLines.forEach((line: string, _lineIndex: number) => {
+      titleLines.forEach((line: string) => {
         this.doc.text(line, this.leftMargin + 0.15, titleY);
         titleY += 0.2; // Proper line spacing for titles
       });
@@ -421,7 +420,7 @@ export class AnalysisPDFExporter {
       const summaryLines = this.doc.splitTextToSize(section.summary, this.contentWidth - 0.3);
 
       let summaryY = this.currentY;
-      summaryLines.forEach((line: string, _lineIndex: number) => {
+      summaryLines.forEach((line: string) => {
         this.doc.text(line, this.leftMargin + 0.15, summaryY);
         summaryY += this.lineHeight;
       });
@@ -448,7 +447,7 @@ export class AnalysisPDFExporter {
 
           const concernLines = this.doc.splitTextToSize(concern, this.contentWidth - 0.5);
           let concernY = this.currentY + 0.1;
-          concernLines.forEach((line: string, _lineIndex: number) => {
+          concernLines.forEach((line: string) => {
             this.doc.text(line, this.leftMargin + 0.35, concernY);
             concernY += this.lineHeight;
           });

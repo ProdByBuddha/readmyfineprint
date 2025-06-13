@@ -1,15 +1,14 @@
 import { useState, useEffect } from "react";
-import { loadStripe } from "@stripe/stripe-js";
 import {
   Elements,
   ExpressCheckoutElement,
   useStripe,
   useElements
 } from "@stripe/react-stripe-js";
-import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Heart, Loader2, Lock, AlertCircle } from "lucide-react";
+import { loadStripe, Stripe } from "@stripe/stripe-js";
 
 // Get Stripe public key - this will be injected by Vite
 const stripePublicKey = "pk_live_51RWZgOC9Th2WdqbcMR7Sst10N0eZBUHfSyKvs38vqgJMf4d7x0YVOKaYJyKNQQRJLI4PVBe55xjh3YYdDQPQz8Rp00xdnZZltu";
@@ -20,30 +19,6 @@ const stripePromise = loadStripe(stripePublicKey);
 interface PaymentIntent {
   clientSecret: string;
   paymentIntentId: string;
-}
-
-interface StripeError extends Error {
-  type?: string;
-  code?: string;
-  decline_code?: string;
-  payment_intent?: {
-    id: string;
-    status: string;
-  };
-}
-
-interface StripeConfirmEvent {
-  error?: StripeError;
-  paymentIntent?: {
-    status: string;
-    id: string;
-  };
-}
-
-interface ExpressCheckoutEvent {
-  preventDefault?: () => void;
-  type?: string;
-  [key: string]: unknown;
 }
 
 interface ExpressCheckoutFormProps {
@@ -85,7 +60,7 @@ function ExpressCheckoutFormElement({ amount, onSuccess, onError }: ExpressCheck
     createPaymentIntent();
   }, [amount, onError]);
 
-  const onConfirm = async (event: unknown) => {
+  const onConfirm = async () => {
     if (!stripe || !elements || !paymentIntent) {
       return;
     }
@@ -115,9 +90,9 @@ function ExpressCheckoutFormElement({ amount, onSuccess, onError }: ExpressCheck
     }
   };
 
-  const onClick = (event: unknown) => {
+  const onClick = () => {
     // Handle click events if needed
-    console.log("Express checkout clicked:", event);
+    console.log("Express checkout clicked");
   };
 
   const onCancel = () => {
@@ -165,7 +140,7 @@ function ExpressCheckoutFormElement({ amount, onSuccess, onError }: ExpressCheck
             buttonType: {
               applePay: "donate",
               googlePay: "donate",
-              paypal: "donate",
+              paypal: "pay",
             },
             paymentMethods: {
               applePay: "auto",
@@ -202,7 +177,7 @@ function ExpressCheckoutFormElement({ amount, onSuccess, onError }: ExpressCheck
 function ExpressCheckoutWrapper({ amount, onSuccess, onError }: ExpressCheckoutFormProps) {
   const [stripeLoaded, setStripeLoaded] = useState(false);
   const [stripeError, setStripeError] = useState<string | null>(null);
-  const [stripe, setStripe] = useState<any>(null);
+  const [stripe, setStripe] = useState<Stripe | null>(null);
 
   useEffect(() => {
     if (!stripePublicKey) {

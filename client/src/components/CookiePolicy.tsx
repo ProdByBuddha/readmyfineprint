@@ -1,3 +1,4 @@
+import React from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Cookie, CheckCircle, X, Shield } from "lucide-react";
@@ -47,7 +48,7 @@ export function CookiePolicy() {
                   <span className="text-xs bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-300 px-2 py-1 rounded">Essential</span>
                 </div>
                 <p className="text-sm text-gray-600 dark:text-gray-400 mb-2">
-                  Remembers that you've accepted our legal disclaimer and cookie policy.
+                  Remembers that you&apos;ve accepted our legal disclaimer and cookie policy.
                 </p>
                 <div className="text-xs text-gray-500 dark:text-gray-500">
                   <strong>Duration:</strong> Persistent • <strong>Type:</strong> First-party
@@ -87,7 +88,7 @@ export function CookiePolicy() {
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <X className="w-5 h-5 text-red-600" />
-              What We Don't Use
+              What We Don&apos;t Use
             </CardTitle>
           </CardHeader>
           <CardContent>
@@ -193,7 +194,7 @@ export function CookiePolicy() {
           </h4>
           <p className="text-blue-800 dark:text-blue-300 text-sm">
             Our cookie policy is designed to be simple and transparent. We believe in using
-            only what's necessary for a great user experience. If you have questions about
+            only what&apos;s necessary for a great user experience. If you have questions about
             our cookie practices, please contact us through our support channels at <a href="mailto:admin@readmyfineprint.com">admin@readmyfineprint.com</a>.
           </p>
         </CardContent>

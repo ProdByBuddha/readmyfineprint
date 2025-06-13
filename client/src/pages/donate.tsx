@@ -1,10 +1,9 @@
 import { useState } from "react";
 import { Heart, MapPin, ArrowLeft, AlertCircle } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Card, CardContent } from "@/components/ui/card";
 import { Link } from "wouter";
-import ExpressCheckoutForm from "@/components/ExpressCheckoutForm";
+import { Button } from "@/components/ui/button";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 
 const DONATION_AMOUNTS = [
   { amount: 5, label: "$5" },
@@ -19,8 +18,8 @@ const DonateContent = () => {
   const [customAmount, setCustomAmount] = useState("");
   const [showCheckout, setShowCheckout] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [isSuccess, setIsSuccess] = useState(false);
-  const [successAmount, setSuccessAmount] = useState<number | null>(null);
+  const [isSuccess] = useState(false);
+  const [successAmount] = useState<number | null>(null);
 
   const handleAmountSelect = (amount: number) => {
     setSelectedAmount(amount);
@@ -110,14 +109,11 @@ const DonateContent = () => {
 
         <div className="grid md:grid-cols-2 gap-8 mb-8">
           <Card>
-            <CardHeader>
-              <CardTitle>Why Donate?</CardTitle>
-            </CardHeader>
             <CardContent className="space-y-4">
               <div className="flex items-start gap-3">
                 <div className="w-2 h-2 bg-primary rounded-full mt-2"></div>
                 <div>
-                  <h4 className="font-semibold mb-1">Keep It Free</h4>
+                  <h4 className="font-semibold mb-1">Why Donate?</h4>
                   <p className="text-sm text-gray-600 dark:text-gray-300">
                     Your donations help us maintain free access to legal document analysis for everyone.
                   </p>
@@ -179,9 +175,6 @@ const DonateContent = () => {
             </div>
           ) : (
             <Card>
-              <CardHeader>
-                <CardTitle>Make a Donation</CardTitle>
-              </CardHeader>
               <CardContent className="space-y-4">
                 <div className="grid grid-cols-3 gap-2">
                   {DONATION_AMOUNTS.map((option) => (

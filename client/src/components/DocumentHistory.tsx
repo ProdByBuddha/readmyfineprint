@@ -9,7 +9,7 @@ import { getAllDocuments, clearAllDocuments } from "@/lib/api";
 import { formatDistanceToNow } from "date-fns";
 import { useToast } from "@/hooks/use-toast";
 import { queryClient } from "@/lib/queryClient";
-import type { Document, DocumentAnalysis } from "@shared/schema";
+import type { DocumentAnalysis } from "@shared/schema";
 
 interface DocumentHistoryProps {
   onSelectDocument: (documentId: number | null) => void;

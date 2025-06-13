@@ -71,7 +71,7 @@ export function CookieConsentBanner({ onAccept }: CookieConsentBannerProps) {
               Cookie Consent & Terms
             </h3>
             <p className="text-xs text-gray-600 dark:text-gray-400 leading-relaxed">
-              We use essential cookies for session management and security. By continuing, you agree that this service provides informational summaries only (not legal advice), and we're not liable for decisions made based on these summaries. You can browse and view samples without accepting, but document analysis requires consent.
+              We use essential cookies for session management and security. By continuing, you agree that this service provides informational summaries only (not legal advice), and we&apos;re not liable for decisions made based on these summaries. You can browse and view samples without accepting, but document analysis requires consent.
             </p>
           </div>
 

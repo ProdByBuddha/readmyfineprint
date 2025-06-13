@@ -1,5 +1,5 @@
 import { apiRequest } from "./queryClient";
-import type { Document, InsertDocument } from "@shared/schema";
+import type { Document } from "@shared/schema";
 
 // Interface for consent verification proof
 interface ConsentProof {

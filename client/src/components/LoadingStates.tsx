@@ -1,7 +1,6 @@
 import { Card, CardContent } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Loader2, FileText, AlertCircle, CheckCircle } from "lucide-react";
-import { useState } from "react";
+import { Loader2, FileText, CheckCircle } from "lucide-react";
 
 export function DocumentLoadingSkeleton() {
   return (

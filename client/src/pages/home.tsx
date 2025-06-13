@@ -1,11 +1,11 @@
-import { useState, useMemo, useCallback, useEffect, useRef } from "react";
-import { useStableCallback } from "@/hooks/useStableCallback";
-import { usePreventFlicker } from "@/hooks/usePreventFlicker";
-import { useMutation, useQuery } from "@tanstack/react-query";
+import { useState, useCallback, useEffect } from "react";
+import { useQuery, useMutation } from "@tanstack/react-query";
+import { Card, CardContent } from "@/components/ui/card";
 import { Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
 import { Loader2 } from "lucide-react";
+import { useStableCallback } from "@/hooks/useStableCallback";
+import { usePreventFlicker } from "@/hooks/usePreventFlicker";
 import { FileUpload } from "@/components/FileUpload";
 import { AnalysisResults } from "@/components/AnalysisResults";
 import { SampleContracts } from "@/components/SampleContracts";
@@ -29,8 +29,6 @@ export default function Home() {
   const { isAccepted: consentAccepted } = useCombinedConsent();
   const { announce } = useAccessibility();
   const containerRef = usePreventFlicker();
-
-
 
   // Add FAQ structured data for SEO
   useEffect(() => {
