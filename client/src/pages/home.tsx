@@ -13,7 +13,7 @@ import { DocumentHistory } from "@/components/DocumentHistory";
 import { AnalysisProgress } from "@/components/LoadingStates";
 import { LegalDisclaimer } from "@/components/LegalDisclaimer";
 import { MobileAppWrapper } from "@/components/MobileAppWrapper";
-import { useCookieConsent } from "@/components/CookieConsent";
+import { useCookieConsent, CookieConsentPage } from "@/components/CookieConsent";
 import { useAccessibility } from "@/hooks/useAccessibility";
 import { analyzeDocument, getDocument, createDocument } from "@/lib/api";
 import { useToast } from "@/hooks/use-toast";
@@ -163,6 +163,11 @@ export default function Home() {
   // Show disclaimer if not accepted
   if (!disclaimerAccepted) {
     return <LegalDisclaimer onAccept={() => setDisclaimerAccepted(true)} />;
+  }
+
+  // Show cookie consent if disclaimer accepted but cookies not accepted
+  if (disclaimerAccepted && !cookiesAccepted) {
+    return <CookieConsentPage onAccept={() => {}} />;
   }
 
   return (
