@@ -1,5 +1,5 @@
 import { Link } from "wouter";
-import { Heart, Github, Twitter, Mail } from "lucide-react";
+import { Heart, Github, Twitter } from "lucide-react";
 import { SecurityBadges } from "@/components/SecurityBadges";
 
 export function Footer() {
@@ -21,33 +21,7 @@ export function Footer() {
               Making legal documents accessible to everyone. Understand any contract 
               in plain English with our AI-powered analysis tool.
             </p>
-            <div className="flex space-x-4">
-              <a 
-                href="https://github.com/readmyfineprint" 
-                target="_blank" 
-                rel="noopener noreferrer"
-                className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-colors"
-                aria-label="Visit our GitHub repository (opens in new window)"
-              >
-                <Github className="w-5 h-5" aria-hidden="true" />
-              </a>
-              <a 
-                href="https://twitter.com/readmyfineprint" 
-                target="_blank" 
-                rel="noopener noreferrer"
-                className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-colors"
-                aria-label="Follow us on Twitter (opens in new window)"
-              >
-                <Twitter className="w-5 h-5" aria-hidden="true" />
-              </a>
-              <a 
-                href="mailto:contact@readmyfineprint.com"
-                className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-colors"
-                aria-label="Send us an email"
-              >
-                <Mail className="w-5 h-5" aria-hidden="true" />
-              </a>
-            </div>
+            
           </div>
 
           {/* Legal Links */}

@@ -58,12 +58,12 @@ export function addSecurityHeaders(req: Request, res: Response, next: NextFuncti
   // Referrer policy
   res.setHeader('Referrer-Policy', 'strict-origin-when-cross-origin');
 
-  // Content Security Policy with Stripe support
+  // Content Security Policy with Stripe and Shields.io support
   res.setHeader('Content-Security-Policy',
     "default-src 'self'; " +
     "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://js.stripe.com; " +
     "style-src 'self' 'unsafe-inline'; " +
-    "img-src 'self' data: https:; " +
+    "img-src 'self' data: https://img.shields.io; " +
     "connect-src 'self' https://api.openai.com https://api.stripe.com https://js.stripe.com; " +
     "frame-src https://js.stripe.com https://hooks.stripe.com;"
   );
