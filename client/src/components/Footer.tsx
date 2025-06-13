@@ -1,5 +1,5 @@
 import { Link } from "wouter";
-import { Heart, Github, Twitter, Cookie } from "lucide-react";
+import { Heart, Cookie } from "lucide-react";
 import { SecurityBadges } from "@/components/SecurityBadges";
 import { CookieManagement } from "@/components/CookieManagement";
 
@@ -17,7 +17,7 @@ export function Footer() {
           <div className="flex items-center gap-1.5 flex-shrink min-w-0">
             <Link to="/privacy" className="text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 flex-shrink-0 flex items-center h-4">Privacy</Link>
             <Link to="/terms" className="text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 flex-shrink-0 flex items-center h-4">Terms</Link>
-            <CookieManagement 
+            <CookieManagement
               trigger={
                 <button className="text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 flex items-center flex-shrink-0 h-4">
                   <Cookie className="w-2 h-2 mr-0.5" />Cookies
@@ -60,7 +60,7 @@ export function Footer() {
             >
               Terms
             </Link>
-            <CookieManagement 
+            <CookieManagement
               trigger={
                 <button className="text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white transition-all duration-300 ease-in-out inline-flex items-center">
                   <Cookie className="w-3 h-3 mr-1" aria-hidden="true" />

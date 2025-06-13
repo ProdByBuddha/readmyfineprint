@@ -57,7 +57,7 @@ export function CookieConsentPage({ onAccept }: { onAccept: () => void }) {
               Essential Cookies (Always Active)
             </h3>
             <p className="text-sm text-blue-800 dark:text-blue-300">
-              These cookies are necessary for the website to function and cannot be disabled. 
+              These cookies are necessary for the website to function and cannot be disabled.
               They store your session and security tokens.
             </p>
           </div>
@@ -67,7 +67,7 @@ export function CookieConsentPage({ onAccept }: { onAccept: () => void }) {
               Analytics & Performance
             </h3>
             <p className="text-sm text-green-800 dark:text-green-300">
-              We use privacy-focused analytics to understand how our service is used and improve performance. 
+              We use privacy-focused analytics to understand how our service is used and improve performance.
               No personal data is collected.
             </p>
           </div>
@@ -80,7 +80,7 @@ export function CookieConsentPage({ onAccept }: { onAccept: () => void }) {
           <ul className="text-sm text-gray-700 dark:text-gray-300 space-y-1">
             <li>• Documents are processed temporarily and never stored permanently</li>
             <li>• All data is encrypted in transit and at rest</li>
-            <li>• We don't sell or share your data with third parties</li>
+                            <li>• We don&apos;t sell or share your data with third parties</li>
             <li>• You can delete your analysis results at any time</li>
           </ul>
         </div>
@@ -101,7 +101,7 @@ export function CookieConsentPage({ onAccept }: { onAccept: () => void }) {
         </div>
 
         <p className="text-xs text-gray-500 dark:text-gray-400 text-center">
-          By continuing, you agree to our use of cookies as described above. 
+          By continuing, you agree to our use of cookies as described above.
           You can change your preferences anytime in our privacy policy.
         </p>
       </div>

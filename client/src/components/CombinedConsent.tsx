@@ -21,18 +21,18 @@ export function useCombinedConsent() {
 
   useEffect(() => {
     checkConsent();
-    
+
     // Create event handler
     const handleConsentChange = () => {
       checkConsent();
     };
-    
+
     // Listen for storage changes from other components
     window.addEventListener('storage', checkConsent);
-    
+
     // Listen for custom consent events
     window.addEventListener('consentChanged', handleConsentChange);
-    
+
     return () => {
       window.removeEventListener('storage', checkConsent);
       window.removeEventListener('consentChanged', handleConsentChange);
@@ -128,7 +128,7 @@ export function CombinedConsent({ onAccept }: CombinedConsentProps) {
             <h4 className="text-sm font-medium mb-2 text-gray-900 dark:text-gray-100">By continuing, you agree to:</h4>
             <ul className="text-xs text-gray-600 dark:text-gray-400 space-y-1">
               <li>• Service provides informational summaries, not legal advice</li>
-              <li>• Educational tool only - we're not liable for decisions made</li>
+              <li>• Educational tool only - we&apos;re not liable for decisions made</li>
               <li>• Essential cookies for session management</li>
               <li>• Privacy promise: temporary processing, encrypted data, no sharing</li>
             </ul>
@@ -151,7 +151,7 @@ export function CombinedConsent({ onAccept }: CombinedConsentProps) {
               "Accept All & Continue"
             )}
           </Button>
-          
+
           <div className="flex gap-2 text-[10px]">
             <a href="/terms" className="flex-1 text-center text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100">
               Terms
@@ -186,14 +186,14 @@ export function CookieConsent() {
                 We use essential cookies for functionality
               </p>
               <p className="text-xs text-gray-600 dark:text-gray-300">
-                No tracking, no ads, just the basics to make the app work. 
+                No tracking, no ads, just the basics to make the app work.
                 <a href="/cookies" className="text-primary hover:underline ml-1">
                   Learn more
                 </a>
               </p>
             </div>
           </div>
-          
+
           <div className="flex items-center gap-2 flex-shrink-0">
             <Button
               onClick={acceptAll}

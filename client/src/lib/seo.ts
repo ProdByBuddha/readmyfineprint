@@ -1,5 +1,12 @@
 import { useEffect } from 'react';
 
+// Add interface for structured data
+interface StructuredData {
+  "@context": string;
+  "@type": string;
+  [key: string]: unknown;
+}
+
 export interface SEOConfig {
   title?: string;
   description?: string;
@@ -11,7 +18,7 @@ export interface SEOConfig {
   twitterTitle?: string;
   twitterDescription?: string;
   twitterImage?: string;
-  structuredData?: Record<string, any>;
+  structuredData?: StructuredData;
   noIndex?: boolean;
 }
 
@@ -139,7 +146,7 @@ export const pageSEOConfigs: Record<string, SEOConfig> = {
 function updateMetaTag(property: string, content: string, isProperty = false) {
   const selector = isProperty ? `meta[property="${property}"]` : `meta[name="${property}"]`;
   let element = document.querySelector(selector) as HTMLMetaElement;
-  
+
   if (!element) {
     element = document.createElement('meta');
     if (isProperty) {
@@ -149,29 +156,29 @@ function updateMetaTag(property: string, content: string, isProperty = false) {
     }
     document.head.appendChild(element);
   }
-  
+
   element.setAttribute('content', content);
 }
 
 function updateCanonical(url: string) {
   let canonicalElement = document.querySelector('link[rel="canonical"]') as HTMLLinkElement;
-  
+
   if (!canonicalElement) {
     canonicalElement = document.createElement('link');
     canonicalElement.setAttribute('rel', 'canonical');
     document.head.appendChild(canonicalElement);
   }
-  
+
   canonicalElement.setAttribute('href', url);
 }
 
-function updateStructuredData(data: Record<string, any>) {
+function updateStructuredData(data: StructuredData) {
   // Remove existing structured data
   const existingLD = document.querySelector('script[type="application/ld+json"]#dynamic-ld');
   if (existingLD) {
     existingLD.remove();
   }
-  
+
   // Add new structured data
   const script = document.createElement('script');
   script.type = 'application/ld+json';
@@ -186,54 +193,54 @@ export function updateSEO(config: SEOConfig) {
     document.title = config.title;
     updateMetaTag('title', config.title);
   }
-  
+
   // Update meta tags
   if (config.description) {
     updateMetaTag('description', config.description);
   }
-  
+
   if (config.keywords) {
     updateMetaTag('keywords', config.keywords);
   }
-  
+
   // Update robots meta tag based on noIndex
   updateMetaTag('robots', config.noIndex ? 'noindex, nofollow' : 'index, follow');
-  
+
   // Update canonical URL
   if (config.canonical) {
     updateCanonical(config.canonical);
   }
-  
+
   // Update Open Graph tags
   if (config.ogTitle) {
     updateMetaTag('og:title', config.ogTitle, true);
   }
-  
+
   if (config.ogDescription) {
     updateMetaTag('og:description', config.ogDescription, true);
   }
-  
+
   if (config.ogImage) {
     updateMetaTag('og:image', config.ogImage, true);
   }
-  
+
   if (config.canonical) {
     updateMetaTag('og:url', config.canonical, true);
   }
-  
+
   // Update Twitter tags
   if (config.twitterTitle) {
     updateMetaTag('twitter:title', config.twitterTitle, true);
   }
-  
+
   if (config.twitterDescription) {
     updateMetaTag('twitter:description', config.twitterDescription, true);
   }
-  
+
   if (config.twitterImage) {
     updateMetaTag('twitter:image', config.twitterImage, true);
   }
-  
+
   // Update structured data
   if (config.structuredData) {
     updateStructuredData(config.structuredData);
@@ -307,4 +314,4 @@ export function generateArticleSchema(article: {
       "url": "https://readmyfineprint.com"
     }
   };
-} 
+}

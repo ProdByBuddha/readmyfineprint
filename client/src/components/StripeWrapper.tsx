@@ -18,7 +18,7 @@ export function StripeWrapper({ children }: StripeWrapperProps) {
     const initializeStripe = async () => {
       try {
         const stripePublicKey = import.meta.env.VITE_STRIPE_PUBLIC_KEY;
-        
+
         if (!stripePublicKey) {
           throw new Error("Stripe public key not configured");
         }
@@ -28,24 +28,24 @@ export function StripeWrapper({ children }: StripeWrapperProps) {
         }
 
         // Add retry logic and timeout for Replit environment
-        const loadWithRetry = async (retries = 3): Promise<any> => {
+        const loadWithRetry = async (retries = 3) => {
           for (let i = 0; i < retries; i++) {
             try {
               // Use a longer timeout for Replit
               const timeoutPromise = new Promise((_, reject) =>
                 setTimeout(() => reject(new Error("Stripe loading timeout")), 10000)
               );
-              
+
               const stripePromise = loadStripe(stripePublicKey, {
                 stripeAccount: undefined, // Ensure no extra parameters
               });
-              
+
               const stripeInstance = await Promise.race([stripePromise, timeoutPromise]);
-              
+
               if (!stripeInstance) {
                 throw new Error(`Failed to initialize Stripe (attempt ${i + 1})`);
               }
-              
+
               return stripeInstance;
             } catch (error) {
               console.warn(`Stripe loading attempt ${i + 1} failed:`, error);
@@ -58,9 +58,9 @@ export function StripeWrapper({ children }: StripeWrapperProps) {
 
         const stripeInstance = await loadWithRetry();
         setStripe(stripeInstance);
-      } catch (err: any) {
+      } catch (err: unknown) {
         console.error("Stripe initialization error:", err);
-        setError(err.message || "Failed to load payment processor");
+        setError(err instanceof Error ? err.message : "Failed to load payment processor");
       } finally {
         setLoading(false);
       }

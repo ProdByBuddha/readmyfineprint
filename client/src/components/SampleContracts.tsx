@@ -1,6 +1,7 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { FileText, Eye, Download } from "lucide-react";
+import { useState } from "react";
+import { FileText, Eye, ChevronRight } from "lucide-react";
 
 interface SampleContract {
   id: string;

@@ -76,7 +76,7 @@ function PaymentForm({ amount, onSuccess, onError }: PaymentFormProps) {
       } else {
         onError("Payment was not completed. Please try again.");
       }
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error("Payment error:", error);
       onError("Payment processing failed. Please try again.");
     } finally {
@@ -144,7 +144,7 @@ function PaymentForm({ amount, onSuccess, onError }: PaymentFormProps) {
           <Alert>
             <Lock className="h-4 w-4" />
             <AlertDescription>
-              Your payment information is processed securely through Stripe. 
+              Your payment information is processed securely through Stripe.
               We never store your card details.
             </AlertDescription>
           </Alert>

@@ -3,11 +3,11 @@ import { cn } from '@/lib/utils';
 
 interface TouchScrollContainerProps extends React.HTMLAttributes<HTMLDivElement> {
   children: React.ReactNode;
-  enablePullToRefresh?: boolean;
+  _enablePullToRefresh?: boolean;
 }
 
 export const TouchScrollContainer = forwardRef<HTMLDivElement, TouchScrollContainerProps>(
-  ({ children, className, enablePullToRefresh = false, ...props }, ref) => {
+  ({ children, className, _enablePullToRefresh = false, ...props }, ref) => {
     return (
       <div
         ref={ref}

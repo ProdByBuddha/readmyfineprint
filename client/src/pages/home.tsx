@@ -1,8 +1,8 @@
-import { useState, useMemo, useCallback, useEffect } from "react";
+import { useState, useMemo, useCallback, useEffect, useRef } from "react";
 import { useStableCallback } from "@/hooks/useStableCallback";
 import { usePreventFlicker } from "@/hooks/usePreventFlicker";
 import { useMutation, useQuery } from "@tanstack/react-query";
-import { File, Plus, Cookie } from "lucide-react";
+import { Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Loader2 } from "lucide-react";
@@ -195,7 +195,7 @@ export default function Home() {
               {/* Features highlight for SEO */}
               <div className="mb-6 max-w-4xl mx-auto">
                 <h2 className="sr-only">Key Features</h2>
-                <ul className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm text-gray-600 dark:text-gray-300" role="list">
+                <ul className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm text-gray-600 dark:text-gray-300">
                   <li className="flex items-center justify-center gap-2">
                     <span className="w-2 h-2 bg-primary rounded-full" aria-hidden="true"></span>
                     <span>Advanced Analysis</span>
@@ -294,14 +294,14 @@ export default function Home() {
                     <div className="border border-gray-200 dark:border-gray-700 rounded-xl p-4 md:p-6 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors">
                       <h4 className="font-medium mb-2 text-gray-900 dark:text-white">Is my document data secure?</h4>
                       <p className="text-sm leading-relaxed text-gray-700 dark:text-gray-300">
-                        Yes, all documents are encrypted in transit and at rest. We don't store your documents after analysis, 
+                        Yes, all documents are encrypted in transit and at rest. We don't store your documents after analysis,
                         and you can delete your summaries at any time. Your privacy is our top priority.
                       </p>
                     </div>
                     <div className="border border-gray-200 dark:border-gray-700 rounded-xl p-4 md:p-6 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors">
                       <h4 className="font-medium mb-2 text-gray-900 dark:text-white">What types of documents can I analyze?</h4>
                       <p className="text-sm leading-relaxed text-gray-700 dark:text-gray-300">
-                        We support contracts, terms of service, privacy policies, employment agreements, rental agreements, 
+                        We support contracts, terms of service, privacy policies, employment agreements, rental agreements,
                         and most other legal documents in English. Upload PDFs, Word docs, or paste text directly.
                       </p>
                     </div>

@@ -1,6 +1,15 @@
 import { apiRequest } from "./queryClient";
 import type { Document, InsertDocument } from "@shared/schema";
 
+// Interface for consent verification proof
+interface ConsentProof {
+  timestamp: string;
+  userAgent?: string;
+  ipAddress?: string;
+  sessionId?: string;
+  [key: string]: unknown;
+}
+
 // Session ID management for non-apiRequest calls
 function getSessionId(): string {
   // This should match the session ID from queryClient
@@ -124,7 +133,7 @@ export async function logConsent(): Promise<{
 
 export async function verifyUserConsent(): Promise<{
   hasConsented: boolean;
-  proof: any;
+  proof: ConsentProof;
 } | null> {
   try {
     const response = await fetch('/api/consent/verify', {
@@ -148,7 +157,7 @@ export async function verifyUserConsent(): Promise<{
 
 export async function verifyConsentByToken(consentId: string, verificationToken: string): Promise<{
   valid: boolean;
-  proof: any;
+  proof: ConsentProof;
 } | null> {
   try {
     const response = await fetch('/api/consent/verify-token', {

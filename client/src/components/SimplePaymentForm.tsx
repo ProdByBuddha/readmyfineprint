@@ -84,12 +84,12 @@ export default function SimplePaymentForm({ amount, onSuccess, onError }: Simple
       const [expMonth, expYear] = expiryDate.split('/');
       const currentYear = new Date().getFullYear() % 100;
       const currentMonth = new Date().getMonth() + 1;
-      
+
       if (parseInt(expMonth) < 1 || parseInt(expMonth) > 12) {
         throw new Error("Invalid expiry month");
       }
 
-      if (parseInt(expYear) < currentYear || 
+      if (parseInt(expYear) < currentYear ||
           (parseInt(expYear) === currentYear && parseInt(expMonth) < currentMonth)) {
         throw new Error("Card has expired");
       }
@@ -127,9 +127,9 @@ export default function SimplePaymentForm({ amount, onSuccess, onError }: Simple
 
       // Payment successful
       onSuccess(amount);
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error("Payment error:", error);
-      onError(error.message || "Payment processing failed. Please try again.");
+      onError(error instanceof Error ? error.message : "Payment processing failed. Please try again.");
     } finally {
       setIsProcessing(false);
     }
@@ -234,7 +234,7 @@ export default function SimplePaymentForm({ amount, onSuccess, onError }: Simple
           <Alert>
             <Lock className="h-4 w-4" />
             <AlertDescription>
-              Your payment is processed securely through Stripe. 
+              Your payment is processed securely through Stripe.
               Card details are encrypted and never stored on our servers.
             </AlertDescription>
           </Alert>

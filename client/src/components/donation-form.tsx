@@ -4,7 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { Loader2, Lock, CreditCard, CheckCircle, Heart } from "lucide-react";
+import { Loader2, Lock, CreditCard, Heart } from "lucide-react";
 
 interface DonationFormProps {
   amount: number;
@@ -54,30 +54,30 @@ export default function DonationForm({ amount, onSuccess, onError }: DonationFor
 
   const validateCard = (): boolean => {
     const newErrors: Partial<CardData> = {};
-    
+
     if (!cardData.number || cardData.number.replace(/\s/g, '').length < 13) {
       newErrors.number = 'Please enter a valid card number';
     }
-    
+
     if (!cardData.expiry || cardData.expiry.length < 5) {
       newErrors.expiry = 'Please enter expiry date (MM/YY)';
     }
-    
+
     if (!cardData.cvc || cardData.cvc.length < 3) {
       newErrors.cvc = 'Please enter CVC';
     }
-    
+
     if (!cardData.name.trim()) {
       newErrors.name = 'Please enter cardholder name';
     }
-    
+
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
 
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
-    
+
     if (!validateCard()) {
       return;
     }
@@ -96,7 +96,7 @@ export default function DonationForm({ amount, onSuccess, onError }: DonationFor
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ 
+        body: JSON.stringify({
           amount,
           card: {
             number: cardData.number.replace(/\s/g, ''),
@@ -116,7 +116,7 @@ export default function DonationForm({ amount, onSuccess, onError }: DonationFor
 
       if (data.success) {
         onSuccess(amount);
-        
+
         // Clear form
         setCardData({
           number: '',
@@ -130,7 +130,7 @@ export default function DonationForm({ amount, onSuccess, onError }: DonationFor
       } else {
         throw new Error("Payment processing failed");
       }
-      
+
     } catch (err) {
       onError(err instanceof Error ? err.message : 'An unexpected error occurred');
     } finally {
@@ -140,7 +140,7 @@ export default function DonationForm({ amount, onSuccess, onError }: DonationFor
 
   const handleInputChange = (field: keyof CardData, value: string) => {
     let formattedValue = value;
-    
+
     if (field === 'number') {
       formattedValue = formatCardNumber(value);
     } else if (field === 'expiry') {
@@ -148,9 +148,9 @@ export default function DonationForm({ amount, onSuccess, onError }: DonationFor
     } else if (field === 'cvc') {
       formattedValue = value.replace(/[^0-9]/g, '').substring(0, 4);
     }
-    
+
     setCardData(prev => ({ ...prev, [field]: formattedValue }));
-    
+
     // Clear error when user starts typing
     if (errors[field]) {
       setErrors(prev => ({ ...prev, [field]: undefined }));

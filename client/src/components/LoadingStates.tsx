@@ -1,7 +1,7 @@
 import { Card, CardContent } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Loader2, FileText, Brain, CheckCircle } from "lucide-react";
-import { useEffect } from "react";
+import { Loader2, FileText, AlertCircle, CheckCircle } from "lucide-react";
+import { useState } from "react";
 
 export function DocumentLoadingSkeleton() {
   return (
@@ -20,9 +20,9 @@ export function DocumentLoadingSkeleton() {
                   <Skeleton className="h-10 w-20" />
                 </div>
               </div>
-              
+
               <Skeleton className="h-32 w-full" />
-              
+
               <div className="grid md:grid-cols-3 gap-6">
                 {[1, 2, 3].map((i) => (
                   <div key={i} className="border rounded-lg p-6">
@@ -38,7 +38,7 @@ export function DocumentLoadingSkeleton() {
                   </div>
                 ))}
               </div>
-              
+
               <div className="space-y-4">
                 {[1, 2, 3].map((i) => (
                   <div key={i} className="border rounded-lg">
@@ -131,7 +131,7 @@ export function UploadProgress({ fileName, progress }: { fileName: string; progr
               </span>
             </div>
             <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2.5 overflow-hidden">
-              <div 
+              <div
                 className="bg-gradient-to-r from-green-500 to-emerald-500 h-2.5 rounded-full transition-all duration-500 ease-out"
                 style={{ width: `${progress}%` }}
               />

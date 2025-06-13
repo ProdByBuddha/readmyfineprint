@@ -202,7 +202,6 @@ export function FileUpload({ onDocumentCreated, disabled = false, consentAccepte
               role="button"
               aria-label="Upload file area. Press Enter or Space to browse for files, or drag and drop files here."
               aria-describedby="file-upload-description file-upload-status"
-              aria-invalid={uploadError ? 'true' : 'false'}
             >
               <div className="flex flex-col items-center">
                 {uploadError ? (
@@ -265,7 +264,7 @@ export function FileUpload({ onDocumentCreated, disabled = false, consentAccepte
 
             {/* Text Input */}
             <div>
-              <Label 
+              <Label
                 htmlFor="contract-text"
                 className="peer-disabled:cursor-not-allowed peer-disabled:opacity-70 block text-sm font-medium mb-3 text-gray-700 dark:text-[#c7d3d9]"
               >
@@ -324,7 +323,7 @@ export function FileUpload({ onDocumentCreated, disabled = false, consentAccepte
                   </p>
                 </div>
               </div>
-              
+
               <div className="flex items-start space-x-4 p-4 bg-secondary/10 rounded-lg" role="listitem">
                 <div className="w-8 h-8 bg-secondary rounded-full flex items-center justify-center flex-shrink-0" aria-hidden="true">
                   <AlertCircle className="w-4 h-4 text-white" />
@@ -336,7 +335,7 @@ export function FileUpload({ onDocumentCreated, disabled = false, consentAccepte
                   </p>
                 </div>
               </div>
-              
+
               <div className="flex items-start space-x-4 p-4 bg-secondary/10 rounded-lg" role="listitem">
                 <div className="w-8 h-8 bg-secondary rounded-full flex items-center justify-center flex-shrink-0" aria-hidden="true">
                   <CheckCircle className="w-4 h-4 text-white" />
@@ -351,7 +350,7 @@ export function FileUpload({ onDocumentCreated, disabled = false, consentAccepte
             </div>
           </div>
         </div>
-        
+
         {/* Screen reader status updates */}
         <div id="file-upload-status" className="sr-only" aria-live="polite" aria-atomic="true">
           {isUploading && "File upload in progress"}

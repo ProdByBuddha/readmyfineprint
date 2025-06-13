@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Heart, ArrowLeft, AlertCircle, MapPin } from "lucide-react";
+import { Heart, MapPin, ArrowLeft, AlertCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Alert, AlertDescription } from "@/components/ui/alert";
@@ -44,17 +44,7 @@ const DonateContent = () => {
     setError(null);
   };
 
-  const handlePaymentSuccess = (amount: number) => {
-    setIsSuccess(true);
-    setSuccessAmount(amount);
-    setShowCheckout(false);
-    setError(null);
-  };
-
-  const handlePaymentError = (errorMessage: string) => {
-    setError(errorMessage);
-    setShowCheckout(false);
-  };
+  // Payment handlers removed as they're not currently used
 
   const handleBackToSelection = () => {
     setShowCheckout(false);
@@ -151,7 +141,7 @@ const DonateContent = () => {
                   </p>
                 </div>
               </div>
-              
+
               <div className="pt-4 border-t border-gray-200 dark:border-gray-700">
                 <Link to="/roadmap">
                   <Button variant="outline" size="sm" className="w-full">
@@ -216,10 +206,11 @@ const DonateContent = () => {
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium mb-2">Custom Amount</label>
+                  <label htmlFor="custom-amount" className="block text-sm font-medium mb-2">Custom Amount</label>
                   <div className="relative">
                     <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500">$</span>
                     <input
+                      id="custom-amount"
                       type="number"
                       min="1"
                       step="0.01"

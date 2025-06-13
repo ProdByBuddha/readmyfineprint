@@ -1,4 +1,4 @@
-import { useState, useMemo, useCallback, memo } from "react";
+import { useMemo, useState, useCallback, memo } from "react";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -57,7 +57,7 @@ const DocumentHistoryComponent = ({ onSelectDocument, currentDocumentId }: Docum
     }
   }, [clearDocumentsMutation]);
 
-  const recentDocuments = useMemo(() => 
+  const recentDocuments = useMemo(() =>
     documents
       .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
       .slice(0, isExpanded ? documents.length : 3),
@@ -164,6 +164,15 @@ const DocumentHistoryComponent = ({ onSelectDocument, currentDocumentId }: Docum
                     isActive ? 'border-primary bg-primary/5' : 'border-gray-200 dark:border-gray-700'
                   }`}
                   onClick={() => onSelectDocument(document.id)}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter' || e.key === ' ') {
+                      e.preventDefault();
+                      onSelectDocument(document.id);
+                    }
+                  }}
+                  role="button"
+                  tabIndex={0}
+                  aria-label={`Select document: ${document.title}`}
                 >
                   <div className="space-y-2">
                     {/* Title and Risk Badge Row */}

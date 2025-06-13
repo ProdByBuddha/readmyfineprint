@@ -1,7 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Download, Shield, ThumbsUp, AlertTriangle, XCircle, InfoIcon, FileText, Settings } from "lucide-react";
+import { Shield, ThumbsUp, AlertTriangle, XCircle, InfoIcon, FileText, Settings } from "lucide-react";
 import type { Document, DocumentAnalysis } from "@shared/schema";
 import { exportAnalysisToPDF } from "@/utils/pdfExport";
 import { useState } from "react";
@@ -54,7 +54,7 @@ export function AnalysisResults({ document }: AnalysisResultsProps) {
   const handleExport = async (quality: 'standard' | 'high' = exportQuality) => {
     try {
       setIsExporting(true);
-      
+
       await exportAnalysisToPDF(document, {
         includeHeader: true,
         includeLogo: true,
@@ -62,10 +62,10 @@ export function AnalysisResults({ document }: AnalysisResultsProps) {
         donateUrl: window.location.origin + '/donate',
         highQuality: quality === 'high'
       });
-      
+
     } catch (error) {
       console.error('PDF export failed:', error);
-      
+
       // Enhanced fallback to text export with better formatting
       const exportContent = `
 Document Analysis Report
@@ -147,7 +147,7 @@ Support our mission: ${window.location.origin + '/donate'}
                 <option value="high">High Quality</option>
               </select>
             </div>
-            
+
             {/* Export button */}
             <Button
               onClick={() => handleExport()}

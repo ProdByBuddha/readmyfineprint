@@ -16,6 +16,36 @@ const stripePublicKey = "pk_live_51RWZgOC9Th2WdqbcMR7Sst10N0eZBUHfSyKvs38vqgJMf4
 
 const stripePromise = loadStripe(stripePublicKey);
 
+// Stripe-specific interfaces
+interface PaymentIntent {
+  clientSecret: string;
+  paymentIntentId: string;
+}
+
+interface StripeError extends Error {
+  type?: string;
+  code?: string;
+  decline_code?: string;
+  payment_intent?: {
+    id: string;
+    status: string;
+  };
+}
+
+interface StripeConfirmEvent {
+  error?: StripeError;
+  paymentIntent?: {
+    status: string;
+    id: string;
+  };
+}
+
+interface ExpressCheckoutEvent {
+  preventDefault?: () => void;
+  type?: string;
+  [key: string]: unknown;
+}
+
 interface ExpressCheckoutFormProps {
   amount: number;
   onSuccess: (amount: number) => void;
@@ -26,7 +56,7 @@ function ExpressCheckoutFormElement({ amount, onSuccess, onError }: ExpressCheck
   const stripe = useStripe();
   const elements = useElements();
   const [isProcessing, setIsProcessing] = useState(false);
-  const [paymentIntent, setPaymentIntent] = useState<any>(null);
+  const [paymentIntent, setPaymentIntent] = useState<PaymentIntent | null>(null);
 
   // Create payment intent when component mounts
   useEffect(() => {
@@ -46,7 +76,7 @@ function ExpressCheckoutFormElement({ amount, onSuccess, onError }: ExpressCheck
 
         const { clientSecret, paymentIntentId } = await response.json();
         setPaymentIntent({ clientSecret, paymentIntentId });
-      } catch (error: any) {
+      } catch (error: unknown) {
         console.error("Payment intent creation failed:", error);
         onError("Failed to initialize payment. Please try again.");
       }
@@ -55,7 +85,7 @@ function ExpressCheckoutFormElement({ amount, onSuccess, onError }: ExpressCheck
     createPaymentIntent();
   }, [amount, onError]);
 
-  const onConfirm = async (event: any) => {
+  const onConfirm = async (event: unknown) => {
     if (!stripe || !elements || !paymentIntent) {
       return;
     }
@@ -77,7 +107,7 @@ function ExpressCheckoutFormElement({ amount, onSuccess, onError }: ExpressCheck
       } else {
         onSuccess(amount);
       }
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error("Payment error:", error);
       onError("Payment processing failed. Please try again.");
     } finally {
@@ -85,7 +115,7 @@ function ExpressCheckoutFormElement({ amount, onSuccess, onError }: ExpressCheck
     }
   };
 
-  const onClick = (event: any) => {
+  const onClick = (event: unknown) => {
     // Handle click events if needed
     console.log("Express checkout clicked:", event);
   };
@@ -231,7 +261,7 @@ function ExpressCheckoutWrapper({ amount, onSuccess, onError }: ExpressCheckoutF
   }
 
   return (
-    <Elements 
+    <Elements
       stripe={stripe}
       options={{
         mode: "payment",

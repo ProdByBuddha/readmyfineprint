@@ -1,10 +1,8 @@
-import { useState, useMemo, useCallback } from "react";
-import { useStableCallback } from "@/hooks/useStableCallback";
-import { usePreventFlicker } from "@/hooks/usePreventFlicker";
-import { useMutation, useQuery } from "@tanstack/react-query";
-import { File, Plus, Cookie } from "lucide-react";
+import { useState, useCallback } from "react";
+import { useQuery, useMutation } from "@tanstack/react-query";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
+import { File, Plus, Cookie } from "lucide-react";
 import { Loader2 } from "lucide-react";
 import { FileUpload } from "@/components/FileUpload";
 import { AnalysisResults } from "@/components/AnalysisResults";
@@ -25,7 +23,6 @@ export default function Home() {
   const [disclaimerAccepted, setDisclaimerAccepted] = useState(false);
   const { toast } = useToast();
   const { isAccepted: cookiesAccepted } = useCookieConsent();
-  const containerRef = usePreventFlicker();
 
   const { data: currentDocument, isLoading: isLoadingDocument } = useQuery({
     queryKey: ['/api/documents', currentDocumentId],
@@ -82,10 +79,10 @@ export default function Home() {
     }
   }, [disclaimerAccepted, cookiesAccepted, toast, analyzeDocumentMutation]);
 
-  const handleDocumentSelect = useStableCallback((documentId: number | null) => {
+  const handleDocumentSelect = useCallback((documentId: number | null) => {
     setCurrentDocumentId(documentId);
     setIsAnalyzing(false);
-  });
+  }, []);
 
   const handleNewAnalysis = useCallback(() => {
     setCurrentDocumentId(null);
@@ -126,7 +123,7 @@ export default function Home() {
   }
 
   return (
-    <div ref={containerRef} className="min-h-full bg-gradient-to-br from-teal-50 to-cyan-100 dark:from-gray-900 dark:to-slate-800 page-transition">
+    <div className="min-h-full bg-gradient-to-br from-teal-50 to-cyan-100 dark:from-gray-900 dark:to-slate-800 page-transition">
       <MobileAppWrapper className="min-h-full">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 md:py-8">
           {/* Document History */}
