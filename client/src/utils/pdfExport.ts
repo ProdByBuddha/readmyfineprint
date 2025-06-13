@@ -422,7 +422,7 @@ export class AnalysisPDFExporter {
       const summaryLines = this.doc.splitTextToSize(section.summary, this.contentWidth - 0.3);
       
       let summaryY = this.currentY;
-      summaryLines.forEach((line, lineIndex) => {
+      summaryLines.forEach((line: string, lineIndex: number) => {
         this.doc.text(line, this.leftMargin + 0.15, summaryY);
         summaryY += this.lineHeight;
       });
@@ -449,7 +449,7 @@ export class AnalysisPDFExporter {
           
           const concernLines = this.doc.splitTextToSize(concern, this.contentWidth - 0.5);
           let concernY = this.currentY + 0.1;
-          concernLines.forEach((line, lineIndex) => {
+          concernLines.forEach((line: string, lineIndex: number) => {
             this.doc.text(line, this.leftMargin + 0.35, concernY);
             concernY += this.lineHeight;
           });
