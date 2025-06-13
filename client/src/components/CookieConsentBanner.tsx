@@ -43,6 +43,8 @@ export function CookieConsentBanner({ onAccept }: CookieConsentBannerProps) {
     } finally {
       setIsLogging(false);
       setIsVisible(false);
+      // Dispatch custom event to notify other components
+      window.dispatchEvent(new CustomEvent('consentChanged'));
       onAccept();
     }
   };

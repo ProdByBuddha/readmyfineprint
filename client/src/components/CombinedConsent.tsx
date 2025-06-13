@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { AlertTriangle, Cookie, Shield } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
@@ -12,11 +12,26 @@ interface CombinedConsentProps {
 export function useCombinedConsent() {
   const [isAccepted, setIsAccepted] = useState(false);
 
-  useEffect(() => {
+  const checkConsent = useCallback(() => {
     const legalAccepted = localStorage.getItem('readmyfineprint-disclaimer-accepted');
     const cookiesAccepted = localStorage.getItem('cookie-consent-accepted');
     setIsAccepted(legalAccepted === 'true' && cookiesAccepted === 'true');
   }, []);
+
+  useEffect(() => {
+    checkConsent();
+    
+    // Listen for storage changes from other components
+    window.addEventListener('storage', checkConsent);
+    
+    // Listen for custom consent events
+    window.addEventListener('consentChanged', checkConsent);
+    
+    return () => {
+      window.removeEventListener('storage', checkConsent);
+      window.removeEventListener('consentChanged', checkConsent);
+    };
+  }, [checkConsent]);
 
   const acceptAll = () => {
     localStorage.setItem('readmyfineprint-disclaimer-accepted', 'true');
