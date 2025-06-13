@@ -258,8 +258,8 @@ export function FileUpload({ onDocumentCreated, disabled = false, consentAccepte
             />
 
             <div className="text-center my-6" role="separator" aria-label="Alternative upload method">
-              <span className="text-gray-500 bg-white px-4 relative">or</span>
-              <hr className="border-gray-200 -mt-3 -z-10" aria-hidden="true" />
+              <span className="text-gray-500 bg-white dark:bg-gray-900 px-4 relative">or</span>
+              <hr className="border-gray-200 dark:border-gray-700 -mt-3 -z-10" aria-hidden="true" />
             </div>
 
             {/* Text Input */}
