@@ -7,13 +7,13 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 const app = express();
-const PORT = process.env.PORT || 5000;
+const PORT = parseInt(process.env.PORT || '5000');
 
 async function startProductionServer() {
   console.log('🚀 Starting ReadMyFinePrint Production Server...');
 
-  // Serve static files from the dist directory
-  const staticPath = path.join(__dirname, '../dist');
+  // Serve static files from the dist/public directory (where Vite builds to)
+  const staticPath = path.join(__dirname, '../dist/public');
   app.use(express.static(staticPath));
 
   // Register API routes

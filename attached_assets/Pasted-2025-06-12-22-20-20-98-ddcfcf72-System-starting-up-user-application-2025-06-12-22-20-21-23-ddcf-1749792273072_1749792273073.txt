@@ -1,0 +1,92 @@
+2025-06-12 22:20:20.98
+ddcfcf72
+System
+starting up user application
+2025-06-12 22:20:21.23
+ddcfcf72
+System
+forwarding local port 5000 to external port 80 (mapped as 1104)
+2025-06-12 22:20:21.24
+ddcfcf72
+System
+error proxying request error=dial tcp 127.0.0.1:5000: connect: connection refused
+2025-06-12 22:20:21.25
+ddcfcf72
+System
+error proxying request error=dial tcp 127.0.0.1:5000: connect: connection refused
+2025-06-12 22:20:21.28
+ddcfcf72
+System
+error proxying request error=dial tcp 127.0.0.1:5000: connect: connection refused
+2025-06-12 22:20:21.32
+ddcfcf72
+System
+error proxying request error=dial tcp 127.0.0.1:5000: connect: connection refused
+2025-06-12 22:20:21.48
+ddcfcf72
+System
+error proxying request error=dial tcp 127.0.0.1:5000: connect: connection refused
+2025-06-12 22:20:21.52
+ddcfcf72
+System
+error proxying request error=dial tcp 127.0.0.1:5000: connect: connection refused
+2025-06-12 22:20:21.78
+ddcfcf72
+System
+error proxying request error=dial tcp 127.0.0.1:5000: connect: connection refused
+2025-06-12 22:20:22.70
+ddcfcf72
+System
+error proxying request error=dial tcp 127.0.0.1:5000: connect: connection refused
+2025-06-12 22:20:23.63
+ddcfcf72
+System
+error proxying request error=dial tcp 127.0.0.1:5000: connect: connection refused
+2025-06-12 22:20:23.93
+ddcfcf72
+User
+> rest-express@1.0.0 start
+2025-06-12 22:20:23.93
+ddcfcf72
+User
+> NODE_ENV=production node dist/production.js
+2025-06-12 22:20:24.46
+ddcfcf72
+System
+error proxying request error=dial tcp 127.0.0.1:5000: connect: connection refused
+2025-06-12 22:20:25.43
+ddcfcf72
+User
+REPLIT_DB_URL not found. Consent logging will be disabled.
+2025-06-12 22:20:25.44
+ddcfcf72
+User
+🚀 Starting ReadMyFinePrint Production Server...
+2025-06-12 22:20:25.44
+ddcfcf72
+User
+📋 Production server running on http://0.0.0.0:5000
+2025-06-12 22:20:26.18
+ddcfcf72
+User
+Error: ENOENT: no such file or directory, stat '/home/runner/workspace/dist/index.html'
+2025-06-12 22:21:46.81
+d7d91057
+System
+system: received signal terminated
+2025-06-12 22:22:34.55
+ddcfcf72
+User
+Error: ENOENT: no such file or directory, stat '/home/runner/workspace/dist/index.html'
+2025-06-12 22:22:37.04
+ddcfcf72
+User
+Error: ENOENT: no such file or directory, stat '/home/runner/workspace/dist/index.html'
+2025-06-12 22:23:15.89
+ddcfcf72
+User
+Error: ENOENT: no such file or directory, stat '/home/runner/workspace/dist/index.html'
+2025-06-12 22:23:27.24
+ddcfcf72
+User
+Error: ENOENT: no such file or directory, stat '/home/runner/workspace/dist/index.html'
