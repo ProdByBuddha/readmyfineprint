@@ -139,8 +139,8 @@ export function TermsOfService() {
           <div>
             <h4 className="font-semibold text-gray-900 dark:text-white mb-2">Third-Party Processing</h4>
             <p className="text-gray-700 dark:text-gray-300">
-              Documents are processed using OpenAI's API for analysis. By using our service, you acknowledge
-              that your document content may be subject to OpenAI's terms of service and privacy policy.
+              Documents are processed using OpenAI&apos;s API for analysis. By using our service, you acknowledge
+              that your document content may be subject to OpenAI&apos;s terms of service and privacy policy.
             </p>
           </div>
         </CardContent>
