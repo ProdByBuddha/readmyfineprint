@@ -11,9 +11,9 @@ import { AnalysisResults } from "@/components/AnalysisResults";
 import { SampleContracts } from "@/components/SampleContracts";
 import { DocumentHistory } from "@/components/DocumentHistory";
 import { AnalysisProgress } from "@/components/LoadingStates";
-import { LegalDisclaimer } from "@/components/LegalDisclaimer";
+
 import { MobileAppWrapper } from "@/components/MobileAppWrapper";
-import { useCookieConsent, CookieConsentPage } from "@/components/CookieConsent";
+import { useCombinedConsent, CombinedConsent } from "@/components/CombinedConsent";
 import { useAccessibility } from "@/hooks/useAccessibility";
 import { analyzeDocument, getDocument, createDocument } from "@/lib/api";
 import { useToast } from "@/hooks/use-toast";
@@ -24,9 +24,8 @@ import type { Document } from "@shared/schema";
 export default function Home() {
   const [currentDocumentId, setCurrentDocumentId] = useState<number | null>(null);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
-  const [disclaimerAccepted, setDisclaimerAccepted] = useState(false);
   const { toast } = useToast();
-  const { isAccepted: cookiesAccepted } = useCookieConsent();
+  const { isAccepted: consentAccepted } = useCombinedConsent();
   const { announce } = useAccessibility();
   const containerRef = usePreventFlicker();
 
@@ -91,9 +90,9 @@ export default function Home() {
   });
 
   const handleDocumentCreated = useCallback(async (documentId: number) => {
-    // Check if both disclaimer and cookies are accepted
-    if (!disclaimerAccepted || !cookiesAccepted) {
-      const message = "Please accept both the legal disclaimer and cookie consent to process documents.";
+    // Check if consent is accepted
+    if (!consentAccepted) {
+      const message = "Please accept the terms and privacy policy to process documents.";
       announce(message, 'assertive');
       toast({
         title: "Consent Required",
@@ -111,7 +110,7 @@ export default function Home() {
     } catch (error) {
       console.error("Analysis error:", error);
     }
-  }, [disclaimerAccepted, cookiesAccepted, toast, analyzeDocumentMutation, announce]);
+  }, [consentAccepted, toast, analyzeDocumentMutation, announce]);
 
   const handleDocumentSelect = useStableCallback((documentId: number | null) => {
     setCurrentDocumentId(documentId);
@@ -128,9 +127,9 @@ export default function Home() {
   }, [announce]);
 
   const handleSampleContract = useCallback(async (title: string, content: string) => {
-    // Check if both disclaimer and cookies are accepted
-    if (!disclaimerAccepted || !cookiesAccepted) {
-      const message = "Please accept both the legal disclaimer and cookie consent to process documents.";
+    // Check if consent is accepted
+    if (!consentAccepted) {
+      const message = "Please accept the terms and privacy policy to process documents.";
       announce(message, 'assertive');
       toast({
         title: "Consent Required",
@@ -158,16 +157,11 @@ export default function Home() {
         variant: "destructive",
       });
     }
-  }, [disclaimerAccepted, cookiesAccepted, toast, handleDocumentCreated, announce]);
+  }, [consentAccepted, toast, handleDocumentCreated, announce]);
 
-  // Show disclaimer if not accepted
-  if (!disclaimerAccepted) {
-    return <LegalDisclaimer onAccept={() => setDisclaimerAccepted(true)} />;
-  }
-
-  // Show cookie consent if disclaimer accepted but cookies not accepted
-  if (disclaimerAccepted && !cookiesAccepted) {
-    return <CookieConsentPage onAccept={() => {
+  // Show combined consent if not accepted
+  if (!consentAccepted) {
+    return <CombinedConsent onAccept={() => {
       // Force a re-render by triggering a state update
       window.location.reload();
     }} />;
