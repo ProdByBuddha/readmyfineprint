@@ -245,9 +245,11 @@ export default function Home() {
 
           {/* Analysis Progress */}
           {isAnalyzing && (
-            <section aria-labelledby="analysis-progress" aria-live="polite" className="animate-fade-in-scale">
+            <section aria-labelledby="analysis-progress" aria-live="polite" className="animate-fade-in-scale flex items-center justify-center min-h-[60vh]">
               <h2 id="analysis-progress" className="sr-only">Analysis in Progress</h2>
-              <AnalysisProgress />
+              <div className="w-full max-w-2xl">
+                <AnalysisProgress />
+              </div>
             </section>
           )}
 
