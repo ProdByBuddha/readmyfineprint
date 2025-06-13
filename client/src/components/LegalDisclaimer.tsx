@@ -12,6 +12,7 @@ import {
 import { Card, CardContent } from "@/components/ui/card";
 import { Checkbox } from "@/components/ui/checkbox";
 import { logConsent } from "@/lib/api";
+import { Link } from "wouter";
 
 interface LegalDisclaimerProps {
   onAccept: () => void;
@@ -148,13 +149,13 @@ export function LegalDisclaimer({ onAccept }: LegalDisclaimerProps) {
             <div className="space-y-1.5 w-full">
               <div className="text-[9px] text-gray-500 dark:text-gray-400 text-center leading-tight">
                 Logged anonymously for compliance •{' '}
-                <a href="/privacy" className="text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300 underline transition-colors" target="_blank">
+                <Link to="/privacy" className="text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300 underline transition-colors">
                   Privacy
-                </a>{' '}
+                </Link>{' '}
                 •{' '}
-                <a href="/terms" className="text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300 underline transition-colors" target="_blank">
+                <Link to="/terms" className="text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300 underline transition-colors">
                   Terms
-                </a>
+                </Link>
               </div>
               <Button
                 onClick={handleAccept}

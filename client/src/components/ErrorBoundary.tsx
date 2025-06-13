@@ -77,9 +77,16 @@ function DefaultErrorFallback({ error, resetError }: { error?: Error; resetError
           </Button>
           <Button 
             variant="outline" 
-            onClick={() => window.location.reload()}
+            onClick={() => {
+              // Reset the error boundary instead of reloading the page
+              resetError();
+              // Clear any cached state that might be causing issues
+              if (window.sessionStorage) {
+                window.sessionStorage.clear();
+              }
+            }}
           >
-            Reload Page
+            Reset Application
           </Button>
         </div>
       </CardContent>
