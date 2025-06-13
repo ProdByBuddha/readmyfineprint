@@ -33,7 +33,10 @@ export function CookieConsentPage({ onAccept }: { onAccept: () => void }) {
 
   const handleAccept = () => {
     acceptCookies();
-    onAccept();
+    // Small delay to ensure state is updated before callback
+    setTimeout(() => {
+      onAccept();
+    }, 100);
   };
 
   return (

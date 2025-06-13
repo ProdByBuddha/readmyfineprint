@@ -167,7 +167,10 @@ export default function Home() {
 
   // Show cookie consent if disclaimer accepted but cookies not accepted
   if (disclaimerAccepted && !cookiesAccepted) {
-    return <CookieConsentPage onAccept={() => {}} />;
+    return <CookieConsentPage onAccept={() => {
+      // Force a re-render by triggering a state update
+      window.location.reload();
+    }} />;
   }
 
   return (
