@@ -72,10 +72,9 @@ export function AnalysisProgress() {
   }, []);
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm">
-      <div className="fixed inset-0" style={{ overflow: 'hidden' }} />
-      <div className="relative z-10 w-full max-w-md mx-4">
-        <Card className="p-6 bg-gradient-to-br from-blue-50 via-white to-cyan-50 dark:from-blue-950/90 dark:via-gray-900/90 dark:to-cyan-950/90 border-0 shadow-xl backdrop-blur-sm">
+    <div className="fixed top-0 left-0 right-0 bottom-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm">
+      <div className="w-full max-w-md mx-4">
+        <Card className="p-6 bg-gradient-to-br from-blue-50 via-white to-cyan-50 dark:from-blue-950/95 dark:via-gray-900/95 dark:to-cyan-950/95 border-0 shadow-2xl">
           <CardContent className="text-center p-0">
             <div className="flex flex-col items-center space-y-5">
               {/* Animated Loading Icon */}
