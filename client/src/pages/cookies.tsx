@@ -16,7 +16,7 @@ export default function Cookies() {
   };
 
   return (
-    <TouchScrollContainer className="h-full bg-gray-50 dark:bg-gray-900">
+    <TouchScrollContainer className="h-full bg-background">
       <div className="container mx-auto px-4 py-4 max-w-4xl">
         <div className="text-center mb-8">
           <Cookie className="h-12 w-12 text-primary mx-auto mb-4" />

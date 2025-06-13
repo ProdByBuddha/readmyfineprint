@@ -161,7 +161,7 @@ export default function Home() {
   }, [consentAccepted, toast, handleDocumentCreated, announce]);
 
   return (
-    <div ref={containerRef} className="bg-gradient-to-br from-teal-50 to-cyan-100 dark:from-gray-900 dark:to-slate-800 page-transition min-h-full">
+    <div ref={containerRef} className="bg-background page-transition min-h-full">
       <MobileAppWrapper>
         {/* Cookie Consent Banner */}
         {!consentAccepted && (

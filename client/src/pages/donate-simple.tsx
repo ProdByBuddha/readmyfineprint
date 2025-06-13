@@ -7,7 +7,7 @@ import { Link } from "wouter";
 export default function DonateSimple() {
 
   return (
-    <TouchScrollContainer className="h-full bg-gradient-to-br from-teal-50 to-cyan-100 dark:from-slate-900 dark:to-slate-800">
+    <TouchScrollContainer className="h-full bg-background">
       <div className="container mx-auto px-4 py-4 max-w-2xl">
         
         <div className="text-center mb-8">

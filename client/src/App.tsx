@@ -51,7 +51,7 @@ function App() {
         <TooltipProvider>
           <ErrorBoundary>
             <SkipLinks />
-            <div className="h-screen flex flex-col app-container">
+            <div className="h-screen flex flex-col app-container bg-background">
               {/* Fixed Header */}
               <Header />
 
@@ -62,7 +62,7 @@ function App() {
                 id="main-content"
                 role="main"
                 tabIndex={-1}
-                className="flex-1 overflow-y-auto"
+                className="flex-1 overflow-y-auto bg-background"
                 aria-label="Main content"
               >
                 <PageTransition>
