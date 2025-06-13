@@ -13,7 +13,8 @@ import { DocumentHistory } from "@/components/DocumentHistory";
 import { AnalysisProgress } from "@/components/LoadingStates";
 
 import { MobileAppWrapper } from "@/components/MobileAppWrapper";
-import { useCombinedConsent, CombinedConsent } from "@/components/CombinedConsent";
+import { useCombinedConsent } from "@/components/CombinedConsent";
+import { CookieConsentBanner } from "@/components/CookieConsentBanner";
 import { useAccessibility } from "@/hooks/useAccessibility";
 import { analyzeDocument, getDocument, createDocument } from "@/lib/api";
 import { useToast } from "@/hooks/use-toast";
@@ -159,16 +160,15 @@ export default function Home() {
     }
   }, [consentAccepted, toast, handleDocumentCreated, announce]);
 
-  // Show combined consent if not accepted
-  if (!consentAccepted) {
-    return <CombinedConsent onAccept={() => {
-      // The hook will automatically update and trigger a re-render
-    }} />;
-  }
-
   return (
     <div ref={containerRef} className="bg-gradient-to-br from-teal-50 to-cyan-100 dark:from-gray-900 dark:to-slate-800 page-transition min-h-full">
       <MobileAppWrapper>
+        {/* Cookie Consent Banner */}
+        {!consentAccepted && (
+          <CookieConsentBanner onAccept={() => {
+            // The hook will automatically update and trigger a re-render
+          }} />
+        )}
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
           {/* Document History */}
           <section aria-label="Document history" className="animate-fade-in-scale">

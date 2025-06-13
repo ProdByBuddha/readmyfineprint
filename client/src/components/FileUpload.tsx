@@ -11,9 +11,10 @@ import { useAccessibility } from "@/hooks/useAccessibility";
 interface FileUploadProps {
   onDocumentCreated: (documentId: number) => void;
   disabled?: boolean;
+  consentAccepted?: boolean;
 }
 
-export function FileUpload({ onDocumentCreated, disabled = false }: FileUploadProps) {
+export function FileUpload({ onDocumentCreated, disabled = false, consentAccepted = false }: FileUploadProps) {
   const [isUploading, setIsUploading] = useState(false);
   const [textContent, setTextContent] = useState("");
   const [dragActive, setDragActive] = useState(false);
@@ -168,6 +169,14 @@ export function FileUpload({ onDocumentCreated, disabled = false }: FileUploadPr
   return (
     <Card className={`p-8 ${disabled ? 'opacity-50 pointer-events-none' : ''}`}>
       <CardContent className="p-0">
+        {!consentAccepted && (
+          <div className="mb-6 p-4 bg-amber-50 dark:bg-amber-950/20 border border-amber-200 dark:border-amber-800 rounded-lg">
+            <p className="text-sm text-amber-800 dark:text-amber-200">
+              <strong>Consent Required:</strong> To analyze documents, please accept the terms and privacy policy using the banner below.
+              You can still browse sample contracts without consent.
+            </p>
+          </div>
+        )}
         <div className="flex flex-col lg:flex-row gap-8">
           {/* Upload Area */}
           <div className="lg:w-1/2">
