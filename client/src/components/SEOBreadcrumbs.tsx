@@ -67,52 +67,54 @@ export function SEOBreadcrumbs({ items, className = '' }: SEOBreadcrumbsProps) {
   }
 
   return (
-    <nav 
-      aria-label="Breadcrumb" 
-      className={`px-4 sm:px-6 lg:px-8 pt-2 pb-1 ${className}`}
-      role="navigation"
-    >
-      <div className="max-w-7xl mx-auto">
-        <ol className="flex items-center space-x-1 text-xs text-gray-500 dark:text-gray-400" itemScope itemType="https://schema.org/BreadcrumbList">
-          {breadcrumbItems.map((item, index) => (
-            <li 
-              key={item.url} 
-              className="flex items-center"
-              itemProp="itemListElement" 
-              itemScope 
-              itemType="https://schema.org/ListItem"
-            >
-              {index > 0 && (
-                <ChevronRight className="w-3 h-3 mx-1.5 text-gray-400 dark:text-gray-500" aria-hidden="true" />
-              )}
-              
-              {item.current ? (
-                <span 
-                  className="text-gray-700 dark:text-gray-300 font-medium"
-                  itemProp="name"
-                  aria-current="page"
-                >
-                  {item.name}
-                </span>
-              ) : (
-                <Link 
-                  to={item.url}
-                  className="hover:text-gray-700 dark:hover:text-gray-200 transition-colors duration-150"
-                  itemProp="item"
-                >
-                  <span itemProp="name" className="flex items-center">
-                    {index === 0 && <Home className="w-3 h-3 mr-1" aria-hidden="true" />}
+    <div className="bg-gradient-to-br from-teal-50 to-cyan-100 dark:from-slate-900 dark:to-slate-800">
+      <nav 
+        aria-label="Breadcrumb" 
+        className={`px-4 sm:px-6 lg:px-8 pt-2 pb-1 ${className}`}
+        role="navigation"
+      >
+        <div className="max-w-6xl mx-auto">
+          <ol className="flex items-center flex-wrap gap-1 text-xs text-gray-500 dark:text-gray-400" itemScope itemType="https://schema.org/BreadcrumbList">
+            {breadcrumbItems.map((item, index) => (
+              <li 
+                key={item.url} 
+                className="flex items-center"
+                itemProp="itemListElement" 
+                itemScope 
+                itemType="https://schema.org/ListItem"
+              >
+                {index > 0 && (
+                  <ChevronRight className="w-3 h-3 mx-1 text-gray-400 dark:text-gray-500" aria-hidden="true" />
+                )}
+                
+                {item.current ? (
+                  <span 
+                    className="text-gray-700 dark:text-gray-300 font-medium"
+                    itemProp="name"
+                    aria-current="page"
+                  >
                     {item.name}
                   </span>
-                </Link>
-              )}
-              
-              <meta itemProp="position" content={String(index + 1)} />
-            </li>
-          ))}
-        </ol>
-      </div>
-    </nav>
+                ) : (
+                  <Link 
+                    to={item.url}
+                    className="hover:text-gray-700 dark:hover:text-gray-200 transition-colors duration-150"
+                    itemProp="item"
+                  >
+                    <span itemProp="name" className="flex items-center">
+                      {index === 0 && <Home className="w-3 h-3 mr-1" aria-hidden="true" />}
+                      {item.name}
+                    </span>
+                  </Link>
+                )}
+                
+                <meta itemProp="position" content={String(index + 1)} />
+              </li>
+            ))}
+          </ol>
+        </div>
+      </nav>
+    </div>
   );
 }
 
