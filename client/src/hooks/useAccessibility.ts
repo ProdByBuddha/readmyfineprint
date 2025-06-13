@@ -3,11 +3,13 @@ import { useHotkeys } from 'react-hotkeys-hook';
 
 interface UseAccessibilityOptions {
   focusOnMount?: boolean;
+  trapFocus?: boolean;
+  announceChanges?: boolean;
   skipLinks?: Array<{ href: string; label: string }>;
 }
 
 export function useAccessibility(options: UseAccessibilityOptions = {}) {
-  const { focusOnMount = false } = options;
+  const { focusOnMount = false, trapFocus: _trapFocus = false, announceChanges: _announceChanges = false } = options;
   const elementRef = useRef<HTMLElement>(null);
   const screenReaderRef = useRef<HTMLDivElement>(null);
 
