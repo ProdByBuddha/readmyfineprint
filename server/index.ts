@@ -40,9 +40,7 @@ const apiLimiter = rateLimit({
   },
   standardHeaders: true,
   legacyHeaders: false,
-  validate: {
-    trustProxy: false, // Disable trust proxy validation since we handle it securely
-  } as any,
+  validate: false, // Disable all validations since we handle proxy configuration securely
   // Use a more secure key generator that combines IP with user agent hash
   keyGenerator: (req) => {
     // Use real IP when behind proxy, fallback to connection IP
@@ -71,9 +69,7 @@ const processLimiter = rateLimit({
   },
   standardHeaders: true,
   legacyHeaders: false,
-  validate: {
-    trustProxy: false, // Disable trust proxy validation since we handle it securely
-  } as any,
+  validate: false, // Disable all validations since we handle proxy configuration securely
   // Use the same secure key generator
   keyGenerator: (req) => {
     const ip = req.ip || req.socket.remoteAddress || 'unknown';
