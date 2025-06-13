@@ -62,7 +62,7 @@ export function DocumentLoadingSkeleton() {
 
 export function AnalysisProgress() {
   return (
-    <div className="flex items-center justify-center min-h-[50vh]">
+    <div className="fixed inset-0 bg-gray-50 dark:bg-gray-900 flex items-center justify-center z-50">
       <div className="text-center space-y-4">
         {/* Main Status */}
         <div className="flex items-center justify-center space-x-3">
