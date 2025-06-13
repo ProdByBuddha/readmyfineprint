@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { useCombinedConsent } from "@/components/CombinedConsent";
+import { Link } from "wouter";
 
 interface CookieManagementProps {
   trigger?: React.ReactNode;
@@ -106,12 +107,20 @@ export function CookieManagement({ trigger, className }: CookieManagementProps) 
             )}
             
             <div className="flex gap-2 text-xs">
-              <a href="/privacy" className="flex-1 text-center text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100">
+              <Link 
+                to="/privacy" 
+                className="flex-1 text-center text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 transition-colors"
+                onClick={() => setIsOpen(false)}
+              >
                 Privacy Policy
-              </a>
-              <a href="/terms" className="flex-1 text-center text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100">
+              </Link>
+              <Link 
+                to="/terms" 
+                className="flex-1 text-center text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 transition-colors"
+                onClick={() => setIsOpen(false)}
+              >
                 Terms of Service
-              </a>
+              </Link>
             </div>
           </div>
         </div>
