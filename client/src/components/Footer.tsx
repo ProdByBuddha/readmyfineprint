@@ -1,6 +1,7 @@
 import { Link } from "wouter";
-import { Heart, Github, Twitter } from "lucide-react";
+import { Heart, Github, Twitter, Cookie } from "lucide-react";
 import { SecurityBadges } from "@/components/SecurityBadges";
+import { CookieManagement } from "@/components/CookieManagement";
 
 export function Footer() {
   return (
@@ -26,6 +27,14 @@ export function Footer() {
             >
               Terms
             </Link>
+            <CookieManagement 
+              trigger={
+                <button className="text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white transition-colors py-1 px-2 flex items-center">
+                  <Cookie className="w-2.5 h-2.5 mr-0.5" aria-hidden="true" />
+                  Cookies
+                </button>
+              }
+            />
             <Link
               to="/donate"
               className="text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white transition-colors py-1 px-2 flex items-center"
@@ -73,6 +82,14 @@ export function Footer() {
             >
               Terms
             </Link>
+            <CookieManagement 
+              trigger={
+                <button className="text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white transition-colors duration-200 inline-flex items-center">
+                  <Cookie className="w-3 h-3 mr-1" aria-hidden="true" />
+                  Cookie Settings
+                </button>
+              }
+            />
             <Link
               to="/donate"
               className="text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white transition-colors duration-200 inline-flex items-center"
