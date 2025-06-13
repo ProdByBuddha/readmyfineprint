@@ -5,6 +5,8 @@ import { Link } from "wouter";
 import { Button } from "@/components/ui/button";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import DonationForm from "@/components/donation-form";
+import { StripeWrapper } from "@/components/StripeWrapper";
+import ExpressCheckoutForm from "@/components/ExpressCheckoutForm";
 
 const DONATION_AMOUNTS = [
   { amount: 5, label: "$5" },
@@ -160,7 +162,31 @@ const DonateContent = () => {
                 <ArrowLeft className="w-4 h-4 mr-2" />
                 Back to Amount Selection
               </Button>
-              <div className="space-y-4">
+                            <div className="space-y-4">
+                <StripeWrapper>
+                  <ExpressCheckoutForm
+                    amount={currentAmount}
+                    onSuccess={(donatedAmount) => {
+                      setIsSuccess(true);
+                      setSuccessAmount(donatedAmount);
+                    }}
+                    onError={(errorMessage) => {
+                      setError(errorMessage);
+                    }}
+                  />
+                </StripeWrapper>
+
+                <div className="text-center">
+                  <div className="relative">
+                    <div className="absolute inset-0 flex items-center">
+                      <span className="w-full border-t" />
+                    </div>
+                    <div className="relative flex justify-center text-xs uppercase">
+                      <span className="bg-background px-2 text-muted-foreground">Alternative</span>
+                    </div>
+                  </div>
+                </div>
+
                 <DonationForm
                   amount={currentAmount}
                   onSuccess={(donatedAmount) => {
@@ -171,7 +197,7 @@ const DonateContent = () => {
                     setError(errorMessage);
                   }}
                 />
-                
+
                 <div className="text-center">
                   <div className="relative">
                     <div className="absolute inset-0 flex items-center">
