@@ -11,47 +11,25 @@ export function Footer() {
       className="bg-gray-50 dark:bg-gray-900 border-t border-gray-200 dark:border-gray-700 z-40 backdrop-blur-sm bg-opacity-95 dark:bg-opacity-95 transition-all duration-300 ease-in-out flex-shrink-0"
       aria-label="Site footer"
     >
-      {/* Mobile Layout - Minimal */}
-      <div className="md:hidden px-4 py-1">
-        <div className="text-center space-y-0.5">
-          <div className="flex items-center justify-center flex-wrap gap-3 text-xs">
-            <Link
-              to="/privacy"
-              className="text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white transition-colors py-1 px-2 flex items-center"
-            >
-              Privacy
-            </Link>
-            <Link
-              to="/terms"
-              className="text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white transition-colors py-1 px-2 flex items-center"
-            >
-              Terms
-            </Link>
+      {/* Mobile Layout - Ultra Compact */}
+      <div className="md:hidden px-3 py-0.5">
+        <div className="flex items-center justify-between text-xs">
+          <div className="flex items-center gap-2">
+            <Link to="/privacy" className="text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200">Privacy</Link>
+            <Link to="/terms" className="text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200">Terms</Link>
             <CookieManagement 
               trigger={
-                <button className="text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white transition-colors py-1 px-2 flex items-center">
-                  <Cookie className="w-2.5 h-2.5 mr-0.5" aria-hidden="true" />
-                  Cookies
+                <button className="text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 flex items-center">
+                  <Cookie className="w-2 h-2 mr-0.5" />Cookies
                 </button>
               }
             />
-            <Link
-              to="/donate"
-              className="text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white transition-colors py-1 px-2 flex items-center"
-            >
-              <Heart className="w-2.5 h-2.5 mr-0.5 text-red-500" aria-hidden="true" />
-              Donate
+            <Link to="/donate" className="text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 flex items-center">
+              <Heart className="w-2 h-2 mr-0.5 text-red-500" />Donate
             </Link>
-            <a
-              href="mailto:admin@readmyfineprint.com"
-              className="text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white transition-colors py-1 px-2 flex items-center"
-            >
-              Contact
-            </a>
+            <a href="mailto:admin@readmyfineprint.com" className="text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200">Contact</a>
           </div>
-          <p className="text-gray-500 dark:text-gray-400 text-xs">
-            © {new Date().getFullYear()} ReadMyFinePrint
-          </p>
+          <p className="text-gray-400 dark:text-gray-500 text-xs">© {new Date().getFullYear()}</p>
         </div>
       </div>
 
