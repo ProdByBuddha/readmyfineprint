@@ -1,4 +1,5 @@
 import { SecurityEvent, SecurityEventType, SecuritySeverity } from './security-logger';
+import * as nodemailer from 'nodemailer';
 
 // Alert thresholds and configuration
 interface AlertThreshold {
@@ -85,18 +86,145 @@ class ConsoleAlertHandler implements AlertHandler {
   }
 }
 
-// Email alert handler (placeholder for production use)
+// Email alert handler with iCloud SMTP support
 class EmailAlertHandler implements AlertHandler {
   name = 'email';
+  private transporter: nodemailer.Transporter | null = null;
+
+  constructor() {
+    this.initializeTransporter();
+  }
+
+  private initializeTransporter(): void {
+    const {
+      SMTP_HOST = 'smtp.mail.me.com',
+      SMTP_PORT = '587',
+      SMTP_USER,
+      SMTP_PASS,
+      SECURITY_EMAIL_FROM,
+      SECURITY_EMAIL_TO
+    } = process.env;
+
+    if (SMTP_USER && SMTP_PASS && SECURITY_EMAIL_FROM && SECURITY_EMAIL_TO) {
+      this.transporter = nodemailer.createTransport({
+        host: SMTP_HOST,
+        port: parseInt(SMTP_PORT),
+        secure: false, // true for 465, false for other ports
+        auth: {
+          user: SMTP_USER,
+          pass: SMTP_PASS,
+        },
+        tls: {
+          rejectUnauthorized: false
+        }
+      });
+
+      // Verify connection
+      if (this.transporter) {
+        this.transporter.verify((error, success) => {
+          if (error) {
+            console.error('[EMAIL ALERT] SMTP connection failed:', error.message);
+            this.transporter = null;
+          } else {
+            console.log('[EMAIL ALERT] SMTP server ready for email alerts');
+          }
+        });
+      }
+    }
+  }
 
   async handle(alert: SecurityAlert): Promise<void> {
-    if (process.env.NODE_ENV === 'production') {
-      // In production, implement actual email sending
-      console.log(`[EMAIL ALERT] Would send ${alert.threshold.severity} alert to security team`);
-      console.log(`   Subject: Security Alert - ${alert.threshold.eventType} - ${alert.id}`);
-      console.log(`   Body: ${alert.message}`);
-    } else {
+    if (!this.transporter) {
       console.log(`[EMAIL ALERT SIMULATION] ${alert.id}: ${alert.message}`);
+      console.log('[EMAIL ALERT] SMTP not configured. Set SMTP_USER, SMTP_PASS, SECURITY_EMAIL_FROM, SECURITY_EMAIL_TO');
+      return;
+    }
+
+    try {
+      const severity = alert.threshold.severity;
+      const subject = `🚨 Security Alert [${severity}] - ${alert.threshold.eventType}`;
+      
+      const htmlBody = `
+        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+          <div style="background: ${this.getSeverityColor(severity)}; color: white; padding: 20px; border-radius: 8px 8px 0 0;">
+            <h1 style="margin: 0; font-size: 24px;">${this.getSeverityEmoji(severity)} Security Alert</h1>
+            <p style="margin: 10px 0 0 0; opacity: 0.9;">Alert ID: ${alert.id}</p>
+          </div>
+          
+          <div style="background: #f8f9fa; padding: 20px; border: 1px solid #dee2e6;">
+            <h2 style="color: #495057; margin-top: 0;">Alert Details</h2>
+            <table style="width: 100%; border-collapse: collapse;">
+              <tr><td style="padding: 8px 0; font-weight: bold;">Severity:</td><td>${severity}</td></tr>
+              <tr><td style="padding: 8px 0; font-weight: bold;">Event Type:</td><td>${alert.threshold.eventType}</td></tr>
+              <tr><td style="padding: 8px 0; font-weight: bold;">Timestamp:</td><td>${alert.timestamp}</td></tr>
+              <tr><td style="padding: 8px 0; font-weight: bold;">Event Count:</td><td>${alert.triggeringEvents.length}</td></tr>
+              <tr><td style="padding: 8px 0; font-weight: bold;">Fingerprint:</td><td><code>${alert.fingerprint}</code></td></tr>
+            </table>
+          </div>
+          
+          <div style="background: white; padding: 20px; border: 1px solid #dee2e6; border-top: none;">
+            <h3 style="color: #495057; margin-top: 0;">Message</h3>
+            <p style="background: #f8f9fa; padding: 15px; border-left: 4px solid ${this.getSeverityColor(severity)}; margin: 0;">
+              ${alert.message}
+            </p>
+          </div>
+          
+          <div style="background: #e9ecef; padding: 15px; border-radius: 0 0 8px 8px; text-align: center;">
+            <p style="margin: 0; color: #6c757d; font-size: 12px;">
+              ReadMyFinePrint Security System - ${new Date().toISOString()}
+            </p>
+          </div>
+        </div>
+      `;
+
+      const textBody = `
+SECURITY ALERT [${severity}]
+Alert ID: ${alert.id}
+
+Event Type: ${alert.threshold.eventType}
+Severity: ${severity}
+Timestamp: ${alert.timestamp}
+Event Count: ${alert.triggeringEvents.length}
+Fingerprint: ${alert.fingerprint}
+
+Message: ${alert.message}
+
+---
+ReadMyFinePrint Security System
+Generated: ${new Date().toISOString()}
+      `;
+
+      await this.transporter.sendMail({
+        from: process.env.SECURITY_EMAIL_FROM,
+        to: process.env.SECURITY_EMAIL_TO,
+        subject,
+        text: textBody,
+        html: htmlBody,
+      });
+
+      console.log(`[EMAIL ALERT] Successfully sent ${severity} alert: ${alert.id}`);
+    } catch (error) {
+      console.error('[EMAIL ALERT] Failed to send email:', error);
+      // Fallback to console logging
+      console.log(`[EMAIL ALERT FALLBACK] ${alert.id}: ${alert.message}`);
+    }
+  }
+
+  private getSeverityColor(severity: SecuritySeverity): string {
+    switch (severity) {
+      case SecuritySeverity.CRITICAL: return '#dc3545';
+      case SecuritySeverity.HIGH: return '#fd7e14';
+      case SecuritySeverity.MEDIUM: return '#ffc107';
+      case SecuritySeverity.LOW: return '#28a745';
+    }
+  }
+
+  private getSeverityEmoji(severity: SecuritySeverity): string {
+    switch (severity) {
+      case SecuritySeverity.CRITICAL: return '🚨';
+      case SecuritySeverity.HIGH: return '⚠️';
+      case SecuritySeverity.MEDIUM: return '🔍';
+      case SecuritySeverity.LOW: return 'ℹ️';
     }
   }
 }
