@@ -141,6 +141,7 @@ function ExpressCheckoutFormElement({ amount, onSuccess, onError }: ExpressCheck
               applePay: "donate",
               googlePay: "donate",
               paypal: "pay",
+
             },
             paymentMethods: {
               applePay: "auto",

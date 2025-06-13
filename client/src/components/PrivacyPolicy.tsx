@@ -99,7 +99,7 @@ export function PrivacyPolicy() {
           <div>
             <h4 className="font-semibold text-gray-900 dark:text-white mb-2">Document Analysis</h4>
             <p className="text-gray-700 dark:text-gray-300 mb-3">
-              Your documents are processed using OpenAI's API to provide analysis and summaries.
+              Your documents are processed using OpenAI&apos;s API to provide analysis and summaries.
               We recommend avoiding highly sensitive personal information.
             </p>
             <ul className="list-disc list-inside space-y-1 text-sm text-gray-600 dark:text-gray-400">

@@ -310,7 +310,7 @@ export function FileUpload({ onDocumentCreated, disabled = false, consentAccepte
 
           {/* Features Preview */}
           <div className="lg:w-1/2">
-            <h3 className="text-2xl font-semibold mb-6 text-gray-900 dark:text-[#c7d3d9]">What You'll Get</h3>
+            <h3 className="text-2xl font-semibold mb-6 text-gray-900 dark:text-[#c7d3d9]">What You&apos;ll Get</h3>
             <div className="space-y-4" role="list" aria-label="Analysis features">
               <div className="flex items-start space-x-4 p-4 bg-secondary/10 rounded-lg" role="listitem">
                 <div className="w-8 h-8 bg-secondary rounded-full flex items-center justify-center flex-shrink-0" aria-hidden="true">
