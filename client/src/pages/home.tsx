@@ -167,9 +167,9 @@ export default function Home() {
   }
 
   return (
-    <TouchScrollContainer ref={containerRef} className="h-full bg-gradient-to-br from-teal-50 to-cyan-100 dark:from-gray-900 dark:to-slate-800 page-transition" enablePullToRefresh={true}>
-      <MobileAppWrapper className="h-full">
-        <div className="h-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+    <TouchScrollContainer ref={containerRef} className="bg-gradient-to-br from-teal-50 to-cyan-100 dark:from-gray-900 dark:to-slate-800 page-transition" enablePullToRefresh={true}>
+      <MobileAppWrapper>
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
           {/* Document History */}
           <section aria-label="Document history" className="animate-fade-in-scale">
             <DocumentHistory
@@ -196,7 +196,7 @@ export default function Home() {
                 <ul className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm text-gray-600 dark:text-gray-300" role="list">
                   <li className="flex items-center justify-center gap-2">
                     <span className="w-2 h-2 bg-primary rounded-full" aria-hidden="true"></span>
-                    <span>AI-Powered Analysis</span>
+                    <span>Advanced Analysis</span>
                   </li>
                   <li className="flex items-center justify-center gap-2">
                     <span className="w-2 h-2 bg-primary rounded-full" aria-hidden="true"></span>
@@ -233,7 +233,7 @@ export default function Home() {
               <section aria-labelledby="samples-heading" className="mb-8">
                 <h2 id="samples-heading" className="sr-only">Sample Contracts</h2>
                 <SampleContracts 
-                  onSampleSelect={handleSampleContract}
+                  onSelectContract={handleSampleContract}
                   disabled={isAnalyzing}
                 />
               </section>

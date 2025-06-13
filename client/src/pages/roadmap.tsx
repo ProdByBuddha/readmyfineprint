@@ -11,7 +11,7 @@ const roadmapItems = [
     items: [
       {
         title: "Advanced Legal Document Analysis",
-        description: "AI-powered analysis of complex legal documents with risk assessment and key findings extraction",
+        description: "Comprehensive analysis of complex legal documents with risk assessment and key findings extraction",
         icon: Brain,
         status: "completed"
       },

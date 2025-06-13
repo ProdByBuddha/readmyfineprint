@@ -16,15 +16,15 @@ export interface SEOConfig {
 }
 
 export const defaultSEO: SEOConfig = {
-  title: 'ReadMyFinePrint - AI-Powered Legal Document Analysis',
-  description: 'Transform complex legal documents into accessible summaries with AI-powered analysis. Upload your contracts, terms of service, and legal documents for instant insights. No legal degree required.',
+  title: 'ReadMyFinePrint - Advanced Legal Document Analysis',
+  description: 'Transform complex legal documents into accessible summaries with advanced analysis. Upload your contracts, terms of service, and legal documents for instant insights. No legal degree required.',
   keywords: 'legal document analysis, contract review, AI legal assistant, document summary, terms of service analysis, legal tech, contract analyzer, document AI',
   canonical: 'https://readmyfineprint.com/',
-  ogTitle: 'ReadMyFinePrint - AI-Powered Legal Document Analysis',
-  ogDescription: 'Transform complex legal documents into accessible summaries with AI-powered analysis. Upload your contracts, terms of service, and legal documents for instant insights.',
+  ogTitle: 'ReadMyFinePrint - Advanced Legal Document Analysis',
+  ogDescription: 'Transform complex legal documents into accessible summaries with advanced analysis. Upload your contracts, terms of service, and legal documents for instant insights.',
   ogImage: 'https://readmyfineprint.com/og-image.png',
-  twitterTitle: 'ReadMyFinePrint - AI-Powered Legal Document Analysis',
-  twitterDescription: 'Transform complex legal documents into accessible summaries with AI-powered analysis. Upload your contracts, terms of service, and legal documents for instant insights.',
+  twitterTitle: 'ReadMyFinePrint - Advanced Legal Document Analysis',
+  twitterDescription: 'Transform complex legal documents into accessible summaries with advanced analysis. Upload your contracts, terms of service, and legal documents for instant insights.',
   twitterImage: 'https://readmyfineprint.com/og-image.png',
 };
 
@@ -35,7 +35,7 @@ export const pageSEOConfigs: Record<string, SEOConfig> = {
       "@context": "https://schema.org",
       "@type": "WebApplication",
       "name": "ReadMyFinePrint",
-      "description": "AI-powered legal document analysis tool that transforms complex legal documents into accessible summaries",
+      "description": "advanced legal document analysis tool that transforms complex legal documents into accessible summaries",
       "url": "https://readmyfineprint.com",
       "applicationCategory": "LegalApplication",
       "operatingSystem": "Web Browser",
@@ -53,7 +53,7 @@ export const pageSEOConfigs: Record<string, SEOConfig> = {
         "Legal document analysis",
         "Contract review",
         "Terms of service analysis",
-        "AI-powered summaries",
+        "advanced summaries",
         "Document upload",
         "Privacy-focused processing"
       ]
@@ -61,11 +61,11 @@ export const pageSEOConfigs: Record<string, SEOConfig> = {
   },
   '/privacy': {
     title: 'Privacy Policy - ReadMyFinePrint',
-    description: 'Our privacy policy explains how ReadMyFinePrint protects your data and documents during AI-powered legal analysis.',
+    description: 'Our privacy policy explains how ReadMyFinePrint protects your data and documents during advanced legal analysis.',
     keywords: 'privacy policy, data protection, legal document privacy, AI privacy, document security',
     canonical: 'https://readmyfineprint.com/privacy',
     ogTitle: 'Privacy Policy - ReadMyFinePrint',
-    ogDescription: 'Our privacy policy explains how ReadMyFinePrint protects your data and documents during AI-powered legal analysis.',
+    ogDescription: 'Our privacy policy explains how ReadMyFinePrint protects your data and documents during advanced legal analysis.',
     structuredData: {
       "@context": "https://schema.org",
       "@type": "WebPage",
@@ -76,11 +76,11 @@ export const pageSEOConfigs: Record<string, SEOConfig> = {
   },
   '/terms': {
     title: 'Terms of Service - ReadMyFinePrint',
-    description: 'Terms of service and usage guidelines for ReadMyFinePrint AI-powered legal document analysis tool.',
+    description: 'Terms of service and usage guidelines for ReadMyFinePrint advanced legal document analysis tool.',
     keywords: 'terms of service, usage terms, legal terms, AI tool terms, document analysis terms',
     canonical: 'https://readmyfineprint.com/terms',
     ogTitle: 'Terms of Service - ReadMyFinePrint',
-    ogDescription: 'Terms of service and usage guidelines for ReadMyFinePrint AI-powered legal document analysis tool.',
+    ogDescription: 'Terms of service and usage guidelines for ReadMyFinePrint advanced legal document analysis tool.',
     structuredData: {
       "@context": "https://schema.org",
       "@type": "WebPage",
@@ -91,11 +91,11 @@ export const pageSEOConfigs: Record<string, SEOConfig> = {
   },
   '/cookies': {
     title: 'Cookie Policy - ReadMyFinePrint',
-    description: 'Learn about how ReadMyFinePrint uses cookies to provide and improve our AI-powered legal document analysis service.',
+    description: 'Learn about how ReadMyFinePrint uses cookies to provide and improve our advanced legal document analysis service.',
     keywords: 'cookie policy, website cookies, privacy, data tracking, legal compliance',
     canonical: 'https://readmyfineprint.com/cookies',
     ogTitle: 'Cookie Policy - ReadMyFinePrint',
-    ogDescription: 'Learn about how ReadMyFinePrint uses cookies to provide and improve our AI-powered legal document analysis service.',
+    ogDescription: 'Learn about how ReadMyFinePrint uses cookies to provide and improve our advanced legal document analysis service.',
     structuredData: {
       "@context": "https://schema.org",
       "@type": "WebPage",
@@ -106,11 +106,11 @@ export const pageSEOConfigs: Record<string, SEOConfig> = {
   },
   '/donate': {
     title: 'Support ReadMyFinePrint - Donate',
-    description: 'Support the development of ReadMyFinePrint, the free AI-powered legal document analysis tool. Your donation helps keep this service free for everyone.',
+    description: 'Support the development of ReadMyFinePrint, the free advanced legal document analysis tool. Your donation helps keep this service free for everyone.',
     keywords: 'donate, support, legal tech, AI development, open source, legal document analysis',
     canonical: 'https://readmyfineprint.com/donate',
     ogTitle: 'Support ReadMyFinePrint - Donate',
-    ogDescription: 'Support the development of ReadMyFinePrint, the free AI-powered legal document analysis tool. Your donation helps keep this service free for everyone.',
+    ogDescription: 'Support the development of ReadMyFinePrint, the free advanced legal document analysis tool. Your donation helps keep this service free for everyone.',
     structuredData: {
       "@context": "https://schema.org",
       "@type": "WebPage",
@@ -121,11 +121,11 @@ export const pageSEOConfigs: Record<string, SEOConfig> = {
   },
   '/roadmap': {
     title: 'Roadmap & Features - ReadMyFinePrint',
-    description: 'See what\'s coming next for ReadMyFinePrint. View our development roadmap and upcoming features for AI-powered legal document analysis.',
+    description: 'See what\'s coming next for ReadMyFinePrint. View our development roadmap and upcoming features for advanced legal document analysis.',
     keywords: 'roadmap, features, development, AI improvements, legal tech roadmap, future features',
     canonical: 'https://readmyfineprint.com/roadmap',
     ogTitle: 'Roadmap & Features - ReadMyFinePrint',
-    ogDescription: 'See what\'s coming next for ReadMyFinePrint. View our development roadmap and upcoming features for AI-powered legal document analysis.',
+    ogDescription: 'See what\'s coming next for ReadMyFinePrint. View our development roadmap and upcoming features for advanced legal document analysis.',
     structuredData: {
       "@context": "https://schema.org",
       "@type": "WebPage",

@@ -1,7 +1,7 @@
 {
-  "name": "ReadMyFinePrint - AI-Powered Legal Document Analysis",
+  "name": "ReadMyFinePrint - Advanced Legal Document Analysis",
   "short_name": "ReadMyFinePrint",
-  "description": "Transform complex legal documents into accessible summaries with AI-powered analysis. Upload your contracts, terms of service, and legal documents for instant insights.",
+  "description": "Transform complex legal documents into accessible summaries utilizing our advanced analysis engine. Upload your contracts, terms of service, and legal documents for instant insights.",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#ffffff",

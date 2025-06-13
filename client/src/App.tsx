@@ -50,13 +50,13 @@ function App() {
         <TooltipProvider>
           <ErrorBoundary>
             <SkipLinks />
-            <div className="h-screen flex flex-col app-container">
+            <div className="min-h-screen flex flex-col app-container">
               <Header />
               <main 
                 id="main-content"
                 role="main"
                 tabIndex={-1}
-                className="flex-1 overflow-y-auto min-h-0"
+                className="flex-1"
                 aria-label="Main content"
               >
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-4">
