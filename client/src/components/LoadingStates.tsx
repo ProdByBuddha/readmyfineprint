@@ -62,16 +62,16 @@ export function DocumentLoadingSkeleton() {
 
 export function AnalysisProgress() {
   return (
-    <div className="py-16">
-      <div className="max-w-md mx-auto text-center space-y-6">
+    <div className="py-8">
+      <div className="max-w-md mx-auto text-center space-y-4">
         {/* Main Status */}
-        <div className="space-y-3">
-          <Loader2 className="w-8 h-8 text-blue-600 dark:text-blue-400 animate-spin mx-auto" />
+        <div className="space-y-2">
+          <Loader2 className="w-6 h-6 text-blue-600 dark:text-blue-400 animate-spin mx-auto" />
           <div>
-            <h3 className="text-xl font-semibold text-gray-900 dark:text-white">
+            <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
               Analyzing Document
             </h3>
-            <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
+            <p className="text-sm text-gray-500 dark:text-gray-400">
               This usually takes 10-30 seconds
             </p>
           </div>
