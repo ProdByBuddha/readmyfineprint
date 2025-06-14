@@ -118,16 +118,16 @@ export const SocialShare = ({
         Share with friends
       </div>
 
-      <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+      <div className="grid grid-cols-2 gap-3">
         {/* Twitter */}
         <Button
           variant="outline"
           size="sm"
           onClick={() => handleShare('twitter')}
-          className="flex items-center gap-2 hover:bg-blue-50 hover:border-blue-200 dark:hover:bg-blue-900/20"
+          className="flex items-center justify-center gap-2 h-12 hover:bg-blue-50 hover:border-blue-200 dark:hover:bg-blue-900/20"
         >
           <Twitter className="w-4 h-4 text-blue-500" />
-          <span className="hidden sm:inline">Twitter</span>
+          <span>Twitter</span>
         </Button>
 
         {/* Facebook */}
@@ -135,10 +135,10 @@ export const SocialShare = ({
           variant="outline"
           size="sm"
           onClick={() => handleShare('facebook')}
-          className="flex items-center gap-2 hover:bg-blue-50 hover:border-blue-200 dark:hover:bg-blue-900/20"
+          className="flex items-center justify-center gap-2 h-12 hover:bg-blue-50 hover:border-blue-200 dark:hover:bg-blue-900/20"
         >
           <Facebook className="w-4 h-4 text-blue-600" />
-          <span className="hidden sm:inline">Facebook</span>
+          <span>Facebook</span>
         </Button>
 
         {/* LinkedIn */}
@@ -146,12 +146,12 @@ export const SocialShare = ({
           variant="outline"
           size="sm"
           onClick={() => handleShare('linkedin')}
-          className="flex items-center gap-2 hover:bg-blue-50 hover:border-blue-200 dark:hover:bg-blue-900/20"
+          className="flex items-center justify-center gap-2 h-12 hover:bg-blue-50 hover:border-blue-200 dark:hover:bg-blue-900/20"
         >
           <div className="w-4 h-4 bg-blue-700 rounded-sm flex items-center justify-center">
             <span className="text-white text-xs font-bold">in</span>
           </div>
-          <span className="hidden sm:inline">LinkedIn</span>
+          <span>LinkedIn</span>
         </Button>
 
         {/* WhatsApp */}
@@ -159,10 +159,10 @@ export const SocialShare = ({
           variant="outline"
           size="sm"
           onClick={() => handleShare('whatsapp')}
-          className="flex items-center gap-2 hover:bg-green-50 hover:border-green-200 dark:hover:bg-green-900/20"
+          className="flex items-center justify-center gap-2 h-12 hover:bg-green-50 hover:border-green-200 dark:hover:bg-green-900/20"
         >
           <MessageCircle className="w-4 h-4 text-green-600" />
-          <span className="hidden sm:inline">WhatsApp</span>
+          <span>WhatsApp</span>
         </Button>
 
         {/* Reddit */}
@@ -170,12 +170,12 @@ export const SocialShare = ({
           variant="outline"
           size="sm"
           onClick={() => handleShare('reddit')}
-          className="flex items-center gap-2 hover:bg-orange-50 hover:border-orange-200 dark:hover:bg-orange-900/20"
+          className="flex items-center justify-center gap-2 h-12 hover:bg-orange-50 hover:border-orange-200 dark:hover:bg-orange-900/20"
         >
           <div className="w-4 h-4 bg-orange-500 rounded-full flex items-center justify-center">
             <span className="text-white text-xs font-bold">r</span>
           </div>
-          <span className="hidden sm:inline">Reddit</span>
+          <span>Reddit</span>
         </Button>
 
         {/* Copy Link */}
@@ -183,7 +183,7 @@ export const SocialShare = ({
           variant="outline"
           size="sm"
           onClick={handleCopyLink}
-          className={`flex items-center gap-2 transition-colors ${
+          className={`flex items-center justify-center gap-2 h-12 transition-colors ${
             copied
               ? 'bg-green-50 border-green-200 text-green-700 dark:bg-green-900/20 dark:border-green-700 dark:text-green-400'
               : 'hover:bg-gray-50 hover:border-gray-200 dark:hover:bg-gray-800'
@@ -192,12 +192,12 @@ export const SocialShare = ({
           {copied ? (
             <>
               <Check className="w-4 h-4" />
-              <span className="hidden sm:inline">Copied!</span>
+              <span>Copied!</span>
             </>
           ) : (
             <>
               <Copy className="w-4 h-4" />
-              <span className="hidden sm:inline">Copy Link</span>
+              <span>Copy Link</span>
             </>
           )}
         </Button>
@@ -208,7 +208,7 @@ export const SocialShare = ({
         variant="outline"
         size="sm"
         onClick={() => handleShare('email')}
-        className="w-full flex items-center gap-2 hover:bg-gray-50 hover:border-gray-200 dark:hover:bg-gray-800"
+        className="w-full flex items-center justify-center gap-2 h-12 hover:bg-gray-50 hover:border-gray-200 dark:hover:bg-gray-800"
       >
         <div className="w-4 h-4 bg-gray-600 rounded flex items-center justify-center">
           <span className="text-white text-xs">@</span>
