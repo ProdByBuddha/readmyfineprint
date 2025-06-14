@@ -24,12 +24,28 @@ export const SocialShare = ({
   const encodedDescription = encodeURIComponent(description);
   const hashtagString = hashtags.map(tag => `#${tag}`).join(' ');
 
+  // Mobile app URL schemes with web fallbacks
   const shareLinks = {
-    twitter: `https://twitter.com/intent/tweet?url=${encodedUrl}&text=${encodedTitle}&hashtags=${hashtags.join(',')}`,
-    facebook: `https://www.facebook.com/sharer/sharer.php?u=${encodedUrl}&quote=${encodedTitle}`,
-    linkedin: `https://www.linkedin.com/sharing/share-offsite/?url=${encodedUrl}&title=${encodedTitle}&summary=${encodedDescription}`,
-    whatsapp: `https://wa.me/?text=${encodedTitle}%20${encodedUrl}`,
-    reddit: `https://reddit.com/submit?url=${encodedUrl}&title=${encodedTitle}`,
+    twitter: {
+      mobile: `twitter://post?message=${encodedTitle}%20${encodedUrl}%20${hashtags.map(tag => `%23${tag}`).join('%20')}`,
+      web: `https://twitter.com/intent/tweet?url=${encodedUrl}&text=${encodedTitle}&hashtags=${hashtags.join(',')}`
+    },
+    facebook: {
+      mobile: `fb://facewebmodal/f?href=${encodedUrl}`,
+      web: `https://www.facebook.com/sharer/sharer.php?u=${encodedUrl}&quote=${encodedTitle}`
+    },
+    linkedin: {
+      mobile: `linkedin://sharing/share-offsite/?url=${encodedUrl}`,
+      web: `https://www.linkedin.com/sharing/share-offsite/?url=${encodedUrl}&title=${encodedTitle}&summary=${encodedDescription}`
+    },
+    whatsapp: {
+      mobile: `whatsapp://send?text=${encodedTitle}%20${encodedUrl}`,
+      web: `https://wa.me/?text=${encodedTitle}%20${encodedUrl}`
+    },
+    reddit: {
+      mobile: `reddit://reddit.com/submit?url=${encodedUrl}&title=${encodedTitle}`,
+      web: `https://reddit.com/submit?url=${encodedUrl}&title=${encodedTitle}`
+    },
     email: `mailto:?subject=${encodedTitle}&body=${encodedDescription}%0A%0A${encodedUrl}`
   };
 
@@ -52,11 +68,46 @@ export const SocialShare = ({
   };
 
   const handleShare = (platform: string) => {
-    const link = shareLinks[platform as keyof typeof shareLinks];
     if (platform === 'email') {
-      window.location.href = link;
-    } else {
-      window.open(link, '_blank', 'width=600,height=400,scrollbars=yes,resizable=yes');
+      window.location.href = shareLinks.email;
+      return;
+    }
+
+    const platformLinks = shareLinks[platform as keyof Omit<typeof shareLinks, 'email'>];
+    if (!platformLinks || typeof platformLinks === 'string') return;
+
+    // Try mobile app first
+    const mobileLink = platformLinks.mobile;
+    const webLink = platformLinks.web;
+
+    // Create a hidden iframe to test if the mobile app opens
+    const iframe = document.createElement('iframe');
+    iframe.style.display = 'none';
+    iframe.src = mobileLink;
+    document.body.appendChild(iframe);
+
+    // Set a timeout to open web version if mobile app doesn't respond
+    const fallbackTimer = setTimeout(() => {
+      window.open(webLink, '_blank', 'width=600,height=400,scrollbars=yes,resizable=yes');
+      document.body.removeChild(iframe);
+    }, 1000);
+
+    // Clean up iframe after a short delay
+    setTimeout(() => {
+      clearTimeout(fallbackTimer);
+      if (document.body.contains(iframe)) {
+        document.body.removeChild(iframe);
+      }
+    }, 2000);
+
+    // For better mobile detection, also try direct navigation on mobile devices
+    if (/Android|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)) {
+      try {
+        window.location.href = mobileLink;
+        clearTimeout(fallbackTimer);
+      } catch (e) {
+        // If mobile app fails, the timeout will handle web fallback
+      }
     }
   };
 
