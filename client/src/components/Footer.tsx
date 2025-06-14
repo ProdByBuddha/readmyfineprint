@@ -83,7 +83,6 @@ export function Footer() {
             </button>
             <a href="mailto:admin@readmyfineprint.com" className="text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 flex-shrink-0 flex items-center h-4">Contact</a>
           </div>
-          <p className="text-gray-400 dark:text-gray-500 text-xs flex-shrink-0 ml-2 flex items-center h-4">© {new Date().getFullYear()}</p>
         </div>
       </div>
 
