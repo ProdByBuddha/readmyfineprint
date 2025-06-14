@@ -48,6 +48,12 @@ const ENV_VARIABLES: EnvConfig[] = [
     required: false,
     description: 'Optional webhook URL for security alerts (for external monitoring)',
     validator: (value) => value.startsWith('http://') || value.startsWith('https://')
+  },
+  {
+    name: 'REPLIT_DB_URL',
+    required: false,
+    description: 'Replit KV database URL for consent logging (auto-provided in development)',
+    validator: (value) => value.includes('kv.replit.com') || value.includes('repldb.com')
   }
 ];
 
