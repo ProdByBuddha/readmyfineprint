@@ -31,19 +31,19 @@ export const SocialShare = ({
       web: `https://twitter.com/intent/tweet?url=${encodedUrl}&text=${encodedTitle}&hashtags=${hashtags.join(',')}`
     },
     facebook: {
-      mobile: `fb://facewebmodal/f?href=${encodedUrl}`,
+      mobile: `fb://sharer/sharer.php?u=${encodedUrl}&quote=${encodedTitle}`,
       web: `https://www.facebook.com/sharer/sharer.php?u=${encodedUrl}&quote=${encodedTitle}`
     },
     linkedin: {
-      mobile: `linkedin://sharing/share-offsite/?url=${encodedUrl}`,
+      mobile: `linkedin://shareArticle?mini=true&url=${encodedUrl}&title=${encodedTitle}&summary=${encodedDescription}`,
       web: `https://www.linkedin.com/sharing/share-offsite/?url=${encodedUrl}&title=${encodedTitle}&summary=${encodedDescription}`
     },
     whatsapp: {
-      mobile: `whatsapp://send?text=${encodedTitle}%20${encodedUrl}`,
+      mobile: `whatsapp://send?text=${encodedTitle}%20-%20${encodedDescription}%0A%0A${encodedUrl}%0A%0A${hashtagString}`,
       web: `https://wa.me/?text=${encodedTitle}%20${encodedUrl}`
     },
     reddit: {
-      mobile: `reddit://reddit.com/submit?url=${encodedUrl}&title=${encodedTitle}`,
+      mobile: `reddit://reddit.com/submit?url=${encodedUrl}&title=${encodedTitle}&text=${encodedDescription}`,
       web: `https://reddit.com/submit?url=${encodedUrl}&title=${encodedTitle}`
     },
     email: `mailto:?subject=${encodedTitle}&body=${encodedDescription}%0A%0A${encodedUrl}`
