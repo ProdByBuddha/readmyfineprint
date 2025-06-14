@@ -61,7 +61,7 @@ export function Footer() {
     >
       {/* Mobile Layout - Ultra Compact */}
       <div className="md:hidden px-2 py-0.5">
-        <div className="flex items-center justify-between text-xs whitespace-nowrap overflow-hidden min-h-[20px]">
+        <div className="flex items-center justify-center text-xs whitespace-nowrap overflow-hidden min-h-[20px]">
           <div className="flex items-center gap-1.5 flex-shrink min-w-0">
             <Link to="/privacy" className="text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 flex-shrink-0 flex items-center h-4">Privacy</Link>
             <Link to="/terms" className="text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 flex-shrink-0 flex items-center h-4">Terms</Link>
