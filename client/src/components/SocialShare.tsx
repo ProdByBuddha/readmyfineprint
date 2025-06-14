@@ -122,68 +122,68 @@ export const SocialShare = ({
         {/* Twitter */}
         <Button
           variant="outline"
-          size="sm"
+          size="default"
           onClick={() => handleShare('twitter')}
-          className="flex items-center justify-center gap-2 h-12 hover:bg-blue-50 hover:border-blue-200 dark:hover:bg-blue-900/20"
+          className="flex items-center justify-center gap-2 h-14 px-4 text-sm hover:bg-blue-50 hover:border-blue-200 dark:hover:bg-blue-900/20"
         >
-          <Twitter className="w-4 h-4 text-blue-500" />
-          <span>Twitter</span>
+          <Twitter className="w-4 h-4 text-blue-500 flex-shrink-0" />
+          <span className="truncate">Twitter</span>
         </Button>
 
         {/* Facebook */}
         <Button
           variant="outline"
-          size="sm"
+          size="default"
           onClick={() => handleShare('facebook')}
-          className="flex items-center justify-center gap-2 h-12 hover:bg-blue-50 hover:border-blue-200 dark:hover:bg-blue-900/20"
+          className="flex items-center justify-center gap-2 h-14 px-4 text-sm hover:bg-blue-50 hover:border-blue-200 dark:hover:bg-blue-900/20"
         >
-          <Facebook className="w-4 h-4 text-blue-600" />
-          <span>Facebook</span>
+          <Facebook className="w-4 h-4 text-blue-600 flex-shrink-0" />
+          <span className="truncate">Facebook</span>
         </Button>
 
         {/* LinkedIn */}
         <Button
           variant="outline"
-          size="sm"
+          size="default"
           onClick={() => handleShare('linkedin')}
-          className="flex items-center justify-center gap-2 h-12 hover:bg-blue-50 hover:border-blue-200 dark:hover:bg-blue-900/20"
+          className="flex items-center justify-center gap-2 h-14 px-4 text-sm hover:bg-blue-50 hover:border-blue-200 dark:hover:bg-blue-900/20"
         >
-          <div className="w-4 h-4 bg-blue-700 rounded-sm flex items-center justify-center">
+          <div className="w-4 h-4 bg-blue-700 rounded-sm flex items-center justify-center flex-shrink-0">
             <span className="text-white text-xs font-bold">in</span>
           </div>
-          <span>LinkedIn</span>
+          <span className="truncate">LinkedIn</span>
         </Button>
 
         {/* WhatsApp */}
         <Button
           variant="outline"
-          size="sm"
+          size="default"
           onClick={() => handleShare('whatsapp')}
-          className="flex items-center justify-center gap-2 h-12 hover:bg-green-50 hover:border-green-200 dark:hover:bg-green-900/20"
+          className="flex items-center justify-center gap-2 h-14 px-4 text-sm hover:bg-green-50 hover:border-green-200 dark:hover:bg-green-900/20"
         >
-          <MessageCircle className="w-4 h-4 text-green-600" />
-          <span>WhatsApp</span>
+          <MessageCircle className="w-4 h-4 text-green-600 flex-shrink-0" />
+          <span className="truncate">WhatsApp</span>
         </Button>
 
         {/* Reddit */}
         <Button
           variant="outline"
-          size="sm"
+          size="default"
           onClick={() => handleShare('reddit')}
-          className="flex items-center justify-center gap-2 h-12 hover:bg-orange-50 hover:border-orange-200 dark:hover:bg-orange-900/20"
+          className="flex items-center justify-center gap-2 h-14 px-4 text-sm hover:bg-orange-50 hover:border-orange-200 dark:hover:bg-orange-900/20"
         >
-          <div className="w-4 h-4 bg-orange-500 rounded-full flex items-center justify-center">
+          <div className="w-4 h-4 bg-orange-500 rounded-full flex items-center justify-center flex-shrink-0">
             <span className="text-white text-xs font-bold">r</span>
           </div>
-          <span>Reddit</span>
+          <span className="truncate">Reddit</span>
         </Button>
 
         {/* Copy Link */}
         <Button
           variant="outline"
-          size="sm"
+          size="default"
           onClick={handleCopyLink}
-          className={`flex items-center justify-center gap-2 h-12 transition-colors ${
+          className={`flex items-center justify-center gap-2 h-14 px-4 text-sm transition-colors ${
             copied
               ? 'bg-green-50 border-green-200 text-green-700 dark:bg-green-900/20 dark:border-green-700 dark:text-green-400'
               : 'hover:bg-gray-50 hover:border-gray-200 dark:hover:bg-gray-800'
@@ -191,13 +191,13 @@ export const SocialShare = ({
         >
           {copied ? (
             <>
-              <Check className="w-4 h-4" />
-              <span>Copied!</span>
+              <Check className="w-4 h-4 flex-shrink-0" />
+              <span className="truncate">Copied!</span>
             </>
           ) : (
             <>
-              <Copy className="w-4 h-4" />
-              <span>Copy Link</span>
+              <Copy className="w-4 h-4 flex-shrink-0" />
+              <span className="truncate">Copy Link</span>
             </>
           )}
         </Button>
@@ -206,14 +206,14 @@ export const SocialShare = ({
       {/* Email sharing as a separate row */}
       <Button
         variant="outline"
-        size="sm"
+        size="default"
         onClick={() => handleShare('email')}
-        className="w-full flex items-center justify-center gap-2 h-12 hover:bg-gray-50 hover:border-gray-200 dark:hover:bg-gray-800"
+        className="w-full flex items-center justify-center gap-2 h-14 px-4 text-sm hover:bg-gray-50 hover:border-gray-200 dark:hover:bg-gray-800"
       >
-        <div className="w-4 h-4 bg-gray-600 rounded flex items-center justify-center">
+        <div className="w-4 h-4 bg-gray-600 rounded flex items-center justify-center flex-shrink-0">
           <span className="text-white text-xs">@</span>
         </div>
-        Share via Email
+        <span className="truncate">Share via Email</span>
       </Button>
     </div>
   );
