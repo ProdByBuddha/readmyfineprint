@@ -184,23 +184,23 @@ export default function SubscriptionPage() {
                   </div>
 
                   <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                    <div className="text-center p-3 bg-gray-50 rounded-lg">
+                    <div className="text-center p-3 bg-gray-50 dark:bg-gray-800 rounded-lg">
                       <div className="text-xl font-semibold">{subscriptionData.tier.limits.documentsPerMonth}</div>
                       <div className="text-sm text-gray-600">Documents/Month</div>
                     </div>
-                    <div className="text-center p-3 bg-gray-50 rounded-lg">
+                    <div className="text-center p-3 bg-gray-50 dark:bg-gray-800 rounded-lg">
                       <div className="text-xl font-semibold">
                         {subscriptionData.tier.limits.prioritySupport ? <CheckCircle className="h-6 w-6 text-green-500 mx-auto" /> : <span className="text-gray-400">-</span>}
                       </div>
                       <div className="text-sm text-gray-600">Priority Support</div>
                     </div>
-                    <div className="text-center p-3 bg-gray-50 rounded-lg">
+                    <div className="text-center p-3 bg-gray-50 dark:bg-gray-800 rounded-lg">
                       <div className="text-xl font-semibold">
                         {subscriptionData.tier.limits.advancedAnalysis ? <CheckCircle className="h-6 w-6 text-green-500 mx-auto" /> : <span className="text-gray-400">-</span>}
                       </div>
                       <div className="text-sm text-gray-600">Advanced Analysis</div>
                     </div>
-                    <div className="text-center p-3 bg-gray-50 rounded-lg">
+                    <div className="text-center p-3 bg-gray-50 dark:bg-gray-800 rounded-lg">
                       <div className="text-xl font-semibold">
                         {subscriptionData.tier.limits.apiAccess ? <CheckCircle className="h-6 w-6 text-green-500 mx-auto" /> : <span className="text-gray-400">-</span>}
                       </div>
