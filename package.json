@@ -17,7 +17,9 @@
     "a11y:check": "eslint client/src --ext .ts,.tsx",
     "a11y:test": "node scripts/test-accessibility.js",
     "security:verify": "node scripts/verify-security.js",
-    "security:audit": "npm audit && npm outdated"
+    "security:audit": "npm audit && npm outdated",
+    "subscription:init": "node scripts/init-subscriptions.js",
+    "subscription:init:prod": "node scripts/init-subscriptions.js --production"
   },
   "dependencies": {
     "@axe-core/react": "^4.10.2",

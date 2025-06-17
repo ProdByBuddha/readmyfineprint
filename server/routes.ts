@@ -897,6 +897,117 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Subscription Management Routes
+  app.get("/api/subscription/tiers", (req, res) => {
+    const { SUBSCRIPTION_TIERS } = require("./subscription-tiers");
+    res.json({ tiers: SUBSCRIPTION_TIERS });
+  });
+
+  app.get("/api/user/subscription", async (req, res) => {
+    try {
+      const { subscriptionService } = require("./subscription-service");
+      const userId = (req as any).sessionId || "anonymous"; // Use session ID as user ID for now
+
+      const subscriptionData = await subscriptionService.getUserSubscriptionWithUsage(userId);
+      res.json(subscriptionData);
+    } catch (error) {
+      console.error("Error fetching user subscription:", error);
+      res.status(500).json({ error: "Failed to fetch subscription data" });
+    }
+  });
+
+  app.post("/api/subscription/create", async (req, res) => {
+    try {
+      const { subscriptionService } = require("./subscription-service");
+      const { tierId, email, paymentMethodId, billingCycle } = req.body;
+      const userId = (req as any).sessionId || "anonymous";
+
+      if (!tierId || !email || !paymentMethodId || !billingCycle) {
+        return res.status(400).json({ error: "Missing required fields" });
+      }
+
+      const result = await subscriptionService.createSubscription({
+        userId,
+        tierId,
+        email,
+        paymentMethodId,
+        billingCycle
+      });
+
+      res.json(result);
+    } catch (error) {
+      console.error("Error creating subscription:", error);
+      res.status(500).json({ error: error.message });
+    }
+  });
+
+  app.post("/api/subscription/cancel", async (req, res) => {
+    try {
+      const { subscriptionService } = require("./subscription-service");
+      const { subscriptionId, immediate } = req.body;
+
+      if (!subscriptionId) {
+        return res.status(400).json({ error: "subscriptionId is required" });
+      }
+
+      const result = await subscriptionService.cancelSubscription(subscriptionId, immediate);
+      res.json(result);
+    } catch (error) {
+      console.error("Error canceling subscription:", error);
+      res.status(500).json({ error: error.message });
+    }
+  });
+
+  app.post("/api/subscription/upgrade", async (req, res) => {
+    try {
+      const { subscriptionService } = require("./subscription-service");
+      const { subscriptionId, newTierId, billingCycle } = req.body;
+
+      if (!subscriptionId || !newTierId || !billingCycle) {
+        return res.status(400).json({ error: "Missing required fields" });
+      }
+
+      const result = await subscriptionService.updateSubscriptionTier(subscriptionId, newTierId, billingCycle);
+      res.json(result);
+    } catch (error) {
+      console.error("Error upgrading subscription:", error);
+      res.status(500).json({ error: error.message });
+    }
+  });
+
+  // Initialize Stripe products (admin endpoint - should be run once during deployment)
+  app.post("/api/admin/init-stripe-products", requireAdminAuth, async (req, res) => {
+    try {
+      const { subscriptionService } = require("./subscription-service");
+      await subscriptionService.initializeStripeProducts();
+      res.json({ success: true, message: "Stripe products initialized successfully" });
+    } catch (error) {
+      console.error("Error initializing Stripe products:", error);
+      res.status(500).json({ error: error.message });
+    }
+  });
+
+  // Enhanced Stripe webhook handler for subscriptions
+  app.post("/api/subscription-webhook", async (req, res) => {
+    try {
+      const { subscriptionService } = require("./subscription-service");
+      const sig = req.headers['stripe-signature'];
+      const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET;
+
+      if (webhookSecret && sig) {
+        const event = stripe.webhooks.constructEvent(req.body, sig, webhookSecret);
+        await subscriptionService.handleStripeWebhook(event);
+      } else {
+        console.log('⚠️ Webhook processed without signature verification (no webhook secret configured)');
+      }
+
+      res.json({ received: true });
+    } catch (error) {
+      console.error("Subscription webhook error:", error);
+      res.status(400).json({ error: error.message });
+    }
+  });
+
   // API Routes
   app.get('/api/health', (req, res) => {
     res.json({
@@ -905,6 +1016,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
       payment_endpoints: {
         donation_processing: '/api/process-donation',
         stripe_configured: !!process.env.STRIPE_SECRET_KEY
+      },
+      subscription_endpoints: {
+        tiers: '/api/subscription/tiers',
+        user_subscription: '/api/user/subscription',
+        create_subscription: '/api/subscription/create',
+        cancel_subscription: '/api/subscription/cancel',
+        upgrade_subscription: '/api/subscription/upgrade'
       }
     });
   });

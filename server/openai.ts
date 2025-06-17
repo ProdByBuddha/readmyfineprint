@@ -7,7 +7,7 @@ const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY
 });
 
-export async function analyzeDocument(content: string, title: string, ip?: string, userAgent?: string, sessionId?: string): Promise<DocumentAnalysis> {
+export async function analyzeDocument(content: string, title: string, ip?: string, userAgent?: string, sessionId?: string, model: string = "gpt-4o"): Promise<DocumentAnalysis> {
   try {
     // Log OpenAI API usage for audit purposes
     if (ip && userAgent && sessionId) {
@@ -47,7 +47,7 @@ Focus on:
 Provide practical, actionable insights that help everyday users understand what they're agreeing to.`;
 
     const response = await openai.chat.completions.create({
-      model: "gpt-4o",
+      model: model,
       messages: [
         {
           role: "system",

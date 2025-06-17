@@ -21,6 +21,7 @@ import Terms from "@/pages/terms";
 import Cookies from "@/pages/cookies";
 import Donate from "@/pages/donate";
 import Roadmap from "@/pages/roadmap";
+import Subscription from "@/pages/subscription";
 import NotFound from "@/pages/not-found";
 
 function Router() {
@@ -32,6 +33,7 @@ function Router() {
       <Route path="/cookies" component={Cookies} />
       <Route path="/donate" component={Donate} />
       <Route path="/roadmap" component={Roadmap} />
+      <Route path="/subscription" component={Subscription} />
       <Route component={NotFound} />
     </Switch>
   );
@@ -57,7 +59,7 @@ function App() {
 
               {/* Scrollable Main Content Area */}
               <SEOBreadcrumbs />
-              
+
               <main
                 id="main-content"
                 role="main"
