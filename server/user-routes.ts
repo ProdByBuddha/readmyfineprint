@@ -1,0 +1,247 @@
+import { Express, Request, Response, NextFunction } from "express";
+import { databaseStorage } from "./storage";
+import { insertUserSchema, insertUserSubscriptionSchema, insertUsageRecordSchema } from "@shared/schema";
+import { z } from "zod";
+import bcrypt from "bcrypt";
+
+// Validation schemas
+const loginSchema = z.object({
+  email: z.string().email(),
+  password: z.string().min(8),
+});
+
+const registerSchema = insertUserSchema.extend({
+  password: z.string().min(8),
+}).omit({ hashedPassword: true });
+
+const subscriptionSchema = z.object({
+  tierId: z.string(),
+  stripeCustomerId: z.string().optional(),
+  stripeSubscriptionId: z.string().optional(),
+});
+
+export function registerUserRoutes(app: Express) {
+  // User registration
+  app.post("/api/users/register", async (req: Request, res: Response) => {
+    try {
+      const userData = registerSchema.parse(req.body);
+      
+      // Check if user already exists
+      const existingUser = await databaseStorage.getUserByEmail(userData.email);
+      if (existingUser) {
+        return res.status(400).json({ error: "User already exists" });
+      }
+
+      // Hash password
+      const hashedPassword = await bcrypt.hash(userData.password, 12);
+
+      // Create user
+      const user = await databaseStorage.createUser({
+        ...userData,
+        hashedPassword,
+      });
+
+      // Remove password from response
+      const { hashedPassword: _, ...userResponse } = user;
+      res.status(201).json({ user: userResponse });
+    } catch (error) {
+      console.error("Registration error:", error);
+      if (error instanceof z.ZodError) {
+        return res.status(400).json({ error: "Invalid input", details: error.errors });
+      }
+      res.status(500).json({ error: "Registration failed" });
+    }
+  });
+
+  // User login
+  app.post("/api/users/login", async (req: Request, res: Response) => {
+    try {
+      const { email, password } = loginSchema.parse(req.body);
+
+      // Find user
+      const user = await databaseStorage.getUserByEmail(email);
+      if (!user || !user.hashedPassword) {
+        return res.status(401).json({ error: "Invalid credentials" });
+      }
+
+      // Verify password
+      const isValidPassword = await bcrypt.compare(password, user.hashedPassword);
+      if (!isValidPassword) {
+        return res.status(401).json({ error: "Invalid credentials" });
+      }
+
+      // Remove password from response
+      const { hashedPassword: _, ...userResponse } = user;
+      res.json({ user: userResponse });
+    } catch (error) {
+      console.error("Login error:", error);
+      if (error instanceof z.ZodError) {
+        return res.status(400).json({ error: "Invalid input", details: error.errors });
+      }
+      res.status(500).json({ error: "Login failed" });
+    }
+  });
+
+  // Get user profile
+  app.get("/api/users/:id", async (req: Request, res: Response) => {
+    try {
+      const user = await databaseStorage.getUser(req.params.id);
+      if (!user) {
+        return res.status(404).json({ error: "User not found" });
+      }
+
+      // Remove password from response
+      const { hashedPassword: _, ...userResponse } = user;
+      res.json({ user: userResponse });
+    } catch (error) {
+      console.error("Get user error:", error);
+      res.status(500).json({ error: "Failed to get user" });
+    }
+  });
+
+  // Update user profile
+  app.patch("/api/users/:id", async (req: Request, res: Response) => {
+    try {
+      const updates = insertUserSchema.partial().parse(req.body);
+      
+      const user = await databaseStorage.updateUser(req.params.id, updates);
+      if (!user) {
+        return res.status(404).json({ error: "User not found" });
+      }
+
+      // Remove password from response
+      const { hashedPassword: _, ...userResponse } = user;
+      res.json({ user: userResponse });
+    } catch (error) {
+      console.error("Update user error:", error);
+      if (error instanceof z.ZodError) {
+        return res.status(400).json({ error: "Invalid input", details: error.errors });
+      }
+      res.status(500).json({ error: "Failed to update user" });
+    }
+  });
+
+  // Get user subscription
+  app.get("/api/users/:id/subscription", async (req: Request, res: Response) => {
+    try {
+      const subscription = await databaseStorage.getUserSubscription(req.params.id);
+      if (!subscription) {
+        return res.status(404).json({ error: "No subscription found" });
+      }
+
+      res.json({ subscription });
+    } catch (error) {
+      console.error("Get subscription error:", error);
+      res.status(500).json({ error: "Failed to get subscription" });
+    }
+  });
+
+  // Create user subscription
+  app.post("/api/users/:id/subscription", async (req: Request, res: Response) => {
+    try {
+      const subscriptionData = subscriptionSchema.parse(req.body);
+      
+      const subscription = await databaseStorage.createUserSubscription({
+        userId: req.params.id,
+        ...subscriptionData,
+        status: "active",
+        currentPeriodStart: new Date(),
+        currentPeriodEnd: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000), // 30 days
+        cancelAtPeriodEnd: false,
+      });
+
+      res.status(201).json({ subscription });
+    } catch (error) {
+      console.error("Create subscription error:", error);
+      if (error instanceof z.ZodError) {
+        return res.status(400).json({ error: "Invalid input", details: error.errors });
+      }
+      res.status(500).json({ error: "Failed to create subscription" });
+    }
+  });
+
+  // Update user subscription
+  app.patch("/api/users/:id/subscription/:subscriptionId", async (req: Request, res: Response) => {
+    try {
+      const updates = insertUserSubscriptionSchema.partial().parse(req.body);
+      
+      const subscription = await databaseStorage.updateUserSubscription(req.params.subscriptionId, updates);
+      if (!subscription) {
+        return res.status(404).json({ error: "Subscription not found" });
+      }
+
+      res.json({ subscription });
+    } catch (error) {
+      console.error("Update subscription error:", error);
+      if (error instanceof z.ZodError) {
+        return res.status(400).json({ error: "Invalid input", details: error.errors });
+      }
+      res.status(500).json({ error: "Failed to update subscription" });
+    }
+  });
+
+  // Cancel user subscription
+  app.delete("/api/users/:id/subscription/:subscriptionId", async (req: Request, res: Response) => {
+    try {
+      const subscription = await databaseStorage.cancelUserSubscription(req.params.subscriptionId);
+      if (!subscription) {
+        return res.status(404).json({ error: "Subscription not found" });
+      }
+
+      res.json({ subscription });
+    } catch (error) {
+      console.error("Cancel subscription error:", error);
+      res.status(500).json({ error: "Failed to cancel subscription" });
+    }
+  });
+
+  // Get user usage
+  app.get("/api/users/:id/usage", async (req: Request, res: Response) => {
+    try {
+      const period = req.query.period as string || new Date().toISOString().slice(0, 7); // YYYY-MM format
+      
+      const usage = await databaseStorage.getUserUsage(req.params.id, period);
+      if (!usage) {
+        return res.status(404).json({ error: "No usage data found" });
+      }
+
+      res.json({ usage });
+    } catch (error) {
+      console.error("Get usage error:", error);
+      res.status(500).json({ error: "Failed to get usage data" });
+    }
+  });
+
+  // Get user usage history
+  app.get("/api/users/:id/usage/history", async (req: Request, res: Response) => {
+    try {
+      const limit = parseInt(req.query.limit as string) || 12;
+      
+      const history = await databaseStorage.getUserUsageHistory(req.params.id, limit);
+      res.json({ history });
+    } catch (error) {
+      console.error("Get usage history error:", error);
+      res.status(500).json({ error: "Failed to get usage history" });
+    }
+  });
+
+  // Track usage (for internal use)
+  app.post("/api/users/:id/usage", async (req: Request, res: Response) => {
+    try {
+      const usageData = insertUsageRecordSchema.parse(req.body);
+      
+      const usage = await databaseStorage.createUsageRecord({
+        userId: req.params.id,
+        ...usageData,
+      });
+
+      res.status(201).json({ usage });
+    } catch (error) {
+      console.error("Track usage error:", error);
+      if (error instanceof z.ZodError) {
+        return res.status(400).json({ error: "Invalid input", details: error.errors });
+      }
+      res.status(500).json({ error: "Failed to track usage" });
+    }
+  });
+}

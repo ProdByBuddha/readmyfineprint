@@ -14,6 +14,7 @@ import crypto from "crypto";
 import Stripe from "stripe";
 import { securityAlertManager } from './security-alert';
 import { emailService } from './email-service';
+import { registerUserRoutes } from './user-routes';
 
 // Initialize Stripe
 if (!process.env.STRIPE_SECRET_KEY) {
@@ -1026,6 +1027,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
     });
   });
+
+  // Register user management routes
+  registerUserRoutes(app);
 
   const httpServer = createServer(app);
   return httpServer;

@@ -17,10 +17,12 @@ ReadMyFinePrint is a sophisticated web application that transforms complex legal
 ### Backend Architecture
 - **Runtime**: Node.js with TypeScript (ESM modules)
 - **Framework**: Express.js with security-first middleware stack
-- **Storage**: Session-based storage with optional encryption layer
+- **Database**: PostgreSQL with Drizzle ORM for user and subscription management
+- **Storage**: Session-based storage for documents with database storage for users
 - **File Processing**: Secure file upload with magic number validation and comprehensive security scanning
 - **AI Integration**: OpenAI GPT-4o for document analysis
 - **Payment Processing**: Stripe integration with multiple payment methods
+- **Authentication**: Bcrypt password hashing with secure user management
 
 ## Key Components
 
@@ -55,6 +57,8 @@ ReadMyFinePrint is a sophisticated web application that transforms complex legal
 2. **Analysis Process**: Text sent to OpenAI API → Structured analysis returned → Results cached in session
 3. **Result Display**: Analysis rendered with risk assessment → PDF export available with donation QR codes
 4. **Session Management**: 30-minute session timeout → Automatic cleanup → No persistent storage
+5. **User Management**: Registration/login → Secure password hashing → Subscription tracking → Usage monitoring
+6. **Subscription Flow**: User selects tier → Stripe payment processing → Database subscription record → Usage limits enforced
 
 ## External Dependencies
 
