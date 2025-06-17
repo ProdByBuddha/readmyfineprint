@@ -297,14 +297,15 @@ export class SubscriptionService {
     // For now, we'll simulate with a free tier user
     const tier = SUBSCRIPTION_TIERS[0]; // Free tier
     const usage: SubscriptionUsage = {
-      documentsAnalyzed: 1,
-      tokensUsed: 3500,
-      cost: 0.00425,
+      documentsAnalyzed: 47,
+      tokensUsed: 164500,
+      cost: 0.698125,
       resetDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000), // 30 days from now
     };
 
-    const canUpgrade = usage.documentsAnalyzed >= tier.limits.documentsPerMonth * 0.8;
-    const suggestedUpgrade = canUpgrade ? SUBSCRIPTION_TIERS[1] : undefined; // Starter tier
+    // Free tier is unlimited, so no need to suggest upgrade based on usage
+    const canUpgrade = false; // Changed since free tier is now unlimited
+    const suggestedUpgrade = undefined; // No need to suggest upgrade for unlimited tier
 
     return {
       tier,
@@ -395,3 +396,17 @@ export class SubscriptionService {
 }
 
 export const subscriptionService = new SubscriptionService();
+
+/**
+ * Utility function to check if user can analyze another document
+ */
+export function canUserAnalyzeDocument(subscription: UserSubscription, currentUsage: SubscriptionUsage): boolean {
+  const tier = getTierById(subscription.tierId);
+  if (!tier) return false;
+
+  // Allow unlimited documents for free tier or any tier with -1 limit
+  if (tier.limits.documentsPerMonth === -1) return true;
+
+  // For paid tiers, check against the limit
+  return currentUsage.documentsAnalyzed < tier.limits.documentsPerMonth;
+}

@@ -42,14 +42,15 @@ const SUBSCRIPTION_TIERS: SubscriptionTier[] = [
     monthlyPrice: 0,
     yearlyPrice: 0,
     features: [
-      "3 document analyses per month",
+      "Unlimited document scans",
       "Basic analysis with GPT-3.5-Turbo",
       "Standard processing time",
       "Community support",
-      "Basic security features"
+      "Basic security features",
+      "Essential document insights"
     ],
     limits: {
-      documentsPerMonth: 3,
+      documentsPerMonth: -1, // -1 indicates unlimited
       tokensPerDocument: 16000,
       prioritySupport: false,
       advancedAnalysis: false,

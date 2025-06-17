@@ -18,19 +18,20 @@ export const SUBSCRIPTION_TIERS: SubscriptionTier[] = [
   {
     id: "free",
     name: "Free",
-    description: "Perfect for trying out document analysis with basic features",
+    description: "Perfect for trying out document analysis with unlimited basic scans",
     model: "gpt-3.5-turbo",
     monthlyPrice: 0,
     yearlyPrice: 0,
     features: [
-      "3 document analyses per month",
+      "Unlimited document scans",
       "Basic analysis with GPT-3.5-Turbo",
       "Standard processing time",
       "Community support",
-      "Basic security features"
+      "Basic security features",
+      "Essential document insights"
     ],
     limits: {
-      documentsPerMonth: 3,
+      documentsPerMonth: -1, // -1 indicates unlimited
       tokensPerDocument: 16000, // GPT-3.5-Turbo context limit
       prioritySupport: false,
       advancedAnalysis: false,

@@ -10,7 +10,7 @@ This project now includes a comprehensive tiered subscription system based on di
 
 | Tier | Model | Monthly Price | Documents/Month | AI Cost per Doc | Profit Margin |
 |------|-------|---------------|-----------------|-----------------|---------------|
-| **Free** | GPT-3.5-Turbo | $0 | 3 | $0.00425 | N/A |
+| **Free** | GPT-3.5-Turbo | $0 | Unlimited | $0.00425 | N/A |
 | **Starter** | GPT-4o-mini | $15 | 50 | $0.00135 | ~222x |
 | **Professional** | GPT-4o | $75 | 200 | $0.02 | ~19x |
 | **Business** | GPT-4-Turbo | $250 | 500 | $0.065 | ~7.7x |
@@ -18,7 +18,7 @@ This project now includes a comprehensive tiered subscription system based on di
 
 ### Features by Tier
 
-- **Free**: Basic analysis, community support, 3 docs/month
+- **Free**: Basic analysis, community support, unlimited docs
 - **Starter**: Enhanced analysis, email support, exports, 50 docs/month
 - **Professional**: Priority processing, chat support, API access, advanced features
 - **Business**: 24/7 support, unlimited API, white-label options, team features

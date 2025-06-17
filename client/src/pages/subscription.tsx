@@ -60,19 +60,19 @@ export default function SubscriptionPage() {
           model: 'gpt-3.5-turbo',
           monthlyPrice: 0,
           limits: {
-            documentsPerMonth: 3,
+            documentsPerMonth: -1, // Unlimited
             prioritySupport: false,
             advancedAnalysis: false,
             apiAccess: false,
           },
         },
         usage: {
-          documentsAnalyzed: 2,
-          tokensUsed: 7000,
-          cost: 0.00851,
+          documentsAnalyzed: 47,
+          tokensUsed: 164500,
+          cost: 0.698125,
           resetDate: new Date(Date.now() + 28 * 24 * 60 * 60 * 1000),
         },
-        canUpgrade: true,
+        canUpgrade: false, // Changed to false since free tier is now unlimited
         suggestedUpgrade: {
           id: 'starter',
           name: 'Starter',
@@ -131,7 +131,9 @@ export default function SubscriptionPage() {
     );
   }
 
-  const usagePercentage = (subscriptionData.usage.documentsAnalyzed / subscriptionData.tier.limits.documentsPerMonth) * 100;
+  const usagePercentage = subscriptionData.tier.limits.documentsPerMonth === -1
+    ? 0 // Unlimited, so no percentage
+    : (subscriptionData.usage.documentsAnalyzed / subscriptionData.tier.limits.documentsPerMonth) * 100;
   const daysUntilReset = Math.ceil((subscriptionData.usage.resetDate.getTime() - Date.now()) / (1000 * 60 * 60 * 24));
 
   return (
@@ -183,11 +185,13 @@ export default function SubscriptionPage() {
                     </div>
                   </div>
 
-                  <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                    <div className="text-center p-3 bg-gray-50 dark:bg-gray-800 rounded-lg">
-                      <div className="text-xl font-semibold">{subscriptionData.tier.limits.documentsPerMonth}</div>
-                      <div className="text-sm text-gray-600">Documents/Month</div>
-                    </div>
+                                      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                      <div className="text-center p-3 bg-gray-50 dark:bg-gray-800 rounded-lg">
+                        <div className="text-xl font-semibold">
+                          {subscriptionData.tier.limits.documentsPerMonth === -1 ? '∞' : subscriptionData.tier.limits.documentsPerMonth}
+                        </div>
+                        <div className="text-sm text-gray-600">Documents/Month</div>
+                      </div>
                     <div className="text-center p-3 bg-gray-50 dark:bg-gray-800 rounded-lg">
                       <div className="text-xl font-semibold">
                         {subscriptionData.tier.limits.prioritySupport ? <CheckCircle className="h-6 w-6 text-green-500 mx-auto" /> : <span className="text-gray-400">-</span>}
@@ -232,14 +236,22 @@ export default function SubscriptionPage() {
                     <div className="flex justify-between mb-2">
                       <span>Documents Analyzed</span>
                       <span className="font-semibold">
-                        {subscriptionData.usage.documentsAnalyzed} / {subscriptionData.tier.limits.documentsPerMonth}
+                        {subscriptionData.usage.documentsAnalyzed} / {subscriptionData.tier.limits.documentsPerMonth === -1 ? '∞' : subscriptionData.tier.limits.documentsPerMonth}
                       </span>
                     </div>
-                    <Progress value={usagePercentage} className="h-2" />
-                    {usagePercentage > 80 && (
-                      <p className="text-sm text-orange-600 mt-1">
-                        You're approaching your monthly limit
-                      </p>
+                    {subscriptionData.tier.limits.documentsPerMonth === -1 ? (
+                      <div className="h-2 bg-green-100 rounded-full flex items-center justify-center">
+                        <span className="text-xs text-green-700 font-medium">Unlimited</span>
+                      </div>
+                    ) : (
+                      <>
+                        <Progress value={usagePercentage} className="h-2" />
+                        {usagePercentage > 80 && (
+                          <p className="text-sm text-orange-600 mt-1">
+                            You're approaching your monthly limit
+                          </p>
+                        )}
+                      </>
                     )}
                   </div>
 
