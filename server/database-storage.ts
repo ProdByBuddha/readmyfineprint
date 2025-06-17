@@ -1,7 +1,8 @@
 import { db } from "./db";
 import { users, userSubscriptions, usageRecords } from "@shared/schema";
 import { eq, and, desc } from "drizzle-orm";
-import { type IStorage, type Document, type InsertDocument, type User, type InsertUser, type UserSubscription, type InsertUserSubscription, type UsageRecord, type InsertUsageRecord } from "@shared/schema";
+import { type Document, type InsertDocument, type User, type InsertUser, type UserSubscription, type InsertUserSubscription, type UsageRecord, type InsertUsageRecord } from "@shared/schema";
+import { type IStorage } from "./storage";
 
 export class DatabaseStorage implements IStorage {
   // Document management (keeping session-based for now)

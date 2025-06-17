@@ -34,7 +34,7 @@ interface SessionData {
   lastAccessed: Date;
 }
 
-export class SessionStorage implements IStorage {
+export class SessionStorage {
   private sessions: Map<string, SessionData>;
   private readonly sessionTimeout = 30 * 60 * 1000; // 30 minutes
   // Track client fingerprints to handle session ID inconsistencies
@@ -192,6 +192,10 @@ export class SessionStorage implements IStorage {
 }
 
 export const storage = new SessionStorage();
+
+// Database storage for user and subscription management
+import { DatabaseStorage } from './database-storage';
+export const databaseStorage = new DatabaseStorage();
 
 // Option to use encrypted storage for enhanced security
 // Uncomment the line below to enable session encryption
