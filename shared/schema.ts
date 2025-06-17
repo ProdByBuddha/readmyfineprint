@@ -1,7 +1,96 @@
 import { z } from "zod";
+import { pgTable, text, integer, boolean, timestamp, decimal, uuid } from "drizzle-orm/pg-core";
+import { relations } from "drizzle-orm";
+import { createInsertSchema } from "drizzle-zod";
 
-// Remove database table definitions since we're going session-based
-// Keep only the TypeScript interfaces and schemas we need
+// Database Tables
+export const users = pgTable('users', {
+  id: uuid('id').primaryKey().defaultRandom(),
+  email: text('email').unique().notNull(),
+  username: text('username').unique(),
+  hashedPassword: text('hashed_password'),
+  stripeCustomerId: text('stripe_customer_id').unique(),
+  createdAt: timestamp('created_at').defaultNow().notNull(),
+  updatedAt: timestamp('updated_at').defaultNow().notNull(),
+});
+
+export const userSubscriptions = pgTable('user_subscriptions', {
+  id: uuid('id').primaryKey().defaultRandom(),
+  userId: uuid('user_id').references(() => users.id, { onDelete: 'cascade' }).notNull(),
+  tierId: text('tier_id').notNull(),
+  status: text('status').notNull(), // 'active', 'canceled', 'past_due', 'incomplete'
+  stripeCustomerId: text('stripe_customer_id'),
+  stripeSubscriptionId: text('stripe_subscription_id').unique(),
+  currentPeriodStart: timestamp('current_period_start').notNull(),
+  currentPeriodEnd: timestamp('current_period_end').notNull(),
+  cancelAtPeriodEnd: boolean('cancel_at_period_end').default(false).notNull(),
+  createdAt: timestamp('created_at').defaultNow().notNull(),
+  updatedAt: timestamp('updated_at').defaultNow().notNull(),
+});
+
+export const usageRecords = pgTable('usage_records', {
+  id: uuid('id').primaryKey().defaultRandom(),
+  userId: uuid('user_id').references(() => users.id, { onDelete: 'cascade' }).notNull(),
+  subscriptionId: uuid('subscription_id').references(() => userSubscriptions.id, { onDelete: 'cascade' }),
+  period: text('period').notNull(), // YYYY-MM format
+  documentsAnalyzed: integer('documents_analyzed').default(0).notNull(),
+  tokensUsed: integer('tokens_used').default(0).notNull(),
+  cost: decimal('cost', { precision: 10, scale: 6 }).default('0').notNull(),
+  createdAt: timestamp('created_at').defaultNow().notNull(),
+  updatedAt: timestamp('updated_at').defaultNow().notNull(),
+});
+
+// Relations
+export const usersRelations = relations(users, ({ many }) => ({
+  subscriptions: many(userSubscriptions),
+  usageRecords: many(usageRecords),
+}));
+
+export const userSubscriptionsRelations = relations(userSubscriptions, ({ one, many }) => ({
+  user: one(users, {
+    fields: [userSubscriptions.userId],
+    references: [users.id],
+  }),
+  usageRecords: many(usageRecords),
+}));
+
+export const usageRecordsRelations = relations(usageRecords, ({ one }) => ({
+  user: one(users, {
+    fields: [usageRecords.userId],
+    references: [users.id],
+  }),
+  subscription: one(userSubscriptions, {
+    fields: [usageRecords.subscriptionId],
+    references: [userSubscriptions.id],
+  }),
+}));
+
+// Insert Schemas
+export const insertUserSchema = createInsertSchema(users).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export const insertUserSubscriptionSchema = createInsertSchema(userSubscriptions).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export const insertUsageRecordSchema = createInsertSchema(usageRecords).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+// Database Types
+export type User = typeof users.$inferSelect;
+export type InsertUser = z.infer<typeof insertUserSchema>;
+export type UserSubscription = typeof userSubscriptions.$inferSelect;
+export type InsertUserSubscription = z.infer<typeof insertUserSubscriptionSchema>;
+export type UsageRecord = typeof usageRecords.$inferSelect;
+export type InsertUsageRecord = z.infer<typeof insertUsageRecordSchema>;
 
 export const insertDocumentSchema = z.object({
   title: z.string().optional(),
@@ -69,32 +158,6 @@ export const SubscriptionTierSchema = z.object({
   })
 });
 
-export const UserSubscriptionSchema = z.object({
-  id: z.string(),
-  userId: z.string(),
-  tierId: z.string(),
-  status: z.enum(['active', 'canceled', 'past_due', 'incomplete']),
-  stripeCustomerId: z.string().optional(),
-  stripeSubscriptionId: z.string().optional(),
-  currentPeriodStart: z.date(),
-  currentPeriodEnd: z.date(),
-  cancelAtPeriodEnd: z.boolean(),
-  createdAt: z.date(),
-  updatedAt: z.date(),
-});
-
-export const UsageSchema = z.object({
-  id: z.string(),
-  userId: z.string(),
-  subscriptionId: z.string(),
-  period: z.string(), // YYYY-MM format
-  documentsAnalyzed: z.number(),
-  tokensUsed: z.number(),
-  cost: z.number(),
-  createdAt: z.date(),
-  updatedAt: z.date(),
-});
-
 export const SubscriptionUpgradeSchema = z.object({
   currentTier: z.string(),
   targetTier: z.string(),
@@ -102,6 +165,4 @@ export const SubscriptionUpgradeSchema = z.object({
 });
 
 export type SubscriptionTier = z.infer<typeof SubscriptionTierSchema>;
-export type UserSubscription = z.infer<typeof UserSubscriptionSchema>;
-export type Usage = z.infer<typeof UsageSchema>;
 export type SubscriptionUpgrade = z.infer<typeof SubscriptionUpgradeSchema>;

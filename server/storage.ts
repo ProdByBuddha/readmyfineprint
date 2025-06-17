@@ -1,12 +1,31 @@
-import { type Document, type InsertDocument, type Consent } from "@shared/schema";
+import { type Document, type InsertDocument, type Consent, type User, type InsertUser, type UserSubscription, type InsertUserSubscription, type UsageRecord, type InsertUsageRecord } from "@shared/schema";
 
 export interface IStorage {
+  // Document management
   createDocument(sessionId: string, document: InsertDocument, clientFingerprint?: string): Promise<Document>;
   getDocument(sessionId: string, id: number, clientFingerprint?: string): Promise<Document | undefined>;
   getAllDocuments(sessionId: string): Promise<Document[]>;
   updateDocumentAnalysis(sessionId: string, id: number, analysis: any, clientFingerprint?: string): Promise<Document | undefined>;
   clearAllDocuments(sessionId: string): Promise<void>;
   clearExpiredSessions(): Promise<void>;
+  
+  // User management
+  getUser(id: string): Promise<User | undefined>;
+  getUserByEmail(email: string): Promise<User | undefined>;
+  createUser(insertUser: InsertUser): Promise<User>;
+  updateUser(id: string, updates: Partial<InsertUser>): Promise<User | undefined>;
+  
+  // Subscription management
+  getUserSubscription(userId: string): Promise<UserSubscription | undefined>;
+  createUserSubscription(insertSubscription: InsertUserSubscription): Promise<UserSubscription>;
+  updateUserSubscription(id: string, updates: Partial<InsertUserSubscription>): Promise<UserSubscription | undefined>;
+  cancelUserSubscription(id: string): Promise<UserSubscription | undefined>;
+  
+  // Usage tracking
+  getUserUsage(userId: string, period: string): Promise<UsageRecord | undefined>;
+  createUsageRecord(insertUsage: InsertUsageRecord): Promise<UsageRecord>;
+  updateUsageRecord(id: string, updates: Partial<InsertUsageRecord>): Promise<UsageRecord | undefined>;
+  getUserUsageHistory(userId: string, limit?: number): Promise<UsageRecord[]>;
 }
 
 interface SessionData {
