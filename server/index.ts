@@ -72,7 +72,7 @@ const corsOptions = {
   optionsSuccessStatus: 200
 };
 app.use(cors(corsOptions));
-// Rate limiting for API endpoints
+// Enhanced rate limiting for API endpoints with IP-based throttling
 const apiLimiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
   max: 100, // Limit each IP to 100 requests per windowMs
@@ -81,22 +81,43 @@ const apiLimiter = rateLimit({
   },
   standardHeaders: true,
   legacyHeaders: false,
-  validate: false, // Disable all validations since we handle proxy configuration securely
-  // Use a more secure key generator that combines IP with user agent hash
+  validate: false,
   keyGenerator: (req) => {
-    // Use real IP when behind proxy, fallback to connection IP
     const ip = req.ip || req.socket.remoteAddress || 'unknown';
-    // Add user agent hash to prevent trivial bypassing while maintaining privacy
     const userAgent = req.get('User-Agent') || 'unknown';
     const agentHash = crypto.createHash('md5').update(userAgent).digest('hex').substring(0, 8);
-    return `${ip}:${agentHash}`;
+    return `api:${ip}:${agentHash}`;
   },
-  // Log rate limit violations
   handler: (req, res) => {
     const { ip, userAgent } = getClientInfo(req);
     securityLogger.logRateLimit(ip, userAgent, req.path, 100);
     res.status(429).json({
-      error: "Too many requests from this IP, please try again later."
+      error: "Too many requests from this IP, please try again later.",
+      retryAfter: Math.ceil(15 * 60) // 15 minutes in seconds
+    });
+  },
+});
+
+// Stricter rate limiting for admin endpoints
+const adminLimiter = rateLimit({
+  windowMs: 5 * 60 * 1000, // 5 minutes
+  max: 10, // Very limited for admin endpoints
+  message: {
+    error: "Too many admin requests from this IP, please try again later."
+  },
+  standardHeaders: true,
+  legacyHeaders: false,
+  validate: false,
+  keyGenerator: (req) => {
+    const ip = req.ip || req.socket.remoteAddress || 'unknown';
+    return `admin:${ip}`;
+  },
+  handler: (req, res) => {
+    const { ip, userAgent } = getClientInfo(req);
+    securityLogger.logRateLimit(ip, userAgent, req.path, 10);
+    res.status(429).json({
+      error: "Too many admin requests from this IP, please try again later.",
+      retryAfter: Math.ceil(5 * 60)
     });
   },
 });
@@ -128,10 +149,13 @@ const processLimiter = rateLimit({
   },
 });
 
-// Apply rate limiting to API routes
+// Apply rate limiting to different endpoint types
 app.use('/api/', apiLimiter);
+app.use('/api/admin/', adminLimiter);
 app.use('/api/documents/*/analyze', processLimiter);
 app.use('/api/documents/upload', processLimiter);
+app.use('/api/create-payment-intent', processLimiter);
+app.use('/api/create-checkout-session', processLimiter);
 
 // Special middleware for Stripe webhooks (needs raw body)
 app.use('/api/stripe-webhook', express.raw({ type: 'application/json' }));
