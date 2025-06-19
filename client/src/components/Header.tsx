@@ -65,18 +65,20 @@ export function Header() {
             role="navigation"
             aria-label="Main navigation"
           >
-            <Link to="/subscription">
-              <Button
-                variant="ghost"
-                size="sm"
-                className="mr-2"
-                aria-label="Manage subscription"
-                onClick={handleSubscriptionClick}
-              >
-                <Crown className="w-4 h-4 mr-2 text-yellow-600" aria-hidden="true" />
-                Plans
-              </Button>
-            </Link>
+            {!import.meta.env.PROD && (
+              <Link to="/subscription">
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="mr-2"
+                  aria-label="Manage subscription"
+                  onClick={handleSubscriptionClick}
+                >
+                  <Crown className="w-4 h-4 mr-2 text-yellow-600" aria-hidden="true" />
+                  Plans
+                </Button>
+              </Link>
+            )}
             <Link to="/donate">
               <Button
                 variant="outline"
@@ -113,17 +115,19 @@ export function Header() {
             role="navigation"
             aria-label="Mobile navigation"
           >
-            <Link to="/subscription">
-              <Button
-                variant="ghost"
-                size="sm"
-                className="h-10 w-10 p-0 rounded-full transition-all duration-200 active:scale-95"
-                aria-label="Manage subscription"
-                onClick={handleSubscriptionClick}
-              >
-                <Crown className="w-4 h-4 text-yellow-600" aria-hidden="true" />
-              </Button>
-            </Link>
+            {!import.meta.env.PROD && (
+              <Link to="/subscription">
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="h-10 w-10 p-0 rounded-full transition-all duration-200 active:scale-95"
+                  aria-label="Manage subscription"
+                  onClick={handleSubscriptionClick}
+                >
+                  <Crown className="w-4 h-4 text-yellow-600" aria-hidden="true" />
+                </Button>
+              </Link>
+            )}
             <Link to="/donate">
               <Button
                 variant="outline"

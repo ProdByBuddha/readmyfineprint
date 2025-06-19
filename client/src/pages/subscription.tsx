@@ -41,6 +41,10 @@ export default function SubscriptionPage() {
   const [subscriptionData, setSubscriptionData] = useState<SubscriptionData | null>(null);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState('overview');
+  
+  // Show coming soon in production
+  const isProduction = import.meta.env.PROD;
+  const [showComingSoon, setShowComingSoon] = useState(isProduction);
 
   useEffect(() => {
     fetchSubscriptionData();
@@ -109,6 +113,31 @@ export default function SubscriptionPage() {
       }
     }
   };
+
+  // Show coming soon modal in production
+  if (showComingSoon) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center">
+          <div className="bg-white dark:bg-gray-800 rounded-lg p-8 max-w-md w-full mx-4">
+            <div className="text-center">
+              <Crown className="w-16 h-16 text-yellow-500 mx-auto mb-4" />
+              <h2 className="text-2xl font-semibold mb-4 dark:text-white">Coming Soon</h2>
+              <p className="text-gray-600 dark:text-gray-400 mb-6">
+                Subscription management is coming soon! We're working hard to bring you premium features.
+              </p>
+              <Button 
+                onClick={() => window.location.href = '/'}
+                className="w-full"
+              >
+                Back to Home
+              </Button>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   if (loading) {
     return (
