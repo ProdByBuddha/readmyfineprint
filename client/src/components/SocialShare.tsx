@@ -1,7 +1,7 @@
 
 import { useState } from "react";
 import { Share2, Copy, Check, MessageCircle, Mail } from "lucide-react";
-import { siFacebook, siTwitter, siLinkedin } from "simple-icons";
+import * as SimpleIcons from "simple-icons";
 import { Button } from "@/components/ui/button";
 
 interface SocialShareProps {
@@ -90,7 +90,7 @@ export const SocialShare = ({
           title="Share on Twitter"
         >
           <svg className="w-5 h-5 text-blue-500" viewBox="0 0 24 24" fill="currentColor">
-            <path d={siTwitter.path} />
+            <path d={SimpleIcons.siTwitter.path} />
           </svg>
         </Button>
 
@@ -103,7 +103,7 @@ export const SocialShare = ({
           title="Share on LinkedIn"
         >
           <svg className="w-5 h-5 text-blue-700" viewBox="0 0 24 24" fill="currentColor">
-            <path d={siLinkedin.path} />
+            <path d={SimpleIcons.siLinkedin.path} />
           </svg>
         </Button>
 
@@ -129,7 +129,7 @@ export const SocialShare = ({
           title="Share on Facebook"
         >
           <svg className="w-5 h-5 text-blue-600" viewBox="0 0 24 24" fill="currentColor">
-            <path d={siFacebook.path} />
+            <path d={SimpleIcons.siFacebook.path} />
           </svg>
         </Button>
 
