@@ -85,10 +85,10 @@ export const SocialShare = ({
           variant="outline"
           size="sm"
           onClick={() => handleShare('twitter')}
-          className="flex items-center justify-center gap-2 h-12 w-full hover:bg-blue-50 hover:border-blue-200 dark:hover:bg-blue-900/20"
+          className="flex items-center justify-center gap-2 h-12 w-full hover:bg-blue-50 hover:border-blue-200 dark:hover:bg-blue-900/20 min-w-0"
         >
-          <Twitter className="w-4 h-4 text-blue-500" />
-          <span className="text-sm">Twitter</span>
+          <Twitter className="w-4 h-4 text-blue-500 flex-shrink-0" />
+          <span className="text-sm truncate">Twitter</span>
         </Button>
 
         {/* Facebook */}
@@ -96,10 +96,10 @@ export const SocialShare = ({
           variant="outline"
           size="sm"
           onClick={() => handleShare('facebook')}
-          className="flex items-center justify-center gap-2 h-12 w-full hover:bg-blue-50 hover:border-blue-200 dark:hover:bg-blue-900/20"
+          className="flex items-center justify-center gap-2 h-12 w-full hover:bg-blue-50 hover:border-blue-200 dark:hover:bg-blue-900/20 min-w-0"
         >
-          <Facebook className="w-4 h-4 text-blue-600" />
-          <span className="text-sm">Facebook</span>
+          <Facebook className="w-4 h-4 text-blue-600 flex-shrink-0" />
+          <span className="text-sm truncate">Facebook</span>
         </Button>
 
         {/* LinkedIn */}
@@ -107,12 +107,12 @@ export const SocialShare = ({
           variant="outline"
           size="sm"
           onClick={() => handleShare('linkedin')}
-          className="flex items-center justify-center gap-2 h-12 w-full hover:bg-blue-50 hover:border-blue-200 dark:hover:bg-blue-900/20"
+          className="flex items-center justify-center gap-2 h-12 w-full hover:bg-blue-50 hover:border-blue-200 dark:hover:bg-blue-900/20 min-w-0"
         >
-          <div className="w-4 h-4 bg-blue-700 rounded flex items-center justify-center">
-            <span className="text-white text-xs font-bold">in</span>
+          <div className="w-4 h-4 bg-blue-700 rounded flex items-center justify-center flex-shrink-0">
+            <span className="text-white text-xs font-bold leading-none">in</span>
           </div>
-          <span className="text-sm">LinkedIn</span>
+          <span className="text-sm truncate">LinkedIn</span>
         </Button>
 
         {/* WhatsApp */}
@@ -120,10 +120,10 @@ export const SocialShare = ({
           variant="outline"
           size="sm"
           onClick={() => handleShare('whatsapp')}
-          className="flex items-center justify-center gap-2 h-12 w-full hover:bg-green-50 hover:border-green-200 dark:hover:bg-green-900/20"
+          className="flex items-center justify-center gap-2 h-12 w-full hover:bg-green-50 hover:border-green-200 dark:hover:bg-green-900/20 min-w-0"
         >
-          <MessageCircle className="w-4 h-4 text-green-600" />
-          <span className="text-sm">WhatsApp</span>
+          <MessageCircle className="w-4 h-4 text-green-600 flex-shrink-0" />
+          <span className="text-sm truncate">WhatsApp</span>
         </Button>
 
         {/* Reddit */}
@@ -131,12 +131,12 @@ export const SocialShare = ({
           variant="outline"
           size="sm"
           onClick={() => handleShare('reddit')}
-          className="flex items-center justify-center gap-2 h-12 w-full hover:bg-orange-50 hover:border-orange-200 dark:hover:bg-orange-900/20"
+          className="flex items-center justify-center gap-2 h-12 w-full hover:bg-orange-50 hover:border-orange-200 dark:hover:bg-orange-900/20 min-w-0"
         >
-          <div className="w-4 h-4 bg-orange-500 rounded-full flex items-center justify-center">
-            <span className="text-white text-xs font-bold">r</span>
+          <div className="w-4 h-4 bg-orange-500 rounded-full flex items-center justify-center flex-shrink-0">
+            <span className="text-white text-xs font-bold leading-none">r</span>
           </div>
-          <span className="text-sm">Reddit</span>
+          <span className="text-sm truncate">Reddit</span>
         </Button>
 
         {/* Copy Link */}
