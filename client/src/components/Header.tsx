@@ -14,15 +14,13 @@ export function Header() {
   const isDevelopment = import.meta.env.DEV || import.meta.env.MODE === 'development';
 
   const handleSubscriptionClick = (e: React.MouseEvent) => {
-    if (!isDevelopment) {
-      e.preventDefault();
-      toast({
-        title: "Coming Soon",
-        description: "Subscription management is coming soon! We're working hard to bring you premium features.",
-        duration: 4000,
-      });
-    }
-    // In development, let the Link component handle navigation normally
+    // Always prevent navigation and show toast (for production deployment)
+    e.preventDefault();
+    toast({
+      title: "Coming Soon",
+      description: "Subscription management is coming soon! We're working hard to bring you premium features.",
+      duration: 4000,
+    });
   };
 
   return (

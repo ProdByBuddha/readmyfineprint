@@ -113,7 +113,7 @@ SECURITY_EMAIL_FROM=your-email@provider.com
   - Implemented comprehensive security headers
   - Added security logging for blocked access attempts
   - Addressed all critical OWASP ZAP vulnerabilities
-  - Added environment-conditional subscription management (production shows "coming soon" toast, development shows full functionality)
+  - Updated subscription management to show "coming soon" toast for production deployment
 
 ## Changelog
 - June 13, 2025. Initial setup
