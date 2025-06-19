@@ -82,7 +82,7 @@ class EmailService {
 
       const mailOptions = {
         from: {
-          name: 'Read My Fine Print',
+          name: 'ReadMyFinePrint',
           address: process.env.SECURITY_EMAIL_FROM || process.env.FROM_EMAIL || process.env.SMTP_USER || process.env.GMAIL_USER || 'noreply@readmyfineprint.com'
         },
         to: recipientEmail,
@@ -203,26 +203,26 @@ class EmailService {
                 <div style="background: #f3f4f6; padding: 15px; border-radius: 6px; margin: 15px 0;">
                     <h4 style="margin: 0 0 8px 0; color: #374151; font-size: 14px;">💬 Sample Message to Share:</h4>
                     <p style="margin: 0; font-style: italic; color: #6b7280; font-size: 13px; line-height: 1.4;">
-                        "I just supported Read My Fine Print - they're making legal documents easier to understand for everyone! Check out their mission at readmyfineprint.com and consider supporting them too. Every contribution helps make legal literacy accessible to all! 🌟"
+                        "I just supported ReadMyFinePrint - they're making legal documents easier to understand for everyone! Check out their mission at readmyfineprint.com and consider supporting them too. Every contribution helps make legal literacy accessible to all! 🌟"
                     </p>
                 </div>
             </div>
 
             <div class="message">
                 <p>Thank you for being part of our community and supporting our vision of democratizing legal document understanding. Together, we're making legal literacy accessible to all!</p>
-                <p>With heartfelt gratitude,<br><strong>The Read My Fine Print Team</strong></p>
+                <p>With heartfelt gratitude,<br><strong>The ReadMyFinePrint Team</strong></p>
             </div>
         </div>
 
         <div class="footer">
-            <p>Read My Fine Print - Making Legal Documents Accessible</p>
+            <p>ReadMyFinePrint - Making Legal Documents Accessible</p>
             <div class="social-links">
                 <a href="https://readmyfineprint.com/privacy">Privacy Policy</a> |
                 <a href="https://readmyfineprint.com/terms">Terms of Service</a> |
                 <a href="mailto:admin@readmyfineprint.com">Contact Us</a>
             </div>
             <p style="margin-top: 15px; font-size: 12px;">
-                This email was sent because you made a donation to Read My Fine Print.<br>
+                This email was sent because you made a donation to ReadMyFinePrint.<br>
                 If you have any questions, please contact us at admin@readmyfineprint.com
             </p>
         </div>
@@ -274,19 +274,19 @@ Share our donation page: https://readmyfineprint.com/donate
 Know someone who cares about legal accessibility? Forward this email to show them the impact of supporting our mission!
 
 💬 SAMPLE MESSAGE TO SHARE:
-"I just supported Read My Fine Print - they're making legal documents easier to understand for everyone! Check out their mission at readmyfineprint.com and consider supporting them too. Every contribution helps make legal literacy accessible to all! 🌟"
+"I just supported ReadMyFinePrint - they're making legal documents easier to understand for everyone! Check out their mission at readmyfineprint.com and consider supporting them too. Every contribution helps make legal literacy accessible to all! 🌟"
 
 Thank you for being part of our community and supporting our vision of democratizing legal document understanding. Together, we're making legal literacy accessible to all!
 
 With heartfelt gratitude,
-The Read My Fine Print Team
+The ReadMyFinePrint Team
 
 ---
-Read My Fine Print - Making Legal Documents Accessible
+ReadMyFinePrint - Making Legal Documents Accessible
 Website: https://readmyfineprint.com
 Contact: admin@readmyfineprint.com
 
-This email was sent because you made a donation to Read My Fine Print.
+This email was sent because you made a donation to ReadMyFinePrint.
 If you have any questions, please contact us at admin@readmyfineprint.com
     `;
   }

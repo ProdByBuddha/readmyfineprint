@@ -1,6 +1,6 @@
 
 import { useState } from "react";
-import { Share2, Copy, Check, MessageCircle, Mail } from "lucide-react";
+import * as Luc from "lucide-react";
 import * as SimpleIcons from "simple-icons";
 import { Button } from "@/components/ui/button";
 
@@ -14,7 +14,7 @@ interface SocialShareProps {
 
 export const SocialShare = ({
   url = window.location.href,
-  title = "Read My Fine Print - Making Legal Documents Accessible",
+  title = "ReadMyFinePrint - Making Legal Documents Accessible",
   description = "Discover a platform that makes legal documents easier to understand for everyone. Join our mission to democratize legal literacy!",
   hashtags = ["legaltech", "accessibility", "transparency"],
   className = ""
@@ -76,11 +76,11 @@ export const SocialShare = ({
   return (
     <div className={`space-y-4 ${className}`}>
       <div className="flex items-center gap-2 text-sm font-medium text-gray-700 dark:text-gray-300">
-        <Share2 className="w-4 h-4" />
+        <Luc.Share2 className="w-4 h-4" />
         Share with friends
       </div>
 
-      <div className="grid grid-cols-4 gap-3">
+      <div className="grid grid-cols-3 gap-1">
         {/* Twitter */}
         <Button
           variant="outline"
@@ -90,7 +90,7 @@ export const SocialShare = ({
           title="Share on Twitter"
         >
           <svg className="w-5 h-5 text-blue-500" viewBox="0 0 24 24" fill="currentColor">
-            <path d={SimpleIcons.siTwitter.path} />
+            <Luc.TwitterIcon/>
           </svg>
         </Button>
 
@@ -103,7 +103,7 @@ export const SocialShare = ({
           title="Share on LinkedIn"
         >
           <svg className="w-5 h-5 text-blue-700" viewBox="0 0 24 24" fill="currentColor">
-            <path d={SimpleIcons.siLinkedin.path} />
+            <Luc.LinkedinIcon/>
           </svg>
         </Button>
 
@@ -141,7 +141,7 @@ export const SocialShare = ({
           className="flex items-center justify-center h-12 w-full hover:bg-green-50 hover:border-green-200 dark:hover:bg-green-900/20 p-2"
           title="Share on WhatsApp"
         >
-          <MessageCircle className="w-5 h-5 text-green-600" />
+          <Luc.MessageCircle className="w-5 h-5 text-green-600" />
         </Button>
 
         {/* Copy Link */}
@@ -157,9 +157,9 @@ export const SocialShare = ({
           title={copied ? "Copied!" : "Copy Link"}
         >
           {copied ? (
-            <Check className="w-5 h-5" />
+            <Luc.Check className="w-5 h-5" />
           ) : (
-            <Copy className="w-5 h-5" />
+            <Luc.Copy className="w-5 h-5" />
           )}
         </Button>
 
@@ -171,7 +171,7 @@ export const SocialShare = ({
           className="flex items-center justify-center h-12 w-full hover:bg-gray-50 hover:border-gray-200 dark:hover:bg-gray-800 p-2"
           title="Share via Email"
         >
-          <Mail className="w-5 h-5 text-gray-600" />
+          <Luc.Mail className="w-5 h-5 text-gray-600" />
         </Button>
       </div>
     </div>

@@ -35,7 +35,7 @@ export function Footer() {
                   <Share2 className="w-6 h-6 text-blue-600 dark:text-blue-400" />
                 </div>
                 <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">
-                  Share Read My Fine Print
+                  Share ReadMyFinePrint
                 </h3>
                 <p className="text-sm text-gray-600 dark:text-gray-300">
                   Help others discover our mission to make legal documents accessible!
@@ -44,7 +44,7 @@ export function Footer() {
 
               {/* Social sharing component */}
               <SocialShare
-                title="Read My Fine Print - Making Legal Documents Accessible"
+                title="ReadMyFinePrint - Making Legal Documents Accessible"
                 description="Check out this amazing platform that makes legal documents easier to understand for everyone!"
                 hashtags={["legaltech", "accessibility", "transparency", "legal"]}
               />

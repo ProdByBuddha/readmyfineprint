@@ -212,7 +212,7 @@ const DonateContent = () => {
                {/* Social sharing */}
                <div className="mb-6">
                  <SocialShare
-                   title="Check out Read My Fine Print - Making Legal Documents Accessible!"
+                   title="Check out ReadMyFinePrint - Making Legal Documents Accessible!"
                    description="I found this amazing platform that makes legal documents easier to understand. They're working to democratize legal literacy for everyone!"
                    hashtags={["legaltech", "accessibility", "transparency", "legal"]}
                  />
@@ -382,7 +382,7 @@ const DonateContent = () => {
             </div>
 
             <SocialShare
-              title="Read My Fine Print - Making Legal Documents Accessible to Everyone"
+              title="ReadMyFinePrint - Making Legal Documents Accessible to Everyone"
               description="Discover a platform that's revolutionizing how we understand legal documents. Join the movement to make legal literacy accessible to all!"
               hashtags={["legaltech", "accessibility", "transparency", "legal", "fintech"]}
             />
