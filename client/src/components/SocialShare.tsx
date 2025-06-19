@@ -89,9 +89,7 @@ export const SocialShare = ({
           className="flex items-center justify-center h-12 w-full hover:bg-blue-50 hover:border-blue-200 dark:hover:bg-blue-900/20 p-2"
           title="Share on Twitter"
         >
-          <svg className="w-5 h-5 text-blue-500" viewBox="0 0 24 24" fill="currentColor">
-            <Luc.TwitterIcon/>
-          </svg>
+          <span className="text-xs font-medium text-blue-500">Twitter</span>
         </Button>
 
         {/* LinkedIn */}
@@ -102,9 +100,7 @@ export const SocialShare = ({
           className="flex items-center justify-center h-12 w-full hover:bg-blue-50 hover:border-blue-200 dark:hover:bg-blue-900/20 p-2"
           title="Share on LinkedIn"
         >
-          <svg className="w-5 h-5 text-blue-700" viewBox="0 0 24 24" fill="currentColor">
-            <Luc.LinkedinIcon/>
-          </svg>
+          <span className="text-xs font-medium text-blue-700">LinkedIn</span>
         </Button>
 
         {/* Reddit */}
@@ -115,9 +111,7 @@ export const SocialShare = ({
           className="flex items-center justify-center h-12 w-full hover:bg-orange-50 hover:border-orange-200 dark:hover:bg-orange-900/20 p-2"
           title="Share on Reddit"
         >
-          <div className="w-5 h-5 bg-orange-500 rounded-full flex items-center justify-center">
-            <span className="text-white text-xs font-bold leading-none">r</span>
-          </div>
+          <span className="text-xs font-medium text-orange-500">Reddit</span>
         </Button>
 
         {/* Facebook */}
@@ -128,9 +122,7 @@ export const SocialShare = ({
           className="flex items-center justify-center h-12 w-full hover:bg-blue-50 hover:border-blue-200 dark:hover:bg-blue-900/20 p-2"
           title="Share on Facebook"
         >
-          <svg className="w-5 h-5 text-blue-600" viewBox="0 0 24 24" fill="currentColor">
-            <path d={SimpleIcons.siFacebook.path} />
-          </svg>
+          <span className="text-xs font-medium text-blue-600">Facebook</span>
         </Button>
 
         {/* WhatsApp */}
@@ -141,7 +133,7 @@ export const SocialShare = ({
           className="flex items-center justify-center h-12 w-full hover:bg-green-50 hover:border-green-200 dark:hover:bg-green-900/20 p-2"
           title="Share on WhatsApp"
         >
-          <Luc.MessageCircle className="w-5 h-5 text-green-600" />
+          <span className="text-xs font-medium text-green-600">WhatsApp</span>
         </Button>
 
         {/* Copy Link */}
@@ -156,11 +148,9 @@ export const SocialShare = ({
           }`}
           title={copied ? "Copied!" : "Copy Link"}
         >
-          {copied ? (
-            <Luc.Check className="w-5 h-5" />
-          ) : (
-            <Luc.Copy className="w-5 h-5" />
-          )}
+          <span className="text-xs font-medium">
+            {copied ? "Copied!" : "Copy Link"}
+          </span>
         </Button>
 
         {/* Email sharing */}
@@ -171,7 +161,7 @@ export const SocialShare = ({
           className="flex items-center justify-center h-12 w-full hover:bg-gray-50 hover:border-gray-200 dark:hover:bg-gray-800 p-2"
           title="Share via Email"
         >
-          <Luc.Mail className="w-5 h-5 text-gray-600" />
+          <span className="text-xs font-medium text-gray-600">Email</span>
         </Button>
       </div>
     </div>
