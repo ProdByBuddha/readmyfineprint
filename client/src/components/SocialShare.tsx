@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { Share2, Copy, Check, Facebook, Twitter, MessageCircle, Mail } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -79,7 +80,7 @@ export const SocialShare = ({
         Share with friends
       </div>
 
-      <div className="grid grid-cols-2 gap-3">
+      <div className="grid grid-cols-1 gap-3">
         {/* Twitter */}
         <Button
           variant="outline"
@@ -89,17 +90,6 @@ export const SocialShare = ({
         >
           <Twitter className="w-4 h-4 text-blue-500 flex-shrink-0" />
           <span className="text-sm truncate">Twitter</span>
-        </Button>
-
-        {/* Facebook */}
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={() => handleShare('facebook')}
-          className="flex items-center justify-center gap-2 h-12 w-full hover:bg-blue-50 hover:border-blue-200 dark:hover:bg-blue-900/20 min-w-0"
-        >
-          <Facebook className="w-4 h-4 text-blue-600 flex-shrink-0" />
-          <span className="text-sm truncate">Facebook</span>
         </Button>
 
         {/* LinkedIn */}
@@ -115,17 +105,6 @@ export const SocialShare = ({
           <span className="text-sm truncate">LinkedIn</span>
         </Button>
 
-        {/* WhatsApp */}
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={() => handleShare('whatsapp')}
-          className="flex items-center justify-center gap-2 h-12 w-full hover:bg-green-50 hover:border-green-200 dark:hover:bg-green-900/20 min-w-0"
-        >
-          <MessageCircle className="w-4 h-4 text-green-600 flex-shrink-0" />
-          <span className="text-sm truncate">WhatsApp</span>
-        </Button>
-
         {/* Reddit */}
         <Button
           variant="outline"
@@ -137,6 +116,28 @@ export const SocialShare = ({
             <span className="text-white text-xs font-bold leading-none">r</span>
           </div>
           <span className="text-sm truncate">Reddit</span>
+        </Button>
+
+        {/* Facebook */}
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={() => handleShare('facebook')}
+          className="flex items-center justify-center gap-2 h-12 w-full hover:bg-blue-50 hover:border-blue-200 dark:hover:bg-blue-900/20 min-w-0"
+        >
+          <Facebook className="w-4 h-4 text-blue-600 flex-shrink-0" />
+          <span className="text-sm truncate">Facebook</span>
+        </Button>
+
+        {/* WhatsApp */}
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={() => handleShare('whatsapp')}
+          className="flex items-center justify-center gap-2 h-12 w-full hover:bg-green-50 hover:border-green-200 dark:hover:bg-green-900/20 min-w-0"
+        >
+          <MessageCircle className="w-4 h-4 text-green-600 flex-shrink-0" />
+          <span className="text-sm truncate">WhatsApp</span>
         </Button>
 
         {/* Copy Link */}
@@ -162,18 +163,18 @@ export const SocialShare = ({
             </>
           )}
         </Button>
-      </div>
 
-      {/* Email sharing as a separate row */}
-      <Button
-        variant="outline"
-        size="sm"
-        onClick={() => handleShare('email')}
-        className="w-full flex items-center justify-center gap-2 h-12 hover:bg-gray-50 hover:border-gray-200 dark:hover:bg-gray-800"
-      >
-        <Mail className="w-4 h-4 text-gray-600" />
-        <span className="text-sm">Share via Email</span>
-      </Button>
+        {/* Email sharing */}
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={() => handleShare('email')}
+          className="flex items-center justify-center gap-2 h-12 w-full hover:bg-gray-50 hover:border-gray-200 dark:hover:bg-gray-800"
+        >
+          <Mail className="w-4 h-4 text-gray-600" />
+          <span className="text-sm">Share via Email</span>
+        </Button>
+      </div>
     </div>
   );
 };
