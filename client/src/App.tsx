@@ -1,4 +1,4 @@
-import { Switch, Route, useLocation, Navigate } from "wouter";
+import { Switch, Route, useLocation, Redirect } from "wouter";
 import { queryClient } from "./lib/queryClient";
 import { QueryClientProvider } from "@tanstack/react-query";
 import { Toaster } from "@/components/ui/toaster";
@@ -35,9 +35,9 @@ function Router() {
       <Route path="/roadmap" component={Roadmap} />
       <Route 
             path="/subscription" 
-            element={
+            component={() => 
               import.meta.env.PROD ? 
-                <Navigate to="/" replace /> : 
+                <Redirect to="/" replace /> : 
                 <Subscription />
             } 
           />
