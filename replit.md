@@ -107,12 +107,13 @@ SECURITY_EMAIL_FROM=your-email@provider.com
 ```
 
 ## Recent Changes
-- **June 19, 2025**: Security hardening completed
+- **June 19, 2025**: Security hardening and environment-conditional features completed
   - Blocked access to sensitive files (.env, package.json, source code)
   - Enhanced payment endpoint validation with Zod schemas
   - Implemented comprehensive security headers
   - Added security logging for blocked access attempts
   - Addressed all critical OWASP ZAP vulnerabilities
+  - Added environment-conditional subscription management (production shows "coming soon" toast, development shows full functionality)
 
 ## Changelog
 - June 13, 2025. Initial setup

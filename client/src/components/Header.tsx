@@ -3,10 +3,27 @@ import { Moon, Sun, Heart, Crown } from "lucide-react";
 import { Link } from "wouter";
 import { useTheme } from "@/components/ThemeProvider";
 import { useIsMobile } from "@/hooks/use-mobile";
+import { useToast } from "@/hooks/use-toast";
 
 export function Header() {
   const { theme, toggleTheme } = useTheme();
   const isMobile = useIsMobile();
+  const { toast } = useToast();
+
+  // Check if we're in development mode
+  const isDevelopment = import.meta.env.DEV || import.meta.env.MODE === 'development';
+
+  const handleSubscriptionClick = (e: React.MouseEvent) => {
+    if (!isDevelopment) {
+      e.preventDefault();
+      toast({
+        title: "Coming Soon",
+        description: "Subscription management is coming soon! We're working hard to bring you premium features.",
+        duration: 4000,
+      });
+    }
+    // In development, let the Link component handle navigation normally
+  };
 
   return (
     <header
@@ -56,6 +73,7 @@ export function Header() {
                 size="sm"
                 className="mr-2"
                 aria-label="Manage subscription"
+                onClick={handleSubscriptionClick}
               >
                 <Crown className="w-4 h-4 mr-2 text-yellow-600" aria-hidden="true" />
                 Plans
@@ -103,6 +121,7 @@ export function Header() {
                 size="sm"
                 className="h-10 w-10 p-0 rounded-full transition-all duration-200 active:scale-95"
                 aria-label="Manage subscription"
+                onClick={handleSubscriptionClick}
               >
                 <Crown className="w-4 h-4 text-yellow-600" aria-hidden="true" />
               </Button>
