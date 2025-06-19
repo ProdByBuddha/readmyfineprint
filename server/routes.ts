@@ -2,7 +2,7 @@ import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
 import { consentLogger } from "./consent";
-import { requireAdminAuth } from "./auth";
+import { requireAdminAuth, optionalUserAuth, requireUserAuth } from "./auth";
 import { insertDocumentSchema } from "@shared/schema";
 import { analyzeDocument } from "./openai";
 import { FileValidator, createSecureFileFilter } from "./file-validation";
@@ -241,7 +241,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Analyze document
-  app.post("/api/documents/:id/analyze", async (req: any, res) => {
+  app.post("/api/documents/:id/analyze", optionalUserAuth, async (req: any, res) => {
     try {
       const documentId = parseInt(req.params.id);
 
@@ -904,10 +904,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
     res.json({ tiers: SUBSCRIPTION_TIERS });
   });
 
-  app.get("/api/user/subscription", async (req, res) => {
+  app.get("/api/user/subscription", optionalUserAuth, async (req, res) => {
     try {
       const { subscriptionService } = require("./subscription-service");
-      const userId = (req as any).sessionId || "anonymous"; // Use session ID as user ID for now
+      // Use authenticated user ID or fallback to session ID for backwards compatibility
+      const userId = req.user?.id || (req as any).sessionId || "anonymous";
+      if (!userId) {
+        return res.status(400).json({ error: "Unable to identify user" });
+      }
 
       const subscriptionData = await subscriptionService.getUserSubscriptionWithUsage(userId);
       res.json(subscriptionData);

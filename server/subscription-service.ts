@@ -1,7 +1,8 @@
 import Stripe from 'stripe';
-import type { UserSubscription, SubscriptionTier, Usage } from '@shared/schema';
+import type { UserSubscription, SubscriptionTier, User, InsertUserSubscription, UsageRecord, InsertUsageRecord } from '@shared/schema';
 import { SUBSCRIPTION_TIERS, getTierById } from './subscription-tiers';
 import { securityLogger } from './security-logger';
+import { databaseStorage } from './storage';
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
   apiVersion: '2025-05-28.basil',
@@ -293,43 +294,107 @@ export class SubscriptionService {
     canUpgrade: boolean;
     suggestedUpgrade?: SubscriptionTier;
   }> {
-    // In a real implementation, this would query your database
-    // For now, we'll simulate with a free tier user
-    const tier = SUBSCRIPTION_TIERS[0]; // Free tier
-    const usage: SubscriptionUsage = {
-      documentsAnalyzed: 47,
-      tokensUsed: 164500,
-      cost: 0.698125,
-      resetDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000), // 30 days from now
-    };
+    try {
+      // Get user to verify they exist
+      const user = await databaseStorage.getUser(userId);
+      if (!user) {
+        throw new Error('User not found');
+      }
 
-    // Free tier is unlimited, so no need to suggest upgrade based on usage
-    const canUpgrade = false; // Changed since free tier is now unlimited
-    const suggestedUpgrade = undefined; // No need to suggest upgrade for unlimited tier
+      // Get user's current subscription
+      const subscription = await databaseStorage.getUserSubscription(userId);
 
-    return {
-      tier,
-      usage,
-      canUpgrade,
-      suggestedUpgrade,
-    };
+      // Determine tier - default to free if no subscription
+      const tier = subscription
+        ? getTierById(subscription.tierId) || SUBSCRIPTION_TIERS[0]
+        : SUBSCRIPTION_TIERS[0]; // Free tier
+
+      // Get current period usage
+      const currentPeriod = new Date().toISOString().slice(0, 7); // YYYY-MM format
+      const usageRecord = await databaseStorage.getUserUsage(userId, currentPeriod);
+
+      // Calculate usage data
+      const usage: SubscriptionUsage = {
+        documentsAnalyzed: usageRecord?.documentsAnalyzed || 0,
+        tokensUsed: usageRecord?.tokensUsed || 0,
+        cost: parseFloat(usageRecord?.cost || '0'),
+        resetDate: subscription
+          ? subscription.currentPeriodEnd
+          : new Date(Date.now() + 30 * 24 * 60 * 60 * 1000), // 30 days from now for free users
+      };
+
+      // Determine upgrade suggestions
+      const canUpgrade = this.shouldSuggestUpgrade(tier, usage);
+      const suggestedUpgrade = canUpgrade ? this.getSuggestedUpgrade(tier) : undefined;
+
+      return {
+        subscription,
+        tier,
+        usage,
+        canUpgrade,
+        suggestedUpgrade,
+      };
+    } catch (error) {
+      console.error('Error getting user subscription:', error);
+      // Fallback to free tier
+      const tier = SUBSCRIPTION_TIERS[0];
+      const usage: SubscriptionUsage = {
+        documentsAnalyzed: 0,
+        tokensUsed: 0,
+        cost: 0,
+        resetDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
+      };
+
+      return {
+        tier,
+        usage,
+        canUpgrade: false,
+        suggestedUpgrade: undefined,
+      };
+    }
   }
 
   /**
    * Track document analysis usage
    */
   async trackUsage(userId: string, tokensUsed: number, model: string): Promise<void> {
-    const tier = getTierById('free'); // This would be looked up from user's subscription
-    if (!tier) return;
+    try {
+      // Get user's current subscription to determine tier
+      const subscription = await databaseStorage.getUserSubscription(userId);
+      const tier = subscription
+        ? getTierById(subscription.tierId) || SUBSCRIPTION_TIERS[0]
+        : SUBSCRIPTION_TIERS[0]; // Default to free tier
 
-    const cost = this.calculateTokenCost(tokensUsed, tier);
+      const cost = this.calculateTokenCost(tokensUsed, tier);
+      const currentPeriod = new Date().toISOString().slice(0, 7); // YYYY-MM format
 
-    // In a real implementation, this would update usage in your database
-    console.log(`Usage tracked for user ${userId}:`, {
-      tokensUsed,
-      model,
-      cost,
-    });
+      // Get or create usage record for current period
+      let usageRecord = await databaseStorage.getUserUsage(userId, currentPeriod);
+
+      if (usageRecord) {
+        // Update existing usage record
+        await databaseStorage.updateUsageRecord(usageRecord.id, {
+          documentsAnalyzed: usageRecord.documentsAnalyzed + 1,
+          tokensUsed: usageRecord.tokensUsed + tokensUsed,
+          cost: (parseFloat(usageRecord.cost) + cost).toString(),
+        });
+      } else {
+        // Create new usage record
+        await databaseStorage.createUsageRecord({
+          userId,
+          subscriptionId: subscription?.id,
+          period: currentPeriod,
+          documentsAnalyzed: 1,
+          tokensUsed,
+          cost: cost.toString(),
+        });
+      }
+
+      console.log(`✅ Usage tracked for user ${userId}: +1 document, +${tokensUsed} tokens, +$${cost.toFixed(6)}`);
+    } catch (error) {
+      console.error('Error tracking usage:', error);
+      // Don't throw - usage tracking failures shouldn't break document analysis
+    }
   }
 
   /**
@@ -344,6 +409,31 @@ export class SubscriptionService {
     const outputCost = (outputTokens / 1_000_000) * tier.modelCosts.outputTokenCost;
 
     return inputCost + outputCost;
+  }
+
+  /**
+   * Determine if user should be suggested to upgrade
+   */
+  private shouldSuggestUpgrade(tier: SubscriptionTier, usage: SubscriptionUsage): boolean {
+    // Don't suggest upgrade for unlimited free tier
+    if (tier.limits.documentsPerMonth === -1) return false;
+
+    // Don't suggest upgrade for highest tier
+    if (tier.id === 'enterprise') return false;
+
+    // Suggest upgrade if user is at 80% of their limit
+    return usage.documentsAnalyzed >= tier.limits.documentsPerMonth * 0.8;
+  }
+
+  /**
+   * Get suggested upgrade tier for current tier
+   */
+  private getSuggestedUpgrade(currentTier: SubscriptionTier): SubscriptionTier | undefined {
+    const currentIndex = SUBSCRIPTION_TIERS.findIndex(t => t.id === currentTier.id);
+    if (currentIndex === -1 || currentIndex >= SUBSCRIPTION_TIERS.length - 1) {
+      return undefined;
+    }
+    return SUBSCRIPTION_TIERS[currentIndex + 1];
   }
 
   /**

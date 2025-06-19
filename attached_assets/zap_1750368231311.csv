@@ -1,0 +1,1001 @@
+ID,Req. Timestamp,Resp. Timestamp,Method,URL,Code,Reason,RTT,Size Resp. Header,Size Resp. Body
+4849,Thu Jun 19 14:12:51 PDT 2025,Thu Jun 19 14:12:51 PDT 2025,POST,https://readmyfineprint.com/api/documents,200,OK,88,1103,210
+4850,Thu Jun 19 14:12:51 PDT 2025,Thu Jun 19 14:12:51 PDT 2025,POST,https://readmyfineprint.com/api/documents,200,OK,93,1103,207
+4851,Thu Jun 19 14:12:51 PDT 2025,Thu Jun 19 14:12:51 PDT 2025,POST,https://readmyfineprint.com/api/documents,200,OK,81,1103,207
+4852,Thu Jun 19 14:12:51 PDT 2025,Thu Jun 19 14:12:51 PDT 2025,POST,https://readmyfineprint.com/api/documents,200,OK,78,1103,227
+4853,Thu Jun 19 14:12:51 PDT 2025,Thu Jun 19 14:12:51 PDT 2025,POST,https://readmyfineprint.com/api/documents,200,OK,84,1103,210
+4854,Thu Jun 19 14:12:51 PDT 2025,Thu Jun 19 14:12:51 PDT 2025,POST,https://readmyfineprint.com/api/documents,200,OK,96,1102,207
+4855,Thu Jun 19 14:12:51 PDT 2025,Thu Jun 19 14:12:51 PDT 2025,POST,https://readmyfineprint.com/api/documents,200,OK,84,1103,254
+4856,Thu Jun 19 14:12:51 PDT 2025,Thu Jun 19 14:12:51 PDT 2025,POST,https://readmyfineprint.com/api/documents,200,OK,81,1103,254
+4857,Thu Jun 19 14:12:51 PDT 2025,Thu Jun 19 14:12:51 PDT 2025,POST,https://readmyfineprint.com/api/documents,200,OK,94,1104,274
+4858,Thu Jun 19 14:12:51 PDT 2025,Thu Jun 19 14:12:51 PDT 2025,POST,https://readmyfineprint.com/api/documents,200,OK,93,1103,207
+4859,Thu Jun 19 14:12:51 PDT 2025,Thu Jun 19 14:12:51 PDT 2025,POST,https://readmyfineprint.com/api/documents,200,OK,85,1103,254
+4860,Thu Jun 19 14:12:51 PDT 2025,Thu Jun 19 14:12:51 PDT 2025,POST,https://readmyfineprint.com/api/documents,200,OK,80,1104,279
+4861,Thu Jun 19 14:12:51 PDT 2025,Thu Jun 19 14:12:51 PDT 2025,POST,https://readmyfineprint.com/api/documents,200,OK,81,1104,279
+4862,Thu Jun 19 14:12:51 PDT 2025,Thu Jun 19 14:12:51 PDT 2025,POST,https://readmyfineprint.com/api/documents,200,OK,85,1104,299
+4863,Thu Jun 19 14:12:51 PDT 2025,Thu Jun 19 14:12:51 PDT 2025,POST,https://readmyfineprint.com/api/documents,200,OK,89,1102,254
+4864,Thu Jun 19 14:12:51 PDT 2025,Thu Jun 19 14:12:51 PDT 2025,POST,https://readmyfineprint.com/api/documents,200,OK,80,1103,190
+4865,Thu Jun 19 14:12:51 PDT 2025,Thu Jun 19 14:12:51 PDT 2025,POST,https://readmyfineprint.com/api/documents,200,OK,90,1103,279
+4866,Thu Jun 19 14:12:51 PDT 2025,Thu Jun 19 14:12:51 PDT 2025,POST,https://readmyfineprint.com/api/documents,200,OK,110,1102,190
+4867,Thu Jun 19 14:12:51 PDT 2025,Thu Jun 19 14:12:51 PDT 2025,POST,https://readmyfineprint.com/api/documents,200,OK,85,1103,210
+4868,Thu Jun 19 14:12:51 PDT 2025,Thu Jun 19 14:12:51 PDT 2025,POST,https://readmyfineprint.com/api/documents,200,OK,82,1104,279
+4869,Thu Jun 19 14:12:51 PDT 2025,Thu Jun 19 14:12:51 PDT 2025,POST,https://readmyfineprint.com/api/documents,200,OK,82,1103,191
+4870,Thu Jun 19 14:12:51 PDT 2025,Thu Jun 19 14:12:51 PDT 2025,POST,https://readmyfineprint.com/api/documents,200,OK,83,1103,191
+4871,Thu Jun 19 14:12:51 PDT 2025,Thu Jun 19 14:12:51 PDT 2025,POST,https://readmyfineprint.com/api/documents,200,OK,110,1102,190
+4872,Thu Jun 19 14:12:51 PDT 2025,Thu Jun 19 14:12:51 PDT 2025,POST,https://readmyfineprint.com/api/documents,200,OK,91,1103,211
+4873,Thu Jun 19 14:12:51 PDT 2025,Thu Jun 19 14:12:51 PDT 2025,POST,https://readmyfineprint.com/api/documents,200,OK,96,1106,190
+4874,Thu Jun 19 14:12:51 PDT 2025,Thu Jun 19 14:12:51 PDT 2025,POST,https://readmyfineprint.com/api/documents,200,OK,82,1103,139
+4875,Thu Jun 19 14:12:51 PDT 2025,Thu Jun 19 14:12:51 PDT 2025,POST,https://readmyfineprint.com/api/documents,200,OK,85,1102,191
+4876,Thu Jun 19 14:12:51 PDT 2025,Thu Jun 19 14:12:51 PDT 2025,POST,https://readmyfineprint.com/api/documents,200,OK,86,1103,139
+4877,Thu Jun 19 14:12:51 PDT 2025,Thu Jun 19 14:12:51 PDT 2025,POST,https://readmyfineprint.com/api/documents,200,OK,85,1103,159
+4878,Thu Jun 19 14:12:51 PDT 2025,Thu Jun 19 14:12:51 PDT 2025,POST,https://readmyfineprint.com/api/documents,200,OK,84,1103,191
+4879,Thu Jun 19 14:12:51 PDT 2025,Thu Jun 19 14:12:51 PDT 2025,POST,https://readmyfineprint.com/api/documents,200,OK,79,1103,137
+4880,Thu Jun 19 14:12:51 PDT 2025,Thu Jun 19 14:12:51 PDT 2025,POST,https://readmyfineprint.com/api/documents,200,OK,114,1103,137
+4881,Thu Jun 19 14:12:51 PDT 2025,Thu Jun 19 14:12:51 PDT 2025,POST,https://readmyfineprint.com/api/documents,200,OK,98,1103,139
+4882,Thu Jun 19 14:12:51 PDT 2025,Thu Jun 19 14:12:51 PDT 2025,POST,https://readmyfineprint.com/api/documents,200,OK,77,1103,157
+4883,Thu Jun 19 14:12:51 PDT 2025,Thu Jun 19 14:12:51 PDT 2025,POST,https://readmyfineprint.com/api/documents,200,OK,79,1103,139
+4884,Thu Jun 19 14:12:51 PDT 2025,Thu Jun 19 14:12:51 PDT 2025,POST,https://readmyfineprint.com/api/documents,200,OK,85,1103,144
+4885,Thu Jun 19 14:12:51 PDT 2025,Thu Jun 19 14:12:51 PDT 2025,POST,https://readmyfineprint.com/api/documents,200,OK,81,1103,137
+4886,Thu Jun 19 14:12:51 PDT 2025,Thu Jun 19 14:12:51 PDT 2025,POST,https://readmyfineprint.com/api/documents,200,OK,111,1102,144
+4887,Thu Jun 19 14:12:51 PDT 2025,Thu Jun 19 14:12:51 PDT 2025,POST,https://readmyfineprint.com/api/documents,200,OK,100,1103,164
+4888,Thu Jun 19 14:12:51 PDT 2025,Thu Jun 19 14:12:51 PDT 2025,POST,https://readmyfineprint.com/api/documents,200,OK,90,1103,137
+4889,Thu Jun 19 14:12:51 PDT 2025,Thu Jun 19 14:12:52 PDT 2025,POST,https://readmyfineprint.com/api/documents,200,OK,90,1103,144
+4890,Thu Jun 19 14:12:51 PDT 2025,Thu Jun 19 14:12:52 PDT 2025,POST,https://readmyfineprint.com/api/documents,200,OK,94,1103,144
+4891,Thu Jun 19 14:12:52 PDT 2025,Thu Jun 19 14:12:52 PDT 2025,POST,https://readmyfineprint.com/api/documents/,200,OK,81,1103,138
+4892,Thu Jun 19 14:12:52 PDT 2025,Thu Jun 19 14:12:52 PDT 2025,DELETE,https://readmyfineprint.com/api/documents/,200,OK,83,1102,48
+4893,Thu Jun 19 14:12:52 PDT 2025,Thu Jun 19 14:12:52 PDT 2025,POST,https://readmyfineprint.com/api/documents/,200,OK,80,1103,130
+4894,Thu Jun 19 14:12:52 PDT 2025,Thu Jun 19 14:12:52 PDT 2025,POST,https://readmyfineprint.com/api/documents/1/analyze/,200,OK,87,1106,5370
+4895,Thu Jun 19 14:12:52 PDT 2025,Thu Jun 19 14:12:52 PDT 2025,GET,https://readmyfineprint.com/_next,200,OK,83,1127,5376
+4896,Thu Jun 19 14:12:52 PDT 2025,Thu Jun 19 14:12:52 PDT 2025,POST,https://readmyfineprint.com/api/documents/,200,OK,95,1104,2139
+4897,Thu Jun 19 14:12:52 PDT 2025,Thu Jun 19 14:12:52 PDT 2025,GET,https://readmyfineprint.com/,200,OK,99,1127,5376
+4898,Thu Jun 19 14:12:52 PDT 2025,Thu Jun 19 14:12:52 PDT 2025,POST,https://readmyfineprint.com/api/documents/,200,OK,100,1103,146
+4899,Thu Jun 19 14:12:52 PDT 2025,Thu Jun 19 14:12:52 PDT 2025,POST,https://readmyfineprint.com/api/documents/,200,OK,105,1102,138
+4900,Thu Jun 19 14:12:52 PDT 2025,Thu Jun 19 14:12:52 PDT 2025,GET,https://readmyfineprint.com/,200,OK,113,1126,5376
+4901,Thu Jun 19 14:12:52 PDT 2025,Thu Jun 19 14:12:52 PDT 2025,GET,https://readmyfineprint.com/.env/,200,OK,114,1126,5376
+4902,Thu Jun 19 14:12:52 PDT 2025,Thu Jun 19 14:12:52 PDT 2025,GET,https://readmyfineprint.com/_next/,200,OK,84,1127,5376
+4903,Thu Jun 19 14:12:52 PDT 2025,Thu Jun 19 14:12:52 PDT 2025,GET,https://readmyfineprint.com/_next/,200,OK,88,1126,5376
+4904,Thu Jun 19 14:12:52 PDT 2025,Thu Jun 19 14:12:52 PDT 2025,GET,https://readmyfineprint.com/admin,200,OK,92,1127,5376
+4905,Thu Jun 19 14:12:52 PDT 2025,Thu Jun 19 14:12:52 PDT 2025,GET,https://readmyfineprint.com/admin/,200,OK,80,1127,5376
+4906,Thu Jun 19 14:12:52 PDT 2025,Thu Jun 19 14:12:52 PDT 2025,GET,https://readmyfineprint.com/api,200,OK,93,1127,5376
+4907,Thu Jun 19 14:12:52 PDT 2025,Thu Jun 19 14:12:52 PDT 2025,GET,https://readmyfineprint.com/admin/,200,OK,100,1127,5376
+4908,Thu Jun 19 14:12:52 PDT 2025,Thu Jun 19 14:12:52 PDT 2025,GET,https://readmyfineprint.com/api/,200,OK,82,1127,5376
+4909,Thu Jun 19 14:12:52 PDT 2025,Thu Jun 19 14:12:52 PDT 2025,GET,https://readmyfineprint.com/api/create-checkout-session/,400,Bad Request,97,1052,59
+4910,Thu Jun 19 14:12:52 PDT 2025,Thu Jun 19 14:12:52 PDT 2025,GET,https://readmyfineprint.com/api/documents/1/,200,OK,91,1047,5370
+4911,Thu Jun 19 14:12:52 PDT 2025,Thu Jun 19 14:12:52 PDT 2025,GET,https://readmyfineprint.com/assets,301,Moved Permanently,92,733,156
+4912,Thu Jun 19 14:12:52 PDT 2025,Thu Jun 19 14:12:52 PDT 2025,GET,https://readmyfineprint.com/api/,200,OK,104,1127,5376
+4913,Thu Jun 19 14:12:52 PDT 2025,Thu Jun 19 14:12:52 PDT 2025,GET,https://readmyfineprint.com/api/documents/,200,OK,106,1041,2
+4914,Thu Jun 19 14:12:52 PDT 2025,Thu Jun 19 14:12:52 PDT 2025,GET,https://readmyfineprint.com/assets/,200,OK,91,1126,5376
+4915,Thu Jun 19 14:12:52 PDT 2025,Thu Jun 19 14:12:52 PDT 2025,GET,https://readmyfineprint.com/assets/vendor-XmM-h_u-.js/,200,OK,89,1185,5376
+4916,Thu Jun 19 14:12:52 PDT 2025,Thu Jun 19 14:12:52 PDT 2025,GET,https://readmyfineprint.com/assets/index-D0XQE0Pb.css/,200,OK,96,1184,5376
+4917,Thu Jun 19 14:12:52 PDT 2025,Thu Jun 19 14:12:52 PDT 2025,GET,https://readmyfineprint.com/assets/index-XLT6FXFc.js/,200,OK,96,1184,5376
+4918,Thu Jun 19 14:12:52 PDT 2025,Thu Jun 19 14:12:52 PDT 2025,GET,https://readmyfineprint.com/config,200,OK,114,1126,5376
+4919,Thu Jun 19 14:12:52 PDT 2025,Thu Jun 19 14:12:52 PDT 2025,GET,https://readmyfineprint.com/assets/ui-GhKx_Kyv.js/,200,OK,115,1185,5376
+4920,Thu Jun 19 14:12:52 PDT 2025,Thu Jun 19 14:12:52 PDT 2025,GET,https://readmyfineprint.com/dist,200,OK,81,1127,5376
+4921,Thu Jun 19 14:12:52 PDT 2025,Thu Jun 19 14:12:52 PDT 2025,GET,https://readmyfineprint.com/config/,200,OK,103,1126,5376
+4922,Thu Jun 19 14:12:52 PDT 2025,Thu Jun 19 14:12:52 PDT 2025,GET,https://readmyfineprint.com/config/,200,OK,100,1126,5376
+4923,Thu Jun 19 14:12:52 PDT 2025,Thu Jun 19 14:12:52 PDT 2025,GET,https://readmyfineprint.com/cookies/,200,OK,109,1127,5376
+4924,Thu Jun 19 14:12:52 PDT 2025,Thu Jun 19 14:12:52 PDT 2025,GET,https://readmyfineprint.com/dist/,200,OK,83,1126,5376
+4925,Thu Jun 19 14:12:52 PDT 2025,Thu Jun 19 14:12:52 PDT 2025,GET,https://readmyfineprint.com/favicon-32x32.png/,200,OK,92,1126,5376
+4926,Thu Jun 19 14:12:52 PDT 2025,Thu Jun 19 14:12:52 PDT 2025,GET,https://readmyfineprint.com/donate/,200,OK,96,1126,5376
+4927,Thu Jun 19 14:12:52 PDT 2025,Thu Jun 19 14:12:52 PDT 2025,GET,https://readmyfineprint.com/manifest.json/,200,OK,86,1127,5376
+4928,Thu Jun 19 14:12:52 PDT 2025,Thu Jun 19 14:12:52 PDT 2025,GET,https://readmyfineprint.com/favicon-48x48.png/,200,OK,89,1127,5376
+4929,Thu Jun 19 14:12:52 PDT 2025,Thu Jun 19 14:12:52 PDT 2025,GET,https://readmyfineprint.com/favicon-16x16.png/,200,OK,93,1127,5376
+4930,Thu Jun 19 14:12:52 PDT 2025,Thu Jun 19 14:12:52 PDT 2025,GET,https://readmyfineprint.com/favicon.ico/,200,OK,88,1126,5376
+4931,Thu Jun 19 14:12:52 PDT 2025,Thu Jun 19 14:12:52 PDT 2025,GET,https://readmyfineprint.com/dist/,200,OK,99,1127,5376
+4932,Thu Jun 19 14:12:52 PDT 2025,Thu Jun 19 14:12:52 PDT 2025,GET,https://readmyfineprint.com/node_modules,200,OK,99,1126,5376
+4933,Thu Jun 19 14:12:52 PDT 2025,Thu Jun 19 14:12:52 PDT 2025,GET,https://readmyfineprint.com/node_modules/,200,OK,81,1127,5376
+4934,Thu Jun 19 14:12:52 PDT 2025,Thu Jun 19 14:12:52 PDT 2025,GET,https://readmyfineprint.com/roadmap/,200,OK,85,1127,5376
+4935,Thu Jun 19 14:12:52 PDT 2025,Thu Jun 19 14:12:52 PDT 2025,GET,https://readmyfineprint.com/sitemap.xml/,200,OK,81,1127,5376
+4936,Thu Jun 19 14:12:52 PDT 2025,Thu Jun 19 14:12:52 PDT 2025,GET,https://readmyfineprint.com/privacy/,200,OK,88,1127,5376
+4937,Thu Jun 19 14:12:52 PDT 2025,Thu Jun 19 14:12:52 PDT 2025,GET,https://readmyfineprint.com/og-image.png/,200,OK,97,1126,5376
+4938,Thu Jun 19 14:12:52 PDT 2025,Thu Jun 19 14:12:52 PDT 2025,GET,https://readmyfineprint.com/robots.txt/,200,OK,86,1127,5376
+4939,Thu Jun 19 14:12:52 PDT 2025,Thu Jun 19 14:12:52 PDT 2025,GET,https://readmyfineprint.com/node_modules/,200,OK,98,1126,5376
+4940,Thu Jun 19 14:12:52 PDT 2025,Thu Jun 19 14:12:52 PDT 2025,GET,https://readmyfineprint.com/terms/,200,OK,92,1127,5376
+4941,Thu Jun 19 14:12:52 PDT 2025,Thu Jun 19 14:12:53 PDT 2025,POST,https://readmyfineprint.com/api/documents,200,OK,96,1105,2223
+4942,Thu Jun 19 14:12:52 PDT 2025,Thu Jun 19 14:12:53 PDT 2025,POST,https://readmyfineprint.com/api/documents,200,OK,94,1106,4204
+4943,Thu Jun 19 14:12:52 PDT 2025,Thu Jun 19 14:12:53 PDT 2025,POST,https://readmyfineprint.com/api/documents,200,OK,104,1105,2223
+4944,Thu Jun 19 14:12:52 PDT 2025,Thu Jun 19 14:12:53 PDT 2025,POST,https://readmyfineprint.com/api/documents,200,OK,95,1105,2213
+4945,Thu Jun 19 14:12:52 PDT 2025,Thu Jun 19 14:12:53 PDT 2025,GET,https://readmyfineprint.com/_next,200,OK,95,1127,5376
+4946,Thu Jun 19 14:12:52 PDT 2025,Thu Jun 19 14:12:53 PDT 2025,POST,https://readmyfineprint.com/api/documents,200,OK,97,1104,2231
+4947,Thu Jun 19 14:12:53 PDT 2025,Thu Jun 19 14:12:53 PDT 2025,POST,https://readmyfineprint.com/api/documents,200,OK,83,1105,2242
+4948,Thu Jun 19 14:12:53 PDT 2025,Thu Jun 19 14:12:53 PDT 2025,POST,https://readmyfineprint.com/api/documents,200,OK,87,1104,2222
+4949,Thu Jun 19 14:12:53 PDT 2025,Thu Jun 19 14:12:53 PDT 2025,POST,https://readmyfineprint.com/api/documents,200,OK,101,1105,2222
+4950,Thu Jun 19 14:12:53 PDT 2025,Thu Jun 19 14:12:53 PDT 2025,POST,https://readmyfineprint.com/api/documents,200,OK,92,1105,2220
+4951,Thu Jun 19 14:12:53 PDT 2025,Thu Jun 19 14:12:53 PDT 2025,POST,https://readmyfineprint.com/api/documents,200,OK,90,1104,2222
+4952,Thu Jun 19 14:12:53 PDT 2025,Thu Jun 19 14:12:53 PDT 2025,GET,https://readmyfineprint.com/admin,200,OK,99,1126,5376
+4953,Thu Jun 19 14:12:53 PDT 2025,Thu Jun 19 14:12:53 PDT 2025,GET,https://readmyfineprint.com/api,200,OK,95,1126,5376
+4954,Thu Jun 19 14:12:53 PDT 2025,Thu Jun 19 14:12:53 PDT 2025,GET,https://readmyfineprint.com/api/create-checkout-session?amount=WLpKsngSQvaWPFYZYglaluomZYwQBvxWuUiiJEVVMIAxbEvxhXBXbdMFnIYccKmsKDVRgYkSdVkPdmnvHJTfBiJvwXmJVShCecYLCULROYOtwnBajcmONBTbLKZJESbbNYSudWJlaEYaIAETaEnSKgPTXiySDZJygILIavZyGFUKHHEBlgvnpqtWsgbjFQEIicPKJVrDSyXaKMDjhjtiNqvdahuXLhbCcOSJKexlJZYVkniHpVLmgFHwOyjkZMKvgBCcTXVvMRXpffZAhbNlYaOoxEPHFGgdURXYFjLUSDCRTgGQaOFSErCooToVCtIQEbMiaQqNieAosdscaNhMlnfEOImUeUXFgJrOSgZiTWiIblnnaAHGdpDiUOUWXqIacBElnTOeZryTRHfgoopqVNYhUiAsfwiMuxaAUyVRBkUkjRKpBuBfhHNtMekvbolOUcugdUKMjeUGViAJZFjZEVrqaORPPbLaAdgFKGcVyPJlDheFVgZUcPHuhRMJhXFXZMgjOkVvYcquJwXKDlvuVJwJctlOJhXfYMmMYvKmwbuJeBtiZxvYPgsRQtjwWFiSLbZnKHhbdqLysGcQxgTyotkgWFKwBhCTPctmwiXrRQkhtLmeMQRqBGrmUxOgtlBqUsjNZnHXZdIbeHQNRebmCaBLGvauIWGIMwxXxOXihsUArslDXvxOWjEEXdEOvrpSRrYnANloydpepVYFjpKcjBXPoHNGyRNvNUpGYDfqKbBSJGvvqOBuVHVTPPlIxJTtJkkjOqpHRwGTtahXbtOMFdGOqVqaNLSDnGRZBcfwkohTIVJnWjKvdqUebUMFNcgHjOVEmtkqiYFmEpZXTpeZWVCEwhFSJuQSZMSlWmPsDShcGioJqNiKPDlQCufyBdmdycJKOhLgHSmfyfQVhbnYNRnXrYaogrrKVcBlFjByLPKRkWZEYYswrfLnFJPFPXVmcqZsOftIGDLgKPjIcOxujMVVgbBwcgMPbEhMdxYtOjFAUsRfguQAwEZrjqBugXtoKlaMyNULNLUEmINKlnPoUgrefFQMRcfhOmHeSvGXvHwTpwSimpQasQmVsOGMLAMDqpQYbtRkFaHkCDfRYcHUDWeepJlPIWVNZyQeyvpNJruuHAToRiWWYfilbuVgyjQVucLilvlZHHFbOPWvnHvPapAGVpQfwPsymkMaCuIdlOygPUGAnquNcgWgZBReFHhbefZSPopYDvqbHhRxnKwSZIlDMsDkJMSgXdgwHXAhttqkpJILMnKZbLLdtiZVkbDQCbALJypbdUgOdwJTrVHqNKVIiYUNMhbjwYQNqmqafCQNgkwcxKQLjZQZtosrQstCRbWflkpslTZOEFLoydyLpDEKWAFvowsUEAtFoSvpbVTgEvGMrKyRPrmQJGwydeYoSVOVeWIfGgBUVYdpcTqijvNhvHWEsNPrMwPugSQnURtBATjbNEBAwqgIvTSmeurmVZbcuHZVgVuRmbPqjTtdiiQlHrfavnkDFJpRJnHfBkxwUbsNuYOorZEIQIObVVTiOOCInlwlwjInLEyZAuSBsOsElFYXmoTSAGpPfsBNBmqtWlxqKyHvygwOnEWYTdcAlCUkMbkPafQcIuilFspUCCGaXHRkyrWgBwljusOkTpygLInHZGQyZrXCEjwPrXnAcUPCOMCSMGICrtpHHiDCCrRwVwAphvCVgDfOrSZCSMlVRKFMAnATEpJoTHcgYpZdnwUGIMPTRLcPFHkvotvZvSRmVLrUPWcfyyQwYGpoytwGfdqoPoUjgBqcvXiWHyjQaITKUKqEEXIdIncuHCYklvblIUyOPbqSEMHinLJIhLOZUpkcAfObosULyIhYAneZXfVeDLQKbJciSQpITvkcssfUDbueHQOULMFCVVuxyegaaCqFxyZCjCgwNDmjMBFYrOHhuFAOCypVJKgdsyTUAoZpQNkJEEOSeIterumfTdeksSyHkFdgBPRbIlNbrtFBkhKbJHwhuMeoDGGBrhRGqfymQWTCtXCOhCnHKRBgTiQPiLUguYvkDliETeWQpdPYNFZCoAMSPKlRekinSVDQlXKEptKAvUqEgBTYXgSfOPaqlyhdRSfs,400,Bad Request,85,1052,59
+4955,Thu Jun 19 14:12:53 PDT 2025,Thu Jun 19 14:12:53 PDT 2025,GET,https://readmyfineprint.com/assets,301,Moved Permanently,98,733,156
+4956,Thu Jun 19 14:12:53 PDT 2025,Thu Jun 19 14:12:53 PDT 2025,GET,https://readmyfineprint.com/config,200,OK,91,1126,5376
+4957,Thu Jun 19 14:12:53 PDT 2025,Thu Jun 19 14:12:53 PDT 2025,GET,https://readmyfineprint.com/dist,200,OK,93,1126,5376
+4958,Thu Jun 19 14:12:53 PDT 2025,Thu Jun 19 14:12:53 PDT 2025,GET,https://readmyfineprint.com/node_modules,200,OK,108,1127,5376
+4959,Thu Jun 19 14:12:53 PDT 2025,Thu Jun 19 14:12:53 PDT 2025,POST,https://readmyfineprint.com/api/documents,200,OK,80,1103,116
+4960,Thu Jun 19 14:12:53 PDT 2025,Thu Jun 19 14:12:53 PDT 2025,POST,https://readmyfineprint.com/api/documents,200,OK,77,1103,126
+4961,Thu Jun 19 14:12:53 PDT 2025,Thu Jun 19 14:12:53 PDT 2025,POST,https://readmyfineprint.com/api/documents,200,OK,82,1105,2107
+4962,Thu Jun 19 14:12:53 PDT 2025,Thu Jun 19 14:12:53 PDT 2025,POST,https://readmyfineprint.com/api/documents,200,OK,95,1103,134
+4963,Thu Jun 19 14:12:53 PDT 2025,Thu Jun 19 14:12:53 PDT 2025,POST,https://readmyfineprint.com/api/documents,200,OK,105,1102,126
+4964,Thu Jun 19 14:12:53 PDT 2025,Thu Jun 19 14:12:53 PDT 2025,GET,https://readmyfineprint.com/_next,200,OK,101,1127,5376
+4965,Thu Jun 19 14:12:53 PDT 2025,Thu Jun 19 14:12:53 PDT 2025,POST,https://readmyfineprint.com/api/documents,200,OK,83,1103,198
+4966,Thu Jun 19 14:12:53 PDT 2025,Thu Jun 19 14:12:53 PDT 2025,POST,https://readmyfineprint.com/api/documents,200,OK,82,1103,208
+4967,Thu Jun 19 14:12:53 PDT 2025,Thu Jun 19 14:12:53 PDT 2025,POST,https://readmyfineprint.com/api/documents,200,OK,84,1104,2189
+4968,Thu Jun 19 14:12:53 PDT 2025,Thu Jun 19 14:12:53 PDT 2025,POST,https://readmyfineprint.com/api/documents,200,OK,85,1103,216
+4969,Thu Jun 19 14:12:53 PDT 2025,Thu Jun 19 14:12:53 PDT 2025,POST,https://readmyfineprint.com/api/documents,200,OK,93,1102,208
+4970,Thu Jun 19 14:12:53 PDT 2025,Thu Jun 19 14:12:53 PDT 2025,GET,https://readmyfineprint.com/admin,200,OK,96,1127,5376
+4971,Thu Jun 19 14:12:53 PDT 2025,Thu Jun 19 14:12:54 PDT 2025,POST,https://readmyfineprint.com/api/documents,200,OK,84,1104,310
+4972,Thu Jun 19 14:12:53 PDT 2025,Thu Jun 19 14:12:54 PDT 2025,POST,https://readmyfineprint.com/api/documents,200,OK,81,1104,320
+4973,Thu Jun 19 14:12:53 PDT 2025,Thu Jun 19 14:12:54 PDT 2025,POST,https://readmyfineprint.com/api/documents,200,OK,88,1104,328
+4974,Thu Jun 19 14:12:53 PDT 2025,Thu Jun 19 14:12:54 PDT 2025,POST,https://readmyfineprint.com/api/documents,200,OK,85,1104,320
+4975,Thu Jun 19 14:12:53 PDT 2025,Thu Jun 19 14:12:54 PDT 2025,POST,https://readmyfineprint.com/api/documents,200,OK,105,1104,2301
+4976,Thu Jun 19 14:12:53 PDT 2025,Thu Jun 19 14:12:54 PDT 2025,GET,https://readmyfineprint.com/api,200,OK,89,1127,5376
+4977,Thu Jun 19 14:12:54 PDT 2025,Thu Jun 19 14:12:54 PDT 2025,POST,https://readmyfineprint.com/api/documents,200,OK,81,1103,125
+4978,Thu Jun 19 14:12:54 PDT 2025,Thu Jun 19 14:12:54 PDT 2025,POST,https://readmyfineprint.com/api/documents,200,OK,107,1102,123
+4979,Thu Jun 19 14:12:54 PDT 2025,Thu Jun 19 14:12:54 PDT 2025,POST,https://readmyfineprint.com/api/documents,200,OK,80,1103,125
+4980,Thu Jun 19 14:12:54 PDT 2025,Thu Jun 19 14:12:54 PDT 2025,POST,https://readmyfineprint.com/api/documents,200,OK,86,1103,125
+4981,Thu Jun 19 14:12:54 PDT 2025,Thu Jun 19 14:12:54 PDT 2025,POST,https://readmyfineprint.com/api/documents,200,OK,104,1102,145
+4982,Thu Jun 19 14:12:54 PDT 2025,Thu Jun 19 14:12:54 PDT 2025,GET,https://readmyfineprint.com/api/create-checkout-session?amount=ZAP,400,Bad Request,89,1053,59
+4983,Thu Jun 19 14:12:54 PDT 2025,Thu Jun 19 14:12:54 PDT 2025,GET,https://readmyfineprint.com/assets,301,Moved Permanently,107,734,156
+4984,Thu Jun 19 14:12:54 PDT 2025,Thu Jun 19 14:12:54 PDT 2025,POST,https://readmyfineprint.com/api/documents,200,OK,79,1103,207
+4985,Thu Jun 19 14:12:54 PDT 2025,Thu Jun 19 14:12:54 PDT 2025,POST,https://readmyfineprint.com/api/documents,200,OK,87,1103,205
+4986,Thu Jun 19 14:12:54 PDT 2025,Thu Jun 19 14:12:54 PDT 2025,POST,https://readmyfineprint.com/api/documents,200,OK,87,1103,207
+4987,Thu Jun 19 14:12:54 PDT 2025,Thu Jun 19 14:12:54 PDT 2025,POST,https://readmyfineprint.com/api/documents,200,OK,102,1103,207
+4988,Thu Jun 19 14:12:54 PDT 2025,Thu Jun 19 14:12:54 PDT 2025,POST,https://readmyfineprint.com/api/documents,200,OK,81,1103,227
+4989,Thu Jun 19 14:12:54 PDT 2025,Thu Jun 19 14:12:54 PDT 2025,GET,https://readmyfineprint.com/api/create-checkout-session?amount=ZAP%25n%25s%25n%25s%25n%25s%25n%25s%25n%25s%25n%25s%25n%25s%25n%25s%25n%25s%25n%25s%25n%25s%25n%25s%25n%25s%25n%25s%25n%25s%25n%25s%25n%25s%25n%25s%25n%25s%25n%25s%0A,400,Bad Request,82,1053,59
+4990,Thu Jun 19 14:12:54 PDT 2025,Thu Jun 19 14:12:54 PDT 2025,POST,https://readmyfineprint.com/api/documents,200,OK,80,1104,319
+4991,Thu Jun 19 14:12:54 PDT 2025,Thu Jun 19 14:12:54 PDT 2025,POST,https://readmyfineprint.com/api/documents,200,OK,81,1103,317
+4992,Thu Jun 19 14:12:54 PDT 2025,Thu Jun 19 14:12:54 PDT 2025,POST,https://readmyfineprint.com/api/documents,200,OK,79,1104,319
+4993,Thu Jun 19 14:12:54 PDT 2025,Thu Jun 19 14:12:54 PDT 2025,POST,https://readmyfineprint.com/api/documents,200,OK,86,1104,319
+4994,Thu Jun 19 14:12:54 PDT 2025,Thu Jun 19 14:12:54 PDT 2025,GET,https://readmyfineprint.com/config,200,OK,102,1126,5376
+4995,Thu Jun 19 14:12:54 PDT 2025,Thu Jun 19 14:12:54 PDT 2025,GET,https://readmyfineprint.com/api/create-checkout-session?amount=ZAP+%251%21s%252%21s%253%21s%254%21s%255%21s%256%21s%257%21s%258%21s%259%21s%2510%21s%2511%21s%2512%21s%2513%21s%2514%21s%2515%21s%2516%21s%2517%21s%2518%21s%2519%21s%2520%21s%2521%21n%2522%21n%2523%21n%2524%21n%2525%21n%2526%21n%2527%21n%2528%21n%2529%21n%2530%21n%2531%21n%2532%21n%2533%21n%2534%21n%2535%21n%2536%21n%2537%21n%2538%21n%2539%21n%2540%21n%0A,400,Bad Request,80,1053,59
+4996,Thu Jun 19 14:12:54 PDT 2025,Thu Jun 19 14:12:54 PDT 2025,POST,https://readmyfineprint.com/api/documents,200,OK,94,1102,339
+4997,Thu Jun 19 14:12:54 PDT 2025,Thu Jun 19 14:12:54 PDT 2025,GET,https://readmyfineprint.com/dist,200,OK,88,1127,5376
+4998,Thu Jun 19 14:12:54 PDT 2025,Thu Jun 19 14:12:54 PDT 2025,GET,https://readmyfineprint.com/node_modules,200,OK,86,1127,5376
+4999,Thu Jun 19 14:12:54 PDT 2025,Thu Jun 19 14:12:54 PDT 2025,POST,https://readmyfineprint.com/api/documents,200,OK,86,1103,178
+5000,Thu Jun 19 14:12:54 PDT 2025,Thu Jun 19 14:12:54 PDT 2025,POST,https://readmyfineprint.com/api/documents,200,OK,83,1103,186
+5001,Thu Jun 19 14:12:54 PDT 2025,Thu Jun 19 14:12:54 PDT 2025,POST,https://readmyfineprint.com/api/documents,200,OK,80,1105,2159
+5002,Thu Jun 19 14:12:54 PDT 2025,Thu Jun 19 14:12:54 PDT 2025,POST,https://readmyfineprint.com/api/documents,200,OK,88,1101,178
+5003,Thu Jun 19 14:12:54 PDT 2025,Thu Jun 19 14:12:54 PDT 2025,POST,https://readmyfineprint.com/api/documents,200,OK,102,1101,168
+5004,Thu Jun 19 14:12:54 PDT 2025,Thu Jun 19 14:12:54 PDT 2025,GET,https://readmyfineprint.com/_next,200,OK,93,1125,5376
+5005,Thu Jun 19 14:12:54 PDT 2025,Thu Jun 19 14:12:54 PDT 2025,POST,https://readmyfineprint.com/api/documents,200,OK,95,1103,185
+5006,Thu Jun 19 14:12:54 PDT 2025,Thu Jun 19 14:12:54 PDT 2025,POST,https://readmyfineprint.com/api/documents,200,OK,88,1103,193
+5007,Thu Jun 19 14:12:54 PDT 2025,Thu Jun 19 14:12:54 PDT 2025,POST,https://readmyfineprint.com/api/documents,200,OK,85,1105,2166
+5008,Thu Jun 19 14:12:54 PDT 2025,Thu Jun 19 14:12:54 PDT 2025,POST,https://readmyfineprint.com/api/documents,200,OK,101,1101,185
+5009,Thu Jun 19 14:12:54 PDT 2025,Thu Jun 19 14:12:54 PDT 2025,POST,https://readmyfineprint.com/api/documents,200,OK,89,1103,176
+5010,Thu Jun 19 14:12:54 PDT 2025,Thu Jun 19 14:12:54 PDT 2025,GET,https://readmyfineprint.com/admin,200,OK,99,1125,5376
+5011,Thu Jun 19 14:12:54 PDT 2025,Thu Jun 19 14:12:54 PDT 2025,POST,https://readmyfineprint.com/api/documents,200,OK,90,1101,186
+5012,Thu Jun 19 14:12:54 PDT 2025,Thu Jun 19 14:12:54 PDT 2025,POST,https://readmyfineprint.com/api/documents,200,OK,84,1103,194
+5013,Thu Jun 19 14:12:54 PDT 2025,Thu Jun 19 14:12:54 PDT 2025,POST,https://readmyfineprint.com/api/documents,200,OK,87,1105,2167
+5014,Thu Jun 19 14:12:54 PDT 2025,Thu Jun 19 14:12:54 PDT 2025,POST,https://readmyfineprint.com/api/documents,200,OK,83,1103,177
+5015,Thu Jun 19 14:12:54 PDT 2025,Thu Jun 19 14:12:54 PDT 2025,POST,https://readmyfineprint.com/api/documents,200,OK,84,1103,186
+5016,Thu Jun 19 14:12:54 PDT 2025,Thu Jun 19 14:12:54 PDT 2025,GET,https://readmyfineprint.com/api,200,OK,96,1125,5376
+5017,Thu Jun 19 14:12:54 PDT 2025,Thu Jun 19 14:12:54 PDT 2025,POST,https://readmyfineprint.com/api/documents,200,OK,80,1103,183
+5018,Thu Jun 19 14:12:54 PDT 2025,Thu Jun 19 14:12:54 PDT 2025,POST,https://readmyfineprint.com/api/documents,200,OK,82,1105,2164
+5019,Thu Jun 19 14:12:54 PDT 2025,Thu Jun 19 14:12:54 PDT 2025,POST,https://readmyfineprint.com/api/documents,200,OK,90,1103,191
+5020,Thu Jun 19 14:12:54 PDT 2025,Thu Jun 19 14:12:54 PDT 2025,POST,https://readmyfineprint.com/api/documents,200,OK,97,1101,183
+5021,Thu Jun 19 14:12:54 PDT 2025,Thu Jun 19 14:12:54 PDT 2025,POST,https://readmyfineprint.com/api/documents,200,OK,122,1103,174
+5022,Thu Jun 19 14:12:54 PDT 2025,Thu Jun 19 14:12:54 PDT 2025,GET,https://readmyfineprint.com/assets,301,Moved Permanently,85,734,156
+5023,Thu Jun 19 14:12:54 PDT 2025,Thu Jun 19 14:12:54 PDT 2025,GET,https://readmyfineprint.com/api/create-checkout-session?amount=Set-cookie%3A+Tamper%3D17771d38-814a-43b4-a9f0-27f9cb08aced,400,Bad Request,95,1051,59
+5024,Thu Jun 19 14:12:54 PDT 2025,Thu Jun 19 14:12:54 PDT 2025,POST,https://readmyfineprint.com/api/documents,200,OK,77,1103,184
+5025,Thu Jun 19 14:12:54 PDT 2025,Thu Jun 19 14:12:55 PDT 2025,POST,https://readmyfineprint.com/api/documents,200,OK,85,1105,2165
+5026,Thu Jun 19 14:12:54 PDT 2025,Thu Jun 19 14:12:55 PDT 2025,POST,https://readmyfineprint.com/api/documents,429,Too Many Requests,92,1126,55
+5027,Thu Jun 19 14:12:54 PDT 2025,Thu Jun 19 14:12:55 PDT 2025,POST,https://readmyfineprint.com/api/documents,429,Too Many Requests,90,1126,55
+5028,Thu Jun 19 14:12:54 PDT 2025,Thu Jun 19 14:12:55 PDT 2025,POST,https://readmyfineprint.com/api/documents,200,OK,81,1103,175
+5029,Thu Jun 19 14:12:54 PDT 2025,Thu Jun 19 14:12:55 PDT 2025,GET,https://readmyfineprint.com/config,200,OK,80,1127,5376
+5030,Thu Jun 19 14:12:54 PDT 2025,Thu Jun 19 14:12:55 PDT 2025,GET,https://readmyfineprint.com/api/create-checkout-session?amount=any%0D%0ASet-cookie%3A+Tamper%3D17771d38-814a-43b4-a9f0-27f9cb08aced,400,Bad Request,83,1053,59
+5031,Thu Jun 19 14:12:54 PDT 2025,Thu Jun 19 14:12:55 PDT 2025,POST,https://readmyfineprint.com/api/documents,200,OK,76,1103,189
+5032,Thu Jun 19 14:12:55 PDT 2025,Thu Jun 19 14:12:55 PDT 2025,POST,https://readmyfineprint.com/api/documents,200,OK,78,1103,197
+5033,Thu Jun 19 14:12:55 PDT 2025,Thu Jun 19 14:12:55 PDT 2025,POST,https://readmyfineprint.com/api/documents,200,OK,107,1105,2170
+5034,Thu Jun 19 14:12:55 PDT 2025,Thu Jun 19 14:12:55 PDT 2025,POST,https://readmyfineprint.com/api/documents,200,OK,79,1103,189
+5035,Thu Jun 19 14:12:55 PDT 2025,Thu Jun 19 14:12:55 PDT 2025,POST,https://readmyfineprint.com/api/documents,200,OK,80,1103,180
+5036,Thu Jun 19 14:12:55 PDT 2025,Thu Jun 19 14:12:55 PDT 2025,GET,https://readmyfineprint.com/api/create-checkout-session?amount=any%3F%0D%0ASet-cookie%3A+Tamper%3D17771d38-814a-43b4-a9f0-27f9cb08aced,400,Bad Request,88,1053,59
+5037,Thu Jun 19 14:12:55 PDT 2025,Thu Jun 19 14:12:55 PDT 2025,GET,https://readmyfineprint.com/dist,429,Too Many Requests,93,1068,55
+5038,Thu Jun 19 14:12:55 PDT 2025,Thu Jun 19 14:12:55 PDT 2025,POST,https://readmyfineprint.com/api/documents,200,OK,86,1103,190
+5039,Thu Jun 19 14:12:55 PDT 2025,Thu Jun 19 14:12:55 PDT 2025,POST,https://readmyfineprint.com/api/documents,200,OK,80,1103,190
+5040,Thu Jun 19 14:12:55 PDT 2025,Thu Jun 19 14:12:55 PDT 2025,POST,https://readmyfineprint.com/api/documents,200,OK,81,1105,2171
+5041,Thu Jun 19 14:12:55 PDT 2025,Thu Jun 19 14:12:55 PDT 2025,POST,https://readmyfineprint.com/api/documents,200,OK,81,1103,181
+5042,Thu Jun 19 14:12:55 PDT 2025,Thu Jun 19 14:12:55 PDT 2025,POST,https://readmyfineprint.com/api/documents,429,Too Many Requests,110,1126,55
+5043,Thu Jun 19 14:12:55 PDT 2025,Thu Jun 19 14:12:55 PDT 2025,GET,https://readmyfineprint.com/api/create-checkout-session?amount=any%0ASet-cookie%3A+Tamper%3D17771d38-814a-43b4-a9f0-27f9cb08aced,400,Bad Request,80,1053,59
+5044,Thu Jun 19 14:12:55 PDT 2025,Thu Jun 19 14:12:55 PDT 2025,POST,https://readmyfineprint.com/api/documents,200,OK,76,1103,177
+5045,Thu Jun 19 14:12:55 PDT 2025,Thu Jun 19 14:12:55 PDT 2025,POST,https://readmyfineprint.com/api/documents,429,Too Many Requests,84,1126,55
+5046,Thu Jun 19 14:12:55 PDT 2025,Thu Jun 19 14:12:55 PDT 2025,POST,https://readmyfineprint.com/api/documents,200,OK,82,1103,176
+5047,Thu Jun 19 14:12:55 PDT 2025,Thu Jun 19 14:12:55 PDT 2025,POST,https://readmyfineprint.com/api/documents,200,OK,82,1103,177
+5048,Thu Jun 19 14:12:55 PDT 2025,Thu Jun 19 14:12:55 PDT 2025,GET,https://readmyfineprint.com/node_modules,200,OK,121,1127,5376
+5049,Thu Jun 19 14:12:55 PDT 2025,Thu Jun 19 14:12:55 PDT 2025,POST,https://readmyfineprint.com/api/documents,200,OK,104,1103,197
+5050,Thu Jun 19 14:12:55 PDT 2025,Thu Jun 19 14:12:55 PDT 2025,GET,https://readmyfineprint.com/api/create-checkout-session?amount=any%3F%0ASet-cookie%3A+Tamper%3D17771d38-814a-43b4-a9f0-27f9cb08aced,400,Bad Request,85,1053,59
+5051,Thu Jun 19 14:12:55 PDT 2025,Thu Jun 19 14:12:55 PDT 2025,POST,https://readmyfineprint.com/api/documents,200,OK,84,1103,184
+5052,Thu Jun 19 14:12:55 PDT 2025,Thu Jun 19 14:12:55 PDT 2025,POST,https://readmyfineprint.com/api/documents,200,OK,81,1103,184
+5053,Thu Jun 19 14:12:55 PDT 2025,Thu Jun 19 14:12:55 PDT 2025,POST,https://readmyfineprint.com/api/documents,429,Too Many Requests,96,1126,55
+5054,Thu Jun 19 14:12:55 PDT 2025,Thu Jun 19 14:12:55 PDT 2025,POST,https://readmyfineprint.com/api/documents,200,OK,96,1103,184
+5055,Thu Jun 19 14:12:55 PDT 2025,Thu Jun 19 14:12:55 PDT 2025,POST,https://readmyfineprint.com/api/documents,200,OK,83,1103,204
+5056,Thu Jun 19 14:12:55 PDT 2025,Thu Jun 19 14:12:55 PDT 2025,POST,https://readmyfineprint.com/api/documents,200,OK,78,1103,185
+5057,Thu Jun 19 14:12:55 PDT 2025,Thu Jun 19 14:12:55 PDT 2025,GET,https://readmyfineprint.com/api/create-checkout-session?amount=any%0D%0ASet-cookie%3A+Tamper%3D17771d38-814a-43b4-a9f0-27f9cb08aced%0D%0A,400,Bad Request,90,1053,59
+5058,Thu Jun 19 14:12:55 PDT 2025,Thu Jun 19 14:12:55 PDT 2025,POST,https://readmyfineprint.com/api/documents,429,Too Many Requests,81,1126,55
+5059,Thu Jun 19 14:12:55 PDT 2025,Thu Jun 19 14:12:55 PDT 2025,POST,https://readmyfineprint.com/api/documents,200,OK,84,1103,185
+5060,Thu Jun 19 14:12:55 PDT 2025,Thu Jun 19 14:12:55 PDT 2025,POST,https://readmyfineprint.com/api/documents,200,OK,83,1103,205
+5061,Thu Jun 19 14:12:55 PDT 2025,Thu Jun 19 14:12:55 PDT 2025,POST,https://readmyfineprint.com/api/documents,200,OK,83,1103,182
+5062,Thu Jun 19 14:12:55 PDT 2025,Thu Jun 19 14:12:55 PDT 2025,GET,https://readmyfineprint.com/api/create-checkout-session?amount=any%3F%0D%0ASet-cookie%3A+Tamper%3D17771d38-814a-43b4-a9f0-27f9cb08aced%0D%0A,400,Bad Request,80,1053,59
+5063,Thu Jun 19 14:12:55 PDT 2025,Thu Jun 19 14:12:55 PDT 2025,POST,https://readmyfineprint.com/api/documents,429,Too Many Requests,101,1126,55
+5064,Thu Jun 19 14:12:55 PDT 2025,Thu Jun 19 14:12:55 PDT 2025,POST,https://readmyfineprint.com/api/documents,429,Too Many Requests,87,1126,55
+5065,Thu Jun 19 14:12:55 PDT 2025,Thu Jun 19 14:12:55 PDT 2025,POST,https://readmyfineprint.com/api/documents,200,OK,77,1103,182
+5066,Thu Jun 19 14:12:55 PDT 2025,Thu Jun 19 14:12:55 PDT 2025,POST,https://readmyfineprint.com/api/documents,429,Too Many Requests,88,1126,55
+5067,Thu Jun 19 14:12:55 PDT 2025,Thu Jun 19 14:12:55 PDT 2025,POST,https://readmyfineprint.com/api/documents,200,OK,84,1103,183
+5068,Thu Jun 19 14:12:55 PDT 2025,Thu Jun 19 14:12:55 PDT 2025,POST,https://readmyfineprint.com/api/documents,429,Too Many Requests,84,1126,55
+5069,Thu Jun 19 14:12:55 PDT 2025,Thu Jun 19 14:12:55 PDT 2025,POST,https://readmyfineprint.com/api/documents,200,OK,86,1103,183
+5070,Thu Jun 19 14:12:55 PDT 2025,Thu Jun 19 14:12:55 PDT 2025,POST,https://readmyfineprint.com/api/documents,200,OK,86,1103,183
+5071,Thu Jun 19 14:12:55 PDT 2025,Thu Jun 19 14:12:55 PDT 2025,POST,https://readmyfineprint.com/api/documents,200,OK,81,1103,188
+5072,Thu Jun 19 14:12:55 PDT 2025,Thu Jun 19 14:12:55 PDT 2025,POST,https://readmyfineprint.com/api/documents,200,OK,86,1103,203
+5073,Thu Jun 19 14:12:55 PDT 2025,Thu Jun 19 14:12:55 PDT 2025,POST,https://readmyfineprint.com/api/documents,429,Too Many Requests,104,1126,55
+5074,Thu Jun 19 14:12:55 PDT 2025,Thu Jun 19 14:12:55 PDT 2025,POST,https://readmyfineprint.com/api/documents,429,Too Many Requests,87,1126,55
+5075,Thu Jun 19 14:12:55 PDT 2025,Thu Jun 19 14:12:55 PDT 2025,POST,https://readmyfineprint.com/api/documents,200,OK,85,1103,188
+5076,Thu Jun 19 14:12:55 PDT 2025,Thu Jun 19 14:12:55 PDT 2025,POST,https://readmyfineprint.com/api/documents,200,OK,80,1103,208
+5077,Thu Jun 19 14:12:55 PDT 2025,Thu Jun 19 14:12:55 PDT 2025,POST,https://readmyfineprint.com/api/documents,200,OK,81,1103,189
+5078,Thu Jun 19 14:12:55 PDT 2025,Thu Jun 19 14:12:55 PDT 2025,POST,https://readmyfineprint.com/api/documents,429,Too Many Requests,86,1126,55
+5079,Thu Jun 19 14:12:55 PDT 2025,Thu Jun 19 14:12:55 PDT 2025,POST,https://readmyfineprint.com/api/documents,200,OK,114,1103,187
+5080,Thu Jun 19 14:12:55 PDT 2025,Thu Jun 19 14:12:55 PDT 2025,POST,https://readmyfineprint.com/api/documents,200,OK,83,1103,189
+5081,Thu Jun 19 14:12:55 PDT 2025,Thu Jun 19 14:12:55 PDT 2025,POST,https://readmyfineprint.com/api/documents,200,OK,81,1103,209
+5082,Thu Jun 19 14:12:55 PDT 2025,Thu Jun 19 14:12:55 PDT 2025,POST,https://readmyfineprint.com/api/documents,429,Too Many Requests,101,1126,55
+5083,Thu Jun 19 14:12:55 PDT 2025,Thu Jun 19 14:12:56 PDT 2025,POST,https://readmyfineprint.com/api/documents,200,OK,80,1103,129
+5084,Thu Jun 19 14:12:55 PDT 2025,Thu Jun 19 14:12:56 PDT 2025,POST,https://readmyfineprint.com/api/documents,200,OK,82,1103,138
+5085,Thu Jun 19 14:12:55 PDT 2025,Thu Jun 19 14:12:56 PDT 2025,POST,https://readmyfineprint.com/api/documents,429,Too Many Requests,88,1126,55
+5086,Thu Jun 19 14:12:55 PDT 2025,Thu Jun 19 14:12:56 PDT 2025,GET,https://readmyfineprint.com/_next,200,OK,85,1127,5376
+5087,Thu Jun 19 14:12:55 PDT 2025,Thu Jun 19 14:12:56 PDT 2025,POST,https://readmyfineprint.com/api/documents,429,Too Many Requests,94,1126,55
+5088,Thu Jun 19 14:12:55 PDT 2025,Thu Jun 19 14:12:56 PDT 2025,POST,https://readmyfineprint.com/api/documents,429,Too Many Requests,109,1126,55
+5089,Thu Jun 19 14:12:56 PDT 2025,Thu Jun 19 14:12:56 PDT 2025,POST,https://readmyfineprint.com/api/documents,200,OK,78,1103,118
+5090,Thu Jun 19 14:12:56 PDT 2025,Thu Jun 19 14:12:56 PDT 2025,POST,https://readmyfineprint.com/api/documents,200,OK,79,1103,127
+5091,Thu Jun 19 14:12:56 PDT 2025,Thu Jun 19 14:12:56 PDT 2025,POST,https://readmyfineprint.com/api/documents,429,Too Many Requests,80,1126,55
+5092,Thu Jun 19 14:12:56 PDT 2025,Thu Jun 19 14:12:56 PDT 2025,GET,https://readmyfineprint.com/admin,200,OK,86,1127,5376
+5093,Thu Jun 19 14:12:56 PDT 2025,Thu Jun 19 14:12:56 PDT 2025,POST,https://readmyfineprint.com/api/documents,429,Too Many Requests,85,1126,55
+5094,Thu Jun 19 14:12:56 PDT 2025,Thu Jun 19 14:12:56 PDT 2025,POST,https://readmyfineprint.com/api/documents,429,Too Many Requests,114,1126,55
+5095,Thu Jun 19 14:12:56 PDT 2025,Thu Jun 19 14:12:56 PDT 2025,POST,https://readmyfineprint.com/api/documents,200,OK,77,1103,140
+5096,Thu Jun 19 14:12:56 PDT 2025,Thu Jun 19 14:12:56 PDT 2025,POST,https://readmyfineprint.com/api/documents,200,OK,83,1103,131
+5097,Thu Jun 19 14:12:56 PDT 2025,Thu Jun 19 14:12:56 PDT 2025,GET,https://readmyfineprint.com/api,200,OK,80,1127,5376
+5098,Thu Jun 19 14:12:56 PDT 2025,Thu Jun 19 14:12:56 PDT 2025,POST,https://readmyfineprint.com/api/documents,200,OK,78,1103,115
+5099,Thu Jun 19 14:12:56 PDT 2025,Thu Jun 19 14:12:56 PDT 2025,POST,https://readmyfineprint.com/api/documents,200,OK,93,1103,124
+5100,Thu Jun 19 14:12:56 PDT 2025,Thu Jun 19 14:12:56 PDT 2025,GET,https://readmyfineprint.com/assets,429,Too Many Requests,110,1068,55
+5101,Thu Jun 19 14:12:56 PDT 2025,Thu Jun 19 14:12:56 PDT 2025,POST,https://readmyfineprint.com/api/documents,200,OK,87,1103,115
+5102,Thu Jun 19 14:12:56 PDT 2025,Thu Jun 19 14:12:56 PDT 2025,POST,https://readmyfineprint.com/api/documents,200,OK,80,1103,124
+5103,Thu Jun 19 14:12:56 PDT 2025,Thu Jun 19 14:12:56 PDT 2025,GET,https://readmyfineprint.com/config,200,OK,86,1127,5376
+5104,Thu Jun 19 14:12:56 PDT 2025,Thu Jun 19 14:12:56 PDT 2025,POST,https://readmyfineprint.com/api/documents,429,Too Many Requests,83,1126,55
+5105,Thu Jun 19 14:12:56 PDT 2025,Thu Jun 19 14:12:56 PDT 2025,POST,https://readmyfineprint.com/api/documents,200,OK,84,1103,120
+5106,Thu Jun 19 14:12:56 PDT 2025,Thu Jun 19 14:12:56 PDT 2025,POST,https://readmyfineprint.com/api/documents,200,OK,80,1103,115
+5107,Thu Jun 19 14:12:56 PDT 2025,Thu Jun 19 14:12:56 PDT 2025,POST,https://readmyfineprint.com/api/documents,429,Too Many Requests,80,1126,55
+5108,Thu Jun 19 14:12:56 PDT 2025,Thu Jun 19 14:12:56 PDT 2025,GET,https://readmyfineprint.com/dist,200,OK,84,1127,5376
+5109,Thu Jun 19 14:12:56 PDT 2025,Thu Jun 19 14:12:56 PDT 2025,POST,https://readmyfineprint.com/api/documents,200,OK,84,1103,129
+5110,Thu Jun 19 14:12:56 PDT 2025,Thu Jun 19 14:12:56 PDT 2025,GET,https://readmyfineprint.com/node_modules,200,OK,85,1127,5376
+5111,Thu Jun 19 14:12:56 PDT 2025,Thu Jun 19 14:12:56 PDT 2025,POST,https://readmyfineprint.com/api/documents,429,Too Many Requests,96,1126,55
+5112,Thu Jun 19 14:12:56 PDT 2025,Thu Jun 19 14:12:56 PDT 2025,POST,https://readmyfineprint.com/api/documents,200,OK,78,1103,125
+5113,Thu Jun 19 14:12:56 PDT 2025,Thu Jun 19 14:12:56 PDT 2025,GET,https://readmyfineprint.com/api/create-checkout-session?amount=10,200,OK,465,1853,365592
+5114,Thu Jun 19 14:12:56 PDT 2025,Thu Jun 19 14:12:56 PDT 2025,POST,https://readmyfineprint.com/api/documents,400,Bad Request,79,1111,40
+5115,Thu Jun 19 14:12:56 PDT 2025,Thu Jun 19 14:12:56 PDT 2025,GET,https://readmyfineprint.com/api/create-checkout-session?=,400,Bad Request,82,1053,59
+5116,Thu Jun 19 14:12:56 PDT 2025,Thu Jun 19 14:12:56 PDT 2025,POST,https://readmyfineprint.com/api/documents,200,OK,78,1103,122
+5117,Thu Jun 19 14:12:56 PDT 2025,Thu Jun 19 14:12:56 PDT 2025,GET,https://readmyfineprint.com/api/create-checkout-session?amount=,400,Bad Request,76,1053,59
+5118,Thu Jun 19 14:12:56 PDT 2025,Thu Jun 19 14:12:56 PDT 2025,POST,https://readmyfineprint.com/api/documents,200,OK,77,1103,122
+5119,Thu Jun 19 14:12:56 PDT 2025,Thu Jun 19 14:12:56 PDT 2025,GET,https://readmyfineprint.com/api/create-checkout-session?amount=%40,400,Bad Request,81,1053,59
+5120,Thu Jun 19 14:12:56 PDT 2025,Thu Jun 19 14:12:57 PDT 2025,POST,https://readmyfineprint.com/api/documents,200,OK,90,1103,127
+5121,Thu Jun 19 14:12:56 PDT 2025,Thu Jun 19 14:12:57 PDT 2025,GET,https://readmyfineprint.com/api/create-checkout-session?amount=%2B,400,Bad Request,96,1053,59
+5122,Thu Jun 19 14:12:57 PDT 2025,Thu Jun 19 14:12:57 PDT 2025,POST,https://readmyfineprint.com/api/documents,200,OK,77,1103,122
+5123,Thu Jun 19 14:12:57 PDT 2025,Thu Jun 19 14:12:57 PDT 2025,GET,https://readmyfineprint.com/api/create-checkout-session?amount=%00,400,Bad Request,79,1053,59
+5124,Thu Jun 19 14:12:57 PDT 2025,Thu Jun 19 14:12:57 PDT 2025,GET,https://readmyfineprint.com/api/create-checkout-session?amount=%7C,400,Bad Request,84,1053,59
+5125,Thu Jun 19 14:12:57 PDT 2025,Thu Jun 19 14:12:57 PDT 2025,GET,https://readmyfineprint.com/elmah.axd,200,OK,77,1185,5376
+5126,Thu Jun 19 14:12:57 PDT 2025,Thu Jun 19 14:12:57 PDT 2025,GET,https://readmyfineprint.com/trace.axd,200,OK,83,1127,5376
+5127,Thu Jun 19 14:12:57 PDT 2025,Thu Jun 19 14:12:57 PDT 2025,GET,https://readmyfineprint.com/_next,429,Too Many Requests,81,1068,55
+5128,Thu Jun 19 14:12:57 PDT 2025,Thu Jun 19 14:12:57 PDT 2025,GET,https://readmyfineprint.com/api/trace.axd,200,OK,90,1185,5376
+5129,Thu Jun 19 14:12:57 PDT 2025,Thu Jun 19 14:12:57 PDT 2025,GET,https://readmyfineprint.com/api/trace.axd,429,Too Many Requests,94,1126,55
+5130,Thu Jun 19 14:12:57 PDT 2025,Thu Jun 19 14:12:57 PDT 2025,GET,https://readmyfineprint.com/api/documents/1/trace.axd,200,OK,99,1185,5376
+5131,Thu Jun 19 14:12:57 PDT 2025,Thu Jun 19 14:12:57 PDT 2025,GET,https://readmyfineprint.com/admin,200,OK,83,1127,5376
+5132,Thu Jun 19 14:12:57 PDT 2025,Thu Jun 19 14:12:57 PDT 2025,GET,https://readmyfineprint.com/_next/trace.axd,200,OK,82,1127,5376
+5133,Thu Jun 19 14:12:57 PDT 2025,Thu Jun 19 14:12:57 PDT 2025,GET,https://readmyfineprint.com/api,429,Too Many Requests,83,1068,55
+5134,Thu Jun 19 14:12:57 PDT 2025,Thu Jun 19 14:12:57 PDT 2025,GET,https://readmyfineprint.com/admin/trace.axd,429,Too Many Requests,90,1068,55
+5135,Thu Jun 19 14:12:57 PDT 2025,Thu Jun 19 14:12:57 PDT 2025,GET,https://readmyfineprint.com/assets,301,Moved Permanently,76,734,156
+5136,Thu Jun 19 14:12:57 PDT 2025,Thu Jun 19 14:12:57 PDT 2025,GET,https://readmyfineprint.com/api/documents/trace.axd,404,Not Found,82,1051,30
+5137,Thu Jun 19 14:12:57 PDT 2025,Thu Jun 19 14:12:57 PDT 2025,GET,https://readmyfineprint.com/assets/trace.axd,200,OK,89,1185,5376
+5138,Thu Jun 19 14:12:57 PDT 2025,Thu Jun 19 14:12:57 PDT 2025,GET,https://readmyfineprint.com/config,429,Too Many Requests,90,1068,55
+5139,Thu Jun 19 14:12:57 PDT 2025,Thu Jun 19 14:12:57 PDT 2025,GET,https://readmyfineprint.com/config/trace.axd,200,OK,84,1127,5376
+5140,Thu Jun 19 14:12:57 PDT 2025,Thu Jun 19 14:12:57 PDT 2025,GET,https://readmyfineprint.com/dist,429,Too Many Requests,92,1068,55
+5141,Thu Jun 19 14:12:57 PDT 2025,Thu Jun 19 14:12:57 PDT 2025,GET,https://readmyfineprint.com/dist/trace.axd,200,OK,88,1127,5376
+5142,Thu Jun 19 14:12:57 PDT 2025,Thu Jun 19 14:12:57 PDT 2025,GET,https://readmyfineprint.com/node_modules,429,Too Many Requests,93,1068,55
+5143,Thu Jun 19 14:12:57 PDT 2025,Thu Jun 19 14:12:57 PDT 2025,GET,https://readmyfineprint.com/node_modules/trace.axd,200,OK,81,1127,5376
+5144,Thu Jun 19 14:12:57 PDT 2025,Thu Jun 19 14:12:58 PDT 2025,GET,https://readmyfineprint.com/api/documents/1/.htaccess,429,Too Many Requests,83,1126,55
+5145,Thu Jun 19 14:12:57 PDT 2025,Thu Jun 19 14:12:58 PDT 2025,GET,https://readmyfineprint.com/_next,200,OK,84,1127,5376
+5146,Thu Jun 19 14:12:57 PDT 2025,Thu Jun 19 14:12:58 PDT 2025,GET,https://readmyfineprint.com/.htaccess,200,OK,89,1127,5376
+5147,Thu Jun 19 14:12:57 PDT 2025,Thu Jun 19 14:12:58 PDT 2025,GET,https://readmyfineprint.com/api/.htaccess,429,Too Many Requests,120,1126,55
+5148,Thu Jun 19 14:12:58 PDT 2025,Thu Jun 19 14:12:58 PDT 2025,GET,https://readmyfineprint.com/_next/.htaccess,200,OK,79,1127,5376
+5149,Thu Jun 19 14:12:58 PDT 2025,Thu Jun 19 14:12:58 PDT 2025,GET,https://readmyfineprint.com/admin,429,Too Many Requests,88,1068,55
+5150,Thu Jun 19 14:12:58 PDT 2025,Thu Jun 19 14:12:58 PDT 2025,GET,https://readmyfineprint.com/admin/.htaccess,200,OK,81,1127,5376
+5151,Thu Jun 19 14:12:58 PDT 2025,Thu Jun 19 14:12:58 PDT 2025,GET,https://readmyfineprint.com/api,429,Too Many Requests,96,1068,55
+5152,Thu Jun 19 14:12:58 PDT 2025,Thu Jun 19 14:12:58 PDT 2025,GET,https://readmyfineprint.com/api/documents/.htaccess,404,Not Found,77,1051,30
+5153,Thu Jun 19 14:12:58 PDT 2025,Thu Jun 19 14:12:58 PDT 2025,GET,https://readmyfineprint.com/assets,301,Moved Permanently,100,734,156
+5154,Thu Jun 19 14:12:58 PDT 2025,Thu Jun 19 14:12:58 PDT 2025,GET,https://readmyfineprint.com/assets/.htaccess,200,OK,80,1185,5376
+5155,Thu Jun 19 14:12:58 PDT 2025,Thu Jun 19 14:12:58 PDT 2025,GET,https://readmyfineprint.com/config,200,OK,83,1127,5376
+5156,Thu Jun 19 14:12:58 PDT 2025,Thu Jun 19 14:12:58 PDT 2025,GET,https://readmyfineprint.com/config/.htaccess,200,OK,90,1127,5376
+5157,Thu Jun 19 14:12:58 PDT 2025,Thu Jun 19 14:12:58 PDT 2025,GET,https://readmyfineprint.com/dist,200,OK,89,1127,5376
+5158,Thu Jun 19 14:12:58 PDT 2025,Thu Jun 19 14:12:58 PDT 2025,GET,https://readmyfineprint.com/dist/.htaccess,200,OK,84,1127,5376
+5159,Thu Jun 19 14:12:58 PDT 2025,Thu Jun 19 14:12:58 PDT 2025,GET,https://readmyfineprint.com/node_modules,200,OK,81,1127,5376
+5160,Thu Jun 19 14:12:58 PDT 2025,Thu Jun 19 14:12:58 PDT 2025,GET,https://readmyfineprint.com/node_modules/.htaccess,200,OK,82,1127,5376
+5161,Thu Jun 19 14:12:58 PDT 2025,Thu Jun 19 14:12:58 PDT 2025,GET,https://readmyfineprint.com/api/.env,200,OK,85,1185,5376
+5162,Thu Jun 19 14:12:58 PDT 2025,Thu Jun 19 14:12:58 PDT 2025,GET,https://readmyfineprint.com/_next,429,Too Many Requests,81,1068,55
+5163,Thu Jun 19 14:12:58 PDT 2025,Thu Jun 19 14:12:58 PDT 2025,GET,https://readmyfineprint.com/.env,429,Too Many Requests,91,1068,55
+5164,Thu Jun 19 14:12:58 PDT 2025,Thu Jun 19 14:12:58 PDT 2025,GET,https://readmyfineprint.com/api/documents/1/.env,200,OK,104,1185,5376
+5165,Thu Jun 19 14:12:58 PDT 2025,Thu Jun 19 14:12:58 PDT 2025,GET,https://readmyfineprint.com/_next/.env,200,OK,101,1127,5376
+5166,Thu Jun 19 14:12:58 PDT 2025,Thu Jun 19 14:12:58 PDT 2025,GET,https://readmyfineprint.com/admin,429,Too Many Requests,107,1068,55
+5167,Thu Jun 19 14:12:58 PDT 2025,Thu Jun 19 14:12:58 PDT 2025,GET,https://readmyfineprint.com/admin/.env,200,OK,80,1127,5376
+5168,Thu Jun 19 14:12:58 PDT 2025,Thu Jun 19 14:12:58 PDT 2025,GET,https://readmyfineprint.com/api,429,Too Many Requests,111,1068,55
+5169,Thu Jun 19 14:12:59 PDT 2025,Thu Jun 19 14:12:59 PDT 2025,GET,https://readmyfineprint.com/api/documents/.env,404,Not Found,86,1051,30
+5170,Thu Jun 19 14:12:59 PDT 2025,Thu Jun 19 14:12:59 PDT 2025,GET,https://readmyfineprint.com/assets,301,Moved Permanently,86,734,156
+5171,Thu Jun 19 14:12:59 PDT 2025,Thu Jun 19 14:12:59 PDT 2025,GET,https://readmyfineprint.com/assets/.env,200,OK,102,1185,5376
+5172,Thu Jun 19 14:12:59 PDT 2025,Thu Jun 19 14:12:59 PDT 2025,GET,https://readmyfineprint.com/config,429,Too Many Requests,106,1068,55
+5173,Thu Jun 19 14:12:59 PDT 2025,Thu Jun 19 14:12:59 PDT 2025,GET,https://readmyfineprint.com/config/.env,429,Too Many Requests,87,1068,55
+5174,Thu Jun 19 14:12:59 PDT 2025,Thu Jun 19 14:12:59 PDT 2025,GET,https://readmyfineprint.com/dist,200,OK,99,1127,5376
+5175,Thu Jun 19 14:12:59 PDT 2025,Thu Jun 19 14:12:59 PDT 2025,GET,https://readmyfineprint.com/dist/.env,200,OK,86,1127,5376
+5176,Thu Jun 19 14:12:59 PDT 2025,Thu Jun 19 14:12:59 PDT 2025,GET,https://readmyfineprint.com/node_modules,200,OK,90,1127,5376
+5177,Thu Jun 19 14:12:59 PDT 2025,Thu Jun 19 14:12:59 PDT 2025,GET,https://readmyfineprint.com/node_modules/.env,429,Too Many Requests,109,1068,55
+5178,Thu Jun 19 14:12:59 PDT 2025,Thu Jun 19 14:12:59 PDT 2025,GET,https://readmyfineprint.com/lfm.php,429,Too Many Requests,83,1126,55
+5179,Thu Jun 19 14:12:59 PDT 2025,Thu Jun 19 14:12:59 PDT 2025,GET,https://readmyfineprint.com/api/actuator/health,200,OK,85,1185,5376
+5180,Thu Jun 19 14:12:59 PDT 2025,Thu Jun 19 14:12:59 PDT 2025,POST,https://readmyfineprint.com/api/documents,200,OK,87,1103,115
+5181,Thu Jun 19 14:12:59 PDT 2025,Thu Jun 19 14:12:59 PDT 2025,POST,https://readmyfineprint.com/api/documents,200,OK,88,1103,124
+5182,Thu Jun 19 14:12:59 PDT 2025,Thu Jun 19 14:12:59 PDT 2025,POST,https://readmyfineprint.com/api/documents,200,OK,88,1103,132
+5183,Thu Jun 19 14:12:59 PDT 2025,Thu Jun 19 14:12:59 PDT 2025,POST,https://readmyfineprint.com/api/documents,429,Too Many Requests,93,1126,55
+5184,Thu Jun 19 14:12:59 PDT 2025,Thu Jun 19 14:12:59 PDT 2025,GET,https://readmyfineprint.com/_next,200,OK,98,1127,5376
+5185,Thu Jun 19 14:12:59 PDT 2025,Thu Jun 19 14:12:59 PDT 2025,POST,https://readmyfineprint.com/api/documents,200,OK,120,1105,2105
+5186,Thu Jun 19 14:12:59 PDT 2025,Thu Jun 19 14:12:59 PDT 2025,GET,https://readmyfineprint.com/.idea/WebServers.xml,429,Too Many Requests,91,1126,55
+5187,Thu Jun 19 14:12:59 PDT 2025,Thu Jun 19 14:12:59 PDT 2025,POST,https://readmyfineprint.com/api/documents,200,OK,79,1103,170
+5188,Thu Jun 19 14:12:59 PDT 2025,Thu Jun 19 14:12:59 PDT 2025,POST,https://readmyfineprint.com/api/documents,429,Too Many Requests,87,1126,55
+5189,Thu Jun 19 14:12:59 PDT 2025,Thu Jun 19 14:12:59 PDT 2025,POST,https://readmyfineprint.com/api/documents,200,OK,98,1103,187
+5190,Thu Jun 19 14:12:59 PDT 2025,Thu Jun 19 14:12:59 PDT 2025,GET,https://readmyfineprint.com/admin,200,OK,95,1127,5376
+5191,Thu Jun 19 14:12:59 PDT 2025,Thu Jun 19 14:12:59 PDT 2025,GET,https://readmyfineprint.com/api/actuator/health,200,OK,122,1185,5376
+5192,Thu Jun 19 14:12:59 PDT 2025,Thu Jun 19 14:12:59 PDT 2025,POST,https://readmyfineprint.com/api/documents,429,Too Many Requests,82,1126,55
+5193,Thu Jun 19 14:12:59 PDT 2025,Thu Jun 19 14:12:59 PDT 2025,POST,https://readmyfineprint.com/api/documents,429,Too Many Requests,107,1126,55
+5194,Thu Jun 19 14:12:59 PDT 2025,Thu Jun 19 14:12:59 PDT 2025,POST,https://readmyfineprint.com/api/documents,200,OK,79,1103,154
+5195,Thu Jun 19 14:12:59 PDT 2025,Thu Jun 19 14:12:59 PDT 2025,GET,https://readmyfineprint.com/config/databases.yml,429,Too Many Requests,96,1126,55
+5196,Thu Jun 19 14:12:59 PDT 2025,Thu Jun 19 14:12:59 PDT 2025,POST,https://readmyfineprint.com/api/documents,200,OK,92,1103,145
+5197,Thu Jun 19 14:12:59 PDT 2025,Thu Jun 19 14:12:59 PDT 2025,POST,https://readmyfineprint.com/api/documents,200,OK,94,1103,162
+5198,Thu Jun 19 14:12:59 PDT 2025,Thu Jun 19 14:12:59 PDT 2025,POST,https://readmyfineprint.com/api/documents,200,OK,83,1105,2135
+5199,Thu Jun 19 14:12:59 PDT 2025,Thu Jun 19 14:12:59 PDT 2025,POST,https://readmyfineprint.com/api/documents,429,Too Many Requests,82,1126,55
+5200,Thu Jun 19 14:12:59 PDT 2025,Thu Jun 19 14:12:59 PDT 2025,GET,https://readmyfineprint.com/api,200,OK,105,1127,5376
+5201,Thu Jun 19 14:12:59 PDT 2025,Thu Jun 19 14:12:59 PDT 2025,POST,https://readmyfineprint.com/api/documents,200,OK,84,1103,178
+5202,Thu Jun 19 14:12:59 PDT 2025,Thu Jun 19 14:12:59 PDT 2025,POST,https://readmyfineprint.com/api/documents,429,Too Many Requests,92,1126,55
+5203,Thu Jun 19 14:12:59 PDT 2025,Thu Jun 19 14:12:59 PDT 2025,POST,https://readmyfineprint.com/api/documents,200,OK,75,1103,195
+5204,Thu Jun 19 14:12:59 PDT 2025,Thu Jun 19 14:12:59 PDT 2025,GET,https://readmyfineprint.com/config/database.yml,429,Too Many Requests,115,1126,55
+5205,Thu Jun 19 14:12:59 PDT 2025,Thu Jun 19 14:12:59 PDT 2025,POST,https://readmyfineprint.com/api/documents,429,Too Many Requests,85,1126,55
+5206,Thu Jun 19 14:12:59 PDT 2025,Thu Jun 19 14:12:59 PDT 2025,GET,https://readmyfineprint.com/api/create-checkout-session?amount=%3C,400,Bad Request,80,1053,59
+5207,Thu Jun 19 14:12:59 PDT 2025,Thu Jun 19 14:12:59 PDT 2025,POST,https://readmyfineprint.com/api/documents,429,Too Many Requests,101,1126,55
+5208,Thu Jun 19 14:12:59 PDT 2025,Thu Jun 19 14:12:59 PDT 2025,GET,https://readmyfineprint.com/assets,301,Moved Permanently,83,734,156
+5209,Thu Jun 19 14:12:59 PDT 2025,Thu Jun 19 14:12:59 PDT 2025,POST,https://readmyfineprint.com/api/documents,200,OK,84,1103,174
+5210,Thu Jun 19 14:12:59 PDT 2025,Thu Jun 19 14:12:59 PDT 2025,POST,https://readmyfineprint.com/api/documents,200,OK,82,1103,191
+5211,Thu Jun 19 14:12:59 PDT 2025,Thu Jun 19 14:13:00 PDT 2025,POST,https://readmyfineprint.com/api/documents,200,OK,104,1103,183
+5212,Thu Jun 19 14:12:59 PDT 2025,Thu Jun 19 14:13:00 PDT 2025,POST,https://readmyfineprint.com/api/documents,429,Too Many Requests,103,1126,55
+5213,Thu Jun 19 14:12:59 PDT 2025,Thu Jun 19 14:13:00 PDT 2025,POST,https://readmyfineprint.com/api/documents,200,OK,88,1103,183
+5214,Thu Jun 19 14:12:59 PDT 2025,Thu Jun 19 14:13:00 PDT 2025,GET,https://readmyfineprint.com/api/create-checkout-session?amount=%3Cxsl%3Avalue-of+select%3D%22system-property%28%27xsl%3Avendor%27%29%22%2F%3E,400,Bad Request,88,1053,59
+5215,Thu Jun 19 14:12:59 PDT 2025,Thu Jun 19 14:13:00 PDT 2025,GET,https://readmyfineprint.com/config,429,Too Many Requests,88,1068,55
+5216,Thu Jun 19 14:12:59 PDT 2025,Thu Jun 19 14:13:00 PDT 2025,GET,https://readmyfineprint.com/.git/config,429,Too Many Requests,113,1126,55
+5217,Thu Jun 19 14:12:59 PDT 2025,Thu Jun 19 14:13:00 PDT 2025,POST,https://readmyfineprint.com/api/documents,200,OK,91,1103,182
+5218,Thu Jun 19 14:12:59 PDT 2025,Thu Jun 19 14:13:00 PDT 2025,POST,https://readmyfineprint.com/api/documents,200,OK,81,1103,199
+5219,Thu Jun 19 14:13:00 PDT 2025,Thu Jun 19 14:13:00 PDT 2025,POST,https://readmyfineprint.com/api/documents,429,Too Many Requests,80,1126,55
+5220,Thu Jun 19 14:13:00 PDT 2025,Thu Jun 19 14:13:00 PDT 2025,POST,https://readmyfineprint.com/api/documents,200,OK,82,1103,191
+5221,Thu Jun 19 14:13:00 PDT 2025,Thu Jun 19 14:13:00 PDT 2025,POST,https://readmyfineprint.com/api/documents,429,Too Many Requests,94,1126,55
+5222,Thu Jun 19 14:13:00 PDT 2025,Thu Jun 19 14:13:00 PDT 2025,GET,https://readmyfineprint.com/api/create-checkout-session?amount=system-property%28%27xsl%3Avendor%27%29%2F%3E,429,Too Many Requests,94,1068,55
+5223,Thu Jun 19 14:13:00 PDT 2025,Thu Jun 19 14:13:00 PDT 2025,GET,https://readmyfineprint.com/dist,429,Too Many Requests,98,1068,55
+5224,Thu Jun 19 14:13:00 PDT 2025,Thu Jun 19 14:13:00 PDT 2025,GET,https://readmyfineprint.com/.svn/entries,429,Too Many Requests,108,1126,55
+5225,Thu Jun 19 14:13:00 PDT 2025,Thu Jun 19 14:13:00 PDT 2025,POST,https://readmyfineprint.com/api/documents,200,OK,81,1104,376
+5226,Thu Jun 19 14:13:00 PDT 2025,Thu Jun 19 14:13:00 PDT 2025,POST,https://readmyfineprint.com/api/documents,200,OK,80,1104,385
+5227,Thu Jun 19 14:13:00 PDT 2025,Thu Jun 19 14:13:00 PDT 2025,POST,https://readmyfineprint.com/api/documents,200,OK,93,1104,393
+5228,Thu Jun 19 14:13:00 PDT 2025,Thu Jun 19 14:13:00 PDT 2025,POST,https://readmyfineprint.com/api/documents,200,OK,86,1104,385
+5229,Thu Jun 19 14:13:00 PDT 2025,Thu Jun 19 14:13:00 PDT 2025,POST,https://readmyfineprint.com/api/documents,200,OK,88,1105,2366
+5230,Thu Jun 19 14:13:00 PDT 2025,Thu Jun 19 14:13:00 PDT 2025,GET,https://readmyfineprint.com/api/create-checkout-session?amount=%22%2F%3E%3Cxsl%3Avalue-of+select%3D%22system-property%28%27xsl%3Avendor%27%29%22%2F%3E%3C%21--,429,Too Many Requests,96,1068,55
+5231,Thu Jun 19 14:13:00 PDT 2025,Thu Jun 19 14:13:00 PDT 2025,GET,https://readmyfineprint.com/node_modules,429,Too Many Requests,87,1068,55
+5232,Thu Jun 19 14:13:00 PDT 2025,Thu Jun 19 14:13:00 PDT 2025,GET,https://readmyfineprint.com/.svn/wc.db,200,OK,89,1185,5376
+5233,Thu Jun 19 14:13:00 PDT 2025,Thu Jun 19 14:13:00 PDT 2025,POST,https://readmyfineprint.com/api/documents,200,OK,85,1103,190
+5234,Thu Jun 19 14:13:00 PDT 2025,Thu Jun 19 14:13:00 PDT 2025,POST,https://readmyfineprint.com/api/documents,200,OK,75,1103,199
+5235,Thu Jun 19 14:13:00 PDT 2025,Thu Jun 19 14:13:00 PDT 2025,POST,https://readmyfineprint.com/api/documents,429,Too Many Requests,100,1126,55
+5236,Thu Jun 19 14:13:00 PDT 2025,Thu Jun 19 14:13:00 PDT 2025,POST,https://readmyfineprint.com/api/documents,200,OK,81,1103,199
+5237,Thu Jun 19 14:13:00 PDT 2025,Thu Jun 19 14:13:00 PDT 2025,POST,https://readmyfineprint.com/api/documents,429,Too Many Requests,95,1126,55
+5238,Thu Jun 19 14:13:00 PDT 2025,Thu Jun 19 14:13:00 PDT 2025,POST,https://readmyfineprint.com/api/documents,200,OK,82,1103,122
+5239,Thu Jun 19 14:13:00 PDT 2025,Thu Jun 19 14:13:00 PDT 2025,GET,https://readmyfineprint.com/CVS/root,200,OK,95,1185,5376
+5240,Thu Jun 19 14:13:00 PDT 2025,Thu Jun 19 14:13:00 PDT 2025,GET,https://readmyfineprint.com/api/create-checkout-session?amount=%3Cxsl%3Avalue-of+select%3D%22system-property%28%27xsl%3Avendor%27%29%22%2F%3E%3C%21--,400,Bad Request,112,1053,59
+5241,Thu Jun 19 14:13:00 PDT 2025,Thu Jun 19 14:13:00 PDT 2025,POST,https://readmyfineprint.com/api/documents,200,OK,101,1103,123
+5242,Thu Jun 19 14:13:00 PDT 2025,Thu Jun 19 14:13:00 PDT 2025,POST,https://readmyfineprint.com/api/documents,429,Too Many Requests,87,1126,55
+5243,Thu Jun 19 14:13:00 PDT 2025,Thu Jun 19 14:13:00 PDT 2025,POST,https://readmyfineprint.com/api/documents,200,OK,86,1103,123
+5244,Thu Jun 19 14:13:00 PDT 2025,Thu Jun 19 14:13:00 PDT 2025,POST,https://readmyfineprint.com/api/documents,200,OK,80,1103,177
+5245,Thu Jun 19 14:13:00 PDT 2025,Thu Jun 19 14:13:00 PDT 2025,POST,https://readmyfineprint.com/api/documents,200,OK,104,1103,143
+5246,Thu Jun 19 14:13:00 PDT 2025,Thu Jun 19 14:13:00 PDT 2025,GET,https://readmyfineprint.com/api/create-checkout-session?amount=%3Cxsl%3Avalue-of+select%3D%22document%28%27http%3A%2F%2Freadmyfineprint.com%3A22%27%29%22%2F%3E,400,Bad Request,82,1053,59
+5247,Thu Jun 19 14:13:00 PDT 2025,Thu Jun 19 14:13:00 PDT 2025,GET,https://readmyfineprint.com/server-status,200,OK,84,1185,5376
+5248,Thu Jun 19 14:13:00 PDT 2025,Thu Jun 19 14:13:00 PDT 2025,POST,https://readmyfineprint.com/api/documents,200,OK,76,1103,178
+5249,Thu Jun 19 14:13:00 PDT 2025,Thu Jun 19 14:13:00 PDT 2025,POST,https://readmyfineprint.com/api/documents,200,OK,87,1103,178
+5250,Thu Jun 19 14:13:00 PDT 2025,Thu Jun 19 14:13:00 PDT 2025,POST,https://readmyfineprint.com/api/documents,200,OK,78,1103,178
+5251,Thu Jun 19 14:13:00 PDT 2025,Thu Jun 19 14:13:00 PDT 2025,POST,https://readmyfineprint.com/api/documents,200,OK,84,1103,152
+5252,Thu Jun 19 14:13:00 PDT 2025,Thu Jun 19 14:13:00 PDT 2025,POST,https://readmyfineprint.com/api/documents,200,OK,91,1103,198
+5253,Thu Jun 19 14:13:00 PDT 2025,Thu Jun 19 14:13:00 PDT 2025,GET,https://readmyfineprint.com/api/create-checkout-session?amount=%3Cxsl%3Avariable+name%3D%22rtobject%22+select%3D%22runtime%3AgetRuntime%28%29%22%2F%3E%0A%3Cxsl%3Avariable+name%3D%22process%22+select%3D%22runtime%3Aexec%28%24rtobject%2C%27erroneous_command%27%29%22%2F%3E%0A%3Cxsl%3Avariable+name%3D%22waiting%22+select%3D%22process%3AwaitFor%28%24process%29%22%2F%3E%0A%3Cxsl%3Avalue-of+select%3D%22%24process%22%2F%3E,429,Too Many Requests,93,1068,55
+5254,Thu Jun 19 14:13:00 PDT 2025,Thu Jun 19 14:13:00 PDT 2025,GET,https://readmyfineprint.com/core,200,OK,92,1185,5376
+5255,Thu Jun 19 14:13:00 PDT 2025,Thu Jun 19 14:13:00 PDT 2025,POST,https://readmyfineprint.com/api/documents,200,OK,82,1103,153
+5256,Thu Jun 19 14:13:00 PDT 2025,Thu Jun 19 14:13:00 PDT 2025,POST,https://readmyfineprint.com/api/documents,200,OK,83,1103,153
+5257,Thu Jun 19 14:13:00 PDT 2025,Thu Jun 19 14:13:00 PDT 2025,POST,https://readmyfineprint.com/api/documents,200,OK,85,1103,153
+5258,Thu Jun 19 14:13:00 PDT 2025,Thu Jun 19 14:13:00 PDT 2025,POST,https://readmyfineprint.com/api/documents,200,OK,96,1103,185
+5259,Thu Jun 19 14:13:00 PDT 2025,Thu Jun 19 14:13:00 PDT 2025,POST,https://readmyfineprint.com/api/documents,429,Too Many Requests,81,1126,55
+5260,Thu Jun 19 14:13:00 PDT 2025,Thu Jun 19 14:13:00 PDT 2025,GET,https://readmyfineprint.com/api/create-checkout-session?amount=%3Cxsl%3Avalue-of+select%3D%22php%3Afunction%28%27exec%27%2C%27erroneous_command+2%3E%26amp%3B1%27%29%22%2F%3E,429,Too Many Requests,84,1068,55
+5261,Thu Jun 19 14:13:00 PDT 2025,Thu Jun 19 14:13:00 PDT 2025,POST,https://readmyfineprint.com/api/documents,200,OK,80,1103,186
+5262,Thu Jun 19 14:13:00 PDT 2025,Thu Jun 19 14:13:00 PDT 2025,POST,https://readmyfineprint.com/api/documents,429,Too Many Requests,87,1126,55
+5263,Thu Jun 19 14:13:00 PDT 2025,Thu Jun 19 14:13:00 PDT 2025,POST,https://readmyfineprint.com/api/documents,200,OK,97,1103,186
+5264,Thu Jun 19 14:13:00 PDT 2025,Thu Jun 19 14:13:00 PDT 2025,GET,https://readmyfineprint.com/sftp-config.json,200,OK,120,1185,5376
+5265,Thu Jun 19 14:13:00 PDT 2025,Thu Jun 19 14:13:00 PDT 2025,POST,https://readmyfineprint.com/api/documents,200,OK,88,1103,206
+5266,Thu Jun 19 14:13:00 PDT 2025,Thu Jun 19 14:13:00 PDT 2025,GET,https://readmyfineprint.com/WS_FTP.ini,429,Too Many Requests,113,1126,55
+5267,Thu Jun 19 14:13:00 PDT 2025,Thu Jun 19 14:13:00 PDT 2025,GET,https://readmyfineprint.com/ws_ftp.ini,429,Too Many Requests,111,1126,55
+5268,Thu Jun 19 14:13:00 PDT 2025,Thu Jun 19 14:13:00 PDT 2025,GET,https://readmyfineprint.com/WS_FTP.INI,200,OK,86,1185,5376
+5269,Thu Jun 19 14:13:00 PDT 2025,Thu Jun 19 14:13:01 PDT 2025,GET,https://readmyfineprint.com/filezilla.xml,200,OK,98,1185,5376
+5270,Thu Jun 19 14:13:01 PDT 2025,Thu Jun 19 14:13:01 PDT 2025,GET,https://readmyfineprint.com/sitemanager.xml,200,OK,87,1185,5376
+5271,Thu Jun 19 14:13:01 PDT 2025,Thu Jun 19 14:13:01 PDT 2025,GET,https://readmyfineprint.com/FileZilla.xml,200,OK,88,1185,5376
+5272,Thu Jun 19 14:13:01 PDT 2025,Thu Jun 19 14:13:01 PDT 2025,GET,https://readmyfineprint.com/winscp.ini,200,OK,91,1185,5376
+5273,Thu Jun 19 14:13:01 PDT 2025,Thu Jun 19 14:13:01 PDT 2025,GET,https://readmyfineprint.com/WinSCP.ini,200,OK,126,1185,5376
+5274,Thu Jun 19 14:13:01 PDT 2025,Thu Jun 19 14:13:01 PDT 2025,GET,https://readmyfineprint.com/.DS_Store,429,Too Many Requests,86,1126,55
+5275,Thu Jun 19 14:13:01 PDT 2025,Thu Jun 19 14:13:01 PDT 2025,GET,https://readmyfineprint.com/.php_cs.cache,429,Too Many Requests,92,1126,55
+5276,Thu Jun 19 14:13:01 PDT 2025,Thu Jun 19 14:13:01 PDT 2025,GET,https://readmyfineprint.com/DEADJOE,429,Too Many Requests,91,1130,55
+5277,Thu Jun 19 14:13:01 PDT 2025,Thu Jun 19 14:13:01 PDT 2025,GET,https://readmyfineprint.com/sites/default/private/files/backup_migrate/scheduled/test.txt,200,OK,85,1185,5376
+5278,Thu Jun 19 14:13:01 PDT 2025,Thu Jun 19 14:13:01 PDT 2025,GET,https://readmyfineprint.com/app/etc/local.xml,200,OK,93,1185,5376
+5279,Thu Jun 19 14:13:01 PDT 2025,Thu Jun 19 14:13:02 PDT 2025,GET,https://readmyfineprint.com/server.key,200,OK,117,1185,5376
+5280,Thu Jun 19 14:13:02 PDT 2025,Thu Jun 19 14:13:02 PDT 2025,GET,https://readmyfineprint.com/privatekey.key,429,Too Many Requests,82,1126,55
+5281,Thu Jun 19 14:13:02 PDT 2025,Thu Jun 19 14:13:02 PDT 2025,GET,https://readmyfineprint.com/myserver.key,429,Too Many Requests,113,1126,55
+5282,Thu Jun 19 14:13:02 PDT 2025,Thu Jun 19 14:13:02 PDT 2025,GET,https://readmyfineprint.com/key.pem,429,Too Many Requests,94,1126,55
+5283,Thu Jun 19 14:13:02 PDT 2025,Thu Jun 19 14:13:02 PDT 2025,GET,https://readmyfineprint.com/id_rsa,200,OK,94,1185,5376
+5284,Thu Jun 19 14:13:02 PDT 2025,Thu Jun 19 14:13:02 PDT 2025,GET,https://readmyfineprint.com/id_dsa,429,Too Many Requests,105,1126,55
+5285,Thu Jun 19 14:13:02 PDT 2025,Thu Jun 19 14:13:02 PDT 2025,GET,https://readmyfineprint.com/.ssh/id_rsa,200,OK,84,1185,5376
+5286,Thu Jun 19 14:13:02 PDT 2025,Thu Jun 19 14:13:02 PDT 2025,GET,https://readmyfineprint.com/.ssh/id_dsa,200,OK,114,1185,5376
+5287,Thu Jun 19 14:13:02 PDT 2025,Thu Jun 19 14:13:02 PDT 2025,GET,https://readmyfineprint.com/adminer.php,200,OK,89,1185,5376
+5288,Thu Jun 19 14:13:02 PDT 2025,Thu Jun 19 14:13:02 PDT 2025,GET,https://readmyfineprint.com/vb_test.php,429,Too Many Requests,94,1126,55
+5289,Thu Jun 19 14:13:02 PDT 2025,Thu Jun 19 14:13:02 PDT 2025,GET,https://readmyfineprint.com/CHANGELOG.txt,429,Too Many Requests,96,1126,55
+5290,Thu Jun 19 14:13:02 PDT 2025,Thu Jun 19 14:13:03 PDT 2025,GET,https://readmyfineprint.com/sites/default/files/.ht.sqlite,429,Too Many Requests,114,1126,55
+5291,Thu Jun 19 14:13:03 PDT 2025,Thu Jun 19 14:13:03 PDT 2025,GET,https://readmyfineprint.com/composer.json,429,Too Many Requests,90,1126,55
+5292,Thu Jun 19 14:13:03 PDT 2025,Thu Jun 19 14:13:03 PDT 2025,GET,https://readmyfineprint.com/composer.lock,429,Too Many Requests,84,1126,55
+5293,Thu Jun 19 14:13:03 PDT 2025,Thu Jun 19 14:13:03 PDT 2025,GET,https://readmyfineprint.com/vim_settings.xml,429,Too Many Requests,81,1126,55
+5294,Thu Jun 19 14:13:03 PDT 2025,Thu Jun 19 14:13:03 PDT 2025,GET,https://readmyfineprint.com/server-info,200,OK,90,1185,5376
+5295,Thu Jun 19 14:13:03 PDT 2025,Thu Jun 19 14:13:03 PDT 2025,GET,https://readmyfineprint.com/phpinfo.php,200,OK,93,1185,5376
+5296,Thu Jun 19 14:13:03 PDT 2025,Thu Jun 19 14:13:03 PDT 2025,GET,https://readmyfineprint.com/info.php,429,Too Many Requests,99,1126,55
+5297,Thu Jun 19 14:13:03 PDT 2025,Thu Jun 19 14:13:03 PDT 2025,GET,https://readmyfineprint.com/i.php,200,OK,89,1185,5376
+5298,Thu Jun 19 14:13:03 PDT 2025,Thu Jun 19 14:13:03 PDT 2025,GET,https://readmyfineprint.com/test.php,200,OK,88,1185,5376
+5299,Thu Jun 19 14:13:03 PDT 2025,Thu Jun 19 14:13:03 PDT 2025,GET,https://readmyfineprint.com/_wpeprivate/config.json,200,OK,85,1185,5376
+5300,Thu Jun 19 14:13:03 PDT 2025,Thu Jun 19 14:13:04 PDT 2025,GET,https://readmyfineprint.com/_framework/blazor.boot.json,200,OK,92,1185,5376
+5301,Thu Jun 19 14:13:04 PDT 2025,Thu Jun 19 14:13:04 PDT 2025,GET,https://readmyfineprint.com/.hg,429,Too Many Requests,92,1126,55
+5302,Thu Jun 19 14:13:04 PDT 2025,Thu Jun 19 14:13:04 PDT 2025,GET,https://readmyfineprint.com/.bzr,200,OK,96,1185,5376
+5304,Thu Jun 19 14:13:04 PDT 2025,Thu Jun 19 14:13:04 PDT 2025,GET,https://readmyfineprint.com/._darcs,200,OK,86,1185,5376
+5306,Thu Jun 19 14:13:04 PDT 2025,Thu Jun 19 14:13:04 PDT 2025,GET,https://readmyfineprint.com/BitKeeper,200,OK,113,1185,5376
+5308,Thu Jun 19 14:13:04 PDT 2025,Thu Jun 19 14:13:04 PDT 2025,GET,https://readmyfineprint.com/_next,200,OK,87,1127,5376
+5309,Thu Jun 19 14:13:04 PDT 2025,Thu Jun 19 14:13:04 PDT 2025,GET,https://readmyfineprint.com/admin,429,Too Many Requests,89,1068,55
+5310,Thu Jun 19 14:13:04 PDT 2025,Thu Jun 19 14:13:04 PDT 2025,GET,https://readmyfineprint.com/api,429,Too Many Requests,93,1068,55
+5311,Thu Jun 19 14:13:04 PDT 2025,Thu Jun 19 14:13:04 PDT 2025,GET,https://readmyfineprint.com/assets,301,Moved Permanently,83,734,156
+5312,Thu Jun 19 14:13:04 PDT 2025,Thu Jun 19 14:13:04 PDT 2025,GET,https://readmyfineprint.com/config,200,OK,86,1127,5376
+5313,Thu Jun 19 14:13:04 PDT 2025,Thu Jun 19 14:13:05 PDT 2025,GET,https://readmyfineprint.com/dist,200,OK,111,1127,5376
+5314,Thu Jun 19 14:13:05 PDT 2025,Thu Jun 19 14:13:05 PDT 2025,GET,https://readmyfineprint.com/node_modules,200,OK,94,1127,5376
+5315,Thu Jun 19 14:13:05 PDT 2025,Thu Jun 19 14:13:05 PDT 2025,DELETE,https://readmyfineprint.com/api/documents,429,Too Many Requests,85,1126,55
+5317,Thu Jun 19 14:13:05 PDT 2025,Thu Jun 19 14:13:05 PDT 2025,POST,https://readmyfineprint.com/api/documents,200,OK,90,1103,129
+5318,Thu Jun 19 14:13:05 PDT 2025,Thu Jun 19 14:13:05 PDT 2025,POST,https://readmyfineprint.com/api/documents,200,OK,83,1105,2139
+5319,Thu Jun 19 14:13:05 PDT 2025,Thu Jun 19 14:13:05 PDT 2025,POST,https://readmyfineprint.com/api/documents,200,OK,88,1103,138
+5320,Thu Jun 19 14:13:05 PDT 2025,Thu Jun 19 14:13:05 PDT 2025,POST,https://readmyfineprint.com/api/documents,200,OK,92,1103,138
+5325,Thu Jun 19 14:13:05 PDT 2025,Thu Jun 19 14:13:05 PDT 2025,GET,https://readmyfineprint.com/.env,200,OK,89,1127,5376
+5326,Thu Jun 19 14:13:05 PDT 2025,Thu Jun 19 14:13:05 PDT 2025,POST,https://readmyfineprint.com/api/documents/1/analyze,200,OK,102,1106,5370
+5327,Thu Jun 19 14:13:05 PDT 2025,Thu Jun 19 14:13:05 PDT 2025,GET,https://readmyfineprint.com,200,OK,90,1127,5376
+5328,Thu Jun 19 14:13:05 PDT 2025,Thu Jun 19 14:13:05 PDT 2025,GET,https://readmyfineprint.com/_next,429,Too Many Requests,90,1068,55
+5329,Thu Jun 19 14:13:05 PDT 2025,Thu Jun 19 14:13:05 PDT 2025,POST,https://readmyfineprint.com/api/documents,429,Too Many Requests,119,1126,55
+5331,Thu Jun 19 14:13:05 PDT 2025,Thu Jun 19 14:13:05 PDT 2025,GET,https://readmyfineprint.com/,200,OK,126,1127,5376
+5332,Thu Jun 19 14:13:05 PDT 2025,Thu Jun 19 14:13:05 PDT 2025,POST,https://readmyfineprint.com/api/documents/1/analyze,200,OK,86,1106,5370
+5333,Thu Jun 19 14:13:05 PDT 2025,Thu Jun 19 14:13:05 PDT 2025,GET,https://readmyfineprint.com/.env,200,OK,91,1127,5376
+5334,Thu Jun 19 14:13:05 PDT 2025,Thu Jun 19 14:13:05 PDT 2025,DELETE,https://readmyfineprint.com/api/documents,429,Too Many Requests,98,1126,55
+5336,Thu Jun 19 14:13:05 PDT 2025,Thu Jun 19 14:13:05 PDT 2025,GET,https://readmyfineprint.com,200,OK,91,1127,5376
+5337,Thu Jun 19 14:13:05 PDT 2025,Thu Jun 19 14:13:05 PDT 2025,GET,https://readmyfineprint.com/admin,200,OK,87,1127,5376
+5338,Thu Jun 19 14:13:05 PDT 2025,Thu Jun 19 14:13:05 PDT 2025,GET,https://readmyfineprint.com/_next,200,OK,87,1127,5376
+5340,Thu Jun 19 14:13:05 PDT 2025,Thu Jun 19 14:13:05 PDT 2025,POST,https://readmyfineprint.com/api/documents,200,OK,85,1103,138
+5341,Thu Jun 19 14:13:05 PDT 2025,Thu Jun 19 14:13:05 PDT 2025,POST,https://readmyfineprint.com/api/documents,200,OK,86,1105,2139
+5343,Thu Jun 19 14:13:05 PDT 2025,Thu Jun 19 14:13:05 PDT 2025,POST,https://readmyfineprint.com/api/documents,200,OK,85,1103,129
+5346,Thu Jun 19 14:13:05 PDT 2025,Thu Jun 19 14:13:05 PDT 2025,POST,https://readmyfineprint.com/api/documents,200,OK,81,1103,138
+5348,Thu Jun 19 14:13:05 PDT 2025,Thu Jun 19 14:13:05 PDT 2025,GET,https://readmyfineprint.com/,200,OK,89,1127,5376
+5349,Thu Jun 19 14:13:05 PDT 2025,Thu Jun 19 14:13:05 PDT 2025,POST,https://readmyfineprint.com/api/documents,200,OK,84,1103,146
+5351,Thu Jun 19 14:13:05 PDT 2025,Thu Jun 19 14:13:05 PDT 2025,GET,https://readmyfineprint.com/_next/,200,OK,120,1127,5376
+5352,Thu Jun 19 14:13:05 PDT 2025,Thu Jun 19 14:13:05 PDT 2025,POST,https://readmyfineprint.com/api/documents/1/analyze,200,OK,81,1106,5370
+5353,Thu Jun 19 14:13:05 PDT 2025,Thu Jun 19 14:13:05 PDT 2025,GET,https://readmyfineprint.com,200,OK,84,1127,5376
+5354,Thu Jun 19 14:13:05 PDT 2025,Thu Jun 19 14:13:05 PDT 2025,DELETE,https://readmyfineprint.com/api/documents,200,OK,82,1102,48
+5355,Thu Jun 19 14:13:05 PDT 2025,Thu Jun 19 14:13:05 PDT 2025,GET,https://readmyfineprint.com/admin/,200,OK,89,1127,5376
+5356,Thu Jun 19 14:13:05 PDT 2025,Thu Jun 19 14:13:05 PDT 2025,GET,https://readmyfineprint.com/.env,200,OK,108,1127,5376
+5357,Thu Jun 19 14:13:05 PDT 2025,Thu Jun 19 14:13:05 PDT 2025,POST,https://readmyfineprint.com/api/documents,200,OK,79,1103,138
+5358,Thu Jun 19 14:13:05 PDT 2025,Thu Jun 19 14:13:05 PDT 2025,GET,https://readmyfineprint.com/_next,200,OK,83,1127,5376
+5361,Thu Jun 19 14:13:05 PDT 2025,Thu Jun 19 14:13:05 PDT 2025,POST,https://readmyfineprint.com/api/documents,200,OK,81,1103,128
+5362,Thu Jun 19 14:13:05 PDT 2025,Thu Jun 19 14:13:05 PDT 2025,POST,https://readmyfineprint.com/api/documents,200,OK,81,1105,2139
+5365,Thu Jun 19 14:13:05 PDT 2025,Thu Jun 19 14:13:05 PDT 2025,GET,https://readmyfineprint.com/,200,OK,91,1127,5376
+5366,Thu Jun 19 14:13:05 PDT 2025,Thu Jun 19 14:13:05 PDT 2025,POST,https://readmyfineprint.com/api/documents,200,OK,84,1103,138
+5368,Thu Jun 19 14:13:05 PDT 2025,Thu Jun 19 14:13:05 PDT 2025,GET,https://readmyfineprint.com/admin,200,OK,110,1127,5376
+5369,Thu Jun 19 14:13:05 PDT 2025,Thu Jun 19 14:13:05 PDT 2025,GET,https://readmyfineprint.com/_next/,200,OK,84,1127,5376
+5370,Thu Jun 19 14:13:05 PDT 2025,Thu Jun 19 14:13:05 PDT 2025,POST,https://readmyfineprint.com/api/documents,200,OK,84,1103,146
+5371,Thu Jun 19 14:13:05 PDT 2025,Thu Jun 19 14:13:05 PDT 2025,GET,https://readmyfineprint.com/api,200,OK,117,1127,5376
+5373,Thu Jun 19 14:13:05 PDT 2025,Thu Jun 19 14:13:05 PDT 2025,POST,https://readmyfineprint.com/api/documents/1/analyze,200,OK,88,1106,5370
+5374,Thu Jun 19 14:13:05 PDT 2025,Thu Jun 19 14:13:05 PDT 2025,GET,https://readmyfineprint.com,200,OK,110,1127,5376
+5375,Thu Jun 19 14:13:05 PDT 2025,Thu Jun 19 14:13:05 PDT 2025,GET,https://readmyfineprint.com/.env,200,OK,87,1127,5376
+5376,Thu Jun 19 14:13:05 PDT 2025,Thu Jun 19 14:13:05 PDT 2025,POST,https://readmyfineprint.com/api/documents,200,OK,97,1103,138
+5377,Thu Jun 19 14:13:05 PDT 2025,Thu Jun 19 14:13:05 PDT 2025,POST,https://readmyfineprint.com/api/documents,200,OK,96,1105,2139
+5378,Thu Jun 19 14:13:05 PDT 2025,Thu Jun 19 14:13:05 PDT 2025,DELETE,https://readmyfineprint.com/api/documents,200,OK,124,1102,48
+5381,Thu Jun 19 14:13:05 PDT 2025,Thu Jun 19 14:13:05 PDT 2025,GET,https://readmyfineprint.com/_next,200,OK,98,1127,5376
+5382,Thu Jun 19 14:13:05 PDT 2025,Thu Jun 19 14:13:05 PDT 2025,POST,https://readmyfineprint.com/api/documents,200,OK,96,1103,128
+5383,Thu Jun 19 14:13:05 PDT 2025,Thu Jun 19 14:13:05 PDT 2025,GET,https://readmyfineprint.com/admin/,200,OK,104,1127,5376
+5384,Thu Jun 19 14:13:05 PDT 2025,Thu Jun 19 14:13:05 PDT 2025,GET,https://readmyfineprint.com/,200,OK,89,1127,5376
+5387,Thu Jun 19 14:13:05 PDT 2025,Thu Jun 19 14:13:05 PDT 2025,GET,https://readmyfineprint.com/_next/,200,OK,92,1127,5376
+5388,Thu Jun 19 14:13:05 PDT 2025,Thu Jun 19 14:13:05 PDT 2025,GET,https://readmyfineprint.com/admin,429,Too Many Requests,97,1068,55
+5389,Thu Jun 19 14:13:05 PDT 2025,Thu Jun 19 14:13:05 PDT 2025,GET,https://readmyfineprint.com/api/,200,OK,88,1127,5376
+5391,Thu Jun 19 14:13:05 PDT 2025,Thu Jun 19 14:13:05 PDT 2025,GET,https://readmyfineprint.com/api,200,OK,97,1127,5376
+5392,Thu Jun 19 14:13:05 PDT 2025,Thu Jun 19 14:13:05 PDT 2025,POST,https://readmyfineprint.com/api/documents,200,OK,88,1103,138
+5394,Thu Jun 19 14:13:05 PDT 2025,Thu Jun 19 14:13:05 PDT 2025,POST,https://readmyfineprint.com/api/documents/1/analyze,200,OK,89,1106,5370
+5395,Thu Jun 19 14:13:05 PDT 2025,Thu Jun 19 14:13:05 PDT 2025,GET,https://readmyfineprint.com,200,OK,83,1127,5376
+5396,Thu Jun 19 14:13:05 PDT 2025,Thu Jun 19 14:13:05 PDT 2025,DELETE,https://readmyfineprint.com/api/documents,200,OK,80,1102,48
+5397,Thu Jun 19 14:13:05 PDT 2025,Thu Jun 19 14:13:05 PDT 2025,GET,https://readmyfineprint.com/.env,429,Too Many Requests,97,1068,55
+5399,Thu Jun 19 14:13:05 PDT 2025,Thu Jun 19 14:13:05 PDT 2025,GET,https://readmyfineprint.com/,200,OK,85,1127,5376
+5400,Thu Jun 19 14:13:05 PDT 2025,Thu Jun 19 14:13:05 PDT 2025,GET,https://readmyfineprint.com/_next,429,Too Many Requests,87,1068,55
+5401,Thu Jun 19 14:13:05 PDT 2025,Thu Jun 19 14:13:05 PDT 2025,POST,https://readmyfineprint.com/api/documents,200,OK,88,1103,138
+5402,Thu Jun 19 14:13:05 PDT 2025,Thu Jun 19 14:13:05 PDT 2025,POST,https://readmyfineprint.com/api/documents,200,OK,88,1105,2139
+5403,Thu Jun 19 14:13:05 PDT 2025,Thu Jun 19 14:13:05 PDT 2025,GET,https://readmyfineprint.com/_next/,200,OK,80,1127,5376
+5405,Thu Jun 19 14:13:05 PDT 2025,Thu Jun 19 14:13:05 PDT 2025,GET,https://readmyfineprint.com/admin/,429,Too Many Requests,95,1068,55
+5408,Thu Jun 19 14:13:05 PDT 2025,Thu Jun 19 14:13:05 PDT 2025,GET,https://readmyfineprint.com/api,200,OK,87,1127,5376
+5409,Thu Jun 19 14:13:05 PDT 2025,Thu Jun 19 14:13:05 PDT 2025,GET,https://readmyfineprint.com/api/,429,Too Many Requests,87,1068,55
+5411,Thu Jun 19 14:13:05 PDT 2025,Thu Jun 19 14:13:05 PDT 2025,GET,https://readmyfineprint.com/admin,200,OK,96,1127,5376
+5412,Thu Jun 19 14:13:05 PDT 2025,Thu Jun 19 14:13:05 PDT 2025,POST,https://readmyfineprint.com/api/documents,200,OK,116,1103,128
+5413,Thu Jun 19 14:13:05 PDT 2025,Thu Jun 19 14:13:05 PDT 2025,POST,https://readmyfineprint.com/api/documents,429,Too Many Requests,184,1126,55
+5414,Thu Jun 19 14:13:05 PDT 2025,Thu Jun 19 14:13:05 PDT 2025,POST,https://readmyfineprint.com/api/documents/1/analyze,200,OK,80,1106,5370
+5417,Thu Jun 19 14:13:05 PDT 2025,Thu Jun 19 14:13:05 PDT 2025,POST,https://readmyfineprint.com/api/documents,429,Too Many Requests,120,1126,55
+5419,Thu Jun 19 14:13:05 PDT 2025,Thu Jun 19 14:13:05 PDT 2025,GET,https://readmyfineprint.com,200,OK,89,1127,5376
+5420,Thu Jun 19 14:13:05 PDT 2025,Thu Jun 19 14:13:05 PDT 2025,DELETE,https://readmyfineprint.com/api/documents,200,OK,84,1102,48
+5421,Thu Jun 19 14:13:05 PDT 2025,Thu Jun 19 14:13:05 PDT 2025,GET,https://readmyfineprint.com/,200,OK,79,1127,5376
+5422,Thu Jun 19 14:13:05 PDT 2025,Thu Jun 19 14:13:05 PDT 2025,GET,https://readmyfineprint.com/_next,200,OK,87,1127,5376
+5424,Thu Jun 19 14:13:05 PDT 2025,Thu Jun 19 14:13:05 PDT 2025,GET,https://readmyfineprint.com/_next/,429,Too Many Requests,90,1068,55
+5426,Thu Jun 19 14:13:05 PDT 2025,Thu Jun 19 14:13:05 PDT 2025,GET,https://readmyfineprint.com/.env,200,OK,81,1127,5376
+5427,Thu Jun 19 14:13:05 PDT 2025,Thu Jun 19 14:13:05 PDT 2025,GET,https://readmyfineprint.com/admin,429,Too Many Requests,96,1068,55
+5428,Thu Jun 19 14:13:05 PDT 2025,Thu Jun 19 14:13:05 PDT 2025,POST,https://readmyfineprint.com/api/documents/1/analyze,200,OK,88,1106,5370
+5430,Thu Jun 19 14:13:05 PDT 2025,Thu Jun 19 14:13:05 PDT 2025,GET,https://readmyfineprint.com/api,200,OK,116,1127,5376
+5431,Thu Jun 19 14:13:05 PDT 2025,Thu Jun 19 14:13:05 PDT 2025,POST,https://readmyfineprint.com/api/documents,429,Too Many Requests,83,1126,55
+5433,Thu Jun 19 14:13:05 PDT 2025,Thu Jun 19 14:13:05 PDT 2025,POST,https://readmyfineprint.com/api/documents,200,OK,91,1103,128
+5434,Thu Jun 19 14:13:05 PDT 2025,Thu Jun 19 14:13:05 PDT 2025,GET,https://readmyfineprint.com,200,OK,84,1127,5376
+5435,Thu Jun 19 14:13:05 PDT 2025,Thu Jun 19 14:13:05 PDT 2025,POST,https://readmyfineprint.com/api/documents,200,OK,98,1105,2139
+5438,Thu Jun 19 14:13:05 PDT 2025,Thu Jun 19 14:13:05 PDT 2025,GET,https://readmyfineprint.com/api/,429,Too Many Requests,112,1068,55
+5439,Thu Jun 19 14:13:05 PDT 2025,Thu Jun 19 14:13:05 PDT 2025,GET,https://readmyfineprint.com/admin/,200,OK,112,1127,5376
+5440,Thu Jun 19 14:13:05 PDT 2025,Thu Jun 19 14:13:05 PDT 2025,GET,https://readmyfineprint.com/,200,OK,88,1127,5376
+5442,Thu Jun 19 14:13:05 PDT 2025,Thu Jun 19 14:13:05 PDT 2025,POST,https://readmyfineprint.com/api/documents,200,OK,117,1103,146
+5444,Thu Jun 19 14:13:05 PDT 2025,Thu Jun 19 14:13:05 PDT 2025,GET,https://readmyfineprint.com/.env,200,OK,78,1127,5376
+5445,Thu Jun 19 14:13:05 PDT 2025,Thu Jun 19 14:13:05 PDT 2025,DELETE,https://readmyfineprint.com/api/documents,200,OK,113,1102,48
+5446,Thu Jun 19 14:13:05 PDT 2025,Thu Jun 19 14:13:05 PDT 2025,POST,https://readmyfineprint.com/api/documents,429,Too Many Requests,89,1126,55
+5448,Thu Jun 19 14:13:05 PDT 2025,Thu Jun 19 14:13:05 PDT 2025,GET,https://readmyfineprint.com/_next,200,OK,100,1127,5376
+5450,Thu Jun 19 14:13:05 PDT 2025,Thu Jun 19 14:13:05 PDT 2025,GET,https://readmyfineprint.com/_next/,429,Too Many Requests,102,1068,55
+5451,Thu Jun 19 14:13:05 PDT 2025,Thu Jun 19 14:13:05 PDT 2025,POST,https://readmyfineprint.com/api/documents/1/analyze,200,OK,85,1106,5370
+5453,Thu Jun 19 14:13:05 PDT 2025,Thu Jun 19 14:13:05 PDT 2025,GET,https://readmyfineprint.com/api,429,Too Many Requests,104,1068,55
+5455,Thu Jun 19 14:13:05 PDT 2025,Thu Jun 19 14:13:05 PDT 2025,GET,https://readmyfineprint.com,200,OK,85,1127,5376
+5456,Thu Jun 19 14:13:05 PDT 2025,Thu Jun 19 14:13:05 PDT 2025,GET,https://readmyfineprint.com/admin,200,OK,112,1127,5376
+5457,Thu Jun 19 14:13:05 PDT 2025,Thu Jun 19 14:13:05 PDT 2025,GET,https://readmyfineprint.com/,200,OK,80,1127,5376
+5458,Thu Jun 19 14:13:05 PDT 2025,Thu Jun 19 14:13:05 PDT 2025,POST,https://readmyfineprint.com/api/documents,200,OK,79,1103,128
+5460,Thu Jun 19 14:13:05 PDT 2025,Thu Jun 19 14:13:05 PDT 2025,GET,https://readmyfineprint.com/admin/,200,OK,88,1127,5376
+5461,Thu Jun 19 14:13:05 PDT 2025,Thu Jun 19 14:13:05 PDT 2025,POST,https://readmyfineprint.com/api/documents,200,OK,86,1105,2139
+5463,Thu Jun 19 14:13:05 PDT 2025,Thu Jun 19 14:13:05 PDT 2025,POST,https://readmyfineprint.com/api/documents,200,OK,79,1103,146
+5464,Thu Jun 19 14:13:05 PDT 2025,Thu Jun 19 14:13:05 PDT 2025,POST,https://readmyfineprint.com/api/documents,200,OK,115,1103,138
+5467,Thu Jun 19 14:13:05 PDT 2025,Thu Jun 19 14:13:05 PDT 2025,DELETE,https://readmyfineprint.com/api/documents,200,OK,83,1102,48
+5468,Thu Jun 19 14:13:05 PDT 2025,Thu Jun 19 14:13:05 PDT 2025,GET,https://readmyfineprint.com/api/,429,Too Many Requests,101,1068,55
+5470,Thu Jun 19 14:13:05 PDT 2025,Thu Jun 19 14:13:05 PDT 2025,POST,https://readmyfineprint.com/api/documents,200,OK,84,1103,138
+5471,Thu Jun 19 14:13:05 PDT 2025,Thu Jun 19 14:13:05 PDT 2025,POST,https://readmyfineprint.com/api/documents/1/analyze,200,OK,78,1106,5370
+5473,Thu Jun 19 14:13:05 PDT 2025,Thu Jun 19 14:13:05 PDT 2025,GET,https://readmyfineprint.com/.env,200,OK,116,1127,5376
+5474,Thu Jun 19 14:13:05 PDT 2025,Thu Jun 19 14:13:05 PDT 2025,GET,https://readmyfineprint.com/_next,200,OK,84,1127,5376
+5476,Thu Jun 19 14:13:05 PDT 2025,Thu Jun 19 14:13:05 PDT 2025,GET,https://readmyfineprint.com/_next/,200,OK,93,1127,5376
+5477,Thu Jun 19 14:13:05 PDT 2025,Thu Jun 19 14:13:05 PDT 2025,GET,https://readmyfineprint.com,200,OK,76,1127,5376
+5478,Thu Jun 19 14:13:05 PDT 2025,Thu Jun 19 14:13:06 PDT 2025,GET,https://readmyfineprint.com/,200,OK,77,1127,5376
+5479,Thu Jun 19 14:13:05 PDT 2025,Thu Jun 19 14:13:06 PDT 2025,GET,https://readmyfineprint.com/admin,200,OK,89,1127,5376
+5480,Thu Jun 19 14:13:05 PDT 2025,Thu Jun 19 14:13:06 PDT 2025,GET,https://readmyfineprint.com/api,200,OK,95,1127,5376
+5481,Thu Jun 19 14:13:05 PDT 2025,Thu Jun 19 14:13:06 PDT 2025,GET,https://readmyfineprint.com/admin/,200,OK,90,1127,5376
+5482,Thu Jun 19 14:13:05 PDT 2025,Thu Jun 19 14:13:06 PDT 2025,POST,https://readmyfineprint.com/api/documents,200,OK,80,1103,128
+5483,Thu Jun 19 14:13:05 PDT 2025,Thu Jun 19 14:13:06 PDT 2025,DELETE,https://readmyfineprint.com/api/documents,200,OK,78,1102,48
+5485,Thu Jun 19 14:13:05 PDT 2025,Thu Jun 19 14:13:06 PDT 2025,POST,https://readmyfineprint.com/api/documents,200,OK,81,1105,2139
+5487,Thu Jun 19 14:13:05 PDT 2025,Thu Jun 19 14:13:06 PDT 2025,POST,https://readmyfineprint.com/api/documents,429,Too Many Requests,77,1126,55
+5488,Thu Jun 19 14:13:05 PDT 2025,Thu Jun 19 14:13:06 PDT 2025,POST,https://readmyfineprint.com/api/documents,200,OK,77,1103,146
+5491,Thu Jun 19 14:13:05 PDT 2025,Thu Jun 19 14:13:06 PDT 2025,POST,https://readmyfineprint.com/api/documents/1/analyze,200,OK,81,1106,5370
+5492,Thu Jun 19 14:13:05 PDT 2025,Thu Jun 19 14:13:06 PDT 2025,GET,https://readmyfineprint.com/.env,200,OK,87,1127,5376
+5493,Thu Jun 19 14:13:05 PDT 2025,Thu Jun 19 14:13:06 PDT 2025,POST,https://readmyfineprint.com/api/documents,429,Too Many Requests,82,1126,55
+5495,Thu Jun 19 14:13:05 PDT 2025,Thu Jun 19 14:13:06 PDT 2025,GET,https://readmyfineprint.com/_next/,200,OK,82,1127,5376
+5496,Thu Jun 19 14:13:05 PDT 2025,Thu Jun 19 14:13:06 PDT 2025,GET,https://readmyfineprint.com/api/,429,Too Many Requests,95,1068,55
+5498,Thu Jun 19 14:13:05 PDT 2025,Thu Jun 19 14:13:06 PDT 2025,GET,https://readmyfineprint.com/_next,200,OK,82,1127,5376
+5500,Thu Jun 19 14:13:05 PDT 2025,Thu Jun 19 14:13:06 PDT 2025,GET,https://readmyfineprint.com,200,OK,93,1127,5376
+5501,Thu Jun 19 14:13:06 PDT 2025,Thu Jun 19 14:13:06 PDT 2025,GET,https://readmyfineprint.com/,200,OK,82,1127,5376
+5502,Thu Jun 19 14:13:06 PDT 2025,Thu Jun 19 14:13:06 PDT 2025,GET,https://readmyfineprint.com/admin,200,OK,82,1127,5376
+5503,Thu Jun 19 14:13:06 PDT 2025,Thu Jun 19 14:13:06 PDT 2025,POST,https://readmyfineprint.com/api/documents,200,OK,79,1103,128
+5504,Thu Jun 19 14:13:06 PDT 2025,Thu Jun 19 14:13:06 PDT 2025,GET,https://readmyfineprint.com/api,200,OK,90,1127,5376
+5506,Thu Jun 19 14:13:06 PDT 2025,Thu Jun 19 14:13:06 PDT 2025,POST,https://readmyfineprint.com/api/documents,200,OK,81,1105,2139
+5508,Thu Jun 19 14:13:06 PDT 2025,Thu Jun 19 14:13:06 PDT 2025,GET,https://readmyfineprint.com/admin/,200,OK,103,1127,5376
+5509,Thu Jun 19 14:13:06 PDT 2025,Thu Jun 19 14:13:06 PDT 2025,POST,https://readmyfineprint.com/api/documents/1/analyze,200,OK,74,1106,5370
+5510,Thu Jun 19 14:13:06 PDT 2025,Thu Jun 19 14:13:06 PDT 2025,POST,https://readmyfineprint.com/api/documents,200,OK,88,1103,146
+5512,Thu Jun 19 14:13:06 PDT 2025,Thu Jun 19 14:13:06 PDT 2025,DELETE,https://readmyfineprint.com/api/documents,200,OK,109,1102,48
+5513,Thu Jun 19 14:13:06 PDT 2025,Thu Jun 19 14:13:06 PDT 2025,POST,https://readmyfineprint.com/api/documents,429,Too Many Requests,102,1126,55
+5515,Thu Jun 19 14:13:06 PDT 2025,Thu Jun 19 14:13:06 PDT 2025,POST,https://readmyfineprint.com/api/documents,200,OK,82,1103,138
+5517,Thu Jun 19 14:13:06 PDT 2025,Thu Jun 19 14:13:06 PDT 2025,GET,https://readmyfineprint.com/_next/,200,OK,87,1127,5376
+5518,Thu Jun 19 14:13:06 PDT 2025,Thu Jun 19 14:13:06 PDT 2025,GET,https://readmyfineprint.com/api/,200,OK,81,1127,5376
+5519,Thu Jun 19 14:13:06 PDT 2025,Thu Jun 19 14:13:06 PDT 2025,GET,https://readmyfineprint.com/_next,200,OK,81,1127,5376
+5521,Thu Jun 19 14:13:06 PDT 2025,Thu Jun 19 14:13:06 PDT 2025,GET,https://readmyfineprint.com/.env,200,OK,103,1127,5376
+5522,Thu Jun 19 14:13:06 PDT 2025,Thu Jun 19 14:13:06 PDT 2025,GET,https://readmyfineprint.com,429,Too Many Requests,94,1068,55
+5524,Thu Jun 19 14:13:06 PDT 2025,Thu Jun 19 14:13:06 PDT 2025,GET,https://readmyfineprint.com/admin,200,OK,94,1127,5376
+5525,Thu Jun 19 14:13:06 PDT 2025,Thu Jun 19 14:13:06 PDT 2025,POST,https://readmyfineprint.com/api/documents,200,OK,95,1103,128
+5526,Thu Jun 19 14:13:06 PDT 2025,Thu Jun 19 14:13:06 PDT 2025,GET,https://readmyfineprint.com/admin/,200,OK,84,1127,5376
+5527,Thu Jun 19 14:13:06 PDT 2025,Thu Jun 19 14:13:06 PDT 2025,GET,https://readmyfineprint.com/,200,OK,124,1127,5376
+5528,Thu Jun 19 14:13:06 PDT 2025,Thu Jun 19 14:13:06 PDT 2025,POST,https://readmyfineprint.com/api/documents,200,OK,85,1105,2139
+5529,Thu Jun 19 14:13:06 PDT 2025,Thu Jun 19 14:13:06 PDT 2025,GET,https://readmyfineprint.com/api,200,OK,99,1127,5376
+5532,Thu Jun 19 14:13:06 PDT 2025,Thu Jun 19 14:13:06 PDT 2025,DELETE,https://readmyfineprint.com/api/documents,200,OK,83,1102,48
+5533,Thu Jun 19 14:13:06 PDT 2025,Thu Jun 19 14:13:06 PDT 2025,POST,https://readmyfineprint.com/api/documents/1/analyze,429,Too Many Requests,94,1126,55
+5535,Thu Jun 19 14:13:06 PDT 2025,Thu Jun 19 14:13:06 PDT 2025,POST,https://readmyfineprint.com/api/documents,429,Too Many Requests,98,1126,55
+5537,Thu Jun 19 14:13:06 PDT 2025,Thu Jun 19 14:13:06 PDT 2025,POST,https://readmyfineprint.com/api/documents,200,OK,90,1103,138
+5538,Thu Jun 19 14:13:06 PDT 2025,Thu Jun 19 14:13:06 PDT 2025,POST,https://readmyfineprint.com/api/documents,200,OK,82,1103,138
+5541,Thu Jun 19 14:13:06 PDT 2025,Thu Jun 19 14:13:06 PDT 2025,GET,https://readmyfineprint.com/_next/,200,OK,89,1127,5376
+5542,Thu Jun 19 14:13:06 PDT 2025,Thu Jun 19 14:13:06 PDT 2025,GET,https://readmyfineprint.com/_next,200,OK,85,1127,5376
+5544,Thu Jun 19 14:13:06 PDT 2025,Thu Jun 19 14:13:06 PDT 2025,GET,https://readmyfineprint.com/api/,200,OK,93,1127,5376
+5545,Thu Jun 19 14:13:06 PDT 2025,Thu Jun 19 14:13:06 PDT 2025,GET,https://readmyfineprint.com/.env,429,Too Many Requests,96,1068,55
+5547,Thu Jun 19 14:13:06 PDT 2025,Thu Jun 19 14:13:06 PDT 2025,GET,https://readmyfineprint.com/admin,429,Too Many Requests,98,1068,55
+5549,Thu Jun 19 14:13:06 PDT 2025,Thu Jun 19 14:13:06 PDT 2025,GET,https://readmyfineprint.com/,429,Too Many Requests,85,1068,55
+5551,Thu Jun 19 14:13:06 PDT 2025,Thu Jun 19 14:13:06 PDT 2025,POST,https://readmyfineprint.com/api/documents,200,OK,83,1105,2139
+5553,Thu Jun 19 14:13:06 PDT 2025,Thu Jun 19 14:13:06 PDT 2025,POST,https://readmyfineprint.com/api/documents,200,OK,88,1103,128
+5555,Thu Jun 19 14:13:06 PDT 2025,Thu Jun 19 14:13:06 PDT 2025,GET,https://readmyfineprint.com,200,OK,123,1127,5376
+5556,Thu Jun 19 14:13:06 PDT 2025,Thu Jun 19 14:13:06 PDT 2025,GET,https://readmyfineprint.com/api,200,OK,99,1127,5376
+5557,Thu Jun 19 14:13:06 PDT 2025,Thu Jun 19 14:13:06 PDT 2025,GET,https://readmyfineprint.com/admin/,200,OK,100,1127,5376
+5558,Thu Jun 19 14:13:06 PDT 2025,Thu Jun 19 14:13:06 PDT 2025,POST,https://readmyfineprint.com/api/documents,200,OK,81,1103,146
+5559,Thu Jun 19 14:13:06 PDT 2025,Thu Jun 19 14:13:06 PDT 2025,DELETE,https://readmyfineprint.com/api/documents,200,OK,101,1102,48
+5560,Thu Jun 19 14:13:06 PDT 2025,Thu Jun 19 14:13:06 PDT 2025,POST,https://readmyfineprint.com/api/documents,200,OK,77,1103,138
+5563,Thu Jun 19 14:13:06 PDT 2025,Thu Jun 19 14:13:06 PDT 2025,GET,https://readmyfineprint.com/_next,200,OK,85,1127,5376
+5565,Thu Jun 19 14:13:06 PDT 2025,Thu Jun 19 14:13:06 PDT 2025,GET,https://readmyfineprint.com/_next/,429,Too Many Requests,99,1068,55
+5566,Thu Jun 19 14:13:06 PDT 2025,Thu Jun 19 14:13:06 PDT 2025,POST,https://readmyfineprint.com/api/documents,429,Too Many Requests,104,1126,55
+5569,Thu Jun 19 14:13:06 PDT 2025,Thu Jun 19 14:13:06 PDT 2025,GET,https://readmyfineprint.com/.env,200,OK,82,1127,5376
+5570,Thu Jun 19 14:13:06 PDT 2025,Thu Jun 19 14:13:06 PDT 2025,GET,https://readmyfineprint.com/api/,200,OK,110,1127,5376
+5571,Thu Jun 19 14:13:06 PDT 2025,Thu Jun 19 14:13:06 PDT 2025,GET,https://readmyfineprint.com/admin,429,Too Many Requests,88,1068,55
+5573,Thu Jun 19 14:13:06 PDT 2025,Thu Jun 19 14:13:06 PDT 2025,POST,https://readmyfineprint.com/api/documents,200,OK,81,1105,2139
+5575,Thu Jun 19 14:13:06 PDT 2025,Thu Jun 19 14:13:06 PDT 2025,GET,https://readmyfineprint.com/assets,301,Moved Permanently,82,734,156
+5576,Thu Jun 19 14:13:06 PDT 2025,Thu Jun 19 14:13:06 PDT 2025,GET,https://readmyfineprint.com/admin/,200,OK,83,1127,5376
+5577,Thu Jun 19 14:13:06 PDT 2025,Thu Jun 19 14:13:06 PDT 2025,GET,https://readmyfineprint.com/api/create-checkout-session?amount=10,429,Too Many Requests,83,1068,55
+5579,Thu Jun 19 14:13:06 PDT 2025,Thu Jun 19 14:13:06 PDT 2025,GET,https://readmyfineprint.com/api/documents,200,OK,91,1042,2
+5580,Thu Jun 19 14:13:06 PDT 2025,Thu Jun 19 14:13:06 PDT 2025,GET,https://readmyfineprint.com/api,200,OK,94,1127,5376
+5581,Thu Jun 19 14:13:06 PDT 2025,Thu Jun 19 14:13:06 PDT 2025,GET,https://readmyfineprint.com/api/documents/1,200,OK,92,1048,5370
+5583,Thu Jun 19 14:13:06 PDT 2025,Thu Jun 19 14:13:06 PDT 2025,GET,https://readmyfineprint.com/_next,200,OK,76,1127,5376
+5585,Thu Jun 19 14:13:06 PDT 2025,Thu Jun 19 14:13:06 PDT 2025,GET,https://readmyfineprint.com/_next/,429,Too Many Requests,78,1068,55
+5586,Thu Jun 19 14:13:06 PDT 2025,Thu Jun 19 14:13:06 PDT 2025,POST,https://readmyfineprint.com/api/documents,429,Too Many Requests,101,1126,55
+5588,Thu Jun 19 14:13:06 PDT 2025,Thu Jun 19 14:13:06 PDT 2025,POST,https://readmyfineprint.com/api/documents,200,OK,80,1103,138
+5591,Thu Jun 19 14:13:06 PDT 2025,Thu Jun 19 14:13:06 PDT 2025,POST,https://readmyfineprint.com/api/documents,429,Too Many Requests,113,1126,55
+5593,Thu Jun 19 14:13:06 PDT 2025,Thu Jun 19 14:13:06 PDT 2025,GET,https://readmyfineprint.com/api/,200,OK,96,1127,5376
+5594,Thu Jun 19 14:13:06 PDT 2025,Thu Jun 19 14:13:06 PDT 2025,POST,https://readmyfineprint.com/api/documents,200,OK,143,1103,128
+5596,Thu Jun 19 14:13:06 PDT 2025,Thu Jun 19 14:13:06 PDT 2025,GET,https://readmyfineprint.com/admin,429,Too Many Requests,93,1068,55
+5598,Thu Jun 19 14:13:06 PDT 2025,Thu Jun 19 14:13:06 PDT 2025,GET,https://readmyfineprint.com/admin/,200,OK,83,1127,5376
+5599,Thu Jun 19 14:13:06 PDT 2025,Thu Jun 19 14:13:06 PDT 2025,GET,https://readmyfineprint.com/assets,429,Too Many Requests,87,1068,55
+5601,Thu Jun 19 14:13:06 PDT 2025,Thu Jun 19 14:13:06 PDT 2025,GET,https://readmyfineprint.com/api,200,OK,86,1127,5376
+5602,Thu Jun 19 14:13:06 PDT 2025,Thu Jun 19 14:13:06 PDT 2025,GET,https://readmyfineprint.com/api/documents,200,OK,93,1042,2
+5603,Thu Jun 19 14:13:06 PDT 2025,Thu Jun 19 14:13:06 PDT 2025,GET,https://readmyfineprint.com/api/documents/1,200,OK,93,1048,5370
+5605,Thu Jun 19 14:13:06 PDT 2025,Thu Jun 19 14:13:06 PDT 2025,POST,https://readmyfineprint.com/api/documents,200,OK,85,1103,146
+5607,Thu Jun 19 14:13:06 PDT 2025,Thu Jun 19 14:13:06 PDT 2025,GET,https://readmyfineprint.com/assets/index-D0XQE0Pb.css,200,OK,144,1187,100150
+5608,Thu Jun 19 14:13:06 PDT 2025,Thu Jun 19 14:13:06 PDT 2025,GET,https://readmyfineprint.com/admin,429,Too Many Requests,108,1068,55
+5609,Thu Jun 19 14:13:06 PDT 2025,Thu Jun 19 14:13:06 PDT 2025,GET,https://readmyfineprint.com/admin/,200,OK,111,1127,5376
+5610,Thu Jun 19 14:13:06 PDT 2025,Thu Jun 19 14:13:06 PDT 2025,GET,https://readmyfineprint.com/api/,429,Too Many Requests,129,1068,55
+5613,Thu Jun 19 14:13:06 PDT 2025,Thu Jun 19 14:13:06 PDT 2025,GET,https://readmyfineprint.com/api/documents,200,OK,97,1042,2
+5614,Thu Jun 19 14:13:06 PDT 2025,Thu Jun 19 14:13:06 PDT 2025,GET,https://readmyfineprint.com/api,429,Too Many Requests,118,1068,55
+5616,Thu Jun 19 14:13:06 PDT 2025,Thu Jun 19 14:13:06 PDT 2025,GET,https://readmyfineprint.com/api/documents/1,200,OK,91,1048,5370
+5618,Thu Jun 19 14:13:06 PDT 2025,Thu Jun 19 14:13:06 PDT 2025,GET,https://readmyfineprint.com/assets/index-XLT6FXFc.js,200,OK,212,1201,837980
+5619,Thu Jun 19 14:13:06 PDT 2025,Thu Jun 19 14:13:06 PDT 2025,GET,https://readmyfineprint.com/assets/index-D0XQE0Pb.css,200,OK,113,1187,100150
+5620,Thu Jun 19 14:13:06 PDT 2025,Thu Jun 19 14:13:06 PDT 2025,GET,https://readmyfineprint.com/api/documents,200,OK,78,1042,2
+5621,Thu Jun 19 14:13:06 PDT 2025,Thu Jun 19 14:13:06 PDT 2025,GET,https://readmyfineprint.com/api/,200,OK,79,1127,5376
+5622,Thu Jun 19 14:13:06 PDT 2025,Thu Jun 19 14:13:06 PDT 2025,GET,https://readmyfineprint.com/assets,429,Too Many Requests,98,1068,55
+5624,Thu Jun 19 14:13:06 PDT 2025,Thu Jun 19 14:13:06 PDT 2025,GET,https://readmyfineprint.com/config,200,OK,90,1127,5376
+5625,Thu Jun 19 14:13:06 PDT 2025,Thu Jun 19 14:13:06 PDT 2025,GET,https://readmyfineprint.com/api,200,OK,83,1127,5376
+5626,Thu Jun 19 14:13:06 PDT 2025,Thu Jun 19 14:13:06 PDT 2025,GET,https://readmyfineprint.com/api/documents/1,200,OK,82,1048,5370
+5627,Thu Jun 19 14:13:06 PDT 2025,Thu Jun 19 14:13:06 PDT 2025,GET,https://readmyfineprint.com/assets/vendor-XmM-h_u-.js,429,Too Many Requests,93,1126,55
+5628,Thu Jun 19 14:13:06 PDT 2025,Thu Jun 19 14:13:06 PDT 2025,GET,https://readmyfineprint.com/assets/ui-GhKx_Kyv.js,429,Too Many Requests,93,1126,55
+5632,Thu Jun 19 14:13:06 PDT 2025,Thu Jun 19 14:13:06 PDT 2025,GET,https://readmyfineprint.com/api/documents,200,OK,83,1042,2
+5633,Thu Jun 19 14:13:06 PDT 2025,Thu Jun 19 14:13:06 PDT 2025,GET,https://readmyfineprint.com/api/,200,OK,93,1127,5376
+5634,Thu Jun 19 14:13:06 PDT 2025,Thu Jun 19 14:13:06 PDT 2025,GET,https://readmyfineprint.com/cookies,200,OK,79,1127,5376
+5635,Thu Jun 19 14:13:06 PDT 2025,Thu Jun 19 14:13:06 PDT 2025,GET,https://readmyfineprint.com/config,200,OK,88,1127,5376
+5636,Thu Jun 19 14:13:06 PDT 2025,Thu Jun 19 14:13:06 PDT 2025,GET,https://readmyfineprint.com/dist,200,OK,87,1127,5376
+5637,Thu Jun 19 14:13:06 PDT 2025,Thu Jun 19 14:13:06 PDT 2025,GET,https://readmyfineprint.com/assets,429,Too Many Requests,100,1068,55
+5639,Thu Jun 19 14:13:06 PDT 2025,Thu Jun 19 14:13:06 PDT 2025,GET,https://readmyfineprint.com/assets/index-D0XQE0Pb.css,200,OK,128,1187,100150
+5640,Thu Jun 19 14:13:06 PDT 2025,Thu Jun 19 14:13:06 PDT 2025,GET,https://readmyfineprint.com/api/documents/1,200,OK,83,1048,5370
+5642,Thu Jun 19 14:13:06 PDT 2025,Thu Jun 19 14:13:06 PDT 2025,GET,https://readmyfineprint.com/config/,200,OK,112,1127,5376
+5643,Thu Jun 19 14:13:06 PDT 2025,Thu Jun 19 14:13:06 PDT 2025,GET,https://readmyfineprint.com/assets/ui-GhKx_Kyv.js,429,Too Many Requests,93,1126,55
+5645,Thu Jun 19 14:13:06 PDT 2025,Thu Jun 19 14:13:06 PDT 2025,GET,https://readmyfineprint.com/api/documents,200,OK,74,1042,2
+5646,Thu Jun 19 14:13:06 PDT 2025,Thu Jun 19 14:13:06 PDT 2025,GET,https://readmyfineprint.com/assets/vendor-XmM-h_u-.js,200,OK,129,1201,313949
+5647,Thu Jun 19 14:13:06 PDT 2025,Thu Jun 19 14:13:06 PDT 2025,GET,https://readmyfineprint.com/cookies,200,OK,86,1127,5376
+5648,Thu Jun 19 14:13:06 PDT 2025,Thu Jun 19 14:13:06 PDT 2025,GET,https://readmyfineprint.com/dist,200,OK,78,1127,5376
+5649,Thu Jun 19 14:13:06 PDT 2025,Thu Jun 19 14:13:06 PDT 2025,GET,https://readmyfineprint.com/config,200,OK,90,1127,5376
+5650,Thu Jun 19 14:13:06 PDT 2025,Thu Jun 19 14:13:06 PDT 2025,GET,https://readmyfineprint.com/dist/,200,OK,88,1127,5376
+5651,Thu Jun 19 14:13:06 PDT 2025,Thu Jun 19 14:13:06 PDT 2025,GET,https://readmyfineprint.com/config/,200,OK,85,1127,5376
+5652,Thu Jun 19 14:13:06 PDT 2025,Thu Jun 19 14:13:06 PDT 2025,GET,https://readmyfineprint.com/assets/index-XLT6FXFc.js,200,OK,279,1201,837980
+5653,Thu Jun 19 14:13:06 PDT 2025,Thu Jun 19 14:13:06 PDT 2025,GET,https://readmyfineprint.com/donate,200,OK,96,1127,5376
+5654,Thu Jun 19 14:13:06 PDT 2025,Thu Jun 19 14:13:06 PDT 2025,GET,https://readmyfineprint.com/api/documents/1,429,Too Many Requests,86,1068,55
+5655,Thu Jun 19 14:13:06 PDT 2025,Thu Jun 19 14:13:06 PDT 2025,GET,https://readmyfineprint.com/api/create-checkout-session?amount=10,200,OK,450,1853,365592
+5658,Thu Jun 19 14:13:06 PDT 2025,Thu Jun 19 14:13:06 PDT 2025,GET,https://readmyfineprint.com/assets/index-D0XQE0Pb.css,200,OK,108,1187,100150
+5659,Thu Jun 19 14:13:06 PDT 2025,Thu Jun 19 14:13:06 PDT 2025,GET,https://readmyfineprint.com/api/documents,200,OK,79,1042,2
+5660,Thu Jun 19 14:13:06 PDT 2025,Thu Jun 19 14:13:06 PDT 2025,GET,https://readmyfineprint.com/favicon-32x32.png,429,Too Many Requests,114,1068,55
+5662,Thu Jun 19 14:13:06 PDT 2025,Thu Jun 19 14:13:06 PDT 2025,GET,https://readmyfineprint.com/favicon-16x16.png,200,OK,122,1110,882
+5663,Thu Jun 19 14:13:06 PDT 2025,Thu Jun 19 14:13:06 PDT 2025,GET,https://readmyfineprint.com/assets/ui-GhKx_Kyv.js,200,OK,93,1199,45347
+5664,Thu Jun 19 14:13:06 PDT 2025,Thu Jun 19 14:13:06 PDT 2025,GET,https://readmyfineprint.com/cookies,200,OK,82,1127,5376
+5665,Thu Jun 19 14:13:06 PDT 2025,Thu Jun 19 14:13:06 PDT 2025,GET,https://readmyfineprint.com/dist,200,OK,78,1127,5376
+5666,Thu Jun 19 14:13:06 PDT 2025,Thu Jun 19 14:13:06 PDT 2025,GET,https://readmyfineprint.com/dist/,429,Too Many Requests,87,1068,55
+5667,Thu Jun 19 14:13:06 PDT 2025,Thu Jun 19 14:13:06 PDT 2025,GET,https://readmyfineprint.com/assets/vendor-XmM-h_u-.js,429,Too Many Requests,121,1126,55
+5670,Thu Jun 19 14:13:06 PDT 2025,Thu Jun 19 14:13:06 PDT 2025,GET,https://readmyfineprint.com/config,429,Too Many Requests,116,1068,55
+5671,Thu Jun 19 14:13:06 PDT 2025,Thu Jun 19 14:13:06 PDT 2025,GET,https://readmyfineprint.com/assets/index-XLT6FXFc.js,429,Too Many Requests,94,1126,55
+5672,Thu Jun 19 14:13:06 PDT 2025,Thu Jun 19 14:13:06 PDT 2025,GET,https://readmyfineprint.com/assets,200,OK,81,1127,5376
+5674,Thu Jun 19 14:13:06 PDT 2025,Thu Jun 19 14:13:07 PDT 2025,GET,https://readmyfineprint.com/donate,429,Too Many Requests,96,1068,55
+5676,Thu Jun 19 14:13:06 PDT 2025,Thu Jun 19 14:13:06 PDT 2025,GET,https://readmyfineprint.com/config/,200,OK,96,1127,5376
+5678,Thu Jun 19 14:13:06 PDT 2025,Thu Jun 19 14:13:07 PDT 2025,GET,https://readmyfineprint.com/dist/,429,Too Many Requests,94,1068,55
+5679,Thu Jun 19 14:13:06 PDT 2025,Thu Jun 19 14:13:07 PDT 2025,GET,https://readmyfineprint.com/favicon-32x32.png,200,OK,118,1111,1621
+5680,Thu Jun 19 14:13:06 PDT 2025,Thu Jun 19 14:13:07 PDT 2025,GET,https://readmyfineprint.com/dist,200,OK,91,1127,5376
+5681,Thu Jun 19 14:13:06 PDT 2025,Thu Jun 19 14:13:07 PDT 2025,GET,https://readmyfineprint.com/cookies,200,OK,90,1127,5376
+5682,Thu Jun 19 14:13:06 PDT 2025,Thu Jun 19 14:13:07 PDT 2025,GET,https://readmyfineprint.com/api/documents/1,429,Too Many Requests,112,1068,55
+5683,Thu Jun 19 14:13:06 PDT 2025,Thu Jun 19 14:13:07 PDT 2025,GET,https://readmyfineprint.com/favicon-16x16.png,429,Too Many Requests,95,1068,55
+5684,Thu Jun 19 14:13:06 PDT 2025,Thu Jun 19 14:13:07 PDT 2025,GET,https://readmyfineprint.com/assets/ui-GhKx_Kyv.js,200,OK,88,1199,45347
+5685,Thu Jun 19 14:13:06 PDT 2025,Thu Jun 19 14:13:07 PDT 2025,GET,https://readmyfineprint.com/assets/index-D0XQE0Pb.css,200,OK,95,1187,100150
+5686,Thu Jun 19 14:13:06 PDT 2025,Thu Jun 19 14:13:07 PDT 2025,GET,https://readmyfineprint.com/api/documents,200,OK,89,1042,2
+5691,Thu Jun 19 14:13:07 PDT 2025,Thu Jun 19 14:13:07 PDT 2025,GET,https://readmyfineprint.com/assets/vendor-XmM-h_u-.js,200,OK,163,1201,313949
+5692,Thu Jun 19 14:13:07 PDT 2025,Thu Jun 19 14:13:07 PDT 2025,GET,https://readmyfineprint.com/api/documents,200,OK,80,1042,2
+5693,Thu Jun 19 14:13:07 PDT 2025,Thu Jun 19 14:13:07 PDT 2025,GET,https://readmyfineprint.com/cookies,200,OK,89,1127,5376
+5694,Thu Jun 19 14:13:07 PDT 2025,Thu Jun 19 14:13:07 PDT 2025,GET,https://readmyfineprint.com/favicon-32x32.png,200,OK,90,1111,1621
+5695,Thu Jun 19 14:13:07 PDT 2025,Thu Jun 19 14:13:07 PDT 2025,GET,https://readmyfineprint.com/config/,200,OK,93,1127,5376
+5696,Thu Jun 19 14:13:07 PDT 2025,Thu Jun 19 14:13:07 PDT 2025,GET,https://readmyfineprint.com/dist,200,OK,90,1127,5376
+5697,Thu Jun 19 14:13:07 PDT 2025,Thu Jun 19 14:13:07 PDT 2025,GET,https://readmyfineprint.com/assets/ui-GhKx_Kyv.js,200,OK,97,1199,45347
+5698,Thu Jun 19 14:13:07 PDT 2025,Thu Jun 19 14:13:07 PDT 2025,GET,https://readmyfineprint.com/config,200,OK,102,1127,5376
+5699,Thu Jun 19 14:13:07 PDT 2025,Thu Jun 19 14:13:07 PDT 2025,GET,https://readmyfineprint.com/donate,200,OK,88,1127,5376
+5700,Thu Jun 19 14:13:07 PDT 2025,Thu Jun 19 14:13:07 PDT 2025,GET,https://readmyfineprint.com/api/documents/1,200,OK,86,1048,5370
+5702,Thu Jun 19 14:13:07 PDT 2025,Thu Jun 19 14:13:07 PDT 2025,GET,https://readmyfineprint.com/dist/,200,OK,103,1127,5376
+5703,Thu Jun 19 14:13:07 PDT 2025,Thu Jun 19 14:13:07 PDT 2025,GET,https://readmyfineprint.com/favicon-16x16.png,429,Too Many Requests,111,1068,55
+5705,Thu Jun 19 14:13:07 PDT 2025,Thu Jun 19 14:13:07 PDT 2025,GET,https://readmyfineprint.com/assets/index-D0XQE0Pb.css,200,OK,142,1187,100150
+5706,Thu Jun 19 14:13:07 PDT 2025,Thu Jun 19 14:13:07 PDT 2025,GET,https://readmyfineprint.com/assets/index-XLT6FXFc.js,200,OK,160,1201,837980
+5707,Thu Jun 19 14:13:07 PDT 2025,Thu Jun 19 14:13:07 PDT 2025,GET,https://readmyfineprint.com/config/,429,Too Many Requests,92,1068,55
+5708,Thu Jun 19 14:13:07 PDT 2025,Thu Jun 19 14:13:07 PDT 2025,GET,https://readmyfineprint.com/dist,200,OK,86,1127,5376
+5709,Thu Jun 19 14:13:07 PDT 2025,Thu Jun 19 14:13:07 PDT 2025,GET,https://readmyfineprint.com/cookies,200,OK,85,1127,5376
+5711,Thu Jun 19 14:13:07 PDT 2025,Thu Jun 19 14:13:07 PDT 2025,GET,https://readmyfineprint.com/assets/ui-GhKx_Kyv.js,200,OK,93,1199,45347
+5712,Thu Jun 19 14:13:07 PDT 2025,Thu Jun 19 14:13:07 PDT 2025,GET,https://readmyfineprint.com/api/documents,429,Too Many Requests,111,1068,55
+5714,Thu Jun 19 14:13:07 PDT 2025,Thu Jun 19 14:13:07 PDT 2025,GET,https://readmyfineprint.com/config,429,Too Many Requests,86,1068,55
+5715,Thu Jun 19 14:13:07 PDT 2025,Thu Jun 19 14:13:07 PDT 2025,GET,https://readmyfineprint.com/donate,200,OK,86,1127,5376
+5716,Thu Jun 19 14:13:07 PDT 2025,Thu Jun 19 14:13:07 PDT 2025,GET,https://readmyfineprint.com/api/documents/1,200,OK,82,1048,5370
+5717,Thu Jun 19 14:13:07 PDT 2025,Thu Jun 19 14:13:07 PDT 2025,GET,https://readmyfineprint.com/assets/vendor-XmM-h_u-.js,200,OK,140,1201,313949
+5718,Thu Jun 19 14:13:07 PDT 2025,Thu Jun 19 14:13:07 PDT 2025,GET,https://readmyfineprint.com/favicon-32x32.png,429,Too Many Requests,111,1068,55
+5719,Thu Jun 19 14:13:07 PDT 2025,Thu Jun 19 14:13:07 PDT 2025,GET,https://readmyfineprint.com/dist/,200,OK,84,1127,5376
+5723,Thu Jun 19 14:13:07 PDT 2025,Thu Jun 19 14:13:07 PDT 2025,GET,https://readmyfineprint.com/assets,200,OK,86,1127,5376
+5725,Thu Jun 19 14:13:07 PDT 2025,Thu Jun 19 14:13:07 PDT 2025,GET,https://readmyfineprint.com/favicon-16x16.png,429,Too Many Requests,101,1068,55
+5727,Thu Jun 19 14:13:07 PDT 2025,Thu Jun 19 14:13:07 PDT 2025,GET,https://readmyfineprint.com/assets/index-D0XQE0Pb.css,429,Too Many Requests,104,1126,55
+5729,Thu Jun 19 14:13:07 PDT 2025,Thu Jun 19 14:13:07 PDT 2025,GET,https://readmyfineprint.com/dist,429,Too Many Requests,89,1068,55
+5731,Thu Jun 19 14:13:07 PDT 2025,Thu Jun 19 14:13:07 PDT 2025,GET,https://readmyfineprint.com/cookies,200,OK,86,1127,5376
+5732,Thu Jun 19 14:13:07 PDT 2025,Thu Jun 19 14:13:07 PDT 2025,GET,https://readmyfineprint.com/assets/ui-GhKx_Kyv.js,429,Too Many Requests,86,1126,55
+5734,Thu Jun 19 14:13:07 PDT 2025,Thu Jun 19 14:13:07 PDT 2025,GET,https://readmyfineprint.com/dist/,429,Too Many Requests,79,1068,55
+5736,Thu Jun 19 14:13:07 PDT 2025,Thu Jun 19 14:13:07 PDT 2025,GET,https://readmyfineprint.com/config/,200,OK,80,1127,5376
+5737,Thu Jun 19 14:13:07 PDT 2025,Thu Jun 19 14:13:07 PDT 2025,GET,https://readmyfineprint.com/api/documents,200,OK,84,1042,2
+5738,Thu Jun 19 14:13:07 PDT 2025,Thu Jun 19 14:13:07 PDT 2025,GET,https://readmyfineprint.com/donate,200,OK,118,1127,5376
+5739,Thu Jun 19 14:13:07 PDT 2025,Thu Jun 19 14:13:07 PDT 2025,GET,https://readmyfineprint.com/favicon-32x32.png,429,Too Many Requests,81,1068,55
+5741,Thu Jun 19 14:13:07 PDT 2025,Thu Jun 19 14:13:07 PDT 2025,GET,https://readmyfineprint.com/config,200,OK,86,1127,5376
+5742,Thu Jun 19 14:13:06 PDT 2025,Thu Jun 19 14:13:07 PDT 2025,GET,https://readmyfineprint.com/api/create-checkout-session?amount=10,200,OK,496,1853,365592
+5743,Thu Jun 19 14:13:07 PDT 2025,Thu Jun 19 14:13:07 PDT 2025,GET,https://readmyfineprint.com/api/documents/1,200,OK,84,1048,5370
+5746,Thu Jun 19 14:13:07 PDT 2025,Thu Jun 19 14:13:07 PDT 2025,GET,https://readmyfineprint.com/assets,429,Too Many Requests,83,1068,55
+5748,Thu Jun 19 14:13:07 PDT 2025,Thu Jun 19 14:13:07 PDT 2025,GET,https://readmyfineprint.com/cookies,200,OK,85,1127,5376
+5749,Thu Jun 19 14:13:07 PDT 2025,Thu Jun 19 14:13:07 PDT 2025,GET,https://readmyfineprint.com/assets/index-D0XQE0Pb.css,429,Too Many Requests,81,1126,55
+5751,Thu Jun 19 14:13:07 PDT 2025,Thu Jun 19 14:13:07 PDT 2025,GET,https://readmyfineprint.com/config/,200,OK,96,1127,5376
+5752,Thu Jun 19 14:13:07 PDT 2025,Thu Jun 19 14:13:07 PDT 2025,GET,https://readmyfineprint.com/assets/index-XLT6FXFc.js,200,OK,218,1201,837980
+5753,Thu Jun 19 14:13:07 PDT 2025,Thu Jun 19 14:13:07 PDT 2025,GET,https://readmyfineprint.com/donate,200,OK,116,1127,5376
+5754,Thu Jun 19 14:13:07 PDT 2025,Thu Jun 19 14:13:07 PDT 2025,GET,https://readmyfineprint.com/assets/vendor-XmM-h_u-.js,200,OK,219,1201,313949
+5755,Thu Jun 19 14:13:07 PDT 2025,Thu Jun 19 14:13:07 PDT 2025,GET,https://readmyfineprint.com/config,200,OK,87,1127,5376
+5756,Thu Jun 19 14:13:07 PDT 2025,Thu Jun 19 14:13:07 PDT 2025,GET,https://readmyfineprint.com/api/documents,200,OK,88,1042,2
+5757,Thu Jun 19 14:13:07 PDT 2025,Thu Jun 19 14:13:07 PDT 2025,GET,https://readmyfineprint.com/dist/,200,OK,87,1127,5376
+5758,Thu Jun 19 14:13:07 PDT 2025,Thu Jun 19 14:13:07 PDT 2025,GET,https://readmyfineprint.com/dist,200,OK,87,1127,5376
+5759,Thu Jun 19 14:13:07 PDT 2025,Thu Jun 19 14:13:07 PDT 2025,GET,https://readmyfineprint.com/assets/ui-GhKx_Kyv.js,200,OK,82,1199,45347
+5760,Thu Jun 19 14:13:07 PDT 2025,Thu Jun 19 14:13:07 PDT 2025,GET,https://readmyfineprint.com/favicon-16x16.png,200,OK,96,1110,882
+5761,Thu Jun 19 14:13:07 PDT 2025,Thu Jun 19 14:13:07 PDT 2025,GET,https://readmyfineprint.com/cookies,200,OK,92,1127,5376
+5762,Thu Jun 19 14:13:07 PDT 2025,Thu Jun 19 14:13:07 PDT 2025,GET,https://readmyfineprint.com/favicon-32x32.png,429,Too Many Requests,87,1068,55
+5764,Thu Jun 19 14:13:07 PDT 2025,Thu Jun 19 14:13:07 PDT 2025,GET,https://readmyfineprint.com/config/,200,OK,80,1127,5376
+5765,Thu Jun 19 14:13:07 PDT 2025,Thu Jun 19 14:13:07 PDT 2025,GET,https://readmyfineprint.com/api/documents/1,429,Too Many Requests,108,1068,55
+5767,Thu Jun 19 14:13:07 PDT 2025,Thu Jun 19 14:13:07 PDT 2025,GET,https://readmyfineprint.com/assets/index-D0XQE0Pb.css,429,Too Many Requests,101,1126,55
+5769,Thu Jun 19 14:13:07 PDT 2025,Thu Jun 19 14:13:07 PDT 2025,GET,https://readmyfineprint.com/assets,200,OK,83,1127,5376
+5771,Thu Jun 19 14:13:07 PDT 2025,Thu Jun 19 14:13:07 PDT 2025,GET,https://readmyfineprint.com/config,200,OK,85,1127,5376
+5772,Thu Jun 19 14:13:07 PDT 2025,Thu Jun 19 14:13:07 PDT 2025,GET,https://readmyfineprint.com/donate,429,Too Many Requests,92,1068,55
+5773,Thu Jun 19 14:13:07 PDT 2025,Thu Jun 19 14:13:07 PDT 2025,GET,https://readmyfineprint.com/dist,200,OK,82,1127,5376
+5775,Thu Jun 19 14:13:07 PDT 2025,Thu Jun 19 14:13:07 PDT 2025,GET,https://readmyfineprint.com/favicon-16x16.png,200,OK,86,1110,882
+5776,Thu Jun 19 14:13:07 PDT 2025,Thu Jun 19 14:13:07 PDT 2025,GET,https://readmyfineprint.com/assets/ui-GhKx_Kyv.js,200,OK,86,1199,45347
+5777,Thu Jun 19 14:13:07 PDT 2025,Thu Jun 19 14:13:07 PDT 2025,GET,https://readmyfineprint.com/cookies,200,OK,85,1127,5376
+5778,Thu Jun 19 14:13:07 PDT 2025,Thu Jun 19 14:13:07 PDT 2025,GET,https://readmyfineprint.com/dist/,200,OK,91,1127,5376
+5779,Thu Jun 19 14:13:07 PDT 2025,Thu Jun 19 14:13:07 PDT 2025,GET,https://readmyfineprint.com/favicon-32x32.png,200,OK,92,1111,1621
+5780,Thu Jun 19 14:13:07 PDT 2025,Thu Jun 19 14:13:07 PDT 2025,GET,https://readmyfineprint.com/api/documents/1,200,OK,98,1048,5370
+5782,Thu Jun 19 14:13:07 PDT 2025,Thu Jun 19 14:13:07 PDT 2025,GET,https://readmyfineprint.com/assets/index-XLT6FXFc.js,200,OK,135,1201,837980
+5783,Thu Jun 19 14:13:07 PDT 2025,Thu Jun 19 14:13:07 PDT 2025,GET,https://readmyfineprint.com/config/,200,OK,115,1127,5376
+5784,Thu Jun 19 14:13:07 PDT 2025,Thu Jun 19 14:13:07 PDT 2025,GET,https://readmyfineprint.com/assets/index-D0XQE0Pb.css,429,Too Many Requests,91,1126,55
+5785,Thu Jun 19 14:13:07 PDT 2025,Thu Jun 19 14:13:07 PDT 2025,GET,https://readmyfineprint.com/favicon-48x48.png,200,OK,81,1111,2130
+5787,Thu Jun 19 14:13:07 PDT 2025,Thu Jun 19 14:13:07 PDT 2025,GET,https://readmyfineprint.com/assets/vendor-XmM-h_u-.js,200,OK,167,1201,313949
+5788,Thu Jun 19 14:13:07 PDT 2025,Thu Jun 19 14:13:07 PDT 2025,GET,https://readmyfineprint.com/dist,200,OK,83,1127,5376
+5789,Thu Jun 19 14:13:07 PDT 2025,Thu Jun 19 14:13:07 PDT 2025,GET,https://readmyfineprint.com/favicon-16x16.png,200,OK,79,1110,882
+5790,Thu Jun 19 14:13:07 PDT 2025,Thu Jun 19 14:13:07 PDT 2025,GET,https://readmyfineprint.com/dist/,200,OK,84,1127,5376
+5791,Thu Jun 19 14:13:07 PDT 2025,Thu Jun 19 14:13:07 PDT 2025,GET,https://readmyfineprint.com/donate,200,OK,83,1127,5376
+5792,Thu Jun 19 14:13:07 PDT 2025,Thu Jun 19 14:13:07 PDT 2025,GET,https://readmyfineprint.com/assets/ui-GhKx_Kyv.js,429,Too Many Requests,86,1126,55
+5793,Thu Jun 19 14:13:07 PDT 2025,Thu Jun 19 14:13:07 PDT 2025,GET,https://readmyfineprint.com/cookies,429,Too Many Requests,86,1068,55
+5794,Thu Jun 19 14:13:07 PDT 2025,Thu Jun 19 14:13:07 PDT 2025,GET,https://readmyfineprint.com/config,200,OK,97,1127,5376
+5797,Thu Jun 19 14:13:07 PDT 2025,Thu Jun 19 14:13:07 PDT 2025,GET,https://readmyfineprint.com/favicon-32x32.png,200,OK,85,1111,1621
+5798,Thu Jun 19 14:13:07 PDT 2025,Thu Jun 19 14:13:07 PDT 2025,GET,https://readmyfineprint.com/config/,200,OK,84,1127,5376
+5799,Thu Jun 19 14:13:07 PDT 2025,Thu Jun 19 14:13:07 PDT 2025,GET,https://readmyfineprint.com/favicon-48x48.png,200,OK,78,1111,2130
+5800,Thu Jun 19 14:13:07 PDT 2025,Thu Jun 19 14:13:07 PDT 2025,GET,https://readmyfineprint.com/assets/index-D0XQE0Pb.css,429,Too Many Requests,93,1126,55
+5802,Thu Jun 19 14:13:07 PDT 2025,Thu Jun 19 14:13:07 PDT 2025,GET,https://readmyfineprint.com/assets/index-XLT6FXFc.js,200,OK,112,1201,837980
+5803,Thu Jun 19 14:13:07 PDT 2025,Thu Jun 19 14:13:07 PDT 2025,GET,https://readmyfineprint.com/dist,429,Too Many Requests,80,1068,55
+5805,Thu Jun 19 14:13:07 PDT 2025,Thu Jun 19 14:13:07 PDT 2025,GET,https://readmyfineprint.com/api/create-checkout-session?amount=10,200,OK,495,1853,365592
+5806,Thu Jun 19 14:13:07 PDT 2025,Thu Jun 19 14:13:07 PDT 2025,GET,https://readmyfineprint.com/assets/index-D0XQE0Pb.css,200,OK,108,1187,100150
+5807,Thu Jun 19 14:13:07 PDT 2025,Thu Jun 19 14:13:07 PDT 2025,GET,https://readmyfineprint.com/assets/index-XLT6FXFc.js,429,Too Many Requests,95,1126,55
+5808,Thu Jun 19 14:13:07 PDT 2025,Thu Jun 19 14:13:07 PDT 2025,GET,https://readmyfineprint.com/favicon.ico,200,OK,85,1116,13294
+5809,Thu Jun 19 14:13:07 PDT 2025,Thu Jun 19 14:13:07 PDT 2025,GET,https://readmyfineprint.com/favicon-48x48.png,429,Too Many Requests,101,1068,55
+5810,Thu Jun 19 14:13:07 PDT 2025,Thu Jun 19 14:13:07 PDT 2025,GET,https://readmyfineprint.com/donate,200,OK,123,1127,5376
+5811,Thu Jun 19 14:13:07 PDT 2025,Thu Jun 19 14:13:07 PDT 2025,GET,https://readmyfineprint.com/config/,200,OK,81,1127,5376
+5812,Thu Jun 19 14:13:07 PDT 2025,Thu Jun 19 14:13:07 PDT 2025,GET,https://readmyfineprint.com/dist/,429,Too Many Requests,119,1068,55
+5813,Thu Jun 19 14:13:07 PDT 2025,Thu Jun 19 14:13:07 PDT 2025,GET,https://readmyfineprint.com/assets/ui-GhKx_Kyv.js,200,OK,98,1199,45347
+5814,Thu Jun 19 14:13:07 PDT 2025,Thu Jun 19 14:13:07 PDT 2025,GET,https://readmyfineprint.com/cookies,200,OK,98,1127,5376
+5815,Thu Jun 19 14:13:07 PDT 2025,Thu Jun 19 14:13:07 PDT 2025,GET,https://readmyfineprint.com/assets/vendor-XmM-h_u-.js,429,Too Many Requests,113,1126,55
+5816,Thu Jun 19 14:13:07 PDT 2025,Thu Jun 19 14:13:07 PDT 2025,GET,https://readmyfineprint.com/assets,200,OK,110,1127,5376
+5817,Thu Jun 19 14:13:07 PDT 2025,Thu Jun 19 14:13:07 PDT 2025,GET,https://readmyfineprint.com/favicon-32x32.png,200,OK,80,1111,1621
+5818,Thu Jun 19 14:13:07 PDT 2025,Thu Jun 19 14:13:07 PDT 2025,GET,https://readmyfineprint.com/config,200,OK,79,1127,5376
+5819,Thu Jun 19 14:13:07 PDT 2025,Thu Jun 19 14:13:07 PDT 2025,GET,https://readmyfineprint.com/favicon-16x16.png,429,Too Many Requests,92,1068,55
+5827,Thu Jun 19 14:13:08 PDT 2025,Thu Jun 19 14:13:08 PDT 2025,GET,https://readmyfineprint.com/donate,200,OK,83,1127,5376
+5828,Thu Jun 19 14:13:08 PDT 2025,Thu Jun 19 14:13:08 PDT 2025,GET,https://readmyfineprint.com/config/,200,OK,83,1127,5376
+5829,Thu Jun 19 14:13:08 PDT 2025,Thu Jun 19 14:13:08 PDT 2025,GET,https://readmyfineprint.com/favicon.ico,200,OK,87,1116,13294
+5830,Thu Jun 19 14:13:08 PDT 2025,Thu Jun 19 14:13:08 PDT 2025,GET,https://readmyfineprint.com/assets/ui-GhKx_Kyv.js,429,Too Many Requests,85,1126,55
+5832,Thu Jun 19 14:13:08 PDT 2025,Thu Jun 19 14:13:08 PDT 2025,GET,https://readmyfineprint.com/config,200,OK,92,1127,5376
+5833,Thu Jun 19 14:13:08 PDT 2025,Thu Jun 19 14:13:08 PDT 2025,GET,https://readmyfineprint.com/dist,200,OK,87,1127,5376
+5834,Thu Jun 19 14:13:08 PDT 2025,Thu Jun 19 14:13:08 PDT 2025,GET,https://readmyfineprint.com/favicon-16x16.png,200,OK,84,1110,882
+5835,Thu Jun 19 14:13:08 PDT 2025,Thu Jun 19 14:13:08 PDT 2025,GET,https://readmyfineprint.com/assets/index-XLT6FXFc.js,429,Too Many Requests,83,1126,55
+5837,Thu Jun 19 14:13:08 PDT 2025,Thu Jun 19 14:13:08 PDT 2025,GET,https://readmyfineprint.com/favicon-48x48.png,200,OK,91,1111,2130
+5838,Thu Jun 19 14:13:08 PDT 2025,Thu Jun 19 14:13:08 PDT 2025,GET,https://readmyfineprint.com/node_modules,200,OK,94,1127,5376
+5839,Thu Jun 19 14:13:08 PDT 2025,Thu Jun 19 14:13:08 PDT 2025,GET,https://readmyfineprint.com/manifest.json,200,OK,99,1133,2156
+5840,Thu Jun 19 14:13:08 PDT 2025,Thu Jun 19 14:13:08 PDT 2025,GET,https://readmyfineprint.com/dist/,200,OK,99,1127,5376
+5841,Thu Jun 19 14:13:08 PDT 2025,Thu Jun 19 14:13:08 PDT 2025,GET,https://readmyfineprint.com/favicon-32x32.png,429,Too Many Requests,109,1068,55
+5843,Thu Jun 19 14:13:08 PDT 2025,Thu Jun 19 14:13:08 PDT 2025,GET,https://readmyfineprint.com/assets/vendor-XmM-h_u-.js,200,OK,118,1201,313949
+5844,Thu Jun 19 14:13:08 PDT 2025,Thu Jun 19 14:13:08 PDT 2025,GET,https://readmyfineprint.com/donate,200,OK,83,1127,5376
+5845,Thu Jun 19 14:13:08 PDT 2025,Thu Jun 19 14:13:08 PDT 2025,GET,https://readmyfineprint.com/assets,200,OK,87,1127,5376
+5846,Thu Jun 19 14:13:08 PDT 2025,Thu Jun 19 14:13:08 PDT 2025,GET,https://readmyfineprint.com/favicon.ico,200,OK,90,1116,13294
+5848,Thu Jun 19 14:13:08 PDT 2025,Thu Jun 19 14:13:08 PDT 2025,GET,https://readmyfineprint.com/node_modules,200,OK,78,1127,5376
+5849,Thu Jun 19 14:13:08 PDT 2025,Thu Jun 19 14:13:08 PDT 2025,GET,https://readmyfineprint.com/manifest.json,200,OK,81,1133,2156
+5850,Thu Jun 19 14:13:08 PDT 2025,Thu Jun 19 14:13:08 PDT 2025,GET,https://readmyfineprint.com/favicon-48x48.png,200,OK,83,1111,2130
+5851,Thu Jun 19 14:13:08 PDT 2025,Thu Jun 19 14:13:08 PDT 2025,GET,https://readmyfineprint.com/dist,200,OK,84,1127,5376
+5852,Thu Jun 19 14:13:08 PDT 2025,Thu Jun 19 14:13:08 PDT 2025,GET,https://readmyfineprint.com/favicon-16x16.png,200,OK,84,1110,882
+5853,Thu Jun 19 14:13:08 PDT 2025,Thu Jun 19 14:13:08 PDT 2025,GET,https://readmyfineprint.com/config,429,Too Many Requests,89,1068,55
+5855,Thu Jun 19 14:13:08 PDT 2025,Thu Jun 19 14:13:08 PDT 2025,GET,https://readmyfineprint.com/dist/,200,OK,87,1127,5376
+5856,Thu Jun 19 14:13:08 PDT 2025,Thu Jun 19 14:13:08 PDT 2025,GET,https://readmyfineprint.com/node_modules/,429,Too Many Requests,98,1068,55
+5858,Thu Jun 19 14:13:08 PDT 2025,Thu Jun 19 14:13:08 PDT 2025,GET,https://readmyfineprint.com/favicon-32x32.png,200,OK,93,1111,1621
+5859,Thu Jun 19 14:13:08 PDT 2025,Thu Jun 19 14:13:08 PDT 2025,GET,https://readmyfineprint.com/assets/vendor-XmM-h_u-.js,200,OK,118,1201,313949
+5860,Thu Jun 19 14:13:08 PDT 2025,Thu Jun 19 14:13:08 PDT 2025,GET,https://readmyfineprint.com/donate,200,OK,87,1127,5376
+5861,Thu Jun 19 14:13:08 PDT 2025,Thu Jun 19 14:13:08 PDT 2025,GET,https://readmyfineprint.com/favicon.ico,200,OK,90,1116,13294
+5862,Thu Jun 19 14:13:08 PDT 2025,Thu Jun 19 14:13:08 PDT 2025,GET,https://readmyfineprint.com/manifest.json,200,OK,81,1133,2156
+5863,Thu Jun 19 14:13:08 PDT 2025,Thu Jun 19 14:13:08 PDT 2025,GET,https://readmyfineprint.com/favicon-48x48.png,200,OK,80,1111,2130
+5864,Thu Jun 19 14:13:08 PDT 2025,Thu Jun 19 14:13:08 PDT 2025,GET,https://readmyfineprint.com/og-image.png,200,OK,164,1115,106891
+5865,Thu Jun 19 14:13:08 PDT 2025,Thu Jun 19 14:13:08 PDT 2025,GET,https://readmyfineprint.com/favicon-16x16.png,200,OK,98,1110,882
+5866,Thu Jun 19 14:13:08 PDT 2025,Thu Jun 19 14:13:08 PDT 2025,GET,https://readmyfineprint.com/node_modules,200,OK,102,1127,5376
+5867,Thu Jun 19 14:13:08 PDT 2025,Thu Jun 19 14:13:08 PDT 2025,GET,https://readmyfineprint.com/favicon-32x32.png,200,OK,84,1111,1621
+5868,Thu Jun 19 14:13:08 PDT 2025,Thu Jun 19 14:13:08 PDT 2025,GET,https://readmyfineprint.com/node_modules/,429,Too Many Requests,96,1068,55
+5870,Thu Jun 19 14:13:08 PDT 2025,Thu Jun 19 14:13:08 PDT 2025,GET,https://readmyfineprint.com/assets/index-XLT6FXFc.js,200,OK,222,1201,837980
+5871,Thu Jun 19 14:13:08 PDT 2025,Thu Jun 19 14:13:08 PDT 2025,GET,https://readmyfineprint.com/assets,200,OK,84,1127,5376
+5873,Thu Jun 19 14:13:08 PDT 2025,Thu Jun 19 14:13:08 PDT 2025,GET,https://readmyfineprint.com/manifest.json,200,OK,85,1133,2156
+5874,Thu Jun 19 14:13:08 PDT 2025,Thu Jun 19 14:13:08 PDT 2025,GET,https://readmyfineprint.com/favicon.ico,200,OK,89,1116,13294
+5875,Thu Jun 19 14:13:08 PDT 2025,Thu Jun 19 14:13:08 PDT 2025,GET,https://readmyfineprint.com/favicon-48x48.png,429,Too Many Requests,89,1068,55
+5877,Thu Jun 19 14:13:08 PDT 2025,Thu Jun 19 14:13:08 PDT 2025,GET,https://readmyfineprint.com/og-image.png,429,Too Many Requests,88,1068,55
+5879,Thu Jun 19 14:13:08 PDT 2025,Thu Jun 19 14:13:08 PDT 2025,GET,https://readmyfineprint.com/assets/vendor-XmM-h_u-.js,429,Too Many Requests,114,1126,55
+5880,Thu Jun 19 14:13:08 PDT 2025,Thu Jun 19 14:13:08 PDT 2025,GET,https://readmyfineprint.com/favicon-16x16.png,200,OK,84,1110,882
+5882,Thu Jun 19 14:13:08 PDT 2025,Thu Jun 19 14:13:08 PDT 2025,GET,https://readmyfineprint.com/node_modules,200,OK,88,1127,5376
+5883,Thu Jun 19 14:13:08 PDT 2025,Thu Jun 19 14:13:08 PDT 2025,GET,https://readmyfineprint.com/privacy,200,OK,87,1127,5376
+5884,Thu Jun 19 14:13:08 PDT 2025,Thu Jun 19 14:13:08 PDT 2025,GET,https://readmyfineprint.com/terms,200,OK,85,1127,5376
+5885,Thu Jun 19 14:13:08 PDT 2025,Thu Jun 19 14:13:08 PDT 2025,GET,https://readmyfineprint.com/roadmap,200,OK,86,1127,5376
+5886,Thu Jun 19 14:13:08 PDT 2025,Thu Jun 19 14:13:08 PDT 2025,GET,https://readmyfineprint.com/sitemap.xml,429,Too Many Requests,97,1068,55
+5888,Thu Jun 19 14:13:08 PDT 2025,Thu Jun 19 14:13:08 PDT 2025,GET,https://readmyfineprint.com/node_modules/,200,OK,120,1127,5376
+5889,Thu Jun 19 14:13:08 PDT 2025,Thu Jun 19 14:13:08 PDT 2025,GET,https://readmyfineprint.com/manifest.json,200,OK,82,1133,2156
+5890,Thu Jun 19 14:13:08 PDT 2025,Thu Jun 19 14:13:08 PDT 2025,GET,https://readmyfineprint.com/robots.txt,200,OK,133,1126,843
+5891,Thu Jun 19 14:13:08 PDT 2025,Thu Jun 19 14:13:08 PDT 2025,GET,https://readmyfineprint.com/favicon.ico,429,Too Many Requests,93,1068,55
+5893,Thu Jun 19 14:13:08 PDT 2025,Thu Jun 19 14:13:08 PDT 2025,GET,https://readmyfineprint.com/assets/index-XLT6FXFc.js,200,OK,119,1201,837980
+5894,Thu Jun 19 14:13:08 PDT 2025,Thu Jun 19 14:13:08 PDT 2025,GET,https://readmyfineprint.com/api/create-checkout-session?amount=10,200,OK,443,1853,365592
+5895,Thu Jun 19 14:13:08 PDT 2025,Thu Jun 19 14:13:08 PDT 2025,GET,https://readmyfineprint.com/privacy,200,OK,92,1127,5376
+5896,Thu Jun 19 14:13:08 PDT 2025,Thu Jun 19 14:13:08 PDT 2025,GET,https://readmyfineprint.com/terms,200,OK,89,1127,5376
+5897,Thu Jun 19 14:13:08 PDT 2025,Thu Jun 19 14:13:08 PDT 2025,GET,https://readmyfineprint.com/roadmap,200,OK,88,1127,5376
+5898,Thu Jun 19 14:13:08 PDT 2025,Thu Jun 19 14:13:08 PDT 2025,GET,https://readmyfineprint.com/favicon-48x48.png,200,OK,103,1111,2130
+5899,Thu Jun 19 14:13:08 PDT 2025,Thu Jun 19 14:13:08 PDT 2025,GET,https://readmyfineprint.com/node_modules,200,OK,82,1127,5376
+5900,Thu Jun 19 14:13:08 PDT 2025,Thu Jun 19 14:13:08 PDT 2025,GET,https://readmyfineprint.com/og-image.png,200,OK,86,1115,106891
+5902,Thu Jun 19 14:13:08 PDT 2025,Thu Jun 19 14:13:08 PDT 2025,GET,https://readmyfineprint.com/assets/vendor-XmM-h_u-.js,429,Too Many Requests,111,1126,55
+5904,Thu Jun 19 14:13:08 PDT 2025,Thu Jun 19 14:13:08 PDT 2025,GET,https://readmyfineprint.com/assets,200,OK,79,1127,5376
+5906,Thu Jun 19 14:13:08 PDT 2025,Thu Jun 19 14:13:08 PDT 2025,GET,https://readmyfineprint.com/node_modules/,200,OK,84,1127,5376
+5907,Thu Jun 19 14:13:08 PDT 2025,Thu Jun 19 14:13:08 PDT 2025,GET,https://readmyfineprint.com/sitemap.xml,429,Too Many Requests,106,1068,55
+5909,Thu Jun 19 14:13:08 PDT 2025,Thu Jun 19 14:13:08 PDT 2025,GET,https://readmyfineprint.com/manifest.json,200,OK,94,1133,2156
+5910,Thu Jun 19 14:13:08 PDT 2025,Thu Jun 19 14:13:08 PDT 2025,GET,https://readmyfineprint.com/robots.txt,200,OK,95,1126,843
+5911,Thu Jun 19 14:13:08 PDT 2025,Thu Jun 19 14:13:08 PDT 2025,GET,https://readmyfineprint.com/favicon-48x48.png,200,OK,78,1111,2130
+5912,Thu Jun 19 14:13:08 PDT 2025,Thu Jun 19 14:13:08 PDT 2025,GET,https://readmyfineprint.com/node_modules,200,OK,78,1127,5376
+5913,Thu Jun 19 14:13:08 PDT 2025,Thu Jun 19 14:13:08 PDT 2025,GET,https://readmyfineprint.com/assets/index-XLT6FXFc.js,429,Too Many Requests,81,1126,55
+5915,Thu Jun 19 14:13:08 PDT 2025,Thu Jun 19 14:13:08 PDT 2025,GET,https://readmyfineprint.com/favicon.ico,200,OK,84,1116,13294
+5916,Thu Jun 19 14:13:08 PDT 2025,Thu Jun 19 14:13:08 PDT 2025,GET,https://readmyfineprint.com/privacy,429,Too Many Requests,90,1068,55
+5917,Thu Jun 19 14:13:08 PDT 2025,Thu Jun 19 14:13:08 PDT 2025,GET,https://readmyfineprint.com/roadmap,429,Too Many Requests,89,1068,55
+5920,Thu Jun 19 14:13:08 PDT 2025,Thu Jun 19 14:13:08 PDT 2025,GET,https://readmyfineprint.com/terms,429,Too Many Requests,110,1068,55
+5922,Thu Jun 19 14:13:08 PDT 2025,Thu Jun 19 14:13:08 PDT 2025,GET,https://readmyfineprint.com/node_modules/,429,Too Many Requests,87,1068,55
+5924,Thu Jun 19 14:13:08 PDT 2025,Thu Jun 19 14:13:08 PDT 2025,GET,https://readmyfineprint.com/og-image.png,429,Too Many Requests,118,1068,55
+5925,Thu Jun 19 14:13:08 PDT 2025,Thu Jun 19 14:13:08 PDT 2025,GET,https://readmyfineprint.com/manifest.json,200,OK,81,1133,2156
+5927,Thu Jun 19 14:13:08 PDT 2025,Thu Jun 19 14:13:08 PDT 2025,GET,https://readmyfineprint.com/sitemap.xml,200,OK,82,1117,1437
+5928,Thu Jun 19 14:13:08 PDT 2025,Thu Jun 19 14:13:08 PDT 2025,GET,https://readmyfineprint.com/robots.txt,200,OK,94,1126,843
+5929,Thu Jun 19 14:13:08 PDT 2025,Thu Jun 19 14:13:08 PDT 2025,GET,https://readmyfineprint.com/favicon-48x48.png,200,OK,81,1111,2130
+5930,Thu Jun 19 14:13:08 PDT 2025,Thu Jun 19 14:13:08 PDT 2025,GET,https://readmyfineprint.com/node_modules,200,OK,80,1127,5376
+5931,Thu Jun 19 14:13:08 PDT 2025,Thu Jun 19 14:13:08 PDT 2025,GET,https://readmyfineprint.com/favicon.ico,200,OK,83,1116,13294
+5932,Thu Jun 19 14:13:08 PDT 2025,Thu Jun 19 14:13:08 PDT 2025,GET,https://readmyfineprint.com/privacy,200,OK,79,1127,5376
+5933,Thu Jun 19 14:13:08 PDT 2025,Thu Jun 19 14:13:08 PDT 2025,GET,https://readmyfineprint.com/roadmap,429,Too Many Requests,89,1068,55
+5935,Thu Jun 19 14:13:08 PDT 2025,Thu Jun 19 14:13:08 PDT 2025,GET,https://readmyfineprint.com/manifest.json,200,OK,81,1133,2156
+5936,Thu Jun 19 14:13:08 PDT 2025,Thu Jun 19 14:13:08 PDT 2025,GET,https://readmyfineprint.com/assets,429,Too Many Requests,82,1068,55
+5937,Thu Jun 19 14:13:08 PDT 2025,Thu Jun 19 14:13:08 PDT 2025,GET,https://readmyfineprint.com/terms,200,OK,86,1127,5376
+5939,Thu Jun 19 14:13:08 PDT 2025,Thu Jun 19 14:13:08 PDT 2025,GET,https://readmyfineprint.com/node_modules/,429,Too Many Requests,86,1068,55
+5941,Thu Jun 19 14:13:08 PDT 2025,Thu Jun 19 14:13:08 PDT 2025,GET,https://readmyfineprint.com/sitemap.xml,200,OK,95,1117,1437
+5942,Thu Jun 19 14:13:08 PDT 2025,Thu Jun 19 14:13:08 PDT 2025,GET,https://readmyfineprint.com/robots.txt,200,OK,84,1126,843
+5943,Thu Jun 19 14:13:08 PDT 2025,Thu Jun 19 14:13:08 PDT 2025,GET,https://readmyfineprint.com/favicon-48x48.png,200,OK,79,1111,2130
+5944,Thu Jun 19 14:13:08 PDT 2025,Thu Jun 19 14:13:08 PDT 2025,GET,https://readmyfineprint.com/node_modules,200,OK,92,1127,5376
+5945,Thu Jun 19 14:13:08 PDT 2025,Thu Jun 19 14:13:08 PDT 2025,GET,https://readmyfineprint.com/favicon.ico,200,OK,85,1116,13294
+5946,Thu Jun 19 14:13:08 PDT 2025,Thu Jun 19 14:13:08 PDT 2025,GET,https://readmyfineprint.com/privacy,200,OK,91,1127,5376
+5947,Thu Jun 19 14:13:08 PDT 2025,Thu Jun 19 14:13:08 PDT 2025,GET,https://readmyfineprint.com/og-image.png,200,OK,143,1115,106891
+5948,Thu Jun 19 14:13:08 PDT 2025,Thu Jun 19 14:13:08 PDT 2025,GET,https://readmyfineprint.com/terms,200,OK,75,1127,5376
+5949,Thu Jun 19 14:13:08 PDT 2025,Thu Jun 19 14:13:08 PDT 2025,GET,https://readmyfineprint.com/roadmap,200,OK,85,1127,5376
+5950,Thu Jun 19 14:13:08 PDT 2025,Thu Jun 19 14:13:08 PDT 2025,GET,https://readmyfineprint.com/manifest.json,429,Too Many Requests,87,1068,55
+5952,Thu Jun 19 14:13:08 PDT 2025,Thu Jun 19 14:13:08 PDT 2025,GET,https://readmyfineprint.com/node_modules/,429,Too Many Requests,92,1068,55
+5954,Thu Jun 19 14:13:08 PDT 2025,Thu Jun 19 14:13:08 PDT 2025,GET,https://readmyfineprint.com/sitemap.xml,200,OK,92,1117,1437
+5955,Thu Jun 19 14:13:08 PDT 2025,Thu Jun 19 14:13:08 PDT 2025,GET,https://readmyfineprint.com/robots.txt,200,OK,85,1126,843
+5956,Thu Jun 19 14:13:08 PDT 2025,Thu Jun 19 14:13:08 PDT 2025,GET,https://readmyfineprint.com/node_modules,200,OK,90,1127,5376
+5957,Thu Jun 19 14:13:08 PDT 2025,Thu Jun 19 14:13:08 PDT 2025,GET,https://readmyfineprint.com/favicon-48x48.png,200,OK,88,1111,2130
+5958,Thu Jun 19 14:13:08 PDT 2025,Thu Jun 19 14:13:08 PDT 2025,GET,https://readmyfineprint.com/favicon.ico,200,OK,101,1116,13294
+5959,Thu Jun 19 14:13:08 PDT 2025,Thu Jun 19 14:13:08 PDT 2025,GET,https://readmyfineprint.com/og-image.png,429,Too Many Requests,99,1068,55
+5961,Thu Jun 19 14:13:08 PDT 2025,Thu Jun 19 14:13:08 PDT 2025,GET,https://readmyfineprint.com/terms,200,OK,95,1127,5376
+5962,Thu Jun 19 14:13:08 PDT 2025,Thu Jun 19 14:13:08 PDT 2025,GET,https://readmyfineprint.com/privacy,200,OK,115,1127,5376
+5963,Thu Jun 19 14:13:08 PDT 2025,Thu Jun 19 14:13:08 PDT 2025,GET,https://readmyfineprint.com/roadmap,429,Too Many Requests,100,1068,55
+5965,Thu Jun 19 14:13:08 PDT 2025,Thu Jun 19 14:13:08 PDT 2025,GET,https://readmyfineprint.com/manifest.json,200,OK,94,1133,2156
+5966,Thu Jun 19 14:13:08 PDT 2025,Thu Jun 19 14:13:08 PDT 2025,GET,https://readmyfineprint.com/robots.txt,429,Too Many Requests,93,1068,55
+5967,Thu Jun 19 14:13:08 PDT 2025,Thu Jun 19 14:13:08 PDT 2025,GET,https://readmyfineprint.com/sitemap.xml,200,OK,86,1117,1437
+5968,Thu Jun 19 14:13:08 PDT 2025,Thu Jun 19 14:13:08 PDT 2025,GET,https://readmyfineprint.com/node_modules/,429,Too Many Requests,112,1068,55
+5970,Thu Jun 19 14:13:08 PDT 2025,Thu Jun 19 14:13:09 PDT 2025,GET,https://readmyfineprint.com/node_modules,200,OK,103,1127,5376
+5972,Thu Jun 19 14:13:08 PDT 2025,Thu Jun 19 14:13:09 PDT 2025,GET,https://readmyfineprint.com/og-image.png,200,OK,106,1115,106891
+5973,Thu Jun 19 14:13:08 PDT 2025,Thu Jun 19 14:13:09 PDT 2025,GET,https://readmyfineprint.com/terms,200,OK,107,1127,5376
+5974,Thu Jun 19 14:13:08 PDT 2025,Thu Jun 19 14:13:09 PDT 2025,GET,https://readmyfineprint.com/favicon.ico,200,OK,115,1116,13294
+5975,Thu Jun 19 14:13:08 PDT 2025,Thu Jun 19 14:13:09 PDT 2025,GET,https://readmyfineprint.com/sitemap.xml,429,Too Many Requests,142,1068,55
+5977,Thu Jun 19 14:13:08 PDT 2025,Thu Jun 19 14:13:09 PDT 2025,GET,https://readmyfineprint.com/api/create-checkout-session?amount=10,200,OK,521,1853,365592
+5980,Thu Jun 19 14:13:08 PDT 2025,Thu Jun 19 14:13:09 PDT 2025,GET,https://readmyfineprint.com/roadmap,429,Too Many Requests,105,1068,55
+5982,Thu Jun 19 14:13:08 PDT 2025,Thu Jun 19 14:13:09 PDT 2025,GET,https://readmyfineprint.com/manifest.json,200,OK,88,1133,2156
+5983,Thu Jun 19 14:13:08 PDT 2025,Thu Jun 19 14:13:09 PDT 2025,GET,https://readmyfineprint.com/privacy,200,OK,102,1127,5376
+5979,Thu Jun 19 14:13:09 PDT 2025,Thu Jun 19 14:13:09 PDT 2025,GET,https://readmyfineprint.com/robots.txt,200,OK,98,1126,843
+5984,Thu Jun 19 14:13:09 PDT 2025,Thu Jun 19 14:13:09 PDT 2025,GET,https://readmyfineprint.com/og-image.png,429,Too Many Requests,104,1068,55
+5985,Thu Jun 19 14:13:09 PDT 2025,Thu Jun 19 14:13:09 PDT 2025,GET,https://readmyfineprint.com/node_modules/,200,OK,135,1127,5376
+5986,Thu Jun 19 14:13:09 PDT 2025,Thu Jun 19 14:13:09 PDT 2025,GET,https://readmyfineprint.com/terms,200,OK,90,1127,5376
+5987,Thu Jun 19 14:13:09 PDT 2025,Thu Jun 19 14:13:09 PDT 2025,GET,https://readmyfineprint.com/node_modules,200,OK,113,1127,5376
+5988,Thu Jun 19 14:13:09 PDT 2025,Thu Jun 19 14:13:09 PDT 2025,GET,https://readmyfineprint.com/favicon.ico,200,OK,92,1116,13294
+5990,Thu Jun 19 14:13:09 PDT 2025,Thu Jun 19 14:13:09 PDT 2025,GET,https://readmyfineprint.com/sitemap.xml,200,OK,93,1117,1437
+5991,Thu Jun 19 14:13:09 PDT 2025,Thu Jun 19 14:13:09 PDT 2025,GET,https://readmyfineprint.com/node_modules/,429,Too Many Requests,94,1068,55
+5993,Thu Jun 19 14:13:09 PDT 2025,Thu Jun 19 14:13:09 PDT 2025,GET,https://readmyfineprint.com/node_modules,200,OK,92,1127,5376
+5994,Thu Jun 19 14:13:09 PDT 2025,Thu Jun 19 14:13:09 PDT 2025,GET,https://readmyfineprint.com/robots.txt,429,Too Many Requests,117,1068,55
+5996,Thu Jun 19 14:13:09 PDT 2025,Thu Jun 19 14:13:09 PDT 2025,GET,https://readmyfineprint.com/roadmap,200,OK,100,1127,5376
+5997,Thu Jun 19 14:13:09 PDT 2025,Thu Jun 19 14:13:09 PDT 2025,GET,https://readmyfineprint.com/manifest.json,200,OK,100,1133,2156
+5998,Thu Jun 19 14:13:09 PDT 2025,Thu Jun 19 14:13:09 PDT 2025,GET,https://readmyfineprint.com/privacy,200,OK,99,1127,5376
+5999,Thu Jun 19 14:13:09 PDT 2025,Thu Jun 19 14:13:09 PDT 2025,GET,https://readmyfineprint.com/terms,429,Too Many Requests,129,1068,55
+6001,Thu Jun 19 14:13:09 PDT 2025,Thu Jun 19 14:13:09 PDT 2025,GET,https://readmyfineprint.com/sitemap.xml,200,OK,88,1117,1437
+6002,Thu Jun 19 14:13:09 PDT 2025,Thu Jun 19 14:13:09 PDT 2025,GET,https://readmyfineprint.com/node_modules,200,OK,100,1127,5376
+6003,Thu Jun 19 14:13:09 PDT 2025,Thu Jun 19 14:13:09 PDT 2025,GET,https://readmyfineprint.com/og-image.png,200,OK,106,1115,106891
+6004,Thu Jun 19 14:13:09 PDT 2025,Thu Jun 19 14:13:09 PDT 2025,GET,https://readmyfineprint.com/node_modules/,429,Too Many Requests,105,1068,55
+6006,Thu Jun 19 14:13:09 PDT 2025,Thu Jun 19 14:13:09 PDT 2025,GET,https://readmyfineprint.com/roadmap,200,OK,85,1127,5376
+6007,Thu Jun 19 14:13:09 PDT 2025,Thu Jun 19 14:13:09 PDT 2025,GET,https://readmyfineprint.com/robots.txt,429,Too Many Requests,104,1068,55
+6008,Thu Jun 19 14:13:09 PDT 2025,Thu Jun 19 14:13:09 PDT 2025,GET,https://readmyfineprint.com/privacy,200,OK,87,1127,5376
+6010,Thu Jun 19 14:13:09 PDT 2025,Thu Jun 19 14:13:09 PDT 2025,GET,https://readmyfineprint.com/terms,200,OK,81,1127,5376
+6011,Thu Jun 19 14:13:09 PDT 2025,Thu Jun 19 14:13:09 PDT 2025,GET,https://readmyfineprint.com/sitemap.xml,429,Too Many Requests,98,1068,55
+6013,Thu Jun 19 14:13:09 PDT 2025,Thu Jun 19 14:13:09 PDT 2025,GET,https://readmyfineprint.com/og-image.png,429,Too Many Requests,88,1068,55
+6014,Thu Jun 19 14:13:09 PDT 2025,Thu Jun 19 14:13:09 PDT 2025,GET,https://readmyfineprint.com/node_modules/,200,OK,83,1127,5376
+6016,Thu Jun 19 14:13:09 PDT 2025,Thu Jun 19 14:13:09 PDT 2025,GET,https://readmyfineprint.com/roadmap,200,OK,92,1127,5376
+6017,Thu Jun 19 14:13:09 PDT 2025,Thu Jun 19 14:13:09 PDT 2025,GET,https://readmyfineprint.com/privacy,200,OK,90,1127,5376
+6018,Thu Jun 19 14:13:09 PDT 2025,Thu Jun 19 14:13:09 PDT 2025,GET,https://readmyfineprint.com/robots.txt,429,Too Many Requests,94,1068,55
+6020,Thu Jun 19 14:13:09 PDT 2025,Thu Jun 19 14:13:09 PDT 2025,GET,https://readmyfineprint.com/terms,200,OK,94,1127,5376
+6021,Thu Jun 19 14:13:09 PDT 2025,Thu Jun 19 14:13:09 PDT 2025,GET,https://readmyfineprint.com/sitemap.xml,429,Too Many Requests,88,1068,55
+6023,Thu Jun 19 14:13:09 PDT 2025,Thu Jun 19 14:13:09 PDT 2025,GET,https://readmyfineprint.com/og-image.png,200,OK,84,1115,106891
+6024,Thu Jun 19 14:13:09 PDT 2025,Thu Jun 19 14:13:09 PDT 2025,GET,https://readmyfineprint.com/roadmap,200,OK,83,1127,5376
+6025,Thu Jun 19 14:13:09 PDT 2025,Thu Jun 19 14:13:09 PDT 2025,GET,https://readmyfineprint.com/privacy,200,OK,84,1127,5376
+6026,Thu Jun 19 14:13:09 PDT 2025,Thu Jun 19 14:13:09 PDT 2025,GET,https://readmyfineprint.com/terms,200,OK,84,1127,5376
+6027,Thu Jun 19 14:13:09 PDT 2025,Thu Jun 19 14:13:09 PDT 2025,GET,https://readmyfineprint.com/robots.txt,429,Too Many Requests,109,1068,55
+6029,Thu Jun 19 14:13:09 PDT 2025,Thu Jun 19 14:13:09 PDT 2025,GET,https://readmyfineprint.com/sitemap.xml,429,Too Many Requests,80,1068,55
+6031,Thu Jun 19 14:13:09 PDT 2025,Thu Jun 19 14:13:09 PDT 2025,GET,https://readmyfineprint.com/og-image.png,200,OK,81,1115,106891
+6032,Thu Jun 19 14:13:09 PDT 2025,Thu Jun 19 14:13:09 PDT 2025,GET,https://readmyfineprint.com/privacy,429,Too Many Requests,94,1068,55
+6033,Thu Jun 19 14:13:09 PDT 2025,Thu Jun 19 14:13:09 PDT 2025,GET,https://readmyfineprint.com/roadmap,200,OK,98,1127,5376
+6035,Thu Jun 19 14:13:09 PDT 2025,Thu Jun 19 14:13:09 PDT 2025,GET,https://readmyfineprint.com/robots.txt,200,OK,81,1126,843
+6036,Thu Jun 19 14:13:09 PDT 2025,Thu Jun 19 14:13:09 PDT 2025,GET,https://readmyfineprint.com/api/create-checkout-session?amount=10,200,OK,507,1853,365592
+6038,Thu Jun 19 14:13:09 PDT 2025,Thu Jun 19 14:13:10 PDT 2025,GET,https://readmyfineprint.com/api/create-checkout-session?amount=10,200,OK,505,1853,365592
+6040,Thu Jun 19 14:13:10 PDT 2025,Thu Jun 19 14:13:10 PDT 2025,GET,https://readmyfineprint.com/api/create-checkout-session?amount=10,200,OK,444,1853,365592
+6042,Thu Jun 19 14:13:10 PDT 2025,Thu Jun 19 14:13:10 PDT 2025,GET,https://readmyfineprint.com/api/create-checkout-session?amount=10,429,Too Many Requests,79,1068,55
+6044,Thu Jun 19 14:13:10 PDT 2025,Thu Jun 19 14:13:10 PDT 2025,GET,https://readmyfineprint.com/api/create-checkout-session?amount=10,429,Too Many Requests,98,1068,55
+6046,Thu Jun 19 14:13:11 PDT 2025,Thu Jun 19 14:13:11 PDT 2025,GET,https://readmyfineprint.com/api/create-checkout-session?amount=10,429,Too Many Requests,96,1068,55
+6048,Thu Jun 19 14:13:11 PDT 2025,Thu Jun 19 14:13:11 PDT 2025,GET,https://readmyfineprint.com/_next,200,OK,82,1127,5376
+6049,Thu Jun 19 14:13:11 PDT 2025,Thu Jun 19 14:13:11 PDT 2025,GET,https://readmyfineprint.com/admin,200,OK,86,1127,5376
+6050,Thu Jun 19 14:13:11 PDT 2025,Thu Jun 19 14:13:11 PDT 2025,GET,https://readmyfineprint.com/api,200,OK,104,1127,5376
+6051,Thu Jun 19 14:13:11 PDT 2025,Thu Jun 19 14:13:11 PDT 2025,GET,https://readmyfineprint.com/assets,301,Moved Permanently,75,734,156
+6052,Thu Jun 19 14:13:11 PDT 2025,Thu Jun 19 14:13:11 PDT 2025,GET,https://readmyfineprint.com/config,200,OK,84,1127,5376
+6053,Thu Jun 19 14:13:11 PDT 2025,Thu Jun 19 14:13:11 PDT 2025,GET,https://readmyfineprint.com/dist,200,OK,82,1127,5376
+6054,Thu Jun 19 14:13:11 PDT 2025,Thu Jun 19 14:13:11 PDT 2025,GET,https://readmyfineprint.com/node_modules,200,OK,86,1131,5376
+6055,Thu Jun 19 14:13:11 PDT 2025,Thu Jun 19 14:13:11 PDT 2025,GET,https://readmyfineprint.com/_next,429,Too Many Requests,109,1068,55
+6056,Thu Jun 19 14:13:11 PDT 2025,Thu Jun 19 14:13:12 PDT 2025,GET,https://readmyfineprint.com/admin,200,OK,82,1127,5376
+6057,Thu Jun 19 14:13:12 PDT 2025,Thu Jun 19 14:13:12 PDT 2025,GET,https://readmyfineprint.com/api,200,OK,86,1127,5376
+6058,Thu Jun 19 14:13:12 PDT 2025,Thu Jun 19 14:13:12 PDT 2025,GET,https://readmyfineprint.com/assets,301,Moved Permanently,111,734,156
+6059,Thu Jun 19 14:13:12 PDT 2025,Thu Jun 19 14:13:12 PDT 2025,GET,https://readmyfineprint.com/config,200,OK,85,1127,5376
+6060,Thu Jun 19 14:13:12 PDT 2025,Thu Jun 19 14:13:12 PDT 2025,GET,https://readmyfineprint.com/dist,200,OK,83,1127,5376
+6061,Thu Jun 19 14:13:12 PDT 2025,Thu Jun 19 14:13:12 PDT 2025,GET,https://readmyfineprint.com/node_modules,429,Too Many Requests,112,1068,55

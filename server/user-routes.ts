@@ -3,6 +3,7 @@ import { databaseStorage } from "./storage";
 import { insertUserSchema, insertUserSubscriptionSchema, insertUsageRecordSchema } from "@shared/schema";
 import { z } from "zod";
 import bcrypt from "bcrypt";
+import { generateJWT, optionalUserAuth, requireUserAuth } from "./auth";
 
 // Validation schemas
 const loginSchema = z.object({
@@ -25,7 +26,7 @@ export function registerUserRoutes(app: Express) {
   app.post("/api/users/register", async (req: Request, res: Response) => {
     try {
       const userData = registerSchema.parse(req.body);
-      
+
       // Check if user already exists
       const existingUser = await databaseStorage.getUserByEmail(userData.email);
       if (existingUser) {
@@ -33,7 +34,7 @@ export function registerUserRoutes(app: Express) {
       }
 
       // Hash password
-      const hashedPassword = await bcrypt.hash(userData.password, 12);
+      const hashedPassword = await bcrypt.hash(userData.password as string, 12);
 
       // Create user
       const user = await databaseStorage.createUser({
@@ -41,9 +42,15 @@ export function registerUserRoutes(app: Express) {
         hashedPassword,
       });
 
+      // Generate JWT token for new user
+      const token = generateJWT(user.id);
+
       // Remove password from response
       const { hashedPassword: _, ...userResponse } = user;
-      res.status(201).json({ user: userResponse });
+      res.status(201).json({
+        user: userResponse,
+        token
+      });
     } catch (error) {
       console.error("Registration error:", error);
       if (error instanceof z.ZodError) {
@@ -70,9 +77,15 @@ export function registerUserRoutes(app: Express) {
         return res.status(401).json({ error: "Invalid credentials" });
       }
 
+      // Generate JWT token for logged-in user
+      const token = generateJWT(user.id);
+
       // Remove password from response
       const { hashedPassword: _, ...userResponse } = user;
-      res.json({ user: userResponse });
+      res.json({
+        user: userResponse,
+        token
+      });
     } catch (error) {
       console.error("Login error:", error);
       if (error instanceof z.ZodError) {
@@ -103,7 +116,7 @@ export function registerUserRoutes(app: Express) {
   app.patch("/api/users/:id", async (req: Request, res: Response) => {
     try {
       const updates = insertUserSchema.partial().parse(req.body);
-      
+
       const user = await databaseStorage.updateUser(req.params.id, updates);
       if (!user) {
         return res.status(404).json({ error: "User not found" });
@@ -140,7 +153,7 @@ export function registerUserRoutes(app: Express) {
   app.post("/api/users/:id/subscription", async (req: Request, res: Response) => {
     try {
       const subscriptionData = subscriptionSchema.parse(req.body);
-      
+
       const subscription = await databaseStorage.createUserSubscription({
         userId: req.params.id,
         ...subscriptionData,
@@ -164,7 +177,7 @@ export function registerUserRoutes(app: Express) {
   app.patch("/api/users/:id/subscription/:subscriptionId", async (req: Request, res: Response) => {
     try {
       const updates = insertUserSubscriptionSchema.partial().parse(req.body);
-      
+
       const subscription = await databaseStorage.updateUserSubscription(req.params.subscriptionId, updates);
       if (!subscription) {
         return res.status(404).json({ error: "Subscription not found" });
@@ -199,7 +212,7 @@ export function registerUserRoutes(app: Express) {
   app.get("/api/users/:id/usage", async (req: Request, res: Response) => {
     try {
       const period = req.query.period as string || new Date().toISOString().slice(0, 7); // YYYY-MM format
-      
+
       const usage = await databaseStorage.getUserUsage(req.params.id, period);
       if (!usage) {
         return res.status(404).json({ error: "No usage data found" });
@@ -216,7 +229,7 @@ export function registerUserRoutes(app: Express) {
   app.get("/api/users/:id/usage/history", async (req: Request, res: Response) => {
     try {
       const limit = parseInt(req.query.limit as string) || 12;
-      
+
       const history = await databaseStorage.getUserUsageHistory(req.params.id, limit);
       res.json({ history });
     } catch (error) {
@@ -229,10 +242,10 @@ export function registerUserRoutes(app: Express) {
   app.post("/api/users/:id/usage", async (req: Request, res: Response) => {
     try {
       const usageData = insertUsageRecordSchema.parse(req.body);
-      
+
       const usage = await databaseStorage.createUsageRecord({
-        userId: req.params.id,
         ...usageData,
+        userId: req.params.id, // Override userId from params
       });
 
       res.status(201).json({ usage });

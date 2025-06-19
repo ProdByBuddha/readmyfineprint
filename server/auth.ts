@@ -1,6 +1,22 @@
 import { Request, Response, NextFunction } from 'express';
 import crypto from 'crypto';
+import jwt from 'jsonwebtoken';
 import { securityLogger, getClientInfo } from './security-logger';
+import { databaseStorage } from './storage';
+
+// Extend Request interface to include user
+declare global {
+  namespace Express {
+    interface Request {
+      user?: {
+        id: string;
+        email: string;
+        username?: string;
+      };
+      sessionId?: string;
+    }
+  }
+}
 
 // Simple admin authentication middleware
 export function requireAdminAuth(req: Request, res: Response, next: NextFunction) {
@@ -42,6 +58,95 @@ export function requireAdminAuth(req: Request, res: Response, next: NextFunction
   // Log successful admin authentication
   securityLogger.logAdminAuth(ip, userAgent, req.path);
   next();
+}
+
+/**
+ * Optional user authentication middleware
+ * Attempts to identify the user but doesn't require authentication
+ */
+export async function optionalUserAuth(req: Request, res: Response, next: NextFunction) {
+  try {
+    const { ip, userAgent } = getClientInfo(req);
+
+    // Try to get user from JWT token
+    const authHeader = req.headers.authorization;
+    if (authHeader && authHeader.startsWith('Bearer ')) {
+      const token = authHeader.substring(7);
+
+      if (process.env.JWT_SECRET) {
+        try {
+          const decoded = jwt.verify(token, process.env.JWT_SECRET) as any;
+          const user = await databaseStorage.getUser(decoded.userId);
+
+          if (user) {
+            req.user = {
+              id: user.id,
+              email: user.email,
+              username: user.username || undefined,
+            };
+            console.log(`🔑 User authenticated via JWT: ${user.email} (${user.id})`);
+          }
+        } catch (jwtError) {
+          console.log('Invalid JWT token:', jwtError instanceof Error ? jwtError.message : 'Unknown error');
+        }
+      }
+    }
+
+    // If no user found, try session-based authentication (for backwards compatibility)
+    if (!req.user) {
+      // Check for user ID in session or headers (temporary fallback)
+      const userId = req.headers['x-user-id'] as string;
+      if (userId) {
+        const user = await databaseStorage.getUser(userId);
+        if (user) {
+          req.user = {
+            id: user.id,
+            email: user.email,
+            username: user.username || undefined,
+          };
+          console.log(`🔑 User authenticated via header: ${user.email} (${user.id})`);
+        }
+      }
+    }
+
+    next();
+  } catch (error) {
+    console.error('Error in user authentication middleware:', error);
+    // Don't fail the request, just continue without user
+    next();
+  }
+}
+
+/**
+ * Require user authentication middleware
+ * Requires the user to be authenticated
+ */
+export async function requireUserAuth(req: Request, res: Response, next: NextFunction) {
+  await optionalUserAuth(req, res, () => {
+    if (!req.user) {
+      const { ip, userAgent } = getClientInfo(req);
+      securityLogger.logFailedAuth(ip, userAgent, 'Authentication required', req.path);
+      return res.status(401).json({
+        error: 'Authentication required. Please log in to access this resource.'
+      });
+    }
+    next();
+  });
+}
+
+/**
+ * Generate JWT token for user
+ */
+export function generateJWT(userId: string): string {
+  if (!process.env.JWT_SECRET) {
+    throw new Error('JWT_SECRET environment variable is required');
+  }
+
+  return jwt.sign(
+    { userId },
+    process.env.JWT_SECRET,
+    { expiresIn: '7d' } // 7 days
+  );
 }
 
 // Middleware to add security headers
