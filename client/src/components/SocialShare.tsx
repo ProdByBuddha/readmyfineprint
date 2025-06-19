@@ -80,13 +80,13 @@ export const SocialShare = ({
         Share with friends
       </div>
 
-      <div className="grid grid-cols-3 gap-1">
+      <div className="grid grid-cols-3 gap-2">
         {/* Twitter */}
         <Button
           variant="outline"
           size="sm"
           onClick={() => handleShare('twitter')}
-          className="flex items-center justify-center h-12 w-full hover:bg-blue-50 hover:border-blue-200 dark:hover:bg-blue-900/20 p-2"
+          className="flex items-center justify-center h-12 w-full hover:bg-blue-50 hover:border-blue-200 dark:hover:bg-blue-900/20"
           title="Share on Twitter"
         >
           <span className="text-xs font-medium text-blue-500">Twitter</span>
@@ -97,7 +97,7 @@ export const SocialShare = ({
           variant="outline"
           size="sm"
           onClick={() => handleShare('linkedin')}
-          className="flex items-center justify-center h-12 w-full hover:bg-blue-50 hover:border-blue-200 dark:hover:bg-blue-900/20 p-2"
+          className="flex items-center justify-center h-12 w-full hover:bg-blue-50 hover:border-blue-200 dark:hover:bg-blue-900/20"
           title="Share on LinkedIn"
         >
           <span className="text-xs font-medium text-blue-700">LinkedIn</span>
@@ -108,7 +108,7 @@ export const SocialShare = ({
           variant="outline"
           size="sm"
           onClick={() => handleShare('reddit')}
-          className="flex items-center justify-center h-12 w-full hover:bg-orange-50 hover:border-orange-200 dark:hover:bg-orange-900/20 p-2"
+          className="flex items-center justify-center h-12 w-full hover:bg-orange-50 hover:border-orange-200 dark:hover:bg-orange-900/20"
           title="Share on Reddit"
         >
           <span className="text-xs font-medium text-orange-500">Reddit</span>
@@ -119,7 +119,7 @@ export const SocialShare = ({
           variant="outline"
           size="sm"
           onClick={() => handleShare('facebook')}
-          className="flex items-center justify-center h-12 w-full hover:bg-blue-50 hover:border-blue-200 dark:hover:bg-blue-900/20 p-2"
+          className="flex items-center justify-center h-12 w-full hover:bg-blue-50 hover:border-blue-200 dark:hover:bg-blue-900/20"
           title="Share on Facebook"
         >
           <span className="text-xs font-medium text-blue-600">Facebook</span>
@@ -130,7 +130,7 @@ export const SocialShare = ({
           variant="outline"
           size="sm"
           onClick={() => handleShare('whatsapp')}
-          className="flex items-center justify-center h-12 w-full hover:bg-green-50 hover:border-green-200 dark:hover:bg-green-900/20 p-2"
+          className="flex items-center justify-center h-12 w-full hover:bg-green-50 hover:border-green-200 dark:hover:bg-green-900/20"
           title="Share on WhatsApp"
         >
           <span className="text-xs font-medium text-green-600">WhatsApp</span>
@@ -141,7 +141,7 @@ export const SocialShare = ({
           variant="outline"
           size="sm"
           onClick={handleCopyLink}
-          className={`flex items-center justify-center h-12 w-full transition-colors p-2 ${
+          className={`flex items-center justify-center h-12 w-full transition-colors ${
             copied
               ? 'bg-green-50 border-green-200 text-green-700 dark:bg-green-900/20 dark:border-green-700 dark:text-green-400'
               : 'hover:bg-gray-50 hover:border-gray-200 dark:hover:bg-gray-800'
@@ -158,7 +158,7 @@ export const SocialShare = ({
           variant="outline"
           size="sm"
           onClick={() => handleShare('email')}
-          className="flex items-center justify-center h-12 w-full hover:bg-gray-50 hover:border-gray-200 dark:hover:bg-gray-800 p-2"
+          className="flex items-center justify-center h-12 w-full hover:bg-gray-50 hover:border-gray-200 dark:hover:bg-gray-800 col-span-3"
           title="Share via Email"
         >
           <span className="text-xs font-medium text-gray-600">Email</span>
