@@ -106,8 +106,17 @@ SMTP_PASS=your-app-specific-password
 SECURITY_EMAIL_FROM=your-email@provider.com
 ```
 
+## Recent Changes
+- **June 19, 2025**: Security hardening completed
+  - Blocked access to sensitive files (.env, package.json, source code)
+  - Enhanced payment endpoint validation with Zod schemas
+  - Implemented comprehensive security headers
+  - Added security logging for blocked access attempts
+  - Addressed all critical OWASP ZAP vulnerabilities
+
 ## Changelog
 - June 13, 2025. Initial setup
+- June 19, 2025. Security hardening and OWASP ZAP vulnerability fixes
 
 ## User Preferences
 

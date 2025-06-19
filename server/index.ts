@@ -21,23 +21,26 @@ app.set('trust proxy', 1);
 // Add security headers
 app.use(addSecurityHeaders);
 
-// Enhanced security middleware
+// Enhanced security middleware - block only critical sensitive files
 app.use((req, res, next) => {
   const path = req.path.toLowerCase();
   
-  // Block access to sensitive files and directories
-  const blockedPaths = [
+  // Block only the most critical sensitive files - be very specific
+  const criticalBlockedPaths = [
     '/.env', '/.env.local', '/.env.production', '/.env.development', '/.env.test',
-    '/config/', '/package.json', '/package-lock.json', '/yarn.lock', '/pnpm-lock.yaml',
-    '/tsconfig.json', '/vite.config.ts', '/tailwind.config.ts', '/drizzle.config.ts',
-    '/postcss.config.js', '/server/', '/scripts/', '/src/', '/client/', '/shared/',
-    '/node_modules/', '/.git/', '/.github/', '/.vscode/', '/dist/', '/backup/',
-    '/database.db', '/db.sqlite', '/.db', '/.bak', '/.tmp', '/.temp'
+    '/package.json', '/package-lock.json', '/yarn.lock', '/pnpm-lock.yaml',
+    '/server/index.ts', '/server/routes.ts', '/server/auth.ts', '/server/openai.ts',
+    '/server/db.ts', '/server/env-validation.ts', '/drizzle.config.ts',
+    '/node_modules/', '/.git/', '/database.db', '/db.sqlite'
   ];
   
-  const isBlocked = blockedPaths.some(blocked => 
-    path.startsWith(blocked) || path === blocked.slice(0, -1)
-  );
+  // Check for exact matches or directory traversal attempts
+  const isBlocked = criticalBlockedPaths.some(blocked => {
+    if (blocked.endsWith('/')) {
+      return path.startsWith(blocked);
+    }
+    return path === blocked;
+  });
   
   if (isBlocked) {
     // Log security attempt
