@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Share2, Copy, Check, Facebook, Twitter, MessageCircle, LinkedinIcon, LucideLinkedin, Linkedin } from "lucide-react";
+import { Share2, Copy, Check, Facebook, Twitter, MessageCircle, Mail } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 interface SocialShareProps {
@@ -109,7 +109,9 @@ export const SocialShare = ({
           onClick={() => handleShare('linkedin')}
           className="flex items-center justify-center gap-2 h-12 w-full hover:bg-blue-50 hover:border-blue-200 dark:hover:bg-blue-900/20"
         >
-          <Linkedin className="w-4 h-4 text-blue-700" />
+          <div className="w-4 h-4 bg-blue-700 rounded flex items-center justify-center">
+            <span className="text-white text-xs font-bold">in</span>
+          </div>
           <span className="text-sm">LinkedIn</span>
         </Button>
 
