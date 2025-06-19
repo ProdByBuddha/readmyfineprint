@@ -237,6 +237,20 @@ const calculateSavings = (monthlyPrice: number, yearlyPrice: number) => {
 
 export default function SubscriptionPlans({ currentTier, onSelectPlan }: SubscriptionPlansProps) {
   const [billingCycle, setBillingCycle] = useState<'monthly' | 'yearly'>('monthly');
+  const [isConsidering, setIsConsidering] = useState(false);
+
+  const handleSelectPlan = (tierId: string, billingCycle: 'monthly' | 'yearly') => {
+    if (tierId === 'enterprise') {
+      setIsConsidering(true); // Show "Coming Soon" popup
+    } else {
+      onSelectPlan(tierId, billingCycle);
+    }
+  };
+
+  const handleCloseConsidering = () => {
+    setIsConsidering(false);
+  };
+
 
   return (
     <div className="w-full max-w-7xl mx-auto p-6">
@@ -368,7 +382,7 @@ export default function SubscriptionPlans({ currentTier, onSelectPlan }: Subscri
                   <Button
                     className={`w-full ${tier.popular ? 'bg-blue-600 hover:bg-blue-700' : ''}`}
                     variant={tier.popular ? 'default' : 'outline'}
-                    onClick={() => onSelectPlan(tier.id, billingCycle)}
+                    onClick={() => handleSelectPlan(tier.id, billingCycle)}
                     disabled={isCurrentTier && tier.id !== 'free'}
                   >
                     {isCurrentTier ? (
@@ -386,6 +400,29 @@ export default function SubscriptionPlans({ currentTier, onSelectPlan }: Subscri
         })}
       </div>
 
+      {/* Coming Soon Modal */}
+      {isConsidering && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center">
+          <div className="bg-white dark:bg-gray-800 rounded-lg p-8 max-w-md w-full">
+            <div className="text-2xl font-semibold mb-4 dark:text-white">Coming Soon!</div>
+            <p className="text-gray-600 dark:text-gray-400 mb-6">
+              We're working hard to bring you the Enterprise plan. It will be available soon.
+            </p>
+            <div className="flex justify-end">
+              <Button variant="secondary" onClick={handleCloseConsidering}>
+                Okay
+              </Button>
+            </div>
+            <button
+                onClick={handleCloseConsidering}
+                className="absolute top-6 right-6 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 z-10"
+              >
+                <X className="w-5 h-5" />
+              </button>
+          </div>
+        </div>
+      )}
+
       {/* Additional Information */}
       <div className="mt-12 text-center">
         <Alert className="max-w-2xl mx-auto">
@@ -400,3 +437,5 @@ export default function SubscriptionPlans({ currentTier, onSelectPlan }: Subscri
     </div>
   );
 }
+
+import { X } from "lucide-react";
