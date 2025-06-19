@@ -336,29 +336,73 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Donation processing endpoint
-  app.post('/api/process-donation', async (req, res) => {
+  // Create payment intent endpoint with enhanced security
+  app.post('/api/create-payment-intent', async (req, res) => {
     try {
-      // Basic validation
-      const { amount, card } = req.body;
-
-      if (!amount || amount < 1) {
-        return res.status(400).json({ error: 'Invalid donation amount' });
-      }
-
-      if (!card || !card.number || !card.cvc || !card.exp_month || !card.exp_year) {
-        return res.status(400).json({ error: 'Invalid card information' });
-      }
-
-      // For now, return an error indicating this needs proper Stripe integration
-      res.status(501).json({
-        error: 'Donation processing not fully implemented. Please use the external Stripe checkout link.',
-        external_link: 'https://donate.stripe.com/4gM6oI5ZLfCV7Qu8ww'
+      // Input validation schema
+      const paymentSchema = z.object({
+        amount: z.number().min(1).max(10000),
+        currency: z.string().optional().default('usd'),
+        metadata: z.object({}).optional()
       });
 
-    } catch (error) {
-      console.error('Donation processing error:', error);
-      res.status(500).json({ error: 'Internal server error' });
+      const validatedData = paymentSchema.parse(req.body);
+      const { ip, userAgent } = getClientInfo(req);
+
+      // Log payment intent creation
+      securityLogger.logSecurityEvent({
+        eventType: "API_ACCESS" as any,
+        severity: "LOW" as any,
+        message: `Creating payment intent for $${validatedData.amount.toFixed(2)}`,
+        ip,
+        userAgent,
+        endpoint: "/api/create-payment-intent",
+        details: { amount: validatedData.amount }
+      });
+
+      const paymentIntent = await stripe.paymentIntents.create({
+        amount: Math.round(validatedData.amount * 100),
+        currency: validatedData.currency,
+        automatic_payment_methods: {
+          enabled: true,
+        },
+        metadata: {
+          type: "donation",
+          source: "readmyfineprint",
+          ip: ip,
+          timestamp: new Date().toISOString(),
+          ...validatedData.metadata
+        },
+        description: `Donation to ReadMyFinePrint - $${validatedData.amount.toFixed(2)}`
+      });
+
+      res.json({
+        clientSecret: paymentIntent.client_secret,
+        paymentIntentId: paymentIntent.id
+      });
+
+    } catch (error: any) {
+      console.error('Payment intent creation failed:', error);
+      
+      if (error instanceof z.ZodError) {
+        return res.status(400).json({ 
+          error: 'Invalid input data',
+          details: error.errors
+        });
+      }
+
+      const { ip, userAgent } = getClientInfo(req);
+      securityLogger.logSecurityEvent({
+        eventType: "API_ACCESS" as any,
+        severity: "HIGH" as any,
+        message: `Payment intent creation failed: ${error.message}`,
+        ip,
+        userAgent,
+        endpoint: "/api/create-payment-intent",
+        details: { error: error.message }
+      });
+
+      res.status(500).json({ error: 'Payment processing unavailable' });
     }
   });
 
@@ -372,141 +416,73 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Server-side payment processing endpoint
-  app.post("/api/process-donation", async (req, res) => {
+  // Stripe webhook endpoint with proper validation
+  app.post('/api/stripe-webhook', async (req, res) => {
+    const sig = req.headers['stripe-signature'];
+    let event;
+
     try {
-      const { amount, card } = req.body;
-
-      // Validate amount
-      if (!amount || typeof amount !== 'number' || amount < 1) {
-        return res.status(400).json({
-          error: "Invalid amount. Minimum donation is $1."
-        });
+      if (!process.env.STRIPE_WEBHOOK_SECRET) {
+        return res.status(400).json({ error: 'Webhook secret not configured' });
       }
 
-      if (amount > 10000) {
-        return res.status(400).json({
-          error: "Maximum donation amount is $10,000. Please contact us for larger donations."
-        });
-      }
+      event = stripe.webhooks.constructEvent(req.body, sig as string, process.env.STRIPE_WEBHOOK_SECRET);
+    } catch (err: any) {
+      console.error('Webhook signature verification failed:', err.message);
+      return res.status(400).json({ error: 'Invalid webhook signature' });
+    }
 
-      // Validate card data
-      if (!card || !card.number || !card.exp_month || !card.exp_year || !card.cvc || !card.name) {
-        return res.status(400).json({
-          error: "Invalid card information. Please check all fields."
-        });
-      }
+    const { ip, userAgent } = getClientInfo(req);
 
-      const { ip, userAgent } = getClientInfo(req);
-      securityLogger.logSecurityEvent({
-        eventType: "API_ACCESS" as any,
-        severity: "LOW" as any,
-        message: `Processing donation payment for $${amount.toFixed(2)}`,
-        ip,
-        userAgent,
-        endpoint: "/api/process-donation",
-        details: { amount }
-      });
+    try {
+      switch (event.type) {
+        case 'payment_intent.succeeded':
+          const paymentIntent = event.data.object;
+          
+          securityLogger.logSecurityEvent({
+            eventType: "API_ACCESS" as any,
+            severity: "LOW" as any,
+            message: `Payment webhook received: ${paymentIntent.id}`,
+            ip,
+            userAgent,
+            endpoint: "/api/stripe-webhook",
+            details: { 
+              paymentIntentId: paymentIntent.id,
+              amount: paymentIntent.amount / 100,
+              currency: paymentIntent.currency
+            }
+          });
 
-      // Create payment method first (cast to any to bypass TypeScript strict mode)
-      const paymentMethod = await stripe.paymentMethods.create({
-        type: 'card',
-        card: {
-          number: card.number,
-          exp_month: card.exp_month,
-          exp_year: card.exp_year,
-          cvc: card.cvc,
-        },
-        billing_details: {
-          name: card.name,
-          email: req.body.billing_details?.email,
-          address: {
-            postal_code: req.body.billing_details?.address?.postal_code
+          // Send thank you email if customer email is available
+          if (paymentIntent.receipt_email) {
+            await emailService.sendDonationThankYou({
+              amount: paymentIntent.amount / 100,
+              currency: paymentIntent.currency,
+              paymentIntentId: paymentIntent.id,
+              customerEmail: paymentIntent.receipt_email,
+              timestamp: new Date()
+            });
           }
-        }
-      } as any);
+          break;
 
-      // Create and confirm payment intent
-      const paymentIntent = await stripe.paymentIntents.create({
-        amount: Math.round(amount * 100),
-        currency: "usd",
-        payment_method: paymentMethod.id,
-        confirm: true,
-        metadata: {
-          type: "donation",
-          source: "readmyfineprint",
-          ip: ip,
-          timestamp: new Date().toISOString()
-        },
-        description: `Donation to ReadMyFinePrint - $${amount.toFixed(2)}`
-      });
-
-      if (paymentIntent.status === 'succeeded') {
-        securityLogger.logSecurityEvent({
-          eventType: "API_ACCESS" as any,
-          severity: "LOW" as any,
-          message: `Donation payment completed: $${amount.toFixed(2)}`,
-          ip,
-          userAgent,
-          endpoint: "/api/process-donation",
-          details: {
-            paymentIntentId: paymentIntent.id,
-            amount: amount,
-            currency: "usd"
-          }
-        });
-
-        res.json({
-          success: true,
-          paymentIntentId: paymentIntent.id,
-          amount: amount,
-          message: "Payment successful! Thank you for your donation."
-        });
-      } else {
-        throw new Error(`Payment requires additional action: ${paymentIntent.status}`);
+        default:
+          console.log(`Unhandled webhook event type: ${event.type}`);
       }
 
+      res.json({ received: true });
     } catch (error: any) {
-      console.error("Payment processing failed:", error);
-
-      const { ip, userAgent } = getClientInfo(req);
+      console.error('Webhook processing error:', error);
       securityLogger.logSecurityEvent({
         eventType: "API_ACCESS" as any,
         severity: "HIGH" as any,
-        message: `Payment processing failed: ${error.message}`,
+        message: `Webhook processing failed: ${error.message}`,
         ip,
         userAgent,
-        endpoint: "/api/process-donation",
-        details: { error: error.message }
+        endpoint: "/api/stripe-webhook",
+        details: { error: error.message, eventType: event?.type }
       });
 
-      // Handle specific Stripe errors
-      let errorMessage = "Payment processing failed. Please try again.";
-
-      if (error.type === 'StripeCardError') {
-        switch (error.code) {
-          case 'card_declined':
-            errorMessage = "Your card was declined. Please try a different payment method.";
-            break;
-          case 'incorrect_number':
-            errorMessage = "Invalid card number. Please check and try again.";
-            break;
-          case 'invalid_expiry_month':
-          case 'invalid_expiry_year':
-            errorMessage = "Invalid expiration date. Please check and try again.";
-            break;
-          case 'invalid_cvc':
-            errorMessage = "Invalid CVC code. Please check and try again.";
-            break;
-          case 'insufficient_funds':
-            errorMessage = "Insufficient funds. Please try a different payment method.";
-            break;
-          default:
-            errorMessage = error.message || "Card payment failed. Please try again.";
-        }
-      }
-
-      res.status(400).json({ error: errorMessage });
+      res.status(500).json({ error: 'Webhook processing failed' });
     }
   });
 
@@ -549,17 +525,18 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Keep original endpoint for compatibility
-  // Create Stripe Checkout Session (works without client-side Stripe.js)
-  app.get("/api/create-checkout-session", async (req, res) => {
+  // Create Stripe Checkout Session with input validation
+  app.post("/api/create-checkout-session", async (req, res) => {
     try {
-      const amount = parseFloat(req.query.amount as string);
+      // Input validation with Zod
+      const checkoutSchema = z.object({
+        amount: z.number().min(1).max(10000),
+        success_url: z.string().url().optional(),
+        cancel_url: z.string().url().optional()
+      });
 
-      if (!amount || amount < 1 || amount > 10000) {
-        return res.status(400).json({
-          error: "Invalid amount. Must be between $1 and $10,000."
-        });
-      }
+      const validatedData = checkoutSchema.parse(req.body);
+      const { amount } = validatedData;
 
       const { ip, userAgent } = getClientInfo(req);
       securityLogger.logSecurityEvent({
@@ -572,7 +549,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         details: { amount }
       });
 
-      // Create Stripe Checkout Session
+      // Create Stripe Checkout Session with secure configuration
       const session = await stripe.checkout.sessions.create({
         payment_method_types: ['card'],
         line_items: [{
@@ -587,8 +564,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
           quantity: 1,
         }],
         mode: 'payment',
-        success_url: `${req.protocol}://${req.get('host')}/donate?success=true&amount=${amount}`,
-        cancel_url: `${req.protocol}://${req.get('host')}/donate?canceled=true`,
+        success_url: validatedData.success_url || `${req.protocol}://${req.get('host')}/donate?success=true&amount=${amount}`,
+        cancel_url: validatedData.cancel_url || `${req.protocol}://${req.get('host')}/donate?canceled=true`,
         metadata: {
           type: "donation",
           source: "readmyfineprint",
@@ -597,10 +574,35 @@ export async function registerRoutes(app: Express): Promise<Server> {
         }
       });
 
-      // Redirect to Stripe Checkout
-      res.redirect(303, session.url!);
+      res.json({ 
+        sessionId: session.id,
+        url: session.url 
+      });
 
     } catch (error: any) {
+      console.error('Checkout session creation failed:', error);
+      
+      if (error instanceof z.ZodError) {
+        return res.status(400).json({ 
+          error: 'Invalid input data',
+          details: error.errors
+        });
+      }
+
+      const { ip, userAgent } = getClientInfo(req);
+      securityLogger.logSecurityEvent({
+        eventType: "API_ACCESS" as any,
+        severity: "HIGH" as any,
+        message: `Checkout session creation failed: ${error.message}`,
+        ip,
+        userAgent,
+        endpoint: "/api/create-checkout-session",
+        details: { error: error.message }
+      });
+
+      res.status(500).json({ error: 'Checkout session creation failed' });
+    }
+  });
       console.error("Checkout session creation failed:", error);
       const { ip, userAgent } = getClientInfo(req);
       securityLogger.logSecurityEvent({

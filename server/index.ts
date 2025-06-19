@@ -21,6 +21,44 @@ app.set('trust proxy', 1);
 // Add security headers
 app.use(addSecurityHeaders);
 
+// Enhanced security middleware
+app.use((req, res, next) => {
+  const path = req.path.toLowerCase();
+  
+  // Block access to sensitive files and directories
+  const blockedPaths = [
+    '/.env', '/.env.local', '/.env.production', '/.env.development', '/.env.test',
+    '/config/', '/package.json', '/package-lock.json', '/yarn.lock', '/pnpm-lock.yaml',
+    '/tsconfig.json', '/vite.config.ts', '/tailwind.config.ts', '/drizzle.config.ts',
+    '/postcss.config.js', '/server/', '/scripts/', '/src/', '/client/', '/shared/',
+    '/node_modules/', '/.git/', '/.github/', '/.vscode/', '/dist/', '/backup/',
+    '/database.db', '/db.sqlite', '/.db', '/.bak', '/.tmp', '/.temp'
+  ];
+  
+  const isBlocked = blockedPaths.some(blocked => 
+    path.startsWith(blocked) || path === blocked.slice(0, -1)
+  );
+  
+  if (isBlocked) {
+    // Log security attempt
+    const { ip, userAgent } = getClientInfo(req);
+    securityLogger.logSecurityEvent({
+      eventType: "ACCESS_ATTEMPT" as any,
+      severity: "HIGH" as any,
+      message: `Blocked access attempt to sensitive path: ${req.path}`,
+      ip,
+      userAgent,
+      endpoint: req.path,
+      details: { blockedPath: req.path }
+    });
+    
+    res.status(404).json({ error: 'Not Found' });
+    return;
+  }
+  
+  next();
+});
+
 // CORS configuration
 const corsOptions = {
   origin: (envConfig.ALLOWED_ORIGINS || process.env.ALLOWED_ORIGINS ||
