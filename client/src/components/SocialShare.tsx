@@ -1,6 +1,6 @@
 
 import { useState } from "react";
-import { Share2, Copy, Check, Facebook, Twitter, MessageCircle, Mail } from "lucide-react";
+import { Share2, Copy, Check, Facebook, Twitter, MessageCircle, Mail, Linkedin } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 interface SocialShareProps {
@@ -80,16 +80,16 @@ export const SocialShare = ({
         Share with friends
       </div>
 
-      <div className="grid grid-cols-1 gap-3">
+      <div className="grid grid-cols-4 gap-3">
         {/* Twitter */}
         <Button
           variant="outline"
           size="sm"
           onClick={() => handleShare('twitter')}
-          className="flex items-center justify-center gap-2 h-12 w-full hover:bg-blue-50 hover:border-blue-200 dark:hover:bg-blue-900/20 min-w-0"
+          className="flex items-center justify-center h-12 w-12 hover:bg-blue-50 hover:border-blue-200 dark:hover:bg-blue-900/20 p-0"
+          title="Share on Twitter"
         >
-          <Twitter className="w-4 h-4 text-blue-500 flex-shrink-0" />
-          <span className="text-sm truncate">Twitter</span>
+          <Twitter className="w-5 h-5 text-blue-500" />
         </Button>
 
         {/* LinkedIn */}
@@ -97,12 +97,10 @@ export const SocialShare = ({
           variant="outline"
           size="sm"
           onClick={() => handleShare('linkedin')}
-          className="flex items-center justify-center gap-2 h-12 w-full hover:bg-blue-50 hover:border-blue-200 dark:hover:bg-blue-900/20 min-w-0"
+          className="flex items-center justify-center h-12 w-12 hover:bg-blue-50 hover:border-blue-200 dark:hover:bg-blue-900/20 p-0"
+          title="Share on LinkedIn"
         >
-          <div className="w-4 h-4 bg-blue-700 rounded flex items-center justify-center flex-shrink-0">
-            <span className="text-white text-xs font-bold leading-none">in</span>
-          </div>
-          <span className="text-sm truncate">LinkedIn</span>
+          <Linkedin className="w-5 h-5 text-blue-700" />
         </Button>
 
         {/* Reddit */}
@@ -110,12 +108,12 @@ export const SocialShare = ({
           variant="outline"
           size="sm"
           onClick={() => handleShare('reddit')}
-          className="flex items-center justify-center gap-2 h-12 w-full hover:bg-orange-50 hover:border-orange-200 dark:hover:bg-orange-900/20 min-w-0"
+          className="flex items-center justify-center h-12 w-12 hover:bg-orange-50 hover:border-orange-200 dark:hover:bg-orange-900/20 p-0"
+          title="Share on Reddit"
         >
-          <div className="w-4 h-4 bg-orange-500 rounded-full flex items-center justify-center flex-shrink-0">
+          <div className="w-5 h-5 bg-orange-500 rounded-full flex items-center justify-center">
             <span className="text-white text-xs font-bold leading-none">r</span>
           </div>
-          <span className="text-sm truncate">Reddit</span>
         </Button>
 
         {/* Facebook */}
@@ -123,10 +121,10 @@ export const SocialShare = ({
           variant="outline"
           size="sm"
           onClick={() => handleShare('facebook')}
-          className="flex items-center justify-center gap-2 h-12 w-full hover:bg-blue-50 hover:border-blue-200 dark:hover:bg-blue-900/20 min-w-0"
+          className="flex items-center justify-center h-12 w-12 hover:bg-blue-50 hover:border-blue-200 dark:hover:bg-blue-900/20 p-0"
+          title="Share on Facebook"
         >
-          <Facebook className="w-4 h-4 text-blue-600 flex-shrink-0" />
-          <span className="text-sm truncate">Facebook</span>
+          <Facebook className="w-5 h-5 text-blue-600" />
         </Button>
 
         {/* WhatsApp */}
@@ -134,10 +132,10 @@ export const SocialShare = ({
           variant="outline"
           size="sm"
           onClick={() => handleShare('whatsapp')}
-          className="flex items-center justify-center gap-2 h-12 w-full hover:bg-green-50 hover:border-green-200 dark:hover:bg-green-900/20 min-w-0"
+          className="flex items-center justify-center h-12 w-12 hover:bg-green-50 hover:border-green-200 dark:hover:bg-green-900/20 p-0"
+          title="Share on WhatsApp"
         >
-          <MessageCircle className="w-4 h-4 text-green-600 flex-shrink-0" />
-          <span className="text-sm truncate">WhatsApp</span>
+          <MessageCircle className="w-5 h-5 text-green-600" />
         </Button>
 
         {/* Copy Link */}
@@ -145,22 +143,17 @@ export const SocialShare = ({
           variant="outline"
           size="sm"
           onClick={handleCopyLink}
-          className={`flex items-center justify-center gap-2 h-12 w-full transition-colors ${
+          className={`flex items-center justify-center h-12 w-12 transition-colors p-0 ${
             copied
               ? 'bg-green-50 border-green-200 text-green-700 dark:bg-green-900/20 dark:border-green-700 dark:text-green-400'
               : 'hover:bg-gray-50 hover:border-gray-200 dark:hover:bg-gray-800'
           }`}
+          title={copied ? "Copied!" : "Copy Link"}
         >
           {copied ? (
-            <>
-              <Check className="w-4 h-4" />
-              <span className="text-sm">Copied!</span>
-            </>
+            <Check className="w-5 h-5" />
           ) : (
-            <>
-              <Copy className="w-4 h-4" />
-              <span className="text-sm">Copy Link</span>
-            </>
+            <Copy className="w-5 h-5" />
           )}
         </Button>
 
@@ -169,10 +162,10 @@ export const SocialShare = ({
           variant="outline"
           size="sm"
           onClick={() => handleShare('email')}
-          className="flex items-center justify-center gap-2 h-12 w-full hover:bg-gray-50 hover:border-gray-200 dark:hover:bg-gray-800"
+          className="flex items-center justify-center h-12 w-12 hover:bg-gray-50 hover:border-gray-200 dark:hover:bg-gray-800 p-0"
+          title="Share via Email"
         >
-          <Mail className="w-4 h-4 text-gray-600" />
-          <span className="text-sm">Share via Email</span>
+          <Mail className="w-5 h-5 text-gray-600" />
         </Button>
       </div>
     </div>
