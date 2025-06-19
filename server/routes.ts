@@ -603,205 +603,46 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.status(500).json({ error: 'Checkout session creation failed' });
     }
   });
-      console.error("Checkout session creation failed:", error);
-      const { ip, userAgent } = getClientInfo(req);
-      securityLogger.logSecurityEvent({
-        eventType: "API_ACCESS" as any,
-        severity: "HIGH" as any,
-        message: `Checkout session creation failed: ${error.message}`,
-        ip,
-        userAgent,
-        endpoint: "/api/create-checkout-session",
-        details: { error: error.message }
-      });
 
-      res.status(500).json({
-        error: "Failed to create checkout session. Please try the external Stripe link."
-      });
-    }
-  });
+  // Register user management routes
+  registerUserRoutes(app);
 
-  app.post("/api/create-payment-intent", async (req, res) => {
+  // Test email configuration (admin only)
+  app.post("/api/test-email", requireAdminAuth, async (req, res) => {
     try {
-      const { amount } = req.body;
+      const testResult = await emailService.testEmailConfiguration();
 
-      if (!amount || typeof amount !== 'number' || amount < 1) {
-        return res.status(400).json({
-          error: "Invalid amount. Minimum donation is $1."
+      if (testResult) {
+        const testEmailSent = await emailService.sendDonationThankYou({
+          amount: 25.00,
+          currency: 'usd',
+          paymentIntentId: 'test_payment_intent',
+          customerEmail: process.env.DEFAULT_DONATION_EMAIL || 'admin@readmyfineprint.com',
+          customerName: 'Test User',
+          timestamp: new Date()
         });
-      }
 
-      if (amount > 10000) {
-        return res.status(400).json({
-          error: "Maximum donation amount is $10,000."
+        res.json({
+          success: true,
+          configured: true,
+          testEmailSent,
+          message: testEmailSent ? 'Test email sent successfully' : 'Email service configured but test email failed'
         });
-      }
-
-      const { ip, userAgent } = getClientInfo(req);
-      securityLogger.logSecurityEvent({
-        eventType: "API_ACCESS" as any,
-        severity: "LOW" as any,
-        message: `Creating payment intent for $${amount.toFixed(2)}`,
-        ip,
-        userAgent,
-        endpoint: "/api/create-payment-intent",
-        details: { amount }
-      });
-
-      const paymentIntent = await stripe.paymentIntents.create({
-        amount: Math.round(amount * 100),
-        currency: "usd",
-        automatic_payment_methods: { enabled: true },
-        metadata: {
-          type: "donation",
-          source: "readmyfineprint",
-          ip: ip,
-          timestamp: new Date().toISOString()
-        },
-        description: `Donation to ReadMyFinePrint - $${amount.toFixed(2)}`
-      });
-
-      res.json({
-        clientSecret: paymentIntent.client_secret,
-        paymentIntentId: paymentIntent.id
-      });
-
-    } catch (error: any) {
-      console.error("Payment intent creation failed:", error);
-      res.status(500).json({
-        error: "Failed to create payment intent. Please try again."
-      });
-    }
-  });
-
-  // Stripe webhook endpoint for payment confirmations
-  app.post("/api/stripe-webhook", async (req, res) => {
-    console.log('🔔 Webhook received:', {
-      headers: {
-        'stripe-signature': req.headers['stripe-signature'] ? 'Present' : 'Missing',
-        'content-type': req.headers['content-type'],
-        'user-agent': req.headers['user-agent']
-      },
-      bodyType: typeof req.body,
-      bodyLength: req.body ? req.body.length : 0
-    });
-
-    let event;
-
-    try {
-      // Verify webhook signature (if webhook secret is configured)
-      const sig = req.headers['stripe-signature'];
-      const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET;
-
-      console.log('🔐 Webhook verification:', {
-        hasSecret: !!webhookSecret,
-        hasSignature: !!sig,
-        secretPrefix: webhookSecret ? webhookSecret.substring(0, 8) + '...' : 'None'
-      });
-
-      if (webhookSecret && sig) {
-        // For signature verification, Stripe expects the raw body as a Buffer or string
-        const payload = Buffer.isBuffer(req.body) ? req.body : Buffer.from(req.body);
-        event = stripe.webhooks.constructEvent(payload, sig, webhookSecret);
-        console.log('✅ Webhook signature verified successfully');
       } else {
-        // If no webhook secret is configured, parse the body directly
-        // Note: This is less secure and should only be used in development
-        const bodyString = Buffer.isBuffer(req.body) ? req.body.toString('utf8') : req.body;
-        event = JSON.parse(bodyString);
-        console.log('⚠️ Webhook processed without signature verification (development mode)');
+        res.json({
+          success: false,
+          configured: false,
+          message: 'Email service not configured. Please set SMTP or Gmail environment variables.'
+        });
       }
-
-      console.log('📋 Parsed event type:', event.type, 'Event ID:', event.id);
-    } catch (err: any) {
-      console.error('❌ Webhook signature verification failed:', err.message);
-      console.error('Raw body preview:', req.body.toString().substring(0, 200));
-      return res.status(400).send(`Webhook Error: ${err.message}`);
+    } catch (error) {
+      console.error('Email test failed:', error);
+      res.status(500).json({
+        success: false,
+        error: 'Email test failed',
+        message: error instanceof Error ? error.message : 'Unknown error'
+      });
     }
-
-    // Handle the event
-    console.log('📋 Processing webhook event:', event.type);
-
-    switch (event.type) {
-      case 'payment_intent.succeeded':
-        const paymentIntent = event.data.object;
-        console.log('✅ Payment succeeded:', {
-          id: paymentIntent.id,
-          amount: paymentIntent.amount / 100,
-          currency: paymentIntent.currency,
-          metadata: paymentIntent.metadata,
-          created: paymentIntent.created ? new Date(paymentIntent.created * 1000).toISOString() : 'N/A'
-        });
-
-        // Log successful payment
-        securityLogger.logSecurityEvent({
-          eventType: "API_ACCESS" as any,
-          severity: "LOW" as any,
-          message: `Donation payment completed: $${(paymentIntent.amount / 100).toFixed(2)}`,
-          ip: paymentIntent.metadata?.ip || 'webhook',
-          userAgent: 'stripe-webhook',
-          endpoint: "/api/stripe-webhook",
-          details: {
-            paymentIntentId: paymentIntent.id,
-            amount: paymentIntent.amount / 100,
-            currency: paymentIntent.currency,
-            webhookEventId: event.id
-          }
-        });
-
-        // Send thank you email
-        try {
-          const emailSent = await emailService.sendDonationThankYou({
-            amount: paymentIntent.amount / 100,
-            currency: paymentIntent.currency,
-            paymentIntentId: paymentIntent.id,
-            customerEmail: paymentIntent.receipt_email || undefined,
-            customerName: paymentIntent.metadata?.customer_name || undefined,
-            timestamp: new Date(paymentIntent.created * 1000)
-          });
-
-          if (emailSent) {
-            console.log('✅ Thank you email sent for donation:', paymentIntent.id);
-          } else {
-            console.log('⚠️ Thank you email not sent (service not configured)');
-          }
-        } catch (error) {
-          console.error('❌ Error sending thank you email:', error);
-          // Don't fail the webhook if email fails
-        }
-        break;
-
-      case 'payment_intent.payment_failed':
-        const failedPayment = event.data.object;
-        console.log('❌ Payment failed:', {
-          id: failedPayment.id,
-          amount: failedPayment.amount / 100,
-          last_payment_error: failedPayment.last_payment_error
-        });
-
-        // Log failed payment
-        securityLogger.logSecurityEvent({
-          eventType: "API_ACCESS" as any,
-          severity: "MEDIUM" as any,
-          message: `Donation payment failed: $${(failedPayment.amount / 100).toFixed(2)}`,
-          ip: failedPayment.metadata?.ip || 'unknown',
-          userAgent: 'stripe-webhook',
-          endpoint: "/api/stripe-webhook",
-          details: {
-            paymentIntentId: failedPayment.id,
-            amount: failedPayment.amount / 100,
-            error: failedPayment.last_payment_error?.message
-          }
-        });
-        break;
-
-      default:
-        console.log(`Unhandled event type: ${event.type}`);
-        console.log('Event object:', JSON.stringify(event, null, 2));
-    }
-
-    console.log('✅ Webhook processed successfully');
-    res.json({ received: true });
   });
 
   // Get allowed file types for client-side validation
