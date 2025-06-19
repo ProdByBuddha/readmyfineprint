@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Share2, Copy, Check, Facebook, Twitter, MessageCircle } from "lucide-react";
+import { Share2, Copy, Check, Facebook, Twitter, MessageCircle, LinkedinIcon, LucideLinkedin, Linkedin } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 interface SocialShareProps {
