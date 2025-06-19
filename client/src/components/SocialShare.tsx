@@ -24,7 +24,6 @@ export const SocialShare = ({
   const encodedUrl = encodeURIComponent(url);
   const encodedTitle = encodeURIComponent(title);
   const encodedDescription = encodeURIComponent(description);
-  const hashtagString = hashtags.map(tag => `#${tag}`).join(' ');
 
   // Simplified and fixed social share URLs
   const shareLinks = {
@@ -87,10 +86,12 @@ export const SocialShare = ({
           variant="outline"
           size="sm"
           onClick={() => handleShare('twitter')}
-          className="flex items-center justify-center h-12 w-12 hover:bg-blue-50 hover:border-blue-200 dark:hover:bg-blue-900/20 p-0"
+          className="flex items-center justify-center h-12 w-full hover:bg-blue-50 hover:border-blue-200 dark:hover:bg-blue-900/20 p-2"
           title="Share on Twitter"
         >
-          <siTwitter className="w-5 h-5 text-blue-500" />
+          <svg className="w-5 h-5 text-blue-500" viewBox="0 0 24 24" fill="currentColor">
+            <path d={siTwitter.path} />
+          </svg>
         </Button>
 
         {/* LinkedIn */}
@@ -98,10 +99,12 @@ export const SocialShare = ({
           variant="outline"
           size="sm"
           onClick={() => handleShare('linkedin')}
-          className="flex items-center justify-center h-12 w-12 hover:bg-blue-50 hover:border-blue-200 dark:hover:bg-blue-900/20 p-0"
+          className="flex items-center justify-center h-12 w-full hover:bg-blue-50 hover:border-blue-200 dark:hover:bg-blue-900/20 p-2"
           title="Share on LinkedIn"
         >
-          <siLinkedin className="w-5 h-5 text-blue-700" />
+          <svg className="w-5 h-5 text-blue-700" viewBox="0 0 24 24" fill="currentColor">
+            <path d={siLinkedin.path} />
+          </svg>
         </Button>
 
         {/* Reddit */}
@@ -109,7 +112,7 @@ export const SocialShare = ({
           variant="outline"
           size="sm"
           onClick={() => handleShare('reddit')}
-          className="flex items-center justify-center h-12 w-12 hover:bg-orange-50 hover:border-orange-200 dark:hover:bg-orange-900/20 p-0"
+          className="flex items-center justify-center h-12 w-full hover:bg-orange-50 hover:border-orange-200 dark:hover:bg-orange-900/20 p-2"
           title="Share on Reddit"
         >
           <div className="w-5 h-5 bg-orange-500 rounded-full flex items-center justify-center">
@@ -122,10 +125,12 @@ export const SocialShare = ({
           variant="outline"
           size="sm"
           onClick={() => handleShare('facebook')}
-          className="flex items-center justify-center h-12 w-12 hover:bg-blue-50 hover:border-blue-200 dark:hover:bg-blue-900/20 p-0"
+          className="flex items-center justify-center h-12 w-full hover:bg-blue-50 hover:border-blue-200 dark:hover:bg-blue-900/20 p-2"
           title="Share on Facebook"
         >
-          <siFacebook className="w-5 h-5 text-blue-600" />
+          <svg className="w-5 h-5 text-blue-600" viewBox="0 0 24 24" fill="currentColor">
+            <path d={siFacebook.path} />
+          </svg>
         </Button>
 
         {/* WhatsApp */}
@@ -133,7 +138,7 @@ export const SocialShare = ({
           variant="outline"
           size="sm"
           onClick={() => handleShare('whatsapp')}
-          className="flex items-center justify-center h-12 w-12 hover:bg-green-50 hover:border-green-200 dark:hover:bg-green-900/20 p-0"
+          className="flex items-center justify-center h-12 w-full hover:bg-green-50 hover:border-green-200 dark:hover:bg-green-900/20 p-2"
           title="Share on WhatsApp"
         >
           <MessageCircle className="w-5 h-5 text-green-600" />
@@ -144,7 +149,7 @@ export const SocialShare = ({
           variant="outline"
           size="sm"
           onClick={handleCopyLink}
-          className={`flex items-center justify-center h-12 w-12 transition-colors p-0 ${
+          className={`flex items-center justify-center h-12 w-full transition-colors p-2 ${
             copied
               ? 'bg-green-50 border-green-200 text-green-700 dark:bg-green-900/20 dark:border-green-700 dark:text-green-400'
               : 'hover:bg-gray-50 hover:border-gray-200 dark:hover:bg-gray-800'
@@ -163,7 +168,7 @@ export const SocialShare = ({
           variant="outline"
           size="sm"
           onClick={() => handleShare('email')}
-          className="flex items-center justify-center h-12 w-12 hover:bg-gray-50 hover:border-gray-200 dark:hover:bg-gray-800 p-0"
+          className="flex items-center justify-center h-12 w-full hover:bg-gray-50 hover:border-gray-200 dark:hover:bg-gray-800 p-2"
           title="Share via Email"
         >
           <Mail className="w-5 h-5 text-gray-600" />
