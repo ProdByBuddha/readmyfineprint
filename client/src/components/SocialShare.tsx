@@ -1,6 +1,7 @@
 
 import { useState } from "react";
-import { Share2, Copy, Check, Facebook, Twitter, MessageCircle, Mail, Linkedin } from "lucide-react";
+import { Share2, Copy, Check, MessageCircle, Mail } from "lucide-react";
+import { siFacebook, siTwitter, siLinkedin } from "simple-icons";
 import { Button } from "@/components/ui/button";
 
 interface SocialShareProps {
@@ -89,7 +90,7 @@ export const SocialShare = ({
           className="flex items-center justify-center h-12 w-12 hover:bg-blue-50 hover:border-blue-200 dark:hover:bg-blue-900/20 p-0"
           title="Share on Twitter"
         >
-          <Twitter className="w-5 h-5 text-blue-500" />
+          <siTwitter className="w-5 h-5 text-blue-500" />
         </Button>
 
         {/* LinkedIn */}
@@ -100,7 +101,7 @@ export const SocialShare = ({
           className="flex items-center justify-center h-12 w-12 hover:bg-blue-50 hover:border-blue-200 dark:hover:bg-blue-900/20 p-0"
           title="Share on LinkedIn"
         >
-          <Linkedin className="w-5 h-5 text-blue-700" />
+          <siLinkedin className="w-5 h-5 text-blue-700" />
         </Button>
 
         {/* Reddit */}
@@ -124,7 +125,7 @@ export const SocialShare = ({
           className="flex items-center justify-center h-12 w-12 hover:bg-blue-50 hover:border-blue-200 dark:hover:bg-blue-900/20 p-0"
           title="Share on Facebook"
         >
-          <Facebook className="w-5 h-5 text-blue-600" />
+          <siFacebook className="w-5 h-5 text-blue-600" />
         </Button>
 
         {/* WhatsApp */}
