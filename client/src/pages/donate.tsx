@@ -92,14 +92,15 @@ export default function DonatePage() {
     const lastVisit = localStorage.getItem('donationPageLastVisit');
     const now = Date.now();
     
-    // Show thank you message for canceled donations
+    // Show thank you message for canceled donations (regardless of visit history)
     if (canceled) {
       setShowThankYouMessage(true);
       // Auto-hide after 8 seconds for canceled donations
       setTimeout(() => setShowThankYouMessage(false), 8000);
     } else if (hasVisitedBefore && lastVisit) {
+      // Only show for return visits (not initial visits)
       const timeSinceLastVisit = now - parseInt(lastVisit);
-      // Show message if they return within 24 hours but after 10 seconds (reduced from 30)
+      // Show message if they return within 24 hours but after 10 seconds
       if (timeSinceLastVisit > 10000 && timeSinceLastVisit < 86400000) {
         setShowThankYouMessage(true);
         // Auto-hide after 5 seconds
@@ -107,7 +108,7 @@ export default function DonatePage() {
       }
     }
     
-    // Update visit tracking (but not for canceled page to avoid interfering with the logic)
+    // Update visit tracking for regular visits (not canceled page)
     if (!canceled) {
       localStorage.setItem('donationPageVisited', 'true');
       localStorage.setItem('donationPageLastVisit', now.toString());
