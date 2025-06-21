@@ -4,13 +4,43 @@ import { Heart, Cookie, Share2, X } from "lucide-react";
 import { SecurityBadges } from "@/components/SecurityBadges";
 import { CookieManagement } from "@/components/CookieManagement";
 import { SocialShare } from "@/components/SocialShare";
+import { useToast } from "@/hooks/use-toast";
 
 export function Footer() {
   const [showShareModal, setShowShareModal] = useState(false);
+  const { toast } = useToast();
+
+  const handleShareClick = async () => {
+    const websiteUrl = "https://readmyfineprint.com/";
+    
+    try {
+      await navigator.clipboard.writeText(websiteUrl);
+      toast({
+        title: "Link copied!",
+        description: "Website URL has been copied to your clipboard.",
+        duration: 3000,
+      });
+    } catch (err) {
+      // Fallback for older browsers
+      const textArea = document.createElement('textarea');
+      textArea.value = websiteUrl;
+      document.body.appendChild(textArea);
+      textArea.select();
+      document.execCommand('copy');
+      document.body.removeChild(textArea);
+      
+      toast({
+        title: "Link copied!",
+        description: "Website URL has been copied to your clipboard.",
+        duration: 3000,
+      });
+    }
+  };
 
       return (
     <>
-      {/* Share Modal */}
+      {/* Share Modal - Commented out for production, now using direct copy-to-clipboard */}
+      {/*
       {showShareModal && (
         <div
           className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black bg-opacity-50"
@@ -21,7 +51,6 @@ export function Footer() {
             onClick={(e) => e.stopPropagation()}
           >
             <div className="p-6">
-              {/* Close button */}
               <button
                 onClick={() => setShowShareModal(false)}
                 className="absolute top-4 right-4 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
@@ -29,7 +58,6 @@ export function Footer() {
                 <X className="w-5 h-5" />
               </button>
 
-              {/* Header */}
               <div className="text-center mb-6">
                 <div className="w-12 h-12 bg-blue-100 dark:bg-blue-900 rounded-full flex items-center justify-center mx-auto mb-3">
                   <Share2 className="w-6 h-6 text-blue-600 dark:text-blue-400" />
@@ -42,7 +70,6 @@ export function Footer() {
                 </p>
               </div>
 
-              {/* Social sharing component */}
               <SocialShare
                 title="ReadMyFinePrint - Making Legal Documents Accessible"
                 description="Check out this amazing platform that makes legal documents easier to understand for everyone!"
@@ -52,6 +79,7 @@ export function Footer() {
           </div>
         </div>
       )}
+      */}
 
       <footer
       id="footer"
@@ -76,7 +104,7 @@ export function Footer() {
               <Heart className="w-2 h-2 mr-0.5 text-red-500" />Donate
             </Link>
             <button
-              onClick={() => setShowShareModal(true)}
+              onClick={handleShareClick}
               className="text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 flex items-center flex-shrink-0 h-4"
             >
               <Share2 className="w-2 h-2 mr-0.5" />Share
@@ -129,7 +157,7 @@ export function Footer() {
               Donate
             </Link>
             <button
-              onClick={() => setShowShareModal(true)}
+              onClick={handleShareClick}
               className="text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white transition-all duration-300 ease-in-out inline-flex items-center"
             >
               <Share2 className="w-3 h-3 mr-1" aria-hidden="true" />
