@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useNavigate, useSearchParams } from 'react-router-dom';
+import { useLocation } from 'wouter';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -10,8 +10,8 @@ import { SocialShare } from "@/components/SocialShare";
 import StripePaymentForm from "@/components/StripePaymentForm";
 
 export default function DonatePage() {
-  const [searchParams] = useSearchParams();
-  const navigate = useNavigate();
+  const [location] = useLocation();
+  const searchParams = new URLSearchParams(location.split('?')[1] || '');
   const [customAmount, setCustomAmount] = useState('');
   const [selectedAmount, setSelectedAmount] = useState<number | null>(null);
   const [paymentSuccess, setPaymentSuccess] = useState(false);
@@ -85,7 +85,7 @@ export default function DonatePage() {
               Your support helps us keep legal documents accessible for everyone.
             </p>
             <div className="space-y-4">
-              <Button onClick={() => navigate('/')} className="w-full">
+              <Button onClick={() => window.location.href = '/'} className="w-full">
                 <ArrowLeft className="w-4 h-4 mr-2" />
                 Return to Home
               </Button>
@@ -148,7 +148,7 @@ export default function DonatePage() {
             )}
 
             <div className="space-y-3">
-              <Button onClick={() => navigate('/')} className="w-full">
+              <Button onClick={() => window.location.href = '/'} className="w-full">
                 <ArrowLeft className="w-4 h-4 mr-2" />
                 Return to Home
               </Button>
