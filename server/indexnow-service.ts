@@ -1,4 +1,3 @@
-
 import { z } from "zod";
 import { securityLogger } from "./security-logger";
 
@@ -8,6 +7,12 @@ const indexNowSubmissionSchema = z.object({
   key: z.string(),
   urlList: z.array(z.string().url()).max(10000) // IndexNow limit is 10,000 URLs
 });
+
+interface IndexNowSubmission {
+  host: string;
+  key: string;
+  urlList: string[];
+}
 
 interface IndexNowResponse {
   success: boolean;
@@ -20,7 +25,7 @@ interface IndexNowResponse {
 class IndexNowService {
   private readonly verificationKey: string;
   private readonly baseHost: string;
-  
+
   // Supported search engines and their IndexNow endpoints
   private readonly searchEngines = {
     bing: 'https://api.indexnow.org/indexnow',
@@ -39,7 +44,7 @@ class IndexNowService {
    */
   private getAllPublicUrls(): string[] {
     const baseUrl = `https://${this.baseHost}`;
-    
+
     return [
       `${baseUrl}/`,
       `${baseUrl}/privacy`,
@@ -83,7 +88,7 @@ class IndexNowService {
       });
 
       const success = response.status === 200 || response.status === 202;
-      
+
       // Log the submission
       securityLogger.logSecurityEvent({
         eventType: "API_ACCESS" as any,
@@ -107,121 +112,45 @@ class IndexNowService {
         submittedUrls: urls.length,
         error: success ? undefined : `HTTP ${response.status}: ${response.statusText}`
       };
-
     } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
-      
-      securityLogger.logSecurityEvent({
-        eventType: "API_ACCESS" as any,
-        severity: "MEDIUM" as any,
-        message: `IndexNow submission to ${searchEngine} failed: ${errorMessage}`,
-        ip: 'server',
-        userAgent: 'ReadMyFinePrint-IndexNow/1.0',
-        endpoint: endpoint,
-        details: { 
-          searchEngine,
-          error: errorMessage,
-          urlCount: urls.length
-        }
-      });
-
+      console.error(`❌ IndexNow: Error submitting to ${searchEngine}:`, error);
       return {
         success: false,
         searchEngine,
         statusCode: 0,
         submittedUrls: 0,
-        error: errorMessage
+        error: error instanceof Error ? error.message : 'Unknown error'
       };
     }
   }
 
   /**
-   * Submit all URLs to all supported search engines
+   * Submit URLs to all search engines
    */
-  async submitAllUrls(): Promise<IndexNowResponse[]> {
-    const urls = this.getAllPublicUrls();
-    const results: IndexNowResponse[] = [];
-
-    console.log(`🔄 Starting IndexNow submission for ${urls.length} URLs...`);
-
-    // Submit to each search engine in parallel
-    const submissions = Object.entries(this.searchEngines).map(([name, endpoint]) =>
-      this.submitToSearchEngine(name, endpoint, urls)
+  async submitUrls(urls: string[]): Promise<IndexNowResponse[]> {
+    const promises = Object.entries(this.searchEngines).map(([engine, endpoint]) =>
+      this.submitToSearchEngine(engine, endpoint, urls)
     );
 
-    const responses = await Promise.allSettled(submissions);
-
-    responses.forEach((response, index) => {
-      const searchEngine = Object.keys(this.searchEngines)[index];
-      
-      if (response.status === 'fulfilled') {
-        results.push(response.value);
-        
-        if (response.value.success) {
-          console.log(`✅ IndexNow: Successfully submitted ${response.value.submittedUrls} URLs to ${searchEngine}`);
-        } else {
-          console.log(`❌ IndexNow: Failed to submit to ${searchEngine}: ${response.value.error}`);
-        }
-      } else {
-        console.log(`❌ IndexNow: Submission to ${searchEngine} threw an error: ${response.reason}`);
-        results.push({
-          success: false,
-          searchEngine,
-          statusCode: 0,
-          submittedUrls: 0,
-          error: `Promise rejected: ${response.reason}`
-        });
-      }
-    });
-
-    const successCount = results.filter(r => r.success).length;
-    const totalEngines = results.length;
-    
-    console.log(`📊 IndexNow Summary: ${successCount}/${totalEngines} search engines notified successfully`);
-
-    return results;
+    return Promise.all(promises);
   }
 
   /**
-   * Submit specific URLs (for when content is updated)
+   * Submit all public URLs to search engines
    */
-  async submitSpecificUrls(urls: string[]): Promise<IndexNowResponse[]> {
-    if (urls.length === 0) {
-      return [];
-    }
+  async submitAllUrls(): Promise<IndexNowResponse[]> {
+    const allUrls = this.getAllPublicUrls();
+    return this.submitUrls(allUrls);
+  }
 
-    if (urls.length > 10000) {
-      throw new Error('Cannot submit more than 10,000 URLs at once');
-    }
+  /**
+   * Trigger submission when content changes
+   */
+  async notifyContentChange(changedUrls?: string[]): Promise<void> {
+    const urlsToSubmit = changedUrls || this.getAllPublicUrls();
 
-    console.log(`🔄 Starting IndexNow submission for ${urls.length} specific URLs...`);
-
-    const results: IndexNowResponse[] = [];
-
-    // Submit to each search engine
-    const submissions = Object.entries(this.searchEngines).map(([name, endpoint]) =>
-      this.submitToSearchEngine(name, endpoint, urls)
-    );
-
-    const responses = await Promise.allSettled(submissions);
-
-    responses.forEach((response, index) => {
-      const searchEngine = Object.keys(this.searchEngines)[index];
-      
-      if (response.status === 'fulfilled') {
-        results.push(response.value);
-      } else {
-        results.push({
-          success: false,
-          searchEngine,
-          statusCode: 0,
-          submittedUrls: 0,
-          error: `Promise rejected: ${response.reason}`
-        });
-      }
-    });
-
-    return results;
+    console.log(`🔄 IndexNow: Notifying search engines of content changes (${urlsToSubmit.length} URLs)`);
+    await this.submitUrls(urlsToSubmit);
   }
 
   /**
@@ -229,132 +158,12 @@ class IndexNowService {
    */
   getSubmissionStats() {
     return {
-      verificationKey: this.verificationKey,
       baseHost: this.baseHost,
-      supportedEngines: Object.keys(this.searchEngines),
+      verificationKey: this.verificationKey,
+      keyFileLocation: `https://${this.baseHost}/${this.verificationKey}.txt`,
       totalPublicUrls: this.getAllPublicUrls().length,
-      keyFileLocation: `https://${this.baseHost}/${this.verificationKey}.txt`
+      supportedEngines: Object.keys(this.searchEngines)
     };
-  }
-}
-
-export const indexNowService = new IndexNowService();
-import crypto from 'crypto';
-import { securityLogger } from './security-logger';
-
-interface IndexNowSubmission {
-  host: string;
-  key: string;
-  urlList: string[];
-}
-
-class IndexNowService {
-  private readonly baseUrl = 'https://readmyfineprint.com';
-  private readonly indexNowKey = 'e3d1f7b82a904bd19f450d1e76c48a27';
-  private readonly keyLocation = `${this.baseUrl}/${this.indexNowKey}.txt`;
-  
-  // Search engines that support IndexNow
-  private readonly searchEngines = [
-    'https://bing.com/indexnow',
-    'https://yandex.com/indexnow',
-    'https://search.seznam.cz/indexnow',
-    'https://naver.com/indexnow'
-  ];
-
-  // All public URLs on your site
-  private readonly allUrls = [
-    `${this.baseUrl}/`,
-    `${this.baseUrl}/privacy`,
-    `${this.baseUrl}/terms`,
-    `${this.baseUrl}/cookies`,
-    `${this.baseUrl}/donate`,
-    `${this.baseUrl}/roadmap`,
-    `${this.baseUrl}/sitemap.xml`,
-    `${this.baseUrl}/robots.txt`,
-    `${this.baseUrl}/manifest.json`,
-    `${this.baseUrl}/${this.indexNowKey}.txt`
-  ];
-
-  /**
-   * Submit a single URL to all search engines
-   */
-  async submitUrl(url: string): Promise<void> {
-    await this.submitUrls([url]);
-  }
-
-  /**
-   * Submit multiple URLs to all search engines
-   */
-  async submitUrls(urls: string[]): Promise<void> {
-    const submission: IndexNowSubmission = {
-      host: 'readmyfineprint.com',
-      key: this.indexNowKey,
-      urlList: urls
-    };
-
-    const promises = this.searchEngines.map(engineUrl => 
-      this.submitToEngine(engineUrl, submission)
-    );
-
-    await Promise.allSettled(promises);
-  }
-
-  /**
-   * Submit all public URLs to search engines
-   */
-  async submitAllUrls(): Promise<void> {
-    await this.submitUrls(this.allUrls);
-  }
-
-  /**
-   * Submit to a specific search engine
-   */
-  private async submitToEngine(engineUrl: string, submission: IndexNowSubmission): Promise<void> {
-    try {
-      const response = await fetch(engineUrl, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'User-Agent': 'ReadMyFinePrint/1.0 (+https://readmyfineprint.com/)'
-        },
-        body: JSON.stringify(submission)
-      });
-
-      const engineName = new URL(engineUrl).hostname;
-      
-      if (response.ok) {
-        securityLogger.logSecurityEvent({
-          eventType: "API_ACCESS" as any,
-          severity: "LOW" as any,
-          message: `IndexNow submission successful to ${engineName}`,
-          ip: 'server',
-          userAgent: 'IndexNow-Service',
-          endpoint: engineUrl,
-          details: { 
-            urlCount: submission.urlList.length,
-            statusCode: response.status,
-            engine: engineName
-          }
-        });
-        
-        console.log(`✅ IndexNow: Successfully submitted ${submission.urlList.length} URLs to ${engineName}`);
-      } else {
-        console.warn(`⚠️ IndexNow: Failed to submit to ${engineName} (${response.status})`);
-      }
-    } catch (error) {
-      const engineName = new URL(engineUrl).hostname;
-      console.error(`❌ IndexNow: Error submitting to ${engineName}:`, error);
-    }
-  }
-
-  /**
-   * Trigger submission when content changes
-   */
-  async notifyContentChange(changedUrls?: string[]): Promise<void> {
-    const urlsToSubmit = changedUrls || this.allUrls;
-    
-    console.log(`🔄 IndexNow: Notifying search engines of content changes (${urlsToSubmit.length} URLs)`);
-    await this.submitUrls(urlsToSubmit);
   }
 
   /**
@@ -362,9 +171,9 @@ class IndexNowService {
    */
   getStatus() {
     return {
-      keyLocation: this.keyLocation,
-      supportedEngines: this.searchEngines.length,
-      monitoredUrls: this.allUrls.length,
+      keyLocation: `https://${this.baseHost}/${this.verificationKey}.txt`,
+      supportedEngines: Object.keys(this.searchEngines).length,
+      monitoredUrls: this.getAllPublicUrls().length,
       lastSubmission: new Date().toISOString()
     };
   }
