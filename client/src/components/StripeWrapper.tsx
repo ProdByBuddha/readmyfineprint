@@ -82,7 +82,7 @@ export function StripeWrapper({ children }: StripeWrapperProps) {
   }, []);
 
   const handleRetry = () => {
-    initializeStripe();
+    initializeStripe(1);
   };
 
   if (loading) {
@@ -91,14 +91,11 @@ export function StripeWrapper({ children }: StripeWrapperProps) {
         <CardContent className="p-6">
           <div className="flex items-center justify-center space-x-2">
             <Loader2 className="h-4 w-4 animate-spin" />
-            <span>
-              Loading secure payment processor
-              {retryCount > 0 && ` (retry ${retryCount}/3)`}...
-            </span>
+            <span>Loading secure payment processor...</span>
           </div>
           {retryCount > 0 && (
             <div className="text-center mt-2 text-sm text-muted-foreground">
-              Network connectivity may be limited. Retrying...
+              Retry attempt {retryCount}/3...
             </div>
           )}
         </CardContent>
@@ -112,30 +109,20 @@ export function StripeWrapper({ children }: StripeWrapperProps) {
         <CardContent className="p-6">
           <Alert variant="destructive">
             <AlertCircle className="h-4 w-4" />
-            <AlertDescription className="mb-4">
-              <div className="font-medium mb-2">Payment processor failed to load</div>
-              <div className="text-sm">{error}</div>
-              
-              {error.includes("timeout") || error.includes("Network") ? (
-                <div className="mt-2 text-sm">
-                  This may be due to network restrictions in the development environment.
-                  The payment system will work properly in production.
-                </div>
-              ) : null}
+            <AlertDescription>
+              <div className="font-medium mb-1">Payment System Error</div>
+              <div className="text-sm mb-3">{error}</div>
+              <Button 
+                onClick={handleRetry}
+                variant="outline"
+                size="sm"
+                className="flex items-center space-x-2"
+              >
+                <RefreshCw className="w-4 h-4" />
+                <span>Retry</span>
+              </Button>
             </AlertDescription>
           </Alert>
-          
-          <div className="flex justify-center mt-4">
-            <Button 
-              variant="outline" 
-              size="sm" 
-              onClick={handleRetry}
-              className="flex items-center space-x-2"
-            >
-              <RefreshCw className="h-4 w-4" />
-              <span>Retry Loading</span>
-            </Button>
-          </div>
         </CardContent>
       </Card>
     );
