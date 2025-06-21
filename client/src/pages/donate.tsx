@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { useLocation } from 'wouter';
 import { Button } from "@/components/ui/button";
@@ -5,7 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { CheckCircle, Heart, ArrowLeft, ExternalLink } from "lucide-react";
+import { CheckCircle, Heart, ArrowLeft } from "lucide-react";
 import { SocialShare } from "@/components/SocialShare";
 import StripePaymentForm from "@/components/StripePaymentForm";
 
@@ -163,7 +164,7 @@ export default function DonatePage() {
   }
 
   return (
-    <div className="container mx-auto px-4 py-8 max-w-4xl">
+    <div className="container mx-auto px-4 py-8 max-w-2xl">
       <div className="text-center mb-8">
         <h1 className="text-3xl font-bold mb-4 flex items-center justify-center gap-2">
           <Heart className="w-8 h-8 text-red-500" />
@@ -174,82 +175,58 @@ export default function DonatePage() {
         </p>
       </div>
 
-      <div className="grid md:grid-cols-2 gap-8">
-        <Card>
-          <CardHeader>
-            <CardTitle>Choose Your Donation Amount</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-6">
-            <div className="grid grid-cols-2 gap-3">
-              {predefinedAmounts.map((amount) => (
-                <Button
-                  key={amount}
-                  variant={selectedAmount === amount ? "default" : "outline"}
-                  onClick={() => handleAmountSelect(amount)}
-                  className="h-12"
-                >
-                  ${amount}
-                </Button>
-              ))}
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="custom-amount">Custom Amount</Label>
-              <div className="relative">
-                <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500">$</span>
-                <Input
-                  id="custom-amount"
-                  type="number"
-                  placeholder="Enter amount"
-                  value={customAmount}
-                  onChange={(e) => handleCustomAmountChange(e.target.value)}
-                  className="pl-8"
-                  min="1"
-                  step="0.01"
-                />
-              </div>
-            </div>
-
-            {paymentError && (
-              <Alert variant="destructive">
-                <AlertDescription>{paymentError}</AlertDescription>
-              </Alert>
-            )}
-
-            <div className="pt-4 border-t">
-              <h3 className="font-semibold mb-3">Alternative Ways to Support</h3>
-              <div className="space-y-2">
-                <Button
-                  onClick={() => window.open('https://paypal.me/readmyfineprint', '_blank')}
-                  variant="outline"
-                  className="w-full justify-start"
-                >
-                  <ExternalLink className="w-4 h-4 mr-2" />
-                  Donate via PayPal
-                </Button>
-                <Button
-                  onClick={() => window.open('https://ko-fi.com/readmyfineprint', '_blank')}
-                  variant="outline"
-                  className="w-full justify-start"
-                >
-                  <ExternalLink className="w-4 h-4 mr-2" />
-                  Support on Ko-fi
-                </Button>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-
-        {selectedAmount && selectedAmount > 0 && (
-          <div>
-            <StripePaymentForm
-              amount={selectedAmount}
-              onSuccess={handlePaymentSuccess}
-              onError={handlePaymentError}
-            />
+      <Card>
+        <CardHeader>
+          <CardTitle>Choose Your Donation Amount</CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-6">
+          <div className="grid grid-cols-2 gap-3">
+            {predefinedAmounts.map((amount) => (
+              <Button
+                key={amount}
+                variant={selectedAmount === amount ? "default" : "outline"}
+                onClick={() => handleAmountSelect(amount)}
+                className="h-12"
+              >
+                ${amount}
+              </Button>
+            ))}
           </div>
-        )}
-      </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="custom-amount">Custom Amount</Label>
+            <div className="relative">
+              <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500">$</span>
+              <Input
+                id="custom-amount"
+                type="number"
+                placeholder="Enter amount"
+                value={customAmount}
+                onChange={(e) => handleCustomAmountChange(e.target.value)}
+                className="pl-8"
+                min="1"
+                step="0.01"
+              />
+            </div>
+          </div>
+
+          {paymentError && (
+            <Alert variant="destructive">
+              <AlertDescription>{paymentError}</AlertDescription>
+            </Alert>
+          )}
+
+          {selectedAmount && selectedAmount > 0 && (
+            <div className="pt-6 border-t">
+              <StripePaymentForm
+                amount={selectedAmount}
+                onSuccess={handlePaymentSuccess}
+                onError={handlePaymentError}
+              />
+            </div>
+          )}
+        </CardContent>
+      </Card>
 
       <div className="mt-8 text-center">
         <Card>
