@@ -23,6 +23,8 @@ import Donate from "@/pages/donate";
 import Roadmap from "@/pages/roadmap";
 import Subscription from "@/pages/subscription";
 import NotFound from "@/pages/not-found";
+import { setupAutoSubmission } from "./lib/indexnow";
+import React, { useEffect } from 'react';
 
 function Router() {
   return (
@@ -53,6 +55,11 @@ function App() {
   useFocusVisible();
   useReducedMotion();
   useHighContrast();
+
+    // Set up automatic IndexNow submissions
+  useEffect(() => {
+    setupAutoSubmission();
+  }, []);
 
   return (
     <QueryClientProvider client={queryClient}>

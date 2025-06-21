@@ -15,6 +15,7 @@ import Stripe from "stripe";
 import { securityAlertManager } from './security-alert';
 import { emailService } from './email-service';
 import { registerUserRoutes } from './user-routes';
+import { indexNowService } from './indexnow-service';
 
 // Initialize Stripe
 if (!process.env.STRIPE_SECRET_KEY) {
@@ -463,6 +464,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
               timestamp: new Date()
             });
           }
+
+          // Notify search engines that donation page might have updated stats
+          try {
+            await indexNowService.submitUrl('https://readmyfineprint.com/donate');
+          } catch (error) {
+            console.warn('IndexNow submission failed after payment:', error);
+          }
           break;
 
         default:
@@ -662,6 +670,35 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error("Error getting file types:", error);
       res.status(500).json({ error: "Failed to get file type information" });
+    }
+  });
+
+  // IndexNow submission endpoint
+  app.post("/api/indexnow/submit", async (req, res) => {
+    try {
+      const { urls } = req.body;
+      
+      if (urls && Array.isArray(urls)) {
+        await indexNowService.submitUrls(urls);
+        res.json({ success: true, message: `Submitted ${urls.length} URLs to search engines` });
+      } else {
+        await indexNowService.submitAllUrls();
+        res.json({ success: true, message: 'Submitted all URLs to search engines' });
+      }
+    } catch (error) {
+      console.error("IndexNow submission error:", error);
+      res.status(500).json({ error: "Failed to submit URLs to search engines" });
+    }
+  });
+
+  // IndexNow status endpoint
+  app.get("/api/indexnow/status", (req, res) => {
+    try {
+      const status = indexNowService.getStatus();
+      res.json(status);
+    } catch (error) {
+      console.error("IndexNow status error:", error);
+      res.status(500).json({ error: "Failed to get IndexNow status" });
     }
   });
 
