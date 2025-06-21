@@ -24,14 +24,14 @@ export interface SEOConfig {
 
 export const defaultSEO: SEOConfig = {
   title: 'ReadMyFinePrint - Advanced Legal Document Analysis',
-  description: 'Transform complex legal documents into accessible summaries with advanced analysis. Upload your contracts, terms of service, and legal documents for instant insights. No legal degree required.',
+  description: 'Transform complex legal documents into accessible summaries with AI analysis. Upload contracts and legal documents for instant insights.',
   keywords: 'legal document analysis, contract review, AI legal assistant, document summary, terms of service analysis, legal tech, contract analyzer, document AI',
   canonical: 'https://readmyfineprint.com/',
   ogTitle: 'ReadMyFinePrint - Advanced Legal Document Analysis',
-  ogDescription: 'Transform complex legal documents into accessible summaries with advanced analysis. Upload your contracts, terms of service, and legal documents for instant insights.',
+  ogDescription: 'Transform complex legal documents into accessible summaries with AI analysis. Upload contracts and legal documents for instant insights.',
   ogImage: 'https://readmyfineprint.com/og-image.png',
   twitterTitle: 'ReadMyFinePrint - Advanced Legal Document Analysis',
-  twitterDescription: 'Transform complex legal documents into accessible summaries with advanced analysis. Upload your contracts, terms of service, and legal documents for instant insights.',
+  twitterDescription: 'Transform complex legal documents into accessible summaries with AI analysis. Upload contracts and legal documents for instant insights.',
   twitterImage: 'https://readmyfineprint.com/og-image.png',
 };
 
