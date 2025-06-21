@@ -19,7 +19,9 @@
     "security:verify": "node scripts/verify-security.js",
     "security:audit": "npm audit && npm outdated",
     "subscription:init": "node scripts/init-subscriptions.js",
-    "subscription:init:prod": "node scripts/init-subscriptions.js --production"
+    "subscription:init:prod": "node scripts/init-subscriptions.js --production",
+    "indexnow:submit": "node scripts/submit-indexnow.js",
+    "indexnow:help": "node scripts/submit-indexnow.js help"
   },
   "dependencies": {
     "@axe-core/react": "^4.10.2",

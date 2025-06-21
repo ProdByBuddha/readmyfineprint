@@ -875,6 +875,95 @@ export async function registerRoutes(app: Express): Promise<Server> {
     });
   });
 
+  // IndexNow endpoints for automated search engine submission
+  app.post("/api/indexnow/submit-all", requireAdminAuth, async (req, res) => {
+    try {
+      const { indexNowService } = await import("./indexnow-service");
+      const results = await indexNowService.submitAllUrls();
+      
+      const successCount = results.filter(r => r.success).length;
+      const totalEngines = results.length;
+      
+      res.json({
+        success: successCount > 0,
+        message: `Submitted to ${successCount}/${totalEngines} search engines`,
+        results,
+        stats: indexNowService.getSubmissionStats()
+      });
+    } catch (error) {
+      console.error('IndexNow submission failed:', error);
+      res.status(500).json({ 
+        error: 'Failed to submit URLs to search engines',
+        message: error instanceof Error ? error.message : 'Unknown error'
+      });
+    }
+  });
+
+  app.post("/api/indexnow/submit-urls", requireAdminAuth, async (req, res) => {
+    try {
+      const { urls } = req.body;
+      
+      if (!Array.isArray(urls) || urls.length === 0) {
+        return res.status(400).json({ error: 'urls array is required and must not be empty' });
+      }
+
+      if (urls.length > 10000) {
+        return res.status(400).json({ error: 'Cannot submit more than 10,000 URLs at once' });
+      }
+
+      const { indexNowService } = await import("./indexnow-service");
+      const results = await indexNowService.submitSpecificUrls(urls);
+      
+      const successCount = results.filter(r => r.success).length;
+      const totalEngines = results.length;
+      
+      res.json({
+        success: successCount > 0,
+        message: `Submitted ${urls.length} URLs to ${successCount}/${totalEngines} search engines`,
+        results,
+        submittedUrls: urls
+      });
+    } catch (error) {
+      console.error('IndexNow specific URL submission failed:', error);
+      res.status(500).json({ 
+        error: 'Failed to submit specific URLs to search engines',
+        message: error instanceof Error ? error.message : 'Unknown error'
+      });
+    }
+  });
+
+  app.get("/api/indexnow/stats", requireAdminAuth, async (req, res) => {
+    try {
+      const { indexNowService } = await import("./indexnow-service");
+      const stats = indexNowService.getSubmissionStats();
+      res.json(stats);
+    } catch (error) {
+      console.error('Failed to get IndexNow stats:', error);
+      res.status(500).json({ error: 'Failed to get IndexNow statistics' });
+    }
+  });
+
+  // Auto-submit to IndexNow when sitemap is updated (webhook style)
+  app.post("/api/indexnow/auto-submit", async (req, res) => {
+    try {
+      // This can be called automatically when content changes
+      const { indexNowService } = await import("./indexnow-service");
+      
+      // Submit all URLs automatically
+      const results = await indexNowService.submitAllUrls();
+      const successCount = results.filter(r => r.success).length;
+      
+      res.json({
+        success: successCount > 0,
+        message: `Auto-submitted to ${successCount} search engines`,
+        timestamp: new Date().toISOString()
+      });
+    } catch (error) {
+      console.error('Auto IndexNow submission failed:', error);
+      res.status(500).json({ error: 'Auto-submission failed' });
+    }
+  });
+
   // Register user management routes
   registerUserRoutes(app);
 
