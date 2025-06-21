@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useLocation } from 'wouter';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -78,12 +78,34 @@ export default function DonatePage() {
   const [paymentSuccess, setPaymentSuccess] = useState(false);
   const [paymentError, setPaymentError] = useState<string | null>(null);
   const [showSocialShare, setShowSocialShare] = useState(false);
+  const [showThankYouMessage, setShowThankYouMessage] = useState(false);
 
   const success = searchParams.get('success') === 'true';
   const canceled = searchParams.get('canceled') === 'true';
   const amount = searchParams.get('amount');
 
   const predefinedAmounts = [5, 10, 25, 50, 100];
+
+  // Check if user is returning to donation page and show thank you message
+  useEffect(() => {
+    const hasVisitedBefore = localStorage.getItem('donationPageVisited');
+    const lastVisit = localStorage.getItem('donationPageLastVisit');
+    const now = Date.now();
+    
+    if (hasVisitedBefore && lastVisit) {
+      const timeSinceLastVisit = now - parseInt(lastVisit);
+      // Show message if they return within 24 hours but after 30 seconds
+      if (timeSinceLastVisit > 30000 && timeSinceLastVisit < 86400000) {
+        setShowThankYouMessage(true);
+        // Auto-hide after 5 seconds
+        setTimeout(() => setShowThankYouMessage(false), 5000);
+      }
+    }
+    
+    // Update visit tracking
+    localStorage.setItem('donationPageVisited', 'true');
+    localStorage.setItem('donationPageLastVisit', now.toString());
+  }, []);
 
   const handleAmountSelect = (amount: number) => {
     setSelectedAmount(amount);
@@ -224,16 +246,17 @@ export default function DonatePage() {
   }
 
   return (
-    <div className="container mx-auto px-4 py-8 max-w-2xl">
-      <div className="text-center mb-8">
-        <h1 className="text-3xl font-bold mb-4 flex items-center justify-center gap-2">
-          <Heart className="w-8 h-8 text-red-500" />
-          Support Our Mission
-        </h1>
-        <p className="text-lg text-gray-600 dark:text-gray-400">
-          Help us keep legal documents accessible and understandable for everyone
-        </p>
-      </div>
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
+      <div className="container mx-auto px-4 py-8 max-w-2xl">
+        <div className="text-center mb-8">
+          <h1 className="text-3xl font-bold mb-4 flex items-center justify-center gap-2 text-gray-900 dark:text-white">
+            <Heart className="w-8 h-8 text-red-500" />
+            Support Our Mission
+          </h1>
+          <p className="text-lg text-gray-600 dark:text-gray-300">
+            Help us keep legal documents accessible and understandable for everyone
+          </p>
+        </div>
 
       <Card>
         <CardHeader>
@@ -287,6 +310,35 @@ export default function DonatePage() {
         </CardContent>
       </Card>
 
+      {/* Thank You for Considering Message */}
+      {showThankYouMessage && (
+        <div className="fixed top-4 right-4 z-50 max-w-sm">
+          <div className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow-lg p-4 animate-in slide-in-from-right-5">
+            <div className="flex items-start gap-3">
+              <div className="flex-shrink-0">
+                <Heart className="w-5 h-5 text-red-500 mt-0.5" />
+              </div>
+              <div className="flex-1">
+                <h4 className="text-sm font-semibold text-gray-900 dark:text-white mb-1">
+                  Thank you for considering!
+                </h4>
+                <p className="text-xs text-gray-600 dark:text-gray-300">
+                  Every contribution helps us keep legal documents accessible for everyone.
+                </p>
+              </div>
+              <button
+                onClick={() => setShowThankYouMessage(false)}
+                className="flex-shrink-0 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-colors"
+              >
+                <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                  <path fillRule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clipRule="evenodd" />
+                </svg>
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       <div className="mt-8 text-center">
         <Card>
           <CardContent className="p-6">
@@ -313,6 +365,7 @@ export default function DonatePage() {
             </div>
           </CardContent>
         </Card>
+      </div>
       </div>
     </div>
   );
