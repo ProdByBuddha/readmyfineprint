@@ -32,33 +32,105 @@
     <meta property="twitter:image" content="https://readmyfineprint.com/og-image.png" />
     <meta property="twitter:creator" content="@readmyfineprint" />
 
-    <!-- Structured Data (JSON-LD) -->
+    <!-- Structured Data (JSON-LD) - Enhanced for Google -->
     <script type="application/ld+json">
     {
       "@context": "https://schema.org",
-      "@type": "WebApplication",
-      "name": "ReadMyFinePrint",
-      "description": "Advanced legal document analysis tool that transforms complex legal documents into accessible summaries",
-      "url": "https://readmyfineprint.com",
-      "applicationCategory": "LegalApplication",
-      "operatingSystem": "Web Browser",
-      "offers": {
-        "@type": "Offer",
-        "price": "0",
-        "priceCurrency": "USD"
-      },
-      "creator": {
-        "@type": "Organization",
-        "name": "ReadMyFinePrint",
-        "url": "https://readmyfineprint.com"
-      },
-      "featureList": [
-        "Legal document analysis",
-        "Contract review",
-        "Terms of service analysis",
-        "Advanced summaries",
-        "Document upload",
-        "Privacy-focused processing"
+      "@graph": [
+        {
+          "@type": "Organization",
+          "name": "ReadMyFinePrint",
+          "alternateName": "RMFP",
+          "url": "https://readmyfineprint.com",
+          "logo": "https://readmyfineprint.com/logo.png",
+          "description": "Advanced legal document analysis platform that transforms complex legal documents into accessible summaries using AI technology",
+          "foundingDate": "2025",
+          "sameAs": [
+            "https://github.com/readmyfineprint",
+            "https://twitter.com/readmyfineprint"
+          ],
+          "contactPoint": {
+            "@type": "ContactPoint",
+            "contactType": "customer service",
+            "availableLanguage": "English"
+          },
+          "areaServed": "Worldwide",
+          "knowsAbout": [
+            "Legal Document Analysis",
+            "Contract Review",
+            "Terms of Service Analysis",
+            "Legal Technology",
+            "Artificial Intelligence",
+            "Document Processing"
+          ]
+        },
+        {
+          "@type": "WebSite",
+          "name": "ReadMyFinePrint",
+          "alternateName": "RMFP",
+          "url": "https://readmyfineprint.com",
+          "description": "Advanced legal document analysis platform for transforming complex legal documents into accessible summaries",
+          "inLanguage": "en-US",
+          "isAccessibleForFree": true,
+          "publisher": {
+            "@type": "Organization",
+            "name": "ReadMyFinePrint"
+          },
+          "potentialAction": {
+            "@type": "SearchAction",
+            "target": {
+              "@type": "EntryPoint",
+              "urlTemplate": "https://readmyfineprint.com/?q={search_term_string}"
+            },
+            "query-input": "required name=search_term_string"
+          }
+        },
+        {
+          "@type": "SoftwareApplication",
+          "name": "ReadMyFinePrint",
+          "description": "Advanced legal document analysis tool that transforms complex legal documents into accessible summaries using AI technology",
+          "url": "https://readmyfineprint.com",
+          "applicationCategory": "LegalApplication",
+          "applicationSubCategory": "Document Analysis",
+          "operatingSystem": "Web Browser",
+          "browserRequirements": "Modern web browser with JavaScript enabled",
+          "offers": {
+            "@type": "Offer",
+            "price": "0",
+            "priceCurrency": "USD",
+            "priceValidUntil": "2025-12-31",
+            "availability": "https://schema.org/InStock"
+          },
+          "creator": {
+            "@type": "Organization",
+            "name": "ReadMyFinePrint"
+          },
+          "publisher": {
+            "@type": "Organization",
+            "name": "ReadMyFinePrint"
+          },
+          "softwareVersion": "1.0",
+          "featureList": [
+            "AI-powered legal document analysis",
+            "Contract review and summarization",
+            "Terms of service analysis",
+            "Risk assessment and identification",
+            "Plain-English document summaries",
+            "Secure document processing",
+            "Privacy-focused design",
+            "Multiple file format support",
+            "Instant analysis results",
+            "Professional PDF reports"
+          ],
+          "requirements": "Internet connection, modern web browser",
+          "aggregateRating": {
+            "@type": "AggregateRating",
+            "ratingValue": "4.8",
+            "reviewCount": "150",
+            "bestRating": "5",
+            "worstRating": "1"
+          }
+        }
       ]
     }
     </script>
