@@ -6,9 +6,69 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { CheckCircle, Heart, ArrowLeft } from "lucide-react";
+import { CheckCircle, Heart, ArrowLeft, CreditCard, Loader2 } from "lucide-react";
 import { SocialShare } from "@/components/SocialShare";
-import StripePaymentForm from "@/components/StripePaymentForm";
+
+interface DonateButtonProps {
+  amount: number;
+  onError: (error: string) => void;
+}
+
+function DonateButton({ amount, onError }: DonateButtonProps) {
+  const [isProcessing, setIsProcessing] = useState(false);
+
+  const handleDonate = async () => {
+    setIsProcessing(true);
+    try {
+      // Create checkout session and redirect to Stripe
+      const response = await fetch('/api/create-checkout-session', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ amount }),
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to create checkout session');
+      }
+
+      const data = await response.json();
+
+      if (data.url) {
+        // Redirect to Stripe checkout
+        window.location.href = data.url;
+      } else {
+        throw new Error('No checkout URL received');
+      }
+    } catch (error) {
+      console.error('Donation processing failed:', error);
+      setIsProcessing(false);
+      onError(error instanceof Error ? error.message : 'Failed to process donation');
+    }
+  };
+
+  return (
+    <Button
+      disabled={isProcessing}
+      onClick={handleDonate}
+      className="w-full bg-green-600 hover:bg-green-700 text-white flex items-center justify-center space-x-2"
+      size="lg"
+    >
+      {isProcessing ? (
+        <>
+          <Loader2 className="w-4 h-4 animate-spin" />
+          <span>Processing...</span>
+        </>
+      ) : (
+        <>
+          <CreditCard className="w-4 h-4" />
+          <span>Donate ${amount.toFixed(2)}</span>
+        </>
+      )}
+    </Button>
+  );
+}
 
 export default function DonatePage() {
   const [location] = useLocation();
@@ -218,9 +278,8 @@ export default function DonatePage() {
 
           {selectedAmount && selectedAmount > 0 && (
             <div className="pt-6 border-t">
-              <StripePaymentForm
+              <DonateButton
                 amount={selectedAmount}
-                onSuccess={handlePaymentSuccess}
                 onError={handlePaymentError}
               />
             </div>
