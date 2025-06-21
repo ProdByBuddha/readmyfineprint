@@ -92,20 +92,27 @@ export default function DonatePage() {
     const lastVisit = localStorage.getItem('donationPageLastVisit');
     const now = Date.now();
     
-    if (hasVisitedBefore && lastVisit) {
+    // Show thank you message for canceled donations
+    if (canceled) {
+      setShowThankYouMessage(true);
+      // Auto-hide after 8 seconds for canceled donations
+      setTimeout(() => setShowThankYouMessage(false), 8000);
+    } else if (hasVisitedBefore && lastVisit) {
       const timeSinceLastVisit = now - parseInt(lastVisit);
-      // Show message if they return within 24 hours but after 30 seconds
-      if (timeSinceLastVisit > 30000 && timeSinceLastVisit < 86400000) {
+      // Show message if they return within 24 hours but after 10 seconds (reduced from 30)
+      if (timeSinceLastVisit > 10000 && timeSinceLastVisit < 86400000) {
         setShowThankYouMessage(true);
         // Auto-hide after 5 seconds
         setTimeout(() => setShowThankYouMessage(false), 5000);
       }
     }
     
-    // Update visit tracking
-    localStorage.setItem('donationPageVisited', 'true');
-    localStorage.setItem('donationPageLastVisit', now.toString());
-  }, []);
+    // Update visit tracking (but not for canceled page to avoid interfering with the logic)
+    if (!canceled) {
+      localStorage.setItem('donationPageVisited', 'true');
+      localStorage.setItem('donationPageLastVisit', now.toString());
+    }
+  }, [canceled]);
 
   const handleAmountSelect = (amount: number) => {
     setSelectedAmount(amount);
@@ -320,10 +327,13 @@ export default function DonatePage() {
               </div>
               <div className="flex-1">
                 <h4 className="text-sm font-semibold text-gray-900 dark:text-white mb-1">
-                  Thank you for considering!
+                  {canceled ? "Thank you for considering!" : "Thank you for considering!"}
                 </h4>
                 <p className="text-xs text-gray-600 dark:text-gray-300">
-                  Every contribution helps us keep legal documents accessible for everyone.
+                  {canceled 
+                    ? "No worries! You can donate anytime. Every contribution helps us keep legal documents accessible."
+                    : "Every contribution helps us keep legal documents accessible for everyone."
+                  }
                 </p>
               </div>
               <button
