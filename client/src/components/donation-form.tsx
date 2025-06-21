@@ -97,7 +97,7 @@ export default function DonationForm({ amount, onSuccess, onError }: DonationFor
     try {
       // Check if the API endpoint exists first
       const healthCheck = await fetch('/api/health', { method: 'GET' });
-      
+
       if (!healthCheck.ok) {
         throw new Error('Payment service is currently unavailable. Please try the external Stripe checkout link below.');
       }
@@ -149,7 +149,7 @@ export default function DonationForm({ amount, onSuccess, onError }: DonationFor
     } catch (err) {
       console.error('Donation processing error:', err);
       let errorMessage = 'An unexpected error occurred';
-      
+
       if (err instanceof Error) {
         if (err.message.includes('fetch')) {
           errorMessage = 'Network error. Please check your connection and try again.';
@@ -159,7 +159,7 @@ export default function DonationForm({ amount, onSuccess, onError }: DonationFor
           errorMessage = err.message;
         }
       }
-      
+
       onError(errorMessage);
     } finally {
       setIsProcessing(false);
