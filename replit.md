@@ -107,6 +107,14 @@ SECURITY_EMAIL_FROM=your-email@provider.com
 ```
 
 ## Recent Changes
+- **June 21, 2025**: Enhanced Google structured data and SEO optimization
+  - Added comprehensive structured data schemas (Organization, SoftwareApplication, WebSite, Service, HowTo, FAQ, Product)
+  - Enhanced meta tags with Google-specific optimization directives
+  - Updated sitemap.xml with current dates
+  - Implemented multi-schema JSON-LD for rich search results
+  - Added FAQ structured data for common legal document analysis questions
+  - Enhanced robots.txt with proper crawl directives for search engines and AI bots
+
 - **June 19, 2025**: Security hardening and environment-conditional features completed
   - Blocked access to sensitive files (.env, package.json, source code)
   - Enhanced payment endpoint validation with Zod schemas
