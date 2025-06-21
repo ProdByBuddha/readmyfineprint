@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -11,8 +10,71 @@ interface NetworkFallbackDonationProps {
   stripeError?: string;
 }
 
+interface DonateButtonProps {
+  amount: number;
+  onError: (message: string) => void;
+}
+
+function DonateButton({ amount, onError }: DonateButtonProps) {
+  const [isProcessing, setIsProcessing] = useState(false);
+
+  const handleDonate = async (amount: number) => {
+    setIsProcessing(true);
+    try {
+      // Create checkout session and redirect to Stripe
+      const response = await fetch('/api/create-checkout-session', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ amount }),
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to create checkout session');
+      }
+
+      const data = await response.json();
+
+      if (data.url) {
+        // Redirect to Stripe checkout
+        window.location.href = data.url;
+      } else {
+        throw new Error('No checkout URL received');
+      }
+    } catch (error) {
+      console.error('Donation processing failed:', error);
+      setIsProcessing(false);
+      onError(error instanceof Error ? error.message : 'Failed to process donation');
+    }
+  };
+
+  return (
+    <Button
+      disabled={isProcessing}
+      onClick={() => handleDonate(amount)}
+      className="w-full bg-green-600 hover:bg-green-700 text-white flex items-center justify-center space-x-2"
+    >
+      {isProcessing ? (
+        <>
+          <RefreshCw className="w-4 h-4 animate-spin" />
+          <span>Processing...</span>
+        </>
+      ) : (
+        <>
+          <CreditCard className="w-4 h-4" />
+          <span>Donate ${amount / 100}</span>
+        </>
+      )}
+    </Button>
+  );
+}
+
+
 export function NetworkFallbackDonation({ onRetryStripe, stripeError }: NetworkFallbackDonationProps) {
   const [showSocialShare, setShowSocialShare] = useState(false);
+  const [donationError, setDonationError] = useState<string | null>(null);
+
 
   const isNetworkError = stripeError?.includes("timeout") || 
                         stripeError?.includes("Network") ||
@@ -35,6 +97,16 @@ export function NetworkFallbackDonation({ onRetryStripe, stripeError }: NetworkF
           </AlertDescription>
         </Alert>
       )}
+
+      {donationError && (
+        <Alert variant="destructive">
+            <AlertCircle className="h-4 w-4" />
+            <AlertDescription>
+                <div className="font-medium mb-1">Donation Error</div>
+                <div className="text-sm">{donationError}</div>
+            </AlertDescription>
+        </Alert>
+    )}
 
       {onRetryStripe && (
         <Card>
@@ -78,6 +150,10 @@ export function NetworkFallbackDonation({ onRetryStripe, stripeError }: NetworkF
             </p>
 
             <div className="grid gap-4">
+              <DonateButton amount={100} onError={(message) => setDonationError(message)} />
+              <DonateButton amount={500} onError={(message) => setDonationError(message)} />
+              <DonateButton amount={1000} onError={(message) => setDonationError(message)} />
+
               <Button
                 onClick={() => window.open('https://paypal.me/readmyfineprint', '_blank')}
                 className="w-full bg-blue-600 hover:bg-blue-700 text-white flex items-center justify-center space-x-2"
@@ -126,3 +202,4 @@ export function NetworkFallbackDonation({ onRetryStripe, stripeError }: NetworkF
     </div>
   );
 }
+`
