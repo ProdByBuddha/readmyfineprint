@@ -167,6 +167,7 @@ export function addSecurityHeaders(req: Request, res: Response, next: NextFuncti
   res.setHeader('Content-Security-Policy',
     "default-src 'self'; " +
     "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://js.stripe.com https://replit.com; " +
+    "script-src-elem 'self' 'unsafe-inline' https://js.stripe.com https://replit.com; " +
     "style-src 'self' 'unsafe-inline'; " +
     "img-src 'self' data: https://img.shields.io; " +
     "connect-src 'self' https://api.openai.com https://api.stripe.com https://js.stripe.com; " +
