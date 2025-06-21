@@ -24,18 +24,41 @@ Crawl-delay: 1
 # Sitemap location
 Sitemap: https://readmyfineprint.com/sitemap.xml
 
-# Specific bot instructions
+# AI bot instructions - Allow with restrictions to minimize costs
 User-agent: GPTBot
-Disallow: /
+Allow: /
+Crawl-delay: 10
+Request-rate: 1/30s
 
 User-agent: ChatGPT-User
-Disallow: /
+Allow: /
+Crawl-delay: 10
+Request-rate: 1/30s
 
 User-agent: CCBot
-Disallow: /
+Allow: /
+Crawl-delay: 10
+Request-rate: 1/30s
 
 User-agent: anthropic-ai
-Disallow: /
+Allow: /
+Crawl-delay: 10
+Request-rate: 1/30s
+
+User-agent: Claude-Web
+Allow: /
+Crawl-delay: 10
+Request-rate: 1/30s
+
+User-agent: Bard
+Allow: /
+Crawl-delay: 10
+Request-rate: 1/30s
+
+User-agent: BingAI
+Allow: /
+Crawl-delay: 10
+Request-rate: 1/30s
 
 # Allow common SEO bots
 User-agent: Googlebot
