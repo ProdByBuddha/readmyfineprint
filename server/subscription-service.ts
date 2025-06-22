@@ -293,17 +293,29 @@ export class SubscriptionService {
     suggestedUpgrade?: SubscriptionTier;
   }> {
     try {
-      // Handle anonymous/session users gracefully
+      // Handle anonymous/session users by routing through collective free tier user
       if (userId === "anonymous" || userId.startsWith('session_')) {
-        const tier = this.getFreeTier();
+        const collectiveUserId = '00000000-0000-0000-0000-000000000001';
+        
+        // Get collective user's subscription (should be free tier)
+        const collectiveSubscription = await databaseStorage.getUserSubscription(collectiveUserId);
+        const tier = this.validateAndAssignTier(collectiveSubscription) || this.getFreeTier();
+        
+        // Get collective usage for current period
+        const currentPeriod = new Date().toISOString().slice(0, 7);
+        const collectiveUsageRecord = await databaseStorage.getUserUsage(collectiveUserId, currentPeriod);
+        
         const usage: SubscriptionUsage = {
-          documentsAnalyzed: 0,
-          tokensUsed: 0,
-          cost: 0,
+          documentsAnalyzed: collectiveUsageRecord?.documentsAnalyzed || 0,
+          tokensUsed: collectiveUsageRecord?.tokensUsed || 0,
+          cost: parseFloat(collectiveUsageRecord?.cost || '0'),
           resetDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
         };
 
+        console.log(`📊 Anonymous user routed through collective free tier (${usage.documentsAnalyzed} docs used this month)`);
+
         return {
+          subscription: collectiveSubscription,
           tier,
           usage,
           canUpgrade: false,
@@ -436,9 +448,9 @@ export class SubscriptionService {
   /**
    * Ensure the collective free tier user exists for usage tracking
    */
-  private async ensureCollectiveFreeUserExists(): Promise<void> {
+  async ensureCollectiveFreeUserExists(): Promise<void> {
     try {
-      const collectiveUserId = 'collective_free_tier_user';
+      const collectiveUserId = '00000000-0000-0000-0000-000000000001';
 
       // Check if collective user already exists
       const existingUser = await databaseStorage.getUser(collectiveUserId);
@@ -611,23 +623,30 @@ export class SubscriptionService {
    */
   async trackUsage(userId: string, tokensUsed: number, model: string): Promise<void> {
     try {
-      // Check if user exists in database first
-      const userExists = await databaseStorage.userExists(userId);
-
-      if (!userExists) {
-        console.log(`⚠️ Skipping usage tracking for session ${userId} (user not in database)`);
-        return;
+      // Route anonymous/session users through collective free tier user
+      let trackingUserId = userId;
+      
+      if (userId === "anonymous" || userId.startsWith('session_')) {
+        trackingUserId = '00000000-0000-0000-0000-000000000001';
+        console.log(`📊 Routing anonymous usage tracking through collective free tier user`);
+      } else {
+        // Check if authenticated user exists in database
+        const userExists = await databaseStorage.userExists(userId);
+        if (!userExists) {
+          console.log(`⚠️ Skipping usage tracking for unknown user ${userId} (not in database)`);
+          return;
+        }
       }
 
       // Get user's current subscription to determine tier with validation
-      const subscription = await databaseStorage.getUserSubscription(userId);
+      const subscription = await databaseStorage.getUserSubscription(trackingUserId);
       const tier = this.validateAndAssignTier(subscription);
 
       const cost = this.calculateTokenCost(tokensUsed, tier);
       const currentPeriod = new Date().toISOString().slice(0, 7); // YYYY-MM format
 
       // Get or create usage record for current period
-      let usageRecord = await databaseStorage.getUserUsage(userId, currentPeriod);
+      let usageRecord = await databaseStorage.getUserUsage(trackingUserId, currentPeriod);
 
       if (usageRecord) {
         // Update existing usage record
@@ -639,7 +658,7 @@ export class SubscriptionService {
       } else {
         // Create new usage record
         await databaseStorage.createUsageRecord({
-          userId,
+          userId: trackingUserId,
           subscriptionId: subscription?.id,
           period: currentPeriod,
           documentsAnalyzed: 1,
@@ -648,7 +667,8 @@ export class SubscriptionService {
         });
       }
 
-      console.log(`✅ Usage tracked for user ${userId}: +1 document, +${tokensUsed} tokens, +$${cost.toFixed(6)}`);
+      const userType = trackingUserId === '00000000-0000-0000-0000-000000000001' ? 'collective free tier' : 'authenticated user';
+      console.log(`✅ Usage tracked for ${userType} (${trackingUserId}): +1 document, +${tokensUsed} tokens, +$${cost.toFixed(6)}`);
     } catch (error) {
       console.error('Error tracking usage:', error);
       // Don't throw - usage tracking failures shouldn't break document analysis

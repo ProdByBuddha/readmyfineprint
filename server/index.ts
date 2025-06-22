@@ -13,6 +13,9 @@ console.log('🚀 Starting ReadMyFinePrint Server...');
 const envConfig = validateEnvironmentOrExit();
 logEnvironmentStatus();
 
+// Import subscription service for collective user initialization
+import { subscriptionService } from './subscription-service';
+
 const app = express();
 
 // Configure trust proxy securely - only trust the first proxy
@@ -242,6 +245,16 @@ app.use((req, res, next) => {
 });
 
 (async () => {
+  // Ensure collective free tier user exists for anonymous traffic routing
+  console.log('🔧 Initializing collective free tier user routing...');
+  try {
+    await subscriptionService.ensureCollectiveFreeUserExists();
+    console.log('✅ Collective free tier user routing initialized');
+  } catch (error) {
+    console.warn('⚠️ Warning: Failed to initialize collective free tier user:', error);
+    // Don't fail server startup for this
+  }
+
   const server = await registerRoutes(app);
 
   app.use((err: any, _req: Request, res: Response, _next: NextFunction) => {
