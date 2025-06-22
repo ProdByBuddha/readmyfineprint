@@ -52,9 +52,44 @@ const upload = multer({
   fileFilter: createSecureFileFilter()
 });
 
-// Basic PDF text extraction function
+// Enhanced PDF text extraction using pdf-parse
+async function extractPdfText(buffer: Buffer): Promise<string> {
+  try {
+    console.log(`🔍 Starting PDF extraction (buffer size: ${buffer.length} bytes)`);
+    
+    const data = await pdfParse(buffer);
+    
+    console.log(`📄 PDF extraction results:`);
+    console.log(`   - Pages: ${data.numpages}`);
+    console.log(`   - Text length: ${data.text.length} characters`);
+    console.log(`   - First 200 chars: "${data.text.substring(0, 200).replace(/\n/g, '\\n')}"`);
+    
+    if (!data.text || data.text.trim().length < 50) {
+      console.log(`⚠️ PDF text too short or empty, falling back to basic extraction`);
+      return await extractPdfTextBasic(buffer);
+    }
+    
+    // Clean up the extracted text
+    let cleanText = data.text
+      .replace(/\n\s*\n/g, '\n') // Remove multiple newlines
+      .replace(/\s+/g, ' ') // Normalize whitespace
+      .trim();
+    
+    console.log(`✅ PDF text extraction successful (${cleanText.length} chars after cleaning)`);
+    return cleanText;
+    
+  } catch (error) {
+    console.error('🚫 pdf-parse extraction failed:', error);
+    console.log(`⚠️ Falling back to basic PDF extraction`);
+    return await extractPdfTextBasic(buffer);
+  }
+}
+
+// Basic PDF text extraction function (fallback)
 async function extractPdfTextBasic(buffer: Buffer): Promise<string> {
   try {
+    console.log(`🔧 Using basic PDF extraction (fallback method)`);
+    
     // Convert buffer to string and look for text content
     const pdfString = buffer.toString('binary');
 
@@ -63,27 +98,31 @@ async function extractPdfTextBasic(buffer: Buffer): Promise<string> {
     const matches = pdfString.match(textRegex);
 
     if (!matches) {
+      console.log(`❌ Basic extraction: No stream markers found`);
       return "PDF text extraction failed - no readable text found. Please try converting to TXT or DOCX format.";
     }
 
     let extractedText = '';
-    matches.forEach(match => {
+    matches.forEach((match, index) => {
       // Remove stream/endstream markers and try to extract readable text
       const content = match.replace(/^stream\s*/, '').replace(/\s*endstream$/, '');
       // Look for readable ASCII text
       const readableText = content.match(/[a-zA-Z0-9\s.,!?;:()\[\]{}'"%-]+/g);
       if (readableText) {
         extractedText += readableText.join(' ') + ' ';
+        console.log(`📝 Basic extraction: Found text in stream ${index + 1} (${readableText.join(' ').length} chars)`);
       }
     });
 
     if (extractedText.trim().length < 10) {
+      console.log(`❌ Basic extraction: Text too short (${extractedText.trim().length} chars)`);
       return "PDF appears to contain mostly images or complex formatting. Please try converting to TXT or DOCX format for better text extraction.";
     }
 
+    console.log(`✅ Basic extraction successful (${extractedText.trim().length} chars)`);
     return extractedText.trim();
   } catch (error) {
-    console.error('Basic PDF extraction error:', error);
+    console.error('🚫 Basic PDF extraction error:', error);
     return "PDF text extraction failed. Please try converting to TXT or DOCX format.";
   }
 }
@@ -99,39 +138,38 @@ async function extractTextFromFile(buffer: Buffer, mimetype: string, filename: s
 
     console.log(`✅ File validation passed for ${validationResult.sanitizedFilename} (Hash: ${validationResult.fileHash?.substring(0, 8)}...)`);
 
+    let extractedText: string;
+
     switch (mimetype) {
       case 'text/plain':
-        return buffer.toString('utf-8');
+        extractedText = buffer.toString('utf-8');
+        break;
 
       case 'application/vnd.openxmlformats-officedocument.wordprocessingml.document':
         const docxResult = await mammoth.extractRawText({ buffer });
-        return docxResult.value;
+        extractedText = docxResult.value;
+        break;
 
       case 'application/pdf':
-        // Create a temporary file for PDF processing
-        const tempDir = path.join(process.cwd(), 'temp');
-        await fs.mkdir(tempDir, { recursive: true });
-
-        const tempFile = path.join(tempDir, `temp_${Date.now()}.pdf`);
-        await fs.writeFile(tempFile, buffer);
-
-        try {
-          // Use pdf2pic to extract text (this is a workaround - pdf2pic creates images)
-          // For now, let's use a simpler approach with basic PDF text extraction
-          const pdfText = await extractPdfTextBasic(buffer);
-          return pdfText;
-        } finally {
-          // Clean up temp file
-          try {
-            await fs.unlink(tempFile);
-          } catch (err) {
-            console.warn('Failed to clean up temp PDF file:', err);
-          }
-        }
+        extractedText = await extractPdfText(buffer);
+        break;
 
       default:
         throw new Error(`File type ${mimetype} is not supported. Please use TXT or DOCX files, or paste the content directly.`);
     }
+
+    // Debug the extracted content
+    console.log(`📋 Final extracted text for ${filename}:`);
+    console.log(`   - Length: ${extractedText.length} characters`);
+    console.log(`   - Word count: ~${extractedText.split(/\s+/).length} words`);
+    console.log(`   - First 300 chars: "${extractedText.substring(0, 300).replace(/\n/g, '\\n')}"`);
+    console.log(`   - Last 200 chars: "${extractedText.substring(Math.max(0, extractedText.length - 200)).replace(/\n/g, '\\n')}"`);
+    
+    if (extractedText.length < 100) {
+      console.log(`⚠️ WARNING: Extracted text is very short (${extractedText.length} chars) - this may affect analysis quality`);
+    }
+
+    return extractedText;
   } catch (error) {
     console.error('Error processing file:', error);
     throw new Error(`Failed to process file: ${error instanceof Error ? error.message : 'Unknown error'}`);

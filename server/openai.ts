@@ -13,6 +13,21 @@ export async function analyzeDocument(content: string, title: string, ip?: strin
     if (ip && userAgent && sessionId) {
       securityLogger.logOpenAIUsage(ip, userAgent, sessionId, title);
     }
+
+    // Debug what we're sending to OpenAI
+    console.log(`🤖 Sending to OpenAI (${model}):`);
+    console.log(`   - Document: "${title}"`);
+    console.log(`   - Content length: ${content.length} characters`);
+    console.log(`   - Content preview (first 500 chars): "${content.substring(0, 500).replace(/\n/g, '\\n')}"`);
+    
+    // Check if content seems to be garbled or has extraction issues
+    const readableRatio = (content.match(/[a-zA-Z\s]/g) || []).length / content.length;
+    console.log(`   - Readable character ratio: ${(readableRatio * 100).toFixed(1)}%`);
+    
+    if (readableRatio < 0.7) {
+      console.log(`⚠️ WARNING: Content appears to have low readability (${(readableRatio * 100).toFixed(1)}% readable chars)`);
+    }
+
     const prompt = `You are a legal document analysis expert. Analyze the following legal document and provide a comprehensive analysis in JSON format.
 
 Document Title: ${title}
@@ -62,6 +77,12 @@ Provide practical, actionable insights that help everyday users understand what 
       temperature: 0.3,
     });
 
+    // Debug the response
+    console.log(`🤖 OpenAI Response received:`);
+    console.log(`   - Model used: ${response.model}`);
+    console.log(`   - Tokens used: ${response.usage?.total_tokens} (input: ${response.usage?.prompt_tokens}, output: ${response.usage?.completion_tokens})`);
+    console.log(`   - Response length: ${response.choices[0].message.content?.length || 0} characters`);
+
     const analysisText = response.choices[0].message.content;
     if (!analysisText) {
       throw new Error("No analysis content received from OpenAI");
@@ -69,8 +90,22 @@ Provide practical, actionable insights that help everyday users understand what 
 
     const analysis: DocumentAnalysis = JSON.parse(analysisText);
 
+    // Debug the parsed analysis
+    console.log(`📊 Analysis Results:`);
+    console.log(`   - Overall Risk: ${analysis.overallRisk}`);
+    console.log(`   - Summary length: ${analysis.summary?.length || 0} chars`);
+    console.log(`   - Key findings: ${analysis.keyFindings ? Object.keys(analysis.keyFindings).length : 0} categories`);
+    console.log(`   - Sections analyzed: ${analysis.sections?.length || 0}`);
+    console.log(`   - Summary preview: "${analysis.summary?.substring(0, 200) || 'No summary'}"`);
+
     // Validate the response structure
     if (!analysis.summary || !analysis.overallRisk || !analysis.keyFindings || !analysis.sections) {
+      console.log(`❌ Invalid analysis structure:`, {
+        hasSummary: !!analysis.summary,
+        hasOverallRisk: !!analysis.overallRisk,
+        hasKeyFindings: !!analysis.keyFindings,
+        hasSections: !!analysis.sections
+      });
       throw new Error("Invalid analysis structure received from OpenAI");
     }
 
@@ -84,6 +119,7 @@ Provide practical, actionable insights that help everyday users understand what 
       );
     }
 
+    console.log(`✅ Document analysis completed successfully`);
     return analysis;
   } catch (error) {
     console.error("Error analyzing document:", error);
