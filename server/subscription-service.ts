@@ -428,8 +428,8 @@ export class SubscriptionService {
       return this.getFreeTier();
     }
 
-    // Prevent free tier assignment to paying customers
-    if (requestedTier.id === 'free' && isValidPaidSubscription) {
+    // Prevent free tier assignment to paying customers (except collective user)
+    if (requestedTier.id === 'free' && isValidPaidSubscription && subscription.userId !== '00000000-0000-0000-0000-000000000001') {
       console.log(`[Subscription Enforcement] Preventing free tier assignment to active subscriber, upgrading to starter`);
       return this.getStarterTier();
     }
