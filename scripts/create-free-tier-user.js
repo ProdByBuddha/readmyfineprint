@@ -21,7 +21,8 @@ async function createFreeTierUser() {
   console.log('🔄 Creating free tier user in database...');
   
   try {
-    const collectiveUserId = 'collective_free_tier_user';
+    // Use a deterministic UUID for the collective free tier user
+    const collectiveUserId = '00000000-0000-0000-0000-000000000001';
     
     // Check if collective user already exists
     const existingUser = await pool.query(
