@@ -216,18 +216,18 @@ export default function SubscriptionPlans({ currentTier, onSelectPlan }: Subscri
 
 
   return (
-    <div className="w-full max-w-7xl mx-auto p-4">
-      <div className="text-center mb-4">
-        <h2 className="text-2xl font-bold text-gray-900 mb-2">
+    <div className="w-full max-w-7xl mx-auto p-2">
+      <div className="text-center mb-3">
+        <h2 className="text-xl font-bold text-gray-900 mb-1">
           Choose Your Plan
         </h2>
-        <p className="text-base text-gray-600 mb-3">
+        <p className="text-sm text-gray-600 mb-2">
           Powered by different AI models for optimal document analysis
         </p>
 
         {/* Billing Cycle Toggle */}
-        <div className="flex flex-col items-center justify-center mb-4">
-          <div className="flex items-center space-x-4">
+        <div className="flex flex-col items-center justify-center mb-3">
+          <div className="flex items-center space-x-3">
             <Label 
               htmlFor="billing-toggle" 
               className={`text-sm ${billingCycle === 'monthly' ? 'font-semibold text-gray-900 dark:text-white' : 'text-gray-600 dark:text-gray-400'}`}
@@ -247,7 +247,7 @@ export default function SubscriptionPlans({ currentTier, onSelectPlan }: Subscri
             </Label>
           </div>
           {billingCycle === 'yearly' && (
-            <Badge variant="secondary" className="mt-1 text-xs px-2 py-1">
+            <Badge variant="secondary" className="mt-1 text-xs px-2 py-0.5">
               Save up to 17%
             </Badge>
           )}
@@ -255,7 +255,7 @@ export default function SubscriptionPlans({ currentTier, onSelectPlan }: Subscri
       </div>
 
       {/* Plans Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
         {SUBSCRIPTION_TIERS.filter(tier => ['free', 'starter'].includes(tier.id)).map((tier, index) => {
           const price = billingCycle === 'yearly' ? tier.yearlyPrice : tier.monthlyPrice;
           const displayPrice = billingCycle === 'yearly' ? price / 12 : price;
@@ -289,24 +289,24 @@ export default function SubscriptionPlans({ currentTier, onSelectPlan }: Subscri
                   </div>
                 )}
 
-                <CardHeader className="text-center pb-2">
-                  <div className={`mx-auto mb-2 ${getTierColor(tier.id)}`}>
+                <CardHeader className="text-center pb-1 pt-3">
+                  <div className={`mx-auto mb-1 ${getTierColor(tier.id)}`}>
                     {getTierIcon(tier.id)}
                   </div>
-                  <CardTitle className="text-lg font-bold">{tier.name}</CardTitle>
-                  <CardDescription className="text-sm h-10 flex items-center justify-center">
+                  <CardTitle className="text-base font-bold">{tier.name}</CardTitle>
+                  <CardDescription className="text-xs h-8 flex items-center justify-center">
                     {tier.description}
                   </CardDescription>
 
                   {/* AI Model Badge */}
-                  <Badge variant="outline" className="text-xs mt-1">
+                  <Badge variant="outline" className="text-xs mt-0.5">
                     Powered by {tier.model}
                   </Badge>
                 </CardHeader>
 
-                <CardContent className="flex-1 flex flex-col pt-2">
+                <CardContent className="flex-1 flex flex-col pt-1 px-4 pb-4">
                   {/* Pricing */}
-                  <div className="text-center mb-4">
+                  <div className="text-center mb-3">
                     {tier.id === 'free' ? (
                       <div className="text-3xl font-bold">Free</div>
                     ) : (
@@ -332,10 +332,10 @@ export default function SubscriptionPlans({ currentTier, onSelectPlan }: Subscri
                   </div>
 
                   {/* Features */}
-                  <ul className="space-y-1.5 mb-4 flex-1">
+                  <ul className="space-y-1 mb-3 flex-1">
                     {tier.features.map((feature, idx) => (
-                      <li key={idx} className="flex items-start space-x-2 text-sm">
-                        <Check className="h-4 w-4 text-green-500 mt-0.5 flex-shrink-0" />
+                      <li key={idx} className="flex items-start space-x-2 text-xs">
+                        <Check className="h-3 w-3 text-green-500 mt-0.5 flex-shrink-0" />
                         <span>{feature}</span>
                       </li>
                     ))}
