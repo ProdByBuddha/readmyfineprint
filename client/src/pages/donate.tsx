@@ -30,7 +30,9 @@ function DonateButton({ amount, onError }: DonateButtonProps) {
       });
 
       if (!response.ok) {
-        throw new Error('Failed to create checkout session');
+        const errorData = await response.json().catch(() => ({}));
+        const errorMessage = errorData.error || `Server error: ${response.status}`;
+        throw new Error(errorMessage);
       }
 
       const data = await response.json();
@@ -39,12 +41,20 @@ function DonateButton({ amount, onError }: DonateButtonProps) {
         // Redirect to Stripe checkout
         window.location.href = data.url;
       } else {
-        throw new Error('No checkout URL received');
+        throw new Error('No checkout URL received from server');
       }
     } catch (error) {
       console.error('Donation processing failed:', error);
       setIsProcessing(false);
-      onError(error instanceof Error ? error.message : 'Failed to process donation');
+      
+      let errorMessage = 'Failed to process donation';
+      if (error instanceof Error) {
+        errorMessage = error.message;
+      } else if (typeof error === 'string') {
+        errorMessage = error;
+      }
+      
+      onError(errorMessage);
     }
   };
 

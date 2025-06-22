@@ -41,8 +41,19 @@ class EmailService {
             rejectUnauthorized: false // Same as security system for compatibility
           }
         });
-        this.isConfigured = true;
-        console.log(`✅ Email service configured with SMTP (${SMTP_HOST})`);
+
+        // Test the connection before marking as configured
+        this.transporter.verify()
+          .then(() => {
+            this.isConfigured = true;
+            console.log(`✅ Email service configured and verified with SMTP (${SMTP_HOST})`);
+          })
+          .catch((error) => {
+            console.warn(`⚠️ SMTP verification failed: ${error.message}`);
+            console.warn('Email service will be disabled. Check SMTP credentials.');
+            this.isConfigured = false;
+            this.transporter = null;
+          });
         return;
       }
 

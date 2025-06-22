@@ -293,10 +293,43 @@ export class SubscriptionService {
     suggestedUpgrade?: SubscriptionTier;
   }> {
     try {
-      // Get user to verify they exist
+      // Handle anonymous/session users gracefully
+      if (userId === "anonymous" || userId.startsWith('session_')) {
+        const tier = this.getFreeTier();
+        const usage: SubscriptionUsage = {
+          documentsAnalyzed: 0,
+          tokensUsed: 0,
+          cost: 0,
+          resetDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
+        };
+
+        return {
+          tier,
+          usage,
+          canUpgrade: false,
+          suggestedUpgrade: undefined,
+        };
+      }
+
+      // Get user to verify they exist (only for authenticated users)
       const user = await databaseStorage.getUser(userId);
       if (!user) {
-        throw new Error('User not found');
+        // Fall back to free tier for unknown users
+        console.log(`User ${userId} not found in database, using free tier`);
+        const tier = this.getFreeTier();
+        const usage: SubscriptionUsage = {
+          documentsAnalyzed: 0,
+          tokensUsed: 0,
+          cost: 0,
+          resetDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
+        };
+
+        return {
+          tier,
+          usage,
+          canUpgrade: false,
+          suggestedUpgrade: undefined,
+        };
       }
 
       // Get user's current subscription

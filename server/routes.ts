@@ -586,6 +586,27 @@ export async function registerRoutes(app: Express): Promise<Server> {
           }
           break;
 
+        case 'payment_intent.payment_failed':
+          const failedPayment = event.data.object;
+
+          securityLogger.logSecurityEvent({
+            eventType: "API_ACCESS" as any,
+            severity: "MEDIUM" as any,
+            message: `Payment failed webhook: ${failedPayment.id}`,
+            ip,
+            userAgent,
+            endpoint: "/api/stripe-webhook",
+            details: { 
+              paymentIntentId: failedPayment.id,
+              amount: failedPayment.amount / 100,
+              currency: failedPayment.currency,
+              lastPaymentError: failedPayment.last_payment_error?.message || 'Unknown error'
+            }
+          });
+
+          console.log(`💳 Payment failed: ${failedPayment.id} - ${failedPayment.last_payment_error?.message || 'Unknown error'}`);
+          break;
+
         default:
           console.log(`Unhandled webhook event type: ${event.type}`);
       }
@@ -670,6 +691,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
         details: { amount }
       });
 
+      // Validate Stripe configuration
+      if (!process.env.STRIPE_SECRET_KEY) {
+        throw new Error('Stripe not configured');
+      }
+
       // Create Stripe Checkout Session with secure configuration
       const session = await stripe.checkout.sessions.create({
         payment_method_types: ['card'],
@@ -695,6 +721,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
         }
       });
 
+      if (!session.url) {
+        throw new Error('Failed to generate checkout URL');
+      }
+
       res.json({ 
         sessionId: session.id,
         url: session.url 
@@ -705,8 +735,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       if (error instanceof z.ZodError) {
         return res.status(400).json({ 
-          error: 'Invalid input data',
-          details: error.errors
+          error: 'Invalid donation amount',
+          details: 'Please enter a valid amount between $1 and $10,000'
         });
       }
 
@@ -721,7 +751,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
         details: { error: error.message }
       });
 
-      res.status(500).json({ error: 'Checkout session creation failed' });
+      // Provide user-friendly error messages
+      let userMessage = 'Unable to process donation at this time';
+      if (error.message.includes('Stripe not configured')) {
+        userMessage = 'Payment processing is temporarily unavailable';
+      } else if (error.message.includes('API key')) {
+        userMessage = 'Payment service configuration error';
+      }
+
+      res.status(500).json({ error: userMessage });
     }
   });
 
@@ -908,7 +946,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.json(subscriptionData);
     } catch (error) {
       console.error("Error fetching user subscription:", error);
-      res.status(500).json({ error: "Failed to fetch subscription data" });
+      
+      // Fallback to free tier if anything goes wrong
+      const fallbackData = {
+        tier: { id: "free", name: "Free", description: "Free tier with basic features" },
+        usage: { documentsAnalyzed: 0, tokensUsed: 0, cost: 0, resetDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000) },
+        canUpgrade: false
+      };
+      
+      res.json(fallbackData);
     }
   });
 
