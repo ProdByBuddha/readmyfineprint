@@ -217,16 +217,16 @@ export default function SubscriptionPlans({ currentTier, onSelectPlan }: Subscri
 
   return (
     <div className="w-full max-w-7xl mx-auto p-6">
-      <div className="text-center mb-8">
+      <div className="text-center mb-6">
         <h2 className="text-3xl font-bold text-gray-900 mb-4">
           Choose Your Plan
         </h2>
-        <p className="text-lg text-gray-600 mb-6">
+        <p className="text-lg text-gray-600 mb-4">
           Powered by different AI models for optimal document analysis
         </p>
 
         {/* Billing Cycle Toggle */}
-        <div className="flex flex-col items-center justify-center mb-8">
+        <div className="flex flex-col items-center justify-center mb-6">
           <div className="flex items-center space-x-4">
             <Label 
               htmlFor="billing-toggle" 
