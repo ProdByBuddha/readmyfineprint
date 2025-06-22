@@ -47,7 +47,7 @@ export default function SubscriptionPage() {
   const [subscriptionData, setSubscriptionData] = useState<SubscriptionData | null>(null);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState('overview');
-  
+
   // Enable subscription functionality
   const [showComingSoon] = useState(false);
 
@@ -69,16 +69,16 @@ export default function SubscriptionPage() {
       }
 
       const data = await response.json();
-      
+
       // Convert resetDate string back to Date object
       if (data.usage && data.usage.resetDate) {
         data.usage.resetDate = new Date(data.usage.resetDate);
       }
-      
+
       setSubscriptionData(data);
     } catch (error) {
       console.error('Error fetching subscription data:', error);
-      
+
       // Fallback to free tier data if API fails
       const fallbackData: SubscriptionData = {
         tier: {
@@ -137,11 +137,11 @@ export default function SubscriptionPage() {
       }
 
       const data = await response.json();
-      
+
       if (data.error) {
         throw new Error(data.error);
       }
-      
+
       // Redirect to Stripe checkout
       window.location.href = data.url;
     } catch (error) {
@@ -228,14 +228,14 @@ export default function SubscriptionPage() {
   const usagePercentage = subscriptionData.tier.limits.documentsPerMonth === -1
     ? 0 // Unlimited, so no percentage
     : (subscriptionData.usage.documentsAnalyzed / subscriptionData.tier.limits.documentsPerMonth) * 100;
-  
+
   // Ensure resetDate is a Date object and is valid
   let resetDate: Date;
   try {
     resetDate = subscriptionData.usage.resetDate instanceof Date 
       ? subscriptionData.usage.resetDate 
       : new Date(subscriptionData.usage.resetDate);
-    
+
     // Check if date is valid
     if (isNaN(resetDate.getTime())) {
       resetDate = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000); // 30 days from now as fallback
@@ -243,7 +243,7 @@ export default function SubscriptionPage() {
   } catch (error) {
     resetDate = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000); // 30 days from now as fallback
   }
-  
+
   const daysUntilReset = Math.max(0, Math.ceil((resetDate.getTime() - Date.now()) / (1000 * 60 * 60 * 24)));
 
   return (
