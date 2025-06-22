@@ -22,16 +22,16 @@ async function updateCollectiveUserStatus() {
   try {
     const collectiveUserId = '00000000-0000-0000-0000-000000000001';
     
-    // Update the subscription status from 'active' to 'free_tier'
+    // Update the subscription status to 'active' for free tier
     const result = await pool.query(`
       UPDATE user_subscriptions 
-      SET status = 'free_tier', updated_at = NOW()
+      SET status = 'active', updated_at = NOW()
       WHERE user_id = $1 AND tier_id = 'free'
       RETURNING id, status
     `, [collectiveUserId]);
 
     if (result.rows.length > 0) {
-      console.log('✅ Updated collective free tier user subscription status');
+      console.log('✅ Updated collective free tier user subscription status to active');
       console.log(`   Subscription ID: ${result.rows[0].id}`);
       console.log(`   New Status: ${result.rows[0].status}`);
     } else {
