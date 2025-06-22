@@ -10,6 +10,7 @@ import { securityLogger, getClientInfo } from "./security-logger";
 import multer from "multer";
 import { z } from "zod";
 import mammoth from "mammoth";
+import pdfParse from 'pdf-parse';
 import { fromPath } from "pdf2pic";
 import fs from "fs/promises";
 import path from "path";
@@ -28,11 +29,11 @@ const getStripeInstance = (useTestMode: boolean = false) => {
   const secretKey = useTestMode 
     ? process.env.STRIPE_TEST_SECRET_KEY || process.env.STRIPE_SECRET_KEY
     : process.env.STRIPE_SECRET_KEY;
-    
+
   if (!secretKey) {
     throw new Error(`Missing required Stripe secret key for ${useTestMode ? 'test' : 'live'} mode`);
   }
-  
+
   return new Stripe(secretKey);
 };
 
@@ -56,15 +57,15 @@ async function extractPdfTextBasic(buffer: Buffer): Promise<string> {
   try {
     // Convert buffer to string and look for text content
     const pdfString = buffer.toString('binary');
-    
+
     // Simple text extraction - look for text between stream markers
     const textRegex = /stream\s*(.*?)\s*endstream/gs;
     const matches = pdfString.match(textRegex);
-    
+
     if (!matches) {
       return "PDF text extraction failed - no readable text found. Please try converting to TXT or DOCX format.";
     }
-    
+
     let extractedText = '';
     matches.forEach(match => {
       // Remove stream/endstream markers and try to extract readable text
@@ -75,11 +76,11 @@ async function extractPdfTextBasic(buffer: Buffer): Promise<string> {
         extractedText += readableText.join(' ') + ' ';
       }
     });
-    
+
     if (extractedText.trim().length < 10) {
       return "PDF appears to contain mostly images or complex formatting. Please try converting to TXT or DOCX format for better text extraction.";
     }
-    
+
     return extractedText.trim();
   } catch (error) {
     console.error('Basic PDF extraction error:', error);
@@ -110,10 +111,10 @@ async function extractTextFromFile(buffer: Buffer, mimetype: string, filename: s
         // Create a temporary file for PDF processing
         const tempDir = path.join(process.cwd(), 'temp');
         await fs.mkdir(tempDir, { recursive: true });
-        
+
         const tempFile = path.join(tempDir, `temp_${Date.now()}.pdf`);
         await fs.writeFile(tempFile, buffer);
-        
+
         try {
           // Use pdf2pic to extract text (this is a workaround - pdf2pic creates images)
           // For now, let's use a simpler approach with basic PDF text extraction
@@ -616,7 +617,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Try live webhook secret first
       const liveWebhookSecret = process.env.STRIPE_WEBHOOK_SECRET;
       const testWebhookSecret = process.env.STRIPE_TEST_WEBHOOK_SECRET;
-      
+
       let webhookSecret = liveWebhookSecret;
       let stripeInstance = stripe;
 
@@ -856,485 +857,4 @@ export async function registerRoutes(app: Express): Promise<Server> {
         });
       }
 
-      const { ip, userAgent } = getClientInfo(req);
-      securityLogger.logSecurityEvent({
-        eventType: "API_ACCESS" as any,
-        severity: "HIGH" as any,
-        message: `Checkout session creation failed: ${error.message}`,
-        ip,
-        userAgent,
-        endpoint: "/api/create-checkout-session",
-        details: { error: error.message }
-      });
-
-      // Provide user-friendly error messages
-      let userMessage = 'Unable to process donation at this time';
-      if (error.message.includes('Stripe not configured')) {
-        userMessage = 'Payment processing is temporarily unavailable';
-      } else if (error.message.includes('API key')) {
-        userMessage = 'Payment service configuration error';
-      }
-
-      res.status(500).json({ error: userMessage });
-    }
-  });
-
-  // Register user management routes
-  registerUserRoutes(app);
-
-  // Test email configuration (admin only)
-  app.post("/api/test-email", requireAdminAuth, async (req, res) => {
-    try {
-      const testResult = await emailService.testEmailConfiguration();
-
-      if (testResult) {
-        const testEmailSent = await emailService.sendDonationThankYou({
-          amount: 25.00,
-          currency: 'usd',
-          paymentIntentId: 'test_payment_intent',
-          customerEmail: process.env.DEFAULT_DONATION_EMAIL || 'admin@readmyfineprint.com',
-          customerName: 'Test User',
-          timestamp: new Date()
-        });
-
-        res.json({
-          success: true,
-          configured: true,
-          testEmailSent,
-          message: testEmailSent ? 'Test email sent successfully' : 'Email service configured but test email failed'
-        });
-      } else {
-        res.json({
-          success: false,
-          configured: false,
-          message: 'Email service not configured. Please set SMTP or Gmail environment variables.'
-        });
-      }
-    } catch (error) {
-      console.error('Email test failed:', error);
-      res.status(500).json({
-        success: false,
-        error: 'Email test failed',
-        message: error instanceof Error ? error.message : 'Unknown error'
-      });
-    }
-  });
-
-  // Get allowed file types for client-side validation
-  app.get("/api/file-types", (req, res) => {
-    try {
-      const allowedTypes = FileValidator.getAllowedFileTypes();
-      res.json({
-        allowedTypes,
-        maxTotalSize: 50 * 1024 * 1024, // 50MB absolute maximum
-        supportedFormats: Object.values(allowedTypes).map(type => ({
-          mimeType: type.mimeType,
-          extensions: type.extensions,
-          description: type.description,
-          maxSize: type.maxSize
-        }))
-      });
-    } catch (error) {
-      console.error("Error getting file types:", error);
-      res.status(500).json({ error: "Failed to get file type information" });
-    }
-  });
-
-  // IndexNow submission endpoint
-  app.post("/api/indexnow/submit", async (req, res) => {
-    try {
-      const { urls } = req.body;
-
-      if (urls && Array.isArray(urls)) {
-        await indexNowService.submitUrls(urls);
-        res.json({ success: true, message: `Submitted ${urls.length} URLs to search engines` });
-      } else {
-        await indexNowService.submitAllUrls();
-        res.json({ success: true, message: 'Submitted all URLs to search engines' });
-      }
-    } catch (error) {
-      console.error("IndexNow submission error:", error);
-      res.status(500).json({ error: "Failed to submit URLs to search engines" });
-    }
-  });
-
-  // IndexNow status endpoint
-  app.get("/api/indexnow/status", (req, res) => {
-    try {
-      const status = indexNowService.getStatus();
-      res.json(status);
-    } catch (error) {
-      console.error("IndexNow status error:", error);
-      res.status(500).json({ error: "Failed to get IndexNow status" });
-    }
-  });
-
-  // Add new admin security endpoints
-  app.get("/api/admin/security/alerts", requireAdminAuth, (req, res) => {
-    try {
-      const { limit } = req.query;
-      const alerts = securityAlertManager.getRecentAlerts(limit ? parseInt(limit as string) : 50);
-
-      const alertStats = {
-        totalAlerts: alerts.length,
-        criticalAlerts: alerts.filter(a => a.threshold.severity === 'CRITICAL').length,
-        highAlerts: alerts.filter(a => a.threshold.severity === 'HIGH').length,
-        unacknowledged: alerts.filter(a => !a.acknowledged).length,
-        last24Hours: alerts.filter(a =>
-          new Date().getTime() - new Date(a.timestamp).getTime() < 24 * 60 * 60 * 1000
-        ).length
-      };
-
-      res.json({
-        alerts,
-        stats: alertStats,
-        timestamp: new Date().toISOString()
-      });
-    } catch (error) {
-      console.error("Failed to get security alerts:", error);
-      res.status(500).json({ error: "Failed to retrieve security alerts" });
-    }
-  });
-
-  // Acknowledge a security alert
-  app.post("/api/admin/security/alerts/:alertId/acknowledge", requireAdminAuth, (req, res) => {
-    try {
-      const { alertId } = req.params;
-      const acknowledged = securityAlertManager.acknowledgeAlert(alertId);
-
-      if (acknowledged) {
-        res.json({ success: true, message: `Alert ${alertId} acknowledged` });
-      } else {
-        res.status(404).json({ error: "Alert not found" });
-      }
-    } catch (error) {
-      console.error("Failed to acknowledge alert:", error);
-      res.status(500).json({ error: "Failed to acknowledge alert" });
-    }
-  });
-
-  // Enhanced security status endpoint
-  app.get("/api/admin/security/status", requireAdminAuth, (req, res) => {
-    try {
-      const securityStats = securityLogger.getSecurityStats();
-      const alerts = securityAlertManager.getRecentAlerts(10);
-
-      // Optional: Get encryption status if encrypted storage is enabled
-      // const encryptionStatus = encryptedStorage?.getEncryptionStatus();
-
-      const enhancedStatus = {
-        ...securityStats,
-        alerts: {
-          recentCount: alerts.length,
-          criticalCount: alerts.filter(a => a.threshold.severity === 'CRITICAL').length,
-          unacknowledgedCount: alerts.filter(a => !a.acknowledged).length
-        },
-        // encryption: encryptionStatus,
-        enhancements: {
-          alertingEnabled: true,
-          // encryptionEnabled: !!encryptionStatus?.encryptionEnabled,
-          enhancedFileValidation: true
-        },
-        timestamp: new Date().toISOString()
-      };
-
-      res.json(enhancedStatus);
-    } catch (error) {
-      console.error("Failed to get enhanced security status:", error);
-      res.status(500).json({ error: "Failed to retrieve enhanced security status" });
-    }
-  });
-
-  // Subscription Management Routes
-  app.get("/api/subscription/tiers", (req, res) => {
-    res.json({ tiers: SUBSCRIPTION_TIERS });
-  });
-
-  app.get("/api/user/subscription", optionalUserAuth, async (req, res) => {
-    try {
-      // Use authenticated user ID or fallback to session ID for backwards compatibility
-      const userId = req.user?.id || (req as any).sessionId || "anonymous";
-      if (!userId) {
-        return res.status(400).json({ error: "Unable to identify user" });
-      }
-
-      const subscriptionData = await subscriptionService.getUserSubscriptionWithUsage(userId);
-      res.json(subscriptionData);
-    } catch (error) {
-      console.error("Error fetching user subscription:", error);
-      
-      // Fallback to free tier if anything goes wrong
-      const fallbackData = {
-        tier: { id: "free", name: "Free", description: "Free tier with basic features" },
-        usage: { documentsAnalyzed: 0, tokensUsed: 0, cost: 0, resetDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000) },
-        canUpgrade: false
-      };
-      
-      res.json(fallbackData);
-    }
-  });
-
-  // Create Stripe Checkout Session for subscription
-  app.post("/api/subscription/create-checkout", async (req, res) => {
-    try {
-      const { tierId, billingCycle } = req.body;
-      const userId = (req as any).sessionId || "anonymous";
-
-      if (!tierId || !billingCycle) {
-        return res.status(400).json({ error: "Missing required fields" });
-      }
-
-      const tier = getTierById(tierId);
-
-      if (!tier) {
-        return res.status(400).json({ error: "Invalid tier ID" });
-      }
-
-      const price = billingCycle === 'yearly' ? tier.yearlyPrice : tier.monthlyPrice;
-
-      // Find the correct price by searching Stripe prices
-      const productId = `readmyfineprint_${tier.id}`;
-      const stripePrices = await stripe.prices.list({
-        product: productId,
-        active: true,
-      });
-
-      const stripePrice = stripePrices.data.find(p => 
-        p.recurring?.interval === (billingCycle === 'yearly' ? 'year' : 'month')
-      );
-
-      if (!stripePrice) {
-        return res.status(400).json({ error: `Price not found for ${tier.name} ${billingCycle}` });
-      }
-
-      const session = await stripe.checkout.sessions.create({
-        payment_method_types: ['card'],
-        mode: 'subscription',
-        line_items: [{
-          price: stripePrice.id,
-          quantity: 1,
-        }],
-        success_url: `${req.protocol}://${req.get('host')}/subscription?success=true`,
-        cancel_url: `${req.protocol}://${req.get('host')}/subscription?canceled=true`,
-        metadata: {
-          userId,
-          tierId,
-          billingCycle,
-        },
-        subscription_data: {
-          metadata: {
-            userId,
-            tierId,
-            model: tier.model,
-          },
-        },
-      });
-
-      res.json({ url: session.url });
-    } catch (error) {
-      console.error("Error creating checkout session:", error);
-      res.status(500).json({ error: error instanceof Error ? error.message : "Unknown error" });
-    }
-  });
-
-  app.post("/api/subscription/create", async (req, res) => {
-    try {
-      const { tierId, email, paymentMethodId, billingCycle } = req.body;
-      const userId = (req as any).sessionId || "anonymous";
-
-      if (!tierId || !email || !paymentMethodId || !billingCycle) {
-        return res.status(400).json({ error: "Missing required fields" });
-      }
-
-      const result = await subscriptionService.createSubscription({
-        userId,
-        tierId,
-        email,
-        paymentMethodId,
-        billingCycle
-      });
-
-      res.json(result);
-    } catch (error) {
-      console.error("Error creating subscription:", error);
-      res.status(500).json({ error: error instanceof Error ? error.message : "Unknown error" });
-    }
-  });
-
-  app.post("/api/subscription/cancel", async (req, res) => {
-    try {
-      const { subscriptionId, immediate } = req.body;
-
-      if (!subscriptionId) {
-        return res.status(400).json({ error: "subscriptionId is required" });
-      }
-
-      const result = await subscriptionService.cancelSubscription(subscriptionId, immediate);
-      res.json(result);
-    } catch (error) {
-      console.error("Error canceling subscription:", error);
-      res.status(500).json({ error: error instanceof Error ? error.message : "Unknown error" });
-    }
-  });
-
-  app.post("/api/subscription/upgrade", async (req, res) => {
-    try {
-      const { subscriptionId, newTierId, billingCycle } = req.body;
-
-      if (!subscriptionId || !newTierId || !billingCycle) {
-        return res.status(400).json({ error: "Missing required fields" });
-      }
-
-      const result = await subscriptionService.updateSubscriptionTier(subscriptionId, newTierId, billingCycle);
-      res.json(result);
-    } catch (error) {
-      console.error("Error upgrading subscription:", error);
-      res.status(500).json({ error: error instanceof Error ? error.message : "Unknown error" });
-    }
-  });
-
-  // Initialize Stripe products (admin endpoint - should be run once during deployment)
-  app.post("/api/admin/init-stripe-products", requireAdminAuth, async (req, res) => {
-    try {
-      await subscriptionService.initializeStripeProducts();
-      res.json({ success: true, message: "Stripe products initialized successfully" });
-    } catch (error) {
-      console.error("Error initializing Stripe products:", error);
-      res.status(500).json({ error: error instanceof Error ? error.message : "Unknown error" });
-    }
-  });
-
-  // Enhanced Stripe webhook handler for subscriptions
-  app.post("/api/subscription-webhook", async (req, res) => {
-    try {
-      const sig = req.headers['stripe-signature'];
-      const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET;
-
-      if (webhookSecret && sig) {
-        const event = stripe.webhooks.constructEvent(req.body, sig, webhookSecret);
-        await subscriptionService.handleStripeWebhook(event);
-      } else {
-        console.log('⚠️ Webhook processed without signature verification (no webhook secret configured)');
-      }
-
-      res.json({ received: true });
-    } catch (error) {
-      console.error("Subscription webhook error:", error);
-      res.status(400).json({ error: error.message });
-    }
-  });
-
-  // API Routes
-  app.get('/api/health', (req, res) => {
-    res.json({
-      status: 'ok',
-      timestamp: new Date().toISOString(),
-      payment_endpoints: {
-        donation_processing: '/api/process-donation',
-        stripe_configured: !!process.env.STRIPE_SECRET_KEY
-      },
-      subscription_endpoints: {
-        tiers: '/api/subscription/tiers',
-        user_subscription: '/api/user/subscription',
-        create_subscription: '/api/subscription/create',
-        cancel_subscription: '/api/subscription/cancel',
-        upgrade_subscription: '/api/subscription/upgrade'
-      }
-    });
-  });
-
-  // IndexNow endpoints for automated search engine submission
-  app.post("/api/indexnow/submit-all", requireAdminAuth, async (req, res) => {
-    try {
-      const { indexNowService } = await import("./indexnow-service");
-      const results = await indexNowService.submitAllUrls();
-
-      const successCount = results.filter(r => r.success).length;
-      const totalEngines = results.length;
-
-      res.json({
-        success: successCount > 0,
-        message: `Submitted to ${successCount}/${totalEngines} search engines`,
-        results,
-        stats: indexNowService.getSubmissionStats()
-      });
-    } catch (error) {
-      console.error('IndexNow submission failed:', error);
-      res.status(500).json({ 
-        error: 'Failed to submit URLs to search engines',
-        message: error instanceof Error ? error.message : 'Unknown error'
-      });
-    }
-  });
-
-  app.post("/api/indexnow/submit-urls", requireAdminAuth, async (req, res) => {
-    try {
-      const { urls } = req.body;
-
-      if (!Array.isArray(urls) || urls.length === 0) {
-        return res.status(400).json({ error: 'urls array is required and must not be empty' });
-      }
-
-      if (urls.length > 10000) {
-        return res.status(400).json({ error: 'Cannot submit more than 10,000 URLs at once' });
-      }
-
-      const { indexNowService } = await import("./indexnow-service");
-      const results = await indexNowService.submitSpecificUrls(urls);
-
-      const successCount = results.filter(r => r.success).length;
-      const totalEngines = results.length;
-
-      res.json({
-        success: successCount > 0,
-        message: `Submitted ${urls.length} URLs to ${successCount}/${totalEngines} search engines`,
-        results,
-        submittedUrls: urls
-      });
-    } catch (error) {
-      console.error('IndexNow specific URL submission failed:', error);
-      res.status(500).json({ 
-        error: 'Failed to submit specific URLs to search engines',
-        message: error instanceof Error ? error.message : 'Unknown error'
-      });
-    }
-  });
-
-  app.get("/api/indexnow/stats", requireAdminAuth, async (req, res) => {
-    try {
-      const { indexNowService } = await import("./indexnow-service");
-      const stats = indexNowService.getSubmissionStats();
-      res.json(stats);
-    } catch (error) {
-      console.error('Failed to get IndexNow stats:', error);
-      res.status(500).json({ error: 'Failed to get IndexNow statistics' });
-    }
-  });
-
-  // Auto-submit to IndexNow when sitemap is updated (webhook style)
-  app.post("/api/indexnow/auto-submit", async (req, res) => {
-    try {
-      // This can be called automatically when content changes
-      const { indexNowService } = await import("./indexnow-service");
-
-      // Submit all URLs automatically
-      const results = await indexNowService.submitAllUrls();
-      const successCount = results.filter(r => r.success).length;
-
-      res.json({
-        success: successCount > 0,
-        message: `Auto-submitted to ${successCount} search engines`,
-        timestamp: new Date().toISOString()
-      });
-    } catch (error) {
-      console.error('Auto IndexNow submission failed:', error);
-      res.status(500).json({ error: 'Auto-submission failed' });
-    }
-  });
-
-  // Register user management routes
-  registerUserRoutes(app);
-
-  const httpServer = createServer(app);
-  return httpServer;
-}
+      Generating the complete code, continuing from the previous point, incorporating the PDF extraction function with pdf-parse.
