@@ -52,44 +52,66 @@ const upload = multer({
   fileFilter: createSecureFileFilter()
 });
 
-// Enhanced PDF text extraction using pdf-parse
+// Enhanced PDF text extraction using pdf-parse with multiple fallback strategies
 async function extractPdfText(buffer: Buffer): Promise<string> {
-  try {
-    console.log(`🔍 Starting PDF extraction (buffer size: ${buffer.length} bytes)`);
-    
-    // Try pdf-parse with different options for better compatibility
-    const options = {
+  console.log(`🔍 Starting PDF extraction (buffer size: ${buffer.length} bytes)`);
+  
+  // Strategy 1: Try pdf-parse with different configurations
+  const pdfParseConfigs = [
+    {
+      normalizeWhitespace: false,
+      disableCombineTextItems: true,
+      max: 0
+    },
+    {
       normalizeWhitespace: true,
       disableCombineTextItems: false,
-      max: 0 // Extract all pages
-    };
-    
-    const data = await pdfParse(buffer, options);
-    
-    console.log(`📄 PDF extraction results:`);
-    console.log(`   - Pages: ${data.numpages}`);
-    console.log(`   - Text length: ${data.text.length} characters`);
-    console.log(`   - First 200 chars: "${data.text.substring(0, 200).replace(/\n/g, '\\n')}"`);
-    
-    if (!data.text || data.text.trim().length < 50) {
-      console.log(`⚠️ PDF text too short or empty, falling back to basic extraction`);
-      return await extractPdfTextBasic(buffer);
+      max: 0
+    },
+    {
+      // Minimal config
+      max: 0
     }
-    
-    // Clean up the extracted text
-    let cleanText = data.text
-      .replace(/\n\s*\n/g, '\n') // Remove multiple newlines
-      .replace(/\s+/g, ' ') // Normalize whitespace
-      .trim();
-    
-    console.log(`✅ PDF text extraction successful (${cleanText.length} chars after cleaning)`);
-    return cleanText;
-    
-  } catch (error) {
-    console.error('🚫 pdf-parse extraction failed:', error);
-    console.log(`⚠️ Falling back to enhanced basic PDF extraction`);
-    return await extractPdfTextBasic(buffer);
+  ];
+
+  for (let i = 0; i < pdfParseConfigs.length; i++) {
+    try {
+      console.log(`📄 Trying pdf-parse configuration ${i + 1}/${pdfParseConfigs.length}`);
+      const data = await pdfParse(buffer, pdfParseConfigs[i]);
+      
+      console.log(`📄 PDF-parse results (config ${i + 1}):`);
+      console.log(`   - Pages: ${data.numpages}`);
+      console.log(`   - Text length: ${data.text.length} characters`);
+      
+      if (data.text && data.text.trim().length >= 50) {
+        // Check if the text contains readable content (not just PDF structures)
+        const readableContent = data.text.replace(/[^\w\s]/g, '').trim();
+        const readableRatio = readableContent.length / data.text.length;
+        
+        if (readableRatio > 0.3) { // At least 30% readable characters
+          console.log(`✅ PDF text extraction successful with config ${i + 1} (${data.text.length} chars, ${Math.round(readableRatio * 100)}% readable)`);
+          
+          // Clean up the extracted text
+          let cleanText = data.text
+            .replace(/\n\s*\n/g, '\n') // Remove multiple newlines
+            .replace(/\s+/g, ' ') // Normalize whitespace
+            .trim();
+          
+          return cleanText;
+        } else {
+          console.log(`⚠️ Config ${i + 1}: Text not readable enough (${Math.round(readableRatio * 100)}% readable)`);
+        }
+      } else {
+        console.log(`⚠️ Config ${i + 1}: Text too short (${data.text?.length || 0} chars)`);
+      }
+      
+    } catch (error) {
+      console.log(`❌ pdf-parse config ${i + 1} failed:`, error.message);
+    }
   }
+
+  console.log(`⚠️ All pdf-parse configurations failed, falling back to enhanced extraction`);
+  return await extractPdfTextBasic(buffer);
 }
 
 // Enhanced basic PDF text extraction function (fallback)
@@ -100,7 +122,7 @@ async function extractPdfTextBasic(buffer: Buffer): Promise<string> {
     let extractedText = '';
 
     // Convert buffer to string with different encodings to handle various PDF formats
-    const encodings = ['latin1', 'utf8', 'ascii'];
+    const encodings = ['latin1', 'utf8', 'ascii', 'binary'];
     let pdfString = '';
     
     for (const encoding of encodings) {
@@ -115,17 +137,20 @@ async function extractPdfTextBasic(buffer: Buffer): Promise<string> {
       }
     }
 
-    // Approach 1: Enhanced text object extraction
+    // Approach 1: Enhanced text object extraction with better patterns
     const textPatterns = [
-      // Standard text operators
-      /\(((?:[^()\\]|\\.)*)?\)\s*Tj/g,
-      /\[((?:[^\[\]\\]|\\.)*?)\]\s*TJ/g,
+      // Standard text operators with improved regex
+      /\(((?:[^()\\]|\\[\\()nrtbf]|\\[0-7]{1,3})*?)\)\s*Tj/gi,
+      /\[((?:[^\[\]\\]|\\[\\()nrtbf\[\]]|\\[0-7]{1,3})*?)\]\s*TJ/gi,
       // Text positioning with content
-      /(\d+(?:\.\d+)?\s+){2}Td\s*\(((?:[^()\\]|\\.)*?)\)\s*Tj/g,
+      /(?:\d+(?:\.\d+)?\s+){2}Td\s*\(((?:[^()\\]|\\[\\()nrtbf]|\\[0-7]{1,3})*?)\)\s*Tj/gi,
       // Text matrix with content
-      /(\d+(?:\.\d+)?\s+){6}Tm\s*\(((?:[^()\\]|\\.)*?)\)\s*Tj/g,
+      /(?:\d+(?:\.\d+)?\s+){6}Tm\s*\(((?:[^()\\]|\\[\\()nrtbf]|\\[0-7]{1,3})*?)\)\s*Tj/gi,
       // Font and text combinations
-      /\/\w+\s+\d+(?:\.\d+)?\s+Tf\s*\(((?:[^()\\]|\\.)*?)\)\s*Tj/g
+      /\/\w+\s+\d+(?:\.\d+)?\s+Tf\s*\(((?:[^()\\]|\\[\\()nrtbf]|\\[0-7]{1,3})*?)\)\s*Tj/gi,
+      // Simple text in quotes (common in some PDFs)
+      /"([^"]{2,50})"/g,
+      /'([^']{2,50})'/g
     ];
 
     textPatterns.forEach((pattern, patternIndex) => {
@@ -133,26 +158,41 @@ async function extractPdfTextBasic(buffer: Buffer): Promise<string> {
       if (matches) {
         console.log(`📝 Pattern ${patternIndex + 1}: Found ${matches.length} matches`);
         matches.forEach(match => {
-          // Extract text content from parentheses or brackets
-          const textMatch = match.match(/\(((?:[^()\\]|\\.)*?)\)/) || match.match(/\[((?:[^\[\]\\]|\\.)*?)\]/);
+          // Extract text content from parentheses, brackets, or quotes
+          const textMatch = match.match(/\(((?:[^()\\]|\\.)*?)\)/) || 
+                           match.match(/\[((?:[^\[\]\\]|\\.)*?)\]/) ||
+                           match.match(/"([^"]+)"/) ||
+                           match.match(/'([^']+)'/);
+          
           if (textMatch && textMatch[1]) {
             const rawText = textMatch[1];
             
-            // Decode PDF text escape sequences
+            // Enhanced PDF text escape sequence decoding
             const decodedText = rawText
               .replace(/\\n/g, '\n')
               .replace(/\\r/g, '\r')
               .replace(/\\t/g, '\t')
+              .replace(/\\b/g, '\b')
+              .replace(/\\f/g, '\f')
               .replace(/\\'/g, "'")
               .replace(/\\"/g, '"')
+              .replace(/\\\(/g, '(')
+              .replace(/\\\)/g, ')')
               .replace(/\\\\/g, '\\')
               .replace(/\\([0-7]{1,3})/g, (match, octal) => {
                 const code = parseInt(octal, 8);
                 return code >= 32 && code <= 126 ? String.fromCharCode(code) : ' ';
               })
+              .replace(/\\u([0-9a-fA-F]{4})/g, (match, hex) => {
+                return String.fromCharCode(parseInt(hex, 16));
+              })
+              .replace(/\\x([0-9a-fA-F]{2})/g, (match, hex) => {
+                const code = parseInt(hex, 16);
+                return code >= 32 && code <= 126 ? String.fromCharCode(code) : ' ';
+              })
               .replace(/\\./g, ' '); // Replace any other escape sequences with space
 
-            // Filter for readable text
+            // Filter for readable text (more permissive)
             if (decodedText.length > 1 && /[a-zA-Z0-9]/.test(decodedText)) {
               extractedText += decodedText + ' ';
             }
@@ -161,23 +201,29 @@ async function extractPdfTextBasic(buffer: Buffer): Promise<string> {
       }
     });
 
-    // Approach 2: Look for plaintext content in PDF streams
-    if (extractedText.trim().length < 30) {
-      console.log(`🔄 Trying stream content extraction`);
+    // Approach 2: Look for plaintext content in uncompressed PDF streams
+    if (extractedText.trim().length < 50) {
+      console.log(`🔄 Trying uncompressed stream content extraction`);
       
-      // Look for content between stream markers
-      const streamPattern = /stream\s*([\s\S]*?)\s*endstream/g;
+      // Look for content between stream markers (uncompressed streams)
+      const streamPattern = /stream\s*([\s\S]*?)\s*endstream/gi;
       let streamMatch;
       
       while ((streamMatch = streamPattern.exec(pdfString)) !== null) {
         const streamContent = streamMatch[1];
         
-        // Look for readable text in stream content
-        const readableChunks = streamContent.match(/[a-zA-Z0-9\s.,!?;:()\[\]{}'"%-]{5,}/g);
+        // Skip obviously compressed or binary streams
+        if (streamContent.includes('\u0000') || streamContent.length < streamContent.replace(/[^\x20-\x7E]/g, '').length * 0.5) {
+          continue;
+        }
+        
+        // Look for readable text in stream content with more flexible patterns
+        const readableChunks = streamContent.match(/[a-zA-Z0-9\s.,!?;:()\[\]{}'"%-]{3,}/g);
         if (readableChunks) {
           readableChunks.forEach(chunk => {
             const cleaned = chunk.trim();
-            if (cleaned.length > 4 && /[a-zA-Z]/.test(cleaned)) {
+            // More permissive filtering
+            if (cleaned.length > 2 && /[a-zA-Z]/.test(cleaned)) {
               extractedText += cleaned + ' ';
             }
           });
@@ -185,24 +231,44 @@ async function extractPdfTextBasic(buffer: Buffer): Promise<string> {
       }
     }
 
-    // Approach 3: Direct text search in PDF content
+    // Approach 3: Look for text in PDF object definitions
+    if (extractedText.trim().length < 50) {
+      console.log(`🔄 Trying PDF object text extraction`);
+      
+      // Look for text in object definitions
+      const objectPattern = /obj[\s\S]*?\/Contents\s*\[([\s\S]*?)\]/gi;
+      let objMatch;
+      
+      while ((objMatch = objectPattern.exec(pdfString)) !== null) {
+        const content = objMatch[1];
+        // Extract readable strings from object content
+        const stringMatches = content.match(/\(([^)]+)\)/g);
+        if (stringMatches) {
+          stringMatches.forEach(str => {
+            const cleaned = str.replace(/[()]/g, '').trim();
+            if (cleaned.length > 2 && /[a-zA-Z]/.test(cleaned)) {
+              extractedText += cleaned + ' ';
+            }
+          });
+        }
+      }
+    }
+
+    // Approach 4: Direct text search with improved patterns
     if (extractedText.trim().length < 30) {
-      console.log(`🔄 Trying direct text pattern matching`);
+      console.log(`🔄 Trying enhanced direct text pattern matching`);
       
-      // Look for word-like patterns in the entire PDF
-      const wordPatterns = /\b[a-zA-Z]{3,}(?:\s+[a-zA-Z]{2,})*\b/g;
-      const words = pdfString.match(wordPatterns);
+      // Look for sequences of readable characters
+      const textSequences = pdfString.match(/[a-zA-Z][a-zA-Z0-9\s.,!?;:()\[\]{}'"%-]{4,50}[a-zA-Z0-9]/g);
       
-      if (words && words.length > 10) {
-        // Filter and join meaningful words
-        const meaningfulWords = words.filter(word => 
-          word.length > 2 && 
-          !/^[A-Z]{3,}$/.test(word) && // Avoid ALL CAPS sequences
-          word.split(' ').length <= 5    // Avoid very long sequences
-        );
+      if (textSequences && textSequences.length > 5) {
+        const meaningfulSequences = textSequences.filter(seq => {
+          const wordCount = seq.split(/\s+/).filter(w => w.length > 1).length;
+          return wordCount >= 2 && seq.length > 5;
+        });
         
-        if (meaningfulWords.length > 0) {
-          extractedText = meaningfulWords.slice(0, 200).join(' '); // Limit to first 200 words
+        if (meaningfulSequences.length > 0) {
+          extractedText = meaningfulSequences.slice(0, 100).join(' ');
         }
       }
     }
@@ -213,27 +279,25 @@ async function extractPdfTextBasic(buffer: Buffer): Promise<string> {
       .replace(/([a-z])([A-Z])/g, '$1 $2')  // Add spaces between camelCase
       .replace(/([a-zA-Z])(\d)/g, '$1 $2')  // Add spaces between letters and numbers
       .replace(/(\d)([a-zA-Z])/g, '$1 $2')  // Add spaces between numbers and letters
+      .replace(/\s*[(){}\[\]]\s*/g, ' ')     // Clean up stray brackets
       .trim();
 
-    console.log(`📊 Extraction summary:`);
+    console.log(`📊 Enhanced extraction summary:`);
     console.log(`   - Total length: ${extractedText.length} characters`);
     console.log(`   - Word count: ~${extractedText.split(/\s+/).filter(w => w.length > 0).length} words`);
-    console.log(`   - Readable ratio: ${(extractedText.match(/[a-zA-Z]/g) || []).length / extractedText.length * 100}%`);
+    console.log(`   - Readable ratio: ${extractedText.length > 0 ? ((extractedText.match(/[a-zA-Z]/g) || []).length / extractedText.length * 100).toFixed(1) : 0}%`);
 
-    if (extractedText.length < 50 || (extractedText.match(/[a-zA-Z]/g) || []).length / extractedText.length < 0.3) {
+    // More lenient validation - accept if we have some readable content
+    if (extractedText.length < 20 || (extractedText.match(/[a-zA-Z]/g) || []).length / extractedText.length < 0.2) {
       console.log(`❌ Enhanced extraction: Text too short or not readable enough`);
       console.log(`📝 Extracted preview: "${extractedText.substring(0, 200)}"`);
       
-      return "PDF text extraction failed - this document may contain:\n\n" +
-             "• Scanned images that require OCR (Optical Character Recognition)\n" +
-             "• Complex formatting or encrypted content\n" +
-             "• Non-standard text encoding\n\n" +
-             "Try these alternatives:\n" +
-             "1. Convert to Word (.docx) format using an online converter\n" +
-             "2. Copy and paste text directly from the PDF viewer\n" +
-             "3. Use a PDF with selectable text rather than scanned images\n" +
-             "4. Save the document as plain text (.txt) from your PDF viewer\n\n" +
-             "For best results, use documents with selectable, copyable text.";
+      return "This PDF contains complex formatting or may be image-based. Try these alternatives:\n\n" +
+             "• Copy and paste text directly from your PDF viewer\n" +
+             "• Convert to Word (.docx) format using an online converter\n" +
+             "• Save as plain text (.txt) from your PDF application\n" +
+             "• Use a different PDF that contains selectable text\n\n" +
+             "For best results, upload documents with selectable, copyable text rather than scanned images.";
     }
 
     console.log(`✅ Enhanced extraction successful (${extractedText.length} chars)`);
@@ -243,7 +307,11 @@ async function extractPdfTextBasic(buffer: Buffer): Promise<string> {
     
   } catch (error) {
     console.error('🚫 Enhanced basic PDF extraction error:', error);
-    return "PDF text extraction failed due to an internal error. This document may be corrupted, encrypted, or use an unsupported format. Please try converting to TXT or DOCX format, or contact support if the issue persists.";
+    return "PDF processing encountered an error. Please try:\n\n" +
+           "• Converting the PDF to Word (.docx) or text (.txt) format\n" +
+           "• Copy-pasting the content directly\n" +
+           "• Using a different PDF file\n\n" +
+           "If this issue persists, the PDF may be encrypted or corrupted.";
   }
 }
 
