@@ -1,7 +1,7 @@
 
 #!/usr/bin/env node
 
-const { subscriptionService } = require('../server/subscription-service.ts');
+import { subscriptionService } from '../server/subscription-service.js';
 
 async function initStripeProducts() {
   console.log('🚀 Initializing Stripe products...');
