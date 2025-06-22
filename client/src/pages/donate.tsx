@@ -399,11 +399,13 @@ export default function DonatePage() {
                 )}
               </Button>
               
-              <Alert className="mt-3 border-blue-200 bg-blue-50 dark:border-blue-800 dark:bg-blue-950">
-                <AlertDescription className="text-xs text-blue-700 dark:text-blue-300">
-                  💡 For testing: Use card 4242 4242 4242 4242 with any future date and CVC
-                </AlertDescription>
-              </Alert>
+              {import.meta.env.DEV && (
+                <Alert className="mt-3 border-blue-200 bg-blue-50 dark:border-blue-800 dark:bg-blue-950">
+                  <AlertDescription className="text-xs text-blue-700 dark:text-blue-300">
+                    💡 For testing: Use card 4242 4242 4242 4242 with any future date and CVC
+                  </AlertDescription>
+                </Alert>
+              )}
             </div>
           )}
         </CardContent>
