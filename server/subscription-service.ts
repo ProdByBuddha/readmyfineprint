@@ -304,10 +304,8 @@ export class SubscriptionService {
       // Get user's current subscription
       const subscription = await databaseStorage.getUserSubscription(userId);
 
-      // Determine tier - default to free if no subscription
-      const tier = subscription
-        ? getTierById(subscription.tierId) || SUBSCRIPTION_TIERS[0]
-        : SUBSCRIPTION_TIERS[0]; // Free tier
+      // Determine tier with proper subscription validation
+      const tier = this.validateAndAssignTier(subscription);
 
       // Get current period usage
       const currentPeriod = new Date().toISOString().slice(0, 7); // YYYY-MM format
@@ -355,15 +353,208 @@ export class SubscriptionService {
   }
 
   /**
+   * Validate subscription status and assign appropriate tier
+   * Ensures non-subscribers get free tier and subscribers get paid tiers only
+   */
+  private validateAndAssignTier(subscription?: UserSubscription): SubscriptionTier {
+    // If no subscription exists, user is definitely free tier
+    if (!subscription) {
+      return this.getFreeTier();
+    }
+
+    // Check if subscription is in a valid state for paid access
+    const validPaidStatuses = ['active', 'trialing'];
+    const isValidPaidSubscription = validPaidStatuses.includes(subscription.status);
+
+    // Check if subscription is expired
+    const now = new Date();
+    const isExpired = subscription.currentPeriodEnd < now;
+
+    // If subscription is not active or is expired, downgrade to free tier
+    if (!isValidPaidSubscription || isExpired) {
+      console.log(`[Subscription Enforcement] User downgraded to free tier. Status: ${subscription.status}, Expired: ${isExpired}`);
+      return this.getFreeTier();
+    }
+
+    // Get the requested tier from subscription
+    const requestedTier = getTierById(subscription.tierId);
+    
+    // If tier doesn't exist, default to free
+    if (!requestedTier) {
+      console.warn(`[Subscription Enforcement] Invalid tier ID: ${subscription.tierId}, defaulting to free`);
+      return this.getFreeTier();
+    }
+
+    // Prevent free tier assignment to paying customers
+    if (requestedTier.id === 'free' && isValidPaidSubscription) {
+      console.log(`[Subscription Enforcement] Preventing free tier assignment to active subscriber, upgrading to starter`);
+      return this.getStarterTier();
+    }
+
+    console.log(`[Subscription Enforcement] Valid subscription: ${requestedTier.name} tier assigned`);
+    return requestedTier;
+  }
+
+  /**
+   * Get the free tier (for non-subscribers)
+   */
+  private getFreeTier(): SubscriptionTier {
+    return SUBSCRIPTION_TIERS.find(tier => tier.id === 'free') || SUBSCRIPTION_TIERS[0];
+  }
+
+  /**
+   * Get the starter tier (minimum paid tier)
+   */
+  private getStarterTier(): SubscriptionTier {
+    return SUBSCRIPTION_TIERS.find(tier => tier.id === 'starter') || SUBSCRIPTION_TIERS[1];
+  }
+
+  /**
+   * Audit and fix subscription tier mismatches
+   * This method can be called periodically to ensure data integrity
+   */
+  async auditSubscriptionTiers(): Promise<{
+    totalUsers: number;
+    fixedMismatches: number;
+    freeUsersCount: number;
+    paidUsersCount: number;
+    issues: string[];
+  }> {
+    const issues: string[] = [];
+    let fixedMismatches = 0;
+    let freeUsersCount = 0;
+    let paidUsersCount = 0;
+
+    try {
+      // Get all users with their subscription data
+      const users = await databaseStorage.getAllUsers();
+      
+      console.log(`[Subscription Audit] Starting audit of ${users.length} users`);
+
+      for (const user of users) {
+        const subscription = await databaseStorage.getUserSubscription(user.id);
+        const originalTier = subscription
+          ? getTierById(subscription.tierId) 
+          : this.getFreeTier();
+        
+        const validatedTier = this.validateAndAssignTier(subscription);
+
+        // Check for tier mismatches
+        if (originalTier?.id !== validatedTier.id) {
+          console.log(`[Subscription Audit] Mismatch found for user ${user.id}: ${originalTier?.id} -> ${validatedTier.id}`);
+          
+          // If there's a subscription record but it should be free tier
+          if (subscription && validatedTier.id === 'free') {
+            const reason = this.getDemotionReason(subscription);
+            issues.push(`User ${user.id}: Downgraded from ${originalTier?.id} to free (${reason})`);
+          }
+          
+          // If there's an active subscription but assigned free tier incorrectly
+          else if (subscription && originalTier?.id === 'free' && validatedTier.id !== 'free') {
+            issues.push(`User ${user.id}: Upgraded from free to ${validatedTier.id} (has active subscription)`);
+          }
+
+          fixedMismatches++;
+        }
+
+        // Count final tier assignments
+        if (validatedTier.id === 'free') {
+          freeUsersCount++;
+        } else {
+          paidUsersCount++;
+        }
+      }
+
+      console.log(`[Subscription Audit] Completed. Fixed ${fixedMismatches} mismatches.`);
+      
+      return {
+        totalUsers: users.length,
+        fixedMismatches,
+        freeUsersCount,
+        paidUsersCount,
+        issues
+      };
+
+    } catch (error) {
+      console.error('[Subscription Audit] Error during audit:', error);
+      issues.push(`Audit error: ${error instanceof Error ? error.message : 'Unknown error'}`);
+      
+      return {
+        totalUsers: 0,
+        fixedMismatches: 0,
+        freeUsersCount: 0,
+        paidUsersCount: 0,
+        issues
+      };
+    }
+  }
+
+  /**
+   * Get reason for subscription demotion to free tier
+   */
+  private getDemotionReason(subscription: UserSubscription): string {
+    const validPaidStatuses = ['active', 'trialing'];
+    const isValidStatus = validPaidStatuses.includes(subscription.status);
+    const isExpired = subscription.currentPeriodEnd < new Date();
+
+    if (!isValidStatus && isExpired) {
+      return `status: ${subscription.status}, expired`;
+    } else if (!isValidStatus) {
+      return `status: ${subscription.status}`;
+    } else if (isExpired) {
+      return 'expired';
+    } else {
+      return 'unknown';
+    }
+  }
+
+  /**
+   * Validate that a user's assigned tier matches their subscription status
+   * Returns true if valid, false if there's a mismatch
+   */
+  async validateUserTier(userId: string): Promise<{
+    isValid: boolean;
+    currentTier: string;
+    shouldBeTier: string;
+    reason?: string;
+  }> {
+    try {
+      const subscription = await databaseStorage.getUserSubscription(userId);
+      const currentTier = subscription
+        ? getTierById(subscription.tierId)?.id || 'free'
+        : 'free';
+      
+      const validatedTier = this.validateAndAssignTier(subscription);
+      const shouldBeTier = validatedTier.id;
+
+      const isValid = currentTier === shouldBeTier;
+      
+      return {
+        isValid,
+        currentTier,
+        shouldBeTier,
+        reason: !isValid && subscription 
+          ? this.getDemotionReason(subscription)
+          : undefined
+      };
+    } catch (error) {
+      return {
+        isValid: false,
+        currentTier: 'unknown',
+        shouldBeTier: 'free',
+        reason: `Error validating user: ${error instanceof Error ? error.message : 'Unknown error'}`
+      };
+    }
+  }
+
+  /**
    * Track document analysis usage
    */
   async trackUsage(userId: string, tokensUsed: number, model: string): Promise<void> {
     try {
-      // Get user's current subscription to determine tier
+      // Get user's current subscription to determine tier with validation
       const subscription = await databaseStorage.getUserSubscription(userId);
-      const tier = subscription
-        ? getTierById(subscription.tierId) || SUBSCRIPTION_TIERS[0]
-        : SUBSCRIPTION_TIERS[0]; // Default to free tier
+      const tier = this.validateAndAssignTier(subscription);
 
       const cost = this.calculateTokenCost(tokensUsed, tier);
       const currentPeriod = new Date().toISOString().slice(0, 7); // YYYY-MM format
@@ -464,24 +655,141 @@ export class SubscriptionService {
   }
 
   private async handleSubscriptionUpdate(subscription: Stripe.Subscription): Promise<void> {
-    // Update user subscription in database
-    console.log('Subscription updated:', subscription.id);
+    try {
+      const userId = subscription.metadata.userId;
+      if (!userId) {
+        console.error('No userId in subscription metadata:', subscription.id);
+        return;
+      }
+
+      // Update subscription in database
+      await databaseStorage.updateUserSubscription(subscription.id, {
+        status: subscription.status as any,
+        currentPeriodStart: new Date((subscription as any).current_period_start * 1000),
+        currentPeriodEnd: new Date((subscription as any).current_period_end * 1000),
+        cancelAtPeriodEnd: (subscription as any).cancel_at_period_end,
+        stripeCustomerId: subscription.customer as string,
+      });
+
+      console.log('✅ Subscription updated in database:', subscription.id);
+    } catch (error) {
+      console.error('❌ Error updating subscription:', subscription.id, error);
+    }
   }
 
   private async handleSubscriptionDeleted(subscription: Stripe.Subscription): Promise<void> {
-    // Mark subscription as canceled in database
-    // Downgrade user to free tier
-    console.log('Subscription deleted:', subscription.id);
+    try {
+      const userId = subscription.metadata.userId;
+      if (!userId) {
+        console.error('No userId in subscription metadata:', subscription.id);
+        return;
+      }
+
+      // Mark subscription as canceled in database
+      await databaseStorage.updateUserSubscription(subscription.id, {
+        status: 'canceled',
+        cancelAtPeriodEnd: true,
+      });
+
+      console.log('✅ Subscription canceled in database:', subscription.id);
+      
+      securityLogger.logSecurityEvent({
+        eventType: 'SUBSCRIPTION_CANCELED' as any,
+        severity: 'LOW' as any,
+        message: `Subscription deleted via webhook: ${subscription.id}`,
+        ip: 'stripe-webhook',
+        userAgent: 'stripe-webhook',
+        endpoint: 'subscription-webhook',
+        details: {
+          userId,
+          subscriptionId: subscription.id,
+        },
+      });
+    } catch (error) {
+      console.error('❌ Error handling subscription deletion:', subscription.id, error);
+    }
   }
 
   private async handlePaymentSucceeded(invoice: Stripe.Invoice): Promise<void> {
-    // Reset usage for the new billing period
-    console.log('Payment succeeded for invoice:', invoice.id);
+    try {
+      const subscriptionId = (invoice as any).subscription as string;
+      if (!subscriptionId) {
+        console.log('No subscription ID in invoice:', invoice.id);
+        return;
+      }
+
+      // Get subscription to find user
+      const subscription = await stripe.subscriptions.retrieve(subscriptionId);
+      const userId = subscription.metadata.userId;
+      
+      if (!userId) {
+        console.error('No userId in subscription metadata for invoice:', invoice.id);
+        return;
+      }
+
+      console.log('✅ Payment succeeded for user:', userId, 'invoice:', invoice.id);
+      
+      securityLogger.logSecurityEvent({
+        eventType: 'PAYMENT_SUCCEEDED' as any,
+        severity: 'LOW' as any,
+        message: `Payment succeeded for invoice: ${invoice.id}`,
+        ip: 'stripe-webhook',
+        userAgent: 'stripe-webhook',
+        endpoint: 'subscription-webhook',
+        details: {
+          userId,
+          subscriptionId,
+          invoiceId: invoice.id,
+          amount: invoice.amount_paid / 100,
+          currency: invoice.currency,
+        },
+      });
+    } catch (error) {
+      console.error('❌ Error handling payment success:', invoice.id, error);
+    }
   }
 
   private async handlePaymentFailed(invoice: Stripe.Invoice): Promise<void> {
-    // Handle failed payment - send notification, restrict usage, etc.
-    console.log('Payment failed for invoice:', invoice.id);
+    try {
+      const subscriptionId = (invoice as any).subscription as string;
+      if (!subscriptionId) {
+        console.log('No subscription ID in failed invoice:', invoice.id);
+        return;
+      }
+
+      // Get subscription to find user
+      const subscription = await stripe.subscriptions.retrieve(subscriptionId);
+      const userId = subscription.metadata.userId;
+      
+      if (!userId) {
+        console.error('No userId in subscription metadata for failed invoice:', invoice.id);
+        return;
+      }
+
+      console.log('❌ Payment failed for user:', userId, 'invoice:', invoice.id);
+      
+      securityLogger.logSecurityEvent({
+        eventType: 'PAYMENT_FAILED' as any,
+        severity: 'MEDIUM' as any,
+        message: `Payment failed for invoice: ${invoice.id}`,
+        ip: 'stripe-webhook',
+        userAgent: 'stripe-webhook',
+        endpoint: 'subscription-webhook',
+        details: {
+          userId,
+          subscriptionId,
+          invoiceId: invoice.id,
+          amount: invoice.amount_due / 100,
+          currency: invoice.currency,
+          attemptCount: invoice.attempt_count,
+        },
+      });
+
+      // TODO: Send notification email to user about failed payment
+      // TODO: Consider restricting usage if payment fails repeatedly
+    } catch (error) {
+      console.error('❌ Error handling payment failure:', invoice.id, error);
+    }
   }
 }
 

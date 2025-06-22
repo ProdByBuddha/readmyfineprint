@@ -18,21 +18,21 @@ export const SUBSCRIPTION_TIERS: SubscriptionTier[] = [
   {
     id: "free",
     name: "Free",
-    description: "Perfect for trying out document analysis with unlimited basic scans",
-    model: "gpt-3.5-turbo",
+    description: "Perfect for trying out document analysis with unlimited scans",
+    model: "gpt-4o-mini",
     monthlyPrice: 0,
     yearlyPrice: 0,
     features: [
-      "Unlimited document scans",
-      "Basic analysis with GPT-3.5-Turbo",
-      "Standard processing time",
-      "Community support",
-      "Basic security features",
-      "Essential document insights"
+      "Unlimited document analysis",
+      "Analysis with GPT-4o-mini",
+      "Standard rate limiting (lower priority)",
+      "Email support",
+      "Enterprise-grade security",
+      "Full document insights"
     ],
     limits: {
       documentsPerMonth: -1, // -1 indicates unlimited
-      tokensPerDocument: 16000, // GPT-3.5-Turbo context limit
+      tokensPerDocument: 128000, // GPT-4o-mini context limit
       prioritySupport: false,
       advancedAnalysis: false,
       apiAccess: false,
@@ -48,21 +48,21 @@ export const SUBSCRIPTION_TIERS: SubscriptionTier[] = [
   {
     id: "starter",
     name: "Starter",
-    description: "For individuals and small teams getting started with regular document analysis",
-    model: "gpt-4o-mini",
-    monthlyPrice: 15, // 5x profit: ($0.00135 * 50 docs * 5) = $0.3375, rounded up for value
+    description: "For individuals and teams who need faster processing with advanced AI",
+    model: "gpt-4.1-mini",
+    monthlyPrice: 15, // For unlimited GPT-4.1-mini with priority processing
     yearlyPrice: 150, // 2 months free
     features: [
-      "50 document analyses per month",
-      "Enhanced analysis with GPT-4o-mini",
-      "Faster processing",
+      "Unlimited document analysis",
+      "Enhanced analysis with GPT-4.1-mini",
+      "Priority rate limiting (faster processing)",
       "Email support",
-      "Basic integrations",
+      "Enterprise-grade security",
       "Export to PDF/Word"
     ],
     limits: {
-      documentsPerMonth: 50,
-      tokensPerDocument: 128000, // GPT-4o-mini context limit
+      documentsPerMonth: -1, // unlimited
+      tokensPerDocument: 128000, // GPT-4.1-mini context limit
       prioritySupport: false,
       advancedAnalysis: true,
       apiAccess: false,

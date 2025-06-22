@@ -11,6 +11,12 @@ import SubscriptionPlans from '@/components/SubscriptionPlans';
 import { StripeWrapper } from '@/components/StripeWrapper';
 
 interface SubscriptionData {
+  subscription?: {
+    id: string;
+    stripeSubscriptionId: string;
+    status: string;
+    currentPeriodEnd: Date;
+  };
   tier: {
     id: string;
     name: string;
@@ -42,9 +48,8 @@ export default function SubscriptionPage() {
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState('overview');
   
-  // Show coming soon in production
-  const isProduction = import.meta.env.PROD;
-  const [showComingSoon, setShowComingSoon] = useState(isProduction);
+  // Enable subscription functionality
+  const [showComingSoon] = useState(false);
 
   useEffect(() => {
     fetchSubscriptionData();
@@ -52,41 +57,50 @@ export default function SubscriptionPage() {
 
   const fetchSubscriptionData = async () => {
     try {
-      // This would be an actual API call
-      // const response = await fetch('/api/user/subscription');
-      // const data = await response.json();
+      const response = await fetch('/api/user/subscription', {
+        credentials: 'include',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
 
-      // Mock data for demonstration
-      const mockData: SubscriptionData = {
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      const data = await response.json();
+      setSubscriptionData(data);
+    } catch (error) {
+      console.error('Error fetching subscription data:', error);
+      
+      // Fallback to free tier data if API fails
+      const fallbackData: SubscriptionData = {
         tier: {
           id: 'free',
           name: 'Free',
           model: 'gpt-3.5-turbo',
           monthlyPrice: 0,
           limits: {
-            documentsPerMonth: -1, // Unlimited
+            documentsPerMonth: -1,
             prioritySupport: false,
             advancedAnalysis: false,
             apiAccess: false,
           },
         },
         usage: {
-          documentsAnalyzed: 47,
-          tokensUsed: 164500,
-          cost: 0.698125,
-          resetDate: new Date(Date.now() + 28 * 24 * 60 * 60 * 1000),
+          documentsAnalyzed: 0,
+          tokensUsed: 0,
+          cost: 0,
+          resetDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
         },
-        canUpgrade: false, // Changed to false since free tier is now unlimited
+        canUpgrade: true,
         suggestedUpgrade: {
           id: 'starter',
           name: 'Starter',
           monthlyPrice: 15,
         },
       };
-
-      setSubscriptionData(mockData);
-    } catch (error) {
-      console.error('Error fetching subscription data:', error);
+      setSubscriptionData(fallbackData);
     } finally {
       setLoading(false);
     }
@@ -98,18 +112,58 @@ export default function SubscriptionPage() {
       return;
     }
 
-    // This would integrate with Stripe checkout
-    console.log('Selected plan:', { tierId, billingCycle });
-    alert(`Would redirect to Stripe checkout for ${tierId} (${billingCycle})`);
+    try {
+      // Create Stripe checkout session
+      const response = await fetch('/api/subscription/create-checkout', {
+        method: 'POST',
+        credentials: 'include',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          tierId,
+          billingCycle,
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      const { url } = await response.json();
+      
+      // Redirect to Stripe checkout
+      window.location.href = url;
+    } catch (error) {
+      console.error('Error creating checkout session:', error);
+      window.alert('Failed to start checkout process. Please try again.');
+    }
   };
 
   const handleCancelSubscription = async () => {
-    if (confirm('Are you sure you want to cancel your subscription? You will be downgraded to the free plan at the end of your billing period.')) {
+    if (window.confirm('Are you sure you want to cancel your subscription? You will be downgraded to the free plan at the end of your billing period.')) {
       try {
-        // await fetch('/api/user/subscription/cancel', { method: 'POST' });
-        alert('Subscription canceled successfully');
+        const response = await fetch('/api/subscription/cancel', {
+          method: 'POST',
+          credentials: 'include',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            subscriptionId: subscriptionData?.subscription?.stripeSubscriptionId,
+            immediate: false,
+          }),
+        });
+
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+
+        window.alert('Subscription canceled successfully. You will continue to have access until the end of your billing period.');
+        fetchSubscriptionData(); // Refresh data
       } catch (error) {
         console.error('Error canceling subscription:', error);
+        window.alert('Failed to cancel subscription. Please try again.');
       }
     }
   };
@@ -117,7 +171,7 @@ export default function SubscriptionPage() {
   // Show coming soon modal in production
   if (showComingSoon) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+      <div className="min-h-screen bg-gray-50 dark:bg-slate-900 flex items-center justify-center">
         <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center">
           <div className="bg-white dark:bg-gray-800 rounded-lg p-8 max-w-md w-full mx-4">
             <div className="text-center">
@@ -141,7 +195,7 @@ export default function SubscriptionPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+      <div className="min-h-screen bg-gray-50 dark:bg-slate-900 flex items-center justify-center">
         <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-blue-600"></div>
       </div>
     );
@@ -149,7 +203,7 @@ export default function SubscriptionPage() {
 
   if (!subscriptionData) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+      <div className="min-h-screen bg-gray-50 dark:bg-slate-900 flex items-center justify-center">
         <Alert variant="destructive" className="max-w-md">
           <AlertCircle className="h-4 w-4" />
           <AlertDescription>
@@ -166,15 +220,15 @@ export default function SubscriptionPage() {
   const daysUntilReset = Math.ceil((subscriptionData.usage.resetDate.getTime() - Date.now()) / (1000 * 60 * 60 * 24));
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gray-50 dark:bg-slate-900">
       <div className="max-w-7xl mx-auto px-4 py-8">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           className="mb-8"
         >
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">Subscription Management</h1>
-          <p className="text-gray-600">Manage your subscription, view usage, and upgrade your plan</p>
+          <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">Subscription Management</h1>
+          <p className="text-gray-600 dark:text-gray-300">Manage your subscription, view usage, and upgrade your plan</p>
         </motion.div>
 
         <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
@@ -201,11 +255,11 @@ export default function SubscriptionPage() {
                 <CardContent>
                   <div className="flex items-center justify-between mb-4">
                     <div>
-                      <h3 className="text-xl font-semibold">{subscriptionData.tier.name}</h3>
-                      <p className="text-gray-600">Powered by {subscriptionData.tier.model}</p>
+                      <h3 className="text-xl font-semibold dark:text-white">{subscriptionData.tier.name}</h3>
+                      <p className="text-gray-600 dark:text-gray-300">Powered by {subscriptionData.tier.model}</p>
                     </div>
                     <div className="text-right">
-                      <div className="text-2xl font-bold">
+                      <div className="text-2xl font-bold dark:text-white">
                         {subscriptionData.tier.monthlyPrice === 0 ? 'Free' : `$${subscriptionData.tier.monthlyPrice}/month`}
                       </div>
                       {subscriptionData.tier.id !== 'free' && (
@@ -219,25 +273,25 @@ export default function SubscriptionPage() {
                         <div className="text-xl font-semibold">
                           {subscriptionData.tier.limits.documentsPerMonth === -1 ? '∞' : subscriptionData.tier.limits.documentsPerMonth}
                         </div>
-                        <div className="text-sm text-gray-600">Documents/Month</div>
+                        <div className="text-sm text-gray-600 dark:text-gray-300">Documents/Month</div>
                       </div>
                     <div className="text-center p-3 bg-gray-50 dark:bg-gray-800 rounded-lg">
                       <div className="text-xl font-semibold">
                         {subscriptionData.tier.limits.prioritySupport ? <CheckCircle className="h-6 w-6 text-green-500 mx-auto" /> : <span className="text-gray-400">-</span>}
                       </div>
-                      <div className="text-sm text-gray-600">Priority Support</div>
+                      <div className="text-sm text-gray-600 dark:text-gray-300">Priority Support</div>
                     </div>
                     <div className="text-center p-3 bg-gray-50 dark:bg-gray-800 rounded-lg">
                       <div className="text-xl font-semibold">
                         {subscriptionData.tier.limits.advancedAnalysis ? <CheckCircle className="h-6 w-6 text-green-500 mx-auto" /> : <span className="text-gray-400">-</span>}
                       </div>
-                      <div className="text-sm text-gray-600">Advanced Analysis</div>
+                      <div className="text-sm text-gray-600 dark:text-gray-300">Advanced Analysis</div>
                     </div>
                     <div className="text-center p-3 bg-gray-50 dark:bg-gray-800 rounded-lg">
                       <div className="text-xl font-semibold">
                         {subscriptionData.tier.limits.apiAccess ? <CheckCircle className="h-6 w-6 text-green-500 mx-auto" /> : <span className="text-gray-400">-</span>}
                       </div>
-                      <div className="text-sm text-gray-600">API Access</div>
+                      <div className="text-sm text-gray-600 dark:text-gray-300">API Access</div>
                     </div>
                   </div>
                 </CardContent>
@@ -263,8 +317,8 @@ export default function SubscriptionPage() {
                 <CardContent className="space-y-4">
                   <div>
                     <div className="flex justify-between mb-2">
-                      <span>Documents Analyzed</span>
-                      <span className="font-semibold">
+                      <span className="dark:text-white">Documents Analyzed</span>
+                      <span className="font-semibold dark:text-white">
                         {subscriptionData.usage.documentsAnalyzed} / {subscriptionData.tier.limits.documentsPerMonth === -1 ? '∞' : subscriptionData.tier.limits.documentsPerMonth}
                       </span>
                     </div>
@@ -285,17 +339,17 @@ export default function SubscriptionPage() {
                   </div>
 
                   <div className="grid grid-cols-2 gap-4">
-                    <div className="text-center p-3 bg-blue-50 rounded-lg">
+                    <div className="text-center p-3 bg-blue-50 dark:bg-blue-900/30 rounded-lg">
                       <div className="text-xl font-semibold text-blue-600">
                         {subscriptionData.usage.tokensUsed.toLocaleString()}
                       </div>
-                      <div className="text-sm text-gray-600">Tokens Used</div>
+                      <div className="text-sm text-gray-600 dark:text-gray-300">Tokens Used</div>
                     </div>
-                    <div className="text-center p-3 bg-green-50 rounded-lg">
+                    <div className="text-center p-3 bg-green-50 dark:bg-green-900/30 rounded-lg">
                       <div className="text-xl font-semibold text-green-600">
                         ${subscriptionData.usage.cost.toFixed(4)}
                       </div>
-                      <div className="text-sm text-gray-600">AI Costs</div>
+                      <div className="text-sm text-gray-600 dark:text-gray-300">AI Costs</div>
                     </div>
                   </div>
                 </CardContent>
@@ -309,13 +363,13 @@ export default function SubscriptionPage() {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.3 }}
               >
-                <Alert>
+                <Alert className="bg-blue-50 dark:bg-blue-900/30 border-blue-200 dark:border-blue-800">
                   <TrendingUp className="h-4 w-4" />
                   <AlertDescription>
                     <div className="flex items-center justify-between">
                       <div>
-                        <strong>Consider upgrading to {subscriptionData.suggestedUpgrade.name}</strong>
-                        <p className="text-sm mt-1">
+                        <strong className="dark:text-white">Consider upgrading to {subscriptionData.suggestedUpgrade.name}</strong>
+                        <p className="text-sm mt-1 dark:text-gray-300">
                           Get more documents, faster processing, and advanced features for just ${subscriptionData.suggestedUpgrade.monthlyPrice}/month.
                         </p>
                       </div>
@@ -350,22 +404,22 @@ export default function SubscriptionPage() {
                 {subscriptionData.tier.id === 'free' ? (
                   <div className="text-center py-8">
                     <Calendar className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-                    <h3 className="text-lg font-semibold text-gray-600 mb-2">No Billing Information</h3>
-                    <p className="text-gray-500 mb-4">You're currently on the free plan</p>
+                    <h3 className="text-lg font-semibold text-gray-600 dark:text-gray-300 mb-2">No Billing Information</h3>
+                    <p className="text-gray-500 dark:text-gray-400 mb-4">You're currently on the free plan</p>
                     <Button onClick={() => setActiveTab('plans')}>
                       Upgrade to Paid Plan
                     </Button>
                   </div>
                 ) : (
                   <div className="space-y-4">
-                    <div className="flex justify-between items-center p-4 bg-gray-50 rounded-lg">
+                    <div className="flex justify-between items-center p-4 bg-gray-50 dark:bg-gray-800 rounded-lg">
                       <div>
-                        <h4 className="font-semibold">Next Billing Date</h4>
-                        <p className="text-gray-600">{subscriptionData.usage.resetDate.toLocaleDateString()}</p>
+                        <h4 className="font-semibold dark:text-white">Next Billing Date</h4>
+                        <p className="text-gray-600 dark:text-gray-300">{subscriptionData.usage.resetDate.toLocaleDateString()}</p>
                       </div>
                       <div className="text-right">
-                        <div className="text-xl font-bold">${subscriptionData.tier.monthlyPrice}</div>
-                        <div className="text-sm text-gray-600">Monthly</div>
+                        <div className="text-xl font-bold dark:text-white">${subscriptionData.tier.monthlyPrice}</div>
+                        <div className="text-sm text-gray-600 dark:text-gray-300">Monthly</div>
                       </div>
                     </div>
 

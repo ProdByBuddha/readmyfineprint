@@ -16,7 +16,7 @@ import { MobileAppWrapper } from "@/components/MobileAppWrapper";
 import { useCombinedConsent } from "@/components/CombinedConsent";
 import { CookieConsentBanner } from "@/components/CookieConsentBanner";
 import { useAccessibility } from "@/hooks/useAccessibility";
-import { analyzeDocument, getDocument, createDocument } from "@/lib/api";
+import { analyzeDocument, getDocument, createDocument, getQueueStatus } from "@/lib/api";
 import { useToast } from "@/hooks/use-toast";
 import { queryClient } from "@/lib/queryClient";
 import { generateFAQSchema, updateSEO } from "@/lib/seo";
@@ -66,7 +66,22 @@ export default function Home() {
   });
 
   const analyzeDocumentMutation = useMutation({
-    mutationFn: (documentId: number) => analyzeDocument(documentId),
+    mutationFn: async (documentId: number) => {
+      // Show initial queue status
+      try {
+        const queueStatus = await getQueueStatus();
+        if (queueStatus.queueLength > 0) {
+          toast({
+            title: "Document queued for analysis",
+            description: `Your document is in the processing queue. ${queueStatus.queueLength} documents ahead of you.`,
+          });
+        }
+      } catch (error) {
+        console.warn("Could not get queue status:", error);
+      }
+      
+      return analyzeDocument(documentId);
+    },
     onSuccess: (updatedDocument: Document) => {
       setIsAnalyzing(false);
       announce("Document analysis completed successfully", 'polite');

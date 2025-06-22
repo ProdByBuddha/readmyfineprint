@@ -163,6 +163,9 @@ export function addSecurityHeaders(req: Request, res: Response, next: NextFuncti
   // Referrer policy
   res.setHeader('Referrer-Policy', 'strict-origin-when-cross-origin');
 
+  // HSTS (HTTP Strict Transport Security) - tells browsers/crawlers to only use HTTPS
+  res.setHeader('Strict-Transport-Security', 'max-age=31536000; includeSubDomains; preload');
+
   // Content Security Policy with comprehensive Stripe, Shields.io, and Replit support
   res.setHeader('Content-Security-Policy',
     "default-src 'self'; " +

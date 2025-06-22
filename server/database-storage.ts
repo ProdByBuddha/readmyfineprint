@@ -116,6 +116,10 @@ export class DatabaseStorage implements IStorage {
     return user || undefined;
   }
 
+  async getAllUsers(): Promise<User[]> {
+    return await db.select().from(users);
+  }
+
   // Subscription management methods
   async getUserSubscription(userId: string): Promise<UserSubscription | undefined> {
     const [subscription] = await db

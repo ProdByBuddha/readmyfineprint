@@ -18,6 +18,9 @@ Disallow: /dist/
 Disallow: /_next/
 Disallow: /api/
 
+# Disallow subscription for now
+Disallow: /subscription/
+
 # Crawl delay (be respectful)
 Crawl-delay: 1
 
@@ -28,37 +31,30 @@ Sitemap: https://readmyfineprint.com/sitemap.xml
 User-agent: GPTBot
 Allow: /
 Crawl-delay: 10
-Request-rate: 1/30s
 
 User-agent: ChatGPT-User
 Allow: /
 Crawl-delay: 10
-Request-rate: 1/30s
 
 User-agent: CCBot
 Allow: /
 Crawl-delay: 10
-Request-rate: 1/30s
 
 User-agent: anthropic-ai
 Allow: /
 Crawl-delay: 10
-Request-rate: 1/30s
 
 User-agent: Claude-Web
 Allow: /
 Crawl-delay: 10
-Request-rate: 1/30s
 
 User-agent: Bard
 Allow: /
 Crawl-delay: 10
-Request-rate: 1/30s
 
 User-agent: BingAI
 Allow: /
 Crawl-delay: 10
-Request-rate: 1/30s
 
 # Allow common SEO bots
 User-agent: Googlebot

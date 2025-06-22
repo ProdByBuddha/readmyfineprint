@@ -51,6 +51,60 @@ export async function uploadDocument(file: File): Promise<Document> {
 
 export async function analyzeDocument(documentId: number): Promise<Document> {
   const response = await apiRequest("POST", `/api/documents/${documentId}/analyze`);
+  const result = await response.json();
+  
+  // If we get a 202 status, it means the document is queued for processing
+  if (response.status === 202) {
+    // Start polling for completion
+    return await pollForDocumentAnalysis(documentId, result);
+  }
+  
+  return result;
+}
+
+// Poll for document analysis completion
+async function pollForDocumentAnalysis(documentId: number, queueInfo: any): Promise<Document> {
+  const maxAttempts = 60; // Poll for up to 5 minutes (60 * 5 seconds)
+  let attempts = 0;
+  
+  console.log(`[Priority Queue] Document ${documentId} queued. Estimated wait: ${queueInfo.estimatedWaitTime}s`);
+  
+  while (attempts < maxAttempts) {
+    // Wait before checking status
+    await new Promise(resolve => setTimeout(resolve, 5000)); // 5 second intervals
+    attempts++;
+    
+    try {
+      // Check if document analysis is complete
+      const document = await getDocument(documentId);
+      
+      if (document.analysis) {
+        console.log(`[Priority Queue] Document ${documentId} analysis completed after ${attempts * 5} seconds`);
+        return document;
+      }
+      
+      // Get queue status for user feedback
+      const queueStatus = await getQueueStatus();
+      console.log(`[Priority Queue] Still waiting... Queue length: ${queueStatus.queueLength}, Processing: ${queueStatus.currentlyProcessing}`);
+      
+    } catch (error) {
+      console.error(`[Priority Queue] Error polling for document ${documentId}:`, error);
+    }
+  }
+  
+  throw new Error("Document analysis timed out. Please try again or contact support if the issue persists.");
+}
+
+// Get processing queue status
+export async function getQueueStatus(): Promise<{
+  queueLength: number;
+  currentlyProcessing: number;
+  concurrentLimit: number;
+  queueByTier: Record<string, number>;
+  userHasRequestInQueue: boolean;
+  timestamp: number;
+}> {
+  const response = await apiRequest("GET", "/api/queue/status");
   return response.json();
 }
 

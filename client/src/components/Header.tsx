@@ -14,13 +14,7 @@ export function Header() {
   const isDevelopment = import.meta.env.DEV || import.meta.env.MODE === 'development';
 
   const handleSubscriptionClick = (e: React.MouseEvent) => {
-    // Always prevent navigation and show toast (for production deployment)
-    e.preventDefault();
-    toast({
-      title: "Coming Soon",
-      description: "Subscription management is coming soon! We're working hard to bring you premium features.",
-      duration: 4000,
-    });
+    // Allow navigation to subscription page
   };
 
   return (
@@ -65,20 +59,18 @@ export function Header() {
             role="navigation"
             aria-label="Main navigation"
           >
-            {!import.meta.env.PROD && (
-              <Link to="/subscription">
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  className="mr-2"
-                  aria-label="Manage subscription"
-                  onClick={handleSubscriptionClick}
-                >
-                  <Crown className="w-4 h-4 mr-2 text-yellow-600" aria-hidden="true" />
-                  Plans
-                </Button>
-              </Link>
-            )}
+            <Link to="/subscription">
+              <Button
+                variant="ghost"
+                size="sm"
+                className="mr-2"
+                aria-label="Manage subscription"
+                onClick={handleSubscriptionClick}
+              >
+                <Crown className="w-4 h-4 mr-2 text-yellow-600" aria-hidden="true" />
+                Plans
+              </Button>
+            </Link>
             <Link to="/donate">
               <Button
                 variant="outline"

@@ -25,12 +25,6 @@ interface SubscriptionTier {
     customIntegrations: boolean;
   };
   popular?: boolean;
-  modelCosts: {
-    inputTokenCost: number;
-    outputTokenCost: number;
-    estimatedTokensPerDocument: number;
-    costPerDocument: number;
-  };
 }
 
 const SUBSCRIPTION_TIERS: SubscriptionTier[] = [
@@ -38,16 +32,16 @@ const SUBSCRIPTION_TIERS: SubscriptionTier[] = [
     id: "free",
     name: "Free",
     description: "Perfect for trying out document analysis with basic features",
-    model: "gpt-3.5-turbo",
+    model: "gpt-4o-mini",
     monthlyPrice: 0,
     yearlyPrice: 0,
     features: [
-      "Unlimited document scans",
-      "Basic analysis with GPT-3.5-Turbo",
-      "Standard processing time",
-      "Community support",
-      "Basic security features",
-      "Essential document insights"
+      "Unlimited document analysis",
+      "Analysis with GPT-4o-mini",
+      "Standard rate limiting (lower priority)",
+      "Email support",
+      "Enterprise-grade security",
+      "Full document insights"
     ],
     limits: {
       documentsPerMonth: -1, // -1 indicates unlimited
@@ -56,44 +50,32 @@ const SUBSCRIPTION_TIERS: SubscriptionTier[] = [
       advancedAnalysis: false,
       apiAccess: false,
       customIntegrations: false,
-    },
-    modelCosts: {
-      inputTokenCost: 0.50,
-      outputTokenCost: 1.50,
-      estimatedTokensPerDocument: 3500,
-      costPerDocument: 0.00425,
     }
   },
   {
     id: "starter",
     name: "Starter",
-    description: "For individuals and small teams getting started with regular document analysis",
-    model: "gpt-4o-mini",
+    description: "For individuals and teams who need faster processing with advanced AI",
+    model: "gpt-4.1-mini",
     monthlyPrice: 15,
     yearlyPrice: 150,
     features: [
-      "50 document analyses per month",
-      "Enhanced analysis with GPT-4o-mini",
-      "Faster processing",
+      "Unlimited document analysis",
+      "Enhanced analysis with GPT-4.1-mini",
+      "Priority rate limiting (faster processing)",
       "Email support",
-      "Basic integrations",
+      "Enterprise-grade security",
       "Export to PDF/Word"
     ],
     limits: {
-      documentsPerMonth: 50,
+      documentsPerMonth: -1, // unlimited
       tokensPerDocument: 128000,
       prioritySupport: false,
       advancedAnalysis: true,
       apiAccess: false,
       customIntegrations: false,
     },
-    popular: true,
-    modelCosts: {
-      inputTokenCost: 0.15,
-      outputTokenCost: 0.60,
-      estimatedTokensPerDocument: 3500,
-      costPerDocument: 0.00135,
-    }
+    popular: true
   },
   {
     id: "professional",
@@ -120,12 +102,6 @@ const SUBSCRIPTION_TIERS: SubscriptionTier[] = [
       advancedAnalysis: true,
       apiAccess: true,
       customIntegrations: true,
-    },
-    modelCosts: {
-      inputTokenCost: 2.50,
-      outputTokenCost: 10.00,
-      estimatedTokensPerDocument: 3500,
-      costPerDocument: 0.02,
     }
   },
   {
@@ -155,12 +131,6 @@ const SUBSCRIPTION_TIERS: SubscriptionTier[] = [
       advancedAnalysis: true,
       apiAccess: true,
       customIntegrations: true,
-    },
-    modelCosts: {
-      inputTokenCost: 10.00,
-      outputTokenCost: 30.00,
-      estimatedTokensPerDocument: 3500,
-      costPerDocument: 0.065,
     }
   },
   {
@@ -192,12 +162,6 @@ const SUBSCRIPTION_TIERS: SubscriptionTier[] = [
       advancedAnalysis: true,
       apiAccess: true,
       customIntegrations: true,
-    },
-    modelCosts: {
-      inputTokenCost: 15.00,
-      outputTokenCost: 60.00,
-      estimatedTokensPerDocument: 3500,
-      costPerDocument: 0.12,
     }
   }
 ];
@@ -259,7 +223,7 @@ export default function SubscriptionPlans({ currentTier, onSelectPlan }: Subscri
           Choose Your Plan
         </h2>
         <p className="text-lg text-gray-600 mb-6">
-          Powered by different AI models with transparent pricing based on actual AI costs
+          Powered by different AI models for optimal document analysis
         </p>
 
         {/* Billing Cycle Toggle */}
@@ -284,8 +248,8 @@ export default function SubscriptionPlans({ currentTier, onSelectPlan }: Subscri
       </div>
 
       {/* Plans Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-6">
-        {SUBSCRIPTION_TIERS.map((tier, index) => {
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        {SUBSCRIPTION_TIERS.filter(tier => ['free', 'starter'].includes(tier.id)).map((tier, index) => {
           const price = billingCycle === 'yearly' ? tier.yearlyPrice : tier.monthlyPrice;
           const displayPrice = billingCycle === 'yearly' ? price / 12 : price;
           const savings = calculateSavings(tier.monthlyPrice, tier.yearlyPrice);
@@ -370,13 +334,6 @@ export default function SubscriptionPlans({ currentTier, onSelectPlan }: Subscri
                     ))}
                   </ul>
 
-                  {/* Cost Transparency */}
-                  <Alert className="mb-4 bg-gray-50">
-                    <AlertDescription className="text-xs">
-                      <div>AI Cost: ${tier.modelCosts.costPerDocument.toFixed(4)}/document</div>
-                      <div>Our Margin: ~5x (transparent pricing)</div>
-                    </AlertDescription>
-                  </Alert>
 
                   {/* Action Button */}
                   <Button
@@ -423,17 +380,6 @@ export default function SubscriptionPlans({ currentTier, onSelectPlan }: Subscri
         </div>
       )}
 
-      {/* Additional Information */}
-      <div className="mt-12 text-center">
-        <Alert className="max-w-2xl mx-auto">
-          <AlertTriangle className="h-4 w-4" />
-          <AlertDescription>
-            <strong>Transparent Pricing:</strong> Our subscription prices are based on actual OpenAI API costs
-            with a 5x margin to ensure sustainable service and continuous improvements. Higher tiers use more
-            advanced AI models that cost more but provide superior analysis quality.
-          </AlertDescription>
-        </Alert>
-      </div>
     </div>
   );
 }

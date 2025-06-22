@@ -202,4 +202,3 @@ export function NetworkFallbackDonation({ onRetryStripe, stripeError }: NetworkF
     </div>
   );
 }
-`

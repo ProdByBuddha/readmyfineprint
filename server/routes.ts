@@ -278,13 +278,128 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const analysisIp = req.ip || req.socket.remoteAddress || 'unknown';
       const analysisUserAgent = req.get('User-Agent') || 'unknown';
 
-      const analysis = await analyzeDocument(document.content, document.title, analysisIp, analysisUserAgent, req.sessionId);
-      const updatedDocument = await storage.updateDocumentAnalysis(req.sessionId, documentId, analysis, clientFingerprint);
+      // Get user subscription to determine AI model and check limits
+      const { subscriptionService } = require("./subscription-service");
+      const userId = req.user?.id || req.sessionId || "anonymous";
+      
+      // Get user's subscription data to determine AI model and check usage
+      const subscriptionData = await subscriptionService.getUserSubscriptionWithUsage(userId);
+      
+      // Check if user can analyze another document
+      if (subscriptionData.tier.limits.documentsPerMonth !== -1) {
+        if (subscriptionData.usage.documentsAnalyzed >= subscriptionData.tier.limits.documentsPerMonth) {
+          return res.status(429).json({
+            error: "Monthly document limit reached",
+            limit: subscriptionData.tier.limits.documentsPerMonth,
+            used: subscriptionData.usage.documentsAnalyzed,
+            resetDate: subscriptionData.usage.resetDate,
+            suggestedUpgrade: subscriptionData.suggestedUpgrade
+          });
+        }
+      }
 
+      // Use priority queue for subscription-based processing priority
+      const { priorityQueue } = await import("./priority-queue");
+      
+      // Check if user already has a request in queue to prevent spam
+      if (priorityQueue.hasUserRequestInQueue(userId)) {
+        return res.status(429).json({
+          error: "You already have a document being processed. Please wait for it to complete.",
+          queueStats: priorityQueue.getQueueStats()
+        });
+      }
+
+      // Add estimated wait time to response for user feedback
+      const estimatedWaitTime = priorityQueue.getEstimatedWaitTime(subscriptionData.tier.id);
+      
+      // Process document analysis through priority queue
+      const analysis = await priorityQueue.addToQueue(
+        userId,
+        subscriptionData.tier.id,
+        async () => {
+          return await analyzeDocument(
+            document.content, 
+            document.title, 
+            analysisIp, 
+            analysisUserAgent, 
+            req.sessionId,
+            subscriptionData.tier.model,
+            userId
+          );
+        }
+      );
+      
+      // Update document with analysis results
+      const updatedDocument = await storage.updateDocumentAnalysis(req.sessionId, documentId, analysis, clientFingerprint);
+      
+      console.log(`✅ Document ${documentId} analysis completed for ${subscriptionData.tier.id} tier user`);
       res.json(updatedDocument);
     } catch (error) {
       console.error("Error analyzing document:", error);
       res.status(500).json({ error: error instanceof Error ? error.message : "Analysis failed" });
+    }
+  });
+
+  // Audit subscription tiers (admin only)
+  app.get("/api/admin/subscription-audit", requireAdminAuth, async (req, res) => {
+    try {
+      const { subscriptionService } = require("./subscription-service");
+      const auditResults = await subscriptionService.auditSubscriptionTiers();
+      
+      res.json({
+        success: true,
+        audit: auditResults,
+        timestamp: new Date().toISOString()
+      });
+    } catch (error) {
+      console.error("Error running subscription audit:", error);
+      res.status(500).json({ 
+        error: "Failed to run subscription audit",
+        details: error instanceof Error ? error.message : "Unknown error"
+      });
+    }
+  });
+
+  // Validate specific user tier (admin only)
+  app.get("/api/admin/validate-user-tier/:userId", requireAdminAuth, async (req, res) => {
+    try {
+      const { subscriptionService } = require("./subscription-service");
+      const { userId } = req.params;
+      
+      const validation = await subscriptionService.validateUserTier(userId);
+      
+      res.json({
+        success: true,
+        userId,
+        validation,
+        timestamp: new Date().toISOString()
+      });
+    } catch (error) {
+      console.error("Error validating user tier:", error);
+      res.status(500).json({ 
+        error: "Failed to validate user tier",
+        details: error instanceof Error ? error.message : "Unknown error"
+      });
+    }
+  });
+
+  // Get processing queue status
+  app.get("/api/queue/status", optionalUserAuth, async (req: any, res) => {
+    try {
+      const { priorityQueue } = await import("./priority-queue");
+      const stats = priorityQueue.getQueueStats();
+      
+      const userId = req.user?.id || req.sessionId || "anonymous";
+      const hasRequestInQueue = priorityQueue.hasUserRequestInQueue(userId);
+      
+      res.json({
+        ...stats,
+        userHasRequestInQueue: hasRequestInQueue,
+        timestamp: Date.now()
+      });
+    } catch (error) {
+      console.error("Error getting queue status:", error);
+      res.status(500).json({ error: "Failed to get queue status" });
     }
   });
 
@@ -801,6 +916,56 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Create Stripe Checkout Session for subscription
+  app.post("/api/subscription/create-checkout", async (req, res) => {
+    try {
+      const { tierId, billingCycle } = req.body;
+      const userId = (req as any).sessionId || "anonymous";
+
+      if (!tierId || !billingCycle) {
+        return res.status(400).json({ error: "Missing required fields" });
+      }
+
+      const { getTierById } = require("./subscription-tiers");
+      const tier = getTierById(tierId);
+      
+      if (!tier) {
+        return res.status(400).json({ error: "Invalid tier ID" });
+      }
+
+      const price = billingCycle === 'yearly' ? tier.yearlyPrice : tier.monthlyPrice;
+      const priceId = `readmyfineprint_${tierId}_${billingCycle}`;
+
+      const session = await stripe.checkout.sessions.create({
+        payment_method_types: ['card'],
+        mode: 'subscription',
+        line_items: [{
+          price: priceId,
+          quantity: 1,
+        }],
+        success_url: `${req.protocol}://${req.get('host')}/subscription?success=true`,
+        cancel_url: `${req.protocol}://${req.get('host')}/subscription?canceled=true`,
+        metadata: {
+          userId,
+          tierId,
+          billingCycle,
+        },
+        subscription_data: {
+          metadata: {
+            userId,
+            tierId,
+            model: tier.model,
+          },
+        },
+      });
+
+      res.json({ url: session.url });
+    } catch (error) {
+      console.error("Error creating checkout session:", error);
+      res.status(500).json({ error: error instanceof Error ? error.message : "Unknown error" });
+    }
+  });
+
   app.post("/api/subscription/create", async (req, res) => {
     try {
       const { subscriptionService } = require("./subscription-service");
@@ -822,7 +987,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.json(result);
     } catch (error) {
       console.error("Error creating subscription:", error);
-      res.status(500).json({ error: error.message });
+      res.status(500).json({ error: error instanceof Error ? error.message : "Unknown error" });
     }
   });
 
@@ -839,7 +1004,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.json(result);
     } catch (error) {
       console.error("Error canceling subscription:", error);
-      res.status(500).json({ error: error.message });
+      res.status(500).json({ error: error instanceof Error ? error.message : "Unknown error" });
     }
   });
 
@@ -856,7 +1021,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.json(result);
     } catch (error) {
       console.error("Error upgrading subscription:", error);
-      res.status(500).json({ error: error.message });
+      res.status(500).json({ error: error instanceof Error ? error.message : "Unknown error" });
     }
   });
 
@@ -868,7 +1033,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.json({ success: true, message: "Stripe products initialized successfully" });
     } catch (error) {
       console.error("Error initializing Stripe products:", error);
-      res.status(500).json({ error: error.message });
+      res.status(500).json({ error: error instanceof Error ? error.message : "Unknown error" });
     }
   });
 

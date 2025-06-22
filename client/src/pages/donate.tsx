@@ -6,7 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { CheckCircle, Heart, ArrowLeft, CreditCard, Loader2 } from "lucide-react";
+import { CheckCircle, Heart, ArrowLeft, CreditCard, Loader2, Wallet, Copy } from "lucide-react";
 import { SocialShare } from "@/components/SocialShare";
 
 interface DonateButtonProps {
@@ -79,12 +79,37 @@ export default function DonatePage() {
   const [paymentError, setPaymentError] = useState<string | null>(null);
   const [showSocialShare, setShowSocialShare] = useState(false);
   const [showThankYouMessage, setShowThankYouMessage] = useState(false);
+  const [copiedAddress, setCopiedAddress] = useState<string | null>(null);
 
   const success = searchParams.get('success') === 'true';
   const canceled = searchParams.get('canceled') === 'true';
   const amount = searchParams.get('amount');
 
   const predefinedAmounts = [5, 10, 25, 50, 100];
+
+  // Crypto wallet addresses
+  const cryptoAddresses = {
+    worldchain: '0xe4fdf9076dca468d839b51f75af35983b898821b',
+    ethereum: '0x5f596473Dea9043B6338EF33a747CF0426EBcf92',
+    bitcoin: 'bc1qctmts3a2kmtfqskp0d5hrrew4gy9nhalu6mc4m',
+    polygon: '0x5f596473Dea9043B6338EF33a747CF0426EBcf92',
+    bsc: '0x5f596473Dea9043B6338EF33a747CF0426EBcf92',
+    avalanche: '0x5f596473Dea9043B6338EF33a747CF0426EBcf92',
+    arbitrum: '0x5f596473Dea9043B6338EF33a747CF0426EBcf92',
+    optimism: '0x5f596473Dea9043B6338EF33a747CF0426EBcf92',
+    solana: '2yUpjfwiQiv4pme1BSMLPpWgUcuWUMj6Q1KDetrPMc19',
+    cardano: 'addr1qyqn6zvqrhmx8h83eady5kk9ytfskrz4dgw6fcj32cxaetxyvpz05tv3rqhgc28qqpq5f9rvkvmpu60j43lfn4crcphs747ush'
+  };
+
+  const copyToClipboard = async (address: string, type: string) => {
+    try {
+      await navigator.clipboard.writeText(address);
+      setCopiedAddress(type);
+      setTimeout(() => setCopiedAddress(null), 2000);
+    } catch (err) {
+      console.error('Failed to copy address:', err);
+    }
+  };
 
   // Check if user is returning to donation page and show thank you message
   useEffect(() => {
@@ -315,6 +340,161 @@ export default function DonatePage() {
               />
             </div>
           )}
+        </CardContent>
+      </Card>
+
+      {/* Crypto Donation Section */}
+      <Card className="mt-6">
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <Wallet className="w-5 h-5" />
+            Crypto Donations
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <p className="text-sm text-gray-600 dark:text-gray-400">
+            Support us with cryptocurrency. Click to copy wallet addresses:
+          </p>
+          
+          <Alert className="border-amber-200 bg-amber-50 dark:border-amber-800 dark:bg-amber-950">
+            <AlertDescription className="text-xs text-amber-700 dark:text-amber-300">
+              ⚠️ Verify network and address before sending. Lost transactions due to incorrect network/address cannot be recovered.
+            </AlertDescription>
+          </Alert>
+          
+          <div className="grid gap-3">
+            {/* World Chain */}
+            <div className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-800 rounded-lg">
+              <div className="flex items-center gap-3">
+                <div className="w-8 h-8 bg-blue-100 dark:bg-blue-900 rounded-full flex items-center justify-center">
+                  <span className="text-xs font-bold text-blue-600 dark:text-blue-400">WC</span>
+                </div>
+                <div className="flex-1">
+                  <div className="font-medium text-sm">World Chain</div>
+                  <div className="text-xs text-gray-500 mb-1">
+                    Supports: WLD, USDC, WBTC, WETH, uSOL, uDOGE, uXRP only
+                  </div>
+                  <div className="text-xs text-gray-500 font-mono break-all">
+                    {cryptoAddresses.worldchain}
+                  </div>
+                </div>
+              </div>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => copyToClipboard(cryptoAddresses.worldchain, 'worldchain')}
+                className="flex-shrink-0"
+              >
+                <Copy className="w-4 h-4" />
+                {copiedAddress === 'worldchain' ? 'Copied!' : 'Copy'}
+              </Button>
+            </div>
+
+            {/* EVM Compatible Chains */}
+            <div className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-800 rounded-lg">
+              <div className="flex items-center gap-3">
+                <div className="w-8 h-8 bg-blue-100 dark:bg-blue-900 rounded-full flex items-center justify-center">
+                  <span className="text-xs font-bold text-blue-600 dark:text-blue-400">EVM</span>
+                </div>
+                <div className="flex-1">
+                  <div className="font-medium text-sm">EVM Compatible Chains</div>
+                  <div className="text-xs text-gray-500 mb-1">
+                    Supports: ETH, MATIC, BNB, AVAX, ARB, OP only
+                  </div>
+                  <div className="text-xs text-gray-500 font-mono break-all">
+                    {cryptoAddresses.ethereum}
+                  </div>
+                </div>
+              </div>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => copyToClipboard(cryptoAddresses.ethereum, 'evm')}
+                className="flex-shrink-0"
+              >
+                <Copy className="w-4 h-4" />
+                {copiedAddress === 'evm' ? 'Copied!' : 'Copy'}
+              </Button>
+            </div>
+
+            {/* Bitcoin */}
+            <div className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-800 rounded-lg">
+              <div className="flex items-center gap-3">
+                <div className="w-8 h-8 bg-orange-100 dark:bg-orange-900 rounded-full flex items-center justify-center">
+                  <span className="text-xs font-bold text-orange-600 dark:text-orange-400">BTC</span>
+                </div>
+                <div className="flex-1">
+                  <div className="font-medium text-sm">Bitcoin</div>
+                  <div className="text-xs text-gray-500 font-mono break-all">
+                    {cryptoAddresses.bitcoin}
+                  </div>
+                </div>
+              </div>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => copyToClipboard(cryptoAddresses.bitcoin, 'bitcoin')}
+                className="flex-shrink-0"
+              >
+                <Copy className="w-4 h-4" />
+                {copiedAddress === 'bitcoin' ? 'Copied!' : 'Copy'}
+              </Button>
+            </div>
+
+            {/* Solana */}
+            <div className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-800 rounded-lg">
+              <div className="flex items-center gap-3">
+                <div className="w-8 h-8 bg-purple-100 dark:bg-purple-900 rounded-full flex items-center justify-center">
+                  <span className="text-xs font-bold text-purple-600 dark:text-purple-400">SOL</span>
+                </div>
+                <div className="flex-1">
+                  <div className="font-medium text-sm">Solana</div>
+                  <div className="text-xs text-gray-500 mb-1">
+                    Supports: SOL only
+                  </div>
+                  <div className="text-xs text-gray-500 font-mono break-all">
+                    {cryptoAddresses.solana}
+                  </div>
+                </div>
+              </div>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => copyToClipboard(cryptoAddresses.solana, 'solana')}
+                className="flex-shrink-0"
+              >
+                <Copy className="w-4 h-4" />
+                {copiedAddress === 'solana' ? 'Copied!' : 'Copy'}
+              </Button>
+            </div>
+
+            {/* Cardano */}
+            <div className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-800 rounded-lg">
+              <div className="flex items-center gap-3">
+                <div className="w-8 h-8 bg-blue-100 dark:bg-blue-900 rounded-full flex items-center justify-center">
+                  <span className="text-xs font-bold text-blue-600 dark:text-blue-400">ADA</span>
+                </div>
+                <div className="flex-1">
+                  <div className="font-medium text-sm">Cardano</div>
+                  <div className="text-xs text-gray-500 mb-1">
+                    Supports: ADA only
+                  </div>
+                  <div className="text-xs text-gray-500 font-mono break-all">
+                    {cryptoAddresses.cardano}
+                  </div>
+                </div>
+              </div>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => copyToClipboard(cryptoAddresses.cardano, 'cardano')}
+                className="flex-shrink-0"
+              >
+                <Copy className="w-4 h-4" />
+                {copiedAddress === 'cardano' ? 'Copied!' : 'Copy'}
+              </Button>
+            </div>
+          </div>
         </CardContent>
       </Card>
 

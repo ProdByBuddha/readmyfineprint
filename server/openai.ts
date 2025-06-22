@@ -7,7 +7,7 @@ const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY
 });
 
-export async function analyzeDocument(content: string, title: string, ip?: string, userAgent?: string, sessionId?: string, model: string = "gpt-4o"): Promise<DocumentAnalysis> {
+export async function analyzeDocument(content: string, title: string, ip?: string, userAgent?: string, sessionId?: string, model: string = "gpt-4o", userId?: string): Promise<DocumentAnalysis> {
   try {
     // Log OpenAI API usage for audit purposes
     if (ip && userAgent && sessionId) {
@@ -72,6 +72,16 @@ Provide practical, actionable insights that help everyday users understand what 
     // Validate the response structure
     if (!analysis.summary || !analysis.overallRisk || !analysis.keyFindings || !analysis.sections) {
       throw new Error("Invalid analysis structure received from OpenAI");
+    }
+
+    // Track usage if userId is provided
+    if (userId && response.usage) {
+      const { subscriptionService } = await import("./subscription-service");
+      await subscriptionService.trackUsage(
+        userId,
+        response.usage.total_tokens,
+        model
+      );
     }
 
     return analysis;
