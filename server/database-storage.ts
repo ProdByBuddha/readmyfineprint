@@ -120,6 +120,21 @@ export class DatabaseStorage implements IStorage {
     return await db.select().from(users);
   }
 
+  async userExists(userId: string): Promise<boolean> {
+    try {
+      const [user] = await db
+        .select({ id: users.id })
+        .from(users)
+        .where(eq(users.id, userId))
+        .limit(1);
+
+      return !!user;
+    } catch (error) {
+      console.error('Error checking if user exists:', error);
+      return false;
+    }
+  }
+
   // Subscription management methods
   async getUserSubscription(userId: string): Promise<UserSubscription | undefined> {
     const [subscription] = await db

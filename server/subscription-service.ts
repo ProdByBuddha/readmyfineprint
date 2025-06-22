@@ -583,6 +583,14 @@ export class SubscriptionService {
    */
   async trackUsage(userId: string, tokensUsed: number, model: string): Promise<void> {
     try {
+      // Check if user exists in database first
+      const userExists = await databaseStorage.userExists(userId);
+
+      if (!userExists) {
+        console.log(`⚠️ Skipping usage tracking for session ${userId} (user not in database)`);
+        return;
+      }
+
       // Get user's current subscription to determine tier with validation
       const subscription = await databaseStorage.getUserSubscription(userId);
       const tier = this.validateAndAssignTier(subscription);
