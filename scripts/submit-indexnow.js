@@ -1,6 +1,4 @@
 
-#!/usr/bin/env node
-
 import { indexNowService } from '../server/indexnow-service.js';
 
 async function submitToIndexNow() {
