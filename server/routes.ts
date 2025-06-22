@@ -283,10 +283,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       // Get user subscription to determine AI model and check limits
       const userId = req.user?.id || req.sessionId || "anonymous";
-      
+
       // Get user's subscription data to determine AI model and check usage
       const subscriptionData = await subscriptionService.getUserSubscriptionWithUsage(userId);
-      
+
       // Check if user can analyze another document
       if (subscriptionData.tier.limits.documentsPerMonth !== -1) {
         if (subscriptionData.usage.documentsAnalyzed >= subscriptionData.tier.limits.documentsPerMonth) {
@@ -301,7 +301,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
 
       // Use priority queue for subscription-based processing priority
-      
+
       // Check if user already has a request in queue to prevent spam
       if (priorityQueue.hasUserRequestInQueue(userId)) {
         return res.status(429).json({
@@ -312,7 +312,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       // Add estimated wait time to response for user feedback
       const estimatedWaitTime = priorityQueue.getEstimatedWaitTime(subscriptionData.tier.id);
-      
+
       // Process document analysis through priority queue
       const analysis = await priorityQueue.addToQueue(
         userId,
@@ -329,10 +329,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
           );
         }
       );
-      
+
       // Update document with analysis results
       const updatedDocument = await storage.updateDocumentAnalysis(req.sessionId, documentId, analysis, clientFingerprint);
-      
+
       console.log(`✅ Document ${documentId} analysis completed for ${subscriptionData.tier.id} tier user`);
       res.json(updatedDocument);
     } catch (error) {
@@ -345,7 +345,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.get("/api/admin/subscription-audit", requireAdminAuth, async (req, res) => {
     try {
       const auditResults = await subscriptionService.auditSubscriptionTiers();
-      
+
       res.json({
         success: true,
         audit: auditResults,
@@ -364,9 +364,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.get("/api/admin/validate-user-tier/:userId", requireAdminAuth, async (req, res) => {
     try {
       const { userId } = req.params;
-      
+
       const validation = await subscriptionService.validateUserTier(userId);
-      
+
       res.json({
         success: true,
         userId,
@@ -386,10 +386,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.get("/api/queue/status", optionalUserAuth, async (req: any, res) => {
     try {
       const stats = priorityQueue.getQueueStats();
-      
+
       const userId = req.user?.id || req.sessionId || "anonymous";
       const hasRequestInQueue = priorityQueue.hasUserRequestInQueue(userId);
-      
+
       res.json({
         ...stats,
         userHasRequestInQueue: hasRequestInQueue,
@@ -497,7 +497,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
     } catch (error: any) {
       console.error('Payment intent creation failed:', error);
-      
+
       if (error instanceof z.ZodError) {
         return res.status(400).json({ 
           error: 'Invalid input data',
@@ -552,7 +552,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       switch (event.type) {
         case 'payment_intent.succeeded':
           const paymentIntent = event.data.object;
-          
+
           securityLogger.logSecurityEvent({
             eventType: "API_ACCESS" as any,
             severity: "LOW" as any,
@@ -702,7 +702,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
     } catch (error: any) {
       console.error('Checkout session creation failed:', error);
-      
+
       if (error instanceof z.ZodError) {
         return res.status(400).json({ 
           error: 'Invalid input data',
@@ -790,7 +790,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.post("/api/indexnow/submit", async (req, res) => {
     try {
       const { urls } = req.body;
-      
+
       if (urls && Array.isArray(urls)) {
         await indexNowService.submitUrls(urls);
         res.json({ success: true, message: `Submitted ${urls.length} URLs to search engines` });
@@ -923,19 +923,33 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
 
       const tier = getTierById(tierId);
-      
+
       if (!tier) {
         return res.status(400).json({ error: "Invalid tier ID" });
       }
 
       const price = billingCycle === 'yearly' ? tier.yearlyPrice : tier.monthlyPrice;
-      const priceId = `readmyfineprint_${tierId}_${billingCycle}`;
+
+      // Find the correct price by searching Stripe prices
+      const productId = `readmyfineprint_${tier.id}`;
+      const stripePrices = await stripe.prices.list({
+        product: productId,
+        active: true,
+      });
+
+      const stripePrice = stripePrices.data.find(p => 
+        p.recurring?.interval === (billingCycle === 'yearly' ? 'year' : 'month')
+      );
+
+      if (!stripePrice) {
+        return res.status(400).json({ error: `Price not found for ${tier.name} ${billingCycle}` });
+      }
 
       const session = await stripe.checkout.sessions.create({
         payment_method_types: ['card'],
         mode: 'subscription',
         line_items: [{
-          price: priceId,
+          price: stripePrice.id,
           quantity: 1,
         }],
         success_url: `${req.protocol}://${req.get('host')}/subscription?success=true`,
@@ -1072,10 +1086,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const { indexNowService } = await import("./indexnow-service");
       const results = await indexNowService.submitAllUrls();
-      
+
       const successCount = results.filter(r => r.success).length;
       const totalEngines = results.length;
-      
+
       res.json({
         success: successCount > 0,
         message: `Submitted to ${successCount}/${totalEngines} search engines`,
@@ -1094,7 +1108,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.post("/api/indexnow/submit-urls", requireAdminAuth, async (req, res) => {
     try {
       const { urls } = req.body;
-      
+
       if (!Array.isArray(urls) || urls.length === 0) {
         return res.status(400).json({ error: 'urls array is required and must not be empty' });
       }
@@ -1105,10 +1119,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       const { indexNowService } = await import("./indexnow-service");
       const results = await indexNowService.submitSpecificUrls(urls);
-      
+
       const successCount = results.filter(r => r.success).length;
       const totalEngines = results.length;
-      
+
       res.json({
         success: successCount > 0,
         message: `Submitted ${urls.length} URLs to ${successCount}/${totalEngines} search engines`,
@@ -1140,11 +1154,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       // This can be called automatically when content changes
       const { indexNowService } = await import("./indexnow-service");
-      
+
       // Submit all URLs automatically
       const results = await indexNowService.submitAllUrls();
       const successCount = results.filter(r => r.success).length;
-      
+
       res.json({
         success: successCount > 0,
         message: `Auto-submitted to ${successCount} search engines`,

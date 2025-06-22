@@ -229,11 +229,22 @@ export default function SubscriptionPage() {
     ? 0 // Unlimited, so no percentage
     : (subscriptionData.usage.documentsAnalyzed / subscriptionData.tier.limits.documentsPerMonth) * 100;
   
-  // Ensure resetDate is a Date object
-  const resetDate = subscriptionData.usage.resetDate instanceof Date 
-    ? subscriptionData.usage.resetDate 
-    : new Date(subscriptionData.usage.resetDate);
-  const daysUntilReset = Math.ceil((resetDate.getTime() - Date.now()) / (1000 * 60 * 60 * 24));
+  // Ensure resetDate is a Date object and is valid
+  let resetDate: Date;
+  try {
+    resetDate = subscriptionData.usage.resetDate instanceof Date 
+      ? subscriptionData.usage.resetDate 
+      : new Date(subscriptionData.usage.resetDate);
+    
+    // Check if date is valid
+    if (isNaN(resetDate.getTime())) {
+      resetDate = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000); // 30 days from now as fallback
+    }
+  } catch (error) {
+    resetDate = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000); // 30 days from now as fallback
+  }
+  
+  const daysUntilReset = Math.max(0, Math.ceil((resetDate.getTime() - Date.now()) / (1000 * 60 * 60 * 24)));
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-slate-900">

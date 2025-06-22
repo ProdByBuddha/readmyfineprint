@@ -60,7 +60,6 @@ export class SubscriptionService {
           await stripe.prices.retrieve(monthlyPriceId);
         } catch (error) {
           await stripe.prices.create({
-            id: monthlyPriceId, // Set the ID explicitly
             product: product.id,
             unit_amount: tier.monthlyPrice * 100, // Convert to cents
             currency: 'usd',
@@ -79,8 +78,7 @@ export class SubscriptionService {
         try {
           await stripe.prices.retrieve(yearlyPriceId);
         } catch (error) {
-          await stripe.prices.create({
-            id: yearlyPriceId, // Set the ID explicitly
+          const createdYearlyPrice = await stripe.prices.create({
             product: product.id,
             unit_amount: tier.yearlyPrice * 100, // Convert to cents
             currency: 'usd',
@@ -378,7 +376,7 @@ export class SubscriptionService {
 
     // Get the requested tier from subscription
     const requestedTier = getTierById(subscription.tierId);
-    
+
     // If tier doesn't exist, default to free
     if (!requestedTier) {
       console.warn(`[Subscription Enforcement] Invalid tier ID: ${subscription.tierId}, defaulting to free`);
@@ -428,7 +426,7 @@ export class SubscriptionService {
     try {
       // Get all users with their subscription data
       const users = await databaseStorage.getAllUsers();
-      
+
       console.log(`[Subscription Audit] Starting audit of ${users.length} users`);
 
       for (const user of users) {
@@ -436,19 +434,19 @@ export class SubscriptionService {
         const originalTier = subscription
           ? getTierById(subscription.tierId) 
           : this.getFreeTier();
-        
+
         const validatedTier = this.validateAndAssignTier(subscription);
 
         // Check for tier mismatches
         if (originalTier?.id !== validatedTier.id) {
           console.log(`[Subscription Audit] Mismatch found for user ${user.id}: ${originalTier?.id} -> ${validatedTier.id}`);
-          
+
           // If there's a subscription record but it should be free tier
           if (subscription && validatedTier.id === 'free') {
             const reason = this.getDemotionReason(subscription);
             issues.push(`User ${user.id}: Downgraded from ${originalTier?.id} to free (${reason})`);
           }
-          
+
           // If there's an active subscription but assigned free tier incorrectly
           else if (subscription && originalTier?.id === 'free' && validatedTier.id !== 'free') {
             issues.push(`User ${user.id}: Upgraded from free to ${validatedTier.id} (has active subscription)`);
@@ -466,7 +464,7 @@ export class SubscriptionService {
       }
 
       console.log(`[Subscription Audit] Completed. Fixed ${fixedMismatches} mismatches.`);
-      
+
       return {
         totalUsers: users.length,
         fixedMismatches,
@@ -478,7 +476,7 @@ export class SubscriptionService {
     } catch (error) {
       console.error('[Subscription Audit] Error during audit:', error);
       issues.push(`Audit error: ${error instanceof Error ? error.message : 'Unknown error'}`);
-      
+
       return {
         totalUsers: 0,
         fixedMismatches: 0,
@@ -523,12 +521,12 @@ export class SubscriptionService {
       const currentTier = subscription
         ? getTierById(subscription.tierId)?.id || 'free'
         : 'free';
-      
+
       const validatedTier = this.validateAndAssignTier(subscription);
       const shouldBeTier = validatedTier.id;
 
       const isValid = currentTier === shouldBeTier;
-      
+
       return {
         isValid,
         currentTier,
@@ -692,7 +690,7 @@ export class SubscriptionService {
       });
 
       console.log('✅ Subscription canceled in database:', subscription.id);
-      
+
       securityLogger.logSecurityEvent({
         eventType: 'SUBSCRIPTION_CANCELED' as any,
         severity: 'LOW' as any,
@@ -721,14 +719,14 @@ export class SubscriptionService {
       // Get subscription to find user
       const subscription = await stripe.subscriptions.retrieve(subscriptionId);
       const userId = subscription.metadata.userId;
-      
+
       if (!userId) {
         console.error('No userId in subscription metadata for invoice:', invoice.id);
         return;
       }
 
       console.log('✅ Payment succeeded for user:', userId, 'invoice:', invoice.id);
-      
+
       securityLogger.logSecurityEvent({
         eventType: 'PAYMENT_SUCCEEDED' as any,
         severity: 'LOW' as any,
@@ -760,14 +758,14 @@ export class SubscriptionService {
       // Get subscription to find user
       const subscription = await stripe.subscriptions.retrieve(subscriptionId);
       const userId = subscription.metadata.userId;
-      
+
       if (!userId) {
         console.error('No userId in subscription metadata for failed invoice:', invoice.id);
         return;
       }
 
       console.log('❌ Payment failed for user:', userId, 'invoice:', invoice.id);
-      
+
       securityLogger.logSecurityEvent({
         eventType: 'PAYMENT_FAILED' as any,
         severity: 'MEDIUM' as any,
