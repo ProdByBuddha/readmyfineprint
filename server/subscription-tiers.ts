@@ -57,8 +57,7 @@ export const SUBSCRIPTION_TIERS: SubscriptionTier[] = [
       "Enhanced analysis with GPT-4.1-mini",
       "Priority rate limiting (faster processing)",
       "Email support",
-      "Enterprise-grade security",
-      "Export to PDF/Word"
+      "Enterprise-grade security"
     ],
     limits: {
       documentsPerMonth: -1, // unlimited
