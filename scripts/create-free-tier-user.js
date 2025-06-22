@@ -1,7 +1,11 @@
 
-import { Pool } from '@neondatabase/serverless';
+import { Pool, neonConfig } from '@neondatabase/serverless';
 import { v4 as uuidv4 } from 'uuid';
 import { config } from 'dotenv';
+import ws from 'ws';
+
+// Configure WebSocket for Node.js environment
+neonConfig.webSocketConstructor = ws;
 
 // Load environment variables
 config();
