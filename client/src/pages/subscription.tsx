@@ -298,7 +298,8 @@ export default function SubscriptionPage() {
               </Card>
             </motion.div>
 
-            {/* Usage Statistics */}
+            {/* Usage Statistics - HIDDEN FOR DEVELOPMENT */}
+            {/* 
             <motion.div
               initial={{ opacity: 0, x: 20 }}
               animate={{ opacity: 1, x: 0 }}
@@ -355,6 +356,7 @@ export default function SubscriptionPage() {
                 </CardContent>
               </Card>
             </motion.div>
+            */}
 
             {/* Upgrade Suggestion */}
             {subscriptionData.canUpgrade && subscriptionData.suggestedUpgrade && (
