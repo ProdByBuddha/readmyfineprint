@@ -1,9 +1,10 @@
 
-const { Pool } = require('@neondatabase/serverless');
-const { v4: uuidv4 } = require('uuid');
+import { Pool } from '@neondatabase/serverless';
+import { v4 as uuidv4 } from 'uuid';
+import { config } from 'dotenv';
 
 // Load environment variables
-require('dotenv').config();
+config();
 
 if (!process.env.DATABASE_URL) {
   console.error('❌ DATABASE_URL not found in environment variables');
