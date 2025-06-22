@@ -1,4 +1,5 @@
 
+
 import { indexNowService } from '../server/indexnow-service.js';
 
 async function submitToIndexNow() {
@@ -52,8 +53,8 @@ if (command === 'help' || command === '--help' || command === '-h') {
 🚀 ReadMyFinePrint IndexNow Submission Tool
 
 Usage:
-  node scripts/submit-indexnow.js          Submit all public URLs
-  node scripts/submit-indexnow.js help     Show this help message
+  npm run indexnow:submit          Submit all public URLs
+  npm run indexnow:submit help     Show this help message
 
 This tool submits all your public URLs to supported search engines:
 - Bing (api.indexnow.org)
@@ -69,3 +70,4 @@ of new or updated content for faster indexing.
 
 // Run the submission
 submitToIndexNow();
+

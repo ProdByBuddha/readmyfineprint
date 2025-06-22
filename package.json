@@ -20,7 +20,7 @@
     "security:audit": "npm audit && npm outdated",
     "subscription:init": "node scripts/init-subscriptions.js",
     "subscription:init:prod": "node scripts/init-subscriptions.js --production",
-    "indexnow:submit": "node scripts/submit-indexnow.js",
+    "indexnow:submit": "tsx scripts/submit-indexnow.ts",
     "indexnow:help": "node scripts/submit-indexnow.js help"
   },
   "dependencies": {
