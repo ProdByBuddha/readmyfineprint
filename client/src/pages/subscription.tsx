@@ -69,6 +69,12 @@ export default function SubscriptionPage() {
       }
 
       const data = await response.json();
+      
+      // Convert resetDate string back to Date object
+      if (data.usage && data.usage.resetDate) {
+        data.usage.resetDate = new Date(data.usage.resetDate);
+      }
+      
       setSubscriptionData(data);
     } catch (error) {
       console.error('Error fetching subscription data:', error);
@@ -217,7 +223,12 @@ export default function SubscriptionPage() {
   const usagePercentage = subscriptionData.tier.limits.documentsPerMonth === -1
     ? 0 // Unlimited, so no percentage
     : (subscriptionData.usage.documentsAnalyzed / subscriptionData.tier.limits.documentsPerMonth) * 100;
-  const daysUntilReset = Math.ceil((subscriptionData.usage.resetDate.getTime() - Date.now()) / (1000 * 60 * 60 * 24));
+  
+  // Ensure resetDate is a Date object
+  const resetDate = subscriptionData.usage.resetDate instanceof Date 
+    ? subscriptionData.usage.resetDate 
+    : new Date(subscriptionData.usage.resetDate);
+  const daysUntilReset = Math.ceil((resetDate.getTime() - Date.now()) / (1000 * 60 * 60 * 24));
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-slate-900">
@@ -312,7 +323,7 @@ export default function SubscriptionPage() {
                     <span>Usage This Month</span>
                   </CardTitle>
                   <CardDescription>
-                    Resets in {daysUntilReset} days ({subscriptionData.usage.resetDate.toLocaleDateString()})
+                    Resets in {daysUntilReset} days ({resetDate.toLocaleDateString()})
                   </CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-4">
