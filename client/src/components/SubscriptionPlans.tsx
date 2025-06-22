@@ -227,20 +227,29 @@ export default function SubscriptionPlans({ currentTier, onSelectPlan }: Subscri
         </p>
 
         {/* Billing Cycle Toggle */}
-        <div className="flex items-center justify-center space-x-4 mb-8">
-          <Label htmlFor="billing-toggle" className={billingCycle === 'monthly' ? 'font-semibold' : ''}>
-            Monthly
-          </Label>
-          <Switch
-            id="billing-toggle"
-            checked={billingCycle === 'yearly'}
-            onCheckedChange={(checked) => setBillingCycle(checked ? 'yearly' : 'monthly')}
-          />
-          <Label htmlFor="billing-toggle" className={billingCycle === 'yearly' ? 'font-semibold' : ''}>
-            Yearly
-          </Label>
+        <div className="flex flex-col items-center justify-center space-y-3 mb-8 sm:flex-row sm:space-y-0 sm:space-x-4">
+          <div className="flex items-center space-x-4">
+            <Label 
+              htmlFor="billing-toggle" 
+              className={`text-sm sm:text-base ${billingCycle === 'monthly' ? 'font-semibold text-gray-900 dark:text-white' : 'text-gray-600 dark:text-gray-400'}`}
+            >
+              Monthly
+            </Label>
+            <Switch
+              id="billing-toggle"
+              checked={billingCycle === 'yearly'}
+              onCheckedChange={(checked) => setBillingCycle(checked ? 'yearly' : 'monthly')}
+              className="mx-2"
+            />
+            <Label 
+              htmlFor="billing-toggle" 
+              className={`text-sm sm:text-base ${billingCycle === 'yearly' ? 'font-semibold text-gray-900 dark:text-white' : 'text-gray-600 dark:text-gray-400'}`}
+            >
+              Yearly
+            </Label>
+          </div>
           {billingCycle === 'yearly' && (
-            <Badge variant="secondary" className="ml-2">
+            <Badge variant="secondary" className="text-xs px-2 py-1">
               Save up to 17%
             </Badge>
           )}
