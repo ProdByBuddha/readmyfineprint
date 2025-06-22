@@ -90,40 +90,116 @@ async function extractPdfTextBasic(buffer: Buffer): Promise<string> {
   try {
     console.log(`🔧 Using basic PDF extraction (fallback method)`);
     
-    // Convert buffer to string and look for text content
-    const pdfString = buffer.toString('binary');
-
-    // Simple text extraction - look for text between stream markers
-    const textRegex = /stream\s*(.*?)\s*endstream/gs;
-    const matches = pdfString.match(textRegex);
-
-    if (!matches) {
-      console.log(`❌ Basic extraction: No stream markers found`);
-      return "PDF text extraction failed - no readable text found. Please try converting to TXT or DOCX format.";
-    }
-
+    // Try multiple approaches to extract text from PDF
     let extractedText = '';
-    matches.forEach((match, index) => {
-      // Remove stream/endstream markers and try to extract readable text
-      const content = match.replace(/^stream\s*/, '').replace(/\s*endstream$/, '');
-      // Look for readable ASCII text
-      const readableText = content.match(/[a-zA-Z0-9\s.,!?;:()\[\]{}'"%-]+/g);
-      if (readableText) {
-        extractedText += readableText.join(' ') + ' ';
-        console.log(`📝 Basic extraction: Found text in stream ${index + 1} (${readableText.join(' ').length} chars)`);
-      }
-    });
 
-    if (extractedText.trim().length < 10) {
-      console.log(`❌ Basic extraction: Text too short (${extractedText.trim().length} chars)`);
-      return "PDF appears to contain mostly images or complex formatting. Please try converting to TXT or DOCX format for better text extraction.";
+    // Approach 1: Look for text objects in PDF structure
+    const pdfString = buffer.toString('latin1');
+    
+    // Look for text between BT (Begin Text) and ET (End Text) operators
+    const textBlockRegex = /BT\s+(.*?)\s+ET/gs;
+    const textBlocks = pdfString.match(textBlockRegex);
+    
+    if (textBlocks) {
+      textBlocks.forEach((block, index) => {
+        // Extract text from Tj and TJ operators
+        const textCommands = block.match(/\((.*?)\)\s*Tj/g) || [];
+        const arrayTextCommands = block.match(/\[(.*?)\]\s*TJ/g) || [];
+        
+        textCommands.forEach(cmd => {
+          const text = cmd.match(/\((.*?)\)/)?.[1];
+          if (text && text.length > 1) {
+            // Decode common PDF escape sequences
+            const decodedText = text
+              .replace(/\\n/g, '\n')
+              .replace(/\\r/g, '\r')
+              .replace(/\\t/g, '\t')
+              .replace(/\\'/g, "'")
+              .replace(/\\"/g, '"')
+              .replace(/\\\\/g, '\\')
+              .replace(/\\([0-7]{3})/g, (match, octal) => String.fromCharCode(parseInt(octal, 8)));
+            
+            if (decodedText.match(/[a-zA-Z0-9\s.,!?;:()\[\]{}'"%-]/)) {
+              extractedText += decodedText + ' ';
+            }
+          }
+        });
+        
+        arrayTextCommands.forEach(cmd => {
+          const arrayContent = cmd.match(/\[(.*?)\]/)?.[1];
+          if (arrayContent) {
+            const textParts = arrayContent.match(/\((.*?)\)/g) || [];
+            textParts.forEach(part => {
+              const text = part.replace(/[()]/g, '');
+              if (text && text.length > 1 && text.match(/[a-zA-Z0-9\s.,!?;:()\[\]{}'"%-]/)) {
+                extractedText += text + ' ';
+              }
+            });
+          }
+        });
+        
+        console.log(`📝 Basic extraction: Found text in block ${index + 1} (${extractedText.length} chars so far)`);
+      });
     }
 
-    console.log(`✅ Basic extraction successful (${extractedText.trim().length} chars)`);
-    return extractedText.trim();
+    // Approach 2: If no text blocks found, try stream-based extraction
+    if (extractedText.trim().length < 20) {
+      console.log(`🔄 Trying stream-based extraction as fallback`);
+      
+      const streamRegex = /stream\s*(.*?)\s*endstream/gs;
+      const streams = pdfString.match(streamRegex);
+      
+      if (streams) {
+        streams.forEach((stream, index) => {
+          const content = stream.replace(/^stream\s*/, '').replace(/\s*endstream$/, '');
+          
+          // Look for readable text patterns
+          const readablePatterns = [
+            /\((.*?)\)\s*Tj/g,  // Simple text show
+            /\[(.*?)\]\s*TJ/g,  // Array text show
+            /([A-Za-z0-9\s.,!?;:()\[\]{}'"%-]{4,})/g  // Any readable sequences
+          ];
+          
+          readablePatterns.forEach(pattern => {
+            const matches = content.match(pattern);
+            if (matches) {
+              matches.forEach(match => {
+                let text = match.replace(/[()]/g, '').replace(/Tj|TJ/g, '').trim();
+                if (text.length > 3 && text.match(/[a-zA-Z]/)) {
+                  extractedText += text + ' ';
+                }
+              });
+            }
+          });
+        });
+      }
+    }
+
+    // Clean up the extracted text
+    extractedText = extractedText
+      .replace(/\s+/g, ' ')  // Normalize whitespace
+      .replace(/([a-z])([A-Z])/g, '$1 $2')  // Add spaces between words
+      .trim();
+
+    if (extractedText.length < 50) {
+      console.log(`❌ Basic extraction: Text too short (${extractedText.length} chars)`);
+      console.log(`📝 Extracted text preview: "${extractedText.substring(0, 200)}"`);
+      
+      return "PDF text extraction failed - the document may contain images, scanned text, or complex formatting that requires OCR. Please try:\n\n" +
+             "1. Converting the PDF to a Word document (.docx) using an online converter\n" +
+             "2. Copying and pasting the text directly from the PDF\n" +
+             "3. Using a different PDF that contains selectable text\n\n" +
+             "For best results, use documents with selectable text rather than scanned images.";
+    }
+
+    console.log(`✅ Basic extraction successful (${extractedText.length} chars)`);
+    console.log(`📝 First 200 characters: "${extractedText.substring(0, 200)}"`);
+    
+    return extractedText;
+    
   } catch (error) {
     console.error('🚫 Basic PDF extraction error:', error);
-    return "PDF text extraction failed. Please try converting to TXT or DOCX format.";
+    return "PDF text extraction failed. This document may be encrypted, corrupted, or contain only images. Please try converting to TXT or DOCX format.";
   }
 }
 
