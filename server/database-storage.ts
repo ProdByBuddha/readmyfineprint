@@ -1,6 +1,6 @@
 import { db } from "./db";
 import { users, userSubscriptions, usageRecords, type User, type UserSubscription, type UsageRecord, type InsertUser, type InsertUserSubscription, type InsertUsageRecord } from "@shared/schema";
-import { and, eq } from "drizzle-orm";
+import { and, eq, desc } from "drizzle-orm";
 import { type Document, type InsertDocument } from "@shared/schema";
 import { type IStorage } from "./storage";
 
