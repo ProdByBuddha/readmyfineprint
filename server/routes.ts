@@ -16,6 +16,9 @@ import { securityAlertManager } from './security-alert';
 import { emailService } from './email-service';
 import { registerUserRoutes } from './user-routes';
 import { indexNowService } from './indexnow-service';
+import { subscriptionService } from './subscription-service';
+import { getTierById, SUBSCRIPTION_TIERS } from './subscription-tiers';
+import { priorityQueue } from './priority-queue';
 
 // Initialize Stripe
 if (!process.env.STRIPE_SECRET_KEY) {
@@ -279,7 +282,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const analysisUserAgent = req.get('User-Agent') || 'unknown';
 
       // Get user subscription to determine AI model and check limits
-      const { subscriptionService } = require("./subscription-service");
       const userId = req.user?.id || req.sessionId || "anonymous";
       
       // Get user's subscription data to determine AI model and check usage
@@ -299,7 +301,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
 
       // Use priority queue for subscription-based processing priority
-      const { priorityQueue } = await import("./priority-queue");
       
       // Check if user already has a request in queue to prevent spam
       if (priorityQueue.hasUserRequestInQueue(userId)) {
@@ -343,7 +344,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Audit subscription tiers (admin only)
   app.get("/api/admin/subscription-audit", requireAdminAuth, async (req, res) => {
     try {
-      const { subscriptionService } = require("./subscription-service");
       const auditResults = await subscriptionService.auditSubscriptionTiers();
       
       res.json({
@@ -363,7 +363,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Validate specific user tier (admin only)
   app.get("/api/admin/validate-user-tier/:userId", requireAdminAuth, async (req, res) => {
     try {
-      const { subscriptionService } = require("./subscription-service");
       const { userId } = req.params;
       
       const validation = await subscriptionService.validateUserTier(userId);
@@ -386,7 +385,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Get processing queue status
   app.get("/api/queue/status", optionalUserAuth, async (req: any, res) => {
     try {
-      const { priorityQueue } = await import("./priority-queue");
       const stats = priorityQueue.getQueueStats();
       
       const userId = req.user?.id || req.sessionId || "anonymous";
@@ -895,13 +893,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   // Subscription Management Routes
   app.get("/api/subscription/tiers", (req, res) => {
-    const { SUBSCRIPTION_TIERS } = require("./subscription-tiers");
     res.json({ tiers: SUBSCRIPTION_TIERS });
   });
 
   app.get("/api/user/subscription", optionalUserAuth, async (req, res) => {
     try {
-      const { subscriptionService } = require("./subscription-service");
       // Use authenticated user ID or fallback to session ID for backwards compatibility
       const userId = req.user?.id || (req as any).sessionId || "anonymous";
       if (!userId) {
@@ -926,7 +922,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(400).json({ error: "Missing required fields" });
       }
 
-      const { getTierById } = require("./subscription-tiers");
       const tier = getTierById(tierId);
       
       if (!tier) {
@@ -968,7 +963,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.post("/api/subscription/create", async (req, res) => {
     try {
-      const { subscriptionService } = require("./subscription-service");
       const { tierId, email, paymentMethodId, billingCycle } = req.body;
       const userId = (req as any).sessionId || "anonymous";
 
@@ -993,7 +987,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.post("/api/subscription/cancel", async (req, res) => {
     try {
-      const { subscriptionService } = require("./subscription-service");
       const { subscriptionId, immediate } = req.body;
 
       if (!subscriptionId) {
@@ -1010,7 +1003,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.post("/api/subscription/upgrade", async (req, res) => {
     try {
-      const { subscriptionService } = require("./subscription-service");
       const { subscriptionId, newTierId, billingCycle } = req.body;
 
       if (!subscriptionId || !newTierId || !billingCycle) {
@@ -1028,7 +1020,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Initialize Stripe products (admin endpoint - should be run once during deployment)
   app.post("/api/admin/init-stripe-products", requireAdminAuth, async (req, res) => {
     try {
-      const { subscriptionService } = require("./subscription-service");
       await subscriptionService.initializeStripeProducts();
       res.json({ success: true, message: "Stripe products initialized successfully" });
     } catch (error) {
@@ -1040,7 +1031,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Enhanced Stripe webhook handler for subscriptions
   app.post("/api/subscription-webhook", async (req, res) => {
     try {
-      const { subscriptionService } = require("./subscription-service");
       const sig = req.headers['stripe-signature'];
       const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET;
 
