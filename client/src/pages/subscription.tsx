@@ -259,10 +259,10 @@ export default function SubscriptionPage() {
         </motion.div>
 
         <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-          <TabsList className="grid w-full grid-cols-3">
-            <TabsTrigger value="overview">Overview</TabsTrigger>
-            <TabsTrigger value="plans">Plans</TabsTrigger>
-            <TabsTrigger value="billing">Billing</TabsTrigger>
+          <TabsList className="grid w-full grid-cols-3 h-auto">
+            <TabsTrigger value="overview" className="text-sm px-2 py-3 min-h-[44px] flex items-center justify-center">Overview</TabsTrigger>
+            <TabsTrigger value="plans" className="text-sm px-2 py-3 min-h-[44px] flex items-center justify-center">Plans</TabsTrigger>
+            <TabsTrigger value="billing" className="text-sm px-2 py-3 min-h-[44px] flex items-center justify-center">Billing</TabsTrigger>
           </TabsList>
 
           <TabsContent value="overview" className="space-y-6">
