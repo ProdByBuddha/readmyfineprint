@@ -344,20 +344,22 @@ export default function SubscriptionPlans({ currentTier, onSelectPlan }: Subscri
 
 
                   {/* Action Button */}
-                  <Button
-                    className={`w-full ${tier.popular ? 'bg-blue-600 hover:bg-blue-700' : ''}`}
-                    variant={tier.popular ? 'default' : 'outline'}
-                    onClick={() => handleSelectPlan(tier.id, billingCycle)}
-                    disabled={isCurrentTier && tier.id !== 'free'}
-                  >
-                    {isCurrentTier ? (
-                      tier.id === 'free' ? 'Upgrade' : 'Current Plan'
-                    ) : tier.id === 'free' ? (
-                      'Get Started Free'
-                    ) : (
-                      `Choose ${tier.name}`
-                    )}
-                  </Button>
+                  {!(isCurrentTier && tier.id === 'free') && (
+                    <Button
+                      className={`w-full ${tier.popular ? 'bg-blue-600 hover:bg-blue-700' : ''}`}
+                      variant={tier.popular ? 'default' : 'outline'}
+                      onClick={() => handleSelectPlan(tier.id, billingCycle)}
+                      disabled={isCurrentTier && tier.id !== 'free'}
+                    >
+                      {isCurrentTier ? (
+                        'Current Plan'
+                      ) : tier.id === 'free' ? (
+                        'Get Started Free'
+                      ) : (
+                        `Choose ${tier.name}`
+                      )}
+                    </Button>
+                  )}
                 </CardContent>
               </Card>
             </motion.div>
