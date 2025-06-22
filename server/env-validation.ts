@@ -108,6 +108,27 @@ export function validateEnvironment(): ValidationResult {
     }
   }
 
+  // Stripe (Optional - for donations)
+  const stripePublicKey = process.env.VITE_STRIPE_PUBLIC_KEY;
+  const stripeSecretKey = process.env.STRIPE_SECRET_KEY;
+  const stripeTestPublicKey = process.env.VITE_STRIPE_TEST_PUBLIC_KEY;
+  const stripeTestSecretKey = process.env.STRIPE_TEST_SECRET_KEY;
+
+  if (stripePublicKey && stripeSecretKey) {
+    console.log('✅ STRIPE_PUBLIC_KEY:', stripePublicKey.substring(0, 20) + '...');
+    console.log('✅ STRIPE_SECRET_KEY:', stripeSecretKey.substring(0, 10) + '...');
+
+    if (stripeTestPublicKey && stripeTestSecretKey) {
+      console.log('✅ STRIPE_TEST_PUBLIC_KEY:', stripeTestPublicKey.substring(0, 20) + '...');
+      console.log('✅ STRIPE_TEST_SECRET_KEY:', stripeTestSecretKey.substring(0, 10) + '...');
+      console.log('🔄 Concurrent test/live payment processing enabled');
+    } else {
+      warnings.push('⚠️  Optional Stripe test keys not set - Only live payments will be processed');
+    }
+  } else {
+    warnings.push('⚠️  Optional Stripe keys not set - Donation functionality will be disabled');
+  }
+
   const success = errors.length === 0;
 
   if (warnings.length > 0) {

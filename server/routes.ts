@@ -20,11 +20,21 @@ import { subscriptionService } from './subscription-service';
 import { getTierById, SUBSCRIPTION_TIERS } from './subscription-tiers';
 import { priorityQueue } from './priority-queue';
 
-// Initialize Stripe
-if (!process.env.STRIPE_SECRET_KEY) {
-  throw new Error('Missing required Stripe secret: STRIPE_SECRET_KEY');
-}
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
+// Initialize Stripe instances for both test and live modes
+const getStripeInstance = (useTestMode: boolean = false) => {
+  const secretKey = useTestMode 
+    ? process.env.STRIPE_TEST_SECRET_KEY || process.env.STRIPE_SECRET_KEY
+    : process.env.STRIPE_SECRET_KEY;
+    
+  if (!secretKey) {
+    throw new Error(`Missing required Stripe secret key for ${useTestMode ? 'test' : 'live'} mode`);
+  }
+  
+  return new Stripe(secretKey);
+};
+
+// Default stripe instance (live mode)
+const stripe = getStripeInstance(false);
 
 // Configure multer for file uploads with enhanced security
 const upload = multer({
@@ -450,31 +460,43 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Create payment intent endpoint with enhanced security
+  // Create payment intent endpoint with enhanced security and test/live mode support
   app.post('/api/create-payment-intent', async (req, res) => {
     try {
       // Input validation schema
       const paymentSchema = z.object({
         amount: z.number().min(1).max(10000),
         currency: z.string().optional().default('usd'),
+        testMode: z.boolean().optional().default(false),
         metadata: z.object({}).optional()
       });
 
       const validatedData = paymentSchema.parse(req.body);
       const { ip, userAgent } = getClientInfo(req);
 
+      // Determine if we should use test mode
+      const useTestMode = validatedData.testMode || 
+                         process.env.NODE_ENV === 'development' || 
+                         req.headers['x-stripe-test-mode'] === 'true';
+
+      // Get appropriate Stripe instance
+      const stripeInstance = getStripeInstance(useTestMode);
+
       // Log payment intent creation
       securityLogger.logSecurityEvent({
         eventType: "API_ACCESS" as any,
         severity: "LOW" as any,
-        message: `Creating payment intent for $${validatedData.amount.toFixed(2)}`,
+        message: `Creating payment intent for $${validatedData.amount.toFixed(2)} (${useTestMode ? 'TEST' : 'LIVE'} mode)`,
         ip,
         userAgent,
         endpoint: "/api/create-payment-intent",
-        details: { amount: validatedData.amount }
+        details: { 
+          amount: validatedData.amount,
+          testMode: useTestMode
+        }
       });
 
-      const paymentIntent = await stripe.paymentIntents.create({
+      const paymentIntent = await stripeInstance.paymentIntents.create({
         amount: Math.round(validatedData.amount * 100),
         currency: validatedData.currency,
         automatic_payment_methods: {
@@ -483,16 +505,18 @@ export async function registerRoutes(app: Express): Promise<Server> {
         metadata: {
           type: "donation",
           source: "readmyfineprint",
+          mode: useTestMode ? 'test' : 'live',
           ip: ip,
           timestamp: new Date().toISOString(),
           ...validatedData.metadata
         },
-        description: `Donation to ReadMyFinePrint - $${validatedData.amount.toFixed(2)}`
+        description: `Donation to ReadMyFinePrint - $${validatedData.amount.toFixed(2)} (${useTestMode ? 'TEST' : 'LIVE'})`
       });
 
       res.json({
         clientSecret: paymentIntent.client_secret,
-        paymentIntentId: paymentIntent.id
+        paymentIntentId: paymentIntent.id,
+        testMode: useTestMode
       });
 
     } catch (error: any) {
@@ -530,17 +554,44 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Stripe webhook endpoint with proper validation
+  // Stripe webhook endpoint with proper validation for both test and live modes
   app.post('/api/stripe-webhook', async (req, res) => {
     const sig = req.headers['stripe-signature'];
     let event;
+    let isTestMode = false;
 
     try {
-      if (!process.env.STRIPE_WEBHOOK_SECRET) {
-        return res.status(400).json({ error: 'Webhook secret not configured' });
+      // Try live webhook secret first
+      const liveWebhookSecret = process.env.STRIPE_WEBHOOK_SECRET;
+      const testWebhookSecret = process.env.STRIPE_TEST_WEBHOOK_SECRET;
+      
+      let webhookSecret = liveWebhookSecret;
+      let stripeInstance = stripe;
+
+      // Try to construct event with live webhook secret
+      try {
+        if (liveWebhookSecret) {
+          event = stripe.webhooks.constructEvent(req.body, sig as string, liveWebhookSecret);
+        }
+      } catch (liveError) {
+        // If live webhook fails, try test webhook
+        if (testWebhookSecret) {
+          try {
+            stripeInstance = getStripeInstance(true);
+            event = stripeInstance.webhooks.constructEvent(req.body, sig as string, testWebhookSecret);
+            isTestMode = true;
+            console.log('📝 Processing TEST webhook event');
+          } catch (testError) {
+            throw liveError; // Throw the original live error if both fail
+          }
+        } else {
+          throw liveError;
+        }
       }
 
-      event = stripe.webhooks.constructEvent(req.body, sig as string, process.env.STRIPE_WEBHOOK_SECRET);
+      if (!event) {
+        return res.status(400).json({ error: 'Webhook secret not configured' });
+      }
     } catch (err: any) {
       console.error('Webhook signature verification failed:', err.message);
       return res.status(400).json({ error: 'Invalid webhook signature' });
@@ -556,33 +607,39 @@ export async function registerRoutes(app: Express): Promise<Server> {
           securityLogger.logSecurityEvent({
             eventType: "API_ACCESS" as any,
             severity: "LOW" as any,
-            message: `Payment webhook received: ${paymentIntent.id}`,
+            message: `Payment webhook received: ${paymentIntent.id} (${isTestMode ? 'TEST' : 'LIVE'} mode)`,
             ip,
             userAgent,
             endpoint: "/api/stripe-webhook",
             details: { 
               paymentIntentId: paymentIntent.id,
               amount: paymentIntent.amount / 100,
-              currency: paymentIntent.currency
+              currency: paymentIntent.currency,
+              testMode: isTestMode
             }
           });
 
-          // Send thank you email if customer email is available
-          if (paymentIntent.receipt_email) {
-            await emailService.sendDonationThankYou({
-              amount: paymentIntent.amount / 100,
-              currency: paymentIntent.currency,
-              paymentIntentId: paymentIntent.id,
-              customerEmail: paymentIntent.receipt_email,
-              timestamp: new Date()
-            });
-          }
+          // Only send emails and update search engines for live payments
+          if (!isTestMode) {
+            // Send thank you email if customer email is available
+            if (paymentIntent.receipt_email) {
+              await emailService.sendDonationThankYou({
+                amount: paymentIntent.amount / 100,
+                currency: paymentIntent.currency,
+                paymentIntentId: paymentIntent.id,
+                customerEmail: paymentIntent.receipt_email,
+                timestamp: new Date()
+              });
+            }
 
-          // Notify search engines that donation page might have updated stats
-          try {
-            await indexNowService.submitUrl('https://readmyfineprint.com/donate');
-          } catch (error) {
-            console.warn('IndexNow submission failed after payment:', error);
+            // Notify search engines that donation page might have updated stats
+            try {
+              await indexNowService.submitUrl('https://readmyfineprint.com/donate');
+            } catch (error) {
+              console.warn('IndexNow submission failed after payment:', error);
+            }
+          } else {
+            console.log(`💳 Test payment succeeded: ${paymentIntent.id} - $${(paymentIntent.amount / 100).toFixed(2)}`);
           }
           break;
 
@@ -591,8 +648,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
           securityLogger.logSecurityEvent({
             eventType: "API_ACCESS" as any,
-            severity: "MEDIUM" as any,
-            message: `Payment failed webhook: ${failedPayment.id}`,
+            severity: isTestMode ? "LOW" : "MEDIUM" as any,
+            message: `Payment failed webhook: ${failedPayment.id} (${isTestMode ? 'TEST' : 'LIVE'} mode)`,
             ip,
             userAgent,
             endpoint: "/api/stripe-webhook",
@@ -600,11 +657,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
               paymentIntentId: failedPayment.id,
               amount: failedPayment.amount / 100,
               currency: failedPayment.currency,
-              lastPaymentError: failedPayment.last_payment_error?.message || 'Unknown error'
+              lastPaymentError: failedPayment.last_payment_error?.message || 'Unknown error',
+              testMode: isTestMode
             }
           });
 
-          console.log(`💳 Payment failed: ${failedPayment.id} - ${failedPayment.last_payment_error?.message || 'Unknown error'}`);
+          console.log(`💳 Payment failed${isTestMode ? ' (TEST)' : ''}: ${failedPayment.id} - ${failedPayment.last_payment_error?.message || 'Unknown error'}`);
           break;
 
         default:
@@ -667,43 +725,50 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Create Stripe Checkout Session with input validation
+  // Create Stripe Checkout Session with input validation and test/live mode support
   app.post("/api/create-checkout-session", async (req, res) => {
     try {
       // Input validation with Zod
       const checkoutSchema = z.object({
         amount: z.number().min(1).max(10000),
         success_url: z.string().url().optional(),
-        cancel_url: z.string().url().optional()
+        cancel_url: z.string().url().optional(),
+        testMode: z.boolean().optional().default(false)
       });
 
       const validatedData = checkoutSchema.parse(req.body);
       const { amount } = validatedData;
 
+      // Determine if we should use test mode
+      const useTestMode = validatedData.testMode || 
+                         process.env.NODE_ENV === 'development' || 
+                         req.headers['x-stripe-test-mode'] === 'true';
+
+      // Get appropriate Stripe instance
+      const stripeInstance = getStripeInstance(useTestMode);
+
       const { ip, userAgent } = getClientInfo(req);
       securityLogger.logSecurityEvent({
         eventType: "API_ACCESS" as any,
         severity: "LOW" as any,
-        message: `Creating checkout session for $${amount.toFixed(2)}`,
+        message: `Creating checkout session for $${amount.toFixed(2)} (${useTestMode ? 'TEST' : 'LIVE'} mode)`,
         ip,
         userAgent,
         endpoint: "/api/create-checkout-session",
-        details: { amount }
+        details: { 
+          amount,
+          testMode: useTestMode
+        }
       });
 
-      // Validate Stripe configuration
-      if (!process.env.STRIPE_SECRET_KEY) {
-        throw new Error('Stripe not configured');
-      }
-
       // Create Stripe Checkout Session with secure configuration
-      const session = await stripe.checkout.sessions.create({
+      const session = await stripeInstance.checkout.sessions.create({
         payment_method_types: ['card'],
         line_items: [{
           price_data: {
             currency: 'usd',
             product_data: {
-              name: 'Donation to ReadMyFinePrint',
+              name: `Donation to ReadMyFinePrint ${useTestMode ? '(TEST)' : ''}`,
               description: 'Support our mission to make legal documents accessible to everyone',
             },
             unit_amount: Math.round(amount * 100),
@@ -711,11 +776,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
           quantity: 1,
         }],
         mode: 'payment',
-        success_url: validatedData.success_url || `${req.protocol}://${req.get('host')}/donate?success=true&amount=${amount}`,
-        cancel_url: validatedData.cancel_url || `${req.protocol}://${req.get('host')}/donate?canceled=true`,
+        success_url: validatedData.success_url || `${req.protocol}://${req.get('host')}/donate?success=true&amount=${amount}&test=${useTestMode}`,
+        cancel_url: validatedData.cancel_url || `${req.protocol}://${req.get('host')}/donate?canceled=true&test=${useTestMode}`,
         metadata: {
           type: "donation",
           source: "readmyfineprint",
+          mode: useTestMode ? 'test' : 'live',
           ip: ip,
           timestamp: new Date().toISOString()
         }
@@ -727,7 +793,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       res.json({ 
         sessionId: session.id,
-        url: session.url 
+        url: session.url,
+        testMode: useTestMode
       });
 
     } catch (error: any) {
