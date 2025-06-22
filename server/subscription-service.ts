@@ -408,13 +408,16 @@ export class SubscriptionService {
     // Check if subscription is in a valid state for paid access
     const validPaidStatuses = ['active', 'trialing'];
     const isValidPaidSubscription = validPaidStatuses.includes(subscription.status);
+    
+    // Check if this is a free tier subscription
+    const isFreeSubscription = subscription.status === 'free_tier';
 
     // Check if subscription is expired
     const now = new Date();
     const isExpired = subscription.currentPeriodEnd < now;
 
-    // If subscription is not active or is expired, downgrade to free tier
-    if (!isValidPaidSubscription || isExpired) {
+    // If subscription is not active/trialing and not free_tier, or is expired, downgrade to free tier
+    if ((!isValidPaidSubscription && !isFreeSubscription) || isExpired) {
       console.log(`[Subscription Enforcement] User downgraded to free tier. Status: ${subscription.status}, Expired: ${isExpired}`);
       return this.getFreeTier();
     }
@@ -428,8 +431,8 @@ export class SubscriptionService {
       return this.getFreeTier();
     }
 
-    // Prevent free tier assignment to paying customers
-    if (requestedTier.id === 'free' && isValidPaidSubscription) {
+    // Prevent free tier assignment to paying customers (but allow for free_tier status)
+    if (requestedTier.id === 'free' && isValidPaidSubscription && !isFreeSubscription) {
       console.log(`[Subscription Enforcement] Preventing free tier assignment to active subscriber, upgrading to starter`);
       return this.getStarterTier();
     }

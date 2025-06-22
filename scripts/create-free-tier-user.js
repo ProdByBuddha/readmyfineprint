@@ -78,7 +78,7 @@ async function createFreeTierUser() {
       uuidv4(),
       collectiveUserId,
       'free',
-      'active'
+      'free_tier'
     ]);
 
     console.log('✅ Created free tier subscription record');
