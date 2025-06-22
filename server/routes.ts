@@ -857,4 +857,56 @@ export async function registerRoutes(app: Express): Promise<Server> {
         });
       }
 
-      Generating the complete code, continuing from the previous point, incorporating the PDF extraction function with pdf-parse.
+      const  { ip, userAgent } = getClientInfo(req);
+      securityLogger.logSecurityEvent({
+        eventType: "API_ACCESS" as any,
+        severity: "HIGH" as any,
+        message: `Checkout session creation failed: ${error.message}`,
+        ip,
+        userAgent,
+        endpoint: "/api/create-checkout-session",
+        details: { error: error.message }
+      });
+
+      res.status(500).json({ error: 'Checkout unavailable' });
+    }
+  });
+
+  // Test IndexNow submission (admin only)
+  app.post("/api/admin/test-indexnow", requireAdminAuth, async (req, res) => {
+    try {
+      const testUrl = req.body.url || `${req.protocol}://${req.get('host')}/`;
+      const result = await indexNowService.submitUrl(testUrl);
+
+      res.json({
+        success: true,
+        result,
+        testUrl,
+        timestamp: new Date().toISOString()
+      });
+    } catch (error) {
+      console.error('IndexNow test failed:', error);
+      res.status(500).json({
+        success: false,
+        error: 'IndexNow test failed',
+        message: error instanceof Error ? error.message : 'Unknown error'
+      });
+    }
+  });
+
+  // Register user management routes
+  registerUserRoutes(app);
+
+  // Serve uploaded files securely with proper headers
+  app.use('/uploads', (req, res, next) => {
+    // Security headers for file serving
+    res.setHeader('X-Content-Type-Options', 'nosniff');
+    res.setHeader('X-Frame-Options', 'DENY');
+    res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
+    next();
+  });
+
+  const httpServer = createServer(app);
+
+  return httpServer;
+}
