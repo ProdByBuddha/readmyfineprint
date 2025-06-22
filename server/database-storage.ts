@@ -1,7 +1,7 @@
 import { db } from "./db";
-import { users, userSubscriptions, usageRecords } from "@shared/schema";
-import { eq, and, desc } from "drizzle-orm";
-import { type Document, type InsertDocument, type User, type InsertUser, type UserSubscription, type InsertUserSubscription, type UsageRecord, type InsertUsageRecord } from "@shared/schema";
+import { users, userSubscriptions, usageRecords, type User, type UserSubscription, type UsageRecord, type InsertUser, type InsertUserSubscription, type InsertUsageRecord } from "@shared/schema";
+import { and, eq } from "drizzle-orm";
+import { type Document, type InsertDocument } from "@shared/schema";
 import { type IStorage } from "./storage";
 
 export class DatabaseStorage implements IStorage {

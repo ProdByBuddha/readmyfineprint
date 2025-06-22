@@ -427,10 +427,38 @@ export class SubscriptionService {
   }
 
   /**
-   * Get the free tier (for non-subscribers)
+   * Get the default/free tier (for non-subscribers)
    */
   private getFreeTier(): SubscriptionTier {
     return SUBSCRIPTION_TIERS.find(tier => tier.id === 'free') || SUBSCRIPTION_TIERS[0];
+  }
+
+  /**
+   * Ensure the collective free tier user exists for usage tracking
+   */
+  private async ensureCollectiveFreeUserExists(): Promise<void> {
+    try {
+      const collectiveUserId = 'collective_free_tier_user';
+
+      // Check if collective user already exists
+      const existingUser = await databaseStorage.getUser(collectiveUserId);
+
+      if (!existingUser) {
+        // Create the collective free tier user
+        await databaseStorage.createUser({
+          id: collectiveUserId,
+          email: 'collective.free.tier@internal.system',
+          username: 'collective_free_tier',
+          hashedPassword: null, // No password for system user
+          stripeCustomerId: null,
+        });
+
+        console.log(`✅ Created collective free tier user for usage tracking`);
+      }
+    } catch (error) {
+      console.error('Error ensuring collective free user exists:', error);
+      // Don't throw - this shouldn't break the main flow
+    }
   }
 
   /**
