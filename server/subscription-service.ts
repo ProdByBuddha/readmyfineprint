@@ -60,6 +60,7 @@ export class SubscriptionService {
           await stripe.prices.retrieve(monthlyPriceId);
         } catch (error) {
           await stripe.prices.create({
+            id: monthlyPriceId, // Set the ID explicitly
             product: product.id,
             unit_amount: tier.monthlyPrice * 100, // Convert to cents
             currency: 'usd',
@@ -69,7 +70,6 @@ export class SubscriptionService {
             metadata: {
               tierId: tier.id,
               billingCycle: 'monthly',
-              priceId: monthlyPriceId,
             },
           });
         }
@@ -80,6 +80,7 @@ export class SubscriptionService {
           await stripe.prices.retrieve(yearlyPriceId);
         } catch (error) {
           await stripe.prices.create({
+            id: yearlyPriceId, // Set the ID explicitly
             product: product.id,
             unit_amount: tier.yearlyPrice * 100, // Convert to cents
             currency: 'usd',
@@ -89,7 +90,6 @@ export class SubscriptionService {
             metadata: {
               tierId: tier.id,
               billingCycle: 'yearly',
-              priceId: yearlyPriceId,
             },
           });
         }

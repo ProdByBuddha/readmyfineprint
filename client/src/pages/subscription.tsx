@@ -136,13 +136,18 @@ export default function SubscriptionPage() {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
 
-      const { url } = await response.json();
+      const data = await response.json();
+      
+      if (data.error) {
+        throw new Error(data.error);
+      }
       
       // Redirect to Stripe checkout
-      window.location.href = url;
+      window.location.href = data.url;
     } catch (error) {
       console.error('Error creating checkout session:', error);
-      window.alert('Failed to start checkout process. Please try again.');
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
+      window.alert(`Failed to start checkout process: ${errorMessage}. Please try again or contact support.`);
     }
   };
 
