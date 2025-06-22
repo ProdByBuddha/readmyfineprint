@@ -216,17 +216,17 @@ export default function SubscriptionPlans({ currentTier, onSelectPlan }: Subscri
 
 
   return (
-    <div className="w-full max-w-7xl mx-auto p-6">
-      <div className="text-center mb-6">
-        <h2 className="text-3xl font-bold text-gray-900 mb-4">
+    <div className="w-full max-w-7xl mx-auto p-4">
+      <div className="text-center mb-4">
+        <h2 className="text-2xl font-bold text-gray-900 mb-2">
           Choose Your Plan
         </h2>
-        <p className="text-lg text-gray-600 mb-4">
+        <p className="text-base text-gray-600 mb-3">
           Powered by different AI models for optimal document analysis
         </p>
 
         {/* Billing Cycle Toggle */}
-        <div className="flex flex-col items-center justify-center mb-6">
+        <div className="flex flex-col items-center justify-center mb-4">
           <div className="flex items-center space-x-4">
             <Label 
               htmlFor="billing-toggle" 
@@ -247,7 +247,7 @@ export default function SubscriptionPlans({ currentTier, onSelectPlan }: Subscri
             </Label>
           </div>
           {billingCycle === 'yearly' && (
-            <Badge variant="secondary" className="mt-2 text-xs px-2 py-1">
+            <Badge variant="secondary" className="mt-1 text-xs px-2 py-1">
               Save up to 17%
             </Badge>
           )}
@@ -255,7 +255,7 @@ export default function SubscriptionPlans({ currentTier, onSelectPlan }: Subscri
       </div>
 
       {/* Plans Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         {SUBSCRIPTION_TIERS.filter(tier => ['free', 'starter'].includes(tier.id)).map((tier, index) => {
           const price = billingCycle === 'yearly' ? tier.yearlyPrice : tier.monthlyPrice;
           const displayPrice = billingCycle === 'yearly' ? price / 12 : price;
@@ -289,24 +289,24 @@ export default function SubscriptionPlans({ currentTier, onSelectPlan }: Subscri
                   </div>
                 )}
 
-                <CardHeader className="text-center pb-4">
-                  <div className={`mx-auto mb-3 ${getTierColor(tier.id)}`}>
+                <CardHeader className="text-center pb-2">
+                  <div className={`mx-auto mb-2 ${getTierColor(tier.id)}`}>
                     {getTierIcon(tier.id)}
                   </div>
-                  <CardTitle className="text-xl font-bold">{tier.name}</CardTitle>
-                  <CardDescription className="text-sm h-12 flex items-center justify-center">
+                  <CardTitle className="text-lg font-bold">{tier.name}</CardTitle>
+                  <CardDescription className="text-sm h-10 flex items-center justify-center">
                     {tier.description}
                   </CardDescription>
 
                   {/* AI Model Badge */}
-                  <Badge variant="outline" className="text-xs">
+                  <Badge variant="outline" className="text-xs mt-1">
                     Powered by {tier.model}
                   </Badge>
                 </CardHeader>
 
-                <CardContent className="flex-1 flex flex-col">
+                <CardContent className="flex-1 flex flex-col pt-2">
                   {/* Pricing */}
-                  <div className="text-center mb-6">
+                  <div className="text-center mb-4">
                     {tier.id === 'free' ? (
                       <div className="text-3xl font-bold">Free</div>
                     ) : (
@@ -332,7 +332,7 @@ export default function SubscriptionPlans({ currentTier, onSelectPlan }: Subscri
                   </div>
 
                   {/* Features */}
-                  <ul className="space-y-2 mb-6 flex-1">
+                  <ul className="space-y-1.5 mb-4 flex-1">
                     {tier.features.map((feature, idx) => (
                       <li key={idx} className="flex items-start space-x-2 text-sm">
                         <Check className="h-4 w-4 text-green-500 mt-0.5 flex-shrink-0" />
