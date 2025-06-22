@@ -10,6 +10,7 @@ import { securityLogger, getClientInfo } from "./security-logger";
 import multer from "multer";
 import { z } from "zod";
 import mammoth from "mammoth";
+import pdfParse from "pdf-parse";
 import crypto from "crypto";
 import Stripe from "stripe";
 import { securityAlertManager } from './security-alert';
@@ -68,10 +69,8 @@ async function extractTextFromFile(buffer: Buffer, mimetype: string, filename: s
         return docxResult.value;
 
       case 'application/pdf':
-        throw new Error('PDF text extraction is not yet implemented. Please convert to TXT or DOCX format.');
-
-      case 'application/msword':
-        throw new Error('Legacy DOC format is not yet supported. Please convert to DOCX format.');
+        const pdfResult = await pdfParse(buffer);
+        return pdfResult.text;
 
       default:
         throw new Error(`File type ${mimetype} is not supported. Please use TXT or DOCX files, or paste the content directly.`);

@@ -33,20 +33,11 @@ const ALLOWED_FILE_TYPES: Record<string, FileTypeDefinition> = {
   'application/pdf': {
     mimeType: 'application/pdf',
     extensions: ['.pdf'],
-    maxSize: 50 * 1024 * 1024, // 50MB for PDF files
+    maxSize: 25 * 1024 * 1024, // 25MB for PDF files
     magicNumbers: [
       Buffer.from([0x25, 0x50, 0x44, 0x46]) // %PDF
     ],
     description: 'PDF document'
-  },
-  'application/msword': {
-    mimeType: 'application/msword',
-    extensions: ['.doc'],
-    maxSize: 25 * 1024 * 1024, // 25MB for DOC files
-    magicNumbers: [
-      Buffer.from([0xD0, 0xCF, 0x11, 0xE0, 0xA1, 0xB1, 0x1A, 0xE1]) // MS Office signature
-    ],
-    description: 'Microsoft Word document (legacy)'
   }
 };
 

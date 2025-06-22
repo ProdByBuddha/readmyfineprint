@@ -46,16 +46,16 @@ export function FileUpload({ onDocumentCreated, disabled = false, consentAccepte
   };
 
   const validateFile = (file: File): string | null => {
-    const maxSize = 10 * 1024 * 1024; // 10MB
-    const allowedTypes = ['.docx', '.txt'];
+    const maxSize = 25 * 1024 * 1024; // 25MB
+    const allowedTypes = ['.docx', '.txt', '.pdf'];
     const fileExtension = '.' + file.name.split('.').pop()?.toLowerCase();
 
     if (file.size > maxSize) {
-      return "File size must be less than 10MB";
+      return "File size must be less than 25MB";
     }
 
     if (!allowedTypes.includes(fileExtension)) {
-      return "Only DOCX and TXT files are supported";
+      return "Only DOCX, TXT, and PDF files are supported";
     }
 
     return null;
@@ -215,7 +215,7 @@ export function FileUpload({ onDocumentCreated, disabled = false, consentAccepte
                   {uploadError ? "Upload Failed" : uploadSuccess ? "Upload Successful" : "Drop your file here or click to browse"}
                 </p>
                 <p id="file-upload-description" className="text-sm text-gray-500 mb-4">
-                  Supports DOCX and TXT files up to 10MB
+                  Supports DOCX, TXT, and PDF files up to 25MB
                 </p>
                 {uploadError && (
                   <p id="file-upload-error" className="text-sm text-red-600 dark:text-red-400 mb-4" role="alert">
@@ -247,7 +247,7 @@ export function FileUpload({ onDocumentCreated, disabled = false, consentAccepte
               ref={fileInputRef}
               type="file"
               className="sr-only"
-              accept=".docx,.txt"
+              accept=".docx,.txt,.pdf"
               onChange={(e) => {
                 if (e.target.files && e.target.files[0]) {
                   handleFileUpload(e.target.files[0]);
