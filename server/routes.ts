@@ -460,24 +460,21 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Create payment intent endpoint with enhanced security and test/live mode support
+  // Create payment intent endpoint with enhanced security and auto-detecting test/live mode
   app.post('/api/create-payment-intent', async (req, res) => {
     try {
       // Input validation schema
       const paymentSchema = z.object({
         amount: z.number().min(1).max(10000),
         currency: z.string().optional().default('usd'),
-        testMode: z.boolean().optional().default(false),
         metadata: z.object({}).optional()
       });
 
       const validatedData = paymentSchema.parse(req.body);
       const { ip, userAgent } = getClientInfo(req);
 
-      // Determine if we should use test mode
-      const useTestMode = validatedData.testMode || 
-                         process.env.NODE_ENV === 'development' || 
-                         req.headers['x-stripe-test-mode'] === 'true';
+      // Auto-detect test mode based on development environment
+      const useTestMode = process.env.NODE_ENV === 'development';
 
       // Get appropriate Stripe instance
       const stripeInstance = getStripeInstance(useTestMode);
@@ -725,24 +722,21 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Create Stripe Checkout Session with input validation and test/live mode support
+  // Create Stripe Checkout Session with input validation and auto-detecting test/live mode
   app.post("/api/create-checkout-session", async (req, res) => {
     try {
       // Input validation with Zod
       const checkoutSchema = z.object({
         amount: z.number().min(1).max(10000),
         success_url: z.string().url().optional(),
-        cancel_url: z.string().url().optional(),
-        testMode: z.boolean().optional().default(false)
+        cancel_url: z.string().url().optional()
       });
 
       const validatedData = checkoutSchema.parse(req.body);
       const { amount } = validatedData;
 
-      // Determine if we should use test mode
-      const useTestMode = validatedData.testMode || 
-                         process.env.NODE_ENV === 'development' || 
-                         req.headers['x-stripe-test-mode'] === 'true';
+      // Auto-detect test mode based on development environment
+      const useTestMode = process.env.NODE_ENV === 'development';
 
       // Get appropriate Stripe instance
       const stripeInstance = getStripeInstance(useTestMode);
@@ -776,8 +770,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
           quantity: 1,
         }],
         mode: 'payment',
-        success_url: validatedData.success_url || `${req.protocol}://${req.get('host')}/donate?success=true&amount=${amount}&test=${useTestMode}`,
-        cancel_url: validatedData.cancel_url || `${req.protocol}://${req.get('host')}/donate?canceled=true&test=${useTestMode}`,
+        success_url: validatedData.success_url || `${req.protocol}://${req.get('host')}/donate?success=true&amount=${amount}`,
+        cancel_url: validatedData.cancel_url || `${req.protocol}://${req.get('host')}/donate?canceled=true`,
         metadata: {
           type: "donation",
           source: "readmyfineprint",

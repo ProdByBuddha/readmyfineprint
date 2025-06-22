@@ -80,7 +80,6 @@ export default function DonatePage() {
   const [showSocialShare, setShowSocialShare] = useState(false);
   const [showThankYouMessage, setShowThankYouMessage] = useState(false);
   const [copiedAddress, setCopiedAddress] = useState<string | null>(null);
-  const [testMode, setTestMode] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
 
   const success = searchParams.get('success') === 'true';
@@ -175,7 +174,7 @@ export default function DonatePage() {
     setPaymentSuccess(false);
   };
 
-  const handleDonate = async (testModeRequested: boolean = false) => {
+  const handleDonate = async () => {
     if (!selectedAmount) return;
     
     setIsProcessing(true);
@@ -187,8 +186,7 @@ export default function DonatePage() {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({ 
-          amount: selectedAmount,
-          testMode: testModeRequested 
+          amount: selectedAmount
         }),
       });
 
@@ -381,60 +379,31 @@ export default function DonatePage() {
           )}
 
           {selectedAmount && selectedAmount > 0 && (
-            <div className="pt-6 border-t space-y-4">
-              {/* Test Mode Toggle */}
-              <div className="flex items-center justify-between p-3 bg-yellow-50 dark:bg-yellow-900/20 rounded-lg border border-yellow-200 dark:border-yellow-800">
-                <div>
-                  <Label className="text-sm font-medium">Test Mode</Label>
-                  <p className="text-xs text-gray-600 dark:text-gray-400">
-                    Use test payment (no real charge)
-                  </p>
-                </div>
-                <label className="relative inline-flex items-center cursor-pointer">
-                  <input
-                    type="checkbox"
-                    checked={testMode}
-                    onChange={(e) => setTestMode(e.target.checked)}
-                    className="sr-only peer"
-                  />
-                  <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 dark:peer-focus:ring-blue-800 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-blue-600"></div>
-                </label>
-              </div>
-
-              <div className="space-y-2">
-                <Button
-                  disabled={isProcessing}
-                  onClick={() => handleDonate(testMode)}
-                  className={`w-full flex items-center justify-center space-x-2 ${
-                    testMode 
-                      ? 'bg-yellow-600 hover:bg-yellow-700 text-white' 
-                      : 'bg-green-600 hover:bg-green-700 text-white'
-                  }`}
-                  size="lg"
-                >
-                  {isProcessing ? (
-                    <>
-                      <Loader2 className="w-4 h-4 animate-spin" />
-                      <span>Processing...</span>
-                    </>
-                  ) : (
-                    <>
-                      <CreditCard className="w-4 h-4" />
-                      <span>
-                        {testMode ? 'Test Donate' : 'Donate'} ${selectedAmount.toFixed(2)}
-                      </span>
-                    </>
-                  )}
-                </Button>
-
-                {testMode && (
-                  <Alert className="border-yellow-200 bg-yellow-50 dark:border-yellow-800 dark:bg-yellow-950">
-                    <AlertDescription className="text-xs text-yellow-700 dark:text-yellow-300">
-                      💡 Test mode: Use card 4242 4242 4242 4242 with any future date and CVC
-                    </AlertDescription>
-                  </Alert>
+            <div className="pt-6 border-t">
+              <Button
+                disabled={isProcessing}
+                onClick={handleDonate}
+                className="w-full flex items-center justify-center space-x-2 bg-green-600 hover:bg-green-700 text-white"
+                size="lg"
+              >
+                {isProcessing ? (
+                  <>
+                    <Loader2 className="w-4 h-4 animate-spin" />
+                    <span>Processing...</span>
+                  </>
+                ) : (
+                  <>
+                    <CreditCard className="w-4 h-4" />
+                    <span>Donate ${selectedAmount.toFixed(2)}</span>
+                  </>
                 )}
-              </div>
+              </Button>
+              
+              <Alert className="mt-3 border-blue-200 bg-blue-50 dark:border-blue-800 dark:bg-blue-950">
+                <AlertDescription className="text-xs text-blue-700 dark:text-blue-300">
+                  💡 For testing: Use card 4242 4242 4242 4242 with any future date and CVC
+                </AlertDescription>
+              </Alert>
             </div>
           )}
         </CardContent>
