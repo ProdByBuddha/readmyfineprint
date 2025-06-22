@@ -633,8 +633,8 @@ export class SubscriptionService {
         // Check if authenticated user exists in database
         const userExists = await databaseStorage.userExists(userId);
         if (!userExists) {
-          console.log(`⚠️ Skipping usage tracking for unknown user ${userId} (not in database)`);
-          return;
+          console.log(`📊 User ${userId} not in database, routing through collective free tier for usage tracking`);
+          trackingUserId = '00000000-0000-0000-0000-000000000001';
         }
       }
 
