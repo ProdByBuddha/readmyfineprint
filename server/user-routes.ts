@@ -3,7 +3,7 @@ import { databaseStorage } from "./storage";
 import { insertUserSchema, insertUserSubscriptionSchema, insertUsageRecordSchema } from "@shared/schema";
 import { z } from "zod";
 import { generateJWT, optionalUserAuth, requireUserAuth } from "./auth";
-import { securityLogger } from "./logger";
+import { securityLogger } from "./security-logger";
 import { hashPassword, verifyPassword } from "./argon2";
 
 // Validation schemas
