@@ -987,10 +987,27 @@ export class SubscriptionService {
     source: string;
   }): Promise<string> {
     try {
+      // Check if user with this email already exists
+      const existingUser = await databaseStorage.getUserByEmail(params.email);
+      
+      if (existingUser) {
+        console.log(`Found existing user ${existingUser.id} with email ${params.email} for Stripe customer ${params.stripeCustomerId}`);
+        return existingUser.id;
+      }
+
+      // If email is a real customer email (not sanitized), create unique internal email
+      let finalEmail = params.email;
+      if (!params.email.includes('@subscription.internal')) {
+        // Create a unique internal email to avoid conflicts
+        const timestamp = Date.now();
+        finalEmail = `subscriber_${params.stripeCustomerId}_${timestamp}@subscription.internal`;
+        console.log(`Using unique internal email: ${finalEmail} for customer email: ${params.email}`);
+      }
+
       // Create a minimal user record for subscription tracking
       const user = await databaseStorage.createUser({
-        email: params.email, // Using sanitized email like 'subscriber_cus_xxx@subscription.internal'
-        username: `subscriber_${params.stripeCustomerId.slice(-8)}`, // Last 8 chars of customer ID
+        email: finalEmail,
+        username: `subscriber_${params.stripeCustomerId.slice(-8)}_${Date.now()}`, // Unique username
         hashedPassword: crypto.randomBytes(32).toString('hex'), // Random password, can't be used to login
       });
 
@@ -998,6 +1015,25 @@ export class SubscriptionService {
       return user.id;
     } catch (error) {
       console.error('Error creating subscription user:', error);
+      
+      // If it's still a duplicate constraint error, try one more time with a unique email
+      if (error instanceof Error && error.message.includes('duplicate key value violates unique constraint')) {
+        try {
+          const uniqueEmail = `subscriber_${params.stripeCustomerId}_${Date.now()}_${Math.random().toString(36).slice(2)}@subscription.internal`;
+          const user = await databaseStorage.createUser({
+            email: uniqueEmail,
+            username: `subscriber_${params.stripeCustomerId.slice(-8)}_${Date.now()}`,
+            hashedPassword: crypto.randomBytes(32).toString('hex'),
+          });
+          
+          console.log(`Created subscription user ${user.id} with unique email after retry`);
+          return user.id;
+        } catch (retryError) {
+          console.error('Failed to create user even with unique email:', retryError);
+          throw retryError;
+        }
+      }
+      
       throw error;
     }
   }
