@@ -256,7 +256,7 @@ export async function sendVerificationEmail(email: string, code: string) {
   const emailText = `Your ReadMyFinePrint verification code is: ${code}. This code will expire in 10 minutes.`;
 
   const mailOptions = {
-        from: process.env.SECURITY_EMAIL_FROM || process.env.SMTP_USER,
+        from: process.env.SECURITY_EMAIL_FROM,
         to: email,
         subject: 'Your ReadMyFinePrint Verification Code',
         html: emailHTML,

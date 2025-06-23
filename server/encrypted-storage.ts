@@ -84,7 +84,7 @@ export class EncryptedSessionStorage implements IStorage {
       const plaintext = JSON.stringify(serializableData);
       const iv = crypto.randomBytes(ENCRYPTION_CONFIG.ivSize);
       
-      const cipher = crypto.createCipher('aes-256-cbc', this.encryptionKey);
+      const cipher = crypto.createCipheriv('aes-256-cbc', this.encryptionKey, iv);
       
       let encrypted = cipher.update(plaintext, 'utf8', 'hex');
       encrypted += cipher.final('hex');
@@ -108,7 +108,7 @@ export class EncryptedSessionStorage implements IStorage {
       const iv = Buffer.from(encryptedData.iv, 'hex');
       const tag = Buffer.from(encryptedData.tag, 'hex');
       
-      const decipher = crypto.createDecipher('aes-256-cbc', this.encryptionKey);
+      const decipher = crypto.createDecipheriv('aes-256-cbc', this.encryptionKey, iv);
       
       let decrypted = decipher.update(encryptedData.data, 'hex', 'utf8');
       decrypted += decipher.final('utf8');
