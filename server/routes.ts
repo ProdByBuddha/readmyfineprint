@@ -802,15 +802,29 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Find user by email
       const user = await databaseStorage.getUserByEmail(email);
       if (!user) {
-        return res.status(404).json({ error: 'No subscription found for this email' });
+        return res.status(404).json({ 
+          error: 'No subscription found for this email address. Please check your email or subscribe first.',
+          code: 'NO_USER_FOUND'
+        });
       }
 
       // Get user's subscription data
       const subscriptionData = await subscriptionService.getUserSubscriptionWithUsage(user.id);
       
       // Only allow login if user has active subscription
-      if (!subscriptionData.subscription || subscriptionData.subscription.status !== 'active') {
-        return res.status(403).json({ error: 'No active subscription found' });
+      if (!subscriptionData.subscription) {
+        return res.status(404).json({ 
+          error: 'No subscription found for this email address. Please subscribe first.',
+          code: 'NO_SUBSCRIPTION'
+        });
+      }
+      
+      if (subscriptionData.subscription.status !== 'active') {
+        return res.status(403).json({ 
+          error: 'Your subscription is not active. Please renew your subscription or contact support.',
+          code: 'SUBSCRIPTION_INACTIVE',
+          status: subscriptionData.subscription.status
+        });
       }
 
       // Generate verification code

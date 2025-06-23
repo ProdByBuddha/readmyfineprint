@@ -44,23 +44,37 @@ export function SubscriptionLogin({ onSuccess, onCancel }: SubscriptionLoginProp
         body: JSON.stringify({ email }),
       });
 
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.error || `HTTP error! status: ${response.status}`);
-      }
-
       const data = await response.json();
+
+      if (!response.ok) {
+        // Handle specific error cases with user-friendly messages
+        if (response.status === 404 || data.error?.includes('No subscription found')) {
+          setError('No subscription found for this email address. Please check your email or subscribe first.');
+        } else if (response.status === 403 || data.error?.includes('No active subscription')) {
+          setError('Your subscription appears to be inactive or expired. Please contact support or renew your subscription.');
+        } else if (response.status === 429) {
+          setError('Too many attempts. Please wait a few minutes before trying again.');
+        } else {
+          setError(data.error || 'Unable to send verification code. Please try again or contact support.');
+        }
+        return;
+      }
       
       if (data.success) {
         setCodeExpiresAt(new Date(data.expiresAt));
         setStep('verification');
         console.log('Verification code sent to email');
       } else {
-        throw new Error('Failed to send verification code');
+        setError(data.error || 'Failed to send verification code. Please try again.');
       }
     } catch (error) {
       console.error('Email verification request error:', error);
-      setError(error instanceof Error ? error.message : 'Failed to send verification code');
+      // Handle network errors or other unexpected issues
+      if (error instanceof TypeError && error.message.includes('Failed to fetch')) {
+        setError('Network error. Please check your connection and try again.');
+      } else {
+        setError('An unexpected error occurred. Please try again or contact support.');
+      }
     } finally {
       setLoading(false);
     }
@@ -108,7 +122,12 @@ export function SubscriptionLogin({ onSuccess, onCancel }: SubscriptionLoginProp
       }
     } catch (error) {
       console.error('Verification error:', error);
-      setError(error instanceof Error ? error.message : 'Failed to verify code');
+      // Handle network errors gracefully
+      if (error instanceof TypeError && error.message.includes('Failed to fetch')) {
+        setError('Network error. Please check your connection and try again.');
+      } else {
+        setError(error instanceof Error ? error.message : 'Failed to verify code. Please try again.');
+      }
     } finally {
       setLoading(false);
     }
@@ -190,6 +209,7 @@ export function SubscriptionLogin({ onSuccess, onCancel }: SubscriptionLoginProp
           <div className="mt-4 text-sm text-muted-foreground">
             <p>🔒 <strong>Secure Login</strong></p>
             <p>We'll send a verification code to your email to securely log you in.</p>
+            <p className="mt-2">💡 <strong>Need a subscription?</strong> You must have an active subscription to log in. If you don't have one yet, please subscribe first.</p>
           </div>
         </CardContent>
       </Card>
