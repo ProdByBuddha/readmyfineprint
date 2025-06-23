@@ -84,7 +84,7 @@ class EmailService {
       const mailOptions = {
         from: {
           name: 'ReadMyFinePrint',
-          address: process.env.SMTP_USER || process.env.SECURITY_EMAIL_FROM || process.env.FROM_EMAIL || 'noreply@readmyfineprint.com'
+          address: 'admin@readmyfineprint.com'
         },
         replyTo: {
           name: 'ReadMyFinePrint Support',
@@ -126,7 +126,7 @@ class EmailService {
       const mailOptions = {
         from: {
           name: 'ReadMyFinePrint',
-          address: process.env.SMTP_USER || process.env.SECURITY_EMAIL_FROM || process.env.FROM_EMAIL || 'noreply@readmyfineprint.com'
+          address: 'admin@readmyfineprint.com'
         },
         replyTo: {
           name: 'ReadMyFinePrint Support',
