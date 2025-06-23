@@ -43,6 +43,13 @@ export class ReplitTokenStorage {
   }
 
   private async initializeDatabase(): Promise<void> {
+    // Force memory storage due to persistent Replit DB authentication issues
+    console.warn('🔧 Using memory storage for token operations (Replit DB authentication disabled)');
+    this.replitDB = new Map();
+    return;
+
+    // Original Replit DB code kept for reference but disabled
+    /*
     if (process.env.REPLIT_DB_URL) {
       try {
         // In Replit environment - use dynamic import for ES modules
@@ -70,6 +77,7 @@ export class ReplitTokenStorage {
       console.warn('REPLIT_DB_URL not found - using memory storage fallback');
       this.replitDB = new Map(); // Fallback to memory storage
     }
+    */
   }
 
   /**
