@@ -1,0 +1,203 @@
+📝 Processing TEST webhook event
+📝 Webhook checkout.session.completed received (TEST):
+   Session ID: cs_test_a1R9ZFmJ0xyGQ3wUyuofDYbiVXNrNcE6cc0ulQv7cEonxhNGtMHod22CiY
+   Mode: subscription
+   Payment Status: paid
+   Subscription ID: sub_1RczFKPxX1dXZoQGYGjjDBtP
+   Customer ID: cus_SY5Qisc2iM8hVj
+   Metadata: {
+  tierId: 'starter',
+  billingCycle: 'yearly',
+  userId: 'bf3a6c837b57c4b92ecf0f6ec254e729'
+}
+🎉 Processing subscription checkout (TEST): cs_test_a1R9ZFmJ0xyGQ3wUyuofDYbiVXNrNcE6cc0ulQv7cEonxhNGtMHod22CiY
+📋 Extracted data: tierId=starter, userId=bf3a6c837b57c4b92ecf0f6ec254e729, customerId=cus_SY5Qisc2iM8hVj, subscriptionId=sub_1RczFKPxX1dXZoQGYGjjDBtP
+🚀 Starting subscription creation process...
+👤 User bf3a6c837b57c4b92ecf0f6ec254e729 not found in database, creating subscription user
+📧 Using customer email for missing user: beatsbybuddha@gmail.com
+Error creating subscription user: DrizzleQueryError: Failed query: insert into "users" ("id", "email", "username", "hashed_password", "stripe_customer_id", "created_at", "updated_at") values (default, $1, $2, $3, default, $4, $5) returning "id", "email", "username", "hashed_password", "stripe_customer_id", "created_at", "updated_at"
+params: beatsbybuddha@gmail.com,subscriber_c2iM8hVj,4572b1f384b54cbed69d5e56a6f314a728313206ca7c59cc28a30e69e9b1dce6,2025-06-23T01:32:32.754Z,2025-06-23T01:32:32.754Z
+    at NeonPreparedQuery.queryWithCache (/home/runner/workspace/node_modules/src/pg-core/session.ts:74:11)
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async NeonPreparedQuery.execute (/home/runner/workspace/node_modules/src/neon-serverless/session.ts:152:18)
+    ... 2 lines matching cause stack trace ...
+    at async <anonymous> (/home/runner/workspace/server/routes.ts:1480:36) {
+  query: 'insert into "users" ("id", "email", "username", "hashed_password", "stripe_customer_id", "created_at", "updated_at") values (default, $1, $2, $3, default, $4, $5) returning "id", "email", "username", "hashed_password", "stripe_customer_id", "created_at", "updated_at"',
+  params: [
+    'beatsbybuddha@gmail.com',
+    'subscriber_c2iM8hVj',
+    '4572b1f384b54cbed69d5e56a6f314a728313206ca7c59cc28a30e69e9b1dce6',
+    '2025-06-23T01:32:32.754Z',
+    '2025-06-23T01:32:32.754Z'
+  ],
+  cause: error: duplicate key value violates unique constraint "users_email_key"
+      at file:///home/runner/workspace/node_modules/@neondatabase/serverless/index.mjs:1087:33
+      at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+      at async <anonymous> (/home/runner/workspace/node_modules/src/neon-serverless/session.ts:153:11)
+      at async NeonPreparedQuery.queryWithCache (/home/runner/workspace/node_modules/src/pg-core/session.ts:72:12)
+      at async NeonPreparedQuery.execute (/home/runner/workspace/node_modules/src/neon-serverless/session.ts:152:18)
+      at async DatabaseStorage.createUser (/home/runner/workspace/server/database-storage.ts:96:20)
+      at async SubscriptionService.createSubscriptionUser (/home/runner/workspace/server/subscription-service.ts:991:20)
+      at async <anonymous> (/home/runner/workspace/server/routes.ts:1480:36) {
+    length: 215,
+    severity: 'ERROR',
+    code: '23505',
+    detail: 'Key (email)=(beatsbybuddha@gmail.com) already exists.',
+    hint: undefined,
+    position: undefined,
+    internalPosition: undefined,
+    internalQuery: undefined,
+    where: undefined,
+    schema: 'public',
+    table: 'users',
+    column: undefined,
+    dataType: undefined,
+    constraint: 'users_email_key',
+    file: 'nbtinsert.c',
+    line: '666',
+    routine: '_bt_check_unique'
+  }
+}
+❌ Error processing subscription checkout: DrizzleQueryError: Failed query: insert into "users" ("id", "email", "username", "hashed_password", "stripe_customer_id", "created_at", "updated_at") values (default, $1, $2, $3, default, $4, $5) returning "id", "email", "username", "hashed_password", "stripe_customer_id", "created_at", "updated_at"
+params: beatsbybuddha@gmail.com,subscriber_c2iM8hVj,4572b1f384b54cbed69d5e56a6f314a728313206ca7c59cc28a30e69e9b1dce6,2025-06-23T01:32:32.754Z,2025-06-23T01:32:32.754Z
+    at NeonPreparedQuery.queryWithCache (/home/runner/workspace/node_modules/src/pg-core/session.ts:74:11)
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async NeonPreparedQuery.execute (/home/runner/workspace/node_modules/src/neon-serverless/session.ts:152:18)
+    ... 2 lines matching cause stack trace ...
+    at async <anonymous> (/home/runner/workspace/server/routes.ts:1480:36) {
+  query: 'insert into "users" ("id", "email", "username", "hashed_password", "stripe_customer_id", "created_at", "updated_at") values (default, $1, $2, $3, default, $4, $5) returning "id", "email", "username", "hashed_password", "stripe_customer_id", "created_at", "updated_at"',
+  params: [
+    'beatsbybuddha@gmail.com',
+    'subscriber_c2iM8hVj',
+    '4572b1f384b54cbed69d5e56a6f314a728313206ca7c59cc28a30e69e9b1dce6',
+    '2025-06-23T01:32:32.754Z',
+    '2025-06-23T01:32:32.754Z'
+  ],
+  cause: error: duplicate key value violates unique constraint "users_email_key"
+      at file:///home/runner/workspace/node_modules/@neondatabase/serverless/index.mjs:1087:33
+      at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+      at async <anonymous> (/home/runner/workspace/node_modules/src/neon-serverless/session.ts:153:11)
+      at async NeonPreparedQuery.queryWithCache (/home/runner/workspace/node_modules/src/pg-core/session.ts:72:12)
+      at async NeonPreparedQuery.execute (/home/runner/workspace/node_modules/src/neon-serverless/session.ts:152:18)
+      at async DatabaseStorage.createUser (/home/runner/workspace/server/database-storage.ts:96:20)
+      at async SubscriptionService.createSubscriptionUser (/home/runner/workspace/server/subscription-service.ts:991:20)
+      at async <anonymous> (/home/runner/workspace/server/routes.ts:1480:36) {
+    length: 215,
+    severity: 'ERROR',
+    code: '23505',
+    detail: 'Key (email)=(beatsbybuddha@gmail.com) already exists.',
+    hint: undefined,
+    position: undefined,
+    internalPosition: undefined,
+    internalQuery: undefined,
+    where: undefined,
+    schema: 'public',
+    table: 'users',
+    column: undefined,
+    dataType: undefined,
+    constraint: 'users_email_key',
+    file: 'nbtinsert.c',
+    line: '666',
+    routine: '_bt_check_unique'
+  }
+}
+   Session ID: cs_test_a1R9ZFmJ0xyGQ3wUyuofDYbiVXNrNcE6cc0ulQv7cEonxhNGtMHod22CiY
+   Error details: Failed query: insert into "users" ("id", "email", "username", "hashed_password", "stripe_customer_id", "created_at", "updated_at") values (default, $1, $2, $3, default, $4, $5) returning "id", "email", "username", "hashed_password", "stripe_customer_id", "created_at", "updated_at"
+params: beatsbybuddha@gmail.com,subscriber_c2iM8hVj,4572b1f384b54cbed69d5e56a6f314a728313206ca7c59cc28a30e69e9b1dce6,2025-06-23T01:32:32.754Z,2025-06-23T01:32:32.754Z
+   Stack trace: Error: Failed query: insert into "users" ("id", "email", "username", "hashed_password", "stripe_customer_id", "created_at", "updated_at") values (default, $1, $2, $3, default, $4, $5) returning "id", "email", "username", "hashed_password", "stripe_customer_id", "created_at", "updated_at"
+params: beatsbybuddha@gmail.com,subscriber_c2iM8hVj,4572b1f384b54cbed69d5e56a6f314a728313206ca7c59cc28a30e69e9b1dce6,2025-06-23T01:32:32.754Z,2025-06-23T01:32:32.754Z
+    at NeonPreparedQuery.queryWithCache (/home/runner/workspace/node_modules/src/pg-core/session.ts:74:11)
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async NeonPreparedQuery.execute (/home/runner/workspace/node_modules/src/neon-serverless/session.ts:152:18)
+    at async DatabaseStorage.createUser (/home/runner/workspace/server/database-storage.ts:96:20)
+    at async SubscriptionService.createSubscriptionUser (/home/runner/workspace/server/subscription-service.ts:991:20)
+    at async <anonymous> (/home/runner/workspace/server/routes.ts:1480:36)
+1:32:32 AM [express] POST /api/stripe-webhook 200 in 423ms :: {"received":true}
+ℹ️ [SECURITY] SESSION_MANAGEMENT | LOW | 079f9cf6 | New session created
+📝 New session logged for client: 98a4569bac473d3838454b8d0975566a
+🔇 Session logging suppressed for client (cooldown: 153ms)
+🔇 Session logging suppressed for client (cooldown: 230ms)
+ℹ️ [SECURITY] SESSION_MANAGEMENT | LOW | 02c43f44 | New session created
+📝 New session logged for client: 2bf5c1bb834d2f6de07ace54d190891a
+🔇 Session logging suppressed for client (cooldown: 5ms)
+🔇 Session logging suppressed for client (cooldown: 66ms)
+🔇 Session logging suppressed for client (cooldown: 68ms)
+🔇 Session logging suppressed for client (cooldown: 180ms)
+ℹ️ [SECURITY] SESSION_MANAGEMENT | LOW | dca67e37 | New session created
+📝 New session logged for client: 4c0653fb448fcb38294523e89bb180bb
+🔇 Session logging suppressed for client (cooldown: 419ms)
+ℹ️ [SECURITY] SESSION_MANAGEMENT | LOW | 7e3ab120 | New session created
+📝 New session logged for client: 45a239c03c1a4f32fe61b672ed200f37
+🔇 Session logging suppressed for client (cooldown: 193ms)
+🔇 Session logging suppressed for client (cooldown: 221ms)
+🔇 Session logging suppressed for client (cooldown: 237ms)
+🔇 Session logging suppressed for client (cooldown: 52ms)
+🔇 Session logging suppressed for client (cooldown: 471ms)
+🔇 Session logging suppressed for client (cooldown: 51ms)
+🔇 Session logging suppressed for client (cooldown: 272ms)
+🔇 Session logging suppressed for client (cooldown: 288ms)
+🔇 Session logging suppressed for client (cooldown: 100ms)
+🔇 Session logging suppressed for client (cooldown: 520ms)
+🔇 Session logging suppressed for client (cooldown: 103ms)
+🔇 Session logging suppressed for client (cooldown: 301ms)
+🔇 Session logging suppressed for client (cooldown: 317ms)
+🔇 Session logging suppressed for client (cooldown: 333ms)
+🔇 Session logging suppressed for client (cooldown: 571ms)
+🔇 Session logging suppressed for client (cooldown: 152ms)
+🔇 Session logging suppressed for client (cooldown: 345ms)
+🔇 Session logging suppressed for client (cooldown: 159ms)
+🔇 Session logging suppressed for client (cooldown: 365ms)
+🔇 Session logging suppressed for client (cooldown: 391ms)
+🔇 Session logging suppressed for client (cooldown: 392ms)
+🔇 Session logging suppressed for client (cooldown: 623ms)
+🔇 Session logging suppressed for client (cooldown: 204ms)
+🔇 Session logging suppressed for client (cooldown: 210ms)
+🔇 Session logging suppressed for client (cooldown: 406ms)
+🔇 Session logging suppressed for client (cooldown: 440ms)
+🔇 Session logging suppressed for client (cooldown: 672ms)
+🔇 Session logging suppressed for client (cooldown: 447ms)
+🔇 Session logging suppressed for client (cooldown: 261ms)
+🔇 Session logging suppressed for client (cooldown: 259ms)
+🔇 Session logging suppressed for client (cooldown: 454ms)
+🔇 Session logging suppressed for client (cooldown: 488ms)
+🔇 Session logging suppressed for client (cooldown: 720ms)
+🔇 Session logging suppressed for client (cooldown: 498ms)
+🔇 Session logging suppressed for client (cooldown: 314ms)
+🔇 Session logging suppressed for client (cooldown: 317ms)
+🔇 Session logging suppressed for client (cooldown: 505ms)
+🔇 Session logging suppressed for client (cooldown: 534ms)
+🔇 Session logging suppressed for client (cooldown: 771ms)
+🔇 Session logging suppressed for client (cooldown: 544ms)
+🔇 Session logging suppressed for client (cooldown: 367ms)
+🔇 Session logging suppressed for client (cooldown: 556ms)
+🔇 Session logging suppressed for client (cooldown: 372ms)
+🔇 Session logging suppressed for client (cooldown: 582ms)
+🔇 Session logging suppressed for client (cooldown: 588ms)
+🔇 Session logging suppressed for client (cooldown: 820ms)
+🔇 Session logging suppressed for client (cooldown: 607ms)
+🔇 Session logging suppressed for client (cooldown: 421ms)
+🔇 Session logging suppressed for client (cooldown: 420ms)
+🔇 Session logging suppressed for client (cooldown: 639ms)
+🔇 Session logging suppressed for client (cooldown: 640ms)
+🔇 Session logging suppressed for client (cooldown: 872ms)
+🔇 Session logging suppressed for client (cooldown: 653ms)
+🔇 Session logging suppressed for client (cooldown: 467ms)
+🔇 Session logging suppressed for client (cooldown: 469ms)
+🔇 Session logging suppressed for client (cooldown: 689ms)
+🔇 Session logging suppressed for client (cooldown: 689ms)
+🔇 Session logging suppressed for client (cooldown: 926ms)
+🔇 Session logging suppressed for client (cooldown: 1187ms)
+🔇 Session logging suppressed for client (cooldown: 1252ms)
+🔇 Session logging suppressed for client (cooldown: 1535ms)
+🔇 Session logging suppressed for client (cooldown: 4152ms)
+🔍 Token retrieval request for session: cs_test_a1R9ZFmJ0xyGQ3wUyuofDYbiVXNrNcE6cc0ulQv7cEonxhNGtMHod22CiY
+Replit DB get result for session_token:cs_test_a1R9ZFmJ0xyGQ3wUyuofDYbiVXNrNcE6cc0ulQv7cEonxhNGtMHod22CiY: {
+  ok: false,
+  error: { message: 'invalid token', statusCode: 403 },
+  errorExtras: undefined
+}
+Replit DB returned error for session cs_test_a1R9ZFmJ0xyGQ3wUyuofDYbiVXNrNcE6cc0ulQv7cEonxhNGtMHod22CiY: { message: 'invalid token', statusCode: 403 }
+🔑 Token lookup result: not found
+❌ No token found for session: cs_test_a1R9ZFmJ0xyGQ3wUyuofDYbiVXNrNcE6cc0ulQv7cEonxhNGtMHod22CiY
+💳 Found paid Stripe session but no token - webhook may not have processed yet
+1:32:38 AM [express] GET /api/subscription/token/cs_test_a1R9ZFmJ0xyGQ3wUyuofDYbiVXNrNcE6cc0ulQv7cEo…
