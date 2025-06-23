@@ -24,7 +24,7 @@ export function SubscriptionLogin({ onSuccess, onCancel }: SubscriptionLoginProp
 
   const handleEmailSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (!email || !email.includes('@')) {
       setError('Please enter a valid email address');
       return;
@@ -59,7 +59,7 @@ export function SubscriptionLogin({ onSuccess, onCancel }: SubscriptionLoginProp
         }
         return;
       }
-      
+
       if (data.success) {
         setCodeExpiresAt(new Date(data.expiresAt));
         setStep('verification');
@@ -82,7 +82,7 @@ export function SubscriptionLogin({ onSuccess, onCancel }: SubscriptionLoginProp
 
   const handleVerificationSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (!verificationCode || verificationCode.length !== 6) {
       setError('Please enter the 6-digit verification code');
       return;
@@ -109,12 +109,12 @@ export function SubscriptionLogin({ onSuccess, onCancel }: SubscriptionLoginProp
       }
 
       const data = await response.json();
-      
+
       if (data.success && data.token) {
         // Store the new token
         localStorage.setItem('subscriptionToken', data.token);
         console.log('Successfully logged into subscription');
-        
+
         // Call success callback
         onSuccess(data.token, data.subscription);
       } else {
@@ -153,7 +153,7 @@ export function SubscriptionLogin({ onSuccess, onCancel }: SubscriptionLoginProp
             Enter the email address you used when subscribing to log into your account from this device.
           </CardDescription>
         </CardHeader>
-        
+
         <CardContent>
           <form onSubmit={handleEmailSubmit} className="space-y-4">
             <div>
@@ -192,7 +192,7 @@ export function SubscriptionLogin({ onSuccess, onCancel }: SubscriptionLoginProp
                   </>
                 )}
               </Button>
-              
+
               {onCancel && (
                 <Button 
                   type="button" 
@@ -209,6 +209,7 @@ export function SubscriptionLogin({ onSuccess, onCancel }: SubscriptionLoginProp
           <div className="mt-4 text-sm text-muted-foreground">
             <p>🔒 <strong>Secure Login</strong></p>
             <p>We'll send a verification code to your email to securely log you in.</p>
+            <p className="mt-2">💡 <strong>Need a subscription?</strong> You must have an active subscription to log in. Click "Subscribe" below to get started.</p>
           </div>
         </CardContent>
       </Card>
@@ -227,7 +228,7 @@ export function SubscriptionLogin({ onSuccess, onCancel }: SubscriptionLoginProp
           We sent a 6-digit code to <strong>{email}</strong>. Enter it below to access your subscription.
         </CardDescription>
       </CardHeader>
-      
+
       <CardContent>
         <form onSubmit={handleVerificationSubmit} className="space-y-4">
           <div>
@@ -287,7 +288,7 @@ export function SubscriptionLogin({ onSuccess, onCancel }: SubscriptionLoginProp
             >
               ← Change Email
             </Button>
-            
+
             {onCancel && (
               <Button 
                 type="button" 
