@@ -562,7 +562,7 @@ export default function SubscriptionPage() {
                     <div className="flex justify-between items-center p-4 bg-gray-50 dark:bg-gray-800 rounded-lg">
                       <div>
                         <h4 className="font-semibold dark:text-white">Next Billing Date</h4>
-                        <p className="text-gray-600 dark:text-gray-300">{subscriptionData.usage.resetDate.toLocaleDateString()}</p>
+                        <p className="text-gray-600 dark:text-gray-300">{resetDate.toLocaleDateString()}</p>
                       </div>
                       <div className="text-right">
                         <div className="text-xl font-bold dark:text-white">${subscriptionData.tier.monthlyPrice}</div>
