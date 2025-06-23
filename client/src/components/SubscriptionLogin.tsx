@@ -9,7 +9,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { Loader2, LogIn, AlertCircle, Mail, Shield, Crown } from "lucide-react";
+import { Loader2, LogIn, AlertCircle, Mail, Shield, Crown, X } from "lucide-react";
 import { getStoredDeviceFingerprint } from "@/utils/deviceFingerprint";
 
 interface SubscriptionLoginProps {
@@ -185,7 +185,16 @@ export function SubscriptionLogin({
 
   if (step === "email") {
     return (
-      <Card className="w-full max-w-md mx-auto">
+      <Card className="w-full max-w-md mx-auto relative">
+        {onCancel && (
+          <button
+            onClick={onCancel}
+            className="absolute top-4 right-4 p-1 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors z-10"
+            aria-label="Close login modal"
+          >
+            <X className="h-4 w-4 text-gray-500 dark:text-gray-400" />
+          </button>
+        )}
         <CardHeader>
           <CardTitle className="flex items-center space-x-2">
             <Mail className="h-5 w-5" />
@@ -223,7 +232,7 @@ export function SubscriptionLogin({
               <Button
                 type="submit"
                 disabled={loading || !email}
-                className="flex-1"
+                className="w-full"
               >
                 {loading ? (
                   <>
@@ -237,17 +246,6 @@ export function SubscriptionLogin({
                   </>
                 )}
               </Button>
-
-              {onCancel && (
-                <Button
-                  type="button"
-                  variant="outline"
-                  onClick={onCancel}
-                  disabled={loading}
-                >
-                  Cancel
-                </Button>
-              )}
             </div>
 
             <div className="mt-4">
@@ -280,7 +278,16 @@ export function SubscriptionLogin({
 
   // Verification step
   return (
-    <Card className="w-full max-w-md mx-auto">
+    <Card className="w-full max-w-md mx-auto relative">
+      {onCancel && (
+        <button
+          onClick={onCancel}
+          className="absolute top-4 right-4 p-1 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors z-10"
+          aria-label="Close login modal"
+        >
+          <X className="h-4 w-4 text-gray-500 dark:text-gray-400" />
+        </button>
+      )}
       <CardHeader>
         <CardTitle className="flex items-center space-x-2">
           <Shield className="h-5 w-5" />
@@ -347,7 +354,7 @@ export function SubscriptionLogin({
             </Button>
           </div>
 
-          <div className="flex justify-between items-center text-sm">
+          <div className="flex justify-center items-center text-sm">
             <Button
               type="button"
               variant="ghost"
@@ -357,18 +364,6 @@ export function SubscriptionLogin({
             >
               ← Change Email
             </Button>
-
-            {onCancel && (
-              <Button
-                type="button"
-                variant="ghost"
-                onClick={onCancel}
-                disabled={loading}
-                className="text-muted-foreground hover:text-foreground"
-              >
-                Cancel
-              </Button>
-            )}
           </div>
         </form>
 
