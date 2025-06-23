@@ -385,12 +385,14 @@ export default function SubscriptionPage() {
                         </div>
                         <div className="text-sm text-gray-600 dark:text-gray-300">Documents/Month</div>
                       </div>
-                    <div className="text-center p-3 bg-gray-50 dark:bg-gray-800 rounded-lg">
-                      <div className="text-xl font-semibold">
-                        {subscriptionData.tier.limits.prioritySupport ? <CheckCircle className="h-6 w-6 text-green-500 mx-auto" /> : <span className="text-gray-400">-</span>}
+                    {subscriptionData.tier.id !== 'free' && (
+                      <div className="text-center p-3 bg-gray-50 dark:bg-gray-800 rounded-lg">
+                        <div className="text-xl font-semibold">
+                          {subscriptionData.tier.limits.prioritySupport ? <CheckCircle className="h-6 w-6 text-green-500 mx-auto" /> : <span className="text-gray-400">-</span>}
+                        </div>
+                        <div className="text-sm text-gray-600 dark:text-gray-300">Priority Support</div>
                       </div>
-                      <div className="text-sm text-gray-600 dark:text-gray-300">Priority Support</div>
-                    </div>
+                    )}
                     <div className="text-center p-3 bg-gray-50 dark:bg-gray-800 rounded-lg">
                       <div className="text-xl font-semibold">
                         {subscriptionData.tier.limits.advancedAnalysis ? <CheckCircle className="h-6 w-6 text-green-500 mx-auto" /> : <span className="text-gray-400">-</span>}
