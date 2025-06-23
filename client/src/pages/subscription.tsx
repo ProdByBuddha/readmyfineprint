@@ -569,7 +569,7 @@ export default function SubscriptionPage() {
                       <div className="text-right">
                         <div className="text-xl font-bold dark:text-white">
                           ${subscriptionData.subscription?.billingCycle === 'yearly' ? 
-                            (subscriptionData.tier.yearlyPrice || subscriptionData.tier.monthlyPrice * 12) : 
+                            Math.round((subscriptionData.tier.yearlyPrice || subscriptionData.tier.monthlyPrice * 12) / 12) : 
                             subscriptionData.tier.monthlyPrice}
                         </div>
                         <div className="text-sm text-gray-600 dark:text-gray-300">
