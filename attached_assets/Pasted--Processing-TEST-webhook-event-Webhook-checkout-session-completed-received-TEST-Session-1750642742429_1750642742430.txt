@@ -1,0 +1,133 @@
+📝 Processing TEST webhook event
+📝 Webhook checkout.session.completed received (TEST):
+   Session ID: cs_test_a12EJkf1qI70IBBn58ENNeRZZ2yNIN6fn5UG0FUTnA9bzyufeMfHZV792v
+   Mode: subscription
+   Payment Status: paid
+   Subscription ID: sub_1RczKcPxX1dXZoQG96J0afMB
+   Customer ID: cus_SY5VF6RGVHGDWM
+   Metadata: {
+  tierId: 'starter',
+  billingCycle: 'yearly',
+  userId: 'a6da6e880dd046b310fda1c4cd1f2f79'
+}
+🎉 Processing subscription checkout (TEST): cs_test_a12EJkf1qI70IBBn58ENNeRZZ2yNIN6fn5UG0FUTnA9bzyufeMfHZV792v
+📋 Extracted data: tierId=starter, userId=a6da6e880dd046b310fda1c4cd1f2f79, customerId=cus_SY5VF6RGVHGDWM, subscriptionId=sub_1RczKcPxX1dXZoQG96J0afMB
+🚀 Starting subscription creation process...
+👤 User a6da6e880dd046b310fda1c4cd1f2f79 not found in database, creating subscription user
+📧 Using customer email for missing user: beatsbybuddha@gmail.com
+Found existing user 24c3ec47-dd61-4619-9c9e-18abbd0981ea with email beatsbybuddha@gmail.com for Stripe customer cus_SY5VF6RGVHGDWM
+👤 Created missing user: 24c3ec47-dd61-4619-9c9e-18abbd0981ea for customer cus_SY5VF6RGVHGDWM
+Created subscription da46348c-9149-4eda-8828-7b5caaef8183 for user 24c3ec47-dd61-4619-9c9e-18abbd0981ea
+Stored subscription token in Replit DB: sub_a6d282d154d0...
+Generated secure subscription token for user 24c3ec47-dd61-4619-9c9e-18abbd0981ea (expires in 30 days)
+💾 Storing session token mapping...
+Replit DB set result for session_token:cs_test_a12EJkf1qI70IBBn58ENNeRZZ2yNIN6fn5UG0FUTnA9bzyufeMfHZV792v: {
+  ok: false,
+  error: { message: 'invalid token', statusCode: 403 },
+  errorExtras: undefined
+}
+Stored session token mapping: cs_test_a12EJkf1qI70IBBn58ENNeRZZ2yNIN6fn5UG0FUTnA9bzyufeMfHZV792v -> sub_a6d2... (encrypted: true)
+Stored session token mapping for session cs_test_a12EJkf1qI70IBBn58ENNeRZZ2yNIN6fn5UG0FUTnA9bzyufeMfHZV792v
+🔍 Verifying token storage...
+Replit DB get result for session_token:cs_test_a12EJkf1qI70IBBn58ENNeRZZ2yNIN6fn5UG0FUTnA9bzyufeMfHZV792v: {
+  ok: false,
+  error: { message: 'invalid token', statusCode: 403 },
+  errorExtras: undefined
+}
+Replit DB returned error for session cs_test_a12EJkf1qI70IBBn58ENNeRZZ2yNIN6fn5UG0FUTnA9bzyufeMfHZV792v: { message: 'invalid token', statusCode: 403 }
+❌ Token storage failed: No token found after storage attempt
+✅ Subscription created successfully:
+   User ID: 24c3ec47-dd61-4619-9c9e-18abbd0981ea
+   Subscription ID: da46348c-9149-4eda-8828-7b5caaef8183
+   Token: sub_a6d2...
+   Checkout Session: cs_test_a12EJkf1qI70IBBn58ENNeRZZ2yNIN6fn5UG0FUTnA9bzyufeMfHZV792v
+ℹ️ [SECURITY] API_ACCESS | LOW | 9db726d9 | Subscription created: sub_1RczKcPxX1dXZoQG96J0afMB (TEST mode) | /api/stripe-webhook | {"subscriptionId":"sub_1RczKcPxX1dXZoQG96J0afMB","customerId":"cus_SY5VF6RGVHGDWM","tierId":"starter","billingCycle":"yearly","testMode":true}
+1:38:01 AM [express] POST /api/stripe-webhook 200 in 1016ms :: {"received":true}
+ℹ️ [SECURITY] SESSION_MANAGEMENT | LOW | 079f9cf6 | New session created
+📝 New session logged for client: 13c3cc18af293ec95485c8b2745a5cc9
+🔇 Session logging suppressed for client (cooldown: 170ms)
+🔇 Session logging suppressed for client (cooldown: 234ms)
+ℹ️ [SECURITY] SESSION_MANAGEMENT | LOW | 02c43f44 | New session created
+📝 New session logged for client: d6bf01b4460ddbfc1ad68a5252360569
+🔇 Session logging suppressed for client (cooldown: 1ms)
+🔇 Session logging suppressed for client (cooldown: 60ms)
+🔇 Session logging suppressed for client (cooldown: 63ms)
+🔇 Session logging suppressed for client (cooldown: 178ms)
+🔇 Session logging suppressed for client (cooldown: 184ms)
+ℹ️ [SECURITY] SESSION_MANAGEMENT | LOW | dca67e37 | New session created
+📝 New session logged for client: ae406752777516908ab1d76470268cba
+🔇 Session logging suppressed for client (cooldown: 428ms)
+ℹ️ [SECURITY] SESSION_MANAGEMENT | LOW | 7e3ab120 | New session created
+📝 New session logged for client: aaf56ed94929da46fb071ccae0237249
+🔇 Session logging suppressed for client (cooldown: 220ms)
+🔇 Session logging suppressed for client (cooldown: 231ms)
+🔇 Session logging suppressed for client (cooldown: 55ms)
+🔇 Session logging suppressed for client (cooldown: 478ms)
+🔇 Session logging suppressed for client (cooldown: 53ms)
+🔇 Session logging suppressed for client (cooldown: 270ms)
+🔇 Session logging suppressed for client (cooldown: 284ms)
+🔇 Session logging suppressed for client (cooldown: 290ms)
+🔇 Session logging suppressed for client (cooldown: 528ms)
+🔇 Session logging suppressed for client (cooldown: 100ms)
+🔇 Session logging suppressed for client (cooldown: 107ms)
+🔇 Session logging suppressed for client (cooldown: 313ms)
+🔇 Session logging suppressed for client (cooldown: 332ms)
+🔇 Session logging suppressed for client (cooldown: 338ms)
+🔇 Session logging suppressed for client (cooldown: 577ms)
+🔇 Session logging suppressed for client (cooldown: 156ms)
+🔇 Session logging suppressed for client (cooldown: 150ms)
+🔇 Session logging suppressed for client (cooldown: 355ms)
+🔇 Session logging suppressed for client (cooldown: 387ms)
+🔇 Session logging suppressed for client (cooldown: 388ms)
+🔇 Session logging suppressed for client (cooldown: 627ms)
+🔇 Session logging suppressed for client (cooldown: 209ms)
+🔇 Session logging suppressed for client (cooldown: 204ms)
+🔇 Session logging suppressed for client (cooldown: 399ms)
+🔇 Session logging suppressed for client (cooldown: 436ms)
+🔇 Session logging suppressed for client (cooldown: 675ms)
+🔇 Session logging suppressed for client (cooldown: 442ms)
+🔇 Session logging suppressed for client (cooldown: 252ms)
+🔇 Session logging suppressed for client (cooldown: 259ms)
+🔇 Session logging suppressed for client (cooldown: 447ms)
+🔇 Session logging suppressed for client (cooldown: 484ms)
+🔇 Session logging suppressed for client (cooldown: 489ms)
+🔇 Session logging suppressed for client (cooldown: 305ms)
+🔇 Session logging suppressed for client (cooldown: 729ms)
+🔇 Session logging suppressed for client (cooldown: 301ms)
+🔇 Session logging suppressed for client (cooldown: 495ms)
+🔇 Session logging suppressed for client (cooldown: 531ms)
+🔇 Session logging suppressed for client (cooldown: 538ms)
+🔇 Session logging suppressed for client (cooldown: 776ms)
+🔇 Session logging suppressed for client (cooldown: 354ms)
+🔇 Session logging suppressed for client (cooldown: 544ms)
+🔇 Session logging suppressed for client (cooldown: 354ms)
+🔇 Session logging suppressed for client (cooldown: 582ms)
+🔇 Session logging suppressed for client (cooldown: 588ms)
+🔇 Session logging suppressed for client (cooldown: 589ms)
+🔇 Session logging suppressed for client (cooldown: 399ms)
+🔇 Session logging suppressed for client (cooldown: 405ms)
+🔇 Session logging suppressed for client (cooldown: 829ms)
+🔇 Session logging suppressed for client (cooldown: 631ms)
+🔇 Session logging suppressed for client (cooldown: 638ms)
+🔇 Session logging suppressed for client (cooldown: 638ms)
+🔇 Session logging suppressed for client (cooldown: 448ms)
+🔇 Session logging suppressed for client (cooldown: 878ms)
+🔇 Session logging suppressed for client (cooldown: 456ms)
+🔇 Session logging suppressed for client (cooldown: 679ms)
+🔇 Session logging suppressed for client (cooldown: 686ms)
+🔇 Session logging suppressed for client (cooldown: 926ms)
+🔇 Session logging suppressed for client (cooldown: 940ms)
+🔇 Session logging suppressed for client (cooldown: 1270ms)
+🔇 Session logging suppressed for client (cooldown: 1322ms)
+🔇 Session logging suppressed for client (cooldown: 3912ms)
+🔍 Token retrieval request for session: cs_test_a12EJkf1qI70IBBn58ENNeRZZ2yNIN6fn5UG0FUTnA9bzyufeMfHZV792v
+Replit DB get result for session_token:cs_test_a12EJkf1qI70IBBn58ENNeRZZ2yNIN6fn5UG0FUTnA9bzyufeMfHZV792v: {
+  ok: false,
+  error: { message: 'invalid token', statusCode: 403 },
+  errorExtras: undefined
+}
+Replit DB returned error for session cs_test_a12EJkf1qI70IBBn58ENNeRZZ2yNIN6fn5UG0FUTnA9bzyufeMfHZV792v: { message: 'invalid token', statusCode: 403 }
+🔑 Token lookup result: not found
+❌ No token found for session: cs_test_a12EJkf1qI70IBBn58ENNeRZZ2yNIN6fn5UG0FUTnA9bzyufeMfHZV792v
+💳 Found paid Stripe session but no token - webhook may not have processed yet
+1:38:07 AM [express] GET /api/subscription/token/cs_test_a12EJkf1qI70IBBn58ENNeRZZ2yNIN6fn5UG0FUTnA9…

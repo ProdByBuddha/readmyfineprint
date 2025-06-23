@@ -1,0 +1,48 @@
+[Subscription Enforcement] Valid subscription: Starter tier assigned
+Invalid encrypted data type: object {
+  ok: false,
+  error: { message: 'invalid token', statusCode: 403 },
+  errorExtras: undefined
+}
+Decryption failed, treating as plain text: Error: Invalid encrypted data format
+    at ReplitTokenStorage.decrypt (/home/runner/workspace/server/replit-token-storage.ts:705:15)
+    at ReplitTokenStorage.getDeviceData (/home/runner/workspace/server/replit-token-storage.ts:473:34)
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async EmailVerificationService.checkRateLimit (/home/runner/workspace/server/email-verification.ts:39:29)
+    at async EmailVerificationService.generateCode (/home/runner/workspace/server/email-verification.ts:87:27)
+    at async <anonymous> (/home/runner/workspace/server/routes.ts:834:26)
+Error retrieving device data: SyntaxError: Unexpected end of JSON input
+    at JSON.parse (<anonymous>)
+    at ReplitTokenStorage.getDeviceData (/home/runner/workspace/server/replit-token-storage.ts:474:19)
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async EmailVerificationService.checkRateLimit (/home/runner/workspace/server/email-verification.ts:39:29)
+    at async EmailVerificationService.generateCode (/home/runner/workspace/server/email-verification.ts:87:27)
+    at async <anonymous> (/home/runner/workspace/server/routes.ts:834:26)
+✅ Generated verification code for beatsbybuddha@gmail.com (expires: 2025-06-23T01:51:14.629Z)
+✅ Email sent successfully: {
+  messageId: '<9d2e0ffc-8025-588f-a0fd-893b78b902be@icloud.com>',
+  recipient: 'beatsbybuddha@gmail.com',
+  subject: 'Your ReadMyFinePrint Verification Code'
+}
+📧 Verification code sent to beatsbybuddha@gmail.com
+1:41:15 AM [express] POST /api/subscription/login/request-code 200 in 3605ms :: {"success":true,"mes…
+ℹ️ [SECURITY] SESSION_MANAGEMENT | LOW | 079f9cf6 | New session created
+📝 New session logged for client: 8469c1f5955cc04536a9eb63d977d8b6
+Invalid encrypted data type: object {
+  ok: false,
+  error: { message: 'invalid token', statusCode: 403 },
+  errorExtras: undefined
+}
+Decryption failed, treating as plain text: Error: Invalid encrypted data format
+    at ReplitTokenStorage.decrypt (/home/runner/workspace/server/replit-token-storage.ts:705:15)
+    at ReplitTokenStorage.getDeviceData (/home/runner/workspace/server/replit-token-storage.ts:473:34)
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async EmailVerificationService.verifyCode (/home/runner/workspace/server/email-verification.ts:139:26)
+    at async <anonymous> (/home/runner/workspace/server/routes.ts:907:34)
+Error retrieving device data: SyntaxError: Unexpected end of JSON input
+    at JSON.parse (<anonymous>)
+    at ReplitTokenStorage.getDeviceData (/home/runner/workspace/server/replit-token-storage.ts:474:19)
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async EmailVerificationService.verifyCode (/home/runner/workspace/server/email-verification.ts:139:26)
+    at async <anonymous> (/home/runner/workspace/server/routes.ts:907:34)
+1:41:39 AM [express] POST /api/subscription/login/verify 400 in 124ms :: {"error":"No verification c…
