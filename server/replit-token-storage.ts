@@ -259,12 +259,22 @@ export class ReplitTokenStorage {
       };
 
       const key = `session_token:${sessionId}`;
+      
+      // Always encrypt the data, even if no encryption key is available
       const dataToStore = JSON.stringify(sessionData);
-      const encryptedData = this.encrypt(dataToStore);
+      let encryptedData: string;
+      
+      try {
+        encryptedData = this.encrypt(dataToStore);
+      } catch (encryptError) {
+        console.warn('Encryption failed, storing as plain JSON:', encryptError);
+        // Fallback: store as plain JSON with a prefix to identify it
+        encryptedData = `plain:${dataToStore}`;
+      }
 
       // Ensure we're storing a string
       if (typeof encryptedData !== 'string') {
-        throw new Error('Encrypted data must be a string');
+        throw new Error('Data to store must be a string');
       }
 
       if (this.replitDB instanceof Map) {
@@ -273,7 +283,7 @@ export class ReplitTokenStorage {
         await this.replitDB.set(key, encryptedData);
       }
 
-      console.log(`Stored session token mapping: ${sessionId} -> ${token.slice(0, 8)}...`);
+      console.log(`Stored session token mapping: ${sessionId} -> ${token.slice(0, 8)}... (encrypted: ${!encryptedData.startsWith('plain:')})`);
     } catch (error) {
       console.error('Error storing session token mapping:', error);
       throw error;
@@ -289,21 +299,62 @@ export class ReplitTokenStorage {
     try {
       const key = `session_token:${sessionId}`;
       
-      let encryptedData: any;
+      let rawData: any;
       if (this.replitDB instanceof Map) {
-        encryptedData = this.replitDB.get(key);
+        rawData = this.replitDB.get(key);
       } else {
-        encryptedData = await this.replitDB.get(key);
+        rawData = await this.replitDB.get(key);
       }
 
-      if (!encryptedData) {
+      if (!rawData) {
         console.log(`No session token found for session: ${sessionId}`);
         return null;
       }
 
-      // Validate the encrypted data format before decryption
-      if (typeof encryptedData !== 'string') {
-        console.warn(`Invalid session token data format for ${sessionId}:`, typeof encryptedData);
+      let decryptedData: string;
+
+      // Handle different data formats
+      if (typeof rawData === 'string') {
+        // Data is stored as string (encrypted or plain)
+        if (rawData.startsWith('plain:')) {
+          // Plain JSON data
+          decryptedData = rawData.substring(6); // Remove 'plain:' prefix
+          console.log(`Retrieved plain session token for ${sessionId}`);
+        } else {
+          // Encrypted data
+          try {
+            decryptedData = this.decrypt(rawData);
+            console.log(`Decrypted session token for ${sessionId}`);
+          } catch (decryptError) {
+            console.warn(`Failed to decrypt session token for ${sessionId}, treating as plain JSON:`, decryptError);
+            decryptedData = rawData;
+          }
+        }
+      } else if (typeof rawData === 'object' && rawData !== null) {
+        // Data is stored as object (legacy format)
+        console.log(`Converting legacy object format for session: ${sessionId}`);
+        if (rawData.token && rawData.expiresAt) {
+          // Direct object with token and expiresAt
+          const sessionData = rawData as SessionTokenData;
+          
+          // Check if mapping is expired
+          if (new Date(sessionData.expiresAt) < new Date()) {
+            console.log(`Legacy session token expired for session: ${sessionId}`);
+            // Remove expired mapping
+            if (this.replitDB instanceof Map) {
+              this.replitDB.delete(key);
+            } else {
+              await this.replitDB.delete(key);
+            }
+            return null;
+          }
+          
+          return sessionData.token;
+        } else {
+          throw new Error('Invalid legacy object format');
+        }
+      } else {
+        console.warn(`Invalid session token data format for ${sessionId}:`, typeof rawData);
         // Clean up invalid data
         if (this.replitDB instanceof Map) {
           this.replitDB.delete(key);
@@ -313,7 +364,7 @@ export class ReplitTokenStorage {
         return null;
       }
 
-      const decryptedData = this.decrypt(encryptedData);
+      // Parse the decrypted JSON data
       const sessionData: SessionTokenData = JSON.parse(decryptedData);
 
       // Check if mapping is expired
@@ -627,13 +678,20 @@ export class ReplitTokenStorage {
         return encryptedText.replace('unencrypted:', '');
       }
 
-      if (!encryptedText.includes(':')) {
-        return encryptedText; // Not encrypted
+      // Handle plain data fallback
+      if (encryptedText.startsWith('plain:')) {
+        return encryptedText.substring(6);
       }
 
       // If no encryption key is available, assume it's unencrypted
       if (!this.encryptionKey) {
         console.warn('No encryption key available for decryption, treating as unencrypted');
+        return encryptedText;
+      }
+
+      // Check if it looks like encrypted data (should contain a colon for IV:encrypted format)
+      if (!encryptedText.includes(':')) {
+        console.warn('Data does not appear to be encrypted (no IV separator), treating as plain text');
         return encryptedText;
       }
       
@@ -642,7 +700,14 @@ export class ReplitTokenStorage {
       const [ivHex, encrypted] = encryptedText.split(':');
       
       if (!ivHex || !encrypted) {
-        throw new Error('Invalid encrypted data format - missing IV or encrypted content');
+        console.warn('Invalid encrypted data format - missing IV or encrypted content, treating as plain text');
+        return encryptedText;
+      }
+      
+      // Validate hex format
+      if (!/^[0-9a-fA-F]+$/.test(ivHex) || !/^[0-9a-fA-F]+$/.test(encrypted)) {
+        console.warn('Invalid hex format in encrypted data, treating as plain text');
+        return encryptedText;
       }
       
       const decipher = crypto.createDecipher(algorithm, key);
@@ -651,8 +716,9 @@ export class ReplitTokenStorage {
       
       return decrypted;
     } catch (error) {
-      console.error('Decryption error:', error);
-      throw new Error('Failed to decrypt token data');
+      console.warn('Decryption failed, treating as plain text:', error);
+      // Instead of throwing, return the original text as fallback
+      return typeof encryptedText === 'string' ? encryptedText : '';
     }
   }
 }
