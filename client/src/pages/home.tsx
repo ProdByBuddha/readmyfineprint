@@ -156,49 +156,10 @@ export default function Home() {
     }
 
     try {
-      const document = await createDocument({ title, content });
-      setCurrentDocumentId(document.id);
-      setIsAnalyzing(true);
-      announce("Starting sample contract analysis", 'polite');
-
-      // Check if consent is accepted
-      if (!consentAccepted) {
-        const message = "Please accept the terms and privacy policy to process documents.";
-        announce(message, 'assertive');
-        toast({
-          title: "Consent Required",
-          description: message,
-          variant: "destructive",
-        });
-        return;
-      }
-
-      // Show initial queue status
-      try {
-        const queueStatus = await getQueueStatus();
-        if (queueStatus.queueLength > 0) {
-          toast({
-            title: "Document queued for analysis",
-            description: `Your document is in the processing queue. ${queueStatus.queueLength} documents ahead of you.`,
-          });
-        }
-      } catch (error) {
-        console.warn("Could not get queue status:", error);
-      }
-
-      // Analyze the document with proper error handling
-      const updatedDocument = await analyzeDocument(document.id);
-      setIsAnalyzing(false);
-      announce("Sample contract analysis completed successfully", 'polite');
-      toast({
-        title: "Analysis complete",
-        description: "Your sample contract has been analyzed successfully.",
-      });
-      // Update the query cache with the analyzed document
-      queryClient.setQueryData(['/api/documents', updatedDocument.id], updatedDocument);
-      queryClient.invalidateQueries({ queryKey: ['/api/documents'] });
+      // Use the existing document creation and analysis flow
+      const document = await createDocument({ title: `Sample: ${title}`, content });
+      await handleDocumentCreated(document.id);
     } catch (error) {
-      setIsAnalyzing(false);
       console.error("Error with sample contract:", error);
       const errorMessage = error instanceof Error ? error.message : "Failed to process sample contract";
       announce(`Sample contract processing failed: ${errorMessage}`, 'assertive');
@@ -208,7 +169,7 @@ export default function Home() {
         variant: "destructive",
       });
     }
-  }, [consentAccepted, toast, announce, setCurrentDocumentId, setIsAnalyzing]);
+  }, [consentAccepted, toast, announce, handleDocumentCreated]);
 
   return (
     <div ref={containerRef} className="bg-gray-50 dark:bg-gray-900 page-transition min-h-screen">

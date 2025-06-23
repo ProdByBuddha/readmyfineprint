@@ -549,21 +549,49 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const { ip: clientIp, userAgent: clientUA } = getClientInfo(req);
       const clientFingerprint = crypto.createHash('md5').update(`${clientIp}:${clientUA}`).digest('hex').substring(0, 16);
 
-      const document = await storage.getDocument(req.sessionId, documentId, clientFingerprint);
+      let document = await storage.getDocument(req.sessionId, documentId, clientFingerprint);
 
       if (!document) {
-        // Enhanced error logging for debugging
-        const allDocs = await storage.getAllDocuments(req.sessionId);
-        console.log(`❌ Document ${documentId} not found in session ${req.sessionId}`);
-        console.log(`📋 Available documents in session: ${allDocs.map(d => `ID:${d.id}`).join(', ') || 'none'}`);
-        return res.status(404).json({
-          error: "Document not found",
-          debug: {
-            requestedId: documentId,
-            sessionId: req.sessionId,
-            availableDocuments: allDocs.map(d => ({ id: d.id, title: d.title }))
+        // For sample contracts, try to find the document in any recent session from the same client
+        console.log(`🔍 Document ${documentId} not found in current session, checking for sample contract in recent sessions`);
+        
+        // Try to find the document across all sessions (for sample contracts that are session-independent)
+        const allSessions = storage.getAllSessions();
+        let foundInSession = null;
+        
+        for (const [sessionId, sessionData] of allSessions) {
+          const sessionDoc = await storage.getDocument(sessionId, documentId);
+          if (sessionDoc && sessionDoc.title.startsWith('Sample:')) {
+            console.log(`📋 Found sample contract ${documentId} in session ${sessionId}, making accessible to current session`);
+            // Copy the document to the current session for analysis
+            await storage.createDocument(req.sessionId, {
+              title: sessionDoc.title,
+              content: sessionDoc.content,
+              fileType: sessionDoc.fileType,
+              analysis: sessionDoc.analysis
+            }, clientFingerprint, documentId);
+            document = sessionDoc;
+            foundInSession = sessionId;
+            break;
           }
-        });
+        }
+
+        if (!document) {
+          // Enhanced error logging for debugging
+          const allDocs = await storage.getAllDocuments(req.sessionId);
+          console.log(`❌ Document ${documentId} not found in session ${req.sessionId}`);
+          console.log(`📋 Available documents in session: ${allDocs.map(d => `ID:${d.id}`).join(', ') || 'none'}`);
+          return res.status(404).json({
+            error: "Document not found",
+            debug: {
+              requestedId: documentId,
+              sessionId: req.sessionId,
+              availableDocuments: allDocs.map(d => ({ id: d.id, title: d.title }))
+            }
+          });
+        } else {
+          console.log(`✅ Sample contract ${documentId} made accessible from session ${foundInSession} to ${req.sessionId}`);
+        }
       }
 
       if (document.analysis) {

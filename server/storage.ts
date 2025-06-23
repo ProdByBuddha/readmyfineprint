@@ -8,21 +8,21 @@ export interface IStorage {
   updateDocumentAnalysis(sessionId: string, id: number, analysis: any, clientFingerprint?: string): Promise<Document | undefined>;
   clearAllDocuments(sessionId: string): Promise<void>;
   clearExpiredSessions(): Promise<void>;
-  
+
   // User management
   getUser(id: string): Promise<User | undefined>;
   getUserByEmail(email: string): Promise<User | undefined>;
   createUser(insertUser: InsertUser): Promise<User>;
   createUserWithId(id: string, insertUser: InsertUser): Promise<User>;
   updateUser(id: string, updates: Partial<InsertUser>): Promise<User | undefined>;
-  
+
   // Subscription management
   getUserSubscription(userId: string): Promise<UserSubscription | undefined>;
   getAllUserSubscriptions(): Promise<UserSubscription[]>;
   createUserSubscription(insertSubscription: InsertUserSubscription): Promise<UserSubscription>;
   updateUserSubscription(id: string, updates: Partial<InsertUserSubscription>): Promise<UserSubscription | undefined>;
   cancelUserSubscription(id: string): Promise<UserSubscription | undefined>;
-  
+
   // Usage tracking
   getUserUsage(userId: string, period: string): Promise<UsageRecord | undefined>;
   createUsageRecord(insertUsage: InsertUsageRecord): Promise<UsageRecord>;
@@ -80,16 +80,44 @@ export class SessionStorage {
     }
   }
 
-  async createDocument(sessionId: string, insertDocument: InsertDocument, clientFingerprint?: string): Promise<Document> {
-    const session = this.getOrCreateSession(sessionId, clientFingerprint);
-    const id = session.currentDocumentId++;
+  async createDocument(sessionId: string, data: InsertDocument, clientFingerprint?: string, specifiedId?: number): Promise<Document> {
+    let session = this.sessions.get(sessionId);
+    if (!session) {
+      session = {
+        documents: new Map(),
+        currentDocumentId: 1,
+        lastAccessed: new Date(),
+      };
+      this.sessions.set(sessionId, session);
+    }
+
+    const documentId = specifiedId || session.currentDocumentId++;
+
+    // If we're using a specified ID and it's higher than current, update the counter
+    if (specifiedId && specifiedId >= session.currentDocumentId) {
+      session.currentDocumentId = specifiedId + 1;
+    }
+
     const document: Document = {
-      ...insertDocument,
-      id,
-      title: insertDocument.title || "Untitled Document",
-      createdAt: new Date()
+      id: documentId,
+      title: data.title,
+      content: data.content,
+      fileType: data.fileType || "text",
+      analysis: data.analysis || null,
+      createdAt: new Date(),
     };
-    session.documents.set(id, document);
+
+    session.documents.set(document.id, document);
+    session.lastAccessed = new Date();
+
+    // Track client fingerprint for session consolidation
+    if (clientFingerprint) {
+      if (!this.clientSessions.has(clientFingerprint)) {
+        this.clientSessions.set(clientFingerprint, new Set());
+      }
+      this.clientSessions.get(clientFingerprint)!.add(sessionId);
+    }
+
     return document;
   }
 
