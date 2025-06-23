@@ -201,11 +201,19 @@ export function SubscriptionLogin({
           userFriendlyMessage = "Connection problem. Please check your internet and try again.";
         } else if (error.message.includes("Server error") || error.message.includes("500")) {
           userFriendlyMessage = "Our servers are experiencing issues. Please try again in a moment.";
-        } else if (!error.message || error.message === "Error {}") {
-          userFriendlyMessage = "An unexpected error occurred. Please try entering the code again.";
+        } else if (!error.message || error.message === "Error {}" || error.message.trim() === "" || error.toString() === "[object Object]") {
+          userFriendlyMessage = "Verification failed. Please check your code and try again, or request a new verification code.";
         }
         
         setError(userFriendlyMessage);
+      } else if (typeof error === 'object' && error !== null) {
+        // Handle cases where error is an object but not an Error instance
+        const errorString = JSON.stringify(error);
+        if (errorString === '{}' || errorString === 'null') {
+          setError("Verification failed. Please check your code and try again, or request a new verification code.");
+        } else {
+          setError("An unexpected error occurred. Please try entering the code again.");
+        }
       } else {
         setError("An unexpected error occurred. Please try again.");
       }
