@@ -86,6 +86,10 @@ class EmailService {
           name: 'ReadMyFinePrint',
           address: process.env.SMTP_USER || process.env.SECURITY_EMAIL_FROM || process.env.FROM_EMAIL || 'noreply@readmyfineprint.com'
         },
+        replyTo: {
+          name: 'ReadMyFinePrint Support',
+          address: 'admin@readmyfineprint.com'
+        },
         to: emailData.to,
         subject: emailData.subject,
         html: emailData.html,
@@ -123,6 +127,10 @@ class EmailService {
         from: {
           name: 'ReadMyFinePrint',
           address: process.env.SMTP_USER || process.env.SECURITY_EMAIL_FROM || process.env.FROM_EMAIL || 'noreply@readmyfineprint.com'
+        },
+        replyTo: {
+          name: 'ReadMyFinePrint Support',
+          address: 'admin@readmyfineprint.com'
         },
         to: recipientEmail,
         subject: '🙏 Thank you for your generous donation!',
