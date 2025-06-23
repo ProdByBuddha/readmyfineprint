@@ -5,6 +5,7 @@ import { useTheme } from "@/components/ThemeProvider";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { useToast } from "@/hooks/use-toast";
 import { useState } from "react";
+import ReactDOM from 'react-dom';
 import { SubscriptionLogin } from "@/components/SubscriptionLogin";
 
 export function Header() {
@@ -187,16 +188,23 @@ export function Header() {
         </div>
       </div>
 
-      {/* Login Modal */}
+      {/* Login Modal - Portal to document body */}
       {showLogin && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
-          <div className="bg-white dark:bg-gray-800 rounded-lg max-w-md w-full">
-            <SubscriptionLogin
-              onSuccess={handleLoginSuccess}
-              onCancel={() => setShowLogin(false)}
-            />
-          </div>
-        </div>
+        <>
+          {document.body && 
+            ReactDOM.createPortal(
+              <div className="fixed inset-0 bg-black bg-opacity-50 z-[9999] flex items-center justify-center p-4">
+                <div className="bg-white dark:bg-gray-800 rounded-lg max-w-md w-full shadow-2xl">
+                  <SubscriptionLogin
+                    onSuccess={handleLoginSuccess}
+                    onCancel={() => setShowLogin(false)}
+                  />
+                </div>
+              </div>,
+              document.body
+            )
+          }
+        </>
       )}
     </header>
   );
