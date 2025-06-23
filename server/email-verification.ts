@@ -34,20 +34,20 @@ export class EmailVerificationService {
    */
   private async checkRateLimit(email: string, clientIp: string): Promise<boolean> {
     const rateLimitKey = `verification_rate_limit:${email}:${clientIp}`;
-    
+
     try {
       const rateLimitData = await replitTokenStorage.getDeviceData(rateLimitKey);
       if (rateLimitData) {
         const data = typeof rateLimitData === 'string' ? JSON.parse(rateLimitData) : rateLimitData;
         const windowStart = new Date(data.windowStart);
         const now = new Date();
-        
+
         // Check if we're still in the same rate limit window
         if (now.getTime() - windowStart.getTime() < this.RATE_LIMIT_WINDOW) {
           if (data.attempts >= this.MAX_CODES_PER_WINDOW) {
             return false; // Rate limit exceeded
           }
-          
+
           // Increment attempts in current window
           data.attempts++;
           try {
@@ -80,7 +80,7 @@ export class EmailVerificationService {
           // Don't fail the request if we can't store rate limit data
         }
       }
-      
+
       return true;
     } catch (error) {
       console.error('Rate limit check failed:', error);
@@ -109,7 +109,7 @@ export class EmailVerificationService {
 
       const code = this.generateVerificationCode();
       const expiresAt = new Date(Date.now() + this.CODE_EXPIRY_MINUTES * 60 * 1000);
-      
+
       const verificationData: VerificationCode = {
         code,
         email,
@@ -133,7 +133,7 @@ export class EmailVerificationService {
           error: 'Unable to store verification code. Please try again in a moment.'
         };
       }
-      
+
       return {
         success: true,
         code,
@@ -159,7 +159,7 @@ export class EmailVerificationService {
     try {
       const verificationKey = `email_verification:${email}:${deviceFingerprint}`;
       const storedData = await replitTokenStorage.getDeviceData(verificationKey);
-      
+
       if (!storedData) {
         return {
           success: false,
@@ -168,7 +168,7 @@ export class EmailVerificationService {
       }
 
       const verificationData: VerificationCode = storedData;
-      
+
       // Check if code has expired
       if (new Date() > new Date(verificationData.expiresAt)) {
         await replitTokenStorage.deleteDeviceData(verificationKey);
@@ -199,7 +199,7 @@ export class EmailVerificationService {
         // Success! Clean up the verification code
         await replitTokenStorage.deleteDeviceData(verificationKey);
         console.log(`✅ Email verification successful for ${email}`);
-        
+
         return {
           success: true
         };
@@ -207,7 +207,7 @@ export class EmailVerificationService {
         // Increment attempts and update storage
         verificationData.attempts++;
         const attemptsRemaining = verificationData.maxAttempts - verificationData.attempts;
-        
+
         if (attemptsRemaining > 0) {
           await replitTokenStorage.storeDeviceData(verificationKey, verificationData);
         } else {
@@ -246,3 +246,43 @@ export class EmailVerificationService {
 }
 
 export const emailVerificationService = new EmailVerificationService();
+const nodemailer = require('nodemailer');
+
+// async..await is not allowed in global scope, must use a wrapper
+export async function sendEmail(email: string, code: string) {
+  // Generate test SMTP service account from ethereal.email
+  // Only needed if you don't have a real mail account for testing
+  // let testAccount = await nodemailer.createTestAccount();
+
+  // create reusable transporter object using the default SMTP transport
+  const transporter = nodemailer.createTransport({
+    host: process.env.SMTP_HOST,
+    port: process.env.SMTP_PORT,
+    secure: false, // true for 465, false for other ports
+    auth: {
+      user: process.env.SMTP_USER, // generated ethereal user
+      pass: process.env.SMTP_PASS, // generated ethereal password
+    },
+  });
+
+  const mailOptions = {
+        from: {
+          name: 'ReadMyFinePrint',
+          address: process.env.SECURITY_EMAIL_FROM || process.env.FROM_EMAIL || 'admin@readmyfineprint.com'
+        },
+        to: email,
+        subject: `🔐 Your ReadMyFinePrint verification code: ${code}`,
+        text: `Your verification code is ${code}. This code will expire in 10 minutes.`,
+        html: `<p>Your verification code is <b>${code}</b>. This code will expire in 10 minutes.</p>`,
+  };
+
+  // send mail with defined transport object
+  let info = await transporter.sendMail(mailOptions);
+
+  console.log('Message sent: %s', info.messageId);
+  // Message sent: <b658f8ca-6296-ccf4-8306-87d57a0b4321@example.com>
+
+  // Preview only available when sending through an Ethereal account
+  // console.log('Preview URL: %s', nodemailer.getTestMessageUrl(info));
+  // Preview URL: https://ethereal.email/message/WaQKMgKddxQDoou...
+}
