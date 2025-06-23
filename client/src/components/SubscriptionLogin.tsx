@@ -128,10 +128,10 @@ export function SubscriptionLogin({ onSuccess, onCancel }: SubscriptionLoginProp
         <CardHeader>
           <CardTitle className="flex items-center space-x-2">
             <Mail className="h-5 w-5" />
-            <span>Access Your Subscription</span>
+            <span>Login to Your Account</span>
           </CardTitle>
           <CardDescription>
-            Enter the email address you used when subscribing to access your starter plan from this device.
+            Enter the email address you used when subscribing to log into your account from this device.
           </CardDescription>
         </CardHeader>
         
@@ -188,8 +188,8 @@ export function SubscriptionLogin({ onSuccess, onCancel }: SubscriptionLoginProp
           </form>
 
           <div className="mt-4 text-sm text-muted-foreground">
-            <p>🔒 <strong>Secure 2-Step Verification</strong></p>
-            <p>We'll send a verification code to your email to confirm it's you.</p>
+            <p>🔒 <strong>Secure Login</strong></p>
+            <p>We'll send a verification code to your email to securely log you in.</p>
           </div>
         </CardContent>
       </Card>

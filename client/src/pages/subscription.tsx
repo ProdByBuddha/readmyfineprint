@@ -487,7 +487,7 @@ export default function SubscriptionPage() {
                           onClick={() => setShowLogin(true)}
                           className="whitespace-nowrap"
                         >
-                          Already Subscribed?
+                          Login to Account
                         </Button>
                         <Button onClick={() => setActiveTab('plans')}>
                           View Plans
@@ -523,7 +523,7 @@ export default function SubscriptionPage() {
                         onClick={() => setShowLogin(true)}
                         className="whitespace-nowrap"
                       >
-                        Access My Subscription
+                        Login to Account
                       </Button>
                     </div>
                   </AlertDescription>
