@@ -306,13 +306,13 @@ body {
 
 .dark {
   --background: 185 25% 6%;
-  --foreground: 180 25% 91%;
+  --foreground: 180 25% 95%;
   --muted: hsl(185, 20%, 12%);
-  --muted-foreground: hsl(185, 10%, 65%);
+  --muted-foreground: hsl(185, 10%, 70%);
   --popover: hsl(185, 25%, 6%);
-  --popover-foreground: hsl(180, 25%, 91%);
+  --popover-foreground: hsl(180, 25%, 95%);
   --card: hsl(185, 25%, 6%);
-  --card-foreground: hsl(180, 25%, 91%);
+  --card-foreground: hsl(180, 25%, 95%);
   --border: hsl(185, 25%, 18%);
   --input: hsl(185, 25%, 18%);
   --primary: hsl(185, 85%, 45%);
@@ -320,7 +320,7 @@ body {
   --secondary: hsl(185, 60%, 35%);
   --secondary-foreground: hsl(180, 100%, 98%);
   --accent: hsl(185, 25%, 18%);
-  --accent-foreground: hsl(180, 25%, 91%);
+  --accent-foreground: hsl(180, 25%, 95%);
   --destructive: hsl(4, 90%, 58%);
   --destructive-foreground: hsl(0, 0%, 100%);
   --warning: hsl(38, 96%, 50%);
