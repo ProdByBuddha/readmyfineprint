@@ -259,7 +259,13 @@ export class ReplitTokenStorage {
       };
 
       const key = `session_token:${sessionId}`;
-      const encryptedData = this.encrypt(JSON.stringify(sessionData));
+      const dataToStore = JSON.stringify(sessionData);
+      const encryptedData = this.encrypt(dataToStore);
+
+      // Ensure we're storing a string
+      if (typeof encryptedData !== 'string') {
+        throw new Error('Encrypted data must be a string');
+      }
 
       if (this.replitDB instanceof Map) {
         this.replitDB.set(key, encryptedData);
@@ -267,7 +273,7 @@ export class ReplitTokenStorage {
         await this.replitDB.set(key, encryptedData);
       }
 
-      console.log(`Stored session token mapping: ${sessionId}`);
+      console.log(`Stored session token mapping: ${sessionId} -> ${token.slice(0, 8)}...`);
     } catch (error) {
       console.error('Error storing session token mapping:', error);
       throw error;
@@ -576,6 +582,12 @@ export class ReplitTokenStorage {
    */
   private encrypt(text: string): string {
     try {
+      // If no encryption key is available, return the text as-is (development mode)
+      if (!this.encryptionKey) {
+        console.warn('No encryption key available, storing data unencrypted');
+        return text;
+      }
+
       const algorithm = 'aes-256-cbc';
       const key = crypto.scryptSync(this.encryptionKey, 'salt', 32);
       const iv = crypto.randomBytes(16);
@@ -584,10 +596,18 @@ export class ReplitTokenStorage {
       let encrypted = cipher.update(text, 'utf8', 'hex');
       encrypted += cipher.final('hex');
       
-      return `${iv.toString('hex')}:${encrypted}`;
+      const result = `${iv.toString('hex')}:${encrypted}`;
+      
+      // Ensure we return a string
+      if (typeof result !== 'string') {
+        throw new Error('Encryption must produce a string');
+      }
+      
+      return result;
     } catch (error) {
       console.error('Encryption error:', error);
-      return text; // Fallback to unencrypted
+      // Return the text with a marker to indicate it's unencrypted
+      return `unencrypted:${text}`;
     }
   }
 
@@ -602,13 +622,28 @@ export class ReplitTokenStorage {
         throw new Error('Invalid encrypted data format');
       }
 
+      // Handle unencrypted fallback data
+      if (encryptedText.startsWith('unencrypted:')) {
+        return encryptedText.replace('unencrypted:', '');
+      }
+
       if (!encryptedText.includes(':')) {
         return encryptedText; // Not encrypted
+      }
+
+      // If no encryption key is available, assume it's unencrypted
+      if (!this.encryptionKey) {
+        console.warn('No encryption key available for decryption, treating as unencrypted');
+        return encryptedText;
       }
       
       const algorithm = 'aes-256-cbc';
       const key = crypto.scryptSync(this.encryptionKey, 'salt', 32);
       const [ivHex, encrypted] = encryptedText.split(':');
+      
+      if (!ivHex || !encrypted) {
+        throw new Error('Invalid encrypted data format - missing IV or encrypted content');
+      }
       
       const decipher = crypto.createDecipher(algorithm, key);
       let decrypted = decipher.update(encrypted, 'hex', 'utf8');

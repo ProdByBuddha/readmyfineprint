@@ -951,26 +951,31 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.get("/api/subscription/token/:sessionId", async (req, res) => {
     try {
       const { sessionId } = req.params;
+      console.log(`🔍 Token retrieval request for session: ${sessionId}`);
       
       // Get token by checkout session ID
       const token = await subscriptionService.getTokenBySession(sessionId);
+      console.log(`🔑 Token lookup result: ${token ? `${token.slice(0, 8)}...` : 'not found'}`);
       
       if (token) {
         // Validate the token exists and return subscription data
         const subscriptionData = await subscriptionService.validateSubscriptionToken(token);
         if (subscriptionData) {
+          console.log(`✅ Token validation successful for session: ${sessionId}`);
           res.json({ 
             token,
             subscription: subscriptionData
           });
         } else {
+          console.warn(`❌ Token validation failed for session: ${sessionId}`);
           res.status(404).json({ error: 'Invalid or expired token' });
         }
       } else {
+        console.warn(`❌ No token found for session: ${sessionId}`);
         res.status(404).json({ error: 'No token found for this session' });
       }
     } catch (error) {
-      console.error("Error retrieving subscription token:", error);
+      console.error(`❌ Error retrieving subscription token for session ${req.params.sessionId}:`, error);
       res.status(500).json({ 
         error: "Failed to retrieve subscription token",
         details: error instanceof Error ? error.message : "Unknown error"
@@ -1440,7 +1445,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
                 // Store mapping from checkout session to token for frontend retrieval
                 await subscriptionService.storeSessionToken(checkoutSession.id, subscriptionToken);
                 
-                console.log(`✅ Subscription created successfully for user ${actualUserId} with token ${subscriptionToken.slice(0, 8)}...`);
+                console.log(`✅ Subscription created successfully:`);
+                console.log(`   User ID: ${actualUserId}`);
+                console.log(`   Subscription ID: ${subscription.id}`);
+                console.log(`   Token: ${subscriptionToken.slice(0, 8)}...`);
+                console.log(`   Checkout Session: ${checkoutSession.id}`);
                 
                 // Log security event
                 securityLogger.logSecurityEvent({
