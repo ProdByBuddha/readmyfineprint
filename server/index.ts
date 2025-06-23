@@ -199,8 +199,6 @@ app.use((req: any, res, next) => {
           }
         });
       }
-    } else {
-      console.log(`🔇 Session logging suppressed for client (cooldown: ${now - lastClientSession}ms)`);
     }
   }
 

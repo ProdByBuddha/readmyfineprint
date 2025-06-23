@@ -142,6 +142,12 @@ export default function Home() {
     announce("Starting new document analysis", 'polite');
   }, [announce]);
 
+  // Check if user has a subscription (non-free tier)
+  const hasSubscription = useCallback(() => {
+    const subscriptionToken = localStorage.getItem('subscriptionToken');
+    return !!subscriptionToken;
+  }, []);
+
   const handleSampleContract = useCallback(async (title: string, content: string) => {
     // Check if consent is accepted
     if (!consentAccepted) {
@@ -192,41 +198,51 @@ export default function Home() {
           {/* Hero Section */}
           {!currentDocumentId && (
             <section className="text-center mb-12 animate-fade-in-scale" role="banner" aria-labelledby="main-heading">
-              <h1 id="main-heading" className="text-3xl md:text-4xl lg:text-5xl font-bold text-gray-900 dark:text-white mb-4">
-                Understand Any Contract in{" "}
-                <span className="text-primary">Plain English</span>
-              </h1>
-              <p className="text-lg md:text-xl text-gray-600 dark:text-gray-300 mb-4 max-w-3xl mx-auto">
-                Upload or paste any legal document and get instant, clear summaries that
-                highlight what matters most. No legal degree required.
-              </p>
+              {/* Main heading and subheading - only show to free tier users */}
+              {!hasSubscription() && (
+                <>
+                  <h1 id="main-heading" className="text-3xl md:text-4xl lg:text-5xl font-bold text-gray-900 dark:text-white mb-4">
+                    Understand Any Contract in{" "}
+                    <span className="text-primary">Plain English</span>
+                  </h1>
+                  <p className="text-lg md:text-xl text-gray-600 dark:text-gray-300 mb-4 max-w-3xl mx-auto">
+                    Upload or paste any legal document and get instant, clear summaries that
+                    highlight what matters most. No legal degree required.
+                  </p>
+                </>
+              )}
 
-              {/* Features highlight for SEO */}
-              <div className="mb-6 max-w-4xl mx-auto">
-                <h2 className="sr-only">Key Features</h2>
-                <ul className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm text-gray-600 dark:text-gray-300">
-                  <li className="flex items-center justify-center gap-2">
-                    <span className="w-2 h-2 bg-primary rounded-full" aria-hidden="true"></span>
-                    <span>Advanced Analysis</span>
-                  </li>
-                  <li className="flex items-center justify-center gap-2">
-                    <span className="w-2 h-2 bg-primary rounded-full" aria-hidden="true"></span>
-                    <span>Privacy-First Processing</span>
-                  </li>
-                  <li className="flex items-center justify-center gap-2">
-                    <span className="w-2 h-2 bg-primary rounded-full" aria-hidden="true"></span>
-                    <span>Instant Results</span>
-                  </li>
-                </ul>
-              </div>
+              {/* Features highlight for SEO - only show to free tier users */}
+              {!hasSubscription() && (
+                <div className="mb-6 max-w-4xl mx-auto">
+                  <h2 className="sr-only">Key Features</h2>
+                  <ul className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm text-gray-600 dark:text-gray-300">
+                    <li className="flex items-center justify-center gap-2">
+                      <span className="w-2 h-2 bg-primary rounded-full" aria-hidden="true"></span>
+                      <span>Advanced Analysis</span>
+                    </li>
+                    <li className="flex items-center justify-center gap-2">
+                      <span className="w-2 h-2 bg-primary rounded-full" aria-hidden="true"></span>
+                      <span>Privacy-First Processing</span>
+                    </li>
+                    <li className="flex items-center justify-center gap-2">
+                      <span className="w-2 h-2 bg-primary rounded-full" aria-hidden="true"></span>
+                      <span>Instant Results</span>
+                    </li>
+                  </ul>
+                </div>
+              )}
 
-              <div className="bg-amber-50 dark:bg-amber-950/20 border border-amber-200 dark:border-amber-800 rounded-xl p-4 max-w-2xl mx-auto" role="alert" aria-labelledby="privacy-notice">
-                <h3 id="privacy-notice" className="sr-only">Privacy Notice</h3>
-                <p className="text-sm text-amber-800 dark:text-amber-200">
-                  <strong>Session-based tool:</strong> All data is temporary and will be cleared when you refresh the page.
-                  Your documents are never permanently stored.
-                </p>
-              </div>
+              {/* Session-based tool notification - only show to free tier users */}
+              {!hasSubscription() && (
+                <div className="bg-amber-50 dark:bg-amber-950/20 border border-amber-200 dark:border-amber-800 rounded-xl p-4 max-w-2xl mx-auto" role="alert" aria-labelledby="privacy-notice">
+                  <h3 id="privacy-notice" className="sr-only">Privacy Notice</h3>
+                  <p className="text-sm text-amber-800 dark:text-amber-200">
+                    <strong>Session-based tool:</strong> All data is temporary and will be cleared when you refresh the page.
+                    Your documents are never permanently stored.
+                  </p>
+                </div>
+              )}
             </section>
           )}
 
@@ -242,13 +258,16 @@ export default function Home() {
                 />
               </section>
 
-              <section aria-labelledby="samples-heading" className="mb-8">
-                <h2 id="samples-heading" className="sr-only">Sample Contracts</h2>
-                <SampleContracts
-                  onSelectContract={handleSampleContract}
-                  disabled={false}
-                />
-              </section>
+              {/* Only show sample contracts for free tier users */}
+              {!hasSubscription() && (
+                <section aria-labelledby="samples-heading" className="mb-8">
+                  <h2 id="samples-heading" className="sr-only">Sample Contracts</h2>
+                  <SampleContracts
+                    onSelectContract={handleSampleContract}
+                    disabled={false}
+                  />
+                </section>
+              )}
             </div>
           )}
 

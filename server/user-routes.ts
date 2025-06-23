@@ -130,6 +130,47 @@ export function registerUserRoutes(app: Express) {
     }
   });
 
+  // Validate subscription token
+  app.post("/api/users/validate-token", async (req: Request, res: Response) => {
+    try {
+      const token = req.headers['x-subscription-token'] as string;
+      
+      if (!token) {
+        return res.status(400).json({ error: "Token is required" });
+      }
+
+      // Use the storage system to validate the token
+      const { databaseStorage, storage } = await import("./storage");
+      
+      try {
+        // Try to get token info from storage
+        const tokenData = await storage.getToken(token);
+        
+        if (!tokenData) {
+          return res.status(401).json({ error: "Invalid token" });
+        }
+
+        // Check if token is expired
+        if (tokenData.expiresAt && new Date() > new Date(tokenData.expiresAt)) {
+          return res.status(401).json({ error: "Token expired" });
+        }
+
+        // Token is valid
+        res.json({ 
+          valid: true, 
+          userId: tokenData.userId,
+          tierId: tokenData.tierId 
+        });
+      } catch (error) {
+        console.error("Token validation error:", error);
+        return res.status(401).json({ error: "Invalid token" });
+      }
+    } catch (error) {
+      console.error("Validate token error:", error);
+      res.status(500).json({ error: "Token validation failed" });
+    }
+  });
+
   // Get user profile
   app.get("/api/users/:id", async (req: Request, res: Response) => {
     try {

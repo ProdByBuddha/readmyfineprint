@@ -53,34 +53,56 @@ const upload = multer({
   fileFilter: createSecureFileFilter()
 });
 
-// Enhanced PDF text extraction using pdf-parse with multiple fallback strategies
+// Enhanced PDF text extraction using pdf-parse with smart configuration selection
 async function extractPdfText(buffer: Buffer): Promise<string> {
   console.log(`🔍 Starting PDF extraction (buffer size: ${buffer.length} bytes)`);
   
-  // Strategy 1: Try pdf-parse with different configurations
-  const pdfParseConfigs = [
-    {
-      normalizeWhitespace: false,
-      disableCombineTextItems: true,
-      max: 0
-    },
-    {
-      normalizeWhitespace: true,
-      disableCombineTextItems: false,
-      max: 0
-    },
-    {
-      // Minimal config
-      max: 0
-    }
-  ];
+  // Check if PDF is problematic by doing a quick parse test
+  const isProblematicPdf = await checkIfProblematicPdf(buffer);
+  
+  let configsToTry: any[];
+  
+  if (isProblematicPdf) {
+    console.log(`⚠️ Detected problematic PDF, using tolerant configurations`);
+    // For problematic PDFs: normalize text config first, then minimal config
+    configsToTry = [
+      {
+        normalizeWhitespace: true,
+        disableCombineTextItems: false,
+        max: 0
+      },
+      {
+        // Minimal config fallback
+        max: 0
+      }
+    ];
+  } else {
+    console.log(`✅ PDF appears well-formed, using optimal configurations`);
+    // For well-formed PDFs: preserve structure first, then normalize text fallback
+    configsToTry = [
+      {
+        normalizeWhitespace: false,
+        disableCombineTextItems: true,
+        max: 0
+      },
+      {
+        normalizeWhitespace: true,
+        disableCombineTextItems: false,
+        max: 0
+      }
+    ];
+  }
 
-  for (let i = 0; i < pdfParseConfigs.length; i++) {
+  for (let i = 0; i < configsToTry.length; i++) {
     try {
-      console.log(`📄 Trying pdf-parse configuration ${i + 1}/${pdfParseConfigs.length}`);
-      const data = await pdfParse(buffer, pdfParseConfigs[i]);
+      const configType = isProblematicPdf 
+        ? (i === 0 ? 'normalize text' : 'minimal') 
+        : (i === 0 ? 'preserve structure' : 'normalize text');
       
-      console.log(`📄 PDF-parse results (config ${i + 1}):`);
+      console.log(`📄 Trying ${configType} configuration (${i + 1}/${configsToTry.length})`);
+      const data = await pdfParse(buffer, configsToTry[i]);
+      
+      console.log(`📄 PDF-parse results (${configType}):`);
       console.log(`   - Pages: ${data.numpages}`);
       console.log(`   - Text length: ${data.text.length} characters`);
       
@@ -90,7 +112,7 @@ async function extractPdfText(buffer: Buffer): Promise<string> {
         const readableRatio = readableContent.length / data.text.length;
         
         if (readableRatio > 0.3) { // At least 30% readable characters
-          console.log(`✅ PDF text extraction successful with config ${i + 1} (${data.text.length} chars, ${Math.round(readableRatio * 100)}% readable)`);
+          console.log(`✅ PDF text extraction successful with ${configType} config (${data.text.length} chars, ${Math.round(readableRatio * 100)}% readable)`);
           
           // Clean up the extracted text
           let cleanText = data.text
@@ -100,19 +122,44 @@ async function extractPdfText(buffer: Buffer): Promise<string> {
           
           return cleanText;
         } else {
-          console.log(`⚠️ Config ${i + 1}: Text not readable enough (${Math.round(readableRatio * 100)}% readable)`);
+          console.log(`⚠️ ${configType}: Text not readable enough (${Math.round(readableRatio * 100)}% readable)`);
         }
       } else {
-        console.log(`⚠️ Config ${i + 1}: Text too short (${data.text?.length || 0} chars)`);
+        console.log(`⚠️ ${configType}: Text too short (${data.text?.length || 0} chars)`);
       }
       
     } catch (error) {
-      console.log(`❌ pdf-parse config ${i + 1} failed:`, error instanceof Error ? error.message : String(error));
+      const configType = isProblematicPdf 
+        ? (i === 0 ? 'normalize text' : 'minimal') 
+        : (i === 0 ? 'preserve structure' : 'normalize text');
+      console.log(`❌ ${configType} config failed:`, error instanceof Error ? error.message : String(error));
     }
   }
 
   console.log(`⚠️ All pdf-parse configurations failed, falling back to enhanced extraction`);
   return await extractPdfTextBasic(buffer);
+}
+
+// Function to detect if PDF is problematic
+async function checkIfProblematicPdf(buffer: Buffer): Promise<boolean> {
+  try {
+    // Quick test with minimal config to see if PDF has structural issues
+    const testData = await pdfParse(buffer, { max: 1 }); // Only parse first page for test
+    
+    // Check for common signs of problematic PDFs
+    const pdfString = buffer.toString('latin1');
+    const hasWarningIndicators = 
+      pdfString.includes('Lexer_getName') ||
+      pdfString.includes('Unterminated string') ||
+      pdfString.includes('End of file') ||
+      buffer.length < 5000; // Very small PDFs are often problematic
+    
+    return hasWarningIndicators;
+  } catch (error) {
+    // If quick test fails, definitely problematic
+    console.log(`🔍 Quick PDF test failed, treating as problematic:`, error instanceof Error ? error.message : String(error));
+    return true;
+  }
 }
 
 // Enhanced basic PDF text extraction function (fallback)

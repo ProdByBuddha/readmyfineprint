@@ -20,9 +20,37 @@ export function Header() {
 
   // Check login status on component mount and when localStorage changes
   useEffect(() => {
-    const checkLoginStatus = () => {
+    const checkLoginStatus = async () => {
       const token = localStorage.getItem('subscriptionToken');
-      setIsLoggedIn(!!token);
+      
+      if (!token) {
+        setIsLoggedIn(false);
+        return;
+      }
+
+      // Validate token with backend
+      try {
+        const response = await fetch('/api/users/validate-token', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'x-subscription-token': token,
+          },
+        });
+
+        if (response.ok) {
+          setIsLoggedIn(true);
+        } else {
+          // Token is invalid, remove it
+          localStorage.removeItem('subscriptionToken');
+          setIsLoggedIn(false);
+        }
+      } catch (error) {
+        // On error, assume token is invalid
+        console.warn('Token validation failed:', error);
+        localStorage.removeItem('subscriptionToken');
+        setIsLoggedIn(false);
+      }
     };
 
     checkLoginStatus();

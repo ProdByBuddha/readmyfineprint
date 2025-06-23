@@ -353,7 +353,7 @@ export default function SubscriptionPlans({ currentTier, onSelectPlan }: Subscri
                       {isCurrentTier ? (
                         'Current Plan'
                       ) : tier.id === 'free' ? (
-                        'Get Started Free'
+                        'Downgrade'
                       ) : (
                         `Choose ${tier.name}`
                       )}

@@ -14,6 +14,12 @@ interface FileUploadProps {
   consentAccepted?: boolean;
 }
 
+// Check if user has a subscription (non-free tier)
+const hasSubscription = (): boolean => {
+  const subscriptionToken = localStorage.getItem('subscriptionToken');
+  return !!subscriptionToken;
+};
+
 export function FileUpload({ onDocumentCreated, disabled = false, consentAccepted = false }: FileUploadProps) {
   const [isUploading, setIsUploading] = useState(false);
   const [textContent, setTextContent] = useState("");
@@ -176,9 +182,9 @@ export function FileUpload({ onDocumentCreated, disabled = false, consentAccepte
             </p>
           </div>
         )}
-        <div className="flex flex-col lg:flex-row gap-8">
+        <div className={`flex flex-col gap-8 ${hasSubscription() ? '' : 'lg:flex-row'}`}>
           {/* Upload Area */}
-          <div className="lg:w-1/2">
+          <div className={hasSubscription() ? 'w-full' : 'lg:w-1/2'}>
             <h3 className="text-2xl font-semibold mb-6 text-[#c7d3d9]">Upload Your Document</h3>
 
             {/* File Upload */}
@@ -308,47 +314,49 @@ export function FileUpload({ onDocumentCreated, disabled = false, consentAccepte
             </p>
           </div>
 
-          {/* Features Preview */}
-          <div className="lg:w-1/2">
-            <h3 className="text-2xl font-semibold mb-6 text-gray-900 dark:text-[#c7d3d9]">What You&apos;ll Get</h3>
-            <div className="space-y-4" role="list" aria-label="Analysis features">
-              <div className="flex items-start space-x-4 p-4 bg-secondary/10 rounded-lg" role="listitem">
-                <div className="w-8 h-8 bg-secondary rounded-full flex items-center justify-center flex-shrink-0" aria-hidden="true">
-                  <FileText className="w-4 h-4 text-white" />
+          {/* Features Preview - only show to free tier users */}
+          {!hasSubscription() && (
+            <div className="lg:w-1/2">
+              <h3 className="text-2xl font-semibold mb-6 text-gray-900 dark:text-[#c7d3d9]">What You&apos;ll Get</h3>
+              <div className="space-y-4" role="list" aria-label="Analysis features">
+                <div className="flex items-start space-x-4 p-4 bg-secondary/10 rounded-lg" role="listitem">
+                  <div className="w-8 h-8 bg-secondary rounded-full flex items-center justify-center flex-shrink-0" aria-hidden="true">
+                    <FileText className="w-4 h-4 text-white" />
+                  </div>
+                  <div>
+                    <h4 className="font-semibold mb-1 text-gray-900 dark:text-[#c7d3d9]">Plain English Summary</h4>
+                    <p className="text-gray-600 dark:text-gray-300 text-sm">
+                      Complex legal jargon translated into clear, understandable language
+                    </p>
+                  </div>
                 </div>
-                <div>
-                  <h4 className="font-semibold mb-1 text-gray-900 dark:text-[#c7d3d9]">Plain English Summary</h4>
-                  <p className="text-gray-600 dark:text-gray-300 text-sm">
-                    Complex legal jargon translated into clear, understandable language
-                  </p>
-                </div>
-              </div>
 
-              <div className="flex items-start space-x-4 p-4 bg-secondary/10 rounded-lg" role="listitem">
-                <div className="w-8 h-8 bg-secondary rounded-full flex items-center justify-center flex-shrink-0" aria-hidden="true">
-                  <AlertCircle className="w-4 h-4 text-white" />
+                <div className="flex items-start space-x-4 p-4 bg-secondary/10 rounded-lg" role="listitem">
+                  <div className="w-8 h-8 bg-secondary rounded-full flex items-center justify-center flex-shrink-0" aria-hidden="true">
+                    <AlertCircle className="w-4 h-4 text-white" />
+                  </div>
+                  <div>
+                    <h4 className="font-semibold mb-1 text-gray-900 dark:text-[#c7d3d9]">Key Risk Highlights</h4>
+                    <p className="text-gray-600 dark:text-gray-300 text-sm">
+                      Important clauses and potential issues flagged for your attention
+                    </p>
+                  </div>
                 </div>
-                <div>
-                  <h4 className="font-semibold mb-1 text-gray-900 dark:text-[#c7d3d9]">Key Risk Highlights</h4>
-                  <p className="text-gray-600 dark:text-gray-300 text-sm">
-                    Important clauses and potential issues flagged for your attention
-                  </p>
-                </div>
-              </div>
 
-              <div className="flex items-start space-x-4 p-4 bg-secondary/10 rounded-lg" role="listitem">
-                <div className="w-8 h-8 bg-secondary rounded-full flex items-center justify-center flex-shrink-0" aria-hidden="true">
-                  <CheckCircle className="w-4 h-4 text-white" />
-                </div>
-                <div>
-                  <h4 className="font-semibold mb-1 text-gray-900 dark:text-[#c7d3d9]">Actionable Insights</h4>
-                  <p className="text-gray-600 dark:text-gray-300 text-sm">
-                    Specific recommendations and things to watch out for
-                  </p>
+                <div className="flex items-start space-x-4 p-4 bg-secondary/10 rounded-lg" role="listitem">
+                  <div className="w-8 h-8 bg-secondary rounded-full flex items-center justify-center flex-shrink-0" aria-hidden="true">
+                    <CheckCircle className="w-4 h-4 text-white" />
+                  </div>
+                  <div>
+                    <h4 className="font-semibold mb-1 text-gray-900 dark:text-[#c7d3d9]">Actionable Insights</h4>
+                    <p className="text-gray-600 dark:text-gray-300 text-sm">
+                      Specific recommendations and things to watch out for
+                    </p>
+                  </div>
                 </div>
               </div>
             </div>
-          </div>
+          )}
         </div>
 
         {/* Screen reader status updates */}
