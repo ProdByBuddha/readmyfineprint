@@ -1,0 +1,38 @@
+[Subscription Enforcement] Valid subscription: Starter tier assigned
+Replit DB returned error for device data key verification_rate_limit:beatsbybuddha@gmail.com:10.82.1.22: { message: 'invalid token', statusCode: 403 }
+Replit DB set error for device data key verification_rate_limit:beatsbybuddha@gmail.com:10.82.1.22: { message: 'invalid token', statusCode: 403 }
+Replit DB set error for device data: Error: Failed to store device data: invalid token
+    at ReplitTokenStorage.storeDeviceData (/home/runner/workspace/server/replit-token-storage.ts:453:19)
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async EmailVerificationService.checkRateLimit (/home/runner/workspace/server/email-verification.ts:63:9)
+    at async EmailVerificationService.generateCode (/home/runner/workspace/server/email-verification.ts:87:27)
+    at async <anonymous> (/home/runner/workspace/server/routes.ts:834:26)
+Error storing device data: Error: Failed to store device data: Failed to store device data: invalid token
+    at ReplitTokenStorage.storeDeviceData (/home/runner/workspace/server/replit-token-storage.ts:457:17)
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async EmailVerificationService.checkRateLimit (/home/runner/workspace/server/email-verification.ts:63:9)
+    at async EmailVerificationService.generateCode (/home/runner/workspace/server/email-verification.ts:87:27)
+    at async <anonymous> (/home/runner/workspace/server/routes.ts:834:26)
+Rate limit check failed: Error: Failed to store device data: Failed to store device data: invalid token
+    at ReplitTokenStorage.storeDeviceData (/home/runner/workspace/server/replit-token-storage.ts:457:17)
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async EmailVerificationService.checkRateLimit (/home/runner/workspace/server/email-verification.ts:63:9)
+    at async EmailVerificationService.generateCode (/home/runner/workspace/server/email-verification.ts:87:27)
+    at async <anonymous> (/home/runner/workspace/server/routes.ts:834:26)
+Replit DB set error for device data key email_verification:beatsbybuddha@gmail.com:fp_MTUzNng4NjR8QW1lcmljYS9Mb3NfQW5n: { message: 'invalid token', statusCode: 403 }
+Replit DB set error for device data: Error: Failed to store device data: invalid token
+    at ReplitTokenStorage.storeDeviceData (/home/runner/workspace/server/replit-token-storage.ts:453:19)
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async EmailVerificationService.generateCode (/home/runner/workspace/server/email-verification.ts:111:7)
+    at async <anonymous> (/home/runner/workspace/server/routes.ts:834:26)
+Error storing device data: Error: Failed to store device data: Failed to store device data: invalid token
+    at ReplitTokenStorage.storeDeviceData (/home/runner/workspace/server/replit-token-storage.ts:457:17)
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async EmailVerificationService.generateCode (/home/runner/workspace/server/email-verification.ts:111:7)
+    at async <anonymous> (/home/runner/workspace/server/routes.ts:834:26)
+Failed to generate verification code: Error: Failed to store device data: Failed to store device data: invalid token
+    at ReplitTokenStorage.storeDeviceData (/home/runner/workspace/server/replit-token-storage.ts:457:17)
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async EmailVerificationService.generateCode (/home/runner/workspace/server/email-verification.ts:111:7)
+    at async <anonymous> (/home/runner/workspace/server/routes.ts:834:26)
+2:22:17 PM [express] POST /api/subscription/login/request-code 429 in 1238ms :: {"error":"Failed to …
