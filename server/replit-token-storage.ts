@@ -280,7 +280,13 @@ export class ReplitTokenStorage {
       if (this.replitDB instanceof Map) {
         this.replitDB.set(key, encryptedData);
       } else {
-        await this.replitDB.set(key, encryptedData);
+        try {
+          const result = await this.replitDB.set(key, encryptedData);
+          console.log(`Replit DB set result for ${key}:`, result);
+        } catch (dbError) {
+          console.error('Replit DB set error:', dbError);
+          throw new Error(`Failed to store session token: ${dbError instanceof Error ? dbError.message : String(dbError)}`);
+        }
       }
 
       console.log(`Stored session token mapping: ${sessionId} -> ${token.slice(0, 8)}... (encrypted: ${!encryptedData.startsWith('plain:')})`);
@@ -303,7 +309,19 @@ export class ReplitTokenStorage {
       if (this.replitDB instanceof Map) {
         rawData = this.replitDB.get(key);
       } else {
-        rawData = await this.replitDB.get(key);
+        try {
+          rawData = await this.replitDB.get(key);
+          console.log(`Replit DB get result for ${key}:`, rawData);
+        } catch (dbError) {
+          console.error('Replit DB get error:', dbError);
+          return null;
+        }
+      }
+
+      // Check for Replit DB error responses
+      if (rawData && typeof rawData === 'object' && rawData.ok === false && rawData.error) {
+        console.warn(`Replit DB returned error for session ${sessionId}:`, rawData.error);
+        return null;
       }
 
       if (!rawData) {
@@ -331,22 +349,16 @@ export class ReplitTokenStorage {
           }
         }
       } else if (typeof rawData === 'object' && rawData !== null) {
-        // Data is stored as object (legacy format)
-        console.log(`Converting legacy object format for session: ${sessionId}`);
-
-        // Handle different legacy object formats
-        console.log(`🔍 Legacy object data structure:`, JSON.stringify(rawData).slice(0, 200));
-        console.log(`🔍 Legacy object properties:`, Object.keys(rawData));
-
+        // Check if this is a valid session token data object
         if (rawData.token && rawData.expiresAt) {
           // Direct object with token and expiresAt
           const sessionData = rawData as SessionTokenData;
 
-          console.log(`✅ Valid legacy object format found for session: ${sessionId}`);
+          console.log(`✅ Valid session token object found for session: ${sessionId}`);
 
           // Check if mapping is expired
           if (new Date(sessionData.expiresAt) < new Date()) {
-            console.log(`⏰ Legacy session token expired for session: ${sessionId}`);
+            console.log(`⏰ Session token expired for session: ${sessionId}`);
             // Remove expired mapping
             if (this.replitDB instanceof Map) {
               this.replitDB.delete(key);
@@ -357,13 +369,9 @@ export class ReplitTokenStorage {
           }
 
           return sessionData.token;
-        } else if (typeof rawData === 'string') {
-          // Some legacy data might be stored as a plain string token
-          console.log(`📝 Legacy session token stored as string for session: ${sessionId}`);
-          return rawData;
         } else {
-          // Invalid or corrupted legacy format - clean it up
-          console.warn(`❌ Invalid legacy object format for session ${sessionId}:`);
+          // Invalid or corrupted object format - clean it up
+          console.warn(`❌ Invalid session token object for session ${sessionId}:`);
           console.warn(`   Expected: {token: string, expiresAt: string}`);
           console.warn(`   Received:`, rawData);
           console.warn(`   Type:`, typeof rawData);
@@ -667,7 +675,7 @@ export class ReplitTokenStorage {
       const key = crypto.scryptSync(this.encryptionKey, 'salt', 32);
       const iv = crypto.randomBytes(16);
 
-      const cipher = crypto.createCipher(algorithm, key);
+      const cipher = crypto.createCipheriv(algorithm, key, iv);
       let encrypted = cipher.update(text, 'utf8', 'hex');
       encrypted += cipher.final('hex');
 
@@ -734,7 +742,8 @@ export class ReplitTokenStorage {
         return encryptedText;
       }
 
-      const decipher = crypto.createDecipher(algorithm, key);
+      const iv = Buffer.from(ivHex, 'hex');
+      const decipher = crypto.createDecipheriv(algorithm, key, iv);
       let decrypted = decipher.update(encrypted, 'hex', 'utf8');
       decrypted += decipher.final('utf8');
 
