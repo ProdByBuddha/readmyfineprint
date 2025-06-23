@@ -79,7 +79,7 @@ export default function Home() {
       } catch (error) {
         console.warn("Could not get queue status:", error);
       }
-      
+
       return analyzeDocument(documentId);
     },
     onSuccess: (updatedDocument: Document) => {
@@ -155,25 +155,60 @@ export default function Home() {
       return;
     }
 
-    setIsAnalyzing(true);
-    announce(`Loading sample contract: ${title}`, 'polite');
     try {
-      const document = await createDocument({
-        title: `Sample: ${title}`,
-        content,
+      const document = await createDocument({ title, content });
+      setCurrentDocumentId(document.id);
+      setIsAnalyzing(true);
+      announce("Starting sample contract analysis", 'polite');
+
+      // Check if consent is accepted
+      if (!consentAccepted) {
+        const message = "Please accept the terms and privacy policy to process documents.";
+        announce(message, 'assertive');
+        toast({
+          title: "Consent Required",
+          description: message,
+          variant: "destructive",
+        });
+        return;
+      }
+
+      // Show initial queue status
+      try {
+        const queueStatus = await getQueueStatus();
+        if (queueStatus.queueLength > 0) {
+          toast({
+            title: "Document queued for analysis",
+            description: `Your document is in the processing queue. ${queueStatus.queueLength} documents ahead of you.`,
+          });
+        }
+      } catch (error) {
+        console.warn("Could not get queue status:", error);
+      }
+
+      // Analyze the document with proper error handling
+      const updatedDocument = await analyzeDocument(document.id);
+      setIsAnalyzing(false);
+      announce("Sample contract analysis completed successfully", 'polite');
+      toast({
+        title: "Analysis complete",
+        description: "Your sample contract has been analyzed successfully.",
       });
-      await handleDocumentCreated(document.id);
+      // Update the query cache with the analyzed document
+      queryClient.setQueryData(['/api/documents', updatedDocument.id], updatedDocument);
+      queryClient.invalidateQueries({ queryKey: ['/api/documents'] });
     } catch (error) {
       setIsAnalyzing(false);
-      const errorMessage = error instanceof Error ? error.message : "Failed to load sample contract";
-      announce(`Failed to load sample: ${errorMessage}`, 'assertive');
+      console.error("Error with sample contract:", error);
+      const errorMessage = error instanceof Error ? error.message : "Failed to process sample contract";
+      announce(`Sample contract processing failed: ${errorMessage}`, 'assertive');
       toast({
-        title: "Failed to load sample",
+        title: "Sample contract failed",
         description: errorMessage,
         variant: "destructive",
       });
     }
-  }, [consentAccepted, toast, handleDocumentCreated, announce]);
+  }, [consentAccepted, toast, announce, setCurrentDocumentId, setIsAnalyzing]);
 
   return (
     <div ref={containerRef} className="bg-gray-50 dark:bg-gray-900 page-transition min-h-screen">
