@@ -446,47 +446,92 @@ export class ReplitTokenStorage {
       } else {
         // Replit database cleanup
         try {
-          const allKeys = await this.replitDB.list();
+          // Try different approaches to get keys based on Replit Database API
+          let keyArray: string[] = [];
           
-          // Ensure allKeys is iterable - Replit Database might return different formats
-          const keyArray = Array.isArray(allKeys) ? allKeys : (allKeys && typeof allKeys[Symbol.iterator] === 'function' ? Array.from(allKeys) : []);
+          try {
+            // Try to list all keys
+            const allKeys = await this.replitDB.list();
+            
+            // Handle different response formats from Replit Database
+            if (Array.isArray(allKeys)) {
+              keyArray = allKeys;
+            } else if (allKeys && typeof allKeys === 'object') {
+              // If it's an object with keys property
+              if (allKeys.keys && Array.isArray(allKeys.keys)) {
+                keyArray = allKeys.keys;
+              } else if (allKeys[Symbol.iterator]) {
+                keyArray = Array.from(allKeys);
+              } else {
+                // Try to extract keys from object
+                keyArray = Object.keys(allKeys);
+              }
+            } else if (typeof allKeys === 'string') {
+              // If returned as newline-separated string
+              keyArray = allKeys.split('\n').filter(key => key.trim());
+            }
+          } catch (listError) {
+            console.warn('Failed to list all keys, trying prefix-based cleanup:', listError);
+            
+            // Fallback: try to list keys by prefix
+            const prefixes = ['subscription_token:', 'session_token:', 'user_devices:'];
+            for (const prefix of prefixes) {
+              try {
+                const prefixKeys = await this.replitDB.list(prefix);
+                if (Array.isArray(prefixKeys)) {
+                  keyArray.push(...prefixKeys);
+                } else if (typeof prefixKeys === 'string') {
+                  keyArray.push(...prefixKeys.split('\n').filter(key => key.trim()));
+                }
+              } catch (prefixError) {
+                console.warn(`Failed to list keys with prefix ${prefix}:`, prefixError);
+              }
+            }
+          }
+          
+          console.log(`Found ${keyArray.length} keys for cleanup`);
           
           for (const key of keyArray) {
-          if (key.startsWith('subscription_token:') || key.startsWith('session_token:') || key.startsWith('user_devices:')) {
-            try {
-              const encryptedData = await this.replitDB.get(key);
-              if (encryptedData) {
-                const decryptedData = this.decrypt(encryptedData);
-                
-                if (key.startsWith('subscription_token:')) {
-                  const tokenData: TokenData = JSON.parse(decryptedData);
-                  if (new Date(tokenData.expiresAt) < now) {
-                    await this.replitDB.delete(key);
-                    tokensRemoved++;
-                  }
-                } else if (key.startsWith('session_token:')) {
-                  const sessionData: SessionTokenData = JSON.parse(decryptedData);
-                  if (new Date(sessionData.expiresAt) < now) {
-                    await this.replitDB.delete(key);
-                    sessionsRemoved++;
-                  }
-                } else if (key.startsWith('user_devices:')) {
-                  const deviceData = JSON.parse(decryptedData);
-                  // Clean device data older than 90 days
-                  const ninetyDaysAgo = new Date(now.getTime() - 90 * 24 * 60 * 60 * 1000);
-                  if (new Date(deviceData.lastUpdated) < ninetyDaysAgo) {
-                    await this.replitDB.delete(key);
-                    deviceDataCleaned++;
+            if (key.startsWith('subscription_token:') || key.startsWith('session_token:') || key.startsWith('user_devices:')) {
+              try {
+                const encryptedData = await this.replitDB.get(key);
+                if (encryptedData) {
+                  const decryptedData = this.decrypt(encryptedData);
+                  
+                  if (key.startsWith('subscription_token:')) {
+                    const tokenData: TokenData = JSON.parse(decryptedData);
+                    if (new Date(tokenData.expiresAt) < now) {
+                      await this.replitDB.delete(key);
+                      tokensRemoved++;
+                    }
+                  } else if (key.startsWith('session_token:')) {
+                    const sessionData: SessionTokenData = JSON.parse(decryptedData);
+                    if (new Date(sessionData.expiresAt) < now) {
+                      await this.replitDB.delete(key);
+                      sessionsRemoved++;
+                    }
+                  } else if (key.startsWith('user_devices:')) {
+                    const deviceData = JSON.parse(decryptedData);
+                    // Clean device data older than 90 days
+                    const ninetyDaysAgo = new Date(now.getTime() - 90 * 24 * 60 * 60 * 1000);
+                    if (new Date(deviceData.lastUpdated) < ninetyDaysAgo) {
+                      await this.replitDB.delete(key);
+                      deviceDataCleaned++;
+                    }
                   }
                 }
+              } catch (error) {
+                // Remove invalid entries
+                try {
+                  await this.replitDB.delete(key);
+                } catch (deleteError) {
+                  console.warn(`Failed to delete invalid key ${key}:`, deleteError);
+                }
               }
-            } catch (error) {
-              // Remove invalid entries
-              await this.replitDB.delete(key);
             }
           }
         } catch (listError) {
-          console.warn('Failed to list keys from Replit Database during cleanup:', listError);
+          console.warn('Failed to perform Replit Database cleanup:', listError);
         }
       }
 
