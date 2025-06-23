@@ -209,7 +209,6 @@ export function SubscriptionLogin({ onSuccess, onCancel }: SubscriptionLoginProp
           <div className="mt-4 text-sm text-muted-foreground">
             <p>🔒 <strong>Secure Login</strong></p>
             <p>We'll send a verification code to your email to securely log you in.</p>
-            <p className="mt-2">💡 <strong>Need a subscription?</strong> You must have an active subscription to log in. If you don't have one yet, please subscribe first.</p>
           </div>
         </CardContent>
       </Card>
