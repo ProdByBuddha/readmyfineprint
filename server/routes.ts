@@ -1402,17 +1402,28 @@ export async function registerRoutes(app: Express): Promise<Server> {
         case 'checkout.session.completed':
           const checkoutSession = event.data.object;
           
+          console.log(`📝 Webhook checkout.session.completed received${isTestMode ? ' (TEST)' : ''}:`);
+          console.log(`   Session ID: ${checkoutSession.id}`);
+          console.log(`   Mode: ${checkoutSession.mode}`);
+          console.log(`   Payment Status: ${checkoutSession.payment_status}`);
+          console.log(`   Subscription ID: ${checkoutSession.subscription}`);
+          console.log(`   Customer ID: ${checkoutSession.customer}`);
+          console.log(`   Metadata:`, checkoutSession.metadata);
+          
           // Only handle subscription checkouts (not one-time payments)
           if (checkoutSession.mode === 'subscription' && checkoutSession.subscription) {
-            console.log(`🎉 Subscription checkout completed${isTestMode ? ' (TEST)' : ''}: ${checkoutSession.id}`);
+            console.log(`🎉 Processing subscription checkout${isTestMode ? ' (TEST)' : ''}: ${checkoutSession.id}`);
             
             // Extract metadata from the checkout session
             const { tierId, billingCycle, userId } = checkoutSession.metadata || {};
             const stripeCustomerId = checkoutSession.customer;
             const stripeSubscriptionId = checkoutSession.subscription;
             
+            console.log(`📋 Extracted data: tierId=${tierId}, userId=${userId}, customerId=${stripeCustomerId}, subscriptionId=${stripeSubscriptionId}`);
+            
             if (tierId && userId && stripeCustomerId && stripeSubscriptionId) {
               try {
+                console.log(`🚀 Starting subscription creation process...`);
                 // Create or get user for this subscription
                 let actualUserId = userId;
                 
@@ -1463,9 +1474,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
                 const subscriptionToken = await subscriptionService.generateSubscriptionToken(actualUserId, subscription.id);
                 
                 // Store mapping from checkout session to token for frontend retrieval
+                console.log(`💾 Storing session token mapping...`);
                 await subscriptionService.storeSessionToken(checkoutSession.id, subscriptionToken);
                 
-                console.log(`📝 Stored session token mapping: ${checkoutSession.id} -> ${subscriptionToken.slice(0, 8)}...`);
+                // Verify the token was stored correctly
+                console.log(`🔍 Verifying token storage...`);
+                const storedToken = await subscriptionService.getTokenBySession(checkoutSession.id);
+                if (storedToken) {
+                  console.log(`✅ Token storage verified: ${checkoutSession.id} -> ${storedToken.slice(0, 8)}...`);
+                } else {
+                  console.error(`❌ Token storage failed: No token found after storage attempt`);
+                }
                 
                 console.log(`✅ Subscription created successfully:`);
                 console.log(`   User ID: ${actualUserId}`);
@@ -1490,12 +1509,26 @@ export async function registerRoutes(app: Express): Promise<Server> {
                   }
                 });
               } catch (error) {
-                console.error('Error processing subscription checkout:', error);
+                console.error('❌ Error processing subscription checkout:', error);
+                console.error('   Session ID:', checkoutSession.id);
+                console.error('   Error details:', error instanceof Error ? error.message : String(error));
+                console.error('   Stack trace:', error instanceof Error ? error.stack : 'No stack trace');
                 // Don't throw - we don't want to retry webhook processing for business logic errors
               }
             } else {
-              console.warn('Missing required metadata in checkout session:', checkoutSession.metadata);
+              console.warn('❌ Missing required metadata in checkout session:');
+              console.warn('   Session ID:', checkoutSession.id);
+              console.warn('   Available metadata:', checkoutSession.metadata);
+              console.warn('   Required: tierId, userId, stripeCustomerId, stripeSubscriptionId');
+              console.warn('   Missing:', {
+                tierId: !tierId,
+                userId: !userId,
+                stripeCustomerId: !stripeCustomerId,
+                stripeSubscriptionId: !stripeSubscriptionId
+              });
             }
+          } else {
+            console.log(`ℹ️ Skipping non-subscription checkout session: ${checkoutSession.id} (mode: ${checkoutSession.mode})`);
           }
           break;
 

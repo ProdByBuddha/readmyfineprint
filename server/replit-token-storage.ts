@@ -65,7 +65,7 @@ export class ReplitTokenStorage {
    */
   async storeToken(token: string, data: Omit<TokenData, 'createdAt' | 'expiresAt' | 'lastUsed' | 'usageCount'>): Promise<void> {
     await this.ensureInitialized();
-    
+
     try {
       const now = new Date();
       const expiresAt = new Date(now.getTime() + 30 * 24 * 60 * 60 * 1000); // 30 days
@@ -80,10 +80,10 @@ export class ReplitTokenStorage {
 
       // Encrypt sensitive data before storage
       const encryptedData = this.encrypt(JSON.stringify(tokenData));
-      
+
       // Store with token prefix for easy identification
       const key = `subscription_token:${token}`;
-      
+
       if (this.replitDB instanceof Map) {
         // Memory fallback
         this.replitDB.set(key, encryptedData);
@@ -104,10 +104,10 @@ export class ReplitTokenStorage {
    */
   async getToken(token: string): Promise<TokenData | null> {
     await this.ensureInitialized();
-    
+
     try {
       const key = `subscription_token:${token}`;
-      
+
       let encryptedData: string;
       if (this.replitDB instanceof Map) {
         // Memory fallback
@@ -144,7 +144,7 @@ export class ReplitTokenStorage {
    */
   async updateTokenUsage(token: string): Promise<void> {
     await this.ensureInitialized();
-    
+
     try {
       const tokenData = await this.getToken(token);
       if (!tokenData) {
@@ -174,10 +174,10 @@ export class ReplitTokenStorage {
    */
   async removeToken(token: string): Promise<boolean> {
     await this.ensureInitialized();
-    
+
     try {
       const key = `subscription_token:${token}`;
-      
+
       if (this.replitDB instanceof Map) {
         return this.replitDB.delete(key);
       } else {
@@ -195,10 +195,10 @@ export class ReplitTokenStorage {
    */
   async removeAllUserTokens(userId: string): Promise<number> {
     await this.ensureInitialized();
-    
+
     try {
       let removedCount = 0;
-      
+
       if (this.replitDB instanceof Map) {
         // Memory fallback - iterate through all keys
         for (const [key, encryptedData] of this.replitDB.entries()) {
@@ -218,7 +218,7 @@ export class ReplitTokenStorage {
       } else {
         // Replit database - list all keys and filter
         const keys = await this.replitDB.list('subscription_token:');
-        
+
         for (const key of keys) {
           try {
             const encryptedData = await this.replitDB.get(key);
@@ -249,21 +249,21 @@ export class ReplitTokenStorage {
    */
   async storeSessionToken(sessionId: string, token: string): Promise<void> {
     await this.ensureInitialized();
-    
+
     try {
       const expiresAt = new Date(Date.now() + 60 * 60 * 1000); // 1 hour
-      
+
       const sessionData: SessionTokenData = {
         token,
         expiresAt: expiresAt.toISOString()
       };
 
       const key = `session_token:${sessionId}`;
-      
+
       // Always encrypt the data, even if no encryption key is available
       const dataToStore = JSON.stringify(sessionData);
       let encryptedData: string;
-      
+
       try {
         encryptedData = this.encrypt(dataToStore);
       } catch (encryptError) {
@@ -295,10 +295,10 @@ export class ReplitTokenStorage {
    */
   async getTokenBySession(sessionId: string): Promise<string | null> {
     await this.ensureInitialized();
-    
+
     try {
       const key = `session_token:${sessionId}`;
-      
+
       let rawData: any;
       if (this.replitDB instanceof Map) {
         rawData = this.replitDB.get(key);
@@ -333,15 +333,20 @@ export class ReplitTokenStorage {
       } else if (typeof rawData === 'object' && rawData !== null) {
         // Data is stored as object (legacy format)
         console.log(`Converting legacy object format for session: ${sessionId}`);
-        
+
         // Handle different legacy object formats
+        console.log(`🔍 Legacy object data structure:`, JSON.stringify(rawData).slice(0, 200));
+        console.log(`🔍 Legacy object properties:`, Object.keys(rawData));
+
         if (rawData.token && rawData.expiresAt) {
           // Direct object with token and expiresAt
           const sessionData = rawData as SessionTokenData;
-          
+
+          console.log(`✅ Valid legacy object format found for session: ${sessionId}`);
+
           // Check if mapping is expired
           if (new Date(sessionData.expiresAt) < new Date()) {
-            console.log(`Legacy session token expired for session: ${sessionId}`);
+            console.log(`⏰ Legacy session token expired for session: ${sessionId}`);
             // Remove expired mapping
             if (this.replitDB instanceof Map) {
               this.replitDB.delete(key);
@@ -350,15 +355,21 @@ export class ReplitTokenStorage {
             }
             return null;
           }
-          
+
           return sessionData.token;
         } else if (typeof rawData === 'string') {
           // Some legacy data might be stored as a plain string token
-          console.log(`Legacy session token stored as string for session: ${sessionId}`);
+          console.log(`📝 Legacy session token stored as string for session: ${sessionId}`);
           return rawData;
         } else {
           // Invalid or corrupted legacy format - clean it up
-          console.warn(`Invalid legacy object format for session ${sessionId}, cleaning up`);
+          console.warn(`❌ Invalid legacy object format for session ${sessionId}:`);
+          console.warn(`   Expected: {token: string, expiresAt: string}`);
+          console.warn(`   Received:`, rawData);
+          console.warn(`   Type:`, typeof rawData);
+          console.warn(`   Keys:`, Object.keys(rawData || {}));
+          console.warn(`🧹 Cleaning up corrupted data...`);
+
           if (this.replitDB instanceof Map) {
             this.replitDB.delete(key);
           } else {
@@ -395,7 +406,7 @@ export class ReplitTokenStorage {
       return sessionData.token;
     } catch (error) {
       console.error(`Error retrieving session token for ${sessionId}:`, error);
-      
+
       // Clean up corrupted session data
       try {
         const key = `session_token:${sessionId}`;
@@ -408,7 +419,7 @@ export class ReplitTokenStorage {
       } catch (cleanupError) {
         console.error('Error cleaning up corrupted session data:', cleanupError);
       }
-      
+
       return null;
     }
   }
@@ -418,10 +429,10 @@ export class ReplitTokenStorage {
    */
   async storeDeviceData(key: string, deviceData: any): Promise<void> {
     await this.ensureInitialized();
-    
+
     try {
       const encryptedData = this.encrypt(JSON.stringify(deviceData));
-      
+
       if (this.replitDB instanceof Map) {
         this.replitDB.set(key, encryptedData);
       } else {
@@ -438,7 +449,7 @@ export class ReplitTokenStorage {
    */
   async getDeviceData(key: string): Promise<any | null> {
     await this.ensureInitialized();
-    
+
     try {
       let encryptedData: string;
       if (this.replitDB instanceof Map) {
@@ -464,7 +475,7 @@ export class ReplitTokenStorage {
    */
   async deleteDeviceData(key: string): Promise<boolean> {
     await this.ensureInitialized();
-    
+
     try {
       if (this.replitDB instanceof Map) {
         return this.replitDB.delete(key);
@@ -483,9 +494,9 @@ export class ReplitTokenStorage {
    */
   async setDeviceDataWithTTL(key: string, data: any, ttlMs: number): Promise<void> {
     await this.ensureInitialized();
-    
+
     await this.storeDeviceData(key, data);
-    
+
     // Set a timeout to clean up after TTL expires
     setTimeout(async () => {
       try {
@@ -502,7 +513,7 @@ export class ReplitTokenStorage {
    */
   async cleanupExpired(): Promise<{ tokensRemoved: number; sessionsRemoved: number; deviceDataCleaned: number }> {
     await this.ensureInitialized();
-    
+
     try {
       let tokensRemoved = 0;
       let sessionsRemoved = 0;
@@ -514,7 +525,7 @@ export class ReplitTokenStorage {
         for (const [key, encryptedData] of this.replitDB.entries()) {
           try {
             const decryptedData = this.decrypt(encryptedData);
-            
+
             if (key.startsWith('subscription_token:')) {
               const tokenData: TokenData = JSON.parse(decryptedData);
               if (new Date(tokenData.expiresAt) < now) {
@@ -546,11 +557,11 @@ export class ReplitTokenStorage {
         try {
           // Try different approaches to get keys based on Replit Database API
           let keyArray: string[] = [];
-          
+
           try {
             // Try to list all keys
             const allKeys = await this.replitDB.list();
-            
+
             // Handle different response formats from Replit Database
             if (Array.isArray(allKeys)) {
               keyArray = allKeys;
@@ -570,7 +581,7 @@ export class ReplitTokenStorage {
             }
           } catch (listError) {
             console.warn('Failed to list all keys, trying prefix-based cleanup:', listError);
-            
+
             // Fallback: try to list keys by prefix
             const prefixes = ['subscription_token:', 'session_token:', 'user_devices:'];
             for (const prefix of prefixes) {
@@ -586,16 +597,16 @@ export class ReplitTokenStorage {
               }
             }
           }
-          
+
           console.log(`Found ${keyArray.length} keys for cleanup`);
-          
+
           for (const key of keyArray) {
             if (key.startsWith('subscription_token:') || key.startsWith('session_token:') || key.startsWith('user_devices:')) {
               try {
                 const encryptedData = await this.replitDB.get(key);
                 if (encryptedData) {
                   const decryptedData = this.decrypt(encryptedData);
-                  
+
                   if (key.startsWith('subscription_token:')) {
                     const tokenData: TokenData = JSON.parse(decryptedData);
                     if (new Date(tokenData.expiresAt) < now) {
@@ -655,18 +666,18 @@ export class ReplitTokenStorage {
       const algorithm = 'aes-256-cbc';
       const key = crypto.scryptSync(this.encryptionKey, 'salt', 32);
       const iv = crypto.randomBytes(16);
-      
+
       const cipher = crypto.createCipher(algorithm, key);
       let encrypted = cipher.update(text, 'utf8', 'hex');
       encrypted += cipher.final('hex');
-      
+
       const result = `${iv.toString('hex')}:${encrypted}`;
-      
+
       // Ensure we return a string
       if (typeof result !== 'string') {
         throw new Error('Encryption must produce a string');
       }
-      
+
       return result;
     } catch (error) {
       console.error('Encryption error:', error);
@@ -707,26 +718,26 @@ export class ReplitTokenStorage {
         console.warn('Data does not appear to be encrypted (no IV separator), treating as plain text');
         return encryptedText;
       }
-      
+
       const algorithm = 'aes-256-cbc';
       const key = crypto.scryptSync(this.encryptionKey, 'salt', 32);
       const [ivHex, encrypted] = encryptedText.split(':');
-      
+
       if (!ivHex || !encrypted) {
         console.warn('Invalid encrypted data format - missing IV or encrypted content, treating as plain text');
         return encryptedText;
       }
-      
+
       // Validate hex format
       if (!/^[0-9a-fA-F]+$/.test(ivHex) || !/^[0-9a-fA-F]+$/.test(encrypted)) {
         console.warn('Invalid hex format in encrypted data, treating as plain text');
         return encryptedText;
       }
-      
+
       const decipher = crypto.createDecipher(algorithm, key);
       let decrypted = decipher.update(encrypted, 'hex', 'utf8');
       decrypted += decipher.final('utf8');
-      
+
       return decrypted;
     } catch (error) {
       console.warn('Decryption failed, treating as plain text:', error);
