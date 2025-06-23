@@ -1,0 +1,221 @@
+ℹ️ [SECURITY] SESSION_MANAGEMENT | LOW | 6a61ca99 | New session created
+📝 New session logged for client: 0288ce58854e9f7f2d7f9cd82aa5c863
+📝 Processing TEST webhook event
+📝 Webhook checkout.session.completed received (TEST):
+   Session ID: cs_test_a15cmJK4ETBsz3Wa6ybGkA0sjqCIvOzLbZVRTmHbKI11lArLZsPGe0OpCI
+   Mode: subscription
+   Payment Status: paid
+   Subscription ID: sub_1RcyiGPxX1dXZoQGdhSFnzDO
+   Customer ID: cus_SY4rxckas3ui5V
+   Metadata: {
+  tierId: 'starter',
+  billingCycle: 'yearly',
+  userId: 'da5228dd73974ceabb5619b8d14b8497'
+}
+🎉 Processing subscription checkout (TEST): cs_test_a15cmJK4ETBsz3Wa6ybGkA0sjqCIvOzLbZVRTmHbKI11lArLZsPGe0OpCI
+📋 Extracted data: tierId=starter, userId=da5228dd73974ceabb5619b8d14b8497, customerId=cus_SY4rxckas3ui5V, subscriptionId=sub_1RcyiGPxX1dXZoQGdhSFnzDO
+🚀 Starting subscription creation process...
+👤 Using existing user: da5228dd73974ceabb5619b8d14b8497 for subscription
+Error creating Stripe subscription: DrizzleQueryError: Failed query: insert into "user_subscriptions" ("id", "user_id", "tier_id", "status", "stripe_customer_id", "stripe_subscription_id", "current_period_start", "current_period_end", "cancel_at_period_end", "created_at", "updated_at") values (default, $1, $2, $3, $4, $5, $6, $7, $8, $9, $10) returning "id", "user_id", "tier_id", "status", "stripe_customer_id", "stripe_subscription_id", "current_period_start", "current_period_end", "cancel_at_period_end", "created_at", "updated_at"
+params: da5228dd73974ceabb5619b8d14b8497,starter,active,cus_SY4rxckas3ui5V,sub_1RcyiGPxX1dXZoQGdhSFnzDO,2025-06-23T00:58:21.573Z,2026-06-23T00:58:21.573Z,false,2025-06-23T00:58:21.827Z,2025-06-23T00:58:21.827Z
+    at NeonPreparedQuery.queryWithCache (/home/runner/workspace/node_modules/src/pg-core/session.ts:74:11)
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async NeonPreparedQuery.execute (/home/runner/workspace/node_modules/src/neon-serverless/session.ts:152:18)
+    ... 2 lines matching cause stack trace ...
+    at async <anonymous> (/home/runner/workspace/server/routes.ts:1463:38) {
+  query: 'insert into "user_subscriptions" ("id", "user_id", "tier_id", "status", "stripe_customer_id", "stripe_subscription_id", "current_period_start", "current_period_end", "cancel_at_period_end", "created_at", "updated_at") values (default, $1, $2, $3, $4, $5, $6, $7, $8, $9, $10) returning "id", "user_id", "tier_id", "status", "stripe_customer_id", "stripe_subscription_id", "current_period_start", "current_period_end", "cancel_at_period_end", "created_at", "updated_at"',
+  params: [
+    'da5228dd73974ceabb5619b8d14b8497',
+    'starter',
+    'active',
+    'cus_SY4rxckas3ui5V',
+    'sub_1RcyiGPxX1dXZoQGdhSFnzDO',
+    '2025-06-23T00:58:21.573Z',
+    '2026-06-23T00:58:21.573Z',
+    false,
+    '2025-06-23T00:58:21.827Z',
+    '2025-06-23T00:58:21.827Z'
+  ],
+  cause: error: insert or update on table "user_subscriptions" violates foreign key constraint "user_subscriptions_user_id_fkey"
+      at file:///home/runner/workspace/node_modules/@neondatabase/serverless/index.mjs:1087:33
+      at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+      at async <anonymous> (/home/runner/workspace/node_modules/src/neon-serverless/session.ts:153:11)
+      at async NeonPreparedQuery.queryWithCache (/home/runner/workspace/node_modules/src/pg-core/session.ts:72:12)
+      at async NeonPreparedQuery.execute (/home/runner/workspace/node_modules/src/neon-serverless/session.ts:152:18)
+      at async DatabaseStorage.createUserSubscription (/home/runner/workspace/server/database-storage.ts:170:28)
+      at async SubscriptionService.createStripeSubscription (/home/runner/workspace/server/subscription-service.ts:1041:28)
+      at async <anonymous> (/home/runner/workspace/server/routes.ts:1463:38) {
+    length: 329,
+    severity: 'ERROR',
+    code: '23503',
+    detail: 'Key (user_id)=(da5228dd-7397-4cea-bb56-19b8d14b8497) is not present in table "users".',
+    hint: undefined,
+    position: undefined,
+    internalPosition: undefined,
+    internalQuery: undefined,
+    where: undefined,
+    schema: 'public',
+    table: 'user_subscriptions',
+    column: undefined,
+    dataType: undefined,
+    constraint: 'user_subscriptions_user_id_fkey',
+    file: 'ri_triggers.c',
+    line: '2608',
+    routine: 'ri_ReportViolation'
+  }
+}
+❌ Error processing subscription checkout: DrizzleQueryError: Failed query: insert into "user_subscriptions" ("id", "user_id", "tier_id", "status", "stripe_customer_id", "stripe_subscription_id", "current_period_start", "current_period_end", "cancel_at_period_end", "created_at", "updated_at") values (default, $1, $2, $3, $4, $5, $6, $7, $8, $9, $10) returning "id", "user_id", "tier_id", "status", "stripe_customer_id", "stripe_subscription_id", "current_period_start", "current_period_end", "cancel_at_period_end", "created_at", "updated_at"
+params: da5228dd73974ceabb5619b8d14b8497,starter,active,cus_SY4rxckas3ui5V,sub_1RcyiGPxX1dXZoQGdhSFnzDO,2025-06-23T00:58:21.573Z,2026-06-23T00:58:21.573Z,false,2025-06-23T00:58:21.827Z,2025-06-23T00:58:21.827Z
+    at NeonPreparedQuery.queryWithCache (/home/runner/workspace/node_modules/src/pg-core/session.ts:74:11)
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async NeonPreparedQuery.execute (/home/runner/workspace/node_modules/src/neon-serverless/session.ts:152:18)
+    ... 2 lines matching cause stack trace ...
+    at async <anonymous> (/home/runner/workspace/server/routes.ts:1463:38) {
+  query: 'insert into "user_subscriptions" ("id", "user_id", "tier_id", "status", "stripe_customer_id", "stripe_subscription_id", "current_period_start", "current_period_end", "cancel_at_period_end", "created_at", "updated_at") values (default, $1, $2, $3, $4, $5, $6, $7, $8, $9, $10) returning "id", "user_id", "tier_id", "status", "stripe_customer_id", "stripe_subscription_id", "current_period_start", "current_period_end", "cancel_at_period_end", "created_at", "updated_at"',
+  params: [
+    'da5228dd73974ceabb5619b8d14b8497',
+    'starter',
+    'active',
+    'cus_SY4rxckas3ui5V',
+    'sub_1RcyiGPxX1dXZoQGdhSFnzDO',
+    '2025-06-23T00:58:21.573Z',
+    '2026-06-23T00:58:21.573Z',
+    false,
+    '2025-06-23T00:58:21.827Z',
+    '2025-06-23T00:58:21.827Z'
+  ],
+  cause: error: insert or update on table "user_subscriptions" violates foreign key constraint "user_subscriptions_user_id_fkey"
+      at file:///home/runner/workspace/node_modules/@neondatabase/serverless/index.mjs:1087:33
+      at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+      at async <anonymous> (/home/runner/workspace/node_modules/src/neon-serverless/session.ts:153:11)
+      at async NeonPreparedQuery.queryWithCache (/home/runner/workspace/node_modules/src/pg-core/session.ts:72:12)
+      at async NeonPreparedQuery.execute (/home/runner/workspace/node_modules/src/neon-serverless/session.ts:152:18)
+      at async DatabaseStorage.createUserSubscription (/home/runner/workspace/server/database-storage.ts:170:28)
+      at async SubscriptionService.createStripeSubscription (/home/runner/workspace/server/subscription-service.ts:1041:28)
+      at async <anonymous> (/home/runner/workspace/server/routes.ts:1463:38) {
+    length: 329,
+    severity: 'ERROR',
+    code: '23503',
+    detail: 'Key (user_id)=(da5228dd-7397-4cea-bb56-19b8d14b8497) is not present in table "users".',
+    hint: undefined,
+    position: undefined,
+    internalPosition: undefined,
+    internalQuery: undefined,
+    where: undefined,
+    schema: 'public',
+    table: 'user_subscriptions',
+    column: undefined,
+    dataType: undefined,
+    constraint: 'user_subscriptions_user_id_fkey',
+    file: 'ri_triggers.c',
+    line: '2608',
+    routine: 'ri_ReportViolation'
+  }
+}
+   Session ID: cs_test_a15cmJK4ETBsz3Wa6ybGkA0sjqCIvOzLbZVRTmHbKI11lArLZsPGe0OpCI
+   Error details: Failed query: insert into "user_subscriptions" ("id", "user_id", "tier_id", "status", "stripe_customer_id", "stripe_subscription_id", "current_period_start", "current_period_end", "cancel_at_period_end", "created_at", "updated_at") values (default, $1, $2, $3, $4, $5, $6, $7, $8, $9, $10) returning "id", "user_id", "tier_id", "status", "stripe_customer_id", "stripe_subscription_id", "current_period_start", "current_period_end", "cancel_at_period_end", "created_at", "updated_at"
+params: da5228dd73974ceabb5619b8d14b8497,starter,active,cus_SY4rxckas3ui5V,sub_1RcyiGPxX1dXZoQGdhSFnzDO,2025-06-23T00:58:21.573Z,2026-06-23T00:58:21.573Z,false,2025-06-23T00:58:21.827Z,2025-06-23T00:58:21.827Z
+   Stack trace: Error: Failed query: insert into "user_subscriptions" ("id", "user_id", "tier_id", "status", "stripe_customer_id", "stripe_subscription_id", "current_period_start", "current_period_end", "cancel_at_period_end", "created_at", "updated_at") values (default, $1, $2, $3, $4, $5, $6, $7, $8, $9, $10) returning "id", "user_id", "tier_id", "status", "stripe_customer_id", "stripe_subscription_id", "current_period_start", "current_period_end", "cancel_at_period_end", "created_at", "updated_at"
+params: da5228dd73974ceabb5619b8d14b8497,starter,active,cus_SY4rxckas3ui5V,sub_1RcyiGPxX1dXZoQGdhSFnzDO,2025-06-23T00:58:21.573Z,2026-06-23T00:58:21.573Z,false,2025-06-23T00:58:21.827Z,2025-06-23T00:58:21.827Z
+    at NeonPreparedQuery.queryWithCache (/home/runner/workspace/node_modules/src/pg-core/session.ts:74:11)
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async NeonPreparedQuery.execute (/home/runner/workspace/node_modules/src/neon-serverless/session.ts:152:18)
+    at async DatabaseStorage.createUserSubscription (/home/runner/workspace/server/database-storage.ts:170:28)
+    at async SubscriptionService.createStripeSubscription (/home/runner/workspace/server/subscription-service.ts:1041:28)
+    at async <anonymous> (/home/runner/workspace/server/routes.ts:1463:38)
+12:58:21 AM [express] POST /api/stripe-webhook 200 in 347ms :: {"received":true}
+ℹ️ [SECURITY] SESSION_MANAGEMENT | LOW | b1c859b2 | New session created
+📝 New session logged for client: 67e90565b75e4b9e4073f594635578b4
+🔇 Session logging suppressed for client (cooldown: 167ms)
+🔇 Session logging suppressed for client (cooldown: 245ms)
+ℹ️ [SECURITY] SESSION_MANAGEMENT | LOW | dca67e37 | New session created
+📝 New session logged for client: 49b51e5c40e1c5f0e1caccd5f4ff89e1
+ℹ️ [SECURITY] SESSION_MANAGEMENT | LOW | 7e3ab120 | New session created
+📝 New session logged for client: e15c0ddb9babf3060323aa4c7402194f
+🔇 Session logging suppressed for client (cooldown: 54ms)
+🔇 Session logging suppressed for client (cooldown: 60ms)
+🔇 Session logging suppressed for client (cooldown: 159ms)
+🔇 Session logging suppressed for client (cooldown: 413ms)
+ℹ️ [SECURITY] SESSION_MANAGEMENT | LOW | 5948a372 | New session created
+📝 New session logged for client: 1fbbfe47ea116819775f45ef2fb11ab0
+🔇 Session logging suppressed for client (cooldown: 415ms)
+🔇 Session logging suppressed for client (cooldown: 168ms)
+🔇 Session logging suppressed for client (cooldown: 461ms)
+🔇 Session logging suppressed for client (cooldown: 51ms)
+🔇 Session logging suppressed for client (cooldown: 466ms)
+🔇 Session logging suppressed for client (cooldown: 220ms)
+🔇 Session logging suppressed for client (cooldown: 219ms)
+🔇 Session logging suppressed for client (cooldown: 504ms)
+🔇 Session logging suppressed for client (cooldown: 518ms)
+🔇 Session logging suppressed for client (cooldown: 105ms)
+🔇 Session logging suppressed for client (cooldown: 274ms)
+🔇 Session logging suppressed for client (cooldown: 273ms)
+🔇 Session logging suppressed for client (cooldown: 274ms)
+🔇 Session logging suppressed for client (cooldown: 545ms)
+🔇 Session logging suppressed for client (cooldown: 565ms)
+🔇 Session logging suppressed for client (cooldown: 152ms)
+🔇 Session logging suppressed for client (cooldown: 319ms)
+🔇 Session logging suppressed for client (cooldown: 325ms)
+🔇 Session logging suppressed for client (cooldown: 325ms)
+🔇 Session logging suppressed for client (cooldown: 593ms)
+🔇 Session logging suppressed for client (cooldown: 201ms)
+🔇 Session logging suppressed for client (cooldown: 616ms)
+🔇 Session logging suppressed for client (cooldown: 373ms)
+🔇 Session logging suppressed for client (cooldown: 376ms)
+🔇 Session logging suppressed for client (cooldown: 377ms)
+🔇 Session logging suppressed for client (cooldown: 642ms)
+🔇 Session logging suppressed for client (cooldown: 251ms)
+🔇 Session logging suppressed for client (cooldown: 430ms)
+🔇 Session logging suppressed for client (cooldown: 679ms)
+🔇 Session logging suppressed for client (cooldown: 433ms)
+🔇 Session logging suppressed for client (cooldown: 436ms)
+🔇 Session logging suppressed for client (cooldown: 693ms)
+🔇 Session logging suppressed for client (cooldown: 300ms)
+🔇 Session logging suppressed for client (cooldown: 729ms)
+🔇 Session logging suppressed for client (cooldown: 486ms)
+🔇 Session logging suppressed for client (cooldown: 492ms)
+🔇 Session logging suppressed for client (cooldown: 742ms)
+🔇 Session logging suppressed for client (cooldown: 496ms)
+🔇 Session logging suppressed for client (cooldown: 348ms)
+🔇 Session logging suppressed for client (cooldown: 778ms)
+🔇 Session logging suppressed for client (cooldown: 537ms)
+🔇 Session logging suppressed for client (cooldown: 792ms)
+🔇 Session logging suppressed for client (cooldown: 546ms)
+🔇 Session logging suppressed for client (cooldown: 548ms)
+🔇 Session logging suppressed for client (cooldown: 397ms)
+🔇 Session logging suppressed for client (cooldown: 820ms)
+🔇 Session logging suppressed for client (cooldown: 842ms)
+🔇 Session logging suppressed for client (cooldown: 600ms)
+🔇 Session logging suppressed for client (cooldown: 602ms)
+🔇 Session logging suppressed for client (cooldown: 608ms)
+🔇 Session logging suppressed for client (cooldown: 444ms)
+🔇 Session logging suppressed for client (cooldown: 871ms)
+🔇 Session logging suppressed for client (cooldown: 891ms)
+🔇 Session logging suppressed for client (cooldown: 651ms)
+🔇 Session logging suppressed for client (cooldown: 655ms)
+🔇 Session logging suppressed for client (cooldown: 661ms)
+🔇 Session logging suppressed for client (cooldown: 913ms)
+🔇 Session logging suppressed for client (cooldown: 500ms)
+🔇 Session logging suppressed for client (cooldown: 934ms)
+🔇 Session logging suppressed for client (cooldown: 1194ms)
+🔇 Session logging suppressed for client (cooldown: 1555ms)
+🔇 Session logging suppressed for client (cooldown: 1606ms)
+🔇 Session logging suppressed for client (cooldown: 4153ms)
+🔍 Token retrieval request for session: cs_test_a15cmJK4ETBsz3Wa6ybGkA0sjqCIvOzLbZVRTmHbKI11lArLZsPGe0OpCI
+Converting legacy object format for session: cs_test_a15cmJK4ETBsz3Wa6ybGkA0sjqCIvOzLbZVRTmHbKI11lArLZsPGe0OpCI
+🔍 Legacy object data structure: {"ok":false,"error":{"message":"invalid token","statusCode":403}}
+🔍 Legacy object properties: [ 'ok', 'error', 'errorExtras' ]
+❌ Invalid legacy object format for session cs_test_a15cmJK4ETBsz3Wa6ybGkA0sjqCIvOzLbZVRTmHbKI11lArLZsPGe0OpCI:
+   Expected: {token: string, expiresAt: string}
+   Received: {
+  ok: false,
+  error: { message: 'invalid token', statusCode: 403 },
+  errorExtras: undefined
+}
+   Type: object
+   Keys: [ 'ok', 'error', 'errorExtras' ]
+🧹 Cleaning up corrupted data...
+🔑 Token lookup result: not found
+❌ No token found for session: cs_test_a15cmJK4ETBsz3Wa6ybGkA0sjqCIvOzLbZVRTmHbKI11lArLZsPGe0OpCI
+💳 Found paid Stripe session but no token - webhook may not have processed yet
+12:58:28 AM [express] GET /api/subscription/token/cs_test_a15cmJK4ETBsz3Wa6ybGkA0sjqCIvOzLbZVRTmHbKI1…
