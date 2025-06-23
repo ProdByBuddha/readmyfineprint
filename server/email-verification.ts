@@ -34,20 +34,20 @@ export class EmailVerificationService {
    */
   private async checkRateLimit(email: string, clientIp: string): Promise<boolean> {
     const rateLimitKey = `verification_rate_limit:${email}:${clientIp}`;
-    
+
     try {
       const rateLimitData = await replitTokenStorage.getDeviceData(rateLimitKey);
       if (rateLimitData) {
         const data = typeof rateLimitData === 'string' ? JSON.parse(rateLimitData) : rateLimitData;
         const windowStart = new Date(data.windowStart);
         const now = new Date();
-        
+
         // Check if we're still in the same rate limit window
         if (now.getTime() - windowStart.getTime() < this.RATE_LIMIT_WINDOW) {
           if (data.attempts >= this.MAX_CODES_PER_WINDOW) {
             return false; // Rate limit exceeded
           }
-          
+
           // Increment attempts in current window
           data.attempts++;
           try {
@@ -80,7 +80,7 @@ export class EmailVerificationService {
           // Don't fail the request if we can't store rate limit data
         }
       }
-      
+
       return true;
     } catch (error) {
       console.error('Rate limit check failed:', error);
@@ -109,7 +109,7 @@ export class EmailVerificationService {
 
       const code = this.generateVerificationCode();
       const expiresAt = new Date(Date.now() + this.CODE_EXPIRY_MINUTES * 60 * 1000);
-      
+
       const verificationData: VerificationCode = {
         code,
         email,
@@ -133,7 +133,7 @@ export class EmailVerificationService {
           error: 'Unable to store verification code. Please try again in a moment.'
         };
       }
-      
+
       return {
         success: true,
         code,
@@ -159,7 +159,7 @@ export class EmailVerificationService {
     try {
       const verificationKey = `email_verification:${email}:${deviceFingerprint}`;
       const storedData = await replitTokenStorage.getDeviceData(verificationKey);
-      
+
       if (!storedData) {
         return {
           success: false,
@@ -168,7 +168,7 @@ export class EmailVerificationService {
       }
 
       const verificationData: VerificationCode = storedData;
-      
+
       // Check if code has expired
       if (new Date() > new Date(verificationData.expiresAt)) {
         await replitTokenStorage.deleteDeviceData(verificationKey);
@@ -199,7 +199,7 @@ export class EmailVerificationService {
         // Success! Clean up the verification code
         await replitTokenStorage.deleteDeviceData(verificationKey);
         console.log(`✅ Email verification successful for ${email}`);
-        
+
         return {
           success: true
         };
@@ -207,7 +207,7 @@ export class EmailVerificationService {
         // Increment attempts and update storage
         verificationData.attempts++;
         const attemptsRemaining = verificationData.maxAttempts - verificationData.attempts;
-        
+
         if (attemptsRemaining > 0) {
           await replitTokenStorage.storeDeviceData(verificationKey, verificationData);
         } else {
@@ -246,3 +246,22 @@ export class EmailVerificationService {
 }
 
 export const emailVerificationService = new EmailVerificationService();
+
+// Simulate sending email using console.log to avoid actual email sending during code generation.
+export async function sendVerificationEmail(email: string, code: string) {
+  const emailHTML = `
+    <p>Your ReadMyFinePrint verification code is: <b>${code}</b></p>
+    <p>This code will expire in 10 minutes.</p>
+  `;
+  const emailText = `Your ReadMyFinePrint verification code is: ${code}. This code will expire in 10 minutes.`;
+
+  const mailOptions = {
+        from: process.env.SECURITY_EMAIL_FROM || process.env.SMTP_USER,
+        to: email,
+        subject: 'Your ReadMyFinePrint Verification Code',
+        html: emailHTML,
+        text: emailText
+      };
+
+  console.log('Simulating sending email:', mailOptions);
+}
