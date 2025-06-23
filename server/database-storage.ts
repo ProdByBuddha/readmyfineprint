@@ -78,7 +78,12 @@ export class DatabaseStorage implements IStorage {
 
     expiredSessions.forEach(sessionId => {
       this.sessions.delete(sessionId);
+      console.log(`Cleared expired database session: ${sessionId}`);
     });
+  }
+
+  getAllSessions(): Map<string, { documents: Map<number, Document>; currentDocumentId: number; lastAccessed: Date }> {
+    return this.sessions;
   }
 
   // User management methods

@@ -8,6 +8,7 @@ export interface IStorage {
   updateDocumentAnalysis(sessionId: string, id: number, analysis: any, clientFingerprint?: string): Promise<Document | undefined>;
   clearAllDocuments(sessionId: string): Promise<void>;
   clearExpiredSessions(): Promise<void>;
+  getAllSessions(): Map<string, SessionData>;
 
   // User management
   getUser(id: string): Promise<User | undefined>;
@@ -218,6 +219,10 @@ export class SessionStorage {
       this.sessions.delete(sessionId);
       console.log(`Cleared expired session: ${sessionId}`);
     });
+  }
+
+  getAllSessions(): Map<string, SessionData> {
+    return this.sessions;
   }
 }
 
