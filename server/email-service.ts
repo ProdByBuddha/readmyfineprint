@@ -82,7 +82,10 @@ class EmailService {
 
     try {
       const mailOptions = {
-        from: process.env.SMTP_FROM,
+        from: {
+          name: 'ReadMyFinePrint',
+          address: process.env.SMTP_USER || process.env.SECURITY_EMAIL_FROM || process.env.FROM_EMAIL || 'noreply@readmyfineprint.com'
+        },
         to: emailData.to,
         subject: emailData.subject,
         html: emailData.html,
@@ -119,7 +122,7 @@ class EmailService {
       const mailOptions = {
         from: {
           name: 'ReadMyFinePrint',
-          address: process.env.SECURITY_EMAIL_FROM || process.env.FROM_EMAIL || 'noreply@readmyfineprint.com'
+          address: process.env.SMTP_USER || process.env.SECURITY_EMAIL_FROM || process.env.FROM_EMAIL || 'noreply@readmyfineprint.com'
         },
         to: recipientEmail,
         subject: '🙏 Thank you for your generous donation!',
