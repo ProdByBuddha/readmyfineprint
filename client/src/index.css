@@ -151,6 +151,25 @@ html, body {
   box-shadow: 0 0 0 2px hsla(185, 85%, 45%, 0.2) !important;
 }
 
+/* Fix dollar sign and other input icons in dark mode */
+.dark .relative span,
+.dark input + span,
+.dark .absolute.left-3 {
+  color: hsl(185, 10%, 70%) !important;
+}
+
+/* Specific fix for custom amount dollar sign */
+.dark #custom-amount ~ span,
+.dark span.absolute.left-3 {
+  color: hsl(185, 15%, 75%) !important;
+  opacity: 1 !important;
+}
+
+/* Ensure all input prefix/suffix elements are visible in dark mode */
+.dark .relative .absolute {
+  color: hsl(185, 15%, 75%) !important;
+}
+
 /* Custom Scrollbar Styling - Auto-hiding */
 ::-webkit-scrollbar {
   width: 12px;
