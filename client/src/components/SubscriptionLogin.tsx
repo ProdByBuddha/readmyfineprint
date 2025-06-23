@@ -207,6 +207,7 @@ export function SubscriptionLogin({
                 onChange={(e) => setEmail(e.target.value)}
                 disabled={loading}
                 autoFocus
+                className="text-foreground placeholder:text-muted-foreground"
               />
             </div>
 
@@ -304,7 +305,7 @@ export function SubscriptionLogin({
               }
               disabled={loading}
               autoFocus
-              className="text-center text-2xl font-mono tracking-wider"
+              className="text-center text-2xl font-mono tracking-wider text-foreground placeholder:text-muted-foreground"
               maxLength={6}
             />
           </div>
