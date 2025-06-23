@@ -567,7 +567,7 @@ export default function DonatePage() {
       </Card>
 
       {/* Thank You for Considering Message */}
-      {showThankYouMessage && (
+      {/* {showThankYouMessage && (
         <div className="fixed top-4 right-4 z-50 max-w-sm">
           <div className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow-lg p-4 animate-in slide-in-from-right-5">
             <div className="flex items-start gap-3">
@@ -596,7 +596,7 @@ export default function DonatePage() {
             </div>
           </div>
         </div>
-      )}
+      )} */}
 
       <div className="mt-8 text-center">
         <Card>
