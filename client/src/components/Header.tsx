@@ -4,17 +4,35 @@ import { Link } from "wouter";
 import { useTheme } from "@/components/ThemeProvider";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { useToast } from "@/hooks/use-toast";
+import { useState } from "react";
+import { SubscriptionLogin } from "@/components/SubscriptionLogin";
 
 export function Header() {
   const { theme, toggleTheme } = useTheme();
   const isMobile = useIsMobile();
   const { toast } = useToast();
+  const [showLogin, setShowLogin] = useState(false);
 
   // Check if we're in development mode
   const isDevelopment = import.meta.env.DEV || import.meta.env.MODE === 'development';
 
   const handleSubscriptionClick = (e: React.MouseEvent) => {
     // Allow navigation to subscription page
+  };
+
+  const handleLoginClick = (e: React.MouseEvent) => {
+    e.preventDefault();
+    setShowLogin(true);
+  };
+
+  const handleLoginSuccess = (token: string, subscription: any) => {
+    setShowLogin(false);
+    toast({
+      title: "Login Successful",
+      description: "Welcome back! You're now logged into your account.",
+    });
+    // Optionally redirect to subscription page or refresh data
+    window.location.href = '/subscription';
   };
 
   return (
@@ -71,17 +89,15 @@ export function Header() {
                 Plans
               </Button>
             </Link>
-            <Link to="/subscription">
-              <Button
-                variant="default"
-                size="sm"
-                className="mr-2 bg-blue-600 hover:bg-blue-700 text-white"
-                aria-label="Login or Subscribe"
-                onClick={handleSubscriptionClick}
-              >
-                Login / Subscribe
-              </Button>
-            </Link>
+            <Button
+              variant="default"
+              size="sm"
+              className="mr-2 bg-blue-600 hover:bg-blue-700 text-white"
+              aria-label="Login or Subscribe"
+              onClick={handleLoginClick}
+            >
+              Login / Subscribe
+            </Button>
             <Link to="/donate">
               <Button
                 variant="outline"
@@ -118,17 +134,15 @@ export function Header() {
             role="navigation"
             aria-label="Mobile navigation"
           >
-            <Link to="/subscription">
-              <Button
-                variant="default"
-                size="sm"
-                className="h-8 px-3 text-xs bg-blue-600 hover:bg-blue-700 text-white transition-all duration-200 active:scale-95"
-                aria-label="Login or Subscribe"
-                onClick={handleSubscriptionClick}
-              >
-                Login
-              </Button>
-            </Link>
+            <Button
+              variant="default"
+              size="sm"
+              className="h-8 px-3 text-xs bg-blue-600 hover:bg-blue-700 text-white transition-all duration-200 active:scale-95"
+              aria-label="Login or Subscribe"
+              onClick={handleLoginClick}
+            >
+              Login
+            </Button>
             {!import.meta.env.PROD && (
               <Link to="/subscription">
                 <Button
@@ -172,6 +186,18 @@ export function Header() {
           </nav>
         </div>
       </div>
+
+      {/* Login Modal */}
+      {showLogin && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
+          <div className="bg-white dark:bg-gray-800 rounded-lg max-w-md w-full">
+            <SubscriptionLogin
+              onSuccess={handleLoginSuccess}
+              onCancel={() => setShowLogin(false)}
+            />
+          </div>
+        </div>
+      )}
     </header>
   );
 }
