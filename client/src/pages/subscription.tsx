@@ -334,18 +334,6 @@ export default function SubscriptionPage() {
               <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">Subscription Management</h1>
               <p className="text-gray-600 dark:text-gray-300">Manage your subscription, view usage, and upgrade your plan</p>
             </div>
-            
-            {/* Always visible login button */}
-            {subscriptionData.tier.id === 'free' && (
-              <Button 
-                variant="outline" 
-                onClick={() => setShowLogin(true)}
-                className="flex items-center space-x-2 whitespace-nowrap"
-              >
-                <LogIn className="h-4 w-4" />
-                <span>Already Subscribed?</span>
-              </Button>
-            )}
           </div>
         </motion.div>
 

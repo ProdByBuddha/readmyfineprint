@@ -71,6 +71,17 @@ export function Header() {
                 Plans
               </Button>
             </Link>
+            <Link to="/subscription">
+              <Button
+                variant="default"
+                size="sm"
+                className="mr-2 bg-blue-600 hover:bg-blue-700 text-white"
+                aria-label="Login or Subscribe"
+                onClick={handleSubscriptionClick}
+              >
+                Login / Subscribe
+              </Button>
+            </Link>
             <Link to="/donate">
               <Button
                 variant="outline"
@@ -107,6 +118,17 @@ export function Header() {
             role="navigation"
             aria-label="Mobile navigation"
           >
+            <Link to="/subscription">
+              <Button
+                variant="default"
+                size="sm"
+                className="h-8 px-3 text-xs bg-blue-600 hover:bg-blue-700 text-white transition-all duration-200 active:scale-95"
+                aria-label="Login or Subscribe"
+                onClick={handleSubscriptionClick}
+              >
+                Login
+              </Button>
+            </Link>
             {!import.meta.env.PROD && (
               <Link to="/subscription">
                 <Button
