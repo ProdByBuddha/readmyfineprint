@@ -1,0 +1,277 @@
+
+> rest-express@1.0.0 dev
+✓ Consent logging enabled with Replit KV store
+🚀 Starting ReadMyFinePrint Server...
+🔍 Validating environment variables...
+✅ OPENAI_API_KEY: sk-***
+✅ ADMIN_API_KEY: 56fe020d923e89b5a8c39962e3e29dd4cb3ad58fcb46800782...
+✅ ALLOWED_ORIGINS: https://readmyfineprint.com,https://edcf3ef7-a826-...
+✅ NODE_ENV: development
+✅ SESSION_ENCRYPTION_KEY: 2651fc8605cabc8b756adbc6861138afe8cf520d54417763ee...
+✅ REPLIT_DB_URL: https://kv.replit.com/v0/eyJhbGciOiJIUzUxMiIsImlzc...
+✅ TOKEN_ENCRYPTION_KEY: ddf455b6fd8c0e59d5893bf44e7bca157c0ad51405258c7bee...
+✅ PASSWORD_PEPPER: b0dea38aca02ad50d94b704f127740decf0e4839b66c6f145d...
+✅ STRIPE_PUBLIC_KEY: pk_live_51RWnyYLNxaR...
+✅ STRIPE_SECRET_KEY: sk_live_51...
+✅ STRIPE_TEST_PUBLIC_KEY: pk_test_51RWnynPxX1d...
+✅ STRIPE_TEST_SECRET_KEY: sk_test_51...
+🔄 Concurrent test/live payment processing enabled
+
+📋 Warnings:
+   ⚠️  Optional SECURITY_WEBHOOK_URL not set - Optional webhook URL for security alerts (for external monitoring)
+✅ Environment validation passed
+   (1 warning)
+
+🔧 Environment Configuration:
+   Environment: development
+   OpenAI API: ✅ Configured
+   Admin Auth: ✅ Configured
+   CORS Origins: https://readmyfineprint.com,https://edcf3ef7-a826-4eed-8e04-7a485b2e183a-00-1wyt...
+
+🔧 Initializing collective free tier user routing...
+Warning: Indexing all PDF objects
+✅ Collective free tier user routing initialized
+3:32:21 PM [express] serving on port 5000
+✅ Email service configured and verified with SMTP (smtp.mail.me.com)
+ℹ️ [SECURITY] SESSION_MANAGEMENT | LOW | 5948a372 | New session created
+📝 New session logged for client: fb0d5e6db17b6c3e58e17d39e0143951
+ℹ️ [SECURITY] SESSION_MANAGEMENT | LOW | 5bbf137c | New session created
+📝 New session logged for client: a69c7b7fc94ecb846d13298627a43360
+🔇 Session logging suppressed for client (cooldown: 506ms)
+ℹ️ [SECURITY] SESSION_MANAGEMENT | LOW | b11d5170 | New session created
+📝 New session logged for client: f40879ab346885bdb9b2c513b8b7b93d
+ℹ️ [SECURITY] SESSION_MANAGEMENT | LOW | dca67e37 | New session created
+📝 New session logged for client: 3da325b316c884e1270dbaed24b2bb6d
+🔇 Session logging suppressed for client (cooldown: 312ms)
+🔇 Session logging suppressed for client (cooldown: 832ms)
+🔇 Session logging suppressed for client (cooldown: 1156ms)
+🔇 Session logging suppressed for client (cooldown: 1971ms)
+ℹ️ [SECURITY] SESSION_MANAGEMENT | LOW | 02c43f44 | New session created
+📝 New session logged for client: cd71e2bd7e26ddca8560685fbca09fa8
+🔇 Session logging suppressed for client (cooldown: 870ms)
+🔇 Session logging suppressed for client (cooldown: 1929ms)
+🔇 Session logging suppressed for client (cooldown: 2296ms)
+🔇 Session logging suppressed for client (cooldown: 1484ms)
+🔇 Session logging suppressed for client (cooldown: 2007ms)
+🔇 Session logging suppressed for client (cooldown: 328ms)
+🔇 Session logging suppressed for client (cooldown: 1196ms)
+🔇 Session logging suppressed for client (cooldown: 2017ms)
+🔇 Session logging suppressed for client (cooldown: 2352ms)
+🔇 Session logging suppressed for client (cooldown: 1540ms)
+🔇 Session logging suppressed for client (cooldown: 383ms)
+🔇 Session logging suppressed for client (cooldown: 1261ms)
+🔇 Session logging suppressed for client (cooldown: 2075ms)
+🔇 Session logging suppressed for client (cooldown: 2079ms)
+🔇 Session logging suppressed for client (cooldown: 2401ms)
+🔇 Session logging suppressed for client (cooldown: 1589ms)
+🔇 Session logging suppressed for client (cooldown: 435ms)
+🔇 Session logging suppressed for client (cooldown: 1307ms)
+🔇 Session logging suppressed for client (cooldown: 2127ms)
+🔇 Session logging suppressed for client (cooldown: 2127ms)
+🔇 Session logging suppressed for client (cooldown: 2451ms)
+🔇 Session logging suppressed for client (cooldown: 1638ms)
+🔇 Session logging suppressed for client (cooldown: 482ms)
+🔇 Session logging suppressed for client (cooldown: 1354ms)
+🔇 Session logging suppressed for client (cooldown: 2175ms)
+🔇 Session logging suppressed for client (cooldown: 2176ms)
+🔇 Session logging suppressed for client (cooldown: 2497ms)
+🔇 Session logging suppressed for client (cooldown: 1685ms)
+🔇 Session logging suppressed for client (cooldown: 529ms)
+🔇 Session logging suppressed for client (cooldown: 1402ms)
+🔇 Session logging suppressed for client (cooldown: 2222ms)
+🔇 Session logging suppressed for client (cooldown: 2223ms)
+🔇 Session logging suppressed for client (cooldown: 2545ms)
+🔇 Session logging suppressed for client (cooldown: 1733ms)
+🔇 Session logging suppressed for client (cooldown: 579ms)
+🔇 Session logging suppressed for client (cooldown: 1452ms)
+🔇 Session logging suppressed for client (cooldown: 2271ms)
+🔇 Session logging suppressed for client (cooldown: 2272ms)
+🔇 Session logging suppressed for client (cooldown: 2594ms)
+🔇 Session logging suppressed for client (cooldown: 1782ms)
+🔇 Session logging suppressed for client (cooldown: 625ms)
+🔇 Session logging suppressed for client (cooldown: 1502ms)
+🔇 Session logging suppressed for client (cooldown: 2317ms)
+🔇 Session logging suppressed for client (cooldown: 2318ms)
+🔇 Session logging suppressed for client (cooldown: 2642ms)
+🔇 Session logging suppressed for client (cooldown: 1830ms)
+🔇 Session logging suppressed for client (cooldown: 675ms)
+🔇 Session logging suppressed for client (cooldown: 2360ms)
+🔇 Session logging suppressed for client (cooldown: 2366ms)
+🔇 Session logging suppressed for client (cooldown: 1552ms)
+🔇 Session logging suppressed for client (cooldown: 2693ms)
+🔇 Session logging suppressed for client (cooldown: 1881ms)
+🔇 Session logging suppressed for client (cooldown: 724ms)
+🔇 Session logging suppressed for client (cooldown: 2411ms)
+🔇 Session logging suppressed for client (cooldown: 2411ms)
+🔇 Session logging suppressed for client (cooldown: 1598ms)
+🔇 Session logging suppressed for client (cooldown: 2738ms)
+🔇 Session logging suppressed for client (cooldown: 1926ms)
+🔇 Session logging suppressed for client (cooldown: 776ms)
+🔇 Session logging suppressed for client (cooldown: 884ms)
+🔑 GET /api/documents | Session: 3dbba68a4388247dcb9f49aa52f30829 (EXISTING)
+3:32:25 PM [express] GET /api/documents 304 in 2ms :: []
+✅ Replit Database initialized
+Found 3 keys for cleanup
+Cleanup completed: 0 expired tokens, 0 expired sessions, 0 old device records removed
+🧹 Startup cleanup: 0 tokens, 0 sessions, 0 device records removed
+ℹ️ [SECURITY] SESSION_MANAGEMENT | LOW | b11d5170 | New session created
+📝 New session logged for client: ed0ffd288709c13a1695964d8986573a
+[Subscription Enforcement] Valid subscription: Starter tier assigned
+Replit DB returned error for device data key verification_rate_limit:beatsbybuddha@gmail.com:10.82.5.33: { message: 'invalid token', statusCode: 403 }
+⚠️ Replit DB authentication failed, switching to memory storage for key: verification_rate_limit:beatsbybuddha@gmail.com:10.82.5.33
+✅ Generated verification code for beatsbybuddha@gmail.com (expires: 2025-06-23T15:42:45.669Z)
+✅ Email sent successfully: {
+  messageId: '<a02cf96b-5b5c-bc71-2b7f-45a4bb90a6cf@readmyfineprint.com>',
+  recipient: 'beatsbybuddha@gmail.com',
+  subject: 'Your ReadMyFinePrint Verification Code'
+}
+📧 Verification code sent to beatsbybuddha@gmail.com
+3:32:46 PM [express] POST /api/subscription/login/request-code 200 in 1114ms :: {"success":true,"mes…
+ℹ️ [SECURITY] SESSION_MANAGEMENT | LOW | b11d5170 | New session created
+📝 New session logged for client: 71f70338ece4c7b39d71a4833a7cfe48
+✅ Email verification successful for beatsbybuddha@gmail.com
+[Subscription Enforcement] Valid subscription: Starter tier assigned
+Stored subscription token in Replit DB: sub_6be5c2477177...
+Generated secure subscription token for user 24c3ec47-dd61-4619-9c9e-18abbd0981ea (expires in 30 days)
+3:33:52 PM [express] POST /api/subscription/login/verify 200 in 495ms :: {"success":true,"token":"su…
+🔇 Session logging suppressed for client (cooldown: 550ms)
+ℹ️ [SECURITY] SESSION_MANAGEMENT | LOW | 5948a372 | New session created
+📝 New session logged for client: a0b5d628ebc108eac80d0cfa76f541c4
+ℹ️ [SECURITY] SESSION_MANAGEMENT | LOW | 02c43f44 | New session created
+📝 New session logged for client: 687c93b3de106438b49a8ea24ab87d43
+🔇 Session logging suppressed for client (cooldown: 1275ms)
+🔇 Session logging suppressed for client (cooldown: 599ms)
+🔇 Session logging suppressed for client (cooldown: 1332ms)
+🔇 Session logging suppressed for client (cooldown: 656ms)
+🔇 Session logging suppressed for client (cooldown: 162ms)
+🔇 Session logging suppressed for client (cooldown: 1432ms)
+ℹ️ [SECURITY] SESSION_MANAGEMENT | LOW | dca67e37 | New session created
+📝 New session logged for client: 7db8396338e6f7b7a64a57cf001f8643
+ℹ️ [SECURITY] SESSION_MANAGEMENT | LOW | 5bbf137c | New session created
+📝 New session logged for client: e0e1269b495a496e755943b89ff508ee
+🔇 Session logging suppressed for client (cooldown: 1ms)
+🔇 Session logging suppressed for client (cooldown: 1478ms)
+🔇 Session logging suppressed for client (cooldown: 210ms)
+🔇 Session logging suppressed for client (cooldown: 47ms)
+🔇 Session logging suppressed for client (cooldown: 52ms)
+🔇 Session logging suppressed for client (cooldown: 49ms)
+🔇 Session logging suppressed for client (cooldown: 1525ms)
+🔇 Session logging suppressed for client (cooldown: 257ms)
+🔇 Session logging suppressed for client (cooldown: 95ms)
+🔇 Session logging suppressed for client (cooldown: 96ms)
+🔇 Session logging suppressed for client (cooldown: 861ms)
+🔇 Session logging suppressed for client (cooldown: 105ms)
+🔇 Session logging suppressed for client (cooldown: 1573ms)
+🔇 Session logging suppressed for client (cooldown: 304ms)
+🔇 Session logging suppressed for client (cooldown: 142ms)
+🔇 Session logging suppressed for client (cooldown: 142ms)
+🔇 Session logging suppressed for client (cooldown: 907ms)
+🔇 Session logging suppressed for client (cooldown: 156ms)
+🔇 Session logging suppressed for client (cooldown: 1620ms)
+🔇 Session logging suppressed for client (cooldown: 351ms)
+🔇 Session logging suppressed for client (cooldown: 197ms)
+🔇 Session logging suppressed for client (cooldown: 202ms)
+🔇 Session logging suppressed for client (cooldown: 198ms)
+🔇 Session logging suppressed for client (cooldown: 959ms)
+🔇 Session logging suppressed for client (cooldown: 1666ms)
+🔇 Session logging suppressed for client (cooldown: 398ms)
+🔇 Session logging suppressed for client (cooldown: 250ms)
+🔇 Session logging suppressed for client (cooldown: 1008ms)
+🔇 Session logging suppressed for client (cooldown: 248ms)
+🔇 Session logging suppressed for client (cooldown: 250ms)
+🔇 Session logging suppressed for client (cooldown: 1716ms)
+🔇 Session logging suppressed for client (cooldown: 447ms)
+🔇 Session logging suppressed for client (cooldown: 294ms)
+🔇 Session logging suppressed for client (cooldown: 291ms)
+🔇 Session logging suppressed for client (cooldown: 1055ms)
+🔇 Session logging suppressed for client (cooldown: 296ms)
+🔇 Session logging suppressed for client (cooldown: 1763ms)
+🔇 Session logging suppressed for client (cooldown: 494ms)
+🔇 Session logging suppressed for client (cooldown: 342ms)
+🔇 Session logging suppressed for client (cooldown: 339ms)
+🔇 Session logging suppressed for client (cooldown: 343ms)
+🔇 Session logging suppressed for client (cooldown: 1104ms)
+🔇 Session logging suppressed for client (cooldown: 1811ms)
+🔇 Session logging suppressed for client (cooldown: 544ms)
+🔇 Session logging suppressed for client (cooldown: 389ms)
+🔇 Session logging suppressed for client (cooldown: 390ms)
+🔇 Session logging suppressed for client (cooldown: 1151ms)
+🔇 Session logging suppressed for client (cooldown: 392ms)
+🔇 Session logging suppressed for client (cooldown: 1862ms)
+🔇 Session logging suppressed for client (cooldown: 594ms)
+🔇 Session logging suppressed for client (cooldown: 438ms)
+🔇 Session logging suppressed for client (cooldown: 1201ms)
+🔇 Session logging suppressed for client (cooldown: 441ms)
+🔇 Session logging suppressed for client (cooldown: 442ms)
+🔇 Session logging suppressed for client (cooldown: 1913ms)
+🔇 Session logging suppressed for client (cooldown: 644ms)
+🔇 Session logging suppressed for client (cooldown: 497ms)
+🔇 Session logging suppressed for client (cooldown: 1254ms)
+🔇 Session logging suppressed for client (cooldown: 602ms)
+🔇 Session logging suppressed for client (cooldown: 1376ms)
+[Subscription Enforcement] Valid subscription: Starter tier assigned
+3:33:54 PM [express] GET /api/user/subscription 200 in 366ms :: {"subscription":{"id":"da46348c-9149…
+🔑 GET /api/documents | Session: 3dbba68a4388247dcb9f49aa52f30829 (EXISTING)
+3:34:01 PM [express] GET /api/documents 304 in 0ms :: []
+ℹ️ [SECURITY] SESSION_MANAGEMENT | LOW | 5948a372 | New session created
+📝 New session logged for client: d18fde354be2b78f92f68615083d012d
+[Subscription Enforcement] Valid subscription: Starter tier assigned
+3:34:05 PM [express] GET /api/user/subscription 304 in 572ms :: {"subscription":{"id":"da46348c-9149…
+🔑 POST /api/documents/upload | Session: 3dbba68a4388247dcb9f49aa52f30829 (EXISTING)
+✅ File validation passed for Sample_Lease_Agreement.pdf (Hash: ee58dc62...)
+🔍 Starting PDF extraction (buffer size: 3149 bytes)
+📄 Trying pdf-parse configuration 1/3
+📄 PDF-parse results (config 1):
+   - Pages: 3
+   - Text length: 1996 characters
+✅ PDF text extraction successful with config 1 (1996 chars, 96% readable)
+📋 Final extracted text for Sample_Lease_Agreement.pdf:
+   - Length: 1979 characters
+   - Word count: ~308 words
+   - First 300 chars: "Residential Lease Agreement Landlord Name: John R. Landon Address: 123 Main Street, San Diego, CA 92101 Phone: (555) 123-4567 Tenant Name: Sarah T. Daniels Current Address: 789 Maple Ave, San Diego, CA 92103 Phone: (555) 987-6543 Property 456 Oceanview Blvd, Apt 3B, San Diego, CA 92109 Term This lea"
+   - Last 200 chars: "ments shall be binding. Signatures Landlord Signature: John R. Landon Signed: June 22, 2025 _________________________ Tenant Signature: Sarah T. Daniels Signed: June 22, 2025 _________________________"
+🔗 New client fingerprint: 734edb6b544f6da0
+🔗 Associated session 3dbba68a4388247dcb9f49aa52f30829 with client 734edb6b544f6da0
+✅ Document created: ID=1, SessionID=3dbba68a4388247dcb9f49aa52f30829, Title="Sample_Lease_Agreement.pdf"
+ℹ️ [SECURITY] FILE_UPLOAD | LOW | 5948a372 | File uploaded successfully | /api/documents/upload | {"filename":"Sample_Lease_Agreement.pdf","fileType":"application/pdf","fileSize":3149,"fileHash":"ee58dc62587c16f3"}
+3:34:22 PM [express] POST /api/documents/upload 200 in 50ms :: {"title":"Sample_Lease_Agreement.pdf"…
+3:34:22 PM [express] GET /api/queue/status 200 in 1ms :: {"queueLength":0,"currentlyProcessing":0,"c…
+🔑 GET /api/documents/1 | Session: 3dbba68a4388247dcb9f49aa52f30829 (EXISTING)
+📖 Get document request: DocumentID=1, SessionID=3dbba68a4388247dcb9f49aa52f30829
+✅ Document 1 found and returned (GET)
+3:34:22 PM [express] GET /api/documents/1 200 in 1ms :: {"title":"Sample_Lease_Agreement.pdf","conte…
+🔑 POST /api/documents/1/analyze | Session: 3dbba68a4388247dcb9f49aa52f30829 (EXISTING)
+🔍 Analysis request: DocumentID=1, SessionID=3dbba68a4388247dcb9f49aa52f30829
+User 3dbba68a4388247dcb9f49aa52f30829 not found in database, using free tier
+[Priority Queue] Added free tier request (priority: 5). Queue length: 1
+[Priority Queue] Processing free tier request. Currently processing: 1/3
+ℹ️ [SECURITY] API_ACCESS | LOW | 5948a372 | Document sent to OpenAI for analysis | /api/documents/*/analyze | {"documentTitle":"Sample_Lease_Agreement.pdf","service":"OpenAI"}
+🤖 Sending to OpenAI (gpt-4o-mini):
+   - Document: "Sample_Lease_Agreement.pdf"
+   - Content length: 1979 characters
+   - Content preview (first 500 chars): "Residential Lease Agreement Landlord Name: John R. Landon Address: 123 Main Street, San Diego, CA 92101 Phone: (555) 123-4567 Tenant Name: Sarah T. Daniels Current Address: 789 Maple Ave, San Diego, CA 92103 Phone: (555) 987-6543 Property 456 Oceanview Blvd, Apt 3B, San Diego, CA 92109 Term This lease shall begin on July 1, 2025, and end on June 30, 2026. Tenant may renew this lease with 60 days written notice prior to expiration. Rent Tenant agrees to pay $2,100.00 per month, due on the 1st of "
+   - Readable character ratio: 88.5%
+🤖 OpenAI Response received:
+   - Model used: gpt-4o-mini-2024-07-18
+   - Tokens used: 1535 (input: 761, output: 774)
+   - Response length: 3180 characters
+📊 Analysis Results:
+   - Overall Risk: low
+   - Summary length: 326 chars
+   - Key findings: 3 categories
+   - Sections analyzed: 10
+   - Summary preview: "This document is a residential lease agreement between landlord John R. Landon and tenant Sarah T. Daniels for a property located at 456 Oceanview Blvd, Apt 3B, San Diego, CA. The lease runs from July"
+📊 User 3dbba68a4388247dcb9f49aa52f30829 not in database, routing through collective free tier for usage tracking
+[Subscription Enforcement] Valid subscription: Free tier assigned
+✅ Usage tracked for collective free tier (00000000-0000-0000-0000-000000000001): +1 document, +1535 tokens, +$0.001381
+✅ Document analysis completed successfully
+[Priority Queue] Completed free tier request in 13732ms
+✅ Document 1 analysis updated in session 3dbba68a4388247dcb9f49aa52f30829
+✅ Document 1 analysis completed for free tier user
+3:34:36 PM [express] POST /api/documents/1/analyze 200 in 14122ms :: {"title":"Sample_Lease_Agreemen…
+🔑 GET /api/documents | Session: 3dbba68a4388247dcb9f49aa52f30829 (EXISTING)
+3:34:36 PM [express] GET /api/documents 200 in 1ms :: [{"title":"Sample_Lease_Agreement.pdf","conten…
+🔑 GET /api/documents/1 | Session: 3dbba68a4388247dcb9f49aa52f30829 (EXISTING)
+📖 Get document request: DocumentID=1, SessionID=3dbba68a4388247dcb9f49aa52f30829
+✅ Document 1 found and returned (GET)
+3:34:36 PM [express] GET /api/documents/1 200 in 1ms :: {"title":"Sample_Lease_Agreement.pdf","conte…
