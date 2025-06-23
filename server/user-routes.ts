@@ -144,7 +144,7 @@ export function registerUserRoutes(app: Express) {
       
       try {
         // Try to get token info from storage
-        const tokenData = await storage.getToken(token);
+        const tokenData = await storage.getStoredToken(token);
         
         if (!tokenData) {
           return res.status(401).json({ error: "Invalid token" });

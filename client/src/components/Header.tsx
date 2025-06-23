@@ -14,6 +14,7 @@ export function Header() {
   const { toast } = useToast();
   const [showLogin, setShowLogin] = useState(false);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [isCheckingAuth, setIsCheckingAuth] = useState(true);
 
   // Check if we're in development mode
   const isDevelopment = import.meta.env.DEV || import.meta.env.MODE === 'development';
@@ -21,10 +22,12 @@ export function Header() {
   // Check login status on component mount and when localStorage changes
   useEffect(() => {
     const checkLoginStatus = async () => {
+      setIsCheckingAuth(true);
       const token = localStorage.getItem('subscriptionToken');
       
       if (!token) {
         setIsLoggedIn(false);
+        setIsCheckingAuth(false);
         return;
       }
 
@@ -50,6 +53,8 @@ export function Header() {
         console.warn('Token validation failed:', error);
         localStorage.removeItem('subscriptionToken');
         setIsLoggedIn(false);
+      } finally {
+        setIsCheckingAuth(false);
       }
     };
 
@@ -153,7 +158,18 @@ export function Header() {
                 Plans
               </Button>
             </Link>
-            {isLoggedIn ? (
+            {isCheckingAuth ? (
+              <Button
+                variant="outline"
+                size="sm"
+                className="mr-2"
+                disabled
+                aria-label="Checking login status"
+              >
+                <div className="w-4 h-4 mr-2 border border-gray-400 border-t-transparent rounded-full animate-spin" />
+                Loading...
+              </Button>
+            ) : isLoggedIn ? (
               <Button
                 variant="outline"
                 size="sm"
@@ -211,7 +227,17 @@ export function Header() {
             role="navigation"
             aria-label="Mobile navigation"
           >
-            {isLoggedIn ? (
+            {isCheckingAuth ? (
+              <Button
+                variant="outline"
+                size="sm"
+                className="h-8 px-3 text-xs transition-all duration-200"
+                disabled
+                aria-label="Checking login status"
+              >
+                <div className="w-3 h-3 mr-1 border border-gray-400 border-t-transparent rounded-full animate-spin" />
+              </Button>
+            ) : isLoggedIn ? (
               <Button
                 variant="outline"
                 size="sm"
