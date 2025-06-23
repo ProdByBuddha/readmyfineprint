@@ -135,15 +135,41 @@ export function SubscriptionLogin({
         body: JSON.stringify({ email, code: verificationCode }),
       });
 
+      // Handle different response scenarios
       if (!response.ok) {
-        const errorData = await response.json();
-        setAttemptsRemaining(errorData.attemptsRemaining);
-        throw new Error(
-          errorData.error || `HTTP error! status: ${response.status}`,
-        );
+        let errorData;
+        try {
+          errorData = await response.json();
+        } catch (parseError) {
+          console.error("Failed to parse error response:", parseError);
+          throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+        }
+
+        // Update attempts remaining if provided
+        if (typeof errorData.attemptsRemaining === 'number') {
+          setAttemptsRemaining(errorData.attemptsRemaining);
+        }
+
+        // Handle specific error cases
+        if (response.status === 400 && errorData.error) {
+          throw new Error(errorData.error);
+        } else if (response.status === 429) {
+          throw new Error("Too many verification attempts. Please request a new code.");
+        } else if (response.status >= 500) {
+          throw new Error("Server error. Please try again in a moment.");
+        } else {
+          throw new Error(errorData.error || `Verification failed (${response.status})`);
+        }
       }
 
-      const data = await response.json();
+      // Parse successful response
+      let data;
+      try {
+        data = await response.json();
+      } catch (parseError) {
+        console.error("Failed to parse success response:", parseError);
+        throw new Error("Invalid response from server. Please try again.");
+      }
 
       if (data.success && data.token) {
         // Store the new token
@@ -153,22 +179,35 @@ export function SubscriptionLogin({
         // Call success callback
         onSuccess(data.token, data.subscription);
       } else {
-        throw new Error("Login failed - no token received");
+        throw new Error(data.error || "Login failed - no token received");
       }
     } catch (error) {
       console.error("Verification error:", error);
-      // Handle network errors gracefully
-      if (
-        error instanceof TypeError &&
-        error.message.includes("Failed to fetch")
-      ) {
-        setError("Network error. Please check your connection and try again.");
+      
+      // Enhanced error handling with specific messages
+      if (error instanceof TypeError && error.message.includes("Failed to fetch")) {
+        setError("Network connection failed. Please check your internet connection and try again.");
+      } else if (error instanceof Error) {
+        // Check for specific error messages and provide user-friendly alternatives
+        let userFriendlyMessage = error.message;
+        
+        if (error.message.includes("Invalid verification code")) {
+          userFriendlyMessage = "The verification code you entered is incorrect. Please check and try again.";
+        } else if (error.message.includes("expired")) {
+          userFriendlyMessage = "Your verification code has expired. Please request a new one.";
+        } else if (error.message.includes("Too many")) {
+          userFriendlyMessage = "Too many incorrect attempts. Please request a new verification code.";
+        } else if (error.message.includes("Network error") || error.message.includes("fetch")) {
+          userFriendlyMessage = "Connection problem. Please check your internet and try again.";
+        } else if (error.message.includes("Server error") || error.message.includes("500")) {
+          userFriendlyMessage = "Our servers are experiencing issues. Please try again in a moment.";
+        } else if (!error.message || error.message === "Error {}") {
+          userFriendlyMessage = "An unexpected error occurred. Please try entering the code again.";
+        }
+        
+        setError(userFriendlyMessage);
       } else {
-        setError(
-          error instanceof Error
-            ? error.message
-            : "Failed to verify code. Please try again.",
-        );
+        setError("An unexpected error occurred. Please try again.");
       }
     } finally {
       setLoading(false);
@@ -224,7 +263,19 @@ export function SubscriptionLogin({
             {error && (
               <Alert variant="destructive">
                 <AlertCircle className="h-4 w-4" />
-                <AlertDescription>{error}</AlertDescription>
+                <AlertDescription>
+                  {error}
+                  {error.includes("Network") && (
+                    <div className="mt-2 text-sm">
+                      <p>Try these steps:</p>
+                      <ul className="list-disc list-inside mt-1 space-y-1">
+                        <li>Check your internet connection</li>
+                        <li>Refresh the page and try again</li>
+                        <li>Contact support if the problem persists</li>
+                      </ul>
+                    </div>
+                  )}
+                </AlertDescription>
               </Alert>
             )}
 
@@ -329,6 +380,19 @@ export function SubscriptionLogin({
                     {attemptsRemaining} attempt
                     {attemptsRemaining !== 1 ? "s" : ""} remaining
                   </span>
+                )}
+                {attemptsRemaining === 0 && (
+                  <div className="mt-2">
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      onClick={handleBackToEmail}
+                      className="text-xs"
+                    >
+                      Request New Code
+                    </Button>
+                  </div>
                 )}
               </AlertDescription>
             </Alert>
