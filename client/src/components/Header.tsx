@@ -67,8 +67,8 @@ export function Header() {
       title: "Login Successful",
       description: "Welcome back! You're now logged into your account.",
     });
-    // Optionally redirect to subscription page or refresh data
-    window.location.href = '/subscription';
+    // Redirect to home page
+    window.location.href = '/';
   };
 
   return (

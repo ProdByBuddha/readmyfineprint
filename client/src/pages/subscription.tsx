@@ -106,6 +106,8 @@ export default function SubscriptionPage() {
     setSubscriptionData(subscription);
     setShowLogin(false);
     setActiveTab('overview');
+    // Redirect to home page after successful login
+    window.location.href = '/';
   };
 
   const fetchSubscriptionData = async () => {
