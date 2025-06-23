@@ -1,10 +1,10 @@
 import { Button } from "@/components/ui/button";
-import { Moon, Sun, Heart, Crown } from "lucide-react";
+import { Moon, Sun, Heart, Crown, LogOut } from "lucide-react";
 import { Link } from "wouter";
 import { useTheme } from "@/components/ThemeProvider";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { useToast } from "@/hooks/use-toast";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import ReactDOM from 'react-dom';
 import { SubscriptionLogin } from "@/components/SubscriptionLogin";
 
@@ -13,9 +13,27 @@ export function Header() {
   const isMobile = useIsMobile();
   const { toast } = useToast();
   const [showLogin, setShowLogin] = useState(false);
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
 
   // Check if we're in development mode
   const isDevelopment = import.meta.env.DEV || import.meta.env.MODE === 'development';
+
+  // Check login status on component mount and when localStorage changes
+  useEffect(() => {
+    const checkLoginStatus = () => {
+      const token = localStorage.getItem('subscriptionToken');
+      setIsLoggedIn(!!token);
+    };
+
+    checkLoginStatus();
+
+    // Listen for storage changes (in case user logs in/out in another tab)
+    window.addEventListener('storage', checkLoginStatus);
+    
+    return () => {
+      window.removeEventListener('storage', checkLoginStatus);
+    };
+  }, []);
 
   const handleSubscriptionClick = (e: React.MouseEvent) => {
     // Allow navigation to subscription page
@@ -26,8 +44,25 @@ export function Header() {
     setShowLogin(true);
   };
 
+  const handleLogoutClick = (e: React.MouseEvent) => {
+    e.preventDefault();
+    
+    // Clear the subscription token
+    localStorage.removeItem('subscriptionToken');
+    setIsLoggedIn(false);
+    
+    toast({
+      title: "Logged Out",
+      description: "You have been successfully logged out.",
+    });
+
+    // Redirect to home page
+    window.location.href = '/';
+  };
+
   const handleLoginSuccess = (token: string, subscription: any) => {
     setShowLogin(false);
+    setIsLoggedIn(true);
     toast({
       title: "Login Successful",
       description: "Welcome back! You're now logged into your account.",
@@ -90,15 +125,28 @@ export function Header() {
                 Plans
               </Button>
             </Link>
-            <Button
-              variant="default"
-              size="sm"
-              className="mr-2 bg-blue-600 hover:bg-blue-700 text-white"
-              aria-label="Login or Subscribe"
-              onClick={handleLoginClick}
-            >
-              Login / Subscribe
-            </Button>
+            {isLoggedIn ? (
+              <Button
+                variant="outline"
+                size="sm"
+                className="mr-2"
+                aria-label="Logout"
+                onClick={handleLogoutClick}
+              >
+                <LogOut className="w-4 h-4 mr-2" aria-hidden="true" />
+                Logout
+              </Button>
+            ) : (
+              <Button
+                variant="default"
+                size="sm"
+                className="mr-2 bg-blue-600 hover:bg-blue-700 text-white"
+                aria-label="Login or Subscribe"
+                onClick={handleLoginClick}
+              >
+                Login / Subscribe
+              </Button>
+            )}
             <Link to="/donate">
               <Button
                 variant="outline"
@@ -135,15 +183,28 @@ export function Header() {
             role="navigation"
             aria-label="Mobile navigation"
           >
-            <Button
-              variant="default"
-              size="sm"
-              className="h-8 px-3 text-xs bg-blue-600 hover:bg-blue-700 text-white transition-all duration-200 active:scale-95"
-              aria-label="Login or Subscribe"
-              onClick={handleLoginClick}
-            >
-              Login
-            </Button>
+            {isLoggedIn ? (
+              <Button
+                variant="outline"
+                size="sm"
+                className="h-8 px-3 text-xs transition-all duration-200 active:scale-95"
+                aria-label="Logout"
+                onClick={handleLogoutClick}
+              >
+                <LogOut className="w-3 h-3 mr-1" aria-hidden="true" />
+                Logout
+              </Button>
+            ) : (
+              <Button
+                variant="default"
+                size="sm"
+                className="h-8 px-3 text-xs bg-blue-600 hover:bg-blue-700 text-white transition-all duration-200 active:scale-95"
+                aria-label="Login or Subscribe"
+                onClick={handleLoginClick}
+              >
+                Login
+              </Button>
+            )}
             {!import.meta.env.PROD && (
               <Link to="/subscription">
                 <Button
