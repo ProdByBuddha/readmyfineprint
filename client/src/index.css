@@ -121,6 +121,36 @@ html, body {
   background-color: #111827;
 }
 
+/* Fix input text visibility in dark mode */
+.dark input[type="text"],
+.dark input[type="email"],
+.dark input[type="password"],
+.dark input[type="number"],
+.dark textarea {
+  color: hsl(180, 25%, 95%) !important;
+  background-color: hsl(185, 25%, 18%) !important;
+  border-color: hsl(185, 25%, 25%) !important;
+}
+
+.dark input[type="text"]::placeholder,
+.dark input[type="email"]::placeholder,
+.dark input[type="password"]::placeholder,
+.dark input[type="number"]::placeholder,
+.dark textarea::placeholder {
+  color: hsl(185, 10%, 70%) !important;
+}
+
+/* Ensure focus states work properly in dark mode */
+.dark input[type="text"]:focus,
+.dark input[type="email"]:focus,
+.dark input[type="password"]:focus,
+.dark input[type="number"]:focus,
+.dark textarea:focus {
+  color: hsl(180, 25%, 95%) !important;
+  border-color: hsl(185, 85%, 45%) !important;
+  box-shadow: 0 0 0 2px hsla(185, 85%, 45%, 0.2) !important;
+}
+
 /* Custom Scrollbar Styling - Auto-hiding */
 ::-webkit-scrollbar {
   width: 12px;
