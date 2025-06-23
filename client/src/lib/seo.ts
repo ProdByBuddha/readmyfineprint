@@ -546,9 +546,10 @@ export function generateArticleSchema(article: {
 }
 
 // Multiple structured data combiner
-export function generateMultipleStructuredData(schemas: StructuredData[]) {
+export function generateMultipleStructuredData(schemas: StructuredData[]): StructuredData {
   return {
     "@context": "https://schema.org",
+    "@type": "WebPage",
     "@graph": schemas
   };
 }

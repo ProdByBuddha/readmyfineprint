@@ -9,6 +9,13 @@ interface DonationEmailData {
   timestamp: Date;
 }
 
+interface EmailData {
+  to: string;
+  subject: string;
+  html: string;
+  text?: string;
+}
+
 class EmailService {
   private transporter: nodemailer.Transporter | null = null;
   private isConfigured = false;
@@ -75,6 +82,38 @@ class EmailService {
       console.log('Required: SMTP_USER, SMTP_PASS (using same config as security alerts) or GMAIL_USER, GMAIL_APP_PASSWORD');
     } catch (error) {
       console.error('❌ Failed to initialize email service:', error);
+    }
+  }
+
+  /**
+   * Send generic email
+   */
+  async sendEmail(emailData: EmailData): Promise<boolean> {
+    if (!this.isConfigured) {
+      console.warn('⚠️ Email service not configured - skipping email send');
+      return false;
+    }
+
+    try {
+      const mailOptions = {
+        from: process.env.SMTP_FROM || process.env.SMTP_USER,
+        to: emailData.to,
+        subject: emailData.subject,
+        html: emailData.html,
+        text: emailData.text || emailData.html.replace(/<[^>]*>/g, ''), // Strip HTML as fallback
+      };
+
+      const result = await this.transporter!.sendMail(mailOptions);
+      console.log('✅ Email sent successfully:', {
+        messageId: result.messageId,
+        recipient: emailData.to,
+        subject: emailData.subject
+      });
+
+      return true;
+    } catch (error) {
+      console.error('❌ Failed to send email:', error);
+      return false;
     }
   }
 

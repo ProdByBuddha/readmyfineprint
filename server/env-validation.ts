@@ -54,6 +54,12 @@ const ENV_VARIABLES: EnvConfig[] = [
     required: false,
     description: 'Replit KV database URL for consent logging (auto-provided in development)',
     validator: (value) => value.includes('kv.replit.com') || value.includes('repldb.com')
+  },
+  {
+    name: 'TOKEN_ENCRYPTION_KEY',
+    required: false,
+    description: 'Optional encryption key for subscription tokens (enhances security)',
+    validator: (value) => value.length >= 16 && value.length <= 256
   }
 ];
 

@@ -33,10 +33,12 @@ export function useAccessibility(options: UseAccessibilityOptions = {}) {
       announcer.style.height = '1px';
       announcer.style.overflow = 'hidden';
       document.body.appendChild(announcer);
-      screenReaderRef.current = announcer;
+      (screenReaderRef as React.MutableRefObject<HTMLDivElement | null>).current = announcer;
     }
 
-    screenReaderRef.current.textContent = message;
+    if (screenReaderRef.current) {
+      screenReaderRef.current.textContent = message;
+    }
 
     // Clear the message after a delay to allow re-announcement
     setTimeout(() => {

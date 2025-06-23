@@ -1,5 +1,5 @@
 import crypto from 'crypto';
-import { type Document, type InsertDocument } from "@shared/schema";
+import { type Document, type InsertDocument, type User, type InsertUser, type UserSubscription, type InsertUserSubscription, type UsageRecord, type InsertUsageRecord } from "@shared/schema";
 import { IStorage } from "./storage";
 
 // Encryption configuration
@@ -84,17 +84,14 @@ export class EncryptedSessionStorage implements IStorage {
       const plaintext = JSON.stringify(serializableData);
       const iv = crypto.randomBytes(ENCRYPTION_CONFIG.ivSize);
       
-      const cipher = crypto.createCipher(ENCRYPTION_CONFIG.algorithm, this.encryptionKey);
-      cipher.setAAD(Buffer.from('session-data'));
+      const cipher = crypto.createCipher('aes-256-cbc', this.encryptionKey);
       
       let encrypted = cipher.update(plaintext, 'utf8', 'hex');
       encrypted += cipher.final('hex');
-      
-      const tag = cipher.getAuthTag();
 
       return {
         iv: iv.toString('hex'),
-        tag: tag.toString('hex'),
+        tag: '', // No auth tag for CBC mode
         data: encrypted
       };
     } catch (error) {
@@ -111,9 +108,7 @@ export class EncryptedSessionStorage implements IStorage {
       const iv = Buffer.from(encryptedData.iv, 'hex');
       const tag = Buffer.from(encryptedData.tag, 'hex');
       
-      const decipher = crypto.createDecipher(ENCRYPTION_CONFIG.algorithm, this.encryptionKey);
-      decipher.setAAD(Buffer.from('session-data'));
-      decipher.setAuthTag(tag);
+      const decipher = crypto.createDecipher('aes-256-cbc', this.encryptionKey);
       
       let decrypted = decipher.update(encryptedData.data, 'hex', 'utf8');
       decrypted += decipher.final('utf8');
@@ -373,5 +368,64 @@ export class EncryptedSessionStorage implements IStorage {
       algorithm: ENCRYPTION_CONFIG.algorithm,
       hasCustomKey: !!process.env.SESSION_ENCRYPTION_KEY
     };
+  }
+
+  // User management methods (not applicable for session-only storage)
+  async getUser(id: string): Promise<User | undefined> {
+    throw new Error("User management not supported in encrypted session storage");
+  }
+
+  async getUserByEmail(email: string): Promise<User | undefined> {
+    throw new Error("User management not supported in encrypted session storage");
+  }
+
+  async createUser(insertUser: InsertUser): Promise<User> {
+    throw new Error("User management not supported in encrypted session storage");
+  }
+
+  async createUserWithId(id: string, insertUser: InsertUser): Promise<User> {
+    throw new Error("User management not supported in encrypted session storage");
+  }
+
+  async updateUser(id: string, updates: Partial<InsertUser>): Promise<User | undefined> {
+    throw new Error("User management not supported in encrypted session storage");
+  }
+
+  // Subscription management methods (not applicable for session-only storage)
+  async getUserSubscription(userId: string): Promise<UserSubscription | undefined> {
+    throw new Error("Subscription management not supported in encrypted session storage");
+  }
+
+  async getAllUserSubscriptions(): Promise<UserSubscription[]> {
+    throw new Error("Subscription management not supported in encrypted session storage");
+  }
+
+  async createUserSubscription(insertSubscription: InsertUserSubscription): Promise<UserSubscription> {
+    throw new Error("Subscription management not supported in encrypted session storage");
+  }
+
+  async updateUserSubscription(id: string, updates: Partial<InsertUserSubscription>): Promise<UserSubscription | undefined> {
+    throw new Error("Subscription management not supported in encrypted session storage");
+  }
+
+  async cancelUserSubscription(id: string): Promise<UserSubscription | undefined> {
+    throw new Error("Subscription management not supported in encrypted session storage");
+  }
+
+  // Usage tracking methods (not applicable for session-only storage)
+  async getUserUsage(userId: string, period: string): Promise<UsageRecord | undefined> {
+    throw new Error("Usage tracking not supported in encrypted session storage");
+  }
+
+  async createUsageRecord(insertUsage: InsertUsageRecord): Promise<UsageRecord> {
+    throw new Error("Usage tracking not supported in encrypted session storage");
+  }
+
+  async updateUsageRecord(id: string, updates: Partial<InsertUsageRecord>): Promise<UsageRecord | undefined> {
+    throw new Error("Usage tracking not supported in encrypted session storage");
+  }
+
+  async getUserUsageHistory(userId: string, limit?: number): Promise<UsageRecord[]> {
+    throw new Error("Usage tracking not supported in encrypted session storage");
   }
 } 

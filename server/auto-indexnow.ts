@@ -74,8 +74,8 @@ class AutoIndexNowManager {
       const urlsToSubmit = Array.from(this.submissionQueue);
       console.log(`🚀 Auto-submitting ${urlsToSubmit.length} URLs to IndexNow...`);
 
-      const results = await indexNowService.submitSpecificUrls(urlsToSubmit);
-      const successCount = results.filter(r => r.success).length;
+      const results = await indexNowService.submitUrls(urlsToSubmit);
+      const successCount = results.filter((r: any) => r.success).length;
       
       console.log(`✅ Auto-submission complete: ${successCount}/${results.length} search engines notified`);
       

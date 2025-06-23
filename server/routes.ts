@@ -1,6 +1,6 @@
 import type { Express } from "express";
 import { createServer, type Server } from "http";
-import { storage } from "./storage";
+import { storage, databaseStorage } from "./storage";
 import { consentLogger } from "./consent";
 import { requireAdminAuth, optionalUserAuth, requireUserAuth } from "./auth";
 import { insertDocumentSchema } from "@shared/schema";
@@ -18,6 +18,7 @@ import crypto from "crypto";
 import Stripe from "stripe";
 import { securityAlertManager } from './security-alert';
 import { emailService } from './email-service';
+import { emailVerificationService } from './email-verification';
 import { registerUserRoutes } from './user-routes';
 import { indexNowService } from './indexnow-service';
 import { subscriptionService } from './subscription-service';
@@ -106,7 +107,7 @@ async function extractPdfText(buffer: Buffer): Promise<string> {
       }
       
     } catch (error) {
-      console.log(`❌ pdf-parse config ${i + 1} failed:`, error.message);
+      console.log(`❌ pdf-parse config ${i + 1} failed:`, error instanceof Error ? error.message : String(error));
     }
   }
 
@@ -652,6 +653,420 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Get user subscription with usage data
+  app.get("/api/user/subscription", optionalUserAuth, async (req, res) => {
+    try {
+      let subscriptionData;
+      
+      // Check for subscription token first (for persistent subscription access)
+      const subscriptionToken = req.headers['x-subscription-token'] as string;
+      if (subscriptionToken) {
+        // Get device fingerprint and client IP for security validation
+        const deviceFingerprint = req.headers['x-device-fingerprint'] as string;
+        const clientIp = req.ip || req.socket.remoteAddress || 'unknown';
+        
+        subscriptionData = await subscriptionService.validateSubscriptionToken(
+          subscriptionToken, 
+          deviceFingerprint, 
+          clientIp
+        );
+        
+        if (subscriptionData) {
+          // Add the token to response so frontend can store it
+          res.setHeader('X-Subscription-Token', subscriptionToken);
+          return res.json(subscriptionData);
+        } else {
+          // Token was invalid or expired - clear it from client
+          res.setHeader('X-Subscription-Token-Invalid', 'true');
+        }
+      }
+      
+      // Fall back to user/session-based subscription
+      const userId = req.user?.id || req.sessionId || "anonymous";
+      subscriptionData = await subscriptionService.getUserSubscriptionWithUsage(userId);
+      
+      res.json(subscriptionData);
+    } catch (error) {
+      console.error("Error fetching user subscription:", error);
+      res.status(500).json({ 
+        error: "Failed to fetch subscription data",
+        details: error instanceof Error ? error.message : "Unknown error"
+      });
+    }
+  });
+
+  // Revoke subscription token (admin only)
+  app.post("/api/admin/revoke-token", requireAdminAuth, async (req, res) => {
+    try {
+      const { token, reason } = req.body;
+      if (!token || !reason) {
+        return res.status(400).json({ error: 'Token and reason are required' });
+      }
+      
+      const success = await subscriptionService.revokeSubscriptionToken(token, reason);
+      if (success) {
+        res.json({ success: true, message: 'Token revoked successfully' });
+      } else {
+        res.status(404).json({ error: 'Token not found' });
+      }
+    } catch (error) {
+      console.error("Error revoking token:", error);
+      res.status(500).json({ error: 'Failed to revoke token' });
+    }
+  });
+
+  // Revoke all tokens for a user (admin only)
+  app.post("/api/admin/revoke-user-tokens", requireAdminAuth, async (req, res) => {
+    try {
+      const { userId, reason } = req.body;
+      if (!userId || !reason) {
+        return res.status(400).json({ error: 'User ID and reason are required' });
+      }
+      
+      const revokedCount = await subscriptionService.revokeAllUserTokens(userId, reason);
+      res.json({ 
+        success: true, 
+        message: `Revoked ${revokedCount} tokens for user ${userId}`,
+        revokedCount 
+      });
+    } catch (error) {
+      console.error("Error revoking user tokens:", error);
+      res.status(500).json({ error: 'Failed to revoke user tokens' });
+    }
+  });
+
+  // Get user device information (admin only)
+  app.get("/api/admin/user-devices/:userId", requireAdminAuth, async (req, res) => {
+    try {
+      const { userId } = req.params;
+      const { replitTokenStorage } = await import('./replit-token-storage');
+      
+      const deviceKey = `user_devices:${userId}`;
+      const deviceData = await replitTokenStorage.getDeviceData(deviceKey);
+      
+      if (!deviceData) {
+        return res.json({
+          userId,
+          devices: [],
+          totalDevices: 0,
+          recentDevices: 0
+        });
+      }
+      
+      // Calculate recent devices (last 24 hours)
+      const twentyFourHoursAgo = new Date(Date.now() - 24 * 60 * 60 * 1000);
+      const recentDevices = deviceData.devices.filter((device: any) => 
+        new Date(device.lastUsed) > twentyFourHoursAgo
+      ).length;
+      
+      res.json({
+        userId,
+        devices: deviceData.devices,
+        totalDevices: deviceData.devices.length,
+        recentDevices,
+        lastUpdated: deviceData.lastUpdated
+      });
+    } catch (error) {
+      console.error("Error getting user devices:", error);
+      res.status(500).json({ error: 'Failed to get user devices' });
+    }
+  });
+
+  // Token cleanup and statistics (admin only)
+  app.post("/api/admin/cleanup-tokens", requireAdminAuth, async (req, res) => {
+    try {
+      const { replitTokenStorage } = await import('./replit-token-storage');
+      const results = await replitTokenStorage.cleanupExpired();
+      
+      res.json({
+        success: true,
+        message: 'Token cleanup completed',
+        tokensRemoved: results.tokensRemoved,
+        sessionsRemoved: results.sessionsRemoved,
+        deviceDataCleaned: results.deviceDataCleaned
+      });
+    } catch (error) {
+      console.error("Error during token cleanup:", error);
+      res.status(500).json({ error: 'Failed to cleanup tokens' });
+    }
+  });
+
+  // Step 1: Request verification code for subscription login
+  app.post("/api/subscription/login/request-code", async (req, res) => {
+    try {
+      const { email } = req.body;
+      if (!email || !email.includes('@')) {
+        return res.status(400).json({ error: 'Valid email required' });
+      }
+
+      // Find user by email
+      const user = await databaseStorage.getUserByEmail(email);
+      if (!user) {
+        return res.status(404).json({ error: 'No subscription found for this email' });
+      }
+
+      // Get user's subscription data
+      const subscriptionData = await subscriptionService.getUserSubscriptionWithUsage(user.id);
+      
+      // Only allow login if user has active subscription
+      if (!subscriptionData.subscription || subscriptionData.subscription.status !== 'active') {
+        return res.status(403).json({ error: 'No active subscription found' });
+      }
+
+      // Generate verification code
+      const deviceFingerprint = req.headers['x-device-fingerprint'] as string || 'unknown';
+      const clientIp = getClientInfo(req).ip;
+      
+      const codeResult = await emailVerificationService.generateCode(
+        email,
+        deviceFingerprint,
+        clientIp
+      );
+
+      if (!codeResult.success) {
+        return res.status(429).json({ error: codeResult.error });
+      }
+
+      // Send verification code via email
+      try {
+        await emailService.sendEmail({
+          to: email,
+          subject: 'Your ReadMyFinePrint Verification Code',
+          html: `
+            <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+              <h2 style="color: #333;">Device Verification Required</h2>
+              <p>Someone is trying to access your ReadMyFinePrint subscription from a new device.</p>
+              
+              <div style="background: #f5f5f5; padding: 20px; border-radius: 8px; text-align: center; margin: 20px 0;">
+                <h3 style="margin: 0; color: #2563eb;">Your verification code:</h3>
+                <div style="font-size: 32px; font-weight: bold; color: #2563eb; margin: 10px 0; letter-spacing: 4px;">${codeResult.code}</div>
+                <p style="margin: 0; color: #666; font-size: 14px;">This code expires in 10 minutes</p>
+              </div>
+              
+              <p style="color: #666; font-size: 14px;">
+                If you didn't request this, you can safely ignore this email.
+              </p>
+              
+              <hr style="border: none; border-top: 1px solid #eee; margin: 20px 0;">
+              <p style="color: #999; font-size: 12px;">
+                ReadMyFinePrint - Secure Document Analysis
+              </p>
+            </div>
+          `
+        });
+        
+        console.log(`📧 Verification code sent to ${email}`);
+      } catch (emailError) {
+        console.error('Failed to send verification email:', emailError);
+        return res.status(500).json({ error: 'Failed to send verification code' });
+      }
+
+      res.json({
+        success: true,
+        message: 'Verification code sent to your email',
+        expiresAt: codeResult.expiresAt
+      });
+    } catch (error) {
+      console.error("Error requesting verification code:", error);
+      res.status(500).json({ 
+        error: "Failed to request verification code",
+        details: error instanceof Error ? error.message : "Unknown error"
+      });
+    }
+  });
+
+  // Step 2: Verify code and complete login
+  app.post("/api/subscription/login/verify", async (req, res) => {
+    try {
+      const { email, code } = req.body;
+      if (!email || !email.includes('@')) {
+        return res.status(400).json({ error: 'Valid email required' });
+      }
+      if (!code || code.length !== 6) {
+        return res.status(400).json({ error: 'Valid 6-digit code required' });
+      }
+
+      const deviceFingerprint = req.headers['x-device-fingerprint'] as string || 'unknown';
+      const clientIp = getClientInfo(req).ip;
+
+      // Verify the code
+      const verificationResult = await emailVerificationService.verifyCode(
+        email,
+        code,
+        deviceFingerprint,
+        clientIp
+      );
+
+      if (!verificationResult.success) {
+        return res.status(400).json({ 
+          error: verificationResult.error,
+          attemptsRemaining: verificationResult.attemptsRemaining
+        });
+      }
+
+      // Code verified! Now complete the login
+      const user = await databaseStorage.getUserByEmail(email);
+      if (!user) {
+        return res.status(404).json({ error: 'User not found' });
+      }
+
+      const subscriptionData = await subscriptionService.getUserSubscriptionWithUsage(user.id);
+      
+      // Generate new device token for this login
+      const newToken = await subscriptionService.generateSubscriptionToken(
+        user.id,
+        subscriptionData.subscription!.id,
+        deviceFingerprint
+      );
+
+      res.json({
+        success: true,
+        token: newToken,
+        subscription: subscriptionData
+      });
+    } catch (error) {
+      console.error("Error verifying subscription login:", error);
+      res.status(500).json({ 
+        error: "Failed to verify login",
+        details: error instanceof Error ? error.message : "Unknown error"
+      });
+    }
+  });
+
+  // Get subscription token after successful checkout
+  app.get("/api/subscription/token/:sessionId", async (req, res) => {
+    try {
+      const { sessionId } = req.params;
+      
+      // Get token by checkout session ID
+      const token = await subscriptionService.getTokenBySession(sessionId);
+      
+      if (token) {
+        // Validate the token exists and return subscription data
+        const subscriptionData = await subscriptionService.validateSubscriptionToken(token);
+        if (subscriptionData) {
+          res.json({ 
+            token,
+            subscription: subscriptionData
+          });
+        } else {
+          res.status(404).json({ error: 'Invalid or expired token' });
+        }
+      } else {
+        res.status(404).json({ error: 'No token found for this session' });
+      }
+    } catch (error) {
+      console.error("Error retrieving subscription token:", error);
+      res.status(500).json({ 
+        error: "Failed to retrieve subscription token",
+        details: error instanceof Error ? error.message : "Unknown error"
+      });
+    }
+  });
+
+  // Create subscription checkout session
+  app.post("/api/subscription/create-checkout", optionalUserAuth, async (req, res) => {
+    try {
+      // Input validation
+      const checkoutSchema = z.object({
+        tierId: z.string(),
+        billingCycle: z.enum(['monthly', 'yearly'])
+      });
+
+      const { tierId, billingCycle } = checkoutSchema.parse(req.body);
+      
+      // Get tier information
+      const tier = getTierById(tierId);
+      if (!tier) {
+        return res.status(400).json({ error: "Invalid tier ID" });
+      }
+
+      // Calculate price based on billing cycle
+      const price = billingCycle === 'yearly' ? tier.yearlyPrice : tier.monthlyPrice;
+      const userId = req.user?.id || req.sessionId || "anonymous";
+
+      // Auto-detect test mode based on development environment
+      const useTestMode = process.env.NODE_ENV === 'development';
+      const stripeInstance = getStripeInstance(useTestMode);
+
+      // Create Stripe checkout session for subscription
+      const session = await stripeInstance.checkout.sessions.create({
+        payment_method_types: ['card'],
+        line_items: [{
+          price_data: {
+            currency: 'usd',
+            product_data: {
+              name: `${tier.name} Plan ${useTestMode ? '(TEST)' : ''}`,
+              description: tier.description,
+            },
+            unit_amount: Math.round(price * 100), // Convert to cents
+            recurring: {
+              interval: billingCycle === 'yearly' ? 'year' : 'month',
+            },
+          },
+          quantity: 1,
+        }],
+        mode: 'subscription',
+        success_url: `${req.protocol}://${req.get('host')}/subscription?session_id={CHECKOUT_SESSION_ID}&success=true`,
+        cancel_url: `${req.protocol}://${req.get('host')}/subscription`,
+        client_reference_id: userId,
+        metadata: {
+          tierId,
+          billingCycle,
+          userId,
+        },
+      });
+
+      res.json({ url: session.url });
+    } catch (error) {
+      console.error("Error creating subscription checkout session:", error);
+      res.status(500).json({ 
+        error: "Failed to create checkout session",
+        details: error instanceof Error ? error.message : "Unknown error"
+      });
+    }
+  });
+
+  // Cancel subscription
+  app.post("/api/subscription/cancel", optionalUserAuth, async (req, res) => {
+    try {
+      const cancelSchema = z.object({
+        subscriptionId: z.string(),
+        immediate: z.boolean().default(false)
+      });
+
+      const { subscriptionId, immediate } = cancelSchema.parse(req.body);
+      const userId = req.user?.id || req.sessionId || "anonymous";
+
+      // Auto-detect test mode
+      const useTestMode = process.env.NODE_ENV === 'development';
+      const stripeInstance = getStripeInstance(useTestMode);
+
+      // Cancel the subscription in Stripe
+      const subscription = await stripeInstance.subscriptions.update(subscriptionId, {
+        cancel_at_period_end: !immediate,
+      });
+
+      if (immediate) {
+        await stripeInstance.subscriptions.cancel(subscriptionId);
+      }
+
+      // Update local subscription status
+      await subscriptionService.cancelSubscription(userId, immediate);
+
+      res.json({ 
+        success: true,
+        message: immediate ? "Subscription canceled immediately" : "Subscription will cancel at period end"
+      });
+    } catch (error) {
+      console.error("Error canceling subscription:", error);
+      res.status(500).json({ 
+        error: "Failed to cancel subscription",
+        details: error instanceof Error ? error.message : "Unknown error"
+      });
+    }
+  });
+
   // Validate specific user tier (admin only)
   app.get("/api/admin/validate-user-tier/:userId", requireAdminAuth, async (req, res) => {
     try {
@@ -825,7 +1240,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.get('/api/documents', async (req, res) => {
     try {
-      const documents = await storage.getAllDocuments(req.sessionId);
+      const sessionId = (req as any).sessionId as string;
+      const documents = await storage.getAllDocuments(sessionId);
       res.json(documents);
     } catch (error) {
       console.error("Error fetching documents:", error);
@@ -913,7 +1329,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
             // Notify search engines that donation page might have updated stats
             try {
-              await indexNowService.submitUrl('https://readmyfineprint.com/donate');
+              await indexNowService.submitUrls(['https://readmyfineprint.com/donate']);
             } catch (error) {
               console.warn('IndexNow submission failed after payment:', error);
             }
@@ -942,6 +1358,139 @@ export async function registerRoutes(app: Express): Promise<Server> {
           });
 
           console.log(`💳 Payment failed${isTestMode ? ' (TEST)' : ''}: ${failedPayment.id} - ${failedPayment.last_payment_error?.message || 'Unknown error'}`);
+          break;
+
+        case 'checkout.session.completed':
+          const checkoutSession = event.data.object;
+          
+          // Only handle subscription checkouts (not one-time payments)
+          if (checkoutSession.mode === 'subscription' && checkoutSession.subscription) {
+            console.log(`🎉 Subscription checkout completed${isTestMode ? ' (TEST)' : ''}: ${checkoutSession.id}`);
+            
+            // Extract metadata from the checkout session
+            const { tierId, billingCycle, userId } = checkoutSession.metadata || {};
+            const stripeCustomerId = checkoutSession.customer;
+            const stripeSubscriptionId = checkoutSession.subscription;
+            
+            if (tierId && userId && stripeCustomerId && stripeSubscriptionId) {
+              try {
+                // Create or get user for this subscription
+                let actualUserId = userId;
+                
+                // If it's an anonymous/session user, create a proper user account
+                if (userId === 'anonymous' || userId.startsWith('session_')) {
+                  // Try to get customer email from Stripe for multi-device access
+                  let customerEmail = `subscriber_${stripeCustomerId}@subscription.internal`;
+                  
+                  try {
+                    // Get customer details from Stripe to capture real email
+                    const useTestMode = process.env.NODE_ENV === 'development';
+                    const stripeInstance = getStripeInstance(useTestMode);
+                    const customer = await stripeInstance.customers.retrieve(stripeCustomerId as string);
+                    
+                    if (customer && !customer.deleted && customer.email) {
+                      customerEmail = customer.email;
+                      console.log(`📧 Captured customer email for multi-device access: ${customerEmail}`);
+                    }
+                  } catch (emailError) {
+                    console.warn('Could not retrieve customer email from Stripe:', emailError instanceof Error ? emailError.message : String(emailError));
+                  }
+                  
+                  actualUserId = await subscriptionService.createSubscriptionUser({
+                    stripeCustomerId: stripeCustomerId as string,
+                    tierId,
+                    email: customerEmail, // Real email if available, sanitized otherwise
+                    source: 'stripe_checkout'
+                  });
+                  
+                  console.log(`👤 Created subscription user: ${actualUserId} for customer ${stripeCustomerId}`);
+                } else {
+                  // For existing authenticated users, just create the subscription
+                  console.log(`👤 Using existing user: ${actualUserId} for subscription`);
+                }
+                
+                // Create the subscription record
+                const subscription = await subscriptionService.createStripeSubscription({
+                  userId: actualUserId,
+                  tierId,
+                  stripeCustomerId: stripeCustomerId as string,
+                  stripeSubscriptionId: stripeSubscriptionId as string,
+                  billingCycle: billingCycle || 'monthly',
+                  status: 'active'
+                });
+
+                // Generate a persistent subscription access token
+                // Note: Device fingerprint not available in webhook context
+                const subscriptionToken = await subscriptionService.generateSubscriptionToken(actualUserId, subscription.id);
+                
+                // Store mapping from checkout session to token for frontend retrieval
+                await subscriptionService.storeSessionToken(checkoutSession.id, subscriptionToken);
+                
+                console.log(`✅ Subscription created successfully for user ${actualUserId} with token ${subscriptionToken.slice(0, 8)}...`);
+                
+                // Log security event
+                securityLogger.logSecurityEvent({
+                  eventType: "API_ACCESS" as any,
+                  severity: "LOW" as any,
+                  message: `Subscription created: ${stripeSubscriptionId} (${isTestMode ? 'TEST' : 'LIVE'} mode)`,
+                  ip,
+                  userAgent,
+                  endpoint: "/api/stripe-webhook",
+                  details: { 
+                    subscriptionId: stripeSubscriptionId,
+                    customerId: stripeCustomerId,
+                    tierId,
+                    billingCycle,
+                    testMode: isTestMode
+                  }
+                });
+              } catch (error) {
+                console.error('Error processing subscription checkout:', error);
+                // Don't throw - we don't want to retry webhook processing for business logic errors
+              }
+            } else {
+              console.warn('Missing required metadata in checkout session:', checkoutSession.metadata);
+            }
+          }
+          break;
+
+        case 'customer.subscription.updated':
+          const updatedSubscription = event.data.object as any; // Type assertion for webhook data
+          const customerId = updatedSubscription.customer;
+          
+          try {
+            await subscriptionService.syncStripeSubscription({
+              stripeSubscriptionId: updatedSubscription.id,
+              stripeCustomerId: customerId as string,
+              status: updatedSubscription.status,
+              currentPeriodStart: new Date(updatedSubscription.current_period_start * 1000),
+              currentPeriodEnd: new Date(updatedSubscription.current_period_end * 1000),
+              cancelAtPeriodEnd: updatedSubscription.cancel_at_period_end
+            });
+            
+            console.log(`🔄 Subscription updated${isTestMode ? ' (TEST)' : ''}: ${updatedSubscription.id}`);
+          } catch (error) {
+            console.error('Error syncing subscription update:', error);
+          }
+          break;
+
+        case 'customer.subscription.deleted':
+          const canceledSubscription = event.data.object as any; // Type assertion for webhook data
+          
+          try {
+            await subscriptionService.syncStripeSubscription({
+              stripeSubscriptionId: canceledSubscription.id,
+              stripeCustomerId: canceledSubscription.customer as string,
+              status: 'canceled',
+              currentPeriodStart: new Date(canceledSubscription.current_period_start * 1000),
+              currentPeriodEnd: new Date(canceledSubscription.current_period_end * 1000),
+              cancelAtPeriodEnd: true
+            });
+            
+            console.log(`❌ Subscription canceled${isTestMode ? ' (TEST)' : ''}: ${canceledSubscription.id}`);
+          } catch (error) {
+            console.error('Error syncing subscription cancellation:', error);
+          }
           break;
 
         default:
@@ -1102,7 +1651,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.post("/api/admin/test-indexnow", requireAdminAuth, async (req, res) => {
     try {
       const testUrl = req.body.url || `${req.protocol}://${req.get('host')}/`;
-      const result = await indexNowService.submitUrl(testUrl);
+      const result = await indexNowService.submitUrls([testUrl]);
 
       res.json({
         success: true,

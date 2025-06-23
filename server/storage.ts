@@ -13,10 +13,12 @@ export interface IStorage {
   getUser(id: string): Promise<User | undefined>;
   getUserByEmail(email: string): Promise<User | undefined>;
   createUser(insertUser: InsertUser): Promise<User>;
+  createUserWithId(id: string, insertUser: InsertUser): Promise<User>;
   updateUser(id: string, updates: Partial<InsertUser>): Promise<User | undefined>;
   
   // Subscription management
   getUserSubscription(userId: string): Promise<UserSubscription | undefined>;
+  getAllUserSubscriptions(): Promise<UserSubscription[]>;
   createUserSubscription(insertSubscription: InsertUserSubscription): Promise<UserSubscription>;
   updateUserSubscription(id: string, updates: Partial<InsertUserSubscription>): Promise<UserSubscription | undefined>;
   cancelUserSubscription(id: string): Promise<UserSubscription | undefined>;

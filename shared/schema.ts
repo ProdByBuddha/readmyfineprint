@@ -18,7 +18,7 @@ export const userSubscriptions = pgTable('user_subscriptions', {
   id: uuid('id').primaryKey().defaultRandom(),
   userId: uuid('user_id').references(() => users.id, { onDelete: 'cascade' }).notNull(),
   tierId: text('tier_id').notNull(),
-  status: text('status').notNull(), // 'active', 'canceled', 'past_due', 'incomplete'
+  status: text('status').notNull(), // 'active', 'canceled', 'past_due', 'incomplete', 'inactive'
   stripeCustomerId: text('stripe_customer_id'),
   stripeSubscriptionId: text('stripe_subscription_id').unique(),
   currentPeriodStart: timestamp('current_period_start').notNull(),
@@ -66,31 +66,56 @@ export const usageRecordsRelations = relations(usageRecords, ({ one }) => ({
 }));
 
 // Insert Schemas
-export const insertUserSchema = createInsertSchema(users).omit({
+const insertUserSchemaBase = createInsertSchema(users).omit({
   id: true,
   createdAt: true,
   updatedAt: true,
 });
 
-export const insertUserSubscriptionSchema = createInsertSchema(userSubscriptions).omit({
+const insertUserSubscriptionSchemaBase = createInsertSchema(userSubscriptions).omit({
   id: true,
   createdAt: true,
   updatedAt: true,
 });
 
-export const insertUsageRecordSchema = createInsertSchema(usageRecords).omit({
+const insertUsageRecordSchemaBase = createInsertSchema(usageRecords).omit({
   id: true,
   createdAt: true,
   updatedAt: true,
 });
+
+export const insertUserSchema = insertUserSchemaBase;
+export const insertUserSubscriptionSchema = insertUserSubscriptionSchemaBase;
+export const insertUsageRecordSchema = insertUsageRecordSchemaBase;
 
 // Database Types
 export type User = typeof users.$inferSelect;
-export type InsertUser = z.infer<typeof insertUserSchema>;
+export type InsertUser = {
+  email: string;
+  username?: string | null;
+  hashedPassword?: string | null;
+  stripeCustomerId?: string | null;
+};
 export type UserSubscription = typeof userSubscriptions.$inferSelect;
-export type InsertUserSubscription = z.infer<typeof insertUserSubscriptionSchema>;
+export type InsertUserSubscription = {
+  userId: string;
+  tierId: string;
+  status: string;
+  stripeCustomerId?: string | null;
+  stripeSubscriptionId?: string | null;
+  currentPeriodStart: Date;
+  currentPeriodEnd: Date;
+  cancelAtPeriodEnd?: boolean;
+};
 export type UsageRecord = typeof usageRecords.$inferSelect;
-export type InsertUsageRecord = z.infer<typeof insertUsageRecordSchema>;
+export type InsertUsageRecord = {
+  userId: string;
+  subscriptionId?: string | null;
+  period: string;
+  documentsAnalyzed?: number;
+  tokensUsed?: number;
+  cost?: string;
+};
 
 export const insertDocumentSchema = z.object({
   title: z.string().optional(),

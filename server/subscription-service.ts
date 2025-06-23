@@ -1,8 +1,10 @@
 import Stripe from 'stripe';
+import crypto from 'crypto';
 import type { UserSubscription, SubscriptionTier, User, InsertUserSubscription, UsageRecord, InsertUsageRecord } from '@shared/schema';
 import { SUBSCRIPTION_TIERS, getTierById } from './subscription-tiers';
 import { securityLogger } from './security-logger';
 import { databaseStorage } from './storage';
+import { replitTokenStorage } from './replit-token-storage';
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
   apiVersion: '2025-05-28.basil',
@@ -24,6 +26,38 @@ interface SubscriptionUsage {
 }
 
 export class SubscriptionService {
+  
+  constructor() {
+    // Start periodic token cleanup (every 6 hours)
+    this.startTokenCleanup();
+  }
+
+  /**
+   * Start periodic cleanup of expired tokens
+   */
+  private startTokenCleanup(): void {
+    const cleanupInterval = 6 * 60 * 60 * 1000; // 6 hours
+    
+    setInterval(async () => {
+      try {
+        console.log('🧹 Starting periodic token cleanup...');
+        const results = await replitTokenStorage.cleanupExpired();
+        console.log(`🧹 Cleanup completed: ${results.tokensRemoved} tokens, ${results.sessionsRemoved} sessions, ${results.deviceDataCleaned} device records removed`);
+      } catch (error) {
+        console.error('Error during token cleanup:', error);
+      }
+    }, cleanupInterval);
+    
+    // Also run cleanup on startup
+    setTimeout(async () => {
+      try {
+        const results = await replitTokenStorage.cleanupExpired();
+        console.log(`🧹 Startup cleanup: ${results.tokensRemoved} tokens, ${results.sessionsRemoved} sessions, ${results.deviceDataCleaned} device records removed`);
+      } catch (error) {
+        console.error('Error during startup cleanup:', error);
+      }
+    }, 10000); // Wait 10 seconds after startup
+  }
 
   /**
    * Create Stripe products and prices for all subscription tiers
@@ -202,9 +236,9 @@ export class SubscriptionService {
   }
 
   /**
-   * Cancel a subscription
+   * Cancel a Stripe subscription (Stripe API call)
    */
-  async cancelSubscription(subscriptionId: string, immediate: boolean = false): Promise<Stripe.Subscription> {
+  async cancelStripeSubscription(subscriptionId: string, immediate: boolean = false): Promise<Stripe.Subscription> {
     try {
       const subscription = await stripe.subscriptions.update(subscriptionId, {
         cancel_at_period_end: !immediate,
@@ -344,8 +378,8 @@ export class SubscriptionService {
         };
       }
 
-      // Get user's current subscription
-      const subscription = await databaseStorage.getUserSubscription(userId);
+      // Get user's current subscription, create inactive free tier if none exists
+      const subscription = await this.ensureUserHasSubscription(userId);
 
       // Determine tier with proper subscription validation
       const tier = this.validateAndAssignTier(subscription);
@@ -410,7 +444,7 @@ export class SubscriptionService {
     const isValidPaidSubscription = validPaidStatuses.includes(subscription.status);
     
     // Check if this is a free tier subscription
-    const isFreeSubscription = subscription.status === 'free_tier';
+    const isFreeSubscription = subscription.status === 'free_tier' || subscription.status === 'inactive';
 
     // Check if subscription is expired
     const now = new Date();
@@ -449,6 +483,43 @@ export class SubscriptionService {
   }
 
   /**
+   * Create an inactive free tier subscription for a user
+   */
+  async createInactiveFreeSubscription(userId: string): Promise<UserSubscription> {
+    const now = new Date();
+    const futureDate = new Date(Date.now() + 365 * 24 * 60 * 60 * 1000); // 1 year from now
+
+    const freeSubscription: InsertUserSubscription = {
+      userId: userId,
+      tierId: 'free',
+      status: 'inactive',
+      stripeCustomerId: null,
+      stripeSubscriptionId: null,
+      currentPeriodStart: now,
+      currentPeriodEnd: futureDate,
+      cancelAtPeriodEnd: false,
+    };
+
+    const createdSubscription = await databaseStorage.createUserSubscription(freeSubscription);
+    
+    securityLogger.logSecurityEvent({
+      eventType: 'SUBSCRIPTION_CREATED' as any,
+      severity: 'LOW' as any,
+      message: `Inactive free tier subscription created for user ${userId}`,
+      ip: 'system',
+      userAgent: 'subscription-service',
+      endpoint: 'subscription-service',
+      details: {
+        userId,
+        tierId: 'free',
+        status: 'inactive',
+      },
+    });
+
+    return createdSubscription;
+  }
+
+  /**
    * Ensure the collective free tier user exists for usage tracking
    */
   async ensureCollectiveFreeUserExists(): Promise<void> {
@@ -460,20 +531,43 @@ export class SubscriptionService {
 
       if (!existingUser) {
         // Create the collective free tier user
-        await databaseStorage.createUser({
-          id: collectiveUserId,
+        await databaseStorage.createUserWithId(collectiveUserId, {
           email: 'collective.free.tier@internal.system',
           username: 'collective_free_tier',
           hashedPassword: null, // No password for system user
           stripeCustomerId: null,
         });
 
-        console.log(`✅ Created collective free tier user for usage tracking`);
+        // Create inactive free tier subscription for collective user
+        await this.createInactiveFreeSubscription(collectiveUserId);
+
+        console.log(`✅ Created collective free tier user with inactive subscription for usage tracking`);
+      } else {
+        // Ensure collective user has an inactive subscription
+        const existingSubscription = await databaseStorage.getUserSubscription(collectiveUserId);
+        if (!existingSubscription) {
+          await this.createInactiveFreeSubscription(collectiveUserId);
+          console.log(`✅ Created inactive subscription for existing collective free tier user`);
+        }
       }
     } catch (error) {
       console.error('Error ensuring collective free user exists:', error);
       // Don't throw - this shouldn't break the main flow
     }
+  }
+
+  /**
+   * Ensure a user has a subscription record (create inactive free tier if none exists)
+   */
+  async ensureUserHasSubscription(userId: string): Promise<UserSubscription> {
+    const existingSubscription = await databaseStorage.getUserSubscription(userId);
+    
+    if (!existingSubscription) {
+      console.log(`Creating inactive free tier subscription for user: ${userId}`);
+      return await this.createInactiveFreeSubscription(userId);
+    }
+    
+    return existingSubscription;
   }
 
   /**
@@ -881,6 +975,429 @@ export class SubscriptionService {
       console.error('❌ Error handling payment failure:', invoice.id, error);
     }
   }
+
+  /**
+   * Create a subscription user (for anonymous users who subscribe)
+   * Uses minimal PII and sanitized identifiers
+   */
+  async createSubscriptionUser(params: {
+    stripeCustomerId: string;
+    tierId: string;
+    email: string; // Sanitized internal email, not customer PII
+    source: string;
+  }): Promise<string> {
+    try {
+      // Create a minimal user record for subscription tracking
+      const user = await databaseStorage.createUser({
+        email: params.email, // Using sanitized email like 'subscriber_cus_xxx@subscription.internal'
+        username: `subscriber_${params.stripeCustomerId.slice(-8)}`, // Last 8 chars of customer ID
+        hashedPassword: crypto.randomBytes(32).toString('hex'), // Random password, can't be used to login
+      });
+
+      console.log(`Created subscription user ${user.id} for Stripe customer ${params.stripeCustomerId}`);
+      return user.id;
+    } catch (error) {
+      console.error('Error creating subscription user:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * Create a Stripe subscription record in the database
+   */
+  async createStripeSubscription(params: {
+    userId: string;
+    tierId: string;
+    stripeCustomerId: string;
+    stripeSubscriptionId: string;
+    billingCycle: string;
+    status: string;
+  }): Promise<UserSubscription> {
+    try {
+      // Calculate period dates (30 days for monthly, 365 for yearly)
+      const now = new Date();
+      const periodLength = params.billingCycle === 'yearly' ? 365 : 30;
+      const periodEnd = new Date(now.getTime() + periodLength * 24 * 60 * 60 * 1000);
+
+      const subscriptionData: InsertUserSubscription = {
+        userId: params.userId,
+        tierId: params.tierId,
+        status: params.status as any,
+        stripeCustomerId: params.stripeCustomerId,
+        stripeSubscriptionId: params.stripeSubscriptionId,
+        currentPeriodStart: now,
+        currentPeriodEnd: periodEnd,
+        cancelAtPeriodEnd: false,
+      };
+
+      // First, cancel any existing subscriptions for this user
+      const existingSubscription = await databaseStorage.getUserSubscription(params.userId);
+      if (existingSubscription) {
+        await databaseStorage.updateUserSubscription(existingSubscription.id, {
+          status: 'canceled'
+        });
+      }
+
+      const subscription = await databaseStorage.createUserSubscription(subscriptionData);
+      console.log(`Created subscription ${subscription.id} for user ${params.userId}`);
+      return subscription;
+    } catch (error) {
+      console.error('Error creating Stripe subscription:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * Sync subscription data from Stripe webhooks
+   */
+  async syncStripeSubscription(params: {
+    stripeSubscriptionId: string;
+    stripeCustomerId: string;
+    status: string;
+    currentPeriodStart: Date;
+    currentPeriodEnd: Date;
+    cancelAtPeriodEnd: boolean;
+  }): Promise<void> {
+    try {
+      // Find subscription by Stripe subscription ID
+      const subscriptions = await databaseStorage.getAllUserSubscriptions();
+      const subscription = subscriptions.find(sub => 
+        sub.stripeSubscriptionId === params.stripeSubscriptionId
+      );
+
+      if (!subscription) {
+        console.warn(`No local subscription found for Stripe subscription ${params.stripeSubscriptionId}`);
+        return;
+      }
+
+      // Update the subscription with Stripe data
+      await databaseStorage.updateUserSubscription(subscription.id, {
+        status: params.status as any,
+        currentPeriodStart: params.currentPeriodStart,
+        currentPeriodEnd: params.currentPeriodEnd,
+        cancelAtPeriodEnd: params.cancelAtPeriodEnd
+      });
+
+      console.log(`Synced subscription ${subscription.id} with Stripe data`);
+    } catch (error) {
+      console.error('Error syncing Stripe subscription:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * Cancel a subscription
+   */
+  async cancelSubscription(userId: string, immediate: boolean = false): Promise<void> {
+    try {
+      const subscription = await databaseStorage.getUserSubscription(userId);
+      if (!subscription) {
+        throw new Error('No subscription found to cancel');
+      }
+
+      const updates: Partial<InsertUserSubscription> = {
+        cancelAtPeriodEnd: !immediate
+      };
+
+      if (immediate) {
+        updates.status = 'canceled';
+        updates.currentPeriodEnd = new Date(); // End immediately
+      }
+
+      await databaseStorage.updateUserSubscription(subscription.id, updates);
+    } catch (error) {
+      console.error('Error canceling subscription:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * Generate a secure subscription access token with device binding
+   * This token is bound to device characteristics for enhanced security
+   */
+  async generateSubscriptionToken(userId: string, subscriptionId: string, deviceFingerprint?: string): Promise<string> {
+    try {
+      // Generate a secure random token with more entropy
+      const tokenBytes = crypto.randomBytes(48); // Increased from 32 to 48 bytes
+      const token = `sub_${tokenBytes.toString('hex')}`;
+      
+      // Store in Replit database with encryption
+      await replitTokenStorage.storeToken(token, {
+        userId,
+        subscriptionId,
+        deviceFingerprint: deviceFingerprint || 'unknown'
+      });
+      
+      console.log(`Generated secure subscription token for user ${userId} (expires in 30 days)`);
+      return token;
+    } catch (error) {
+      console.error('Error generating subscription token:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * Validate a subscription token with enhanced security checks
+   */
+  async validateSubscriptionToken(token: string, deviceFingerprint?: string, clientIp?: string): Promise<{
+    subscription?: UserSubscription;
+    tier: SubscriptionTier;
+    usage: SubscriptionUsage;
+    canUpgrade: boolean;
+    suggestedUpgrade?: SubscriptionTier;
+  } | null> {
+    try {
+      if (!token.startsWith('sub_')) {
+        console.warn('Invalid token format');
+        return null;
+      }
+      
+      // Get token data from Replit database
+      const tokenData = await replitTokenStorage.getToken(token);
+      if (!tokenData) {
+        console.warn('Token not found in storage');
+        return null;
+      }
+      
+      // Multi-device support: Track device fingerprints but allow multiple devices
+      if (deviceFingerprint && deviceFingerprint !== 'unknown') {
+        // Store up to 5 recent device fingerprints for this user
+        await this.trackDeviceUsage(tokenData.userId, deviceFingerprint, clientIp);
+        
+        // Only flag as suspicious if used from >10 different devices in 24 hours
+        const recentDeviceCount = await this.getRecentDeviceCount(tokenData.userId);
+        if (recentDeviceCount > 10) {
+          console.warn('Subscription used from many devices - possible sharing');
+          securityLogger.logSecurityEvent({
+            eventType: 'SECURITY_VIOLATION' as any,
+            severity: 'MEDIUM' as any,
+            message: 'Subscription token used from many different devices',
+            ip: clientIp || 'unknown',
+            userAgent: 'subscription-service',
+            endpoint: 'token-validation',
+            details: {
+              tokenId: token.slice(0, 16) + '...',
+              userId: tokenData.userId,
+              deviceCount: recentDeviceCount,
+              currentFingerprint: deviceFingerprint.slice(0, 16) + '...'
+            }
+          });
+          
+          // Still allow but flag for monitoring
+        }
+      }
+      
+      // Rate limiting: Check usage frequency
+      const now = new Date();
+      const lastUsed = new Date(tokenData.lastUsed);
+      const timeSinceLastUse = now.getTime() - lastUsed.getTime();
+      
+      // If used more than 100 times in last hour, it might be automated/shared
+      if (tokenData.usageCount > 100 && timeSinceLastUse < 60 * 60 * 1000) {
+        console.warn('Potential token abuse detected - high usage frequency');
+        securityLogger.logSecurityEvent({
+          eventType: 'SECURITY_VIOLATION' as any,
+          severity: 'MEDIUM' as any,
+          message: 'Subscription token showing unusual usage patterns',
+          ip: clientIp || 'unknown',
+          userAgent: 'subscription-service',
+          endpoint: 'token-validation',
+          details: {
+            tokenId: token.slice(0, 16) + '...',
+            usageCount: tokenData.usageCount,
+            lastUsed: tokenData.lastUsed
+          }
+        });
+      }
+      
+      // Update usage tracking in Replit database
+      await replitTokenStorage.updateTokenUsage(token);
+      
+      // Get current subscription data and verify it's still active
+      const subscriptionData = await this.getUserSubscriptionWithUsage(tokenData.userId);
+      
+      // Double-check that the subscription is still active
+      if (subscriptionData.subscription && subscriptionData.subscription.status !== 'active') {
+        console.warn('Token valid but subscription no longer active');
+        // Invalidate the token
+        await replitTokenStorage.removeToken(token);
+        return null;
+      }
+      
+      return subscriptionData;
+    } catch (error) {
+      console.error('Error validating subscription token:', error);
+      return null;
+    }
+  }
+
+  /**
+   * Store mapping from checkout session to subscription token
+   */
+  async storeSessionToken(sessionId: string, token: string): Promise<void> {
+    await replitTokenStorage.storeSessionToken(sessionId, token);
+    console.log(`Stored session token mapping for session ${sessionId}`);
+  }
+
+  /**
+   * Get subscription token by checkout session ID
+   */
+  async getTokenBySession(sessionId: string): Promise<string | null> {
+    return await replitTokenStorage.getTokenBySession(sessionId);
+  }
+
+  /**
+   * Revoke a subscription token (for security incidents)
+   */
+  async revokeSubscriptionToken(token: string, reason: string): Promise<boolean> {
+    try {
+      if (!token.startsWith('sub_')) {
+        return false;
+      }
+      
+      // Get token data before removal
+      const tokenData = await replitTokenStorage.getToken(token);
+      if (!tokenData) {
+        return false;
+      }
+      
+      // Log the revocation
+      securityLogger.logSecurityEvent({
+        eventType: 'TOKEN_REVOKED' as any,
+        severity: 'MEDIUM' as any,
+        message: `Subscription token revoked: ${reason}`,
+        ip: 'system',
+        userAgent: 'subscription-service',
+        endpoint: 'token-revocation',
+        details: {
+          tokenId: token.slice(0, 16) + '...',
+          userId: tokenData.userId,
+          reason
+        }
+      });
+      
+      // Remove from Replit database
+      const success = await replitTokenStorage.removeToken(token);
+      if (success) {
+        console.log(`Revoked subscription token for user ${tokenData.userId}: ${reason}`);
+      }
+      
+      return success;
+    } catch (error) {
+      console.error('Error revoking subscription token:', error);
+      return false;
+    }
+  }
+
+  /**
+   * Revoke all tokens for a specific user
+   */
+  async revokeAllUserTokens(userId: string, reason: string): Promise<number> {
+    try {
+      // Remove all tokens for the user from Replit database
+      const revokedCount = await replitTokenStorage.removeAllUserTokens(userId);
+      
+      if (revokedCount > 0) {
+        securityLogger.logSecurityEvent({
+          eventType: 'ALL_TOKENS_REVOKED' as any,
+          severity: 'HIGH' as any,
+          message: `All subscription tokens revoked for user: ${reason}`,
+          ip: 'system',
+          userAgent: 'subscription-service',
+          endpoint: 'token-revocation',
+          details: {
+            userId,
+            revokedCount,
+            reason
+          }
+        });
+        
+        console.log(`Revoked ${revokedCount} tokens for user ${userId}: ${reason}`);
+      }
+      
+      return revokedCount;
+    } catch (error) {
+      console.error('Error revoking all user tokens:', error);
+      return 0;
+    }
+  }
+
+  /**
+   * Track device usage for multi-device support
+   */
+  private async trackDeviceUsage(userId: string, deviceFingerprint: string, clientIp?: string): Promise<void> {
+    try {
+      const deviceKey = `user_devices:${userId}`;
+      const now = new Date().toISOString();
+      
+      // Get existing device data
+      let deviceData = await replitTokenStorage.getDeviceData(deviceKey);
+      if (!deviceData) {
+        deviceData = { devices: [], lastUpdated: now };
+      }
+      
+      // Find if this device already exists
+      const existingDeviceIndex = deviceData.devices.findIndex(
+        (device: any) => device.fingerprint === deviceFingerprint
+      );
+      
+      if (existingDeviceIndex >= 0) {
+        // Update existing device
+        deviceData.devices[existingDeviceIndex].lastUsed = now;
+        deviceData.devices[existingDeviceIndex].usageCount += 1;
+        if (clientIp) {
+          deviceData.devices[existingDeviceIndex].lastIp = clientIp;
+        }
+      } else {
+        // Add new device
+        deviceData.devices.push({
+          fingerprint: deviceFingerprint,
+          firstUsed: now,
+          lastUsed: now,
+          usageCount: 1,
+          lastIp: clientIp || 'unknown'
+        });
+      }
+      
+      // Keep only last 10 devices (to prevent database bloat)
+      deviceData.devices = deviceData.devices
+        .sort((a: any, b: any) => new Date(b.lastUsed).getTime() - new Date(a.lastUsed).getTime())
+        .slice(0, 10);
+      
+      deviceData.lastUpdated = now;
+      
+      // Store updated device data
+      await replitTokenStorage.storeDeviceData(deviceKey, deviceData);
+    } catch (error) {
+      console.error('Error tracking device usage:', error);
+    }
+  }
+
+  /**
+   * Get count of devices used in last 24 hours
+   */
+  private async getRecentDeviceCount(userId: string): Promise<number> {
+    try {
+      const deviceKey = `user_devices:${userId}`;
+      const deviceData = await replitTokenStorage.getDeviceData(deviceKey);
+      
+      if (!deviceData) {
+        return 0;
+      }
+      
+      const twentyFourHoursAgo = new Date(Date.now() - 24 * 60 * 60 * 1000);
+      
+      return deviceData.devices.filter((device: any) => 
+        new Date(device.lastUsed) > twentyFourHoursAgo
+      ).length;
+    } catch (error) {
+      console.error('Error getting recent device count:', error);
+      return 0;
+    }
+  }
+
+  // Token storage now handled by ReplitTokenStorage class
+  // All token operations are persistent and encrypted
 }
 
 export const subscriptionService = new SubscriptionService();

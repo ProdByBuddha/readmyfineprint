@@ -63,6 +63,8 @@ npm run security:verify  # Run security verification
 npm run seo:update      # Update sitemap
 npm run indexnow:submit # Submit URLs to IndexNow API
 npm run subscription:init  # Initialize subscription tiers
+npm run tokens:test     # Test token storage system
+npm run tokens:test-multidevice  # Test multi-device support
 ```
 
 ## Key Technical Details

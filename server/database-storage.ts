@@ -104,6 +104,19 @@ export class DatabaseStorage implements IStorage {
     return user;
   }
 
+  async createUserWithId(id: string, insertUser: InsertUser): Promise<User> {
+    const [user] = await db
+      .insert(users)
+      .values({
+        id,
+        ...insertUser,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      })
+      .returning();
+    return user;
+  }
+
   async updateUser(id: string, updates: Partial<InsertUser>): Promise<User | undefined> {
     const [user] = await db
       .update(users)
@@ -143,6 +156,14 @@ export class DatabaseStorage implements IStorage {
       .where(eq(userSubscriptions.userId, userId))
       .orderBy(desc(userSubscriptions.createdAt));
     return subscription || undefined;
+  }
+
+  async getAllUserSubscriptions(): Promise<UserSubscription[]> {
+    const subscriptions = await db
+      .select()
+      .from(userSubscriptions)
+      .orderBy(desc(userSubscriptions.createdAt));
+    return subscriptions;
   }
 
   async createUserSubscription(insertSubscription: InsertUserSubscription): Promise<UserSubscription> {

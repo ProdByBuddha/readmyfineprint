@@ -1,0 +1,547 @@
+/**
+ * Replit Database Token Storage
+ * Secure storage for subscription tokens using Replit's key-value database
+ */
+
+import crypto from 'crypto';
+
+interface TokenData {
+  userId: string;
+  subscriptionId: string;
+  deviceFingerprint: string;
+  createdAt: string; // ISO string for JSON compatibility
+  expiresAt: string; // ISO string for JSON compatibility
+  lastUsed: string; // ISO string for JSON compatibility
+  usageCount: number;
+}
+
+interface SessionTokenData {
+  token: string;
+  expiresAt: string; // ISO string for JSON compatibility
+}
+
+export class ReplitTokenStorage {
+  private replitDB: any = null;
+  private encryptionKey: string;
+  private initPromise: Promise<void> | null = null;
+
+  constructor() {
+    // Get encryption key for token data (optional additional security)
+    this.encryptionKey = process.env.TOKEN_ENCRYPTION_KEY;
+  }
+
+  private async ensureInitialized(): Promise<void> {
+    if (this.replitDB !== null) {
+      return; // Already initialized
+    }
+
+    if (this.initPromise === null) {
+      this.initPromise = this.initializeDatabase();
+    }
+
+    await this.initPromise;
+  }
+
+  private async initializeDatabase(): Promise<void> {
+    if (process.env.REPLIT_DB_URL) {
+      try {
+        // In Replit environment - use dynamic import for ES modules
+        const { default: Database } = await import('@replit/database');
+        this.replitDB = new Database();
+        console.log('✅ Replit Database initialized');
+      } catch (error) {
+        console.warn('⚠️ Failed to initialize Replit Database, using memory fallback:', error);
+        this.replitDB = new Map();
+      }
+    } else {
+      // Fallback for non-Replit environments
+      console.warn('REPLIT_DB_URL not found - using memory storage fallback');
+      this.replitDB = new Map(); // Fallback to memory storage
+    }
+  }
+
+  /**
+   * Store a subscription token securely
+   */
+  async storeToken(token: string, data: Omit<TokenData, 'createdAt' | 'expiresAt' | 'lastUsed' | 'usageCount'>): Promise<void> {
+    await this.ensureInitialized();
+    
+    try {
+      const now = new Date();
+      const expiresAt = new Date(now.getTime() + 30 * 24 * 60 * 60 * 1000); // 30 days
+
+      const tokenData: TokenData = {
+        ...data,
+        createdAt: now.toISOString(),
+        expiresAt: expiresAt.toISOString(),
+        lastUsed: now.toISOString(),
+        usageCount: 0
+      };
+
+      // Encrypt sensitive data before storage
+      const encryptedData = this.encrypt(JSON.stringify(tokenData));
+      
+      // Store with token prefix for easy identification
+      const key = `subscription_token:${token}`;
+      
+      if (this.replitDB instanceof Map) {
+        // Memory fallback
+        this.replitDB.set(key, encryptedData);
+      } else {
+        // Replit database
+        await this.replitDB.set(key, encryptedData);
+      }
+
+      console.log(`Stored subscription token in Replit DB: ${token.slice(0, 16)}...`);
+    } catch (error) {
+      console.error('Error storing token in Replit DB:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * Retrieve and validate a subscription token
+   */
+  async getToken(token: string): Promise<TokenData | null> {
+    await this.ensureInitialized();
+    
+    try {
+      const key = `subscription_token:${token}`;
+      
+      let encryptedData: string;
+      if (this.replitDB instanceof Map) {
+        // Memory fallback
+        encryptedData = this.replitDB.get(key);
+      } else {
+        // Replit database
+        encryptedData = await this.replitDB.get(key);
+      }
+
+      if (!encryptedData) {
+        return null;
+      }
+
+      // Decrypt and parse data
+      const decryptedData = this.decrypt(encryptedData);
+      const tokenData: TokenData = JSON.parse(decryptedData);
+
+      // Check if token is expired
+      if (new Date(tokenData.expiresAt) < new Date()) {
+        // Token expired - remove it
+        await this.removeToken(token);
+        return null;
+      }
+
+      return tokenData;
+    } catch (error) {
+      console.error('Error retrieving token from Replit DB:', error);
+      return null;
+    }
+  }
+
+  /**
+   * Update token usage statistics
+   */
+  async updateTokenUsage(token: string): Promise<void> {
+    await this.ensureInitialized();
+    
+    try {
+      const tokenData = await this.getToken(token);
+      if (!tokenData) {
+        return;
+      }
+
+      // Update usage statistics
+      tokenData.lastUsed = new Date().toISOString();
+      tokenData.usageCount += 1;
+
+      // Re-encrypt and store
+      const encryptedData = this.encrypt(JSON.stringify(tokenData));
+      const key = `subscription_token:${token}`;
+
+      if (this.replitDB instanceof Map) {
+        this.replitDB.set(key, encryptedData);
+      } else {
+        await this.replitDB.set(key, encryptedData);
+      }
+    } catch (error) {
+      console.error('Error updating token usage:', error);
+    }
+  }
+
+  /**
+   * Remove a subscription token
+   */
+  async removeToken(token: string): Promise<boolean> {
+    await this.ensureInitialized();
+    
+    try {
+      const key = `subscription_token:${token}`;
+      
+      if (this.replitDB instanceof Map) {
+        return this.replitDB.delete(key);
+      } else {
+        await this.replitDB.delete(key);
+        return true;
+      }
+    } catch (error) {
+      console.error('Error removing token from Replit DB:', error);
+      return false;
+    }
+  }
+
+  /**
+   * Remove all tokens for a specific user
+   */
+  async removeAllUserTokens(userId: string): Promise<number> {
+    await this.ensureInitialized();
+    
+    try {
+      let removedCount = 0;
+      
+      if (this.replitDB instanceof Map) {
+        // Memory fallback - iterate through all keys
+        for (const [key, encryptedData] of this.replitDB.entries()) {
+          if (key.startsWith('subscription_token:')) {
+            try {
+              const decryptedData = this.decrypt(encryptedData);
+              const tokenData: TokenData = JSON.parse(decryptedData);
+              if (tokenData.userId === userId) {
+                this.replitDB.delete(key);
+                removedCount++;
+              }
+            } catch (error) {
+              // Skip invalid entries
+            }
+          }
+        }
+      } else {
+        // Replit database - list all keys and filter
+        const keys = await this.replitDB.list('subscription_token:');
+        
+        for (const key of keys) {
+          try {
+            const encryptedData = await this.replitDB.get(key);
+            if (encryptedData) {
+              const decryptedData = this.decrypt(encryptedData);
+              const tokenData: TokenData = JSON.parse(decryptedData);
+              if (tokenData.userId === userId) {
+                await this.replitDB.delete(key);
+                removedCount++;
+              }
+            }
+          } catch (error) {
+            // Skip invalid entries
+          }
+        }
+      }
+
+      console.log(`Removed ${removedCount} tokens for user ${userId}`);
+      return removedCount;
+    } catch (error) {
+      console.error('Error removing user tokens:', error);
+      return 0;
+    }
+  }
+
+  /**
+   * Store session-to-token mapping
+   */
+  async storeSessionToken(sessionId: string, token: string): Promise<void> {
+    await this.ensureInitialized();
+    
+    try {
+      const expiresAt = new Date(Date.now() + 60 * 60 * 1000); // 1 hour
+      
+      const sessionData: SessionTokenData = {
+        token,
+        expiresAt: expiresAt.toISOString()
+      };
+
+      const key = `session_token:${sessionId}`;
+      const encryptedData = this.encrypt(JSON.stringify(sessionData));
+
+      if (this.replitDB instanceof Map) {
+        this.replitDB.set(key, encryptedData);
+      } else {
+        await this.replitDB.set(key, encryptedData);
+      }
+
+      console.log(`Stored session token mapping: ${sessionId}`);
+    } catch (error) {
+      console.error('Error storing session token mapping:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * Get token by session ID
+   */
+  async getTokenBySession(sessionId: string): Promise<string | null> {
+    await this.ensureInitialized();
+    
+    try {
+      const key = `session_token:${sessionId}`;
+      
+      let encryptedData: string;
+      if (this.replitDB instanceof Map) {
+        encryptedData = this.replitDB.get(key);
+      } else {
+        encryptedData = await this.replitDB.get(key);
+      }
+
+      if (!encryptedData) {
+        return null;
+      }
+
+      const decryptedData = this.decrypt(encryptedData);
+      const sessionData: SessionTokenData = JSON.parse(decryptedData);
+
+      // Check if mapping is expired
+      if (new Date(sessionData.expiresAt) < new Date()) {
+        // Remove expired mapping
+        if (this.replitDB instanceof Map) {
+          this.replitDB.delete(key);
+        } else {
+          await this.replitDB.delete(key);
+        }
+        return null;
+      }
+
+      return sessionData.token;
+    } catch (error) {
+      console.error('Error retrieving session token:', error);
+      return null;
+    }
+  }
+
+  /**
+   * Store device usage data for multi-device tracking
+   */
+  async storeDeviceData(key: string, deviceData: any): Promise<void> {
+    await this.ensureInitialized();
+    
+    try {
+      const encryptedData = this.encrypt(JSON.stringify(deviceData));
+      
+      if (this.replitDB instanceof Map) {
+        this.replitDB.set(key, encryptedData);
+      } else {
+        await this.replitDB.set(key, encryptedData);
+      }
+    } catch (error) {
+      console.error('Error storing device data:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * Get device usage data for multi-device tracking
+   */
+  async getDeviceData(key: string): Promise<any | null> {
+    await this.ensureInitialized();
+    
+    try {
+      let encryptedData: string;
+      if (this.replitDB instanceof Map) {
+        encryptedData = this.replitDB.get(key);
+      } else {
+        encryptedData = await this.replitDB.get(key);
+      }
+
+      if (!encryptedData) {
+        return null;
+      }
+
+      const decryptedData = this.decrypt(encryptedData);
+      return JSON.parse(decryptedData);
+    } catch (error) {
+      console.error('Error retrieving device data:', error);
+      return null;
+    }
+  }
+
+  /**
+   * Delete device data or verification codes
+   */
+  async deleteDeviceData(key: string): Promise<boolean> {
+    await this.ensureInitialized();
+    
+    try {
+      if (this.replitDB instanceof Map) {
+        return this.replitDB.delete(key);
+      } else {
+        await this.replitDB.delete(key);
+        return true;
+      }
+    } catch (error) {
+      console.error(`Failed to delete device data for key ${key}:`, error);
+      return false;
+    }
+  }
+
+  /**
+   * Set device data with TTL (for verification codes)
+   */
+  async setDeviceDataWithTTL(key: string, data: any, ttlMs: number): Promise<void> {
+    await this.ensureInitialized();
+    
+    await this.storeDeviceData(key, data);
+    
+    // Set a timeout to clean up after TTL expires
+    setTimeout(async () => {
+      try {
+        await this.deleteDeviceData(key);
+        console.log(`🧹 Cleaned up expired data for key: ${key}`);
+      } catch (error) {
+        console.error(`Failed to cleanup expired data for key ${key}:`, error);
+      }
+    }, ttlMs);
+  }
+
+  /**
+   * Clean up expired tokens, sessions, and old device data
+   */
+  async cleanupExpired(): Promise<{ tokensRemoved: number; sessionsRemoved: number; deviceDataCleaned: number }> {
+    await this.ensureInitialized();
+    
+    try {
+      let tokensRemoved = 0;
+      let sessionsRemoved = 0;
+      let deviceDataCleaned = 0;
+      const now = new Date();
+
+      if (this.replitDB instanceof Map) {
+        // Memory fallback cleanup
+        for (const [key, encryptedData] of this.replitDB.entries()) {
+          try {
+            const decryptedData = this.decrypt(encryptedData);
+            
+            if (key.startsWith('subscription_token:')) {
+              const tokenData: TokenData = JSON.parse(decryptedData);
+              if (new Date(tokenData.expiresAt) < now) {
+                this.replitDB.delete(key);
+                tokensRemoved++;
+              }
+            } else if (key.startsWith('session_token:')) {
+              const sessionData: SessionTokenData = JSON.parse(decryptedData);
+              if (new Date(sessionData.expiresAt) < now) {
+                this.replitDB.delete(key);
+                sessionsRemoved++;
+              }
+            } else if (key.startsWith('user_devices:')) {
+              const deviceData = JSON.parse(decryptedData);
+              // Clean device data older than 90 days
+              const ninetyDaysAgo = new Date(now.getTime() - 90 * 24 * 60 * 60 * 1000);
+              if (new Date(deviceData.lastUpdated) < ninetyDaysAgo) {
+                this.replitDB.delete(key);
+                deviceDataCleaned++;
+              }
+            }
+          } catch (error) {
+            // Remove invalid entries
+            this.replitDB.delete(key);
+          }
+        }
+      } else {
+        // Replit database cleanup
+        try {
+          const allKeys = await this.replitDB.list();
+          
+          // Ensure allKeys is iterable - Replit Database might return different formats
+          const keyArray = Array.isArray(allKeys) ? allKeys : (allKeys && typeof allKeys[Symbol.iterator] === 'function' ? Array.from(allKeys) : []);
+          
+          for (const key of keyArray) {
+          if (key.startsWith('subscription_token:') || key.startsWith('session_token:') || key.startsWith('user_devices:')) {
+            try {
+              const encryptedData = await this.replitDB.get(key);
+              if (encryptedData) {
+                const decryptedData = this.decrypt(encryptedData);
+                
+                if (key.startsWith('subscription_token:')) {
+                  const tokenData: TokenData = JSON.parse(decryptedData);
+                  if (new Date(tokenData.expiresAt) < now) {
+                    await this.replitDB.delete(key);
+                    tokensRemoved++;
+                  }
+                } else if (key.startsWith('session_token:')) {
+                  const sessionData: SessionTokenData = JSON.parse(decryptedData);
+                  if (new Date(sessionData.expiresAt) < now) {
+                    await this.replitDB.delete(key);
+                    sessionsRemoved++;
+                  }
+                } else if (key.startsWith('user_devices:')) {
+                  const deviceData = JSON.parse(decryptedData);
+                  // Clean device data older than 90 days
+                  const ninetyDaysAgo = new Date(now.getTime() - 90 * 24 * 60 * 60 * 1000);
+                  if (new Date(deviceData.lastUpdated) < ninetyDaysAgo) {
+                    await this.replitDB.delete(key);
+                    deviceDataCleaned++;
+                  }
+                }
+              }
+            } catch (error) {
+              // Remove invalid entries
+              await this.replitDB.delete(key);
+            }
+          }
+        } catch (listError) {
+          console.warn('Failed to list keys from Replit Database during cleanup:', listError);
+        }
+      }
+
+      console.log(`Cleanup completed: ${tokensRemoved} expired tokens, ${sessionsRemoved} expired sessions, ${deviceDataCleaned} old device records removed`);
+      return { tokensRemoved, sessionsRemoved, deviceDataCleaned };
+    } catch (error) {
+      console.error('Error during cleanup:', error);
+      return { tokensRemoved: 0, sessionsRemoved: 0, deviceDataCleaned: 0 };
+    }
+  }
+
+  /**
+   * Simple encryption for token data
+   */
+  private encrypt(text: string): string {
+    try {
+      const algorithm = 'aes-256-cbc';
+      const key = crypto.scryptSync(this.encryptionKey, 'salt', 32);
+      const iv = crypto.randomBytes(16);
+      
+      const cipher = crypto.createCipher(algorithm, key);
+      let encrypted = cipher.update(text, 'utf8', 'hex');
+      encrypted += cipher.final('hex');
+      
+      return `${iv.toString('hex')}:${encrypted}`;
+    } catch (error) {
+      console.error('Encryption error:', error);
+      return text; // Fallback to unencrypted
+    }
+  }
+
+  /**
+   * Simple decryption for token data
+   */
+  private decrypt(encryptedText: string): string {
+    try {
+      if (!encryptedText.includes(':')) {
+        return encryptedText; // Not encrypted
+      }
+      
+      const algorithm = 'aes-256-cbc';
+      const key = crypto.scryptSync(this.encryptionKey, 'salt', 32);
+      const [ivHex, encrypted] = encryptedText.split(':');
+      
+      const decipher = crypto.createDecipher(algorithm, key);
+      let decrypted = decipher.update(encrypted, 'hex', 'utf8');
+      decrypted += decipher.final('utf8');
+      
+      return decrypted;
+    } catch (error) {
+      console.error('Decryption error:', error);
+      throw new Error('Failed to decrypt token data');
+    }
+  }
+}
+
+// Export singleton instance
+export const replitTokenStorage = new ReplitTokenStorage();
