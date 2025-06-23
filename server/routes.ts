@@ -542,7 +542,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const documentId = parseInt(req.params.id);
 
-            // Debug logging for session and document lookup
+      // Debug logging for session and document lookup
       console.log(`🔍 Analysis request: DocumentID=${documentId}, SessionID=${req.sessionId}`);
 
       // Generate client fingerprint for session consolidation
@@ -574,11 +574,40 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const analysisIp = req.ip || req.socket.remoteAddress || 'unknown';
       const analysisUserAgent = req.get('User-Agent') || 'unknown';
 
-      // Get user subscription to determine AI model and check limits
-      const userId = req.user?.id || req.sessionId || "anonymous";
-
-      // Get user's subscription data to determine AI model and check usage
-      const subscriptionData = await subscriptionService.getUserSubscriptionWithUsage(userId);
+      // Check for subscription token first (priority over session-based auth)
+      let userId = req.user?.id || req.sessionId || "anonymous";
+      let subscriptionData;
+      
+      const subscriptionToken = req.headers['x-subscription-token'] as string;
+      if (subscriptionToken) {
+        console.log(`🔑 Found subscription token in analysis request: ${subscriptionToken.slice(0, 16)}...`);
+        
+        // Validate subscription token and get user data
+        const deviceFingerprint = req.headers['x-device-fingerprint'] as string;
+        
+        subscriptionData = await subscriptionService.validateSubscriptionToken(
+          subscriptionToken, 
+          deviceFingerprint, 
+          clientIp
+        );
+        
+        if (subscriptionData) {
+          // Extract actual user ID from token validation
+          const tokenData = await (await import('./replit-token-storage')).replitTokenStorage.getToken(subscriptionToken);
+          if (tokenData) {
+            userId = tokenData.userId;
+            console.log(`✅ Using subscription token user: ${userId} (${subscriptionData.tier.name} tier)`);
+          }
+        } else {
+          console.warn(`❌ Invalid subscription token provided: ${subscriptionToken.slice(0, 16)}...`);
+        }
+      }
+      
+      // If no valid subscription token, fall back to regular user/session lookup
+      if (!subscriptionData) {
+        console.log(`📊 No valid subscription token, using session/user-based lookup for: ${userId}`);
+        subscriptionData = await subscriptionService.getUserSubscriptionWithUsage(userId);
+      }
 
       // Check if user can analyze another document
       if (subscriptionData.tier.limits.documentsPerMonth !== -1) {

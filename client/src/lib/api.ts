@@ -49,49 +49,66 @@ export async function uploadDocument(file: File): Promise<Document> {
   return response.json();
 }
 
-export async function analyzeDocument(documentId: number): Promise<Document> {
-  const response = await apiRequest("POST", `/api/documents/${documentId}/analyze`);
-  const result = await response.json();
-  
-  // If we get a 202 status, it means the document is queued for processing
-  if (response.status === 202) {
-    // Start polling for completion
-    return await pollForDocumentAnalysis(documentId, result);
+export async function analyzeDocument(id: number): Promise<Document> {
+  const headers: Record<string, string> = {
+    'Content-Type': 'application/json',
+  };
+
+  // Include subscription token if available
+  const subscriptionToken = localStorage.getItem('subscriptionToken');
+  if (subscriptionToken) {
+    headers['x-subscription-token'] = subscriptionToken;
   }
-  
-  return result;
+
+  // Include device fingerprint if available
+  const deviceFingerprint = localStorage.getItem('deviceFingerprint');
+  if (deviceFingerprint) {
+    headers['x-device-fingerprint'] = deviceFingerprint;
+  }
+
+  const response = await fetch(`/api/documents/${id}/analyze`, {
+    method: 'POST',
+    headers,
+  });
+
+  if (!response.ok) {
+    const error = await response.json();
+    throw new Error(error.error || 'Failed to analyze document');
+  }
+
+  return response.json();
 }
 
 // Poll for document analysis completion
 async function pollForDocumentAnalysis(documentId: number, queueInfo: any): Promise<Document> {
   const maxAttempts = 60; // Poll for up to 5 minutes (60 * 5 seconds)
   let attempts = 0;
-  
+
   console.log(`[Priority Queue] Document ${documentId} queued. Estimated wait: ${queueInfo.estimatedWaitTime}s`);
-  
+
   while (attempts < maxAttempts) {
     // Wait before checking status
     await new Promise(resolve => setTimeout(resolve, 5000)); // 5 second intervals
     attempts++;
-    
+
     try {
       // Check if document analysis is complete
       const document = await getDocument(documentId);
-      
+
       if (document.analysis) {
         console.log(`[Priority Queue] Document ${documentId} analysis completed after ${attempts * 5} seconds`);
         return document;
       }
-      
+
       // Get queue status for user feedback
       const queueStatus = await getQueueStatus();
       console.log(`[Priority Queue] Still waiting... Queue length: ${queueStatus.queueLength}, Processing: ${queueStatus.currentlyProcessing}`);
-      
+
     } catch (error) {
       console.error(`[Priority Queue] Error polling for document ${documentId}:`, error);
     }
   }
-  
+
   throw new Error("Document analysis timed out. Please try again or contact support if the issue persists.");
 }
 
@@ -253,4 +270,50 @@ export async function getConsentStats(): Promise<{
     console.error('Failed to get consent stats:', error);
     return null;
   }
+}
+
+export async function getUserSubscription(): Promise<{
+  subscription?: UserSubscription;
+  tier: SubscriptionTier;
+  usage: SubscriptionUsage;
+  canUpgrade: boolean;
+  suggestedUpgrade?: SubscriptionTier;
+}> {
+  const headers: Record<string, string> = {
+    'Content-Type': 'application/json',
+  };
+
+  // Include subscription token if available
+  const subscriptionToken = localStorage.getItem('subscriptionToken');
+  if (subscriptionToken) {
+    headers['x-subscription-token'] = subscriptionToken;
+  }
+
+  // Include device fingerprint if available
+  const deviceFingerprint = localStorage.getItem('deviceFingerprint');
+  if (deviceFingerprint) {
+    headers['x-device-fingerprint'] = deviceFingerprint;
+  }
+
+  const response = await fetch('/api/user/subscription', {
+    headers,
+  });
+
+  if (!response.ok) {
+    throw new Error('Failed to fetch subscription data');
+  }
+
+  // Store any token updates from server
+  const newToken = response.headers.get('X-Subscription-Token');
+  if (newToken) {
+    localStorage.setItem('subscriptionToken', newToken);
+  }
+
+  // Check if token was invalidated
+  const tokenInvalid = response.headers.get('X-Subscription-Token-Invalid');
+  if (tokenInvalid) {
+    localStorage.removeItem('subscriptionToken');
+  }
+
+  return response.json();
 }
