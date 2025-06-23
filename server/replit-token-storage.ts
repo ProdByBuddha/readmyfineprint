@@ -444,7 +444,18 @@ export class ReplitTokenStorage {
       if (this.replitDB instanceof Map) {
         this.replitDB.set(key, encryptedData);
       } else {
-        await this.replitDB.set(key, encryptedData);
+        try {
+          const result = await this.replitDB.set(key, encryptedData);
+          
+          // Check for Replit DB error responses
+          if (result && typeof result === 'object' && result.ok === false && result.error) {
+            console.error(`Replit DB set error for device data key ${key}:`, result.error);
+            throw new Error(`Failed to store device data: ${result.error.message || 'Unknown error'}`);
+          }
+        } catch (dbError) {
+          console.error('Replit DB set error for device data:', dbError);
+          throw new Error(`Failed to store device data: ${dbError instanceof Error ? dbError.message : String(dbError)}`);
+        }
       }
     } catch (error) {
       console.error('Error storing device data:', error);
@@ -459,18 +470,24 @@ export class ReplitTokenStorage {
     await this.ensureInitialized();
 
     try {
-      let encryptedData: string;
+      let rawData: any;
       if (this.replitDB instanceof Map) {
-        encryptedData = this.replitDB.get(key);
+        rawData = this.replitDB.get(key);
       } else {
-        encryptedData = await this.replitDB.get(key);
+        rawData = await this.replitDB.get(key);
       }
 
-      if (!encryptedData) {
+      // Check for Replit DB error responses
+      if (rawData && typeof rawData === 'object' && rawData.ok === false && rawData.error) {
+        console.warn(`Replit DB returned error for device data key ${key}:`, rawData.error);
         return null;
       }
 
-      const decryptedData = this.decrypt(encryptedData);
+      if (!rawData || typeof rawData !== 'string') {
+        return null;
+      }
+
+      const decryptedData = this.decrypt(rawData);
       return JSON.parse(decryptedData);
     } catch (error) {
       console.error('Error retrieving device data:', error);
@@ -488,8 +505,20 @@ export class ReplitTokenStorage {
       if (this.replitDB instanceof Map) {
         return this.replitDB.delete(key);
       } else {
-        await this.replitDB.delete(key);
-        return true;
+        try {
+          const result = await this.replitDB.delete(key);
+          
+          // Check for Replit DB error responses
+          if (result && typeof result === 'object' && result.ok === false && result.error) {
+            console.warn(`Replit DB delete error for device data key ${key}:`, result.error);
+            return false;
+          }
+          
+          return true;
+        } catch (dbError) {
+          console.error(`Replit DB delete error for device data key ${key}:`, dbError);
+          return false;
+        }
       }
     } catch (error) {
       console.error(`Failed to delete device data for key ${key}:`, error);
