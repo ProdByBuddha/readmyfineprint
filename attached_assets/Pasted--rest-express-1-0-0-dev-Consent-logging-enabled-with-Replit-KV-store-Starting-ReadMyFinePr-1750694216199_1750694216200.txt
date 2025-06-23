@@ -1,0 +1,165 @@
+
+> rest-express@1.0.0 dev
+✓ Consent logging enabled with Replit KV store
+🚀 Starting ReadMyFinePrint Server...
+🔍 Validating environment variables...
+✅ OPENAI_API_KEY: sk-***
+✅ ADMIN_API_KEY: 56fe020d923e89b5a8c39962e3e29dd4cb3ad58fcb46800782...
+✅ ALLOWED_ORIGINS: https://readmyfineprint.com,https://edcf3ef7-a826-...
+✅ NODE_ENV: development
+✅ SESSION_ENCRYPTION_KEY: 2651fc8605cabc8b756adbc6861138afe8cf520d54417763ee...
+✅ REPLIT_DB_URL: https://kv.replit.com/v0/eyJhbGciOiJIUzUxMiIsImlzc...
+✅ TOKEN_ENCRYPTION_KEY: ddf455b6fd8c0e59d5893bf44e7bca157c0ad51405258c7bee...
+✅ PASSWORD_PEPPER: b0dea38aca02ad50d94b704f127740decf0e4839b66c6f145d...
+✅ STRIPE_PUBLIC_KEY: pk_live_51RWnyYLNxaR...
+✅ STRIPE_SECRET_KEY: sk_live_51...
+✅ STRIPE_TEST_PUBLIC_KEY: pk_test_51RWnynPxX1d...
+✅ STRIPE_TEST_SECRET_KEY: sk_test_51...
+🔄 Concurrent test/live payment processing enabled
+
+📋 Warnings:
+   ⚠️  Optional SECURITY_WEBHOOK_URL not set - Optional webhook URL for security alerts (for external monitoring)
+✅ Environment validation passed
+   (1 warning)
+
+🔧 Environment Configuration:
+   Environment: development
+   OpenAI API: ✅ Configured
+   Admin Auth: ✅ Configured
+   CORS Origins: https://readmyfineprint.com,https://edcf3ef7-a826-4eed-8e04-7a485b2e183a-00-1wyt...
+
+🔧 Initializing collective free tier user routing...
+Warning: Indexing all PDF objects
+✅ Email service configured and verified with SMTP (smtp.mail.me.com)
+✅ Collective free tier user routing initialized
+3:46:13 PM [express] serving on port 5000
+ℹ️ [SECURITY] SESSION_MANAGEMENT | LOW | dca67e37 | New session created
+📝 New session logged for client: 9ffa4d49ca6773622dee28b812e4689b
+🔇 Session logging suppressed for client (cooldown: 831ms)
+ℹ️ [SECURITY] SESSION_MANAGEMENT | LOW | 5948a372 | New session created
+📝 New session logged for client: 06e0e47ef16391aaf0a224bfe8302b28
+ℹ️ [SECURITY] SESSION_MANAGEMENT | LOW | 5bbf137c | New session created
+📝 New session logged for client: 0df24df3ebf3a33d81af208fb4804b43
+🔇 Session logging suppressed for client (cooldown: 102ms)
+🔇 Session logging suppressed for client (cooldown: 94ms)
+🔇 Session logging suppressed for client (cooldown: 886ms)
+🔇 Session logging suppressed for client (cooldown: 1771ms)
+🔇 Session logging suppressed for client (cooldown: 1855ms)
+🔇 Session logging suppressed for client (cooldown: 1191ms)
+🔇 Session logging suppressed for client (cooldown: 2036ms)
+ℹ️ [SECURITY] SESSION_MANAGEMENT | LOW | 02c43f44 | New session created
+📝 New session logged for client: 141f64213145d9f02576f8e1aeb6883b
+🔇 Session logging suppressed for client (cooldown: 2721ms)
+🔇 Session logging suppressed for client (cooldown: 1878ms)
+🔇 Session logging suppressed for client (cooldown: 796ms)
+🔇 Session logging suppressed for client (cooldown: 2835ms)
+🔇 Session logging suppressed for client (cooldown: 3041ms)
+🔇 Session logging suppressed for client (cooldown: 2198ms)
+🔇 Session logging suppressed for client (cooldown: 2198ms)
+🔇 Session logging suppressed for client (cooldown: 1013ms)
+🔇 Session logging suppressed for client (cooldown: 3051ms)
+🔇 Session logging suppressed for client (cooldown: 2217ms)
+🔇 Session logging suppressed for client (cooldown: 2253ms)
+🔇 Session logging suppressed for client (cooldown: 2253ms)
+🔇 Session logging suppressed for client (cooldown: 2272ms)
+🔇 Session logging suppressed for client (cooldown: 1070ms)
+🔇 Session logging suppressed for client (cooldown: 3108ms)
+🔇 Session logging suppressed for client (cooldown: 3109ms)
+🔇 Session logging suppressed for client (cooldown: 2303ms)
+🔇 Session logging suppressed for client (cooldown: 2304ms)
+🔇 Session logging suppressed for client (cooldown: 1117ms)
+🔇 Session logging suppressed for client (cooldown: 2319ms)
+🔇 Session logging suppressed for client (cooldown: 3159ms)
+🔇 Session logging suppressed for client (cooldown: 3160ms)
+🔇 Session logging suppressed for client (cooldown: 2354ms)
+🔇 Session logging suppressed for client (cooldown: 2355ms)
+🔇 Session logging suppressed for client (cooldown: 3205ms)
+🔇 Session logging suppressed for client (cooldown: 1168ms)
+🔇 Session logging suppressed for client (cooldown: 2371ms)
+🔇 Session logging suppressed for client (cooldown: 3210ms)
+🔇 Session logging suppressed for client (cooldown: 2406ms)
+🔇 Session logging suppressed for client (cooldown: 2407ms)
+🔇 Session logging suppressed for client (cooldown: 2420ms)
+🔇 Session logging suppressed for client (cooldown: 1218ms)
+🔇 Session logging suppressed for client (cooldown: 3256ms)
+🔇 Session logging suppressed for client (cooldown: 3261ms)
+🔇 Session logging suppressed for client (cooldown: 2456ms)
+🔇 Session logging suppressed for client (cooldown: 2470ms)
+🔇 Session logging suppressed for client (cooldown: 1269ms)
+🔇 Session logging suppressed for client (cooldown: 2463ms)
+🔇 Session logging suppressed for client (cooldown: 3312ms)
+🔇 Session logging suppressed for client (cooldown: 3312ms)
+🔇 Session logging suppressed for client (cooldown: 2503ms)
+🔇 Session logging suppressed for client (cooldown: 2520ms)
+🔇 Session logging suppressed for client (cooldown: 1325ms)
+🔇 Session logging suppressed for client (cooldown: 3363ms)
+🔇 Session logging suppressed for client (cooldown: 2520ms)
+🔇 Session logging suppressed for client (cooldown: 3364ms)
+🔇 Session logging suppressed for client (cooldown: 2549ms)
+🔇 Session logging suppressed for client (cooldown: 2567ms)
+🔇 Session logging suppressed for client (cooldown: 3407ms)
+🔇 Session logging suppressed for client (cooldown: 1371ms)
+🔇 Session logging suppressed for client (cooldown: 3414ms)
+🔇 Session logging suppressed for client (cooldown: 2571ms)
+🔇 Session logging suppressed for client (cooldown: 2596ms)
+🔇 Session logging suppressed for client (cooldown: 2620ms)
+🔇 Session logging suppressed for client (cooldown: 1419ms)
+🔇 Session logging suppressed for client (cooldown: 3462ms)
+🔇 Session logging suppressed for client (cooldown: 3463ms)
+🔇 Session logging suppressed for client (cooldown: 3588ms)
+🔑 GET /api/documents | Session: 3dbba68a4388247dcb9f49aa52f30829 (EXISTING)
+3:46:17 PM [express] GET /api/documents 200 in 2ms :: []
+✅ Replit Database initialized
+Found 3 keys for cleanup
+Cleanup completed: 0 expired tokens, 0 expired sessions, 0 old device records removed
+🧹 Startup cleanup: 0 tokens, 0 sessions, 0 device records removed
+🔑 POST /api/documents | Session: 3dbba68a4388247dcb9f49aa52f30829 (EXISTING)
+3:46:22 PM [express] POST /api/documents 200 in 2ms :: {"id":1,"title":"Sample: Residential Lease Ag…
+3:46:22 PM [express] GET /api/queue/status 200 in 1ms :: {"queueLength":0,"currentlyProcessing":0,"c…
+🔑 GET /api/documents/1 | Session: 3dbba68a4388247dcb9f49aa52f30829 (EXISTING)
+📖 Get document request: DocumentID=1, SessionID=3dbba68a4388247dcb9f49aa52f30829
+✅ Document 1 found and returned (GET)
+3:46:22 PM [express] GET /api/documents/1 200 in 1ms :: {"id":1,"title":"Sample: Residential Lease A…
+ℹ️ [SECURITY] SESSION_MANAGEMENT | LOW | dca67e37 | New session created
+📝 New session logged for client: f412126f287f5d8010e68a6cb8f7b3a1
+🔑 POST /api/documents/1/analyze | Session: f412126f287f5d8010e68a6cb8f7b3a1 (NEW)
+🔍 Analysis request: DocumentID=1, SessionID=f412126f287f5d8010e68a6cb8f7b3a1
+🔍 Document 1 not in session f412126f287f5d8010e68a6cb8f7b3a1, searching related sessions for client 034a302da99048b8
+🔍 No related sessions found for client 034a302da99048b8
+🔍 Document 1 not found in current session, checking for sample contract in recent sessions
+📋 Found sample contract 1 in session 3dbba68a4388247dcb9f49aa52f30829, making accessible to current session
+✅ Sample contract 1 made accessible from session 3dbba68a4388247dcb9f49aa52f30829 to f412126f287f5d8010e68a6cb8f7b3a1
+📊 No valid subscription token, using session/user-based lookup for: f412126f287f5d8010e68a6cb8f7b3a1
+User f412126f287f5d8010e68a6cb8f7b3a1 not found in database, using free tier
+[Priority Queue] Added free tier request (priority: 5). Queue length: 1
+[Priority Queue] Processing free tier request. Currently processing: 1/3
+ℹ️ [SECURITY] API_ACCESS | LOW | dca67e37 | Document sent to OpenAI for analysis | /api/documents/*/analyze | {"documentTitle":"Sample: Residential Lease Agreement","service":"OpenAI"}
+🤖 Sending to OpenAI (gpt-4o-mini):
+   - Document: "Sample: Residential Lease Agreement"
+   - Content length: 1940 characters
+   - Content preview (first 500 chars): "RESIDENTIAL LEASE AGREEMENT\n\nProperty: 456 Oak Avenue, Apartment 2B, Portland, OR 97201\n\nPARTIES: Sunset Properties LLC ("Landlord") and [Tenant Name] ("Tenant")\n\n1. LEASE TERM\n- Start Date: January 1, 2025\n- End Date: December 31, 2025\n- Month-to-month after initial term unless terminated\n\n2. RENT AND FEES\n- Monthly Rent: $2,400 (due 1st of each month)\n- Late Fee: $150 if rent is more than 5 days late\n- Security Deposit: $2,400 (non-refundable cleaning fee of $200)\n- Pet Deposit: $500 per pet ("
+   - Readable character ratio: 90.2%
+🤖 OpenAI Response received:
+   - Model used: gpt-4o-mini-2024-07-18
+   - Tokens used: 1619 (input: 792, output: 827)
+   - Response length: 3731 characters
+📊 Analysis Results:
+   - Overall Risk: moderate
+   - Summary length: 289 chars
+   - Key findings: 3 categories
+   - Sections analyzed: 8
+   - Summary preview: "This document is a Residential Lease Agreement between Sunset Properties LLC and the Tenant for an apartment in Portland, OR. It outlines the terms of the lease, including rent, responsibilities for u"
+📊 User f412126f287f5d8010e68a6cb8f7b3a1 not in database, routing through collective free tier for usage tracking
+[Subscription Enforcement] Valid subscription: Free tier assigned
+✅ Usage tracked for collective free tier (00000000-0000-0000-0000-000000000001): +1 document, +1619 tokens, +$0.001456
+✅ Document analysis completed successfully
+[Priority Queue] Completed free tier request in 14296ms
+✅ Document 1 analysis updated in session f412126f287f5d8010e68a6cb8f7b3a1
+✅ Document 1 analysis completed for free tier user
+3:46:36 PM [express] POST /api/documents/1/analyze 200 in 14358ms :: {"id":1,"title":"Sample: Reside…
+🔑 GET /api/documents | Session: 3dbba68a4388247dcb9f49aa52f30829 (EXISTING)
+3:46:36 PM [express] GET /api/documents 200 in 1ms :: [{"id":1,"title":"Sample: Residential Lease Ag…
+🔑 GET /api/documents/1 | Session: 3dbba68a4388247dcb9f49aa52f30829 (EXISTING)
+📖 Get document request: DocumentID=1, SessionID=3dbba68a4388247dcb9f49aa52f30829
+✅ Document 1 found and returned (GET)
+3:46:36 PM [express] GET /api/documents/1 304 in 0ms :: {"id":1,"title":"Sample: Residential Lease A…
