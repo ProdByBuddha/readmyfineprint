@@ -576,7 +576,7 @@ export default function SubscriptionPage() {
                           {subscriptionData.subscription?.billingCycle === 'yearly' ? 'Yearly' : 'Monthly'}
                         </div>
                       </div>
-                    </div></div>
+                    </div>
 
                     <div className="flex space-x-3">
                       <Button variant="outline" className="flex-1">
