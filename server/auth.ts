@@ -1,6 +1,7 @@
 import { Request, Response, NextFunction } from 'express';
-import crypto from 'crypto';
+import argon2 from 'argon2';
 import jwt from 'jsonwebtoken';
+import crypto from 'crypto';
 import { securityLogger, getClientInfo } from './security-logger';
 import { databaseStorage } from './storage';
 

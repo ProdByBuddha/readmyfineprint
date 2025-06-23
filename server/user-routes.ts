@@ -2,8 +2,9 @@ import { Express, Request, Response, NextFunction } from "express";
 import { databaseStorage } from "./storage";
 import { insertUserSchema, insertUserSubscriptionSchema, insertUsageRecordSchema } from "@shared/schema";
 import { z } from "zod";
-import bcrypt from "bcrypt";
 import { generateJWT, optionalUserAuth, requireUserAuth } from "./auth";
+import { securityLogger } from "./logger";
+import { hashPassword, verifyPassword } from "./argon2";
 
 // Validation schemas
 const loginSchema = z.object({
@@ -33,8 +34,8 @@ export function registerUserRoutes(app: Express) {
         return res.status(400).json({ error: "User already exists" });
       }
 
-      // Hash password
-      const hashedPassword = await bcrypt.hash(userData.password as string, 12);
+      // Hash password with Argon2id
+      const hashedPassword = await hashPassword(userData.password as string);
 
       // Create user
       const user = await databaseStorage.createUser({
@@ -64,17 +65,51 @@ export function registerUserRoutes(app: Express) {
   app.post("/api/users/login", async (req: Request, res: Response) => {
     try {
       const { email, password } = loginSchema.parse(req.body);
+      const ip = req.ip || req.socket.remoteAddress as string;
+      const userAgent = req.get('User-Agent') || 'unknown';
 
       // Find user
       const user = await databaseStorage.getUserByEmail(email);
       if (!user || !user.hashedPassword) {
-        return res.status(401).json({ error: "Invalid credentials" });
+        securityLogger.logFailedAuth(ip, userAgent, `User not found: ${email}`, '/api/login');
+        return res.status(401).json({ error: "Invalid email or password" });
       }
 
-      // Verify password
-      const isValidPassword = await bcrypt.compare(password, user.hashedPassword);
+      // Verify password with Argon2id
+      let isValidPassword = await verifyPassword(password, user.hashedPassword);
+      let needsPasswordMigration = false;
+
+      // Check if it's a legacy bcrypt password that needs migration
+      if (!isValidPassword && (user.hashedPassword.startsWith('$2b$') || 
+                              user.hashedPassword.startsWith('$2a$') || 
+                              user.hashedPassword.startsWith('$2y$'))) {
+        try {
+          const bcrypt = await import('bcrypt');
+          isValidPassword = await bcrypt.compare(password, user.hashedPassword);
+          needsPasswordMigration = isValidPassword;
+        } catch (error) {
+          console.error('Legacy bcrypt verification failed:', error);
+        }
+      }
+
       if (!isValidPassword) {
-        return res.status(401).json({ error: "Invalid credentials" });
+        securityLogger.logFailedAuth(ip, userAgent, `Invalid password for ${email}`, '/api/login');
+        return res.status(401).json({
+          error: "Invalid email or password"
+        });
+      }
+
+      // Migrate legacy bcrypt password to Argon2id
+      if (needsPasswordMigration) {
+        try {
+          console.log(`🔄 Migrating password for user ${email} from bcrypt to Argon2id`);
+          const newHashedPassword = await hashPassword(password);
+          await databaseStorage.updateUser(user.id, { hashedPassword: newHashedPassword });
+          console.log(`✅ Password migration completed for user ${email}`);
+        } catch (error) {
+          console.error(`❌ Password migration failed for user ${email}:`, error);
+          // Continue with login even if migration fails
+        }
       }
 
       // Generate JWT token for logged-in user

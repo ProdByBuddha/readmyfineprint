@@ -60,6 +60,12 @@ const ENV_VARIABLES: EnvConfig[] = [
     required: false,
     description: 'Optional encryption key for subscription tokens (enhances security)',
     validator: (value) => value.length >= 16 && value.length <= 256
+  },
+  {
+    name: 'PASSWORD_PEPPER',
+    required: false,
+    description: 'Pepper for password hashing (recommended for production)',
+    validator: (value) => value.length >= 16 && value.length <= 256
   }
 ];
 
