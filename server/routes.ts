@@ -551,13 +551,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       let document = await storage.getDocument(req.sessionId, documentId, clientFingerprint);
 
+      let originalSessionId = null;
+      
       if (!document) {
         // For sample contracts, try to find the document in any recent session from the same client
         console.log(`🔍 Document ${documentId} not found in current session, checking for sample contract in recent sessions`);
         
         // Try to find the document across all sessions (for sample contracts that are session-independent)
         const allSessions = storage.getAllSessions();
-        let foundInSession = null;
         
         for (const [sessionId, sessionData] of allSessions) {
           const sessionDoc = await storage.getDocument(sessionId, documentId);
@@ -571,7 +572,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
               analysis: sessionDoc.analysis
             }, clientFingerprint, documentId);
             document = sessionDoc;
-            foundInSession = sessionId;
+            originalSessionId = sessionId;
             break;
           }
         }
@@ -590,7 +591,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
             }
           });
         } else {
-          console.log(`✅ Sample contract ${documentId} made accessible from session ${foundInSession} to ${req.sessionId}`);
+          console.log(`✅ Sample contract ${documentId} made accessible from session ${originalSessionId} to ${req.sessionId}`);
         }
       }
 
@@ -682,6 +683,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       // Update document with analysis results
       const updatedDocument = await storage.updateDocumentAnalysis(req.sessionId, documentId, analysis, clientFingerprint);
+
+      // If this was a sample contract copied from another session, sync the analysis back to the original session
+      if (originalSessionId && originalSessionId !== req.sessionId) {
+        try {
+          await storage.updateDocumentAnalysis(originalSessionId, documentId, analysis, clientFingerprint);
+          console.log(`🔄 Analysis synced back to original session ${originalSessionId} for sample contract ${documentId}`);
+        } catch (syncError) {
+          console.warn(`⚠️ Failed to sync analysis back to original session ${originalSessionId}:`, syncError instanceof Error ? syncError.message : String(syncError));
+        }
+      }
 
       console.log(`✅ Document ${documentId} analysis completed for ${subscriptionData.tier.id} tier user`);
       res.json(updatedDocument);
