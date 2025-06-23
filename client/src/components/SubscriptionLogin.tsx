@@ -1,32 +1,43 @@
-import React, { useState } from 'react';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Alert, AlertDescription } from '@/components/ui/alert';
-import { Loader2, LogIn, AlertCircle, Mail, Shield } from 'lucide-react';
-import { getStoredDeviceFingerprint } from '@/utils/deviceFingerprint';
+import React, { useState } from "react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Loader2, LogIn, AlertCircle, Mail, Shield } from "lucide-react";
+import { getStoredDeviceFingerprint } from "@/utils/deviceFingerprint";
 
 interface SubscriptionLoginProps {
   onSuccess: (token: string, subscription: any) => void;
   onCancel?: () => void;
 }
 
-type LoginStep = 'email' | 'verification';
+type LoginStep = "email" | "verification";
 
-export function SubscriptionLogin({ onSuccess, onCancel }: SubscriptionLoginProps) {
-  const [step, setStep] = useState<LoginStep>('email');
-  const [email, setEmail] = useState('');
-  const [verificationCode, setVerificationCode] = useState('');
+export function SubscriptionLogin({
+  onSuccess,
+  onCancel,
+}: SubscriptionLoginProps) {
+  const [step, setStep] = useState<LoginStep>("email");
+  const [email, setEmail] = useState("");
+  const [verificationCode, setVerificationCode] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [codeExpiresAt, setCodeExpiresAt] = useState<Date | null>(null);
-  const [attemptsRemaining, setAttemptsRemaining] = useState<number | null>(null);
+  const [attemptsRemaining, setAttemptsRemaining] = useState<number | null>(
+    null,
+  );
 
   const handleEmailSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (!email || !email.includes('@')) {
-      setError('Please enter a valid email address');
+    if (!email || !email.includes("@")) {
+      setError("Please enter a valid email address");
       return;
     }
 
@@ -34,12 +45,12 @@ export function SubscriptionLogin({ onSuccess, onCancel }: SubscriptionLoginProp
     setError(null);
 
     try {
-      const response = await fetch('/api/subscription/login/request-code', {
-        method: 'POST',
-        credentials: 'include',
+      const response = await fetch("/api/subscription/login/request-code", {
+        method: "POST",
+        credentials: "include",
         headers: {
-          'Content-Type': 'application/json',
-          'X-Device-Fingerprint': getStoredDeviceFingerprint(),
+          "Content-Type": "application/json",
+          "X-Device-Fingerprint": getStoredDeviceFingerprint(),
         },
         body: JSON.stringify({ email }),
       });
@@ -48,32 +59,54 @@ export function SubscriptionLogin({ onSuccess, onCancel }: SubscriptionLoginProp
 
       if (!response.ok) {
         // Handle specific error cases with user-friendly messages
-        if (response.status === 404 || data.error?.includes('No subscription found')) {
-          setError('No subscription found for this email address. Please check your email or subscribe first.');
-        } else if (response.status === 403 || data.error?.includes('No active subscription')) {
-          setError('Your subscription appears to be inactive or expired. Please contact support or renew your subscription.');
+        if (
+          response.status === 404 ||
+          data.error?.includes("No subscription found")
+        ) {
+          setError(
+            "No subscription found for this email address. Please check your email or subscribe first.",
+          );
+        } else if (
+          response.status === 403 ||
+          data.error?.includes("No active subscription")
+        ) {
+          setError(
+            "Your subscription appears to be inactive or expired. Please contact support or renew your subscription.",
+          );
         } else if (response.status === 429) {
-          setError('Too many attempts. Please wait a few minutes before trying again.');
+          setError(
+            "Too many attempts. Please wait a few minutes before trying again.",
+          );
         } else {
-          setError(data.error || 'Unable to send verification code. Please try again or contact support.');
+          setError(
+            data.error ||
+              "Unable to send verification code. Please try again or contact support.",
+          );
         }
         return;
       }
 
       if (data.success) {
         setCodeExpiresAt(new Date(data.expiresAt));
-        setStep('verification');
-        console.log('Verification code sent to email');
+        setStep("verification");
+        console.log("Verification code sent to email");
       } else {
-        setError(data.error || 'Failed to send verification code. Please try again.');
+        setError(
+          data.error || "Failed to send verification code. Please try again.",
+        );
       }
     } catch (error) {
-      console.error('Email verification request error:', error);
+      console.error("Email verification request error:", error);
       // Handle network errors or other unexpected issues
-      if (error instanceof TypeError && error.message.includes('Failed to fetch')) {
-        setError('Network error. Please check your connection and try again.');
+      if (
+        error instanceof TypeError &&
+        error.message.includes("Failed to fetch")
+      ) {
+        setError("Network error. Please check your connection and try again.");
       } else {
-        setError('An unexpected error occurred. Please try again or contact support.');
+        setError(
+          "An unexpected error occurred. Please try again or contact support.",
+        );
       }
     } finally {
       setLoading(false);
@@ -84,7 +117,7 @@ export function SubscriptionLogin({ onSuccess, onCancel }: SubscriptionLoginProp
     e.preventDefault();
 
     if (!verificationCode || verificationCode.length !== 6) {
-      setError('Please enter the 6-digit verification code');
+      setError("Please enter the 6-digit verification code");
       return;
     }
 
@@ -92,12 +125,12 @@ export function SubscriptionLogin({ onSuccess, onCancel }: SubscriptionLoginProp
     setError(null);
 
     try {
-      const response = await fetch('/api/subscription/login/verify', {
-        method: 'POST',
-        credentials: 'include',
+      const response = await fetch("/api/subscription/login/verify", {
+        method: "POST",
+        credentials: "include",
         headers: {
-          'Content-Type': 'application/json',
-          'X-Device-Fingerprint': getStoredDeviceFingerprint(),
+          "Content-Type": "application/json",
+          "X-Device-Fingerprint": getStoredDeviceFingerprint(),
         },
         body: JSON.stringify({ email, code: verificationCode }),
       });
@@ -105,28 +138,37 @@ export function SubscriptionLogin({ onSuccess, onCancel }: SubscriptionLoginProp
       if (!response.ok) {
         const errorData = await response.json();
         setAttemptsRemaining(errorData.attemptsRemaining);
-        throw new Error(errorData.error || `HTTP error! status: ${response.status}`);
+        throw new Error(
+          errorData.error || `HTTP error! status: ${response.status}`,
+        );
       }
 
       const data = await response.json();
 
       if (data.success && data.token) {
         // Store the new token
-        localStorage.setItem('subscriptionToken', data.token);
-        console.log('Successfully logged into subscription');
+        localStorage.setItem("subscriptionToken", data.token);
+        console.log("Successfully logged into subscription");
 
         // Call success callback
         onSuccess(data.token, data.subscription);
       } else {
-        throw new Error('Login failed - no token received');
+        throw new Error("Login failed - no token received");
       }
     } catch (error) {
-      console.error('Verification error:', error);
+      console.error("Verification error:", error);
       // Handle network errors gracefully
-      if (error instanceof TypeError && error.message.includes('Failed to fetch')) {
-        setError('Network error. Please check your connection and try again.');
+      if (
+        error instanceof TypeError &&
+        error.message.includes("Failed to fetch")
+      ) {
+        setError("Network error. Please check your connection and try again.");
       } else {
-        setError(error instanceof Error ? error.message : 'Failed to verify code. Please try again.');
+        setError(
+          error instanceof Error
+            ? error.message
+            : "Failed to verify code. Please try again.",
+        );
       }
     } finally {
       setLoading(false);
@@ -134,14 +176,14 @@ export function SubscriptionLogin({ onSuccess, onCancel }: SubscriptionLoginProp
   };
 
   const handleBackToEmail = () => {
-    setStep('email');
-    setVerificationCode('');
+    setStep("email");
+    setVerificationCode("");
     setError(null);
     setAttemptsRemaining(null);
     setCodeExpiresAt(null);
   };
 
-  if (step === 'email') {
+  if (step === "email") {
     return (
       <Card className="w-full max-w-md mx-auto">
         <CardHeader>
@@ -150,7 +192,8 @@ export function SubscriptionLogin({ onSuccess, onCancel }: SubscriptionLoginProp
             <span>Login to Your Account</span>
           </CardTitle>
           <CardDescription>
-            Enter the email address you used when subscribing to log into your account from this device.
+            Enter the email address you used when subscribing to log into your
+            account from this device.
           </CardDescription>
         </CardHeader>
 
@@ -175,8 +218,8 @@ export function SubscriptionLogin({ onSuccess, onCancel }: SubscriptionLoginProp
             )}
 
             <div className="flex space-x-2">
-              <Button 
-                type="submit" 
+              <Button
+                type="submit"
                 disabled={loading || !email}
                 className="flex-1"
               >
@@ -194,9 +237,9 @@ export function SubscriptionLogin({ onSuccess, onCancel }: SubscriptionLoginProp
               </Button>
 
               {onCancel && (
-                <Button 
-                  type="button" 
-                  variant="outline" 
+                <Button
+                  type="button"
+                  variant="outline"
                   onClick={onCancel}
                   disabled={loading}
                 >
@@ -207,9 +250,13 @@ export function SubscriptionLogin({ onSuccess, onCancel }: SubscriptionLoginProp
           </form>
 
           <div className="mt-4 text-sm text-muted-foreground">
-            <p>🔒 <strong>Secure Login</strong></p>
-            <p>We'll send a verification code to your email to securely log you in.</p>
-            <p className="mt-2">💡 <strong>Need a subscription?</strong> You must have an active subscription to log in. Click "Subscribe" below to get started.</p>
+            <p>
+              🔒 <strong>Secure Login</strong>
+            </p>
+            <p>
+              We'll send a verification code to your email to securely log you
+              in.
+            </p>
           </div>
         </CardContent>
       </Card>
@@ -225,7 +272,8 @@ export function SubscriptionLogin({ onSuccess, onCancel }: SubscriptionLoginProp
           <span>Enter Verification Code</span>
         </CardTitle>
         <CardDescription>
-          We sent a 6-digit code to <strong>{email}</strong>. Enter it below to access your subscription.
+          We sent a 6-digit code to <strong>{email}</strong>. Enter it below to
+          access your subscription.
         </CardDescription>
       </CardHeader>
 
@@ -236,7 +284,11 @@ export function SubscriptionLogin({ onSuccess, onCancel }: SubscriptionLoginProp
               type="text"
               placeholder="000000"
               value={verificationCode}
-              onChange={(e) => setVerificationCode(e.target.value.replace(/\D/g, '').slice(0, 6))}
+              onChange={(e) =>
+                setVerificationCode(
+                  e.target.value.replace(/\D/g, "").slice(0, 6),
+                )
+              }
               disabled={loading}
               autoFocus
               className="text-center text-2xl font-mono tracking-wider"
@@ -251,7 +303,8 @@ export function SubscriptionLogin({ onSuccess, onCancel }: SubscriptionLoginProp
                 {error}
                 {attemptsRemaining !== null && attemptsRemaining > 0 && (
                   <span className="block mt-1">
-                    {attemptsRemaining} attempt{attemptsRemaining !== 1 ? 's' : ''} remaining
+                    {attemptsRemaining} attempt
+                    {attemptsRemaining !== 1 ? "s" : ""} remaining
                   </span>
                 )}
               </AlertDescription>
@@ -259,8 +312,8 @@ export function SubscriptionLogin({ onSuccess, onCancel }: SubscriptionLoginProp
           )}
 
           <div className="flex space-x-2">
-            <Button 
-              type="submit" 
+            <Button
+              type="submit"
               disabled={loading || verificationCode.length !== 6}
               className="flex-1"
             >
@@ -279,9 +332,9 @@ export function SubscriptionLogin({ onSuccess, onCancel }: SubscriptionLoginProp
           </div>
 
           <div className="flex justify-between items-center text-sm">
-            <Button 
-              type="button" 
-              variant="ghost" 
+            <Button
+              type="button"
+              variant="ghost"
               onClick={handleBackToEmail}
               disabled={loading}
               className="text-muted-foreground hover:text-foreground"
@@ -290,9 +343,9 @@ export function SubscriptionLogin({ onSuccess, onCancel }: SubscriptionLoginProp
             </Button>
 
             {onCancel && (
-              <Button 
-                type="button" 
-                variant="ghost" 
+              <Button
+                type="button"
+                variant="ghost"
                 onClick={onCancel}
                 disabled={loading}
                 className="text-muted-foreground hover:text-foreground"
@@ -304,7 +357,9 @@ export function SubscriptionLogin({ onSuccess, onCancel }: SubscriptionLoginProp
         </form>
 
         <div className="mt-4 text-sm text-muted-foreground">
-          <p>📧 <strong>Didn't receive the code?</strong></p>
+          <p>
+            📧 <strong>Didn't receive the code?</strong>
+          </p>
           <p>Check your spam folder. The code expires in 10 minutes.</p>
           {codeExpiresAt && (
             <p className="mt-2">
