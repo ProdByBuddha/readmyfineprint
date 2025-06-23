@@ -1427,9 +1427,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
                 // Create or get user for this subscription
                 let actualUserId = userId;
                 
-                // If it's an anonymous/session user, create a proper user account
+                // Check if user exists in database, create if needed
                 if (userId === 'anonymous' || userId.startsWith('session_')) {
-                  // Try to get customer email from Stripe for multi-device access
+                  // Anonymous/session user - create a proper user account
                   let customerEmail = `subscriber_${stripeCustomerId}@subscription.internal`;
                   
                   try {
@@ -1455,8 +1455,40 @@ export async function registerRoutes(app: Express): Promise<Server> {
                   
                   console.log(`👤 Created subscription user: ${actualUserId} for customer ${stripeCustomerId}`);
                 } else {
-                  // For existing authenticated users, just create the subscription
-                  console.log(`👤 Using existing user: ${actualUserId} for subscription`);
+                  // For existing authenticated users, verify they exist in database
+                  const existingUser = await databaseStorage.getUser(userId);
+                  
+                  if (!existingUser) {
+                    console.log(`👤 User ${userId} not found in database, creating subscription user`);
+                    
+                    // User doesn't exist, create them with customer email if available
+                    let customerEmail = `subscriber_${stripeCustomerId}@subscription.internal`;
+                    
+                    try {
+                      const useTestMode = process.env.NODE_ENV === 'development';
+                      const stripeInstance = getStripeInstance(useTestMode);
+                      const customer = await stripeInstance.customers.retrieve(stripeCustomerId as string);
+                      
+                      if (customer && !customer.deleted && customer.email) {
+                        customerEmail = customer.email;
+                        console.log(`📧 Using customer email for missing user: ${customerEmail}`);
+                      }
+                    } catch (emailError) {
+                      console.warn('Could not retrieve customer email from Stripe:', emailError instanceof Error ? emailError.message : String(emailError));
+                    }
+                    
+                    actualUserId = await subscriptionService.createSubscriptionUser({
+                      stripeCustomerId: stripeCustomerId as string,
+                      tierId,
+                      email: customerEmail,
+                      source: 'stripe_checkout_missing_user'
+                    });
+                    
+                    console.log(`👤 Created missing user: ${actualUserId} for customer ${stripeCustomerId}`);
+                  } else {
+                    actualUserId = userId;
+                    console.log(`👤 Using existing user: ${actualUserId} for subscription`);
+                  }
                 }
                 
                 // Create the subscription record
