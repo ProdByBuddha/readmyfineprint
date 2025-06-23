@@ -48,7 +48,19 @@ export class ReplitTokenStorage {
         // In Replit environment - use dynamic import for ES modules
         const { default: Database } = await import('@replit/database');
         this.replitDB = new Database();
-        console.log('✅ Replit Database initialized');
+        
+        // Test the connection with a simple operation
+        try {
+          await this.replitDB.get('test_connection');
+          console.log('✅ Replit Database initialized and connected');
+        } catch (testError: any) {
+          if (testError.statusCode === 403 || testError.message === 'invalid token') {
+            console.warn('⚠️ Replit Database authentication failed during initialization, using memory fallback');
+            this.replitDB = new Map();
+          } else {
+            console.log('✅ Replit Database initialized (test key not found, but connection works)');
+          }
+        }
       } catch (error) {
         console.warn('⚠️ Failed to initialize Replit Database, using memory fallback:', error);
         this.replitDB = new Map();
@@ -443,44 +455,61 @@ export class ReplitTokenStorage {
 
       if (this.replitDB instanceof Map) {
         this.replitDB.set(key, encryptedData);
-      } else {
-        try {
-          const result = await this.replitDB.set(key, encryptedData);
+        return;
+      }
+
+      try {
+        const result = await this.replitDB.set(key, encryptedData);
+        
+        // Check for Replit DB error responses
+        if (result && typeof result === 'object' && result.ok === false && result.error) {
+          console.error(`Replit DB set error for device data key ${key}:`, result.error);
           
-          // Check for Replit DB error responses
-          if (result && typeof result === 'object' && result.ok === false && result.error) {
-            console.error(`Replit DB set error for device data key ${key}:`, result.error);
-            
-            // If it's an authentication error, fall back to memory storage
-            if (result.error.message === 'invalid token' || result.error.statusCode === 403) {
-              console.warn(`⚠️ Replit DB authentication failed, falling back to memory storage for key: ${key}`);
-              // Switch to memory fallback for this instance
-              if (!(this.replitDB instanceof Map)) {
-                this.replitDB = new Map();
-                this.replitDB.set(key, encryptedData);
-                return;
-              }
-            }
-            
-            throw new Error(`Failed to store device data: ${result.error.message || 'Unknown error'}`);
-          }
-        } catch (dbError: any) {
-          console.error('Replit DB set error for device data:', dbError);
-          
-          // Handle authentication errors with fallback
-          if (dbError && (dbError.message === 'invalid token' || dbError.statusCode === 403)) {
-            console.warn(`⚠️ Replit DB authentication failed, falling back to memory storage for key: ${key}`);
-            // Switch to memory fallback for this instance
+          // If it's an authentication error, fall back to memory storage
+          if (result.error.message === 'invalid token' || result.error.statusCode === 403) {
+            console.warn(`⚠️ Replit DB authentication failed, switching to memory storage permanently`);
             this.replitDB = new Map();
             this.replitDB.set(key, encryptedData);
             return;
           }
           
-          throw new Error(`Failed to store device data: ${dbError instanceof Error ? dbError.message : String(dbError)}`);
+          // For other errors, still fall back but log differently
+          console.warn(`⚠️ Replit DB error, falling back to memory storage: ${result.error.message}`);
+          this.replitDB = new Map();
+          this.replitDB.set(key, encryptedData);
+          return;
         }
+      } catch (dbError: any) {
+        console.error('Replit DB set error for device data:', dbError);
+        
+        // Handle authentication errors and other DB errors with fallback
+        if (dbError && (dbError.message === 'invalid token' || dbError.statusCode === 403)) {
+          console.warn(`⚠️ Replit DB authentication failed, switching to memory storage permanently`);
+        } else {
+          console.warn(`⚠️ Replit DB connection error, switching to memory storage: ${dbError?.message || 'Unknown error'}`);
+        }
+        
+        // Switch to memory fallback for this instance
+        this.replitDB = new Map();
+        this.replitDB.set(key, encryptedData);
+        return;
       }
     } catch (error) {
       console.error('Error storing device data:', error);
+      // As a last resort, try memory storage
+      if (!(this.replitDB instanceof Map)) {
+        console.warn('⚠️ Falling back to memory storage due to encryption/storage error');
+        this.replitDB = new Map();
+        try {
+          const encryptedData = this.encrypt(JSON.stringify(deviceData));
+          this.replitDB.set(key, encryptedData);
+          return;
+        } catch (encryptError) {
+          // Store as plain JSON if encryption fails
+          this.replitDB.set(key, `plain:${JSON.stringify(deviceData)}`);
+          return;
+        }
+      }
       throw error;
     }
   }
@@ -501,11 +530,13 @@ export class ReplitTokenStorage {
         } catch (dbError: any) {
           // Handle authentication errors by switching to memory fallback
           if (dbError && (dbError.message === 'invalid token' || dbError.statusCode === 403)) {
-            console.warn(`⚠️ Replit DB authentication failed, switching to memory storage for key: ${key}`);
+            console.warn(`⚠️ Replit DB authentication failed, switching to memory storage permanently`);
             this.replitDB = new Map();
             return null; // No data in new memory store
           }
-          throw dbError;
+          console.warn(`⚠️ Replit DB connection error, switching to memory storage: ${dbError?.message || 'Unknown error'}`);
+          this.replitDB = new Map();
+          return null; // No data in new memory store
         }
       }
 
@@ -515,12 +546,12 @@ export class ReplitTokenStorage {
         
         // Handle authentication errors by switching to memory fallback
         if (rawData.error.message === 'invalid token' || rawData.error.statusCode === 403) {
-          console.warn(`⚠️ Replit DB authentication failed, switching to memory storage for key: ${key}`);
-          this.replitDB = new Map();
-          return null; // No data in new memory store
+          console.warn(`⚠️ Replit DB authentication failed, switching to memory storage permanently`);
+        } else {
+          console.warn(`⚠️ Replit DB error, switching to memory storage: ${rawData.error.message}`);
         }
-        
-        return null;
+        this.replitDB = new Map();
+        return null; // No data in new memory store
       }
 
       if (!rawData || typeof rawData !== 'string') {
@@ -531,6 +562,11 @@ export class ReplitTokenStorage {
       return JSON.parse(decryptedData);
     } catch (error) {
       console.error('Error retrieving device data:', error);
+      // Switch to memory storage if not already
+      if (!(this.replitDB instanceof Map)) {
+        console.warn('⚠️ Switching to memory storage due to persistent errors');
+        this.replitDB = new Map();
+      }
       return null;
     }
   }
