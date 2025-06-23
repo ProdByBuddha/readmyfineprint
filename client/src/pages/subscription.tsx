@@ -18,12 +18,14 @@ interface SubscriptionData {
     stripeSubscriptionId: string;
     status: string;
     currentPeriodEnd: Date;
+    billingCycle?: 'monthly' | 'yearly';
   };
   tier: {
     id: string;
     name: string;
     model: string;
     monthlyPrice: number;
+    yearlyPrice?: number;
     limits: {
       documentsPerMonth: number;
       prioritySupport: boolean;
@@ -565,10 +567,16 @@ export default function SubscriptionPage() {
                         <p className="text-gray-600 dark:text-gray-300">{resetDate.toLocaleDateString()}</p>
                       </div>
                       <div className="text-right">
-                        <div className="text-xl font-bold dark:text-white">${subscriptionData.tier.monthlyPrice}</div>
-                        <div className="text-sm text-gray-600 dark:text-gray-300">Monthly</div>
+                        <div className="text-xl font-bold dark:text-white">
+                          ${subscriptionData.subscription?.billingCycle === 'yearly' ? 
+                            (subscriptionData.tier.yearlyPrice || subscriptionData.tier.monthlyPrice * 12) : 
+                            subscriptionData.tier.monthlyPrice}
+                        </div>
+                        <div className="text-sm text-gray-600 dark:text-gray-300">
+                          {subscriptionData.subscription?.billingCycle === 'yearly' ? 'Yearly' : 'Monthly'}
+                        </div>
                       </div>
-                    </div>
+                    </div></div>
 
                     <div className="flex space-x-3">
                       <Button variant="outline" className="flex-1">
