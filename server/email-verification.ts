@@ -38,7 +38,7 @@ export class EmailVerificationService {
     try {
       const rateLimitData = await replitTokenStorage.getDeviceData(rateLimitKey);
       if (rateLimitData) {
-        const data = JSON.parse(rateLimitData);
+        const data = typeof rateLimitData === 'string' ? JSON.parse(rateLimitData) : rateLimitData;
         const windowStart = new Date(data.windowStart);
         const now = new Date();
         
@@ -50,20 +50,35 @@ export class EmailVerificationService {
           
           // Increment attempts in current window
           data.attempts++;
-          await replitTokenStorage.storeDeviceData(rateLimitKey, data);
+          try {
+            await replitTokenStorage.storeDeviceData(rateLimitKey, data);
+          } catch (storeError) {
+            console.warn('Failed to update rate limit data, but allowing request:', storeError);
+            // Don't fail the request if we can't store rate limit data
+          }
         } else {
           // New window, reset counter
-          await replitTokenStorage.storeDeviceData(rateLimitKey, {
-            windowStart: now.toISOString(),
-            attempts: 1
-          });
+          try {
+            await replitTokenStorage.storeDeviceData(rateLimitKey, {
+              windowStart: now.toISOString(),
+              attempts: 1
+            });
+          } catch (storeError) {
+            console.warn('Failed to store new rate limit window, but allowing request:', storeError);
+            // Don't fail the request if we can't store rate limit data
+          }
         }
       } else {
         // First attempt in this window
-        await replitTokenStorage.storeDeviceData(rateLimitKey, {
-          windowStart: new Date().toISOString(),
-          attempts: 1
-        });
+        try {
+          await replitTokenStorage.storeDeviceData(rateLimitKey, {
+            windowStart: new Date().toISOString(),
+            attempts: 1
+          });
+        } catch (storeError) {
+          console.warn('Failed to store initial rate limit data, but allowing request:', storeError);
+          // Don't fail the request if we can't store rate limit data
+        }
       }
       
       return true;
@@ -108,9 +123,16 @@ export class EmailVerificationService {
 
       // Store with email as key for easy retrieval
       const verificationKey = `email_verification:${email}:${deviceFingerprint}`;
-      await replitTokenStorage.storeDeviceData(verificationKey, verificationData);
-
-      console.log(`✅ Generated verification code for ${email} (expires: ${expiresAt.toISOString()})`);
+      try {
+        await replitTokenStorage.storeDeviceData(verificationKey, verificationData);
+        console.log(`✅ Generated verification code for ${email} (expires: ${expiresAt.toISOString()})`);
+      } catch (storeError) {
+        console.error('Failed to store verification code:', storeError);
+        return {
+          success: false,
+          error: 'Unable to store verification code. Please try again in a moment.'
+        };
+      }
       
       return {
         success: true,
