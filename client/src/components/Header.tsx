@@ -282,8 +282,14 @@ export function Header() {
         <>
           {document.body && 
             ReactDOM.createPortal(
-              <div className="fixed inset-0 bg-black bg-opacity-50 z-[9999] flex items-center justify-center p-4">
-                <div className="bg-white dark:bg-gray-800 rounded-lg max-w-md w-full shadow-2xl">
+              <div 
+                className="fixed inset-0 bg-black bg-opacity-50 z-[9999] flex items-center justify-center p-4"
+                onClick={() => setShowLogin(false)}
+              >
+                <div 
+                  className="bg-white dark:bg-gray-800 rounded-lg max-w-md w-full shadow-2xl"
+                  onClick={(e) => e.stopPropagation()}
+                >
                   <SubscriptionLogin
                     onSuccess={handleLoginSuccess}
                     onCancel={() => setShowLogin(false)}
