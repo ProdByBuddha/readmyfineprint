@@ -333,6 +333,8 @@ export class ReplitTokenStorage {
       } else if (typeof rawData === 'object' && rawData !== null) {
         // Data is stored as object (legacy format)
         console.log(`Converting legacy object format for session: ${sessionId}`);
+        
+        // Handle different legacy object formats
         if (rawData.token && rawData.expiresAt) {
           // Direct object with token and expiresAt
           const sessionData = rawData as SessionTokenData;
@@ -350,8 +352,19 @@ export class ReplitTokenStorage {
           }
           
           return sessionData.token;
+        } else if (typeof rawData === 'string') {
+          // Some legacy data might be stored as a plain string token
+          console.log(`Legacy session token stored as string for session: ${sessionId}`);
+          return rawData;
         } else {
-          throw new Error('Invalid legacy object format');
+          // Invalid or corrupted legacy format - clean it up
+          console.warn(`Invalid legacy object format for session ${sessionId}, cleaning up`);
+          if (this.replitDB instanceof Map) {
+            this.replitDB.delete(key);
+          } else {
+            await this.replitDB.delete(key);
+          }
+          return null;
         }
       } else {
         console.warn(`Invalid session token data format for ${sessionId}:`, typeof rawData);

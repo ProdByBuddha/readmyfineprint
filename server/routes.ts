@@ -972,7 +972,27 @@ export async function registerRoutes(app: Express): Promise<Server> {
         }
       } else {
         console.warn(`❌ No token found for session: ${sessionId}`);
-        res.status(404).json({ error: 'No token found for this session' });
+        
+        // For failed token retrieval, try to check if the Stripe session exists and is paid
+        try {
+          const useTestMode = process.env.NODE_ENV === 'development';
+          const stripeInstance = getStripeInstance(useTestMode);
+          const stripeSession = await stripeInstance.checkout.sessions.retrieve(sessionId);
+          
+          if (stripeSession.payment_status === 'paid' && stripeSession.mode === 'subscription') {
+            console.log(`💳 Found paid Stripe session but no token - webhook may not have processed yet`);
+            res.status(202).json({ 
+              error: 'Payment processing', 
+              message: 'Your payment was successful. Please wait a moment and try again.',
+              retryAfter: 3000 // Suggest retry after 3 seconds
+            });
+          } else {
+            res.status(404).json({ error: 'No token found for this session' });
+          }
+        } catch (stripeError) {
+          console.warn(`Could not retrieve Stripe session ${sessionId}:`, stripeError instanceof Error ? stripeError.message : String(stripeError));
+          res.status(404).json({ error: 'No token found for this session' });
+        }
       }
     } catch (error) {
       console.error(`❌ Error retrieving subscription token for session ${req.params.sessionId}:`, error);
@@ -1444,6 +1464,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
                 
                 // Store mapping from checkout session to token for frontend retrieval
                 await subscriptionService.storeSessionToken(checkoutSession.id, subscriptionToken);
+                
+                console.log(`📝 Stored session token mapping: ${checkoutSession.id} -> ${subscriptionToken.slice(0, 8)}...`);
                 
                 console.log(`✅ Subscription created successfully:`);
                 console.log(`   User ID: ${actualUserId}`);
