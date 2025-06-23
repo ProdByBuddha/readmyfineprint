@@ -283,7 +283,7 @@ export class ReplitTokenStorage {
     try {
       const key = `session_token:${sessionId}`;
       
-      let encryptedData: string;
+      let encryptedData: any;
       if (this.replitDB instanceof Map) {
         encryptedData = this.replitDB.get(key);
       } else {
@@ -291,6 +291,19 @@ export class ReplitTokenStorage {
       }
 
       if (!encryptedData) {
+        console.log(`No session token found for session: ${sessionId}`);
+        return null;
+      }
+
+      // Validate the encrypted data format before decryption
+      if (typeof encryptedData !== 'string') {
+        console.warn(`Invalid session token data format for ${sessionId}:`, typeof encryptedData);
+        // Clean up invalid data
+        if (this.replitDB instanceof Map) {
+          this.replitDB.delete(key);
+        } else {
+          await this.replitDB.delete(key);
+        }
         return null;
       }
 
@@ -299,6 +312,7 @@ export class ReplitTokenStorage {
 
       // Check if mapping is expired
       if (new Date(sessionData.expiresAt) < new Date()) {
+        console.log(`Session token expired for session: ${sessionId}`);
         // Remove expired mapping
         if (this.replitDB instanceof Map) {
           this.replitDB.delete(key);
@@ -310,7 +324,21 @@ export class ReplitTokenStorage {
 
       return sessionData.token;
     } catch (error) {
-      console.error('Error retrieving session token:', error);
+      console.error(`Error retrieving session token for ${sessionId}:`, error);
+      
+      // Clean up corrupted session data
+      try {
+        const key = `session_token:${sessionId}`;
+        if (this.replitDB instanceof Map) {
+          this.replitDB.delete(key);
+        } else {
+          await this.replitDB.delete(key);
+        }
+        console.log(`Cleaned up corrupted session data for: ${sessionId}`);
+      } catch (cleanupError) {
+        console.error('Error cleaning up corrupted session data:', cleanupError);
+      }
+      
       return null;
     }
   }
@@ -566,8 +594,14 @@ export class ReplitTokenStorage {
   /**
    * Simple decryption for token data
    */
-  private decrypt(encryptedText: string): string {
+  private decrypt(encryptedText: any): string {
     try {
+      // Handle non-string input (could be null, undefined, or other types)
+      if (!encryptedText || typeof encryptedText !== 'string') {
+        console.warn('Invalid encrypted data type:', typeof encryptedText, encryptedText);
+        throw new Error('Invalid encrypted data format');
+      }
+
       if (!encryptedText.includes(':')) {
         return encryptedText; // Not encrypted
       }
