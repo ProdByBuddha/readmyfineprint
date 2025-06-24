@@ -902,8 +902,10 @@ export default function AdminDashboard() {
     localStorage.removeItem('adminToken');
   };
 
+  // Redirect to login modal if not authenticated
   if (!adminToken) {
-    return <AdminLogin onLogin={handleLogin} />;
+    window.location.href = '/?login=admin';
+    return null;
   }
 
   return (
