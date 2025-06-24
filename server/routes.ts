@@ -1139,7 +1139,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Get subscription token after successful checkout
-  app.get("/api/subscription/token/:sessionId", async (req, res) => {
+  app.get("/api/subscription/token/:sessionId", requireConsent, async (req, res) => {
     try {
       const { sessionId } = req.params;
       console.log(`🔍 Token retrieval request for session: ${sessionId}`);
@@ -1195,7 +1195,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Create subscription checkout session
-  app.post("/api/subscription/create-checkout", optionalUserAuth, async (req, res) => {
+  app.post("/api/subscription/create-checkout", requireConsent, optionalUserAuth, async (req, res) => {
     try {
       // Input validation
       const checkoutSchema = z.object({
@@ -1323,7 +1323,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Downgrade to free tier (cancels Stripe subscription)
-  app.post("/api/subscription/downgrade-to-free", optionalUserAuth, async (req, res) => {
+  app.post("/api/subscription/downgrade-to-free", requireConsent, optionalUserAuth, async (req, res) => {
     try {
       let userId = req.user?.id || req.sessionId || "anonymous";
       let subscriptionData;
@@ -1407,7 +1407,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Create Stripe Customer Portal session for payment method updates
-  app.post("/api/subscription/customer-portal", optionalUserAuth, async (req, res) => {
+  app.post("/api/subscription/customer-portal", requireConsent, optionalUserAuth, async (req, res) => {
     try {
       let userId = req.user?.id || req.sessionId || "anonymous";
       let subscriptionData;
@@ -1469,7 +1469,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Reactivate cancelled subscription (remove cancelAtPeriodEnd)
-  app.post("/api/subscription/reactivate", optionalUserAuth, async (req, res) => {
+  app.post("/api/subscription/reactivate", requireConsent, optionalUserAuth, async (req, res) => {
     try {
       let userId = req.user?.id || req.sessionId || "anonymous";
       let subscriptionData;
@@ -1561,7 +1561,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Get processing queue status
-  app.get("/api/queue/status", optionalUserAuth, async (req: any, res) => {
+  app.get("/api/queue/status", requireConsent, optionalUserAuth, async (req: any, res) => {
     try {
       const stats = priorityQueue.getQueueStats();
 
@@ -1580,7 +1580,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Get all documents
-  app.get("/api/documents", async (req: any, res) => {
+  app.get("/api/documents", requireConsent, async (req: any, res) => {
     try {
       const documents = await storage.getAllDocuments(req.sessionId);
       res.json(documents);
@@ -1591,7 +1591,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Get specific document
-  app.get("/api/documents/:id", async (req: any, res) => {
+  app.get("/api/documents/:id", requireConsent, async (req: any, res) => {
     try {
       const documentId = parseInt(req.params.id);
 
@@ -1618,7 +1618,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Clear all documents (fresh start)
-  app.delete("/api/documents", async (req: any, res) => {
+  app.delete("/api/documents", requireConsent, async (req: any, res) => {
     try {
       await storage.clearAllDocuments(req.sessionId);
       res.json({ message: "All documents cleared successfully" });
