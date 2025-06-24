@@ -171,6 +171,13 @@ export const queryClient = new QueryClient({
     },
     mutations: {
       retry: false,
+      onError: (error: any) => {
+        // Check if the error indicates consent is required
+        if (error?.message?.includes('403') && error?.message?.includes('CONSENT_REQUIRED')) {
+          console.log('Mutation error indicates consent required, triggering consent modal');
+          triggerConsentModal();
+        }
+      },
     },
   },
 });

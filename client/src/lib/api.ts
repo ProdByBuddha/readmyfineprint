@@ -82,10 +82,7 @@ export async function uploadDocument(file: File): Promise<Document> {
 }
 
 export async function analyzeDocument(id: number): Promise<Document> {
-  const headers: Record<string, string> = {
-    'Content-Type': 'application/json',
-    'x-session-id': getSessionId(),
-  };
+  const headers: Record<string, string> = {};
 
   // Include subscription token if available
   const subscriptionToken = localStorage.getItem('subscriptionToken');
@@ -99,15 +96,9 @@ export async function analyzeDocument(id: number): Promise<Document> {
     headers['x-device-fingerprint'] = deviceFingerprint;
   }
 
-  const response = await fetch(`/api/documents/${id}/analyze`, {
-    method: 'POST',
-    headers,
+  const response = await apiRequest('POST', `/api/documents/${id}/analyze`, {
+    headers
   });
-
-  if (!response.ok) {
-    const error = await response.json();
-    throw new Error(error.error || 'Failed to analyze document');
-  }
 
   return response.json();
 }

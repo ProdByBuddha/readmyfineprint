@@ -111,28 +111,32 @@ export default function Home() {
     onError: (error) => {
       setIsAnalyzing(false);
       const errorMessage = error instanceof Error ? error.message : "Failed to analyze document";
-      announce(`Analysis failed: ${errorMessage}`, 'assertive');
-      toast({
-        title: "Analysis failed",
-        description: errorMessage,
-        variant: "destructive",
-      });
+      
+      // Check if this is a consent requirement error
+      if (errorMessage.includes('403') && errorMessage.includes('CONSENT_REQUIRED')) {
+        console.log('Analysis failed due to consent requirement, triggering consent modal');
+        // Trigger consent modal via custom event
+        window.dispatchEvent(new CustomEvent('consentRequired', { 
+          detail: { reason: 'Document analysis requires consent' }
+        }));
+        announce("Please accept our terms to analyze documents", 'assertive');
+        toast({
+          title: "Consent Required",
+          description: "Please accept our terms and conditions to analyze documents",
+          variant: "destructive",
+        });
+      } else {
+        announce(`Analysis failed: ${errorMessage}`, 'assertive');
+        toast({
+          title: "Analysis failed",
+          description: errorMessage,
+          variant: "destructive",
+        });
+      }
     },
   });
 
   const handleDocumentCreated = useCallback(async (documentId: number) => {
-    // Check if consent is accepted
-    if (!consentAccepted) {
-      const message = "Please accept the terms and privacy policy to process documents.";
-      announce(message, 'assertive');
-      toast({
-        title: "Consent Required",
-        description: message,
-        variant: "destructive",
-      });
-      return;
-    }
-
     setCurrentDocumentId(documentId);
     setIsAnalyzing(true);
     announce("Starting document analysis", 'polite');
@@ -141,7 +145,7 @@ export default function Home() {
     } catch (error) {
       console.error("Analysis error:", error);
     }
-  }, [consentAccepted, toast, analyzeDocumentMutation, announce]);
+  }, [analyzeDocumentMutation, announce]);
 
   const handleDocumentSelect = useStableCallback((documentId: number | null) => {
     setCurrentDocumentId(documentId);
