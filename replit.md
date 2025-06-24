@@ -131,6 +131,8 @@ SECURITY_EMAIL_FROM=your-email@provider.com
     - Automatic analysis continuation after consent acceptance
     - Fixed consent banner race condition with async database verification
     - Added consent checking state to prevent premature banner display
+    - Implemented consent revocation with grayed-out UI experience
+    - Users who revoke consent get limited functionality with visual indicators
   - Admin endpoints remain exempt from all consent requirements
   - Improved performance and reliability with structured database storage
 

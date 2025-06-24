@@ -117,12 +117,32 @@ export function useCombinedConsent() {
     window.dispatchEvent(new CustomEvent('consentChanged'));
   };
 
-  const revokeConsent = () => {
+  const revokeConsent = async () => {
+    // Clear local storage
     localStorage.removeItem('readmyfineprint-disclaimer-accepted');
     localStorage.removeItem('readmyfineprint-disclaimer-date');
     localStorage.removeItem('cookie-consent-accepted');
+    
+    // Set consent state to revoked
     setIsAccepted(false);
+    setIsCheckingConsent(false);
+    
+    // Notify backend about consent revocation by calling the verify endpoint
+    // This will help track revoked users for analytics
+    try {
+      await fetch('/api/consent/verify', {
+        method: 'POST',
+        credentials: 'include',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+    } catch (error) {
+      console.warn('Failed to notify backend of consent revocation:', error);
+    }
+    
     // Dispatch custom event to notify other components
+    window.dispatchEvent(new CustomEvent('consentRevoked'));
     window.dispatchEvent(new CustomEvent('consentChanged'));
   };
 

@@ -123,6 +123,17 @@ export default function Home() {
   const handleDocumentCreated = useCallback(async (documentId: number) => {
     setCurrentDocumentId(documentId);
     
+    // Check if consent is revoked
+    if (consentRevoked && !consentAccepted) {
+      announce("Cannot analyze documents while consent is revoked", 'assertive');
+      toast({
+        title: "Consent Required",
+        description: "Please accept our terms and conditions to analyze documents",
+        variant: "destructive",
+      });
+      return;
+    }
+    
     // Check if this is a sample contract
     const documentsQuery = queryClient.getQueryData(['/api/documents']) as Document[] | undefined;
     const document = documentsQuery?.find(d => d.id === documentId);
@@ -155,7 +166,7 @@ export default function Home() {
     } catch (error) {
       console.error("Analysis error:", error);
     }
-  }, [analyzeDocumentMutation, announce, consentAccepted, toast, queryClient]);
+  }, [analyzeDocumentMutation, announce, consentAccepted, consentRevoked, toast, queryClient]);
 
   const handleDocumentSelect = useStableCallback((documentId: number | null) => {
     setCurrentDocumentId(documentId);
