@@ -428,4 +428,23 @@ export class EncryptedSessionStorage implements IStorage {
   async getUserUsageHistory(userId: string, limit?: number): Promise<UsageRecord[]> {
     throw new Error("Usage tracking not supported in encrypted session storage");
   }
+
+  /**
+   * Get all sessions (decrypted)
+   */
+  getAllSessions(): Map<string, SessionData> {
+    const sessions = new Map<string, SessionData>();
+    
+    for (const [sessionId, encryptedData] of this.encryptedSessions) {
+      try {
+        const sessionData = this.decryptSessionData(encryptedData);
+        sessions.set(sessionId, sessionData);
+      } catch (error) {
+        console.warn(`Failed to decrypt session ${sessionId}:`, error);
+        // Skip corrupted sessions
+      }
+    }
+    
+    return sessions;
+  }
 } 

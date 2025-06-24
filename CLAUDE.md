@@ -65,6 +65,9 @@ npm run indexnow:submit # Submit URLs to IndexNow API
 npm run subscription:init  # Initialize subscription tiers
 npm run tokens:test     # Test token storage system
 npm run tokens:test-multidevice  # Test multi-device support
+npx tsx scripts/sync-stripe-customer-ids.ts    # Sync Stripe customer IDs to users table
+npx tsx scripts/verify-stripe-consistency.ts   # Verify Stripe data consistency
+npx tsx scripts/test-stripe-sync.ts            # Test Stripe sync functionality
 ```
 
 ## Key Technical Details
@@ -90,6 +93,7 @@ npm run tokens:test-multidevice  # Test multi-device support
 - RESTful API design with Express
 - Zod schemas for type-safe validation
 - JWT-based authentication
+- Automatic Stripe customer ID synchronization between users and subscriptions tables
 
 ### Document Processing
 - Supports PDF, DOCX, DOC, TXT formats

@@ -101,7 +101,7 @@ export class SessionStorage {
 
     const document: Document = {
       id: documentId,
-      title: data.title,
+      title: data.title || "Untitled Document",
       content: data.content,
       fileType: data.fileType || "text",
       analysis: data.analysis || null,

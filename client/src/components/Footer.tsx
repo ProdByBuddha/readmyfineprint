@@ -1,13 +1,10 @@
-import { useState } from "react";
 import { Link } from "wouter";
-import { Heart, Cookie, Share2, X } from "lucide-react";
+import { Heart, Cookie, Share2 } from "lucide-react";
 import { SecurityBadges } from "@/components/SecurityBadges";
 import { CookieManagement } from "@/components/CookieManagement";
-import { SocialShare } from "@/components/SocialShare";
 import { useToast } from "@/hooks/use-toast";
 
 export function Footer() {
-  const [showShareModal, setShowShareModal] = useState(false);
   const { toast } = useToast();
 
   const handleShareClick = async () => {
@@ -20,7 +17,7 @@ export function Footer() {
         description: "Website URL has been copied to your clipboard.",
         duration: 3000,
       });
-    } catch (err) {
+    } catch {
       // Fallback for older browsers
       const textArea = document.createElement('textarea');
       textArea.value = websiteUrl;

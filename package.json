@@ -87,6 +87,7 @@
     "framer-motion": "^11.13.1",
     "html2canvas": "^1.4.1",
     "input-otp": "^1.4.2",
+    "jose": "^6.0.11",
     "jsonwebtoken": "^9.0.2",
     "jspdf": "^3.0.1",
     "lucide-react": "^0.453.0",

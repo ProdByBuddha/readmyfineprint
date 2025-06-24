@@ -180,7 +180,85 @@ export class DatabaseStorage implements IStorage {
         updatedAt: new Date(),
       })
       .returning();
+
+    // Sync Stripe customer ID to user table if provided
+    if (subscription.stripeCustomerId && subscription.userId) {
+      await this.syncUserStripeCustomerId(subscription.userId, subscription.stripeCustomerId);
+    }
+
     return subscription;
+  }
+
+  /**
+   * Sync Stripe customer ID from subscription to user table
+   */
+  async syncUserStripeCustomerId(userId: string, stripeCustomerId: string): Promise<void> {
+    try {
+      // Only update if the user doesn't already have a Stripe customer ID or it's different
+      const user = await this.getUser(userId);
+      if (!user) {
+        console.warn(`User ${userId} not found for Stripe customer ID sync`);
+        return;
+      }
+
+      if (user.stripeCustomerId !== stripeCustomerId) {
+        await db
+          .update(users)
+          .set({ 
+            stripeCustomerId,
+            updatedAt: new Date() 
+          })
+          .where(eq(users.id, userId));
+        
+        console.log(`✅ Synced Stripe customer ID ${stripeCustomerId} to user ${userId}`);
+      }
+    } catch (error) {
+      console.error(`Failed to sync Stripe customer ID for user ${userId}:`, error);
+      // Don't throw - this is a secondary operation that shouldn't fail subscription creation
+    }
+  }
+
+  /**
+   * Verify and fix any Stripe customer ID inconsistencies between users and subscriptions
+   * Returns a report of any issues found and fixed
+   */
+  async verifyStripeCustomerIdConsistency(): Promise<{
+    consistent: number;
+    fixed: number;
+    errors: string[];
+  }> {
+    const report = { consistent: 0, fixed: 0, errors: [] as string[] };
+    
+    try {
+      // Get all subscriptions with Stripe customer IDs
+      const subscriptions = await this.getAllUserSubscriptions();
+      const subscriptionsWithStripe = subscriptions.filter(sub => sub.stripeCustomerId);
+      
+      for (const subscription of subscriptionsWithStripe) {
+        try {
+          const user = await this.getUser(subscription.userId);
+          
+          if (!user) {
+            report.errors.push(`User ${subscription.userId} not found for subscription ${subscription.id}`);
+            continue;
+          }
+          
+          if (user.stripeCustomerId === subscription.stripeCustomerId) {
+            report.consistent++;
+          } else {
+            // Fix the inconsistency
+            await this.syncUserStripeCustomerId(subscription.userId, subscription.stripeCustomerId!);
+            report.fixed++;
+          }
+        } catch (error) {
+          report.errors.push(`Error processing subscription ${subscription.id}: ${error}`);
+        }
+      }
+    } catch (error) {
+      report.errors.push(`Failed to verify consistency: ${error}`);
+    }
+    
+    return report;
   }
 
   async updateUserSubscription(id: string, updates: Partial<InsertUserSubscription>): Promise<UserSubscription | undefined> {
@@ -192,6 +270,12 @@ export class DatabaseStorage implements IStorage {
       })
       .where(eq(userSubscriptions.id, id))
       .returning();
+
+    // Sync Stripe customer ID to user table if updated
+    if (subscription && updates.stripeCustomerId && subscription.userId) {
+      await this.syncUserStripeCustomerId(subscription.userId, updates.stripeCustomerId);
+    }
+
     return subscription || undefined;
   }
 

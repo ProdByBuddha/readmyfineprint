@@ -1,16 +1,7 @@
 import crypto from 'crypto';
-import { replitTokenStorage } from './replit-token-storage';
-
-interface VerificationCode {
-  code: string;
-  email: string;
-  deviceFingerprint: string;
-  clientIp: string;
-  expiresAt: Date;
-  attempts: number;
-  maxAttempts: number;
-  createdAt: Date;
-}
+import { db } from './db';
+import { emailVerificationCodes, emailVerificationRateLimit } from '@shared/schema';
+import { eq, and, lt } from 'drizzle-orm';
 
 export class EmailVerificationService {
   private readonly CODE_LENGTH = 6;
@@ -33,54 +24,68 @@ export class EmailVerificationService {
    * Check rate limiting for code generation
    */
   private async checkRateLimit(email: string, clientIp: string): Promise<boolean> {
-    const rateLimitKey = `verification_rate_limit:${email}:${clientIp}`;
-
     try {
-      const rateLimitData = await replitTokenStorage.getDeviceData(rateLimitKey);
-      if (rateLimitData) {
-        const data = typeof rateLimitData === 'string' ? JSON.parse(rateLimitData) : rateLimitData;
-        const windowStart = new Date(data.windowStart);
-        const now = new Date();
-
-        // Check if we're still in the same rate limit window
-        if (now.getTime() - windowStart.getTime() < this.RATE_LIMIT_WINDOW) {
-          if (data.attempts >= this.MAX_CODES_PER_WINDOW) {
+      const now = new Date();
+      const windowStart = new Date(now.getTime() - this.RATE_LIMIT_WINDOW);
+      
+      // Clean up expired rate limit records
+      await db.delete(emailVerificationRateLimit)
+        .where(lt(emailVerificationRateLimit.windowStart, windowStart));
+      
+      // Check current rate limit for this email/IP combination
+      const rateLimitRecord = await db.select()
+        .from(emailVerificationRateLimit)
+        .where(and(
+          eq(emailVerificationRateLimit.email, email),
+          eq(emailVerificationRateLimit.clientIp, clientIp)
+        ))
+        .limit(1);
+      
+      if (rateLimitRecord.length > 0) {
+        const record = rateLimitRecord[0];
+        const windowAge = now.getTime() - record.windowStart.getTime();
+        
+        if (windowAge < this.RATE_LIMIT_WINDOW) {
+          if (record.attempts >= this.MAX_CODES_PER_WINDOW) {
             return false; // Rate limit exceeded
           }
-
+          
           // Increment attempts in current window
-          data.attempts++;
           try {
-            await replitTokenStorage.storeDeviceData(rateLimitKey, data);
-          } catch (storeError) {
-            console.warn('Failed to update rate limit data, but allowing request:', storeError);
-            // Don't fail the request if we can't store rate limit data
+            await db.update(emailVerificationRateLimit)
+              .set({ attempts: record.attempts + 1 })
+              .where(eq(emailVerificationRateLimit.id, record.id));
+          } catch (error) {
+            console.warn('Failed to update rate limit data, but allowing request:', error);
           }
         } else {
-          // New window, reset counter
+          // Reset the window
           try {
-            await replitTokenStorage.storeDeviceData(rateLimitKey, {
-              windowStart: now.toISOString(),
-              attempts: 1
-            });
-          } catch (storeError) {
-            console.warn('Failed to store new rate limit window, but allowing request:', storeError);
-            // Don't fail the request if we can't store rate limit data
+            await db.update(emailVerificationRateLimit)
+              .set({ 
+                attempts: 1, 
+                windowStart: now 
+              })
+              .where(eq(emailVerificationRateLimit.id, record.id));
+          } catch (error) {
+            console.warn('Failed to reset rate limit window, but allowing request:', error);
           }
         }
       } else {
         // First attempt in this window
         try {
-          await replitTokenStorage.storeDeviceData(rateLimitKey, {
-            windowStart: new Date().toISOString(),
-            attempts: 1
-          });
-        } catch (storeError) {
-          console.warn('Failed to store initial rate limit data, but allowing request:', storeError);
-          // Don't fail the request if we can't store rate limit data
+          await db.insert(emailVerificationRateLimit)
+            .values({
+              email,
+              clientIp,
+              attempts: 1,
+              windowStart: now
+            });
+        } catch (error) {
+          console.warn('Failed to create rate limit record, but allowing request:', error);
         }
       }
-
+      
       return true;
     } catch (error) {
       console.error('Rate limit check failed:', error);
@@ -110,21 +115,24 @@ export class EmailVerificationService {
       const code = this.generateVerificationCode();
       const expiresAt = new Date(Date.now() + this.CODE_EXPIRY_MINUTES * 60 * 1000);
 
-      const verificationData: VerificationCode = {
-        code,
-        email,
-        deviceFingerprint,
-        clientIp,
-        expiresAt,
-        attempts: 0,
-        maxAttempts: this.MAX_ATTEMPTS,
-        createdAt: new Date()
-      };
+      // Clean up any existing verification codes for this email/device combination
+      await db.delete(emailVerificationCodes)
+        .where(and(
+          eq(emailVerificationCodes.email, email),
+          eq(emailVerificationCodes.deviceFingerprint, deviceFingerprint)
+        ));
 
-      // Store with email as key for easy retrieval
-      const verificationKey = `email_verification:${email}:${deviceFingerprint}`;
       try {
-        await replitTokenStorage.storeDeviceData(verificationKey, verificationData);
+        await db.insert(emailVerificationCodes)
+          .values({
+            email,
+            code,
+            deviceFingerprint,
+            clientIp,
+            attempts: 0,
+            maxAttempts: this.MAX_ATTEMPTS,
+            expiresAt
+          });
         console.log(`✅ Generated verification code for ${email} (expires: ${expiresAt.toISOString()})`);
       } catch (storeError) {
         console.error('Failed to store verification code:', storeError);
@@ -157,21 +165,33 @@ export class EmailVerificationService {
     attemptsRemaining?: number;
   }> {
     try {
-      const verificationKey = `email_verification:${email}:${deviceFingerprint}`;
-      const storedData = await replitTokenStorage.getDeviceData(verificationKey);
+      // Clean up expired codes first
+      const now = new Date();
+      await db.delete(emailVerificationCodes)
+        .where(lt(emailVerificationCodes.expiresAt, now));
 
-      if (!storedData) {
+      // Find the verification code
+      const verificationRecord = await db.select()
+        .from(emailVerificationCodes)
+        .where(and(
+          eq(emailVerificationCodes.email, email),
+          eq(emailVerificationCodes.deviceFingerprint, deviceFingerprint)
+        ))
+        .limit(1);
+
+      if (verificationRecord.length === 0) {
         return {
           success: false,
           error: 'No verification code found. Please request a new code.'
         };
       }
 
-      const verificationData: VerificationCode = storedData;
+      const verificationData = verificationRecord[0];
 
       // Check if code has expired
-      if (new Date() > new Date(verificationData.expiresAt)) {
-        await replitTokenStorage.deleteDeviceData(verificationKey);
+      if (now > verificationData.expiresAt) {
+        await db.delete(emailVerificationCodes)
+          .where(eq(emailVerificationCodes.id, verificationData.id));
         return {
           success: false,
           error: 'Verification code has expired. Please request a new code.'
@@ -180,7 +200,8 @@ export class EmailVerificationService {
 
       // Check attempt limits
       if (verificationData.attempts >= verificationData.maxAttempts) {
-        await replitTokenStorage.deleteDeviceData(verificationKey);
+        await db.delete(emailVerificationCodes)
+          .where(eq(emailVerificationCodes.id, verificationData.id));
         return {
           success: false,
           error: 'Too many failed attempts. Please request a new verification code.'
@@ -197,7 +218,8 @@ export class EmailVerificationService {
       // Check if code matches
       if (verificationData.code === submittedCode.trim()) {
         // Success! Clean up the verification code
-        await replitTokenStorage.deleteDeviceData(verificationKey);
+        await db.delete(emailVerificationCodes)
+          .where(eq(emailVerificationCodes.id, verificationData.id));
         console.log(`✅ Email verification successful for ${email}`);
 
         return {
@@ -205,14 +227,17 @@ export class EmailVerificationService {
         };
       } else {
         // Increment attempts and update storage
-        verificationData.attempts++;
-        const attemptsRemaining = verificationData.maxAttempts - verificationData.attempts;
+        const newAttempts = verificationData.attempts + 1;
+        const attemptsRemaining = verificationData.maxAttempts - newAttempts;
 
         if (attemptsRemaining > 0) {
-          await replitTokenStorage.storeDeviceData(verificationKey, verificationData);
+          await db.update(emailVerificationCodes)
+            .set({ attempts: newAttempts })
+            .where(eq(emailVerificationCodes.id, verificationData.id));
         } else {
           // Max attempts reached, delete the code
-          await replitTokenStorage.deleteDeviceData(verificationKey);
+          await db.delete(emailVerificationCodes)
+            .where(eq(emailVerificationCodes.id, verificationData.id));
         }
 
         return {
@@ -237,8 +262,18 @@ export class EmailVerificationService {
    */
   async cleanupExpiredCodes(): Promise<void> {
     try {
-      // This will be handled automatically by Replit Database TTL
-      console.log('🧹 Expired verification codes cleaned up automatically by TTL');
+      const now = new Date();
+      
+      // Clean up expired verification codes
+      const deletedCodes = await db.delete(emailVerificationCodes)
+        .where(lt(emailVerificationCodes.expiresAt, now));
+      
+      // Clean up old rate limit records (older than 1 hour)
+      const oneHourAgo = new Date(now.getTime() - 60 * 60 * 1000);
+      const deletedRateLimit = await db.delete(emailVerificationRateLimit)
+        .where(lt(emailVerificationRateLimit.windowStart, oneHourAgo));
+      
+      console.log('🧹 Expired verification codes and rate limit records cleaned up');
     } catch (error) {
       console.error('Failed to cleanup expired codes:', error);
     }

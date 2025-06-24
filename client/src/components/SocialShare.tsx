@@ -1,7 +1,7 @@
 
 import { useState } from "react";
 import * as Luc from "lucide-react";
-import * as SimpleIcons from "simple-icons";
+// import * as SimpleIcons from "simple-icons"; // Available if needed for future social icons
 import { Button } from "@/components/ui/button";
 
 interface SocialShareProps {
@@ -40,7 +40,7 @@ export const SocialShare = ({
       await navigator.clipboard.writeText(url);
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
-    } catch (err) {
+    } catch {
       // Fallback for older browsers
       const textArea = document.createElement('textarea');
       textArea.value = url;

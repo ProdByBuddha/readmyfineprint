@@ -1,16 +1,18 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { Crown, TrendingUp, Calendar, CreditCard, Settings, AlertCircle, CheckCircle, LogIn } from 'lucide-react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Progress } from '@/components/ui/progress';
+// Progress component available for future usage metrics display
+// import { Progress } from '@/components/ui/progress';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import SubscriptionPlans from '@/components/SubscriptionPlans';
 import { StripeWrapper } from '@/components/StripeWrapper';
 import { SubscriptionLogin } from '@/components/SubscriptionLogin';
 import { getStoredDeviceFingerprint } from '@/utils/deviceFingerprint';
+import { createCustomerPortalSession, reactivateSubscription } from '@/lib/api';
 
 interface SubscriptionData {
   subscription?: {
@@ -19,6 +21,7 @@ interface SubscriptionData {
     status: string;
     currentPeriodEnd: Date;
     billingCycle?: 'monthly' | 'yearly';
+    cancelAtPeriodEnd?: boolean;
   };
   tier: {
     id: string;
@@ -83,12 +86,12 @@ export default function SubscriptionPage() {
           const { token, subscription } = await tokenResponse.json();
           if (token) {
             localStorage.setItem('subscriptionToken', token);
-            console.log('Stored subscription token from successful checkout');
+            // Token stored successfully
             setSubscriptionData(subscription);
           }
         }
-      } catch (tokenError) {
-        console.log('No token available yet, fetching subscription data normally');
+      } catch {
+        // No token available yet, fetching subscription data normally
       }
       
       // Fallback to normal subscription fetch
@@ -102,7 +105,7 @@ export default function SubscriptionPage() {
     }
   };
 
-  const handleLoginSuccess = (token: string, subscription: any) => {
+  const handleLoginSuccess = (_token: string, subscription: SubscriptionData) => {
     setSubscriptionData(subscription);
     setShowLogin(false);
     setActiveTab('overview');
@@ -143,10 +146,10 @@ export default function SubscriptionPage() {
       if (tokenInvalid) {
         // Server indicates token is invalid - remove it
         localStorage.removeItem('subscriptionToken');
-        console.log('Removed invalid subscription token');
+        // Removed invalid subscription token
       } else if (returnedToken) {
         localStorage.setItem('subscriptionToken', returnedToken);
-        console.log('Confirmed subscription token is valid');
+        // Confirmed subscription token is valid
       }
 
       // Convert resetDate string back to Date object
@@ -193,7 +196,12 @@ export default function SubscriptionPage() {
 
   const handlePlanSelect = async (tierId: string, billingCycle: 'monthly' | 'yearly') => {
     if (tierId === 'free') {
-      setActiveTab('overview');
+      // Handle downgrade to free tier
+      if (subscriptionData?.tier.id !== 'free') {
+        await handleDowngradeToFree();
+      } else {
+        setActiveTab('overview');
+      }
       return;
     }
 
@@ -258,6 +266,74 @@ export default function SubscriptionPage() {
     }
   };
 
+  const handleDowngradeToFree = async () => {
+    if (window.confirm('Are you sure you want to downgrade to the free plan? Your subscription will be canceled and you will be downgraded at the end of your billing period.')) {
+      try {
+        const headers: HeadersInit = {
+          'Content-Type': 'application/json',
+        };
+
+        // Include subscription token if available for authentication
+        const subscriptionToken = localStorage.getItem('subscriptionToken');
+        const deviceFingerprint = getStoredDeviceFingerprint();
+        console.log(`[Downgrade Frontend] Token: ${subscriptionToken ? 'present' : 'missing'}, Device FP: ${deviceFingerprint}`);
+        
+        if (subscriptionToken) {
+          headers['X-Subscription-Token'] = subscriptionToken;
+          headers['X-Device-Fingerprint'] = deviceFingerprint;
+        }
+
+        const response = await fetch('/api/subscription/downgrade-to-free', {
+          method: 'POST',
+          credentials: 'include',
+          headers,
+        });
+
+        if (!response.ok) {
+          const errorData = await response.json().catch(() => ({ error: 'Unknown server error' }));
+          throw new Error(errorData.error || `HTTP error! status: ${response.status}`);
+        }
+
+        const data = await response.json();
+        window.alert(data.message || 'Successfully downgraded to free plan.');
+        fetchSubscriptionData(); // Refresh data
+        setActiveTab('overview'); // Switch to overview tab
+      } catch (error) {
+        console.error('Error downgrading to free tier:', error);
+        const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
+        window.alert(`Failed to downgrade subscription: ${errorMessage}. Please try again.`);
+      }
+    }
+  };
+
+  const handleUpdatePaymentMethod = async () => {
+    try {
+      const { url } = await createCustomerPortalSession();
+      window.location.href = url;
+    } catch (error) {
+      console.error('Error opening customer portal:', error);
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
+      window.alert(`Failed to open payment settings: ${errorMessage}. Please try again.`);
+    }
+  };
+
+  const handleReactivateSubscription = async () => {
+    if (window.confirm('Are you sure you want to reactivate your subscription? This will resume your subscription and you will continue to be billed.')) {
+      try {
+        const { success, message } = await reactivateSubscription();
+        if (success) {
+          window.alert(message);
+          fetchSubscriptionData(); // Refresh data
+          setActiveTab('overview'); // Switch to overview tab
+        }
+      } catch (error) {
+        console.error('Error reactivating subscription:', error);
+        const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
+        window.alert(`Failed to reactivate subscription: ${errorMessage}. Please try again.`);
+      }
+    }
+  };
+
   // Show coming soon modal in production
   if (showComingSoon) {
     return (
@@ -304,26 +380,27 @@ export default function SubscriptionPage() {
     );
   }
 
-  const usagePercentage = subscriptionData.tier.limits.documentsPerMonth === -1
-    ? 0 // Unlimited, so no percentage
-    : (subscriptionData.usage.documentsAnalyzed / subscriptionData.tier.limits.documentsPerMonth) * 100;
+  // Usage percentage calculation (currently unused but available for future features)
+  // const usagePercentage = subscriptionData.tier.limits.documentsPerMonth === -1
+  //   ? 0 // Unlimited, so no percentage
+  //   : (subscriptionData.usage.documentsAnalyzed / subscriptionData.tier.limits.documentsPerMonth) * 100;
 
-  // Ensure resetDate is a Date object and is valid
-  let resetDate: Date;
-  try {
-    resetDate = subscriptionData.usage.resetDate instanceof Date 
-      ? subscriptionData.usage.resetDate 
-      : new Date(subscriptionData.usage.resetDate);
+  // Reset date calculation (currently unused but available for billing info)
+  // let resetDate: Date;
+  // try {
+  //   resetDate = subscriptionData.usage.resetDate instanceof Date 
+  //     ? subscriptionData.usage.resetDate 
+  //     : new Date(subscriptionData.usage.resetDate);
 
-    // Check if date is valid
-    if (isNaN(resetDate.getTime())) {
-      resetDate = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000); // 30 days from now as fallback
-    }
-  } catch (error) {
-    resetDate = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000); // 30 days from now as fallback
-  }
+  //   // Check if date is valid
+  //   if (isNaN(resetDate.getTime())) {
+  //     resetDate = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000); // 30 days from now as fallback
+  //   }
+  // } catch {
+  //   resetDate = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000); // 30 days from now as fallback
+  // }
 
-  const daysUntilReset = Math.max(0, Math.ceil((resetDate.getTime() - Date.now()) / (1000 * 60 * 60 * 24)));
+  // const daysUntilReset = Math.max(0, Math.ceil((resetDate.getTime() - Date.now()) / (1000 * 60 * 60 * 24)));
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-slate-900">
@@ -336,7 +413,7 @@ export default function SubscriptionPage() {
           <div className="flex items-center justify-between">
             <div>
               <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">Subscription Management</h1>
-              <p className="text-gray-600 dark:text-gray-300">Manage your subscription, view usage, and upgrade your plan</p>
+              <p className="text-gray-600 dark:text-gray-300">Manage your subscription and upgrade your plan</p>
             </div>
           </div>
         </motion.div>
@@ -444,7 +521,7 @@ export default function SubscriptionPage() {
                         <Progress value={usagePercentage} className="h-2" />
                         {usagePercentage > 80 && (
                           <p className="text-sm text-orange-600 mt-1">
-                            You're approaching your monthly limit
+                            You&apos;re approaching your monthly limit
                           </p>
                         )}
                       </>
@@ -521,7 +598,7 @@ export default function SubscriptionPage() {
                       <div>
                         <strong className="dark:text-white">Already have a subscription?</strong>
                         <p className="text-sm mt-1 dark:text-gray-300">
-                          If you've already subscribed, click here to access your account from this device.
+                          If you&apos;ve already subscribed, click here to access your account from this device.
                         </p>
                       </div>
                       <Button 
@@ -540,7 +617,9 @@ export default function SubscriptionPage() {
             <StripeWrapper>
               <SubscriptionPlans
                 currentTier={subscriptionData.tier.id}
+                cancelAtPeriodEnd={subscriptionData.subscription?.cancelAtPeriodEnd}
                 onSelectPlan={handlePlanSelect}
+                onReactivate={handleReactivateSubscription}
               />
             </StripeWrapper>
           </TabsContent>
@@ -558,42 +637,87 @@ export default function SubscriptionPage() {
                   <div className="text-center py-8">
                     <Calendar className="h-12 w-12 text-gray-400 mx-auto mb-4" />
                     <h3 className="text-lg font-semibold text-gray-600 dark:text-gray-300 mb-2">No Billing Information</h3>
-                    <p className="text-gray-500 dark:text-gray-400 mb-4">You're currently on the free plan</p>
+                    <p className="text-gray-500 dark:text-gray-400 mb-4">You&apos;re currently on the free plan</p>
                     <Button onClick={() => setActiveTab('plans')}>
                       Upgrade to Paid Plan
                     </Button>
                   </div>
                 ) : (
                   <div className="space-y-4">
-                    <div className="flex justify-between items-center p-4 bg-gray-50 dark:bg-gray-800 rounded-lg">
-                      <div>
-                        <h4 className="font-semibold dark:text-white">Next Billing Date</h4>
-                        <p className="text-gray-600 dark:text-gray-300">{resetDate.toLocaleDateString()}</p>
-                      </div>
-                      <div className="text-right">
-                        <div className="text-xl font-bold dark:text-white">
-                          ${subscriptionData.subscription?.billingCycle === 'yearly' ? 
-                            Math.round((subscriptionData.tier.yearlyPrice || subscriptionData.tier.monthlyPrice * 12) / 12) : 
-                            subscriptionData.tier.monthlyPrice}
+                    {!subscriptionData.subscription?.cancelAtPeriodEnd ? (
+                      <div className="flex justify-between items-center p-4 bg-gray-50 dark:bg-gray-800 rounded-lg">
+                        <div>
+                          <h4 className="font-semibold dark:text-white">Next Billing Date</h4>
+                          <p className="text-gray-600 dark:text-gray-300">
+                            {subscriptionData.usage.resetDate instanceof Date 
+                              ? subscriptionData.usage.resetDate.toLocaleDateString()
+                              : new Date(subscriptionData.usage.resetDate).toLocaleDateString()}
+                          </p>
                         </div>
-                        <div className="text-sm text-gray-600 dark:text-gray-300">
-                          {subscriptionData.subscription?.billingCycle === 'yearly' ? 'Yearly' : 'Monthly'}
+                        <div className="text-right">
+                          <div className="text-xl font-bold dark:text-white">
+                            ${subscriptionData.subscription?.billingCycle === 'yearly' ? 
+                              Math.round((subscriptionData.tier.yearlyPrice || subscriptionData.tier.monthlyPrice * 12) / 12) : 
+                              subscriptionData.tier.monthlyPrice}
+                          </div>
+                          <div className="text-sm text-gray-600 dark:text-gray-300">
+                            {subscriptionData.subscription?.billingCycle === 'yearly' ? 'Yearly' : 'Monthly'}
+                          </div>
                         </div>
                       </div>
-                    </div>
+                    ) : (
+                      <div className="flex justify-between items-center p-4 bg-gray-50 dark:bg-gray-800 rounded-lg">
+                        <div>
+                          <h4 className="font-semibold dark:text-white">Access Expires</h4>
+                          <p className="text-gray-600 dark:text-gray-300">
+                            {subscriptionData.usage.resetDate instanceof Date 
+                              ? subscriptionData.usage.resetDate.toLocaleDateString()
+                              : new Date(subscriptionData.usage.resetDate).toLocaleDateString()}
+                          </p>
+                        </div>
+                        <div className="text-right">
+                          <div className="text-lg font-semibold text-orange-600 dark:text-orange-400">
+                            Cancelled
+                          </div>
+                          <div className="text-sm text-gray-600 dark:text-gray-300">
+                            No future billing
+                          </div>
+                        </div>
+                      </div>
+                    )}
 
                     <div className="flex space-x-3">
-                      <Button variant="outline" className="flex-1">
+                      <Button 
+                        variant="outline" 
+                        className="flex-1"
+                        onClick={handleUpdatePaymentMethod}
+                      >
                         <Settings className="h-4 w-4 mr-2" />
                         Update Payment Method
                       </Button>
-                      <Button
-                        variant="destructive"
-                        className="flex-1"
-                        onClick={handleCancelSubscription}
-                      >
-                        Cancel Subscription
-                      </Button>
+                      {!subscriptionData.subscription?.cancelAtPeriodEnd && (
+                        <Button
+                          variant="destructive"
+                          className="flex-1"
+                          onClick={handleCancelSubscription}
+                        >
+                          Cancel Subscription
+                        </Button>
+                      )}
+                      {subscriptionData.subscription?.cancelAtPeriodEnd && (
+                        <div className="flex-1 space-y-3">
+                          <div className="text-center py-2 px-4 bg-orange-50 dark:bg-orange-900/20 text-orange-700 dark:text-orange-300 rounded-md border border-orange-200 dark:border-orange-800">
+                            <span className="text-sm font-medium">Subscription Canceled</span>
+                            <p className="text-xs mt-1">Access until end of billing period</p>
+                          </div>
+                          <Button
+                            className="w-full bg-green-600 hover:bg-green-700 text-white"
+                            onClick={handleReactivateSubscription}
+                          >
+                            Reactivate Subscription
+                          </Button>
+                        </div>
+                      )}
                     </div>
                   </div>
                 )}
@@ -607,11 +731,20 @@ export default function SubscriptionPage() {
       {showLogin && (
         <div 
           className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4"
-          onClick={() => setShowLogin(false)}
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="subscription-login-modal"
         >
+          <button
+            className="absolute inset-0 w-full h-full cursor-default"
+            onClick={() => setShowLogin(false)}
+            onKeyDown={(e) => e.key === 'Escape' && setShowLogin(false)}
+            aria-label="Close modal"
+            tabIndex={-1}
+          />
           <div 
-            className="bg-white dark:bg-gray-800 rounded-lg max-w-md w-full"
-            onClick={(e) => e.stopPropagation()}
+            className="bg-white dark:bg-gray-800 rounded-lg max-w-md w-full relative z-10"
+            role="document"
           >
             <SubscriptionLogin
               onSuccess={handleLoginSuccess}

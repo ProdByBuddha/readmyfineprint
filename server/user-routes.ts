@@ -139,21 +139,33 @@ export function registerUserRoutes(app: Express) {
         return res.status(400).json({ error: "Token is required" });
       }
 
-      // Use the storage system to validate the token
-      const { databaseStorage, storage } = await import("./storage");
+      // Use hybrid token service for validation (supports both JOSE and PostgreSQL)
+      const { hybridTokenService } = await import("./hybrid-token-service");
       
       try {
-        // Try to get token info from storage
-        const tokenData = await storage.getStoredToken(token);
+        // Debug: Log the incoming token for troubleshooting
+        console.log(`🔍 Validating token: ${token.slice(0, 50)}... (length: ${token.length})`);
+        
+        // Try to get token info from hybrid service (supports both JOSE and PostgreSQL)
+        const tokenData = await hybridTokenService.validateSubscriptionToken(token);
+        
+        console.log(`🔍 Token validation result:`, tokenData ? 'SUCCESS' : 'FAILED');
+        if (tokenData) {
+          console.log(`🔍 Token data: userId=${tokenData.userId}, tierId=${tokenData.tierId}`);
+        }
         
         if (!tokenData) {
+          console.log(`❌ Token validation failed for: ${token.slice(0, 20)}...`);
           return res.status(401).json({ error: "Invalid token" });
         }
 
-        // Check if token is expired
+        // Check if token is expired (this is already handled in validateSubscriptionToken method)
         if (tokenData.expiresAt && new Date() > new Date(tokenData.expiresAt)) {
           return res.status(401).json({ error: "Token expired" });
         }
+
+        // Update token usage (only for PostgreSQL tokens)
+        await hybridTokenService.updateTokenUsage(token);
 
         // Token is valid
         res.json({ 

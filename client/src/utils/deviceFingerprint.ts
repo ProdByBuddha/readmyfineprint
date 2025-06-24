@@ -3,6 +3,9 @@
  * This helps detect if a token is being used from a different device
  */
 
+declare const screen: Screen;
+declare const btoa: (data: string) => string;
+
 export function generateDeviceFingerprint(): string {
   try {
     const components = [

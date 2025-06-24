@@ -4,7 +4,7 @@ import { Link } from "wouter";
 import { useTheme } from "@/components/ThemeProvider";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { useToast } from "@/hooks/use-toast";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import ReactDOM from 'react-dom';
 import { SubscriptionLogin } from "@/components/SubscriptionLogin";
 
@@ -16,48 +16,49 @@ export function Header() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [isCheckingAuth, setIsCheckingAuth] = useState(true);
 
-  // Check if we're in development mode
-  const isDevelopment = import.meta.env.DEV || import.meta.env.MODE === 'development';
+  // Note: Development mode check available if needed
+  // const isDevelopment = import.meta.env.DEV || import.meta.env.MODE === 'development';
+
+  // Shared login status check function
+  const checkLoginStatus = useCallback(async () => {
+    setIsCheckingAuth(true);
+    const token = localStorage.getItem('subscriptionToken');
+    
+    if (!token) {
+      setIsLoggedIn(false);
+      setIsCheckingAuth(false);
+      return;
+    }
+
+    // Validate token with backend
+    try {
+      const response = await fetch('/api/users/validate-token', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'x-subscription-token': token,
+        },
+      });
+
+      if (response.ok) {
+        setIsLoggedIn(true);
+      } else {
+        // Token is invalid, remove it
+        localStorage.removeItem('subscriptionToken');
+        setIsLoggedIn(false);
+      }
+    } catch (error) {
+      // On error, assume token is invalid
+      console.warn('Token validation failed:', error);
+      localStorage.removeItem('subscriptionToken');
+      setIsLoggedIn(false);
+    } finally {
+      setIsCheckingAuth(false);
+    }
+  }, []);
 
   // Check login status on component mount and when localStorage changes
   useEffect(() => {
-    const checkLoginStatus = async () => {
-      setIsCheckingAuth(true);
-      const token = localStorage.getItem('subscriptionToken');
-      
-      if (!token) {
-        setIsLoggedIn(false);
-        setIsCheckingAuth(false);
-        return;
-      }
-
-      // Validate token with backend
-      try {
-        const response = await fetch('/api/users/validate-token', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'x-subscription-token': token,
-          },
-        });
-
-        if (response.ok) {
-          setIsLoggedIn(true);
-        } else {
-          // Token is invalid, remove it
-          localStorage.removeItem('subscriptionToken');
-          setIsLoggedIn(false);
-        }
-      } catch (error) {
-        // On error, assume token is invalid
-        console.warn('Token validation failed:', error);
-        localStorage.removeItem('subscriptionToken');
-        setIsLoggedIn(false);
-      } finally {
-        setIsCheckingAuth(false);
-      }
-    };
-
     checkLoginStatus();
 
     // Listen for storage changes (in case user logs in/out in another tab)
@@ -66,9 +67,9 @@ export function Header() {
     return () => {
       window.removeEventListener('storage', checkLoginStatus);
     };
-  }, []);
+  }, [checkLoginStatus]);
 
-  const handleSubscriptionClick = (e: React.MouseEvent) => {
+  const handleSubscriptionClick = () => {
     // Allow navigation to subscription page
   };
 
@@ -93,13 +94,17 @@ export function Header() {
     window.location.href = '/';
   };
 
-  const handleLoginSuccess = (token: string, subscription: any) => {
+  const handleLoginSuccess = async () => {
     setShowLogin(false);
-    setIsLoggedIn(true);
+    
+    // Re-check login status to validate the token
+    await checkLoginStatus();
+    
     toast({
       title: "Login Successful",
       description: "Welcome back! You're now logged into your account.",
     });
+    
     // Redirect to home page
     window.location.href = '/';
   };
@@ -310,11 +315,20 @@ export function Header() {
             ReactDOM.createPortal(
               <div 
                 className="fixed inset-0 bg-black bg-opacity-50 z-[9999] flex items-center justify-center p-4"
-                onClick={() => setShowLogin(false)}
+                role="dialog"
+                aria-modal="true"
+                aria-labelledby="login-modal-title"
               >
+                <button
+                  className="absolute inset-0 w-full h-full cursor-default"
+                  onClick={() => setShowLogin(false)}
+                  onKeyDown={(e) => e.key === 'Escape' && setShowLogin(false)}
+                  aria-label="Close modal"
+                  tabIndex={-1}
+                />
                 <div 
-                  className="bg-white dark:bg-gray-800 rounded-lg max-w-md w-full shadow-2xl"
-                  onClick={(e) => e.stopPropagation()}
+                  className="bg-white dark:bg-gray-800 rounded-lg max-w-md w-full shadow-2xl relative z-10"
+                  role="document"
                 >
                   <SubscriptionLogin
                     onSuccess={handleLoginSuccess}

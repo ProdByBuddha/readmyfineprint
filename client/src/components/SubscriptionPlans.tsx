@@ -4,7 +4,8 @@ import { Check, Crown, Zap, Star, Sparkles, AlertTriangle } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Alert, AlertDescription } from '@/components/ui/alert';
+// Alert components available if needed for future features
+// import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
 
@@ -167,7 +168,9 @@ const SUBSCRIPTION_TIERS: SubscriptionTier[] = [
 
 interface SubscriptionPlansProps {
   currentTier?: string;
+  cancelAtPeriodEnd?: boolean;
   onSelectPlan: (tierId: string, billingCycle: 'monthly' | 'yearly') => void;
+  onReactivate?: () => void;
 }
 
 const getTierIcon = (tierId: string) => {
@@ -198,7 +201,7 @@ const calculateSavings = (monthlyPrice: number, yearlyPrice: number) => {
   return Math.round(((annualAtMonthly - yearlyPrice) / annualAtMonthly) * 100);
 };
 
-export default function SubscriptionPlans({ currentTier, onSelectPlan }: SubscriptionPlansProps) {
+export default function SubscriptionPlans({ currentTier, cancelAtPeriodEnd, onSelectPlan, onReactivate }: SubscriptionPlansProps) {
   const [billingCycle, setBillingCycle] = useState<'monthly' | 'yearly'>('monthly');
   const [isConsidering, setIsConsidering] = useState(false);
 
@@ -343,14 +346,25 @@ export default function SubscriptionPlans({ currentTier, onSelectPlan }: Subscri
 
 
                   {/* Action Button */}
-                  {!(isCurrentTier && tier.id === 'free') && (
+                  {!(tier.id === 'free' && currentTier === 'free') && !(tier.id === 'free' && cancelAtPeriodEnd) && (
                     <Button
-                      className={`w-full ${tier.popular ? 'bg-blue-600 hover:bg-blue-700' : ''}`}
-                      variant={tier.popular ? 'default' : 'outline'}
-                      onClick={() => handleSelectPlan(tier.id, billingCycle)}
-                      disabled={isCurrentTier && tier.id !== 'free'}
+                      className={`w-full ${
+                        tier.popular ? 'bg-blue-600 hover:bg-blue-700' : 
+                        (isCurrentTier && cancelAtPeriodEnd) ? 'bg-green-600 hover:bg-green-700 text-white' : ''
+                      }`}
+                      variant={tier.popular ? 'default' : (isCurrentTier && cancelAtPeriodEnd) ? 'default' : 'outline'}
+                      onClick={() => {
+                        if (isCurrentTier && cancelAtPeriodEnd && onReactivate) {
+                          onReactivate();
+                        } else {
+                          handleSelectPlan(tier.id, billingCycle);
+                        }
+                      }}
+                      disabled={isCurrentTier && tier.id !== 'free' && !cancelAtPeriodEnd}
                     >
-                      {isCurrentTier ? (
+                      {isCurrentTier && cancelAtPeriodEnd ? (
+                        'Reactivate Plan'
+                      ) : isCurrentTier ? (
                         'Current Plan'
                       ) : tier.id === 'free' ? (
                         'Downgrade'
@@ -372,7 +386,7 @@ export default function SubscriptionPlans({ currentTier, onSelectPlan }: Subscri
           <div className="bg-white dark:bg-gray-800 rounded-lg p-8 max-w-md w-full">
             <div className="text-2xl font-semibold mb-4 dark:text-white">Coming Soon!</div>
             <p className="text-gray-600 dark:text-gray-400 mb-6">
-              We're working hard to bring you the Enterprise plan. It will be available soon.
+              We&apos;re working hard to bring you the Enterprise plan. It will be available soon.
             </p>
             <div className="flex justify-end">
               <Button variant="secondary" onClick={handleCloseConsidering}>

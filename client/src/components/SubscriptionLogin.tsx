@@ -262,7 +262,6 @@ export function SubscriptionLogin({
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 disabled={loading}
-                autoFocus
                 className="text-foreground placeholder:text-muted-foreground bg-background border-input"
                 style={{ color: 'var(--foreground)' }}
               />
@@ -371,7 +370,6 @@ export function SubscriptionLogin({
                 )
               }
               disabled={loading}
-              autoFocus
               className="text-center text-2xl font-mono tracking-wider text-foreground placeholder:text-muted-foreground bg-background border-input"
               style={{ color: 'var(--foreground)' }}
               maxLength={6}

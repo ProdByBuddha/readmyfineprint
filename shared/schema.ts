@@ -40,10 +40,46 @@ export const usageRecords = pgTable('usage_records', {
   updatedAt: timestamp('updated_at').defaultNow().notNull(),
 });
 
+export const subscriptionTokens = pgTable('subscription_tokens', {
+  id: uuid('id').primaryKey().defaultRandom(),
+  token: text('token').unique().notNull(),
+  userId: uuid('user_id').references(() => users.id, { onDelete: 'cascade' }).notNull(),
+  subscriptionId: uuid('subscription_id').references(() => userSubscriptions.id, { onDelete: 'cascade' }),
+  tierId: text('tier_id').notNull(),
+  deviceFingerprint: text('device_fingerprint'),
+  usageCount: integer('usage_count').default(0).notNull(),
+  lastUsed: timestamp('last_used').defaultNow().notNull(),
+  expiresAt: timestamp('expires_at').notNull(),
+  createdAt: timestamp('created_at').defaultNow().notNull(),
+  updatedAt: timestamp('updated_at').defaultNow().notNull(),
+});
+
+export const emailVerificationCodes = pgTable('email_verification_codes', {
+  id: uuid('id').primaryKey().defaultRandom(),
+  email: text('email').notNull(),
+  code: text('code').notNull(),
+  deviceFingerprint: text('device_fingerprint').notNull(),
+  clientIp: text('client_ip').notNull(),
+  attempts: integer('attempts').default(0).notNull(),
+  maxAttempts: integer('max_attempts').default(3).notNull(),
+  expiresAt: timestamp('expires_at').notNull(),
+  createdAt: timestamp('created_at').defaultNow().notNull(),
+});
+
+export const emailVerificationRateLimit = pgTable('email_verification_rate_limit', {
+  id: uuid('id').primaryKey().defaultRandom(),
+  email: text('email').notNull(),
+  clientIp: text('client_ip').notNull(),
+  attempts: integer('attempts').default(1).notNull(),
+  windowStart: timestamp('window_start').defaultNow().notNull(),
+  createdAt: timestamp('created_at').defaultNow().notNull(),
+});
+
 // Relations
 export const usersRelations = relations(users, ({ many }) => ({
   subscriptions: many(userSubscriptions),
   usageRecords: many(usageRecords),
+  subscriptionTokens: many(subscriptionTokens),
 }));
 
 export const userSubscriptionsRelations = relations(userSubscriptions, ({ one, many }) => ({
@@ -52,6 +88,7 @@ export const userSubscriptionsRelations = relations(userSubscriptions, ({ one, m
     references: [users.id],
   }),
   usageRecords: many(usageRecords),
+  subscriptionTokens: many(subscriptionTokens),
 }));
 
 export const usageRecordsRelations = relations(usageRecords, ({ one }) => ({
@@ -61,6 +98,17 @@ export const usageRecordsRelations = relations(usageRecords, ({ one }) => ({
   }),
   subscription: one(userSubscriptions, {
     fields: [usageRecords.subscriptionId],
+    references: [userSubscriptions.id],
+  }),
+}));
+
+export const subscriptionTokensRelations = relations(subscriptionTokens, ({ one }) => ({
+  user: one(users, {
+    fields: [subscriptionTokens.userId],
+    references: [users.id],
+  }),
+  subscription: one(userSubscriptions, {
+    fields: [subscriptionTokens.subscriptionId],
     references: [userSubscriptions.id],
   }),
 }));
@@ -84,9 +132,28 @@ const insertUsageRecordSchemaBase = createInsertSchema(usageRecords).omit({
   updatedAt: true,
 });
 
+const insertSubscriptionTokenSchemaBase = createInsertSchema(subscriptionTokens).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+const insertEmailVerificationCodeSchemaBase = createInsertSchema(emailVerificationCodes).omit({
+  id: true,
+  createdAt: true,
+});
+
+const insertEmailVerificationRateLimitSchemaBase = createInsertSchema(emailVerificationRateLimit).omit({
+  id: true,
+  createdAt: true,
+});
+
 export const insertUserSchema = insertUserSchemaBase;
 export const insertUserSubscriptionSchema = insertUserSubscriptionSchemaBase;
 export const insertUsageRecordSchema = insertUsageRecordSchemaBase;
+export const insertSubscriptionTokenSchema = insertSubscriptionTokenSchemaBase;
+export const insertEmailVerificationCodeSchema = insertEmailVerificationCodeSchemaBase;
+export const insertEmailVerificationRateLimitSchema = insertEmailVerificationRateLimitSchemaBase;
 
 // Database Types
 export type User = typeof users.$inferSelect;
@@ -115,6 +182,17 @@ export type InsertUsageRecord = {
   documentsAnalyzed?: number;
   tokensUsed?: number;
   cost?: string;
+};
+export type SubscriptionToken = typeof subscriptionTokens.$inferSelect;
+export type InsertSubscriptionToken = {
+  token: string;
+  userId: string;
+  subscriptionId?: string | null;
+  tierId: string;
+  deviceFingerprint?: string | null;
+  usageCount?: number;
+  lastUsed?: Date;
+  expiresAt: Date;
 };
 
 export const insertDocumentSchema = z.object({
@@ -191,3 +269,11 @@ export const SubscriptionUpgradeSchema = z.object({
 
 export type SubscriptionTier = z.infer<typeof SubscriptionTierSchema>;
 export type SubscriptionUpgrade = z.infer<typeof SubscriptionUpgradeSchema>;
+
+// Subscription usage tracking interface
+export interface SubscriptionUsage {
+  documentsAnalyzed: number;
+  tokensUsed: number;
+  cost: number;
+  resetDate: Date;
+}

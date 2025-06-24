@@ -41,6 +41,85 @@ const getStripeInstance = (useTestMode: boolean = false) => {
 // Default stripe instance (live mode)
 const stripe = getStripeInstance(false);
 
+// Customer Portal configuration cache to avoid repeated API calls
+const portalConfigCache = new Map<string, { config: any; timestamp: number }>();
+const CACHE_DURATION = 24 * 60 * 60 * 1000; // 24 hours
+
+// Ensure Customer Portal configuration exists
+async function ensureCustomerPortalConfiguration(stripeInstance: Stripe): Promise<void> {
+  // Determine environment based on NODE_ENV instead of API host
+  const cacheKey = process.env.NODE_ENV === 'development' ? 'test' : 'live';
+  const cached = portalConfigCache.get(cacheKey);
+  
+  // Return cached config if still valid
+  if (cached && Date.now() - cached.timestamp < CACHE_DURATION) {
+    return;
+  }
+
+  try {
+    // Check if any configurations exist
+    const configurations = await stripeInstance.billingPortal.configurations.list({ limit: 1 });
+    
+    if (configurations.data.length === 0) {
+      console.log(`Creating default Customer Portal configuration for ${cacheKey} mode`);
+      
+      // Create default configuration
+      const config = await stripeInstance.billingPortal.configurations.create({
+        business_profile: {
+          headline: 'ReadMyFinePrint - Subscription Management',
+          privacy_policy_url: 'https://readmyfineprint.com/privacy',
+          terms_of_service_url: 'https://readmyfineprint.com/terms',
+        },
+        features: {
+          customer_update: {
+            enabled: true,
+            allowed_updates: ['email', 'address', 'shipping', 'phone', 'tax_id'],
+          },
+          invoice_history: {
+            enabled: true,
+          },
+          payment_method_update: {
+            enabled: true,
+          },
+          subscription_cancel: {
+            enabled: true,
+            mode: 'at_period_end',
+            proration_behavior: 'none',
+            cancellation_reason: {
+              enabled: true,
+              options: [
+                'too_expensive',
+                'missing_features', 
+                'switched_service',
+                'unused',
+                'other'
+              ],
+            },
+          },
+          subscription_update: {
+            enabled: true,
+            default_allowed_updates: ['price', 'quantity', 'promotion_code'],
+            proration_behavior: 'create_prorations',
+          },
+        },
+        default_return_url: 'https://readmyfineprint.com/subscription',
+      });
+
+      portalConfigCache.set(cacheKey, { config, timestamp: Date.now() });
+      console.log(`Customer Portal configuration created: ${config.id}`);
+    } else {
+      // Cache existing configuration
+      portalConfigCache.set(cacheKey, { 
+        config: configurations.data[0], 
+        timestamp: Date.now() 
+      });
+    }
+  } catch (error: any) {
+    console.error(`Error ensuring Customer Portal configuration:`, error);
+    // Don't throw - let the portal session creation handle the error
+  }
+}
+
 // Configure multer for file uploads with enhanced security
 const upload = multer({
   storage: multer.memoryStorage(),
@@ -615,7 +694,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
             await storage.createDocument(req.sessionId, {
               title: sessionDoc.title,
               content: sessionDoc.content,
-              fileType: sessionDoc.fileType,
+              fileType: sessionDoc.fileType || undefined,
               analysis: sessionDoc.analysis
             }, clientFingerprint, documentId);
             document = sessionDoc;
@@ -669,7 +748,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
         
         if (subscriptionData) {
           // Extract actual user ID from token validation
-          const tokenData = await (await import('./replit-token-storage')).replitTokenStorage.getToken(subscriptionToken);
+          const { hybridTokenService } = await import('./hybrid-token-service');
+          const tokenData = await hybridTokenService.validateSubscriptionToken(subscriptionToken);
           if (tokenData) {
             userId = tokenData.userId;
             console.log(`✅ Using subscription token user: ${userId} (${subscriptionData.tier.name} tier)`);
@@ -854,32 +934,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.get("/api/admin/user-devices/:userId", requireAdminAuth, async (req, res) => {
     try {
       const { userId } = req.params;
-      const { replitTokenStorage } = await import('./replit-token-storage');
-      
-      const deviceKey = `user_devices:${userId}`;
-      const deviceData = await replitTokenStorage.getDeviceData(deviceKey);
-      
-      if (!deviceData) {
-        return res.json({
-          userId,
-          devices: [],
-          totalDevices: 0,
-          recentDevices: 0
-        });
-      }
-      
-      // Calculate recent devices (last 24 hours)
-      const twentyFourHoursAgo = new Date(Date.now() - 24 * 60 * 60 * 1000);
-      const recentDevices = deviceData.devices.filter((device: any) => 
-        new Date(device.lastUsed) > twentyFourHoursAgo
-      ).length;
-      
+      // Device data is only available for legacy PostgreSQL tokens
+      // JOSE tokens don't track device data
+      // Simplified device data for hybrid token system
       res.json({
         userId,
-        devices: deviceData.devices,
-        totalDevices: deviceData.devices.length,
-        recentDevices,
-        lastUpdated: deviceData.lastUpdated
+        devices: [],
+        totalDevices: 0,
+        recentDevices: 0
       });
     } catch (error) {
       console.error("Error getting user devices:", error);
@@ -890,15 +952,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Token cleanup and statistics (admin only)
   app.post("/api/admin/cleanup-tokens", requireAdminAuth, async (req, res) => {
     try {
-      const { replitTokenStorage } = await import('./replit-token-storage');
-      const results = await replitTokenStorage.cleanupExpired();
+      const { hybridTokenService } = await import('./hybrid-token-service');
+      const results = await hybridTokenService.cleanupExpired();
       
       res.json({
         success: true,
         message: 'Token cleanup completed',
-        tokensRemoved: results.tokensRemoved,
-        sessionsRemoved: results.sessionsRemoved,
-        deviceDataCleaned: results.deviceDataCleaned
+        tokensRemoved: results.tokensRemoved
       });
     } catch (error) {
       console.error("Error during token cleanup:", error);
@@ -1216,6 +1276,222 @@ export async function registerRoutes(app: Express): Promise<Server> {
       console.error("Error canceling subscription:", error);
       res.status(500).json({ 
         error: "Failed to cancel subscription",
+        details: error instanceof Error ? error.message : "Unknown error"
+      });
+    }
+  });
+
+  // Downgrade to free tier (cancels Stripe subscription)
+  app.post("/api/subscription/downgrade-to-free", optionalUserAuth, async (req, res) => {
+    try {
+      let userId = req.user?.id || req.sessionId || "anonymous";
+      let subscriptionData;
+      
+      console.log(`[Downgrade] Initial userId: ${userId}, sessionId: ${req.sessionId}, user: ${req.user ? 'authenticated' : 'not authenticated'}`);
+      
+      // Check for subscription token authentication first
+      const subscriptionToken = req.headers['x-subscription-token'] as string;
+      const deviceFingerprint = req.headers['x-device-fingerprint'] as string;
+      
+      console.log(`[Downgrade] Headers - subscription token: ${subscriptionToken ? 'present' : 'missing'}, device fingerprint: ${deviceFingerprint ? 'present' : 'missing'}`);
+      
+      if (subscriptionToken) {
+        console.log(`[Downgrade] Attempting subscription token authentication`);
+        const clientIp = getClientInfo(req).ip;
+        subscriptionData = await subscriptionService.validateSubscriptionToken(subscriptionToken, deviceFingerprint, clientIp);
+        
+        if (subscriptionData && subscriptionData.subscription) {
+          // Extract user ID from validated subscription
+          userId = subscriptionData.subscription.userId;
+          console.log(`[Downgrade] Authenticated via subscription token, userId: ${userId}`);
+        } else {
+          console.log(`[Downgrade] Subscription token invalid or expired`);
+          return res.status(401).json({ 
+            error: "Your subscription token is invalid or expired. Please log in again." 
+          });
+        }
+      } else {
+        // Check if user is authenticated via session
+        if (userId === "anonymous" || userId.startsWith('session_')) {
+          return res.status(401).json({ 
+            error: "You must be logged in to downgrade a subscription. Please log in with your subscription account first." 
+          });
+        }
+      }
+      
+      // Get user's current subscription (use already fetched data if available)
+      const currentSubscription = subscriptionData || await subscriptionService.getUserSubscriptionWithUsage(userId);
+      
+      console.log(`[Downgrade] User ${userId} subscription status: ${currentSubscription.subscription ? 'has subscription' : 'no subscription'}, tier: ${currentSubscription.tier.id}`);
+      
+      if (!currentSubscription.subscription) {
+        return res.status(400).json({ 
+          error: "No active subscription found to downgrade. You are already on the free tier." 
+        });
+      }
+
+      if (currentSubscription.tier.id === 'free') {
+        return res.status(400).json({ 
+          error: "You are already on the free tier." 
+        });
+      }
+
+      // If user has a Stripe subscription, cancel it
+      if (currentSubscription.subscription.stripeSubscriptionId) {
+        const useTestMode = process.env.NODE_ENV === 'development';
+        const stripeInstance = getStripeInstance(useTestMode);
+
+        // Cancel the subscription in Stripe (at period end to preserve access)
+        await stripeInstance.subscriptions.update(currentSubscription.subscription.stripeSubscriptionId, {
+          cancel_at_period_end: true,
+        });
+
+        console.log(`📉 Downgraded subscription ${currentSubscription.subscription.stripeSubscriptionId} to free tier (will cancel at period end)`);
+      }
+
+      // Update local subscription status to indicate downgrade
+      await subscriptionService.cancelSubscription(userId, false);
+
+      res.json({ 
+        success: true,
+        message: "Successfully downgraded to free tier. Your subscription will remain active until the end of your billing period."
+      });
+    } catch (error) {
+      console.error("Error downgrading to free tier:", error);
+      res.status(500).json({ 
+        error: "Failed to downgrade subscription",
+        details: error instanceof Error ? error.message : "Unknown error"
+      });
+    }
+  });
+
+  // Create Stripe Customer Portal session for payment method updates
+  app.post("/api/subscription/customer-portal", optionalUserAuth, async (req, res) => {
+    try {
+      let userId = req.user?.id || req.sessionId || "anonymous";
+      let subscriptionData;
+      
+      // Check for subscription token authentication first
+      const subscriptionToken = req.headers['x-subscription-token'] as string;
+      const deviceFingerprint = req.headers['x-device-fingerprint'] as string;
+      
+      if (subscriptionToken) {
+        const clientIp = getClientInfo(req).ip;
+        subscriptionData = await subscriptionService.validateSubscriptionToken(subscriptionToken, deviceFingerprint, clientIp);
+        
+        if (subscriptionData && subscriptionData.subscription) {
+          userId = subscriptionData.subscription.userId;
+        } else {
+          return res.status(401).json({ 
+            error: "Your subscription token is invalid or expired. Please log in again." 
+          });
+        }
+      } else {
+        // Check if user is authenticated via session
+        if (userId === "anonymous" || userId.startsWith('session_')) {
+          return res.status(401).json({ 
+            error: "You must be logged in to access payment settings. Please log in with your subscription account first." 
+          });
+        }
+      }
+      
+      // Get user's current subscription
+      const currentSubscription = subscriptionData || await subscriptionService.getUserSubscriptionWithUsage(userId);
+      
+      if (!currentSubscription.subscription || !currentSubscription.subscription.stripeCustomerId) {
+        return res.status(400).json({ 
+          error: "No active subscription found. Please subscribe to a plan first." 
+        });
+      }
+
+      // Auto-detect test mode
+      const useTestMode = process.env.NODE_ENV === 'development';
+      const stripeInstance = getStripeInstance(useTestMode);
+
+      // Ensure Customer Portal configuration exists
+      await ensureCustomerPortalConfiguration(stripeInstance);
+
+      // Create customer portal session
+      const session = await stripeInstance.billingPortal.sessions.create({
+        customer: currentSubscription.subscription.stripeCustomerId,
+        return_url: `${req.protocol}://${req.get('host')}/subscription?tab=billing`,
+      });
+
+      res.json({ url: session.url });
+    } catch (error) {
+      console.error("Error creating customer portal session:", error);
+      res.status(500).json({ 
+        error: "Failed to create customer portal session",
+        details: error instanceof Error ? error.message : "Unknown error"
+      });
+    }
+  });
+
+  // Reactivate cancelled subscription (remove cancelAtPeriodEnd)
+  app.post("/api/subscription/reactivate", optionalUserAuth, async (req, res) => {
+    try {
+      let userId = req.user?.id || req.sessionId || "anonymous";
+      let subscriptionData;
+      
+      // Check for subscription token authentication first
+      const subscriptionToken = req.headers['x-subscription-token'] as string;
+      const deviceFingerprint = req.headers['x-device-fingerprint'] as string;
+      
+      if (subscriptionToken) {
+        const clientIp = getClientInfo(req).ip;
+        subscriptionData = await subscriptionService.validateSubscriptionToken(subscriptionToken, deviceFingerprint, clientIp);
+        
+        if (subscriptionData && subscriptionData.subscription) {
+          userId = subscriptionData.subscription.userId;
+        } else {
+          return res.status(401).json({ 
+            error: "Your subscription token is invalid or expired. Please log in again." 
+          });
+        }
+      } else {
+        // Check if user is authenticated via session
+        if (userId === "anonymous" || userId.startsWith('session_')) {
+          return res.status(401).json({ 
+            error: "You must be logged in to reactivate a subscription. Please log in with your subscription account first." 
+          });
+        }
+      }
+      
+      // Get user's current subscription
+      const currentSubscription = subscriptionData || await subscriptionService.getUserSubscriptionWithUsage(userId);
+      
+      if (!currentSubscription.subscription || !currentSubscription.subscription.stripeSubscriptionId) {
+        return res.status(400).json({ 
+          error: "No subscription found to reactivate." 
+        });
+      }
+
+      if (!currentSubscription.subscription.cancelAtPeriodEnd) {
+        return res.status(400).json({ 
+          error: "Subscription is not cancelled. Nothing to reactivate." 
+        });
+      }
+
+      // Auto-detect test mode
+      const useTestMode = process.env.NODE_ENV === 'development';
+      const stripeInstance = getStripeInstance(useTestMode);
+
+      // Reactivate the subscription in Stripe (remove cancel_at_period_end)
+      await stripeInstance.subscriptions.update(currentSubscription.subscription.stripeSubscriptionId, {
+        cancel_at_period_end: false,
+      });
+
+      // Update local subscription status
+      await subscriptionService.reactivateSubscription(userId);
+
+      res.json({ 
+        success: true,
+        message: "Subscription reactivated successfully. Your subscription will continue as normal."
+      });
+    } catch (error) {
+      console.error("Error reactivating subscription:", error);
+      res.status(500).json({ 
+        error: "Failed to reactivate subscription",
         details: error instanceof Error ? error.message : "Unknown error"
       });
     }

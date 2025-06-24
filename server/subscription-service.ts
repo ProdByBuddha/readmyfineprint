@@ -4,7 +4,7 @@ import type { UserSubscription, SubscriptionTier, User, InsertUserSubscription, 
 import { SUBSCRIPTION_TIERS, getTierById } from './subscription-tiers';
 import { securityLogger } from './security-logger';
 import { databaseStorage } from './storage';
-import { replitTokenStorage } from './replit-token-storage';
+import { hybridTokenService } from './hybrid-token-service';
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
   apiVersion: '2025-05-28.basil',
@@ -41,8 +41,8 @@ export class SubscriptionService {
     setInterval(async () => {
       try {
         console.log('🧹 Starting periodic token cleanup...');
-        const results = await replitTokenStorage.cleanupExpired();
-        console.log(`🧹 Cleanup completed: ${results.tokensRemoved} tokens, ${results.sessionsRemoved} sessions, ${results.deviceDataCleaned} device records removed`);
+        const results = await hybridTokenService.cleanupExpired();
+        console.log(`🧹 Cleanup completed: ${results.tokensRemoved} expired tokens removed`);
       } catch (error) {
         console.error('Error during token cleanup:', error);
       }
@@ -51,8 +51,8 @@ export class SubscriptionService {
     // Also run cleanup on startup
     setTimeout(async () => {
       try {
-        const results = await replitTokenStorage.cleanupExpired();
-        console.log(`🧹 Startup cleanup: ${results.tokensRemoved} tokens, ${results.sessionsRemoved} sessions, ${results.deviceDataCleaned} device records removed`);
+        const results = await hybridTokenService.cleanupExpired();
+        console.log(`🧹 Startup cleanup: ${results.tokensRemoved} expired tokens removed`);
       } catch (error) {
         console.error('Error during startup cleanup:', error);
       }
@@ -1148,19 +1148,45 @@ export class SubscriptionService {
   }
 
   /**
+   * Reactivate a cancelled subscription (remove cancel_at_period_end)
+   */
+  async reactivateSubscription(userId: string): Promise<void> {
+    try {
+      const subscription = await databaseStorage.getUserSubscription(userId);
+      if (!subscription) {
+        throw new Error('No subscription found to reactivate');
+      }
+
+      if (!subscription.cancelAtPeriodEnd) {
+        throw new Error('Subscription is not cancelled');
+      }
+
+      const updates: Partial<InsertUserSubscription> = {
+        cancelAtPeriodEnd: false
+      };
+
+      await databaseStorage.updateUserSubscription(subscription.id, updates);
+    } catch (error) {
+      console.error('Error reactivating subscription:', error);
+      throw error;
+    }
+  }
+
+  /**
    * Generate a secure subscription access token with device binding
    * This token is bound to device characteristics for enhanced security
    */
   async generateSubscriptionToken(userId: string, subscriptionId: string, deviceFingerprint?: string): Promise<string> {
     try {
-      // Generate a secure random token with more entropy
-      const tokenBytes = crypto.randomBytes(48); // Increased from 32 to 48 bytes
-      const token = `sub_${tokenBytes.toString('hex')}`;
+      // Get user's subscription to determine tier
+      const subscription = await databaseStorage.getUserSubscription(userId);
+      const tier = this.validateAndAssignTier(subscription);
       
-      // Store in Replit database with encryption
-      await replitTokenStorage.storeToken(token, {
+      // Use hybrid token service (prefers JOSE, falls back to PostgreSQL)
+      const token = await hybridTokenService.generateSubscriptionToken({
         userId,
         subscriptionId,
+        tierId: tier.id,
         deviceFingerprint: deviceFingerprint || 'unknown'
       });
       
@@ -1183,71 +1209,51 @@ export class SubscriptionService {
     suggestedUpgrade?: SubscriptionTier;
   } | null> {
     try {
-      if (!token.startsWith('sub_')) {
-        console.warn('Invalid token format');
+      // Support both JOSE tokens (start with 'eyJ') and legacy PostgreSQL tokens (start with 'sub_')
+      if (!token.startsWith('sub_') && !token.startsWith('eyJ')) {
+        console.warn('Invalid token format - must be JOSE (eyJ*) or legacy (sub_*)');
         return null;
       }
       
-      // Get token data from Replit database
-      const tokenData = await replitTokenStorage.getToken(token);
+      // Get token data from hybrid service (supports both JOSE and PostgreSQL)
+      const tokenData = await hybridTokenService.validateSubscriptionToken(token);
       if (!tokenData) {
         console.warn('Token not found in storage');
         return null;
       }
       
-      // Multi-device support: Track device fingerprints but allow multiple devices
+      // Basic device fingerprint logging (simplified for PostgreSQL storage)
       if (deviceFingerprint && deviceFingerprint !== 'unknown') {
-        // Store up to 5 recent device fingerprints for this user
-        await this.trackDeviceUsage(tokenData.userId, deviceFingerprint, clientIp);
+        console.log(`Token used from device: ${deviceFingerprint.slice(0, 16)}... for user ${tokenData.userId}`);
+      }
+      
+      // Rate limiting: Check usage frequency (PostgreSQL tokens only)
+      if (token.startsWith('sub_') && tokenData.lastUsed && tokenData.usageCount) {
+        const now = new Date();
+        const lastUsed = new Date(tokenData.lastUsed);
+        const timeSinceLastUse = now.getTime() - lastUsed.getTime();
         
-        // Only flag as suspicious if used from >10 different devices in 24 hours
-        const recentDeviceCount = await this.getRecentDeviceCount(tokenData.userId);
-        if (recentDeviceCount > 10) {
-          console.warn('Subscription used from many devices - possible sharing');
+        // If used more than 100 times in last hour, it might be automated/shared
+        if (tokenData.usageCount > 100 && timeSinceLastUse < 60 * 60 * 1000) {
+          console.warn('Potential token abuse detected - high usage frequency');
           securityLogger.logSecurityEvent({
             eventType: 'SECURITY_VIOLATION' as any,
             severity: 'MEDIUM' as any,
-            message: 'Subscription token used from many different devices',
+            message: 'Subscription token showing unusual usage patterns',
             ip: clientIp || 'unknown',
             userAgent: 'subscription-service',
             endpoint: 'token-validation',
             details: {
               tokenId: token.slice(0, 16) + '...',
-              userId: tokenData.userId,
-              deviceCount: recentDeviceCount,
-              currentFingerprint: deviceFingerprint.slice(0, 16) + '...'
+              usageCount: tokenData.usageCount,
+              lastUsed: tokenData.lastUsed
             }
           });
-          
-          // Still allow but flag for monitoring
         }
       }
       
-      // Rate limiting: Check usage frequency
-      const now = new Date();
-      const lastUsed = new Date(tokenData.lastUsed);
-      const timeSinceLastUse = now.getTime() - lastUsed.getTime();
-      
-      // If used more than 100 times in last hour, it might be automated/shared
-      if (tokenData.usageCount > 100 && timeSinceLastUse < 60 * 60 * 1000) {
-        console.warn('Potential token abuse detected - high usage frequency');
-        securityLogger.logSecurityEvent({
-          eventType: 'SECURITY_VIOLATION' as any,
-          severity: 'MEDIUM' as any,
-          message: 'Subscription token showing unusual usage patterns',
-          ip: clientIp || 'unknown',
-          userAgent: 'subscription-service',
-          endpoint: 'token-validation',
-          details: {
-            tokenId: token.slice(0, 16) + '...',
-            usageCount: tokenData.usageCount,
-            lastUsed: tokenData.lastUsed
-          }
-        });
-      }
-      
-      // Update usage tracking in Replit database
-      await replitTokenStorage.updateTokenUsage(token);
+      // Update usage tracking in hybrid service (PostgreSQL tokens only)
+      await hybridTokenService.updateTokenUsage(token);
       
       // Get current subscription data and verify it's still active
       const subscriptionData = await this.getUserSubscriptionWithUsage(tokenData.userId);
@@ -1256,7 +1262,7 @@ export class SubscriptionService {
       if (subscriptionData.subscription && subscriptionData.subscription.status !== 'active') {
         console.warn('Token valid but subscription no longer active');
         // Invalidate the token
-        await replitTokenStorage.removeToken(token);
+        await hybridTokenService.revokeToken(token, 'subscription no longer active');
         return null;
       }
       
@@ -1269,17 +1275,25 @@ export class SubscriptionService {
 
   /**
    * Store mapping from checkout session to subscription token
+   * Using simple in-memory mapping for session -> token mapping
    */
+  private sessionTokenMap = new Map<string, string>();
+  
   async storeSessionToken(sessionId: string, token: string): Promise<void> {
-    await replitTokenStorage.storeSessionToken(sessionId, token);
+    this.sessionTokenMap.set(sessionId, token);
     console.log(`Stored session token mapping for session ${sessionId}`);
+    
+    // Clean up after 1 hour
+    setTimeout(() => {
+      this.sessionTokenMap.delete(sessionId);
+    }, 60 * 60 * 1000);
   }
 
   /**
    * Get subscription token by checkout session ID
    */
   async getTokenBySession(sessionId: string): Promise<string | null> {
-    return await replitTokenStorage.getTokenBySession(sessionId);
+    return this.sessionTokenMap.get(sessionId) || null;
   }
 
   /**
@@ -1287,13 +1301,13 @@ export class SubscriptionService {
    */
   async revokeSubscriptionToken(token: string, reason: string): Promise<boolean> {
     try {
-      if (!token.startsWith('sub_')) {
+      if (!token || token.length < 10) {
         return false;
       }
       
       // Get token data before removal
-      const tokenData = await replitTokenStorage.getToken(token);
-      if (!tokenData) {
+      const tokenInfo = await hybridTokenService.getTokenInfo(token);
+      if (!tokenInfo) {
         return false;
       }
       
@@ -1307,15 +1321,15 @@ export class SubscriptionService {
         endpoint: 'token-revocation',
         details: {
           tokenId: token.slice(0, 16) + '...',
-          userId: tokenData.userId,
+          userId: tokenInfo.userId,
           reason
         }
       });
       
-      // Remove from Replit database
-      const success = await replitTokenStorage.removeToken(token);
+      // Remove from hybrid service
+      const success = await hybridTokenService.revokeToken(token, reason);
       if (success) {
-        console.log(`Revoked subscription token for user ${tokenData.userId}: ${reason}`);
+        console.log(`Revoked subscription token for user ${tokenInfo.userId}: ${reason}`);
       }
       
       return success;
@@ -1330,8 +1344,8 @@ export class SubscriptionService {
    */
   async revokeAllUserTokens(userId: string, reason: string): Promise<number> {
     try {
-      // Remove all tokens for the user from Replit database
-      const revokedCount = await replitTokenStorage.removeAllUserTokens(userId);
+      // Remove all tokens for the user from hybrid service
+      const revokedCount = await hybridTokenService.revokeAllUserTokens(userId, reason);
       
       if (revokedCount > 0) {
         securityLogger.logSecurityEvent({
@@ -1358,82 +1372,8 @@ export class SubscriptionService {
     }
   }
 
-  /**
-   * Track device usage for multi-device support
-   */
-  private async trackDeviceUsage(userId: string, deviceFingerprint: string, clientIp?: string): Promise<void> {
-    try {
-      const deviceKey = `user_devices:${userId}`;
-      const now = new Date().toISOString();
-      
-      // Get existing device data
-      let deviceData = await replitTokenStorage.getDeviceData(deviceKey);
-      if (!deviceData) {
-        deviceData = { devices: [], lastUpdated: now };
-      }
-      
-      // Find if this device already exists
-      const existingDeviceIndex = deviceData.devices.findIndex(
-        (device: any) => device.fingerprint === deviceFingerprint
-      );
-      
-      if (existingDeviceIndex >= 0) {
-        // Update existing device
-        deviceData.devices[existingDeviceIndex].lastUsed = now;
-        deviceData.devices[existingDeviceIndex].usageCount += 1;
-        if (clientIp) {
-          deviceData.devices[existingDeviceIndex].lastIp = clientIp;
-        }
-      } else {
-        // Add new device
-        deviceData.devices.push({
-          fingerprint: deviceFingerprint,
-          firstUsed: now,
-          lastUsed: now,
-          usageCount: 1,
-          lastIp: clientIp || 'unknown'
-        });
-      }
-      
-      // Keep only last 10 devices (to prevent database bloat)
-      deviceData.devices = deviceData.devices
-        .sort((a: any, b: any) => new Date(b.lastUsed).getTime() - new Date(a.lastUsed).getTime())
-        .slice(0, 10);
-      
-      deviceData.lastUpdated = now;
-      
-      // Store updated device data
-      await replitTokenStorage.storeDeviceData(deviceKey, deviceData);
-    } catch (error) {
-      console.error('Error tracking device usage:', error);
-    }
-  }
-
-  /**
-   * Get count of devices used in last 24 hours
-   */
-  private async getRecentDeviceCount(userId: string): Promise<number> {
-    try {
-      const deviceKey = `user_devices:${userId}`;
-      const deviceData = await replitTokenStorage.getDeviceData(deviceKey);
-      
-      if (!deviceData) {
-        return 0;
-      }
-      
-      const twentyFourHoursAgo = new Date(Date.now() - 24 * 60 * 60 * 1000);
-      
-      return deviceData.devices.filter((device: any) => 
-        new Date(device.lastUsed) > twentyFourHoursAgo
-      ).length;
-    } catch (error) {
-      console.error('Error getting recent device count:', error);
-      return 0;
-    }
-  }
-
-  // Token storage now handled by ReplitTokenStorage class
-  // All token operations are persistent and encrypted
+  // Token storage now handled by Hybrid Service
+  // Supports both JOSE (preferred) and PostgreSQL (legacy) tokens
 }
 
 export const subscriptionService = new SubscriptionService();

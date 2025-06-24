@@ -27,7 +27,7 @@ export class ReplitTokenStorage {
 
   constructor() {
     // Get encryption key for token data (optional additional security)
-    this.encryptionKey = process.env.TOKEN_ENCRYPTION_KEY;
+    this.encryptionKey = process.env.TOKEN_ENCRYPTION_KEY || 'default-fallback-key';
   }
 
   private async ensureInitialized(): Promise<void> {

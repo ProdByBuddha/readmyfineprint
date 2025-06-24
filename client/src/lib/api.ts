@@ -1,5 +1,5 @@
 import { apiRequest } from "./queryClient";
-import type { Document } from "@shared/schema";
+import type { Document, UserSubscription, SubscriptionTier, SubscriptionUsage } from "@shared/schema";
 
 // Interface for consent verification proof
 interface ConsentProof {
@@ -79,38 +79,38 @@ export async function analyzeDocument(id: number): Promise<Document> {
   return response.json();
 }
 
-// Poll for document analysis completion
-async function pollForDocumentAnalysis(documentId: number, queueInfo: any): Promise<Document> {
-  const maxAttempts = 60; // Poll for up to 5 minutes (60 * 5 seconds)
-  let attempts = 0;
+// Poll for document analysis completion (future feature - priority queue)
+// async function pollForDocumentAnalysis(documentId: number, queueInfo: any): Promise<Document> {
+//   const maxAttempts = 60; // Poll for up to 5 minutes (60 * 5 seconds)
+//   let attempts = 0;
 
-  console.log(`[Priority Queue] Document ${documentId} queued. Estimated wait: ${queueInfo.estimatedWaitTime}s`);
+//   console.log(`[Priority Queue] Document ${documentId} queued. Estimated wait: ${queueInfo.estimatedWaitTime}s`);
 
-  while (attempts < maxAttempts) {
-    // Wait before checking status
-    await new Promise(resolve => setTimeout(resolve, 5000)); // 5 second intervals
-    attempts++;
+//   while (attempts < maxAttempts) {
+//     // Wait before checking status
+//     await new Promise(resolve => setTimeout(resolve, 5000)); // 5 second intervals
+//     attempts++;
 
-    try {
-      // Check if document analysis is complete
-      const document = await getDocument(documentId);
+//     try {
+//       // Check if document analysis is complete
+//       const document = await getDocument(documentId);
 
-      if (document.analysis) {
-        console.log(`[Priority Queue] Document ${documentId} analysis completed after ${attempts * 5} seconds`);
-        return document;
-      }
+//       if (document.analysis) {
+//         console.log(`[Priority Queue] Document ${documentId} analysis completed after ${attempts * 5} seconds`);
+//         return document;
+//       }
 
-      // Get queue status for user feedback
-      const queueStatus = await getQueueStatus();
-      console.log(`[Priority Queue] Still waiting... Queue length: ${queueStatus.queueLength}, Processing: ${queueStatus.currentlyProcessing}`);
+//       // Get queue status for user feedback
+//       const queueStatus = await getQueueStatus();
+//       console.log(`[Priority Queue] Still waiting... Queue length: ${queueStatus.queueLength}, Processing: ${queueStatus.currentlyProcessing}`);
 
-    } catch (error) {
-      console.error(`[Priority Queue] Error polling for document ${documentId}:`, error);
-    }
-  }
+//     } catch (error) {
+//       console.error(`[Priority Queue] Error polling for document ${documentId}:`, error);
+//     }
+//   }
 
-  throw new Error("Document analysis timed out. Please try again or contact support if the issue persists.");
-}
+//   throw new Error("Document analysis timed out. Please try again or contact support if the issue persists.");
+// }
 
 // Get processing queue status
 export async function getQueueStatus(): Promise<{
@@ -313,6 +313,68 @@ export async function getUserSubscription(): Promise<{
   const tokenInvalid = response.headers.get('X-Subscription-Token-Invalid');
   if (tokenInvalid) {
     localStorage.removeItem('subscriptionToken');
+  }
+
+  return response.json();
+}
+
+export async function createCustomerPortalSession(): Promise<{ url: string }> {
+  const headers: Record<string, string> = {
+    'Content-Type': 'application/json',
+  };
+
+  // Include subscription token if available
+  const subscriptionToken = localStorage.getItem('subscriptionToken');
+  if (subscriptionToken) {
+    headers['X-Subscription-Token'] = subscriptionToken;
+  }
+
+  // Include device fingerprint if available
+  const deviceFingerprint = localStorage.getItem('deviceFingerprint');
+  if (deviceFingerprint) {
+    headers['X-Device-Fingerprint'] = deviceFingerprint;
+  }
+
+  const response = await fetch('/api/subscription/customer-portal', {
+    method: 'POST',
+    headers,
+    credentials: 'include',
+  });
+
+  if (!response.ok) {
+    const errorData = await response.json().catch(() => ({ error: 'Unknown server error' }));
+    throw new Error(errorData.error || `HTTP error! status: ${response.status}`);
+  }
+
+  return response.json();
+}
+
+export async function reactivateSubscription(): Promise<{ success: boolean; message: string }> {
+  const headers: Record<string, string> = {
+    'Content-Type': 'application/json',
+  };
+
+  // Include subscription token if available
+  const subscriptionToken = localStorage.getItem('subscriptionToken');
+  if (subscriptionToken) {
+    headers['X-Subscription-Token'] = subscriptionToken;
+  }
+
+  // Include device fingerprint if available
+  const deviceFingerprint = localStorage.getItem('deviceFingerprint');
+  if (deviceFingerprint) {
+    headers['X-Device-Fingerprint'] = deviceFingerprint;
+  }
+
+  const response = await fetch('/api/subscription/reactivate', {
+    method: 'POST',
+    headers,
+    credentials: 'include',
+  });
+
+  if (!response.ok) {
+    const errorData = await response.json().catch(() => ({ error: 'Unknown server error' }));
+    throw new Error(errorData.error || `HTTP error! status: ${response.status}`);
   }
 
   return response.json();
