@@ -101,6 +101,30 @@ class ConsentLogger {
       const consentId = this.generateConsentId();
       const verificationToken = this.createVerificationToken(userPseudonym, timestamp);
 
+      // Check if user already has recent consent (within last hour) to prevent duplicates
+      const recentConsent = await db
+        .select()
+        .from(consentRecords)
+        .where(eq(consentRecords.userPseudonym, userPseudonym))
+        .orderBy(desc(consentRecords.createdAt))
+        .limit(1);
+
+      if (recentConsent.length > 0) {
+        const lastConsent = recentConsent[0];
+        const hourAgo = new Date(Date.now() - 60 * 60 * 1000);
+        
+        if (lastConsent.createdAt > hourAgo) {
+          // Return existing consent instead of creating duplicate
+          return {
+            success: true,
+            consentId: lastConsent.consentId,
+            verificationToken: lastConsent.verificationToken,
+            userPseudonym: lastConsent.userPseudonym,
+            message: 'Consent already recorded recently'
+          };
+        }
+      }
+
       // Store in PostgreSQL database
       await db.insert(consentRecords).values({
         consentId,

@@ -82,6 +82,10 @@ export function useCombinedConsent() {
   }, [checkConsent]);
 
   const acceptAll = async () => {
+    // Immediately set accepted to prevent multiple clicks
+    setIsAccepted(true);
+    setIsCheckingConsent(false);
+    
     try {
       // Log consent to database first
       const result = await logConsent();
@@ -109,7 +113,6 @@ export function useCombinedConsent() {
       localStorage.setItem('cookie-consent-accepted', 'true');
     }
     
-    setIsAccepted(true);
     // Dispatch custom event to notify other components
     window.dispatchEvent(new CustomEvent('consentChanged'));
   };
@@ -137,6 +140,8 @@ export function CombinedConsent({ onAccept }: CombinedConsentProps) {
   const [isLogging, setIsLogging] = useState(false);
 
   const handleAccept = async () => {
+    // Immediately close modal to prevent multiple clicks
+    setIsOpen(false);
     setIsLogging(true);
 
     try {
@@ -167,7 +172,6 @@ export function CombinedConsent({ onAccept }: CombinedConsentProps) {
       localStorage.setItem('cookie-consent-accepted', 'true');
     } finally {
       setIsLogging(false);
-      setIsOpen(false);
       onAccept();
     }
   };
