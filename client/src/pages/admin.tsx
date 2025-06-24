@@ -89,39 +89,82 @@ interface SecurityEvent {
   userId?: string;
 }
 
-function AdminLogin({ onLogin }: { onLogin: (key: string) => void }) {
-  const [adminKey, setAdminKey] = useState("");
+function AdminLogin({ onLogin }: { onLogin: (token: string) => void }) {
+  const [step, setStep] = useState<'request' | 'verify'>('request');
+  const [verificationCode, setVerificationCode] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
 
-  const handleLogin = async (e: React.FormEvent) => {
+  const handleRequestCode = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
 
     try {
-      const response = await fetch("/api/admin/dashboard", {
+      const response = await fetch("/api/admin/request-verification", {
+        method: 'POST',
         headers: {
-          "X-Admin-Key": adminKey
+          'Content-Type': 'application/json'
         }
       });
 
-      if (response.ok) {
-        onLogin(adminKey);
+      const data = await response.json();
+
+      if (data.success) {
+        setStep('verify');
         toast({
-          title: "Admin Access Granted",
-          description: "Welcome to the admin dashboard",
+          title: "Verification Code Sent",
+          description: "Check your email for the 6-digit verification code",
         });
       } else {
         toast({
-          title: "Access Denied",
-          description: "Invalid admin key",
+          title: "Request Failed",
+          description: data.error || "Failed to send verification code",
           variant: "destructive"
         });
       }
     } catch (error) {
       toast({
         title: "Error",
-        description: "Failed to authenticate",
+        description: "Failed to request verification code",
+        variant: "destructive"
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleVerifyCode = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsLoading(true);
+
+    try {
+      const response = await fetch("/api/admin/verify-code", {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ code: verificationCode })
+      });
+
+      const data = await response.json();
+
+      if (data.success) {
+        onLogin(data.adminToken);
+        toast({
+          title: "Admin Access Granted",
+          description: "Welcome to the admin dashboard",
+        });
+      } else {
+        toast({
+          title: "Verification Failed",
+          description: data.error || "Invalid verification code",
+          variant: "destructive"
+        });
+      }
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to verify code",
         variant: "destructive"
       });
     } finally {
@@ -136,33 +179,61 @@ function AdminLogin({ onLogin }: { onLogin: (key: string) => void }) {
           <CardTitle className="text-center">Admin Access</CardTitle>
         </CardHeader>
         <CardContent>
-          <form onSubmit={handleLogin} className="space-y-4">
-            <div>
-              <Label htmlFor="adminKey">Admin Key</Label>
-              <Input
-                id="adminKey"
-                type="password"
-                value={adminKey}
-                onChange={(e) => setAdminKey(e.target.value)}
-                placeholder="Enter admin key"
-                required
-              />
-            </div>
-            <Button type="submit" className="w-full" disabled={isLoading}>
-              {isLoading ? "Authenticating..." : "Access Dashboard"}
-            </Button>
-          </form>
+          {step === 'request' ? (
+            <form onSubmit={handleRequestCode} className="space-y-4">
+              <div className="text-center">
+                <p className="text-sm text-muted-foreground mb-4">
+                  A verification code will be sent to admin@readmyfineprint.com and prodbybuddha@icloud.com
+                </p>
+              </div>
+              <Button type="submit" className="w-full" disabled={isLoading}>
+                {isLoading ? "Sending Code..." : "Send Verification Code"}
+              </Button>
+            </form>
+          ) : (
+            <form onSubmit={handleVerifyCode} className="space-y-4">
+              <div>
+                <Label htmlFor="code">6-Digit Verification Code</Label>
+                <Input
+                  id="code"
+                  type="text"
+                  value={verificationCode}
+                  onChange={(e) => setVerificationCode(e.target.value)}
+                  placeholder="Enter 6-digit code"
+                  maxLength={6}
+                  pattern="[0-9]{6}"
+                  required
+                />
+                <p className="text-xs text-muted-foreground mt-1">
+                  Code expires in 10 minutes
+                </p>
+              </div>
+              <div className="flex space-x-2">
+                <Button 
+                  type="button" 
+                  variant="outline" 
+                  onClick={() => setStep('request')}
+                  className="flex-1"
+                >
+                  Back
+                </Button>
+                <Button type="submit" className="flex-1" disabled={isLoading}>
+                  {isLoading ? "Verifying..." : "Verify Code"}
+                </Button>
+              </div>
+            </form>
+          )}
         </CardContent>
       </Card>
     </div>
   );
 }
 
-function DashboardOverview({ adminKey }: { adminKey: string }) {
+function DashboardOverview({ adminToken }: { adminToken: string }) {
   const { data: dashboardData, isLoading, refetch } = useQuery<AdminDashboardData>({
     queryKey: ["/api/admin/dashboard"],
     queryFn: () => apiRequest("/api/admin/dashboard", {
-      headers: { "X-Admin-Key": adminKey }
+      headers: { "X-Admin-Token": adminToken }
     })
   });
 
@@ -315,7 +386,7 @@ function DashboardOverview({ adminKey }: { adminKey: string }) {
   );
 }
 
-function UserManagement({ adminKey }: { adminKey: string }) {
+function UserManagement({ adminToken }: { adminToken: string }) {
   const [search, setSearch] = useState("");
   const [page, setPage] = useState(1);
   const [sortBy, setSortBy] = useState("createdAt");
@@ -327,7 +398,7 @@ function UserManagement({ adminKey }: { adminKey: string }) {
   const { data: usersData, isLoading, refetch } = useQuery<UsersResponse>({
     queryKey: ["/api/admin/users", { page, search, sortBy, sortOrder, hasSubscription }],
     queryFn: () => apiRequest(`/api/admin/users?page=${page}&search=${search}&sortBy=${sortBy}&sortOrder=${sortOrder}${hasSubscription !== undefined ? `&hasSubscription=${hasSubscription}` : ''}`, {
-      headers: { "X-Admin-Key": adminKey }
+      headers: { "X-Admin-Token": adminToken }
     })
   });
 
@@ -335,7 +406,7 @@ function UserManagement({ adminKey }: { adminKey: string }) {
     try {
       await apiRequest(`/api/admin/users/${userId}`, {
         method: 'PATCH',
-        headers: { "X-Admin-Key": adminKey },
+        headers: { "X-Admin-Token": adminToken },
         body: JSON.stringify(updates)
       });
       
@@ -571,7 +642,7 @@ function UserManagement({ adminKey }: { adminKey: string }) {
   );
 }
 
-function SecurityEvents({ adminKey }: { adminKey: string }) {
+function SecurityEvents({ adminToken }: { adminToken: string }) {
   const [page, setPage] = useState(1);
   const [severity, setSeverity] = useState<string>("all");
   const [timeframe, setTimeframe] = useState("24h");
@@ -579,7 +650,7 @@ function SecurityEvents({ adminKey }: { adminKey: string }) {
   const { data: securityData, isLoading, refetch } = useQuery({
     queryKey: ["/api/admin/security-events", { page, severity, timeframe }],
     queryFn: () => apiRequest(`/api/admin/security-events?page=${page}&severity=${severity}&timeframe=${timeframe}`, {
-      headers: { "X-Admin-Key": adminKey }
+      headers: { "X-Admin-Token": adminToken }
     })
   });
 
@@ -683,11 +754,11 @@ function SecurityEvents({ adminKey }: { adminKey: string }) {
   );
 }
 
-function Analytics({ adminKey }: { adminKey: string }) {
+function Analytics({ adminToken }: { adminToken: string }) {
   const { data: analyticsData, isLoading } = useQuery({
     queryKey: ["/api/admin/analytics"],
     queryFn: () => apiRequest("/api/admin/analytics", {
-      headers: { "X-Admin-Key": adminKey }
+      headers: { "X-Admin-Token": adminToken }
     })
   });
 
@@ -763,21 +834,21 @@ function Analytics({ adminKey }: { adminKey: string }) {
 }
 
 export default function AdminDashboard() {
-  const [adminKey, setAdminKey] = useState<string | null>(
-    localStorage.getItem('adminKey')
+  const [adminToken, setAdminToken] = useState<string | null>(
+    localStorage.getItem('adminToken')
   );
 
-  const handleLogin = (key: string) => {
-    setAdminKey(key);
-    localStorage.setItem('adminKey', key);
+  const handleLogin = (token: string) => {
+    setAdminToken(token);
+    localStorage.setItem('adminToken', token);
   };
 
   const handleLogout = () => {
-    setAdminKey(null);
-    localStorage.removeItem('adminKey');
+    setAdminToken(null);
+    localStorage.removeItem('adminToken');
   };
 
-  if (!adminKey) {
+  if (!adminToken) {
     return <AdminLogin onLogin={handleLogin} />;
   }
 
@@ -807,19 +878,19 @@ export default function AdminDashboard() {
           </TabsList>
 
           <TabsContent value="overview">
-            <DashboardOverview adminKey={adminKey} />
+            <DashboardOverview adminToken={adminToken} />
           </TabsContent>
 
           <TabsContent value="users">
-            <UserManagement adminKey={adminKey} />
+            <UserManagement adminToken={adminToken} />
           </TabsContent>
 
           <TabsContent value="security">
-            <SecurityEvents adminKey={adminKey} />
+            <SecurityEvents adminToken={adminToken} />
           </TabsContent>
 
           <TabsContent value="analytics">
-            <Analytics adminKey={adminKey} />
+            <Analytics adminToken={adminToken} />
           </TabsContent>
         </Tabs>
       </div>

@@ -4,9 +4,61 @@ import { databaseStorage } from "./storage";
 import { securityLogger } from "./security-logger";
 import { emailRecoveryService } from "./email-recovery-service";
 import { priorityQueue } from "./priority-queue";
+import { adminVerificationService } from "./admin-verification";
 import { z } from "zod";
 
 export function registerAdminRoutes(app: Express) {
+
+  /**
+   * Request admin verification code
+   */
+  app.post("/api/admin/request-verification", async (req: Request, res: Response) => {
+    try {
+      const ip = req.ip || req.socket.remoteAddress || 'unknown';
+      const userAgent = req.get('User-Agent') || 'unknown';
+
+      const result = await adminVerificationService.sendAdminVerificationCode(ip, userAgent);
+
+      if (result.success) {
+        res.json({ success: true, message: result.message });
+      } else {
+        res.status(429).json({ success: false, error: result.message });
+      }
+    } catch (error) {
+      console.error("Admin verification request error:", error);
+      res.status(500).json({ error: "Failed to send verification code" });
+    }
+  });
+
+  /**
+   * Verify admin code and get access token
+   */
+  app.post("/api/admin/verify-code", async (req: Request, res: Response) => {
+    try {
+      const { code } = req.body;
+      const ip = req.ip || req.socket.remoteAddress || 'unknown';
+      const userAgent = req.get('User-Agent') || 'unknown';
+
+      if (!code) {
+        return res.status(400).json({ error: "Verification code is required" });
+      }
+
+      const result = await adminVerificationService.verifyAdminCode(code, ip, userAgent);
+
+      if (result.success) {
+        res.json({ 
+          success: true, 
+          message: result.message,
+          adminToken: result.token 
+        });
+      } else {
+        res.status(401).json({ success: false, error: result.message });
+      }
+    } catch (error) {
+      console.error("Admin verification error:", error);
+      res.status(500).json({ error: "Verification failed" });
+    }
+  });
 
   /**
    * Admin Dashboard Overview - Key metrics and system status
