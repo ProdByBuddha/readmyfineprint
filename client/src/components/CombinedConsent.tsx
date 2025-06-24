@@ -12,11 +12,37 @@ interface CombinedConsentProps {
 export function useCombinedConsent() {
   const [isAccepted, setIsAccepted] = useState(false);
 
-  const checkConsent = useCallback(() => {
+  const checkConsent = useCallback(async () => {
     const legalAccepted = localStorage.getItem('readmyfineprint-disclaimer-accepted');
     const cookiesAccepted = localStorage.getItem('cookie-consent-accepted');
-    const newState = legalAccepted === 'true' && cookiesAccepted === 'true';
-    setIsAccepted(newState);
+    const localConsent = legalAccepted === 'true' && cookiesAccepted === 'true';
+    
+    // If local consent exists, verify it with the database
+    if (localConsent) {
+      try {
+        const response = await fetch('/api/consent/verify', {
+          method: 'POST',
+          credentials: 'include',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        });
+        
+        if (response.ok) {
+          const result = await response.json();
+          setIsAccepted(result.hasConsented);
+        } else {
+          // If database verification fails, clear local consent
+          setIsAccepted(false);
+        }
+      } catch (error) {
+        console.warn('Failed to verify consent with database:', error);
+        // On error, trust local consent but try to sync later
+        setIsAccepted(localConsent);
+      }
+    } else {
+      setIsAccepted(false);
+    }
   }, []);
 
   useEffect(() => {
@@ -28,13 +54,13 @@ export function useCombinedConsent() {
     };
 
     // Listen for storage changes from other components
-    window.addEventListener('storage', checkConsent);
+    window.addEventListener('storage', handleConsentChange);
 
     // Listen for custom consent events
     window.addEventListener('consentChanged', handleConsentChange);
 
     return () => {
-      window.removeEventListener('storage', checkConsent);
+      window.removeEventListener('storage', handleConsentChange);
       window.removeEventListener('consentChanged', handleConsentChange);
     };
   }, [checkConsent]);

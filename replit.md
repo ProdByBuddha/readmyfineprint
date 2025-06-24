@@ -125,6 +125,10 @@ SECURITY_EMAIL_FROM=your-email@provider.com
     - Queue status checking allowed without consent
     - Document analysis requires consent only for non-sample documents
     - File uploads require consent (personal document processing)
+  - Fixed frontend-backend consent synchronization:
+    - Frontend now verifies localStorage consent against database
+    - Consent modal triggers before analysis, not after API rejection
+    - Automatic analysis continuation after consent acceptance
   - Admin endpoints remain exempt from all consent requirements
   - Improved performance and reliability with structured database storage
 
