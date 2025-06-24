@@ -1,4 +1,7 @@
 import crypto from 'crypto';
+import { db } from './db';
+import { consentRecords } from '../shared/schema';
+import { eq, desc, count, and, gte } from 'drizzle-orm';
 
 interface ConsentRecord {
   user_pseudonym: string; // Reproducible pseudonym for the user
@@ -19,18 +22,11 @@ interface ConsentProof {
 }
 
 class ConsentLogger {
-  private dbUrl: string;
   private masterKey: string;
 
   constructor() {
-    this.dbUrl = process.env.REPLIT_DB_URL || '';
     this.masterKey = process.env.CONSENT_MASTER_KEY || 'readmyfineprint-master-2024';
-
-    if (!this.dbUrl) {
-      console.warn('REPLIT_DB_URL not found. Consent logging will be disabled.');
-    } else {
-      console.log('✓ Consent logging enabled with Replit KV store');
-    }
+    console.log('✓ Consent logging enabled with PostgreSQL database');
   }
 
   /**
@@ -247,25 +243,36 @@ class ConsentLogger {
     unique_users: number;
     today: number;
   } | null> {
-    if (!this.dbUrl) return null;
-
     try {
-      // List all consent keys
-      const response = await fetch(`${this.dbUrl}?prefix=consent-`);
-      if (!response.ok) return null;
+      // Get total consent records
+      const totalResult = await db
+        .select({ count: count() })
+        .from(consentRecords);
 
-      const keys = await response.text();
-      const consentKeys = keys.split('\n').filter(k => k.trim() && k.startsWith('consent-'));
+      const total = totalResult[0]?.count || 0;
 
-      // List all user keys for unique user count
-      const userResponse = await fetch(`${this.dbUrl}?prefix=user-consent-`);
-      const userKeys = userResponse.ok ?
-        (await userResponse.text()).split('\n').filter(k => k.trim() && k.startsWith('user-consent-')) : [];
+      // Get unique users count
+      const uniqueUsersResult = await db
+        .selectDistinct({ userPseudonym: consentRecords.userPseudonym })
+        .from(consentRecords);
+
+      const unique_users = uniqueUsersResult.length;
+
+      // Get today's consent records (since midnight UTC)
+      const todayStart = new Date();
+      todayStart.setUTCHours(0, 0, 0, 0);
+
+      const todayResult = await db
+        .select({ count: count() })
+        .from(consentRecords)
+        .where(gte(consentRecords.createdAt, todayStart));
+
+      const today = todayResult[0]?.count || 0;
 
       return {
-        total: consentKeys.length,
-        unique_users: userKeys.length,
-        today: 0 // Would need to fetch and parse timestamps for accurate count
+        total,
+        unique_users,
+        today
       };
 
     } catch (error) {
