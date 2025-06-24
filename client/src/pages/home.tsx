@@ -177,12 +177,29 @@ export default function Home() {
     }
 
     try {
+      console.log("Creating sample document:", title);
+      
       // Use the existing document creation and analysis flow
       const document = await createDocument({ title: `Sample: ${title}`, content });
+      console.log("Sample document created:", document);
+      
       await handleDocumentCreated(document.id);
     } catch (error) {
       console.error("Error with sample contract:", error);
-      const errorMessage = error instanceof Error ? error.message : "Failed to process sample contract";
+      
+      // Handle different types of errors
+      let errorMessage = "Failed to process sample contract";
+      
+      if (error instanceof Error) {
+        if (error.message.includes("<!DOCTYPE") || error.message.includes("not valid JSON")) {
+          errorMessage = "Server error occurred. Please refresh the page and try again.";
+        } else if (error.message.includes("Network")) {
+          errorMessage = "Network connection issue. Please check your connection and try again.";
+        } else {
+          errorMessage = error.message;
+        }
+      }
+      
       announce(`Sample contract processing failed: ${errorMessage}`, 'assertive');
       toast({
         title: "Sample contract failed",

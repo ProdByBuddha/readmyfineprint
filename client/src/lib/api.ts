@@ -23,9 +23,41 @@ function getSessionId(): string {
   return sessionId;
 }
 
-export async function createDocument(data: { title: string; content: string }): Promise<Document> {
-  const response = await apiRequest("POST", "/api/documents", data);
-  return response.json();
+export async function createDocument(data: { title: string; content: string; fileType?: string }) {
+  const response = await fetch('/api/documents', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'X-Session-ID': getSessionId(),
+    },
+    body: JSON.stringify(data),
+  });
+
+  if (!response.ok) {
+    // Try to get error message from response
+    let errorMessage = `Failed to create document: ${response.statusText}`;
+    try {
+      const errorData = await response.json();
+      if (errorData.error) {
+        errorMessage = errorData.error;
+      }
+    } catch (parseError) {
+      // If we can't parse the response, it might be HTML (server error)
+      const responseText = await response.text();
+      if (responseText.includes('<!DOCTYPE')) {
+        errorMessage = 'Server error occurred. Please refresh the page and try again.';
+      }
+    }
+    throw new Error(errorMessage);
+  }
+
+  const responseText = await response.text();
+  try {
+    return JSON.parse(responseText);
+  } catch (parseError) {
+    console.error('Failed to parse JSON response:', responseText);
+    throw new Error('Server returned invalid response. Please refresh the page and try again.');
+  }
 }
 
 export async function uploadDocument(file: File): Promise<Document> {
