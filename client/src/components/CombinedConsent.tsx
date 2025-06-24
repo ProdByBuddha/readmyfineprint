@@ -65,10 +65,34 @@ export function useCombinedConsent() {
     };
   }, [checkConsent]);
 
-  const acceptAll = () => {
-    localStorage.setItem('readmyfineprint-disclaimer-accepted', 'true');
-    localStorage.setItem('readmyfineprint-disclaimer-date', new Date().toISOString());
-    localStorage.setItem('cookie-consent-accepted', 'true');
+  const acceptAll = async () => {
+    try {
+      // Log consent to database first
+      const result = await logConsent();
+      
+      const acceptanceDate = new Date().toISOString();
+      localStorage.setItem('readmyfineprint-disclaimer-accepted', 'true');
+      localStorage.setItem('readmyfineprint-disclaimer-date', acceptanceDate);
+      localStorage.setItem('cookie-consent-accepted', 'true');
+
+      // Store consent verification data if provided
+      if (result.consentId && result.verificationToken) {
+        sessionStorage.setItem('readmyfineprint-consent-id', result.consentId);
+        sessionStorage.setItem('readmyfineprint-verification-token', result.verificationToken);
+      }
+
+      if (!result.success) {
+        console.warn('Consent logging warning:', result.message);
+      }
+
+    } catch (error) {
+      console.warn('Consent logging failed, but continuing:', error);
+      // Still store locally and continue - don't block user
+      localStorage.setItem('readmyfineprint-disclaimer-accepted', 'true');
+      localStorage.setItem('readmyfineprint-disclaimer-date', new Date().toISOString());
+      localStorage.setItem('cookie-consent-accepted', 'true');
+    }
+    
     setIsAccepted(true);
     // Dispatch custom event to notify other components
     window.dispatchEvent(new CustomEvent('consentChanged'));
