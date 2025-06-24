@@ -82,13 +82,6 @@ class ConsentLogger {
     userPseudonym?: string;
     message: string;
   }> {
-    if (!this.dbUrl) {
-      return {
-        success: false,
-        message: 'Consent logging unavailable - no database URL'
-      };
-    }
-
     try {
       const timestamp = new Date().toISOString();
       const ip = req.ip || req.connection.remoteAddress || 'unknown';
@@ -98,42 +91,14 @@ class ConsentLogger {
       const consentId = this.generateConsentId();
       const verificationToken = this.createVerificationToken(userPseudonym, timestamp);
 
-      const consentRecord: ConsentRecord = {
-        user_pseudonym: userPseudonym,
-        timestamp,
-        ip_hash: this.hashSensitiveData(ip),
-        user_agent_hash: this.hashSensitiveData(userAgent),
-        terms_version: '1.0',
-        consent_id: consentId,
-        verification_token: verificationToken
-      };
-
-      // Store in Replit KV with consent- prefix
-      const key = `consent-${consentId}`;
-      const response = await fetch(this.dbUrl, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/x-www-form-urlencoded',
-        },
-        body: `${key}=${encodeURIComponent(JSON.stringify(consentRecord))}`
-      });
-
-      if (!response.ok) {
-        throw new Error(`Failed to log consent: ${response.statusText}`);
-      }
-
-      // Also store by user pseudonym for lookup
-      const userKey = `user-consent-${userPseudonym}`;
-      await fetch(this.dbUrl, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/x-www-form-urlencoded',
-        },
-        body: `${userKey}=${encodeURIComponent(JSON.stringify({
-          latest_consent_id: consentId,
-          latest_timestamp: timestamp,
-          terms_version: '1.0'
-        }))}`
+      // Store in PostgreSQL database
+      await db.insert(consentRecords).values({
+        consentId,
+        userPseudonym,
+        ipHash: this.hashSensitiveData(ip),
+        userAgentHash: this.hashSensitiveData(userAgent),
+        termsVersion: '1.0',
+        verificationToken
       });
 
       console.log(`Consent logged - ID: ${consentId}, Pseudonym: ${userPseudonym}`);
@@ -201,31 +166,34 @@ class ConsentLogger {
    * Allow users to verify their own consent using their verification token
    */
   async verifyConsentByToken(consentId: string, verificationToken: string): Promise<ConsentProof | null> {
-    if (!this.dbUrl) return null;
-
     try {
-      const consentKey = `consent-${consentId}`;
-      const response = await fetch(`${this.dbUrl}/${consentKey}`);
+      // Find the consent record by ID and verification token
+      const consentRecord = await db
+        .select()
+        .from(consentRecords)
+        .where(
+          and(
+            eq(consentRecords.consentId, consentId),
+            eq(consentRecords.verificationToken, verificationToken)
+          )
+        )
+        .limit(1);
 
-      if (!response.ok) return null;
+      if (!consentRecord.length) return null;
 
-      const consentRecord: ConsentRecord = JSON.parse(await response.text());
-
-      // Verify the token matches
-      if (consentRecord.verification_token !== verificationToken) {
-        return null;
-      }
+      const record = consentRecord[0];
+      const timestamp = record.createdAt.toISOString();
 
       const verificationSignature = crypto
         .createHmac('sha256', this.masterKey)
-        .update(`${consentRecord.user_pseudonym}:${consentRecord.timestamp}:${consentRecord.terms_version}`)
+        .update(`${record.userPseudonym}:${timestamp}:${record.termsVersion}`)
         .digest('hex');
 
       return {
-        user_pseudonym: consentRecord.user_pseudonym,
-        timestamp: consentRecord.timestamp,
-        terms_version: consentRecord.terms_version,
-        consent_id: consentRecord.consent_id,
+        user_pseudonym: record.userPseudonym,
+        timestamp,
+        terms_version: record.termsVersion,
+        consent_id: record.consentId,
         verification_signature: verificationSignature
       };
 
