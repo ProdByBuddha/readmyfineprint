@@ -100,10 +100,14 @@ function AdminLogin({ onLogin }: { onLogin: (token: string) => void }) {
     const sendInitialCode = async () => {
       setIsLoading(true);
       try {
+        // Use the admin API key for verification request
+        const adminKey = import.meta.env.VITE_ADMIN_API_KEY || process.env.ADMIN_API_KEY;
+        
         const response = await fetch("/api/admin/request-verification", {
           method: 'POST',
           headers: {
-            'Content-Type': 'application/json'
+            'Content-Type': 'application/json',
+            'X-Admin-Key': adminKey || ''
           }
         });
 
@@ -139,10 +143,13 @@ function AdminLogin({ onLogin }: { onLogin: (token: string) => void }) {
   const handleResendCode = async () => {
     setIsLoading(true);
     try {
+      const adminKey = import.meta.env.VITE_ADMIN_API_KEY || process.env.ADMIN_API_KEY;
+      
       const response = await fetch("/api/admin/request-verification", {
         method: 'POST',
         headers: {
-          'Content-Type': 'application/json'
+          'Content-Type': 'application/json',
+          'X-Admin-Key': adminKey || ''
         }
       });
 

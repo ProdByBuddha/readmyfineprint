@@ -10,9 +10,9 @@ import { z } from "zod";
 export function registerAdminRoutes(app: Express) {
 
   /**
-   * Request admin verification code
+   * Request admin verification code - protected endpoint
    */
-  app.post("/api/admin/request-verification", async (req: Request, res: Response) => {
+  app.post("/api/admin/request-verification", requireAdminAuth, async (req: Request, res: Response) => {
     try {
       const ip = req.ip || req.socket.remoteAddress || 'unknown';
       const userAgent = req.get('User-Agent') || 'unknown';

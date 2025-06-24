@@ -108,8 +108,9 @@ SECURITY_EMAIL_FROM=your-email@provider.com
 
 ### Admin Access
 - **Admin Interface**: `/admin` route with comprehensive dashboard
-- **Admin Account**: admin@readmyfineprint.com (created with full privileges)
-- **Authentication**: Admin API key or user credentials
+- **Authentication**: Two-factor system (Admin API key + email verification)
+- **Verification Emails**: admin@readmyfineprint.com, prodbybuddha@icloud.com
+- **Security**: Protected endpoints, rate limiting, comprehensive logging
 - **Features**: User management, system health, security monitoring, analytics
 
 ## Recent Changes
