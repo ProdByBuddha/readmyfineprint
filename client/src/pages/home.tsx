@@ -111,33 +111,43 @@ export default function Home() {
     onError: (error) => {
       setIsAnalyzing(false);
       const errorMessage = error instanceof Error ? error.message : "Failed to analyze document";
-      
-      // Check if this is a consent requirement error
-      if (errorMessage.includes('403') && errorMessage.includes('CONSENT_REQUIRED')) {
-        console.log('Analysis failed due to consent requirement, triggering consent modal');
-        // Trigger consent modal via custom event
-        window.dispatchEvent(new CustomEvent('consentRequired', { 
-          detail: { reason: 'Document analysis requires consent' }
-        }));
-        announce("Please accept our terms to analyze documents", 'assertive');
-        toast({
-          title: "Consent Required",
-          description: "Please accept our terms and conditions to analyze documents",
-          variant: "destructive",
-        });
-      } else {
-        announce(`Analysis failed: ${errorMessage}`, 'assertive');
-        toast({
-          title: "Analysis failed",
-          description: errorMessage,
-          variant: "destructive",
-        });
-      }
+      announce(`Analysis failed: ${errorMessage}`, 'assertive');
+      toast({
+        title: "Analysis failed",
+        description: errorMessage,
+        variant: "destructive",
+      });
     },
   });
 
   const handleDocumentCreated = useCallback(async (documentId: number) => {
     setCurrentDocumentId(documentId);
+    
+    // Check if this is a sample contract
+    const documentsQuery = queryClient.getQueryData(['/api/documents']) as Document[] | undefined;
+    const document = documentsQuery?.find(d => d.id === documentId);
+    const isSampleContract = document && document.title && [
+      'sample', 'example', 'demo', 'template',
+      'residential lease', 'employment agreement', 'nda',
+      'service agreement', 'rental agreement'
+    ].some(keyword => document.title.toLowerCase().includes(keyword.toLowerCase()));
+    
+    // If not a sample contract and consent not accepted, show consent modal first
+    if (!isSampleContract && !consentAccepted) {
+      console.log('Non-sample document requires consent, showing consent modal');
+      // Trigger consent modal via custom event
+      window.dispatchEvent(new CustomEvent('consentRequired', { 
+        detail: { reason: 'Document analysis requires consent' }
+      }));
+      announce("Please accept our terms to analyze this document", 'polite');
+      toast({
+        title: "Consent Required",
+        description: "Please accept our terms and conditions to analyze your document",
+        variant: "destructive",
+      });
+      return;
+    }
+    
     setIsAnalyzing(true);
     announce("Starting document analysis", 'polite');
     try {
@@ -145,7 +155,7 @@ export default function Home() {
     } catch (error) {
       console.error("Analysis error:", error);
     }
-  }, [analyzeDocumentMutation, announce]);
+  }, [analyzeDocumentMutation, announce, consentAccepted, toast, queryClient]);
 
   const handleDocumentSelect = useStableCallback((documentId: number | null) => {
     setCurrentDocumentId(documentId);
