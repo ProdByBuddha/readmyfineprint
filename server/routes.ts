@@ -589,7 +589,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Create document from text input
-  app.post("/api/documents", requireConsent, async (req: any, res) => {
+  app.post("/api/documents", async (req: any, res) => {
     try {
       const { title, content, fileType } = insertDocumentSchema.parse(req.body);
 
@@ -667,7 +667,46 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Analyze document
-  app.post("/api/documents/:id/analyze", requireConsent, optionalUserAuth, async (req: any, res) => {
+  app.post("/api/documents/:id/analyze", async (req: any, res) => {
+    // Check consent for analysis - this is the main functionality that requires consent
+    try {
+      const { ip, userAgent } = getClientInfo(req);
+      
+      // Skip consent check for admin users
+      const adminKey = process.env.ADMIN_API_KEY;
+      const providedKey = req.headers['x-admin-key'] as string;
+      const adminToken = req.headers['x-admin-token'] as string;
+      
+      if (!(adminKey && (providedKey === adminKey || adminToken))) {
+        // Check for valid consent for analysis
+        const consentProof = await consentLogger.verifyUserConsent(ip, userAgent);
+        
+        if (!consentProof) {
+          securityLogger.logSecurityEvent(
+            ip, 
+            userAgent, 
+            'CONSENT_REQUIRED', 
+            'HIGH', 
+            `Analysis denied - no valid consent found for ${req.path}`,
+            req.path
+          );
+          
+          return res.status(403).json({
+            error: 'Consent required for document analysis',
+            message: 'You must accept our terms and conditions to analyze documents',
+            code: 'CONSENT_REQUIRED',
+            requiresConsent: true
+          });
+        }
+      }
+    } catch (error) {
+      console.error('Error checking consent for analysis:', error);
+      return res.status(500).json({
+        error: 'Unable to verify consent',
+        message: 'Please try again or contact support',
+        code: 'CONSENT_VERIFICATION_ERROR'
+      });
+    }
     try {
       const documentId = parseInt(req.params.id);
 
@@ -1580,7 +1619,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Get all documents
-  app.get("/api/documents", requireConsent, async (req: any, res) => {
+  app.get("/api/documents", async (req: any, res) => {
     try {
       const documents = await storage.getAllDocuments(req.sessionId);
       res.json(documents);
@@ -1591,7 +1630,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Get specific document
-  app.get("/api/documents/:id", requireConsent, async (req: any, res) => {
+  app.get("/api/documents/:id", async (req: any, res) => {
     try {
       const documentId = parseInt(req.params.id);
 

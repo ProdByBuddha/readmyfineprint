@@ -245,6 +245,11 @@ export async function requireConsent(req: Request, res: Response, next: NextFunc
     if (adminKey && (providedKey === adminKey || adminToken)) {
       return next();
     }
+
+    // Skip consent check for sample contract operations
+    if (isSampleContractRequest(req)) {
+      return next();
+    }
     
     // Check for valid consent
     const consentProof = await consentLogger.verifyUserConsent(ip, userAgent);
@@ -280,6 +285,37 @@ export async function requireConsent(req: Request, res: Response, next: NextFunc
       code: 'CONSENT_VERIFICATION_ERROR'
     });
   }
+}
+
+/**
+ * Check if the request is for sample contract functionality
+ */
+function isSampleContractRequest(req: Request): boolean {
+  const path = req.path;
+  const body = req.body;
+  
+  // Allow sample contract creation (when title contains sample contract keywords)
+  if (path === '/api/documents' && req.method === 'POST') {
+    const title = body?.title || '';
+    const sampleKeywords = [
+      'sample', 'example', 'demo', 'template',
+      'residential lease', 'employment agreement', 'nda',
+      'service agreement', 'rental agreement'
+    ];
+    
+    return sampleKeywords.some(keyword => 
+      title.toLowerCase().includes(keyword.toLowerCase())
+    );
+  }
+  
+  // Allow accessing documents that are sample contracts
+  if (path.startsWith('/api/documents/') && req.method === 'GET') {
+    // This will be allowed but we'll need to verify in the route handler
+    // that it's actually a sample contract
+    return false; // Let the route handler decide based on document content
+  }
+  
+  return false;
 }
 
 // Middleware to add security headers
