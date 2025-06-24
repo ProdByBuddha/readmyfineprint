@@ -1613,7 +1613,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Get processing queue status
-  app.get("/api/queue/status", requireConsent, optionalUserAuth, async (req: any, res) => {
+  app.get("/api/queue/status", optionalUserAuth, async (req: any, res) => {
     try {
       const stats = priorityQueue.getQueueStats();
 
@@ -1670,7 +1670,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Clear all documents (fresh start)
-  app.delete("/api/documents", requireConsent, async (req: any, res) => {
+  app.delete("/api/documents", async (req: any, res) => {
     try {
       await storage.clearAllDocuments(req.sessionId);
       res.json({ message: "All documents cleared successfully" });

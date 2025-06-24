@@ -121,9 +121,10 @@ SECURITY_EMAIL_FROM=your-email@provider.com
   - Enhanced consent statistics with accurate SQL-based counting
   - Implemented selective consent enforcement:
     - Sample contracts fully accessible without consent (creation, viewing, analysis)
-    - Document viewing and creation allowed without consent for all documents
+    - Document viewing, creation, and deletion allowed without consent for all documents
+    - Queue status checking allowed without consent
     - Document analysis requires consent only for non-sample documents
-    - User uploads and personal document processing require consent
+    - File uploads require consent (personal document processing)
   - Admin endpoints remain exempt from all consent requirements
   - Improved performance and reliability with structured database storage
 
