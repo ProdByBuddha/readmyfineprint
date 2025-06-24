@@ -31,11 +31,20 @@ class ConsentLogger {
 
   /**
    * Creates a consistent pseudonym for a user based on stable identifiers
-   * This allows linking consent to the same user across sessions while protecting identity
+   * For free users: based on device fingerprint (IP + User Agent)
+   * For subscribers: based on user ID (portable across devices)
    */
-  private createUserPseudonym(ip: string, userAgent: string): string {
-    // Create a stable identifier that will be the same for the same user/browser
-    const stableIdentifier = `${ip}:${userAgent}`;
+  private createUserPseudonym(ip: string, userAgent: string, userId?: string): string {
+    let stableIdentifier: string;
+    
+    if (userId && userId !== 'anonymous' && !userId.startsWith('session_')) {
+      // Subscriber: Use user ID for cross-device consent
+      stableIdentifier = `user:${userId}`;
+    } else {
+      // Free user: Use device fingerprint for per-machine consent
+      stableIdentifier = `device:${ip}:${userAgent}`;
+    }
+    
     return crypto
       .createHmac('sha256', this.masterKey)
       .update(stableIdentifier)
@@ -86,8 +95,9 @@ class ConsentLogger {
       const timestamp = new Date().toISOString();
       const ip = req.ip || req.connection.remoteAddress || 'unknown';
       const userAgent = req.get('User-Agent') || 'unknown';
+      const userId = req.user?.id; // Get user ID if authenticated
 
-      const userPseudonym = this.createUserPseudonym(ip, userAgent);
+      const userPseudonym = this.createUserPseudonym(ip, userAgent, userId);
       const consentId = this.generateConsentId();
       const verificationToken = this.createVerificationToken(userPseudonym, timestamp);
 
@@ -165,9 +175,9 @@ class ConsentLogger {
    * Verify that a specific user has consented
    * This allows proving consent for a specific user/browser combination
    */
-  async verifyUserConsent(ip: string, userAgent: string): Promise<ConsentProof | null> {
+  async verifyUserConsent(ip: string, userAgent: string, userId?: string): Promise<ConsentProof | null> {
     try {
-      const userPseudonym = this.createUserPseudonym(ip, userAgent);
+      const userPseudonym = this.createUserPseudonym(ip, userAgent, userId);
 
       // Find the latest consent record for this user
       const consentRecord = await db

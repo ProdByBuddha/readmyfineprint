@@ -497,7 +497,7 @@ async function extractTextFromFile(buffer: Buffer, mimetype: string, filename: s
 export async function registerRoutes(app: Express): Promise<Server> {
 
     // Log consent acceptance
-  app.post("/api/consent", async (req, res) => {
+  app.post("/api/consent", optionalUserAuth, async (req: any, res) => {
     try {
       const result = await consentLogger.logConsent(req);
       res.json(result);
@@ -512,12 +512,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Verify user consent (for proving specific user consent)
-  app.post("/api/consent/verify", async (req, res) => {
+  app.post("/api/consent/verify", optionalUserAuth, async (req: any, res) => {
     try {
       const ip = req.ip || req.socket.remoteAddress || 'unknown';
       const userAgent = req.get('User-Agent') || 'unknown';
+      const userId = req.user?.id; // Get user ID if authenticated
 
-      const proof = await consentLogger.verifyUserConsent(ip, userAgent);
+      const proof = await consentLogger.verifyUserConsent(ip, userAgent, userId);
       if (proof) {
         res.json({ hasConsented: true, proof });
       } else {
@@ -690,8 +691,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
         ].some(keyword => document.title.toLowerCase().includes(keyword.toLowerCase()));
         
         if (!isSampleContract) {
+          // Get user ID for consent verification
+          const userId = req.user?.id;
+          
           // Check for valid consent for non-sample analysis
-          const consentProof = await consentLogger.verifyUserConsent(ip, userAgent);
+          const consentProof = await consentLogger.verifyUserConsent(ip, userAgent, userId);
           
           if (!consentProof) {
             securityLogger.logSecurityEvent(
