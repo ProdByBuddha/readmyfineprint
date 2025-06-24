@@ -129,6 +129,8 @@ SECURITY_EMAIL_FROM=your-email@provider.com
     - Frontend now verifies localStorage consent against database
     - Consent modal triggers before analysis, not after API rejection
     - Automatic analysis continuation after consent acceptance
+    - Fixed consent banner race condition with async database verification
+    - Added consent checking state to prevent premature banner display
   - Admin endpoints remain exempt from all consent requirements
   - Improved performance and reliability with structured database storage
 

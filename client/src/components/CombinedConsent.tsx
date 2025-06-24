@@ -11,37 +11,53 @@ interface CombinedConsentProps {
 // Combined hook for managing both legal and cookie consent
 export function useCombinedConsent() {
   const [isAccepted, setIsAccepted] = useState(false);
+  const [isCheckingConsent, setIsCheckingConsent] = useState(true);
 
   const checkConsent = useCallback(async () => {
+    setIsCheckingConsent(true);
+    
     const legalAccepted = localStorage.getItem('readmyfineprint-disclaimer-accepted');
     const cookiesAccepted = localStorage.getItem('cookie-consent-accepted');
     const localConsent = legalAccepted === 'true' && cookiesAccepted === 'true';
     
-    // If local consent exists, verify it with the database
-    if (localConsent) {
-      try {
-        const response = await fetch('/api/consent/verify', {
-          method: 'POST',
-          credentials: 'include',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-        });
+    // Always verify with database, regardless of local storage
+    try {
+      const response = await fetch('/api/consent/verify', {
+        method: 'POST',
+        credentials: 'include',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+      
+      if (response.ok) {
+        const result = await response.json();
+        const databaseConsent = result.hasConsented;
         
-        if (response.ok) {
-          const result = await response.json();
-          setIsAccepted(result.hasConsented);
-        } else {
-          // If database verification fails, clear local consent
-          setIsAccepted(false);
+        // Sync local storage with database result
+        if (databaseConsent && !localConsent) {
+          // Database has consent but local doesn't - sync local
+          localStorage.setItem('readmyfineprint-disclaimer-accepted', 'true');
+          localStorage.setItem('readmyfineprint-disclaimer-date', new Date().toISOString());
+          localStorage.setItem('cookie-consent-accepted', 'true');
+        } else if (!databaseConsent && localConsent) {
+          // Local has consent but database doesn't - clear local
+          localStorage.removeItem('readmyfineprint-disclaimer-accepted');
+          localStorage.removeItem('readmyfineprint-disclaimer-date');
+          localStorage.removeItem('cookie-consent-accepted');
         }
-      } catch (error) {
-        console.warn('Failed to verify consent with database:', error);
-        // On error, trust local consent but try to sync later
+        
+        setIsAccepted(databaseConsent);
+      } else {
+        // If database verification fails, trust local consent
         setIsAccepted(localConsent);
       }
-    } else {
-      setIsAccepted(false);
+    } catch (error) {
+      console.warn('Failed to verify consent with database:', error);
+      // On error, trust local consent
+      setIsAccepted(localConsent);
+    } finally {
+      setIsCheckingConsent(false);
     }
   }, []);
 
@@ -109,6 +125,7 @@ export function useCombinedConsent() {
 
   return {
     isAccepted,
+    isCheckingConsent,
     acceptAll,
     revokeConsent,
   };
