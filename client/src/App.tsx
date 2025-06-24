@@ -23,6 +23,7 @@ import Donate from "@/pages/donate";
 import Roadmap from "@/pages/roadmap";
 import Subscription from "@/pages/subscription";
 import AdminDashboard from "@/pages/admin";
+import { EmailRecoveryPage } from "@/pages/EmailRecovery";
 import NotFound from "@/pages/not-found";
 import { setupAutoSubmission } from "./lib/indexnow";
 import React, { useEffect } from 'react';
@@ -48,6 +49,7 @@ function Router() {
             path="/admin" 
             component={AdminDashboard} 
           />
+      <Route path="/email-recovery" component={EmailRecoveryPage} />
       <Route component={NotFound} />
     </Switch>
   );

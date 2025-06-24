@@ -18,42 +18,60 @@ export interface PIIDetectionResult {
 
 export class PIIDetectionService {
   
-  // Regex patterns for common PII types
+  // Enhanced regex patterns for strict PII detection
   private patterns = {
     ssn: {
       regex: /\b\d{3}-?\d{2}-?\d{4}\b/g,
-      confidence: 0.9
+      confidence: 0.95
     },
     email: {
       regex: /\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b/g,
-      confidence: 0.95
+      confidence: 0.98
     },
     phone: {
-      regex: /(?:\(?\d{3}\)?[-.\s]?)?\d{3}[-.\s]?\d{4}\b/g,
-      confidence: 0.8
-    },
-    creditCard: {
-      regex: /\b(?:\d{4}[-\s]?){3}\d{4}\b/g,
+      // Enhanced phone number detection
+      regex: /(?:\+?1[-.\s]?)?\(?[0-9]{3}\)?[-.\s]?[0-9]{3}[-.\s]?[0-9]{4}\b|\b\d{10}\b/g,
       confidence: 0.85
     },
-    // Date patterns (potential DOB)
-    dob: {
-      regex: /\b(?:\d{1,2}[\/\-\.]\d{1,2}[\/\-\.]\d{2,4}|\d{4}[\/\-\.]\d{1,2}[\/\-\.]\d{1,2})\b/g,
-      confidence: 0.6
+    creditCard: {
+      // More comprehensive credit card detection
+      regex: /\b(?:4[0-9]{12}(?:[0-9]{3})?|5[1-5][0-9]{14}|6(?:011|5[0-9]{2})[0-9]{12}|3[47][0-9]{13}|3[0-9]{13}|(?:2131|1800|35\d{3})\d{11})\b/g,
+      confidence: 0.95
     },
-    // Address patterns (basic street addresses)
+    // Enhanced date patterns for potential DOB
+    dob: {
+      regex: /\b(?:0?[1-9]|1[0-2])[-\/](?:0?[1-9]|[12][0-9]|3[01])[-\/](?:19|20)\d{2}\b|\b(?:19|20)\d{2}[-\/](?:0?[1-9]|1[0-2])[-\/](?:0?[1-9]|[12][0-9]|3[01])\b/g,
+      confidence: 0.75
+    },
+    // More comprehensive address detection
     address: {
-      regex: /\b\d+\s+[A-Za-z\s]+(?:Street|St|Avenue|Ave|Road|Rd|Boulevard|Blvd|Lane|Ln|Drive|Dr|Court|Ct|Circle|Cir|Place|Pl)\b/gi,
+      regex: /\b\d+\s+[A-Za-z\s]+(?:Street|St|Avenue|Ave|Road|Rd|Boulevard|Blvd|Lane|Ln|Drive|Dr|Court|Ct|Circle|Cir|Place|Pl|Way|Pkwy|Parkway|Terrace|Ter)\b/gi,
+      confidence: 0.8
+    },
+    // Additional patterns for strict detection
+    zipCode: {
+      regex: /\b\d{5}(?:-\d{4})?\b/g,
       confidence: 0.7
+    },
+    // Government ID patterns
+    passport: {
+      regex: /\b[A-Z]{1,2}\d{6,9}\b/g,
+      confidence: 0.75
     }
   };
 
-  // Common names for detection (simplified set - in production you'd use a comprehensive name database)
+  // Comprehensive names for strict PII detection - better to over-detect than under-detect
   private commonNames = new Set([
     'john', 'jane', 'michael', 'sarah', 'david', 'mary', 'james', 'patricia', 'robert', 'jennifer',
     'william', 'linda', 'richard', 'elizabeth', 'joseph', 'barbara', 'thomas', 'susan', 'charles', 'jessica',
     'christopher', 'karen', 'daniel', 'nancy', 'matthew', 'lisa', 'anthony', 'betty', 'mark', 'helen',
-    'donald', 'sandra', 'steven', 'donna', 'andrew', 'carol', 'joshua', 'ruth', 'kenneth', 'sharon'
+    'donald', 'sandra', 'steven', 'donna', 'andrew', 'carol', 'joshua', 'ruth', 'kenneth', 'sharon',
+    // Additional names for strict detection
+    'alex', 'alexander', 'alexandra', 'jordan', 'rivera', 'bennett', 'smith', 'johnson', 'brown', 'davis',
+    'miller', 'wilson', 'moore', 'taylor', 'anderson', 'thomas', 'jackson', 'white', 'harris', 'martin',
+    'thompson', 'garcia', 'martinez', 'robinson', 'clark', 'rodriguez', 'lewis', 'lee', 'walker', 'hall',
+    'allen', 'young', 'hernandez', 'king', 'wright', 'lopez', 'hill', 'scott', 'green', 'adams',
+    'baker', 'gonzalez', 'nelson', 'carter', 'mitchell', 'perez', 'roberts', 'turner', 'phillips', 'campbell'
   ]);
 
   /**
@@ -65,7 +83,7 @@ export class PIIDetectionService {
   }
 
   /**
-   * Detect potential names in text
+   * Detect potential names in text - strict detection for maximum privacy protection
    */
   private detectNames(text: string): PIIMatch[] {
     const matches: PIIMatch[] = [];
@@ -79,12 +97,15 @@ export class PIIDetectionService {
         const start = text.indexOf(word, currentPosition);
         const end = start + word.length;
         
+        // High confidence for strict PII protection - better to over-redact than under-redact
+        const confidence = 0.85;
+        
         matches.push({
           type: 'name',
           value: word,
           start,
           end,
-          confidence: 0.6,
+          confidence,
           placeholder: '' // Will be set later
         });
       }

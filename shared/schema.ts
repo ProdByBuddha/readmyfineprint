@@ -107,6 +107,17 @@ export const emailChangeRequests = pgTable('email_change_requests', {
   updatedAt: timestamp('updated_at').defaultNow().notNull(),
 });
 
+export const consentRecords = pgTable('consent_records', {
+  id: uuid('id').primaryKey().defaultRandom(),
+  consentId: text('consent_id').unique().notNull(), // Original consent ID for backward compatibility
+  userPseudonym: text('user_pseudonym').notNull(), // Reproducible pseudonym for the user
+  ipHash: text('ip_hash').notNull(), // Hashed IP for analytics
+  userAgentHash: text('user_agent_hash').notNull(), // Hashed user agent
+  termsVersion: text('terms_version').notNull(),
+  verificationToken: text('verification_token').notNull(), // For user to verify their own consent
+  createdAt: timestamp('created_at').defaultNow().notNull(),
+});
+
 // Relations
 export const usersRelations = relations(users, ({ many }) => ({
   subscriptions: many(userSubscriptions),

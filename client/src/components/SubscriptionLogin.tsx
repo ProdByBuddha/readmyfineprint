@@ -306,7 +306,7 @@ export function SubscriptionLogin({
               </Button>
             </div>
 
-            <div className="mt-4">
+            <div className="space-y-2 mt-4">
               <Button
                 type="button"
                 variant="secondary"
@@ -316,6 +316,28 @@ export function SubscriptionLogin({
               >
                 <Crown className="mr-2 h-4 w-4 text-yellow-600" />
                 Subscribe Now
+              </Button>
+              
+              <div className="relative">
+                <div className="absolute inset-0 flex items-center">
+                  <span className="w-full border-t" />
+                </div>
+                <div className="relative flex justify-center text-xs uppercase">
+                  <span className="bg-background px-2 text-muted-foreground">
+                    Need help?
+                  </span>
+                </div>
+              </div>
+              
+              <Button
+                type="button"
+                variant="outline"
+                className="w-full"
+                onClick={() => window.location.href = '/email-recovery'}
+                disabled={loading}
+              >
+                <Mail className="mr-2 h-4 w-4" />
+                Can't access your email?
               </Button>
             </div>
           </form>

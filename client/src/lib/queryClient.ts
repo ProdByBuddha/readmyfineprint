@@ -33,14 +33,13 @@ async function throwIfResNotOk(res: Response) {
 }
 
 export async function apiRequest(
+  method: string,
   url: string,
   options?: {
-    method?: string;
     headers?: Record<string, string>;
     body?: unknown;
   }
-): Promise<any> {
-  const method = options?.method || 'GET';
+): Promise<Response> {
   const customHeaders = options?.headers || {};
   
   const headers: Record<string, string> = {
@@ -65,8 +64,12 @@ export async function apiRequest(
     updateSessionId(serverSessionId);
   }
 
-  await throwIfResNotOk(res);
-  return await res.json();
+  if (!res.ok) {
+    const text = await res.text();
+    throw new Error(`HTTP ${res.status}: ${text}`);
+  }
+
+  return res;
 }
 
 type UnauthorizedBehavior = "returnNull" | "throw";

@@ -178,7 +178,7 @@ export function FileUpload({ onDocumentCreated, disabled = false, consentAccepte
         {!consentAccepted && (
           <div className="mb-6 p-4 bg-amber-50 dark:bg-amber-950/20 border border-amber-200 dark:border-amber-800 rounded-lg">
             <p className="text-sm text-amber-800 dark:text-amber-200">
-              <strong>Consent Required:</strong> To analyze documents, please accept the terms and privacy policy using the banner below.
+              <strong>Consent Required:</strong> To analyze documents or paste text, please accept the terms and privacy policy using the banner at the bottom of the page.
             </p>
           </div>
         )}
@@ -282,7 +282,8 @@ export function FileUpload({ onDocumentCreated, disabled = false, consentAccepte
                 value={textContent}
                 onChange={(e) => setTextContent(e.target.value)}
                 className="w-full h-40 resize-none"
-                placeholder="Paste your contract or terms of service here..."
+                placeholder={disabled ? "Please accept the consent banner below to paste text..." : "Paste your contract or terms of service here..."}
+                disabled={disabled}
                 aria-describedby="text-input-description"
                 aria-invalid={uploadError && textContent.trim() === '' ? 'true' : 'false'}
               />

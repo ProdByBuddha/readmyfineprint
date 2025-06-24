@@ -28,7 +28,7 @@ export async function createDocument(data: { title: string; content: string; fil
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
-      'X-Session-ID': getSessionId(),
+      'x-session-id': getSessionId(),
     },
     body: JSON.stringify(data),
   });
@@ -84,6 +84,7 @@ export async function uploadDocument(file: File): Promise<Document> {
 export async function analyzeDocument(id: number): Promise<Document> {
   const headers: Record<string, string> = {
     'Content-Type': 'application/json',
+    'x-session-id': getSessionId(),
   };
 
   // Include subscription token if available
@@ -153,7 +154,17 @@ export async function getQueueStatus(): Promise<{
   userHasRequestInQueue: boolean;
   timestamp: number;
 }> {
-  const response = await apiRequest("GET", "/api/queue/status");
+  const response = await fetch('/api/queue/status', {
+    headers: {
+      'x-session-id': getSessionId(),
+    },
+  });
+
+  if (!response.ok) {
+    const text = await response.text();
+    throw new Error(`HTTP ${response.status}: ${text}`);
+  }
+
   return response.json();
 }
 
