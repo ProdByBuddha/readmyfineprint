@@ -114,6 +114,14 @@ SECURITY_EMAIL_FROM=your-email@provider.com
 - **Features**: User management, system health, security monitoring, analytics
 
 ## Recent Changes
+- **June 24, 2025**: Consent logging conversion to PostgreSQL database
+  - Converted consent logging system from Replit key-value store to PostgreSQL
+  - Added consent_records table with proper schema and indexing
+  - Updated all consent verification methods to use database queries
+  - Enhanced consent statistics with accurate SQL-based counting
+  - Maintained backward compatibility with existing consent verification tokens
+  - Improved performance and reliability with structured database storage
+
 - **June 24, 2025**: Complete admin interface implementation
   - Built comprehensive admin dashboard with overview metrics, system health monitoring
   - Created user management interface with search, filtering, and user modification capabilities
