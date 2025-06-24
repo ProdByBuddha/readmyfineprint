@@ -589,7 +589,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Create document from text input
-  app.post("/api/documents", async (req: any, res) => {
+  app.post("/api/documents", requireConsent, async (req: any, res) => {
     try {
       const { title, content, fileType } = insertDocumentSchema.parse(req.body);
 
@@ -615,7 +615,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Upload document file
-  app.post("/api/documents/upload", upload.single('file'), async (req: any, res) => {
+  app.post("/api/documents/upload", requireConsent, upload.single('file'), async (req: any, res) => {
     try {
       if (!req.file) {
         securityLogger.logFileUploadRejected(req, 'unknown', 'unknown', 'No file provided');
@@ -667,7 +667,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Analyze document
-  app.post("/api/documents/:id/analyze", optionalUserAuth, async (req: any, res) => {
+  app.post("/api/documents/:id/analyze", requireConsent, optionalUserAuth, async (req: any, res) => {
     try {
       const documentId = parseInt(req.params.id);
 
@@ -983,7 +983,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Step 1: Request verification code for subscription login
-  app.post("/api/subscription/login/request-code", async (req, res) => {
+  app.post("/api/subscription/login/request-code", requireConsent, async (req, res) => {
     try {
       const { email } = req.body;
       if (!email || !email.includes('@')) {
@@ -1081,7 +1081,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Step 2: Verify code and complete login
-  app.post("/api/subscription/login/verify", async (req, res) => {
+  app.post("/api/subscription/login/verify", requireConsent, async (req, res) => {
     try {
       const { email, code } = req.body;
       if (!email || !email.includes('@')) {
