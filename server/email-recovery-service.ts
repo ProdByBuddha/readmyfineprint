@@ -499,6 +499,22 @@ export class EmailRecoveryService {
       return 0;
     }
   }
+
+  /**
+   * Get pending email change requests (for admin dashboard)
+   */
+  async getPendingEmailChangeRequests(limit: number = 100): Promise<EmailChangeRequest[]> {
+    try {
+      const requests = await databaseStorage.getEmailChangeRequests({ 
+        status: 'pending', 
+        limit 
+      });
+      return requests.requests || [];
+    } catch (error) {
+      console.error('Error getting pending email requests:', error);
+      return [];
+    }
+  }
 }
 
 // Export singleton instance
