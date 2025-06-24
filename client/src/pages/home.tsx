@@ -15,20 +15,35 @@ import { AnalysisProgress } from "@/components/LoadingStates";
 import { MobileAppWrapper } from "@/components/MobileAppWrapper";
 import { useCombinedConsent } from "@/components/CombinedConsent";
 import { CookieConsentBanner } from "@/components/CookieConsentBanner";
+import { CookieManagement } from "@/components/CookieManagement";
 import { useAccessibility } from "@/hooks/useAccessibility";
 import { analyzeDocument, getDocument, createDocument, getQueueStatus } from "@/lib/api";
 import { useToast } from "@/hooks/use-toast";
 import { queryClient } from "@/lib/queryClient";
 import { generateFAQSchema, updateSEO } from "@/lib/seo";
+import { LoginForm } from "@/components/LoginForm";
+import { useLocation } from "wouter";
 import type { Document } from "@shared/schema";
 
 export default function Home() {
   const [currentDocumentId, setCurrentDocumentId] = useState<number | null>(null);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
+  const [showAdminLogin, setShowAdminLogin] = useState(false);
+  const [, navigate] = useLocation();
   const { toast } = useToast();
   const { isAccepted: consentAccepted } = useCombinedConsent();
   const { announce } = useAccessibility();
   const containerRef = usePreventFlicker();
+
+  // Check for admin login redirect
+  useEffect(() => {
+    const urlParams = new URLSearchParams(window.location.search);
+    if (urlParams.get('login') === 'admin') {
+      setShowAdminLogin(true);
+      // Clean up URL
+      window.history.replaceState({}, '', window.location.pathname);
+    }
+  }, []);
 
   // Add FAQ structured data for SEO
   useEffect(() => {
