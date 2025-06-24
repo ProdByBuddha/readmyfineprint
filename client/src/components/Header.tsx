@@ -1,5 +1,5 @@
 import { Button } from "@/components/ui/button";
-import { Moon, Sun, Heart, Crown, LogOut } from "lucide-react";
+import { Moon, Sun, Heart, Crown, LogOut, Settings } from "lucide-react";
 import { Link } from "wouter";
 import { useTheme } from "@/components/ThemeProvider";
 import { useIsMobile } from "@/hooks/use-mobile";
@@ -15,6 +15,7 @@ export function Header() {
   const [showLogin, setShowLogin] = useState(false);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [isCheckingAuth, setIsCheckingAuth] = useState(true);
+  const [isAdmin, setIsAdmin] = useState(false);
 
   // Note: Development mode check available if needed
   // const isDevelopment = import.meta.env.DEV || import.meta.env.MODE === 'development';
@@ -41,11 +42,15 @@ export function Header() {
       });
 
       if (response.ok) {
+        const data = await response.json();
         setIsLoggedIn(true);
+        // Check if user is admin based on email
+        setIsAdmin(data.email === 'admin@readmyfineprint.com' || data.email === 'prodbybuddha@icloud.com');
       } else {
         // Token is invalid, remove it
         localStorage.removeItem('subscriptionToken');
         setIsLoggedIn(false);
+        setIsAdmin(false);
       }
     } catch (error) {
       // On error, assume token is invalid
@@ -84,6 +89,7 @@ export function Header() {
     // Clear the subscription token
     localStorage.removeItem('subscriptionToken');
     setIsLoggedIn(false);
+    setIsAdmin(false);
     
     toast({
       title: "Logged Out",
@@ -163,6 +169,19 @@ export function Header() {
                 Plans
               </Button>
             </Link>
+            {isAdmin && (
+              <Link to="/admin">
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="mr-2"
+                  aria-label="Admin Dashboard"
+                >
+                  <Settings className="w-4 h-4 mr-2 text-blue-600" aria-hidden="true" />
+                  Admin
+                </Button>
+              </Link>
+            )}
             {isCheckingAuth ? (
               <Button
                 variant="outline"
@@ -274,6 +293,18 @@ export function Header() {
                   onClick={handleSubscriptionClick}
                 >
                   <Crown className="w-4 h-4 text-yellow-600" aria-hidden="true" />
+                </Button>
+              </Link>
+            )}
+            {isAdmin && (
+              <Link to="/admin">
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="h-10 w-10 p-0 rounded-full transition-all duration-200 active:scale-95"
+                  aria-label="Admin Dashboard"
+                >
+                  <Settings className="w-4 h-4 text-blue-600" aria-hidden="true" />
                 </Button>
               </Link>
             )}
