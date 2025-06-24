@@ -1629,7 +1629,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Create payment intent endpoint with enhanced security and auto-detecting test/live mode
-  app.post('/api/create-payment-intent', async (req, res) => {
+  app.post('/api/create-payment-intent', requireConsent, async (req, res) => {
     try {
       // Input validation schema
       const paymentSchema = z.object({
@@ -2096,7 +2096,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Create Stripe Checkout Session with input validation and auto-detecting test/live mode
-  app.post("/api/create-checkout-session", async (req, res) => {
+  app.post("/api/create-checkout-session", requireConsent, async (req, res) => {
     try {
       // Input validation with Zod
       const checkoutSchema = z.object({
