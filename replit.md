@@ -120,9 +120,9 @@ SECURITY_EMAIL_FROM=your-email@provider.com
   - Updated all consent verification methods to use database queries
   - Enhanced consent statistics with accurate SQL-based counting
   - Implemented selective consent enforcement:
-    - Sample contracts accessible without consent (using title-based detection)
-    - Document viewing and creation allowed without consent
-    - Document analysis requires consent (main AI functionality)
+    - Sample contracts fully accessible without consent (creation, viewing, analysis)
+    - Document viewing and creation allowed without consent for all documents
+    - Document analysis requires consent only for non-sample documents
     - User uploads and personal document processing require consent
   - Admin endpoints remain exempt from all consent requirements
   - Improved performance and reliability with structured database storage

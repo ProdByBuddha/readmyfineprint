@@ -668,7 +668,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   // Analyze document
   app.post("/api/documents/:id/analyze", async (req: any, res) => {
-    // Check consent for analysis - this is the main functionality that requires consent
+    // Check consent for analysis - skip for sample contracts
     try {
       const { ip, userAgent } = getClientInfo(req);
       
@@ -678,25 +678,38 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const adminToken = req.headers['x-admin-token'] as string;
       
       if (!(adminKey && (providedKey === adminKey || adminToken))) {
-        // Check for valid consent for analysis
-        const consentProof = await consentLogger.verifyUserConsent(ip, userAgent);
+        // Check if this is a sample contract analysis
+        const documentId = parseInt(req.params.id);
+        const document = await storage.getDocument(req.sessionId, documentId);
         
-        if (!consentProof) {
-          securityLogger.logSecurityEvent(
-            ip, 
-            userAgent, 
-            'CONSENT_REQUIRED', 
-            'HIGH', 
-            `Analysis denied - no valid consent found for ${req.path}`,
-            req.path
-          );
+        // Skip consent for sample contracts
+        const isSampleContract = document && document.title && [
+          'sample', 'example', 'demo', 'template',
+          'residential lease', 'employment agreement', 'nda',
+          'service agreement', 'rental agreement'
+        ].some(keyword => document.title.toLowerCase().includes(keyword.toLowerCase()));
+        
+        if (!isSampleContract) {
+          // Check for valid consent for non-sample analysis
+          const consentProof = await consentLogger.verifyUserConsent(ip, userAgent);
           
-          return res.status(403).json({
-            error: 'Consent required for document analysis',
-            message: 'You must accept our terms and conditions to analyze documents',
-            code: 'CONSENT_REQUIRED',
-            requiresConsent: true
-          });
+          if (!consentProof) {
+            securityLogger.logSecurityEvent(
+              ip, 
+              userAgent, 
+              'CONSENT_REQUIRED', 
+              'HIGH', 
+              `Analysis denied - no valid consent found for ${req.path}`,
+              req.path
+            );
+            
+            return res.status(403).json({
+              error: 'Consent required for document analysis',
+              message: 'You must accept our terms and conditions to analyze your own documents',
+              code: 'CONSENT_REQUIRED',
+              requiresConsent: true
+            });
+          }
         }
       }
     } catch (error) {
