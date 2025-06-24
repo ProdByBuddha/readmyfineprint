@@ -2,7 +2,7 @@ import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { storage, databaseStorage } from "./storage";
 import { consentLogger } from "./consent";
-import { requireAdminAuth, optionalUserAuth, requireUserAuth } from "./auth";
+import { requireAdminAuth, optionalUserAuth, requireUserAuth, requireConsent } from "./auth";
 import { insertDocumentSchema } from "@shared/schema";
 import { analyzeDocument } from "./openai";
 import { analyzeDocumentWithPII } from "./openai-with-pii";
@@ -865,7 +865,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Get user subscription with usage data
-  app.get("/api/user/subscription", optionalUserAuth, async (req, res) => {
+  app.get("/api/user/subscription", requireConsent, optionalUserAuth, async (req, res) => {
     try {
       let subscriptionData;
       
@@ -1258,7 +1258,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Cancel subscription
-  app.post("/api/subscription/cancel", optionalUserAuth, async (req, res) => {
+  app.post("/api/subscription/cancel", requireConsent, optionalUserAuth, async (req, res) => {
     try {
       const cancelSchema = z.object({
         subscriptionId: z.string(),

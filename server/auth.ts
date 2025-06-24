@@ -4,6 +4,7 @@ import jwt from 'jsonwebtoken';
 import crypto from 'crypto';
 import { securityLogger, getClientInfo } from './security-logger';
 import { databaseStorage } from './storage';
+import { consentLogger } from './consent';
 
 // Extend Request interface to include user
 declare global {
@@ -224,6 +225,61 @@ export function generateJWT(userId: string): string {
     process.env.JWT_SECRET,
     { expiresIn: '7d' } // 7 days
   );
+}
+
+/**
+ * Require user consent middleware
+ * Verifies that the user has provided consent before accessing protected endpoints
+ * Admins are exempt from consent requirements
+ */
+export async function requireConsent(req: Request, res: Response, next: NextFunction) {
+  try {
+    const { ip, userAgent } = getClientInfo(req);
+    
+    // Check if this is an admin request (admin endpoints are exempt from consent)
+    const adminKey = process.env.ADMIN_API_KEY;
+    const providedKey = req.headers['x-admin-key'] as string;
+    const adminToken = req.headers['x-admin-token'] as string;
+    
+    // Skip consent check for admin users
+    if (adminKey && (providedKey === adminKey || adminToken)) {
+      return next();
+    }
+    
+    // Check for valid consent
+    const consentProof = await consentLogger.verifyUserConsent(ip, userAgent);
+    
+    if (!consentProof) {
+      securityLogger.logSecurityEvent(
+        ip, 
+        userAgent, 
+        'CONSENT_REQUIRED', 
+        'HIGH', 
+        `Access denied - no valid consent found for ${req.path}`,
+        req.path
+      );
+      
+      return res.status(403).json({
+        error: 'Consent required',
+        message: 'You must accept our terms and conditions to access this service',
+        code: 'CONSENT_REQUIRED',
+        requiresConsent: true
+      });
+    }
+    
+    // Attach consent proof to request for potential use in handlers
+    (req as any).consentProof = consentProof;
+    next();
+    
+  } catch (error) {
+    console.error('Error checking consent:', error);
+    // In case of error, require consent to be safe
+    return res.status(500).json({
+      error: 'Unable to verify consent',
+      message: 'Please try again or contact support',
+      code: 'CONSENT_VERIFICATION_ERROR'
+    });
+  }
 }
 
 // Middleware to add security headers
