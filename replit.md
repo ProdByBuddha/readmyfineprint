@@ -114,14 +114,17 @@ SECURITY_EMAIL_FROM=your-email@provider.com
 - **Features**: User management, system health, security monitoring, analytics
 
 ## Recent Changes
-- **June 24, 2025**: Consent enforcement and PostgreSQL conversion
+- **June 24, 2025**: Consent enforcement and PostgreSQL conversion with sample contract exemption
   - Converted consent logging system from Replit key-value store to PostgreSQL
   - Added consent_records table with proper schema and indexing
   - Updated all consent verification methods to use database queries
   - Enhanced consent statistics with accurate SQL-based counting
-  - Implemented consent enforcement middleware for all non-admin endpoints
-  - Users must now provide consent before accessing protected functionality
-  - Admin endpoints remain exempt from consent requirements
+  - Implemented selective consent enforcement:
+    - Sample contracts accessible without consent (using title-based detection)
+    - Document viewing and creation allowed without consent
+    - Document analysis requires consent (main AI functionality)
+    - User uploads and personal document processing require consent
+  - Admin endpoints remain exempt from all consent requirements
   - Improved performance and reliability with structured database storage
 
 - **June 24, 2025**: Complete admin interface implementation
