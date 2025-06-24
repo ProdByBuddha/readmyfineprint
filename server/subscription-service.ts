@@ -459,8 +459,36 @@ export class SubscriptionService {
     // Get the requested tier from subscription
     const requestedTier = getTierById(subscription.tierId);
 
-    // If tier doesn't exist, default to free
+    // If tier doesn't exist, default to free (except for ultimate which should always work)
     if (!requestedTier) {
+      if (subscription.tierId === 'ultimate') {
+        console.error(`[CRITICAL] Ultimate tier not found in tier definitions! Creating fallback.`);
+        // Return a fallback ultimate tier
+        return {
+          id: 'ultimate',
+          name: 'Ultimate',
+          description: 'God mode - unlimited access',
+          model: 'gpt-4o',
+          monthlyPrice: 0,
+          yearlyPrice: 0,
+          features: ['Unlimited everything'],
+          limits: {
+            documentsPerMonth: -1,
+            tokensPerDocument: -1,
+            prioritySupport: true,
+            advancedAnalysis: true,
+            apiAccess: true,
+            customIntegrations: true,
+          },
+          modelCosts: {
+            inputTokenCost: 2.50,
+            outputTokenCost: 10.00,
+            estimatedTokensPerDocument: 32000,
+            costPerDocument: 0.00,
+          },
+          popular: false
+        };
+      }
       console.warn(`[Subscription Enforcement] Invalid tier ID: ${subscription.tierId}, defaulting to free`);
       return this.getFreeTier();
     }

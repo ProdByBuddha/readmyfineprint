@@ -179,6 +179,37 @@ export const SUBSCRIPTION_TIERS: SubscriptionTier[] = [
       estimatedTokensPerDocument: 3500,
       costPerDocument: 0.12, // (2000 * 15.00 + 1500 * 60.00) / 1,000,000
     }
+  },
+  {
+    id: "ultimate",
+    name: "Ultimate",
+    description: "God mode - unlimited access to all features",
+    model: "gpt-4o",
+    monthlyPrice: 0,
+    yearlyPrice: 0,
+    features: [
+      "Unlimited everything",
+      "All AI models available",
+      "Complete system access",
+      "Admin privileges",
+      "No restrictions",
+      "Development access"
+    ],
+    limits: {
+      documentsPerMonth: -1, // Unlimited
+      tokensPerDocument: -1, // Unlimited
+      prioritySupport: true,
+      advancedAnalysis: true,
+      apiAccess: true,
+      customIntegrations: true,
+    },
+    modelCosts: {
+      inputTokenCost: 2.50,
+      outputTokenCost: 10.00,
+      estimatedTokensPerDocument: 32000,
+      costPerDocument: 0.00, // No cost for ultimate tier
+    },
+    popular: false
   }
 ];
 
@@ -186,7 +217,11 @@ export const SUBSCRIPTION_TIERS: SubscriptionTier[] = [
  * Get subscription tier by ID
  */
 export function getTierById(tierId: string): SubscriptionTier | undefined {
-  return SUBSCRIPTION_TIERS.find(tier => tier.id === tierId);
+  const tier = SUBSCRIPTION_TIERS.find(tier => tier.id === tierId);
+  if (!tier && tierId === 'ultimate') {
+    console.error(`Ultimate tier not found in SUBSCRIPTION_TIERS. Available tiers: ${SUBSCRIPTION_TIERS.map(t => t.id).join(', ')}`);
+  }
+  return tier;
 }
 
 /**
