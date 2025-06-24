@@ -5,7 +5,7 @@ import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { ThemeProvider } from "@/components/ThemeProvider";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
-import { CookieConsent } from "@/components/CombinedConsent";
+import { CookieConsent, CombinedConsent } from "@/components/CombinedConsent";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
 import { ScrollToTop } from "@/components/ScrollToTop";
@@ -26,7 +26,7 @@ import AdminDashboard from "@/pages/admin";
 import { EmailRecoveryPage } from "@/pages/EmailRecovery";
 import NotFound from "@/pages/not-found";
 import { setupAutoSubmission } from "./lib/indexnow";
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 
 function Router() {
   return (
@@ -57,16 +57,40 @@ function Router() {
 
 function App() {
   const [location] = useLocation();
+  const [showConsentModal, setShowConsentModal] = useState(false);
+  
   useScrollToTop();
   useSEO(location);
   useFocusVisible();
   useReducedMotion();
   useHighContrast();
 
-    // Set up automatic IndexNow submissions
+  // Set up automatic IndexNow submissions
   useEffect(() => {
     setupAutoSubmission();
   }, []);
+
+  // Listen for consent requirement events from API calls
+  useEffect(() => {
+    const handleConsentRequired = () => {
+      console.log('Consent required - showing consent modal');
+      setShowConsentModal(true);
+    };
+
+    window.addEventListener('consentRequired', handleConsentRequired);
+    
+    return () => {
+      window.removeEventListener('consentRequired', handleConsentRequired);
+    };
+  }, []);
+
+  // Handle consent acceptance
+  const handleConsentAccepted = () => {
+    console.log('Consent accepted - hiding modal');
+    setShowConsentModal(false);
+    // Trigger a page refresh to retry failed requests
+    window.location.reload();
+  };
 
   return (
     <QueryClientProvider client={queryClient}>
@@ -98,6 +122,9 @@ function App() {
             </div>
             <Toaster />
             <CookieConsent />
+            {showConsentModal && (
+              <CombinedConsent onAccept={handleConsentAccepted} />
+            )}
             <ScrollToTop />
             {/* Live region for announcements */}
             <div

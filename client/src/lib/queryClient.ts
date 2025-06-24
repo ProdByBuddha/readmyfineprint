@@ -25,9 +25,36 @@ export function clearSession() {
   console.log('Cleared session ID');
 }
 
+// Function to check if response indicates consent is required
+function isConsentRequired(res: Response): boolean {
+  return res.status === 403;
+}
+
+// Function to trigger consent modal when needed
+function triggerConsentModal() {
+  // Dispatch custom event that components can listen to
+  window.dispatchEvent(new CustomEvent('consentRequired', { 
+    detail: { reason: 'API request blocked - consent required' }
+  }));
+}
+
 async function throwIfResNotOk(res: Response) {
   if (!res.ok) {
     const text = (await res.text()) || res.statusText;
+    
+    // Check if this is a consent requirement error
+    if (isConsentRequired(res)) {
+      try {
+        const errorData = JSON.parse(text);
+        if (errorData.code === 'CONSENT_REQUIRED') {
+          triggerConsentModal();
+        }
+      } catch (e) {
+        // If parsing fails, still trigger consent modal for 403 errors
+        triggerConsentModal();
+      }
+    }
+    
     throw new Error(`${res.status}: ${text}`);
   }
 }
@@ -66,6 +93,20 @@ export async function apiRequest(
 
   if (!res.ok) {
     const text = await res.text();
+    
+    // Check if this is a consent requirement error
+    if (isConsentRequired(res)) {
+      try {
+        const errorData = JSON.parse(text);
+        if (errorData.code === 'CONSENT_REQUIRED') {
+          triggerConsentModal();
+        }
+      } catch (e) {
+        // If parsing fails, still trigger consent modal for 403 errors
+        triggerConsentModal();
+      }
+    }
+    
     throw new Error(`HTTP ${res.status}: ${text}`);
   }
 
@@ -93,6 +134,20 @@ export const getQueryFn: <T>(options: {
 
     if (unauthorizedBehavior === "returnNull" && res.status === 401) {
       return null;
+    }
+
+    // Check for consent requirement before throwing
+    if (isConsentRequired(res)) {
+      const text = await res.text();
+      try {
+        const errorData = JSON.parse(text);
+        if (errorData.code === 'CONSENT_REQUIRED') {
+          triggerConsentModal();
+        }
+      } catch (e) {
+        triggerConsentModal();
+      }
+      throw new Error(`HTTP ${res.status}: ${text}`);
     }
 
     await throwIfResNotOk(res);
