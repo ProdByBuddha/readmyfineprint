@@ -21,6 +21,7 @@ import { securityAlertManager } from './security-alert';
 import { emailService } from './email-service';
 import { emailVerificationService } from './email-verification';
 import { registerUserRoutes } from './user-routes';
+import { registerAdminRoutes } from './admin-routes';
 import { registerEmailRecoveryRoutes } from './email-recovery-routes';
 import { indexNowService } from './indexnow-service';
 import { subscriptionService } from './subscription-service';
@@ -2212,6 +2213,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   // Register user management routes
   registerUserRoutes(app);
+  
+  // Register admin routes
+  registerAdminRoutes(app);
   
   // Register email recovery routes
   registerEmailRecoveryRoutes(app);

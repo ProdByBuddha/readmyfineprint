@@ -23,6 +23,10 @@ declare global {
 export function requireAdminAuth(req: Request, res: Response, next: NextFunction) {
   const { ip, userAgent } = getClientInfo(req);
   const adminKey = process.env.ADMIN_API_KEY;
+  
+  console.log(`🔍 Admin auth attempt for ${req.path}`);
+  console.log(`🔍 Headers:`, Object.keys(req.headers));
+  console.log(`🔍 x-admin-key present:`, !!req.headers['x-admin-key']);
 
   // Enforce admin key requirement in ALL environments for security
   if (!adminKey) {
@@ -151,6 +155,60 @@ export async function requireUserAuth(req: Request, res: Response, next: NextFun
     }
     next();
   });
+}
+
+/**
+ * Require admin authentication via subscription token
+ * Checks if user has a valid subscription token and is an admin
+ */
+export async function requireAdminViaSubscription(req: Request, res: Response, next: NextFunction) {
+  try {
+    const { ip, userAgent } = getClientInfo(req);
+    const token = req.headers['x-subscription-token'] as string;
+    
+    if (!token) {
+      securityLogger.logFailedAuth(ip, userAgent, 'Missing subscription token for admin access', req.path);
+      return res.status(401).json({ error: 'Admin authentication required' });
+    }
+
+    // Validate subscription token using hybrid service
+    const { hybridTokenService } = await import("./hybrid-token-service");
+    const tokenData = await hybridTokenService.validateSubscriptionToken(token);
+    
+    if (!tokenData) {
+      securityLogger.logFailedAuth(ip, userAgent, 'Invalid subscription token for admin access', req.path);
+      return res.status(401).json({ error: 'Invalid token' });
+    }
+
+    // Get user details
+    const user = await databaseStorage.getUser(tokenData.userId);
+    if (!user) {
+      securityLogger.logFailedAuth(ip, userAgent, 'User not found for admin access', req.path);
+      return res.status(401).json({ error: 'User not found' });
+    }
+
+    // Check if user is admin
+    const adminEmails = ['admin@readmyfineprint.com', 'prodbybuddha@icloud.com'];
+    if (!adminEmails.includes(user.email)) {
+      securityLogger.logFailedAuth(ip, userAgent, `Non-admin user ${user.email} attempted admin access`, req.path);
+      return res.status(403).json({ error: 'Admin access denied' });
+    }
+
+    // Log successful admin authentication
+    securityLogger.logAdminAuth(ip, userAgent, req.path + ' (via subscription token)');
+    req.user = {
+      id: user.id,
+      email: user.email,
+      username: user.username || undefined
+    };
+    
+    next();
+  } catch (error) {
+    const { ip, userAgent } = getClientInfo(req);
+    console.error('Admin auth error:', error);
+    securityLogger.logFailedAuth(ip, userAgent, 'Admin authentication error', req.path);
+    return res.status(500).json({ error: 'Authentication failed' });
+  }
 }
 
 /**

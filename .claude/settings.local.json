@@ -15,7 +15,9 @@
       "Bash(npm install:*)",
       "Bash(timeout 10s npm run dev)",
       "Bash(true)",
-      "Bash(grep:*)"
+      "Bash(grep:*)",
+      "Bash(pkill:*)",
+      "Bash(ls:*)"
     ],
     "deny": []
   }

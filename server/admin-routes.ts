@@ -1,5 +1,5 @@
 import { Express, Request, Response } from "express";
-import { requireAdminAuth } from "./auth";
+import { requireAdminAuth, requireAdminViaSubscription } from "./auth";
 import { databaseStorage } from "./storage";
 import { securityLogger } from "./security-logger";
 import { emailRecoveryService } from "./email-recovery-service";
@@ -68,51 +68,83 @@ export function registerAdminRoutes(app: Express) {
       const now = new Date();
       const last24h = new Date(now.getTime() - 24 * 60 * 60 * 1000);
       const last7d = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
-      const last30d = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
 
-      // Get basic metrics
-      const [
-        totalUsers,
-        activeSubscriptions,
-        pendingEmailRequests,
-        securityStats
-      ] = await Promise.all([
-        databaseStorage.getTotalUserCount(),
-        databaseStorage.getActiveSubscriptionCount(),
-        emailRecoveryService.getPendingEmailChangeRequests(1000), // Get all for count
-        securityLogger.getSecurityStats()
-      ]);
+      // Get basic metrics with individual error handling
+      let totalUsers = 0;
+      let activeSubscriptions = 0;
+      let pendingEmailRequests = 0;
+      let securityEvents = 0;
+
+      try {
+        totalUsers = await databaseStorage.getTotalUserCount();
+      } catch (error) {
+        console.error("Failed to get total users:", error);
+      }
+
+      try {
+        activeSubscriptions = await databaseStorage.getActiveSubscriptionCount();
+      } catch (error) {
+        console.error("Failed to get active subscriptions:", error);
+      }
+
+      try {
+        const emailRequests = await emailRecoveryService.getPendingEmailChangeRequests(1000);
+        pendingEmailRequests = emailRequests.length;
+      } catch (error) {
+        console.error("Failed to get pending email requests:", error);
+      }
+
+      try {
+        const securityStats = securityLogger.getSecurityStats();
+        securityEvents = securityStats.last24Hours.total;
+      } catch (error) {
+        console.error("Failed to get security stats:", error);
+      }
 
       // System health checks
       const systemHealth = {
         database: await checkDatabaseHealth(),
         emailService: await checkEmailServiceHealth(),
         openaiService: await checkOpenAIServiceHealth(),
-        priorityQueue: priorityQueue.getStats(),
+        priorityQueue: priorityQueue.getQueueStats(),
         memoryUsage: process.memoryUsage(),
         uptime: process.uptime()
       };
 
-      // Recent activity metrics
+      // Recent activity metrics with error handling
+      let newUsersLast24h = 0;
+      let newUsersLast7d = 0;
+      let activeSubscriptionsLast24h = 0;
+      let documentsAnalyzedLast24h = 0;
+      let documentsAnalyzedLast7d = 0;
+
+      try {
+        newUsersLast24h = await databaseStorage.getUserCountSince(last24h);
+        newUsersLast7d = await databaseStorage.getUserCountSince(last7d);
+        activeSubscriptionsLast24h = await databaseStorage.getSubscriptionCountSince(last24h);
+        documentsAnalyzedLast24h = await databaseStorage.getDocumentAnalysisCountSince(last24h);
+        documentsAnalyzedLast7d = await databaseStorage.getDocumentAnalysisCountSince(last7d);
+      } catch (error) {
+        console.error("Failed to get activity metrics:", error);
+      }
+
       const recentActivity = {
-        newUsersLast24h: await databaseStorage.getUserCountSince(last24h),
-        newUsersLast7d: await databaseStorage.getUserCountSince(last7d),
-        activeSubscriptionsLast24h: await databaseStorage.getSubscriptionCountSince(last24h),
-        documentsAnalyzedLast24h: await databaseStorage.getDocumentAnalysisCountSince(last24h),
-        documentsAnalyzedLast7d: await databaseStorage.getDocumentAnalysisCountSince(last7d)
+        newUsersLast24h,
+        newUsersLast7d,
+        activeSubscriptionsLast24h,
+        documentsAnalyzedLast24h,
+        documentsAnalyzedLast7d
       };
 
       res.json({
-        overview: {
+        metrics: {
           totalUsers,
           activeSubscriptions,
-          pendingEmailRequests: pendingEmailRequests.length,
-          securityEvents24h: securityStats.last24Hours.total,
-          criticalAlerts: securityStats.recentCritical.length
+          pendingEmailRequests,
+          securityEvents
         },
         systemHealth,
-        recentActivity,
-        securityStats
+        recentActivity
       });
 
     } catch (error) {
@@ -245,7 +277,7 @@ export function registerAdminRoutes(app: Express) {
           database: await checkDatabaseHealth(),
           emailService: await checkEmailServiceHealth(),
           openaiService: await checkOpenAIServiceHealth(),
-          priorityQueue: priorityQueue.getStats()
+          priorityQueue: priorityQueue.getQueueStats()
         },
         system: {
           memoryUsage: process.memoryUsage(),
@@ -253,7 +285,7 @@ export function registerAdminRoutes(app: Express) {
           nodeVersion: process.version,
           platform: process.platform,
           arch: process.arch,
-          loadAverage: process.loadavg ? process.loadavg() : null,
+          loadAverage: process.platform !== 'win32' && (process as any).loadavg ? (process as any).loadavg() : null,
           cpuUsage: process.cpuUsage()
         },
         environment: {

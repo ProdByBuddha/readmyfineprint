@@ -284,19 +284,40 @@ function AdminLogin({ onLogin }: { onLogin: (token: string) => void }) {
 }
 
 function DashboardOverview({ adminToken }: { adminToken: string }) {
-  const { data: dashboardData, isLoading, refetch } = useQuery<AdminDashboardData>({
+  const { data: dashboardData, isLoading, error, refetch } = useQuery<AdminDashboardData>({
     queryKey: ["/api/admin/dashboard"],
-    queryFn: () => apiRequest("/api/admin/dashboard", {
-      headers: { "X-Admin-Token": adminToken }
-    })
+    queryFn: async () => {
+      try {
+        const adminKey = import.meta.env.VITE_ADMIN_API_KEY;
+        console.log("Making dashboard API request with admin key");
+        console.log("Admin key available:", !!adminKey);
+        console.log("Admin key length:", adminKey?.length || 0);
+        
+        const result = await apiRequest("/api/admin/dashboard", {
+          headers: { "x-admin-key": adminKey || "" }
+        });
+        console.log("Dashboard API response:", result);
+        return result;
+      } catch (error) {
+        console.error("Dashboard API error:", error);
+        throw error;
+      }
+    }
   });
 
   if (isLoading) {
     return <div>Loading dashboard...</div>;
   }
 
+  console.log("Dashboard data received:", dashboardData);
+  console.log("Dashboard error:", error);
+
+  if (error) {
+    return <div>Error loading dashboard: {error.message}</div>;
+  }
+
   if (!dashboardData) {
-    return <div>Failed to load dashboard data</div>;
+    return <div>Failed to load dashboard data - no data returned</div>;
   }
 
   const formatUptime = (seconds: number) => {
@@ -328,9 +349,9 @@ function DashboardOverview({ adminToken }: { adminToken: string }) {
             <Users className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{dashboardData.metrics.totalUsers}</div>
+            <div className="text-2xl font-bold">{dashboardData.metrics?.totalUsers || 0}</div>
             <p className="text-xs text-muted-foreground">
-              +{dashboardData.recentActivity.newUsersLast24h} in last 24h
+              +{dashboardData.recentActivity?.newUsersLast24h || 0} in last 24h
             </p>
           </CardContent>
         </Card>
@@ -341,9 +362,9 @@ function DashboardOverview({ adminToken }: { adminToken: string }) {
             <TrendingUp className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{dashboardData.metrics.activeSubscriptions}</div>
+            <div className="text-2xl font-bold">{dashboardData.metrics?.activeSubscriptions || 0}</div>
             <p className="text-xs text-muted-foreground">
-              +{dashboardData.recentActivity.activeSubscriptionsLast24h} in last 24h
+              +{dashboardData.recentActivity?.activeSubscriptionsLast24h || 0} in last 24h
             </p>
           </CardContent>
         </Card>
@@ -354,9 +375,9 @@ function DashboardOverview({ adminToken }: { adminToken: string }) {
             <FileText className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{dashboardData.recentActivity.documentsAnalyzedLast24h}</div>
+            <div className="text-2xl font-bold">{dashboardData.recentActivity?.documentsAnalyzedLast24h || 0}</div>
             <p className="text-xs text-muted-foreground">
-              {dashboardData.recentActivity.documentsAnalyzedLast7d} in last 7d
+              {dashboardData.recentActivity?.documentsAnalyzedLast7d || 0} in last 7d
             </p>
           </CardContent>
         </Card>
@@ -367,9 +388,9 @@ function DashboardOverview({ adminToken }: { adminToken: string }) {
             <Shield className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{dashboardData.metrics.securityEvents}</div>
+            <div className="text-2xl font-bold">{dashboardData.metrics?.securityEvents || 0}</div>
             <p className="text-xs text-muted-foreground">
-              Pending email requests: {dashboardData.metrics.pendingEmailRequests}
+              Pending email requests: {dashboardData.metrics?.pendingEmailRequests || 0}
             </p>
           </CardContent>
         </Card>
@@ -385,10 +406,10 @@ function DashboardOverview({ adminToken }: { adminToken: string }) {
             <div className="flex items-center space-x-2">
               <Database className="h-4 w-4" />
               <span className="text-sm">Database:</span>
-              <Badge variant={dashboardData.systemHealth.database.status === 'healthy' ? 'default' : 'destructive'}>
-                {dashboardData.systemHealth.database.status}
+              <Badge variant={dashboardData.systemHealth?.database?.status === 'healthy' ? 'default' : 'destructive'}>
+                {dashboardData.systemHealth?.database?.status || 'unknown'}
               </Badge>
-              {dashboardData.systemHealth.database.latency && (
+              {dashboardData.systemHealth?.database?.latency && (
                 <span className="text-xs text-muted-foreground">
                   ({dashboardData.systemHealth.database.latency}ms)
                 </span>
@@ -398,31 +419,31 @@ function DashboardOverview({ adminToken }: { adminToken: string }) {
             <div className="flex items-center space-x-2">
               <Mail className="h-4 w-4" />
               <span className="text-sm">Email Service:</span>
-              <Badge variant={dashboardData.systemHealth.emailService.status === 'healthy' ? 'default' : 'destructive'}>
-                {dashboardData.systemHealth.emailService.status}
+              <Badge variant={dashboardData.systemHealth?.emailService?.status === 'healthy' ? 'default' : 'destructive'}>
+                {dashboardData.systemHealth?.emailService?.status || 'unknown'}
               </Badge>
             </div>
 
             <div className="flex items-center space-x-2">
               <Brain className="h-4 w-4" />
               <span className="text-sm">OpenAI Service:</span>
-              <Badge variant={dashboardData.systemHealth.openaiService.status === 'healthy' ? 'default' : 'destructive'}>
-                {dashboardData.systemHealth.openaiService.status}
+              <Badge variant={dashboardData.systemHealth?.openaiService?.status === 'healthy' ? 'default' : 'destructive'}>
+                {dashboardData.systemHealth?.openaiService?.status || 'unknown'}
               </Badge>
             </div>
 
             <div className="flex items-center space-x-2">
               <Server className="h-4 w-4" />
               <span className="text-sm">Uptime:</span>
-              <span className="text-sm font-medium">{formatUptime(dashboardData.systemHealth.uptime)}</span>
+              <span className="text-sm font-medium">{formatUptime(dashboardData.systemHealth?.uptime || 0)}</span>
             </div>
 
             <div className="flex items-center space-x-2">
               <Activity className="h-4 w-4" />
               <span className="text-sm">Memory:</span>
               <span className="text-sm font-medium">
-                {formatMemory(dashboardData.systemHealth.memoryUsage.used)} / 
-                {formatMemory(dashboardData.systemHealth.memoryUsage.total)}
+                {formatMemory(dashboardData.systemHealth?.memoryUsage?.used || 0)} / 
+                {formatMemory(dashboardData.systemHealth?.memoryUsage?.total || 0)}
               </span>
             </div>
 
@@ -430,7 +451,7 @@ function DashboardOverview({ adminToken }: { adminToken: string }) {
               <Zap className="h-4 w-4" />
               <span className="text-sm">Queue:</span>
               <span className="text-sm font-medium">
-                {dashboardData.systemHealth.priorityQueue.processing} processing
+                {dashboardData.systemHealth?.priorityQueue?.currentlyProcessing || 0} processing
               </span>
             </div>
           </div>
@@ -452,7 +473,7 @@ function UserManagement({ adminToken }: { adminToken: string }) {
   const { data: usersData, isLoading, refetch } = useQuery<UsersResponse>({
     queryKey: ["/api/admin/users", { page, search, sortBy, sortOrder, hasSubscription }],
     queryFn: () => apiRequest(`/api/admin/users?page=${page}&search=${search}&sortBy=${sortBy}&sortOrder=${sortOrder}${hasSubscription !== undefined ? `&hasSubscription=${hasSubscription}` : ''}`, {
-      headers: { "X-Admin-Token": adminToken }
+      headers: { "x-admin-key": import.meta.env.VITE_ADMIN_API_KEY || "" }
     })
   });
 
@@ -460,8 +481,8 @@ function UserManagement({ adminToken }: { adminToken: string }) {
     try {
       await apiRequest(`/api/admin/users/${userId}`, {
         method: 'PATCH',
-        headers: { "X-Admin-Token": adminToken },
-        body: JSON.stringify(updates)
+        headers: { "x-admin-key": import.meta.env.VITE_ADMIN_API_KEY || "" },
+        body: updates
       });
       
       toast({
@@ -704,7 +725,7 @@ function SecurityEvents({ adminToken }: { adminToken: string }) {
   const { data: securityData, isLoading, refetch } = useQuery({
     queryKey: ["/api/admin/security-events", { page, severity, timeframe }],
     queryFn: () => apiRequest(`/api/admin/security-events?page=${page}&severity=${severity}&timeframe=${timeframe}`, {
-      headers: { "X-Admin-Token": adminToken }
+      headers: { "x-admin-key": import.meta.env.VITE_ADMIN_API_KEY || "" }
     })
   });
 
@@ -812,7 +833,7 @@ function Analytics({ adminToken }: { adminToken: string }) {
   const { data: analyticsData, isLoading } = useQuery({
     queryKey: ["/api/admin/analytics"],
     queryFn: () => apiRequest("/api/admin/analytics", {
-      headers: { "X-Admin-Token": adminToken }
+      headers: { "x-admin-key": import.meta.env.VITE_ADMIN_API_KEY || "" }
     })
   });
 
@@ -888,24 +909,88 @@ function Analytics({ adminToken }: { adminToken: string }) {
 }
 
 export default function AdminDashboard() {
-  const [adminToken, setAdminToken] = useState<string | null>(
-    localStorage.getItem('adminToken')
-  );
+  const [adminToken, setAdminToken] = useState<string | null>(null);
+  const [isCheckingAuth, setIsCheckingAuth] = useState(true);
+  const [isAdmin, setIsAdmin] = useState(false);
+
+  // Check if user is admin using existing subscription token
+  useEffect(() => {
+    const checkAdminStatus = async () => {
+      const token = localStorage.getItem('subscriptionToken');
+      
+      if (!token) {
+        setIsCheckingAuth(false);
+        return;
+      }
+
+      try {
+        const response = await fetch('/api/users/validate-token', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'x-subscription-token': token,
+          },
+        });
+
+        if (response.ok) {
+          const data = await response.json();
+          const adminEmails = ['admin@readmyfineprint.com', 'prodbybuddha@icloud.com'];
+          
+          if (adminEmails.includes(data.email)) {
+            setIsAdmin(true);
+            // For admin pages, we'll use the subscription token as admin token
+            setAdminToken(token);
+          }
+        }
+      } catch (error) {
+        console.error('Admin auth check failed:', error);
+      } finally {
+        setIsCheckingAuth(false);
+      }
+    };
+
+    checkAdminStatus();
+  }, []);
 
   const handleLogin = (token: string) => {
     setAdminToken(token);
-    localStorage.setItem('adminToken', token);
   };
 
   const handleLogout = () => {
     setAdminToken(null);
-    localStorage.removeItem('adminToken');
+    localStorage.removeItem('subscriptionToken');
+    window.location.href = '/';
   };
 
-  // Redirect to login modal if not authenticated
-  if (!adminToken) {
-    window.location.href = '/?login=admin';
-    return null;
+  // Show loading while checking auth
+  if (isCheckingAuth) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto mb-4"></div>
+          <p>Checking admin access...</p>
+        </div>
+      </div>
+    );
+  }
+
+  // Redirect if not admin
+  if (!isAdmin || !adminToken) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <Card className="w-full max-w-md">
+          <CardHeader>
+            <CardTitle className="text-center text-red-600">Access Denied</CardTitle>
+          </CardHeader>
+          <CardContent className="text-center">
+            <p className="mb-4">You don't have admin access to this page.</p>
+            <Button onClick={() => window.location.href = '/'}>
+              Return to Home
+            </Button>
+          </CardContent>
+        </Card>
+      </div>
+    );
   }
 
   return (

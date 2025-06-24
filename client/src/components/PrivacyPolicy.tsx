@@ -21,9 +21,10 @@ export function PrivacyPolicy() {
         </CardHeader>
         <CardContent>
           <p className="text-gray-700 dark:text-gray-300">
-            ReadMyFinePrint is designed with privacy as a core principle. We operate as a
-            <strong> session-based tool</strong> that processes documents temporarily without
-            permanent storage of your content.
+            ReadMyFinePrint is designed with privacy as a core principle. We operate with both
+            <strong> session-based document processing</strong> and <strong>user account management</strong> 
+            for subscription services, ensuring your document content remains temporary while
+            providing secure access to premium features.
           </p>
         </CardContent>
       </Card>
@@ -44,15 +45,27 @@ export function PrivacyPolicy() {
               </p>
             </div>
             <div>
-              <h4 className="font-semibold text-gray-900 dark:text-white">Consent Records</h4>
+              <h4 className="font-semibold text-gray-900 dark:text-white">Account Information</h4>
               <p className="text-sm text-gray-600 dark:text-gray-400">
-                Pseudonymized logs of your agreement to our terms (required for legal compliance).
+                Email addresses and usernames for registered users. Required for subscription management and account recovery.
               </p>
             </div>
             <div>
-              <h4 className="font-semibold text-gray-900 dark:text-white">Technical Data</h4>
+              <h4 className="font-semibold text-gray-900 dark:text-white">Payment Information</h4>
               <p className="text-sm text-gray-600 dark:text-gray-400">
-                Session IDs, hashed IP addresses, and browser fingerprints for service functionality.
+                Processed securely through Stripe. We store Stripe customer IDs but not credit card details.
+              </p>
+            </div>
+            <div>
+              <h4 className="font-semibold text-gray-900 dark:text-white">Usage Analytics</h4>
+              <p className="text-sm text-gray-600 dark:text-gray-400">
+                Documents analyzed, tokens used, and subscription activity for service optimization and billing.
+              </p>
+            </div>
+            <div>
+              <h4 className="font-semibold text-gray-900 dark:text-white">Security & Technical Data</h4>
+              <p className="text-sm text-gray-600 dark:text-gray-400">
+                Session IDs, hashed IP addresses, device fingerprints, and security logs for fraud prevention.
               </p>
             </div>
           </CardContent>
@@ -79,9 +92,21 @@ export function PrivacyPolicy() {
               </p>
             </div>
             <div>
-              <h4 className="font-semibold text-gray-900 dark:text-white">Consent Records</h4>
+              <h4 className="font-semibold text-gray-900 dark:text-white">Account Data</h4>
               <p className="text-sm text-gray-600 dark:text-gray-400">
-                <strong>Indefinitely</strong> - Required for legal compliance (pseudonymized).
+                <strong>Until deletion</strong> - User accounts stored for subscription management.
+              </p>
+            </div>
+            <div>
+              <h4 className="font-semibold text-gray-900 dark:text-white">Usage Records</h4>
+              <p className="text-sm text-gray-600 dark:text-gray-400">
+                <strong>6 months</strong> - For billing, analytics, and service improvement.
+              </p>
+            </div>
+            <div>
+              <h4 className="font-semibold text-gray-900 dark:text-white">Security Logs</h4>
+              <p className="text-sm text-gray-600 dark:text-gray-400">
+                <strong>90 days</strong> - Automatically purged for system security monitoring.
               </p>
             </div>
           </CardContent>
@@ -109,6 +134,30 @@ export function PrivacyPolicy() {
               <li>Analysis results are temporary and session-based</li>
             </ul>
           </div>
+          <div>
+            <h4 className="font-semibold text-gray-900 dark:text-white mb-2">Payment Processing</h4>
+            <p className="text-gray-700 dark:text-gray-300 mb-3">
+              Subscription payments are processed securely through Stripe, a PCI-compliant payment processor.
+            </p>
+            <ul className="list-disc list-inside space-y-1 text-sm text-gray-600 dark:text-gray-400">
+              <li>Payment data handled exclusively by Stripe</li>
+              <li>We store only Stripe customer IDs for subscription management</li>
+              <li>Credit card details never stored on our servers</li>
+              <li>Billing information subject to Stripe&apos;s privacy policy</li>
+            </ul>
+          </div>
+          <div>
+            <h4 className="font-semibold text-gray-900 dark:text-white mb-2">Email Communications</h4>
+            <p className="text-gray-700 dark:text-gray-300 mb-3">
+              We may send service-related emails for account verification, subscription updates, and security notifications.
+            </p>
+            <ul className="list-disc list-inside space-y-1 text-sm text-gray-600 dark:text-gray-400">
+              <li>Account verification and security notifications</li>
+              <li>Subscription status and billing updates</li>
+              <li>Email recovery assistance when requested</li>
+              <li>No marketing emails without explicit consent</li>
+            </ul>
+          </div>
         </CardContent>
       </Card>
 
@@ -122,19 +171,38 @@ export function PrivacyPolicy() {
         <CardContent>
           <div className="grid md:grid-cols-2 gap-4">
             <div>
-              <h4 className="font-semibold text-gray-900 dark:text-white mb-2">Data Control</h4>
+              <h4 className="font-semibold text-gray-900 dark:text-white mb-2">Document Data Control</h4>
               <ul className="list-disc list-inside space-y-1 text-sm text-gray-600 dark:text-gray-400">
-                <li>Clear all data by refreshing the page</li>
-                <li>No account deletion needed (no accounts stored)</li>
+                <li>Clear document data by refreshing the page</li>
+                <li>Documents never permanently stored</li>
                 <li>Session data expires automatically</li>
               </ul>
             </div>
             <div>
-              <h4 className="font-semibold text-gray-900 dark:text-white mb-2">Consent Verification</h4>
+              <h4 className="font-semibold text-gray-900 dark:text-white mb-2">Account Management</h4>
               <ul className="list-disc list-inside space-y-1 text-sm text-gray-600 dark:text-gray-400">
-                <li>Verify your consent record with your token</li>
-                <li>Request pseudonymized consent data</li>
-                <li>No personal data linked to consent records</li>
+                <li>View and update your account information</li>
+                <li>Cancel subscriptions at any time</li>
+                <li>Request account deletion via email recovery</li>
+                <li>Download your usage data</li>
+              </ul>
+            </div>
+            <div>
+              <h4 className="font-semibold text-gray-900 dark:text-white mb-2">Data Access Rights</h4>
+              <ul className="list-disc list-inside space-y-1 text-sm text-gray-600 dark:text-gray-400">
+                <li>Request copies of your personal data</li>
+                <li>Correct inaccurate account information</li>
+                <li>Object to certain data processing</li>
+                <li>Data portability for subscription data</li>
+              </ul>
+            </div>
+            <div>
+              <h4 className="font-semibold text-gray-900 dark:text-white mb-2">Email Recovery</h4>
+              <ul className="list-disc list-inside space-y-1 text-sm text-gray-600 dark:text-gray-400">
+                <li>Secure email change requests</li>
+                <li>Account recovery assistance</li>
+                <li>Multi-device access management</li>
+                <li>Token-based authentication</li>
               </ul>
             </div>
           </div>
@@ -171,16 +239,34 @@ export function PrivacyPolicy() {
                   </tr>
                   <tr>
                     <td className="py-1">app-session-id</td>
-                    <td className="py-1">Session management</td>
+                    <td className="py-1">Document session management</td>
                     <td className="py-1">Session only</td>
+                  </tr>
+                  <tr>
+                    <td className="py-1">subscriptionToken</td>
+                    <td className="py-1">User authentication and subscription access</td>
+                    <td className="py-1">30 days</td>
                   </tr>
                   <tr>
                     <td className="py-1">theme-preference</td>
                     <td className="py-1">Dark/light mode setting</td>
                     <td className="py-1">Persistent</td>
                   </tr>
+                  <tr>
+                    <td className="py-1">cookie-preferences</td>
+                    <td className="py-1">Remember cookie consent choices</td>
+                    <td className="py-1">1 year</td>
+                  </tr>
                 </tbody>
               </table>
+            </div>
+            <div className="mt-4">
+              <h4 className="font-semibold text-gray-900 dark:text-white mb-2">Third-Party Cookies</h4>
+              <ul className="list-disc list-inside space-y-1 text-sm text-gray-600 dark:text-gray-400">
+                <li><strong>Stripe:</strong> Payment processing and fraud prevention</li>
+                <li><strong>Replit:</strong> Development environment (development mode only)</li>
+                <li>No advertising or tracking cookies from third parties</li>
+              </ul>
             </div>
           </div>
         </CardContent>

@@ -167,11 +167,18 @@ export function registerUserRoutes(app: Express) {
         // Update token usage (only for PostgreSQL tokens)
         await hybridTokenService.updateTokenUsage(token);
 
+        // Get user details to include email in response
+        const user = await databaseStorage.getUser(tokenData.userId);
+        if (!user) {
+          return res.status(401).json({ error: "User not found" });
+        }
+
         // Token is valid
         res.json({ 
           valid: true, 
           userId: tokenData.userId,
-          tierId: tokenData.tierId 
+          tierId: tokenData.tierId,
+          email: user.email
         });
       } catch (error) {
         console.error("Token validation error:", error);

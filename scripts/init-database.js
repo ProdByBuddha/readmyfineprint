@@ -62,6 +62,34 @@ async function initializeDatabase() {
     `);
     console.log('✅ Usage records table created');
 
+    // Create email_change_requests table
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS email_change_requests (
+        id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+        user_id UUID REFERENCES users(id) ON DELETE CASCADE NOT NULL,
+        current_email TEXT NOT NULL,
+        new_email TEXT NOT NULL,
+        reason TEXT NOT NULL,
+        client_ip TEXT NOT NULL,
+        device_fingerprint TEXT NOT NULL,
+        user_agent TEXT NOT NULL,
+        security_answers TEXT,
+        status TEXT NOT NULL DEFAULT 'pending',
+        admin_notes TEXT,
+        reviewed_by UUID REFERENCES users(id),
+        reviewed_at TIMESTAMP,
+        verification_code TEXT,
+        attempts INTEGER DEFAULT 0 NOT NULL,
+        max_attempts INTEGER DEFAULT 3 NOT NULL,
+        expires_at TIMESTAMP NOT NULL,
+        created_at TIMESTAMP DEFAULT NOW() NOT NULL,
+        updated_at TIMESTAMP DEFAULT NOW() NOT NULL,
+        CONSTRAINT email_change_requests_status_check 
+          CHECK (status IN ('pending', 'approved', 'rejected', 'expired'))
+      );
+    `);
+    console.log('✅ Email change requests table created');
+
     // Create indexes for better performance
     await pool.query(`
       CREATE INDEX IF NOT EXISTS idx_users_email ON users(email);
@@ -69,6 +97,10 @@ async function initializeDatabase() {
       CREATE INDEX IF NOT EXISTS idx_subscriptions_user ON user_subscriptions(user_id);
       CREATE INDEX IF NOT EXISTS idx_subscriptions_stripe ON user_subscriptions(stripe_subscription_id);
       CREATE INDEX IF NOT EXISTS idx_usage_user_period ON usage_records(user_id, period);
+      CREATE INDEX IF NOT EXISTS idx_email_change_requests_user_id ON email_change_requests(user_id);
+      CREATE INDEX IF NOT EXISTS idx_email_change_requests_status ON email_change_requests(status);
+      CREATE INDEX IF NOT EXISTS idx_email_change_requests_expires_at ON email_change_requests(expires_at);
+      CREATE INDEX IF NOT EXISTS idx_email_change_requests_created_at ON email_change_requests(created_at);
     `);
     console.log('✅ Database indexes created');
 
@@ -92,6 +124,9 @@ async function initializeDatabase() {
         FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
       
       CREATE TRIGGER update_usage_updated_at BEFORE UPDATE ON usage_records
+        FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
+      
+      CREATE TRIGGER update_email_change_requests_updated_at BEFORE UPDATE ON email_change_requests
         FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
     `);
     console.log('✅ Database triggers created');

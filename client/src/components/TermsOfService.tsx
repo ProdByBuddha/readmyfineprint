@@ -1,5 +1,5 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { AlertTriangle, Scale, Shield, FileText, Globe, Clock } from "lucide-react";
+import { AlertTriangle, Scale, Shield, FileText, Globe, Clock, DollarSign } from "lucide-react";
 
 export function TermsOfService() {
   return (
@@ -41,7 +41,11 @@ export function TermsOfService() {
               <li>AI-powered document analysis and summarization</li>
               <li>Plain English explanations of legal document content</li>
               <li>Risk assessment and key findings identification</li>
-              <li>Session-based processing without permanent storage</li>
+              <li>User accounts and subscription management</li>
+              <li>Multi-device access with secure authentication</li>
+              <li>Email recovery and account management services</li>
+              <li>Session-based document processing (documents not permanently stored)</li>
+              <li>Secure payment processing through Stripe</li>
             </ul>
           </div>
           <div>
@@ -51,6 +55,8 @@ export function TermsOfService() {
               <li>Binding legal interpretations</li>
               <li>Guarantees of document completeness or accuracy</li>
               <li>Professional attorney-client relationships</li>
+              <li>Permanent storage of your document content</li>
+              <li>Guarantee of uninterrupted service availability</li>
             </ul>
           </div>
         </CardContent>
@@ -66,15 +72,27 @@ export function TermsOfService() {
           </CardHeader>
           <CardContent className="space-y-3">
             <div>
+              <h4 className="font-semibold text-gray-900 dark:text-white">Account Security</h4>
+              <p className="text-sm text-gray-600 dark:text-gray-400">
+                Keep your account credentials secure. Report any unauthorized access immediately.
+              </p>
+            </div>
+            <div>
               <h4 className="font-semibold text-gray-900 dark:text-white">Document Security</h4>
               <p className="text-sm text-gray-600 dark:text-gray-400">
                 Avoid uploading highly sensitive or confidential documents. Consider redacting personal information.
               </p>
             </div>
             <div>
+              <h4 className="font-semibold text-gray-900 dark:text-white">Payment Obligations</h4>
+              <p className="text-sm text-gray-600 dark:text-gray-400">
+                Pay subscription fees on time. Cancel subscriptions before renewal to avoid charges.
+              </p>
+            </div>
+            <div>
               <h4 className="font-semibold text-gray-900 dark:text-white">Appropriate Use</h4>
               <p className="text-sm text-gray-600 dark:text-gray-400">
-                Use the service for legitimate document analysis purposes only.
+                Use the service for legitimate document analysis purposes only. Respect usage limits.
               </p>
             </div>
             <div>
@@ -101,6 +119,18 @@ export function TermsOfService() {
               </p>
             </div>
             <div>
+              <h4 className="font-semibold text-gray-900 dark:text-white">Payment Processing</h4>
+              <p className="text-sm text-gray-600 dark:text-gray-400">
+                Payment issues are handled by Stripe. We are not liable for payment processing errors.
+              </p>
+            </div>
+            <div>
+              <h4 className="font-semibold text-gray-900 dark:text-white">Data Security</h4>
+              <p className="text-sm text-gray-600 dark:text-gray-400">
+                While we implement security measures, we cannot guarantee absolute security of your data.
+              </p>
+            </div>
+            <div>
               <h4 className="font-semibold text-gray-900 dark:text-white">Hold Harmless</h4>
               <p className="text-sm text-gray-600 dark:text-gray-400">
                 You agree to hold ReadMyFinePrint harmless from any decisions made based on our analysis.
@@ -109,7 +139,7 @@ export function TermsOfService() {
             <div>
               <h4 className="font-semibold text-gray-900 dark:text-white">Maximum Liability</h4>
               <p className="text-sm text-gray-600 dark:text-gray-400">
-                Our liability is limited to the cost of the service (currently free).
+                Our liability is limited to the amount paid for the service in the last 12 months.
               </p>
             </div>
           </CardContent>
@@ -120,14 +150,14 @@ export function TermsOfService() {
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <Clock className="w-5 h-5 text-orange-600" />
-            Session-Based Service
+            Service Architecture
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
           <div>
-            <h4 className="font-semibold text-gray-900 dark:text-white mb-2">Temporary Processing</h4>
+            <h4 className="font-semibold text-gray-900 dark:text-white mb-2">Document Processing</h4>
             <p className="text-gray-700 dark:text-gray-300 mb-3">
-              ReadMyFinePrint operates as a session-based service. Your documents and analysis results are:
+              Document analysis operates on a session-based model. Your documents and analysis results are:
             </p>
             <ul className="list-disc list-inside space-y-1 text-gray-600 dark:text-gray-400">
               <li>Processed temporarily during your browser session</li>
@@ -137,11 +167,65 @@ export function TermsOfService() {
             </ul>
           </div>
           <div>
-            <h4 className="font-semibold text-gray-900 dark:text-white mb-2">Third-Party Processing</h4>
-            <p className="text-gray-700 dark:text-gray-300">
-              Documents are processed using OpenAI&apos;s API for analysis. By using our service, you acknowledge
-              that your document content may be subject to OpenAI&apos;s terms of service and privacy policy.
+            <h4 className="font-semibold text-gray-900 dark:text-white mb-2">Account Services</h4>
+            <p className="text-gray-700 dark:text-gray-300 mb-3">
+              User accounts and subscription data are stored securely for service delivery:
             </p>
+            <ul className="list-disc list-inside space-y-1 text-gray-600 dark:text-gray-400">
+              <li>Account information stored for subscription management</li>
+              <li>Usage data tracked for billing and analytics</li>
+              <li>Multi-device authentication tokens managed securely</li>
+              <li>Email recovery and account management available</li>
+            </ul>
+          </div>
+          <div>
+            <h4 className="font-semibold text-gray-900 dark:text-white mb-2">Third-Party Services</h4>
+            <p className="text-gray-700 dark:text-gray-300 mb-3">
+              We integrate with trusted third-party services:
+            </p>
+            <ul className="list-disc list-inside space-y-1 text-gray-600 dark:text-gray-400">
+              <li><strong>OpenAI:</strong> Document analysis processing (subject to OpenAI&apos;s terms)</li>
+              <li><strong>Stripe:</strong> Payment processing and billing management</li>
+              <li><strong>Email Services:</strong> Account verification and notifications</li>
+            </ul>
+          </div>
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <DollarSign className="w-5 h-5 text-green-600" />
+            Subscription Terms & Billing
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div>
+            <h4 className="font-semibold text-gray-900 dark:text-white mb-2">Subscription Plans</h4>
+            <ul className="list-disc list-inside space-y-1 text-gray-600 dark:text-gray-400">
+              <li>Free tier with limited monthly document analysis</li>
+              <li>Paid subscription plans with increased limits and features</li>
+              <li>Subscription details and pricing available on our pricing page</li>
+              <li>Plans subject to change with reasonable notice</li>
+            </ul>
+          </div>
+          <div>
+            <h4 className="font-semibold text-gray-900 dark:text-white mb-2">Billing & Payments</h4>
+            <ul className="list-disc list-inside space-y-1 text-gray-600 dark:text-gray-400">
+              <li>Subscriptions billed automatically through Stripe</li>
+              <li>Charges processed at the beginning of each billing cycle</li>
+              <li>Failed payments may result in service suspension</li>
+              <li>Refunds handled according to our refund policy</li>
+            </ul>
+          </div>
+          <div>
+            <h4 className="font-semibold text-gray-900 dark:text-white mb-2">Cancellation</h4>
+            <ul className="list-disc list-inside space-y-1 text-gray-600 dark:text-gray-400">
+              <li>Cancel subscriptions at any time through your account</li>
+              <li>Service continues until the end of the current billing period</li>
+              <li>No partial refunds for unused time</li>
+              <li>Account data retained for reasonable period after cancellation</li>
+            </ul>
           </div>
         </CardContent>
       </Card>
@@ -158,10 +242,11 @@ export function TermsOfService() {
             <div>
               <h4 className="font-semibold text-green-700 dark:text-green-400 mb-2">✅ Permitted Uses</h4>
               <ul className="list-disc list-inside space-y-1 text-sm text-gray-600 dark:text-gray-400">
-                <li>Personal document review</li>
+                <li>Personal document review and analysis</li>
                 <li>Business contract analysis</li>
-                <li>Educational purposes</li>
+                <li>Educational and research purposes</li>
                 <li>General legal document understanding</li>
+                <li>Account sharing within reasonable organizational use</li>
               </ul>
             </div>
             <div>
@@ -169,8 +254,11 @@ export function TermsOfService() {
               <ul className="list-disc list-inside space-y-1 text-sm text-gray-600 dark:text-gray-400">
                 <li>Illegal or fraudulent activities</li>
                 <li>Uploading others' confidential documents without permission</li>
-                <li>Attempting to reverse-engineer the service</li>
-                <li>Overloading or disrupting the service</li>
+                <li>Attempting to reverse-engineer or hack the service</li>
+                <li>Overloading, disrupting, or abusing the service</li>
+                <li>Creating multiple accounts to circumvent usage limits</li>
+                <li>Sharing account credentials inappropriately</li>
+                <li>Payment fraud or chargebacks abuse</li>
               </ul>
             </div>
           </div>

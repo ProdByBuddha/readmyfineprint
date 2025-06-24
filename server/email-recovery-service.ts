@@ -505,11 +505,8 @@ export class EmailRecoveryService {
    */
   async getPendingEmailChangeRequests(limit: number = 100): Promise<EmailChangeRequest[]> {
     try {
-      const requests = await databaseStorage.getEmailChangeRequests({ 
-        status: 'pending', 
-        limit 
-      });
-      return requests.requests || [];
+      const requests = await databaseStorage.getPendingEmailChangeRequests(limit);
+      return requests;
     } catch (error) {
       console.error('Error getting pending email requests:', error);
       return [];

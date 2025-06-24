@@ -1,6 +1,6 @@
 import crypto from 'crypto';
 import { emailService } from './email-service';
-import { securityLogger } from './security-logger';
+import { securityLogger, SecurityEventType, SecuritySeverity } from './security-logger';
 
 interface VerificationCode {
   code: string;
@@ -43,8 +43,8 @@ class AdminVerificationService {
       
       if (recentCodes.length >= 5) {
         securityLogger.logSecurityEvent({
-          eventType: 'RATE_LIMIT',
-          severity: 'MEDIUM',
+          eventType: SecurityEventType.RATE_LIMIT,
+          severity: SecuritySeverity.MEDIUM,
           message: 'Admin verification code rate limit exceeded',
           ip: requestIp,
           userAgent,
@@ -108,8 +108,8 @@ class AdminVerificationService {
 
       // Log the verification request
       securityLogger.logSecurityEvent({
-        eventType: 'AUTHENTICATION',
-        severity: 'MEDIUM',
+        eventType: SecurityEventType.AUTHENTICATION,
+        severity: SecuritySeverity.MEDIUM,
         message: 'Admin verification code sent',
         ip: requestIp,
         userAgent,
@@ -128,8 +128,8 @@ class AdminVerificationService {
     } catch (error) {
       console.error('Error sending admin verification code:', error);
       securityLogger.logSecurityEvent({
-        eventType: 'ERROR',
-        severity: 'HIGH',
+        eventType: SecurityEventType.ERROR,
+        severity: SecuritySeverity.HIGH,
         message: 'Failed to send admin verification code',
         ip: requestIp,
         userAgent,
@@ -150,8 +150,8 @@ class AdminVerificationService {
 
       if (!verification) {
         securityLogger.logSecurityEvent({
-          eventType: 'AUTHENTICATION',
-          severity: 'HIGH',
+          eventType: SecurityEventType.AUTHENTICATION,
+          severity: SecuritySeverity.HIGH,
           message: 'Invalid admin verification code attempted',
           ip: requestIp,
           userAgent,
@@ -163,8 +163,8 @@ class AdminVerificationService {
 
       if (verification.used) {
         securityLogger.logSecurityEvent({
-          eventType: 'AUTHENTICATION',
-          severity: 'HIGH',
+          eventType: SecurityEventType.AUTHENTICATION,
+          severity: SecuritySeverity.HIGH,
           message: 'Already used admin verification code attempted',
           ip: requestIp,
           userAgent,
@@ -176,8 +176,8 @@ class AdminVerificationService {
       if (Date.now() > verification.expiresAt.getTime()) {
         this.verificationCodes.delete(code);
         securityLogger.logSecurityEvent({
-          eventType: 'AUTHENTICATION',
-          severity: 'MEDIUM',
+          eventType: SecurityEventType.AUTHENTICATION,
+          severity: SecuritySeverity.MEDIUM,
           message: 'Expired admin verification code attempted',
           ip: requestIp,
           userAgent,
@@ -193,8 +193,8 @@ class AdminVerificationService {
       const adminToken = crypto.randomBytes(32).toString('hex');
 
       securityLogger.logSecurityEvent({
-        eventType: 'AUTHENTICATION',
-        severity: 'MEDIUM',
+        eventType: SecurityEventType.AUTHENTICATION,
+        severity: SecuritySeverity.MEDIUM,
         message: 'Admin verification successful',
         ip: requestIp,
         userAgent,
@@ -214,8 +214,8 @@ class AdminVerificationService {
     } catch (error) {
       console.error('Error verifying admin code:', error);
       securityLogger.logSecurityEvent({
-        eventType: 'ERROR',
-        severity: 'HIGH',
+        eventType: SecurityEventType.ERROR,
+        severity: SecuritySeverity.HIGH,
         message: 'Error during admin code verification',
         ip: requestIp,
         userAgent,
