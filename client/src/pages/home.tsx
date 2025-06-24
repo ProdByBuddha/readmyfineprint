@@ -28,6 +28,7 @@ import type { Document } from "@shared/schema";
 export default function Home() {
   const [currentDocumentId, setCurrentDocumentId] = useState<number | null>(null);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
+  const [consentRevoked, setConsentRevoked] = useState(false);
   const [showAdminLogin, setShowAdminLogin] = useState(false);
   const [, navigate] = useLocation();
   const { toast } = useToast();
@@ -44,6 +45,35 @@ export default function Home() {
       window.history.replaceState({}, '', window.location.pathname);
     }
   }, []);
+
+  // Listen for consent revocation events
+  useEffect(() => {
+    const handleConsentRevoked = () => {
+      console.log('Consent revoked - enabling gray mode');
+      setConsentRevoked(true);
+      announce("Consent revoked. Experience is now limited until you accept terms again.", 'assertive');
+      toast({
+        title: "Consent Revoked", 
+        description: "Your experience is now limited. Accept terms again to restore full functionality.",
+        variant: "destructive",
+      });
+    };
+
+    const handleConsentChanged = () => {
+      // Reset revoked state when consent is accepted again
+      if (consentAccepted) {
+        setConsentRevoked(false);
+      }
+    };
+
+    window.addEventListener('consentRevoked', handleConsentRevoked as EventListener);
+    window.addEventListener('consentChanged', handleConsentChanged as EventListener);
+
+    return () => {
+      window.removeEventListener('consentRevoked', handleConsentRevoked as EventListener);
+      window.removeEventListener('consentChanged', handleConsentChanged as EventListener);
+    };
+  }, [announce, toast, consentAccepted]);
 
   // Add FAQ structured data for SEO
   useEffect(() => {
