@@ -1,11 +1,11 @@
-import { type Document, type InsertDocument, type Consent, type User, type InsertUser, type UserSubscription, type InsertUserSubscription, type UsageRecord, type InsertUsageRecord } from "@shared/schema";
+import { type Document, type InsertDocument, type Consent, type User, type InsertUser, type UserSubscription, type InsertUserSubscription, type UsageRecord, type InsertUsageRecord, type PIIRedactionInfo } from "@shared/schema";
 
 export interface IStorage {
   // Document management
   createDocument(sessionId: string, document: InsertDocument, clientFingerprint?: string): Promise<Document>;
   getDocument(sessionId: string, id: number, clientFingerprint?: string): Promise<Document | undefined>;
   getAllDocuments(sessionId: string): Promise<Document[]>;
-  updateDocumentAnalysis(sessionId: string, id: number, analysis: any, clientFingerprint?: string): Promise<Document | undefined>;
+  updateDocumentAnalysis(sessionId: string, id: number, analysis: any, clientFingerprint?: string, redactionInfo?: PIIRedactionInfo): Promise<Document | undefined>;
   clearAllDocuments(sessionId: string): Promise<void>;
   clearExpiredSessions(): Promise<void>;
   getAllSessions(): Map<string, SessionData>;
@@ -164,7 +164,7 @@ export class SessionStorage {
     return Array.from(session.documents.values());
   }
 
-  async updateDocumentAnalysis(sessionId: string, id: number, analysis: any, clientFingerprint?: string): Promise<Document | undefined> {
+  async updateDocumentAnalysis(sessionId: string, id: number, analysis: any, clientFingerprint?: string, redactionInfo?: PIIRedactionInfo): Promise<Document | undefined> {
     let session = this.sessions.get(sessionId);
     let actualSessionId = sessionId;
 
@@ -187,10 +187,10 @@ export class SessionStorage {
 
     const document = session.documents.get(id);
     if (document) {
-      const updatedDocument = { ...document, analysis };
+      const updatedDocument = { ...document, analysis, redactionInfo };
       session.documents.set(id, updatedDocument);
       session.lastAccessed = new Date();
-      console.log(`✅ Document ${id} analysis updated in session ${actualSessionId}`);
+      console.log(`✅ Document ${id} analysis updated in session ${actualSessionId}${redactionInfo?.hasRedactions ? ' (with PII redactions)' : ''}`);
       return updatedDocument;
     }
     return undefined;

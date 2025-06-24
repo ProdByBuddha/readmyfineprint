@@ -50,8 +50,8 @@ export const SUBSCRIPTION_TIERS: SubscriptionTier[] = [
     name: "Starter",
     description: "For individuals and teams who need faster processing with advanced AI",
     model: "gpt-4.1-mini",
-    monthlyPrice: 13, // For unlimited GPT-4.1-mini with priority processing
-    yearlyPrice: 150, // Save $6 per year
+    monthlyPrice: 15, // For unlimited GPT-4.1-mini with priority processing
+    yearlyPrice: 150, // Save $30 per year
     features: [
       "Unlimited document analysis",
       "Enhanced analysis with GPT-4.1-mini",

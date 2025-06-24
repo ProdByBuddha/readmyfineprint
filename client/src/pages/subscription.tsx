@@ -241,12 +241,23 @@ export default function SubscriptionPage() {
   const handleCancelSubscription = async () => {
     if (window.confirm('Are you sure you want to cancel your subscription? You will be downgraded to the free plan at the end of your billing period.')) {
       try {
+        const headers: HeadersInit = {
+          'Content-Type': 'application/json',
+        };
+
+        // Include subscription token if available for authentication
+        const subscriptionToken = localStorage.getItem('subscriptionToken');
+        const deviceFingerprint = getStoredDeviceFingerprint();
+        
+        if (subscriptionToken) {
+          headers['X-Subscription-Token'] = subscriptionToken;
+          headers['X-Device-Fingerprint'] = deviceFingerprint;
+        }
+
         const response = await fetch('/api/subscription/cancel', {
           method: 'POST',
           credentials: 'include',
-          headers: {
-            'Content-Type': 'application/json',
-          },
+          headers,
           body: JSON.stringify({
             subscriptionId: subscriptionData?.subscription?.stripeSubscriptionId,
             immediate: false,
@@ -254,14 +265,17 @@ export default function SubscriptionPage() {
         });
 
         if (!response.ok) {
-          throw new Error(`HTTP error! status: ${response.status}`);
+          const errorData = await response.json().catch(() => ({ error: 'Unknown server error' }));
+          throw new Error(errorData.error || `HTTP error! status: ${response.status}`);
         }
 
-        window.alert('Subscription canceled successfully. You will continue to have access until the end of your billing period.');
+        const data = await response.json();
+        window.alert(data.message || 'Subscription canceled successfully. You will continue to have access until the end of your billing period.');
         fetchSubscriptionData(); // Refresh data
       } catch (error) {
         console.error('Error canceling subscription:', error);
-        window.alert('Failed to cancel subscription. Please try again.');
+        const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
+        window.alert(`Failed to cancel subscription: ${errorMessage}. Please try again.`);
       }
     }
   };

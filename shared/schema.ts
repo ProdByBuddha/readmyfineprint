@@ -75,6 +75,34 @@ export const emailVerificationRateLimit = pgTable('email_verification_rate_limit
   createdAt: timestamp('created_at').defaultNow().notNull(),
 });
 
+export const emailChangeRequests = pgTable('email_change_requests', {
+  id: uuid('id').primaryKey().defaultRandom(),
+  userId: uuid('user_id').references(() => users.id, { onDelete: 'cascade' }).notNull(),
+  currentEmail: text('current_email').notNull(),
+  newEmail: text('new_email').notNull(),
+  reason: text('reason').notNull(),
+  clientIp: text('client_ip').notNull(),
+  deviceFingerprint: text('device_fingerprint').notNull(),
+  userAgent: text('user_agent').notNull(),
+  
+  // Alternative verification data
+  securityAnswers: text('security_answers'), // JSON string of encrypted answers
+  
+  // Request status and tracking
+  status: text('status').notNull().default('pending'), // 'pending', 'approved', 'rejected', 'expired'
+  adminNotes: text('admin_notes'),
+  reviewedBy: uuid('reviewed_by').references(() => users.id),
+  reviewedAt: timestamp('reviewed_at'),
+  
+  // Security and expiration
+  verificationCode: text('verification_code'), // For partial email verification if possible
+  attempts: integer('attempts').default(0).notNull(),
+  maxAttempts: integer('max_attempts').default(3).notNull(),
+  expiresAt: timestamp('expires_at').notNull(),
+  createdAt: timestamp('created_at').defaultNow().notNull(),
+  updatedAt: timestamp('updated_at').defaultNow().notNull(),
+});
+
 // Relations
 export const usersRelations = relations(users, ({ many }) => ({
   subscriptions: many(userSubscriptions),
@@ -148,12 +176,19 @@ const insertEmailVerificationRateLimitSchemaBase = createInsertSchema(emailVerif
   createdAt: true,
 });
 
+const insertEmailChangeRequestSchemaBase = createInsertSchema(emailChangeRequests).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
 export const insertUserSchema = insertUserSchemaBase;
 export const insertUserSubscriptionSchema = insertUserSubscriptionSchemaBase;
 export const insertUsageRecordSchema = insertUsageRecordSchemaBase;
 export const insertSubscriptionTokenSchema = insertSubscriptionTokenSchemaBase;
 export const insertEmailVerificationCodeSchema = insertEmailVerificationCodeSchemaBase;
 export const insertEmailVerificationRateLimitSchema = insertEmailVerificationRateLimitSchemaBase;
+export const insertEmailChangeRequestSchema = insertEmailChangeRequestSchemaBase;
 
 // Database Types
 export type User = typeof users.$inferSelect;
@@ -195,6 +230,26 @@ export type InsertSubscriptionToken = {
   expiresAt: Date;
 };
 
+export type EmailChangeRequest = typeof emailChangeRequests.$inferSelect;
+export type InsertEmailChangeRequest = {
+  userId: string;
+  currentEmail: string;
+  newEmail: string;
+  reason: string;
+  clientIp: string;
+  deviceFingerprint: string;
+  userAgent: string;
+  securityAnswers?: string | null;
+  status?: string;
+  adminNotes?: string | null;
+  reviewedBy?: string | null;
+  reviewedAt?: Date | null;
+  verificationCode?: string | null;
+  attempts?: number;
+  maxAttempts?: number;
+  expiresAt: Date;
+};
+
 export const insertDocumentSchema = z.object({
   title: z.string().optional(),
   content: z.string(),
@@ -216,6 +271,7 @@ export interface Document {
   content: string;
   fileType?: string | null;
   analysis?: DocumentAnalysis | null;
+  redactionInfo?: PIIRedactionInfo | null;
   createdAt: Date;
 }
 
@@ -233,6 +289,33 @@ export interface DocumentAnalysis {
     summary: string;
     concerns?: string[];
   }>;
+}
+
+// PII Redaction Interfaces
+export interface PIIMatch {
+  type: 'ssn' | 'email' | 'phone' | 'creditCard' | 'address' | 'name' | 'dob' | 'custom';
+  value: string;
+  start: number;
+  end: number;
+  confidence: number;
+  placeholder: string;
+}
+
+export interface PIIRedactionInfo {
+  hasRedactions: boolean;
+  originalContent: string;
+  redactedContent: string;
+  matches: PIIMatch[];
+  redactionMap: Record<string, string>; // placeholder -> original value
+  detectionSettings: {
+    detectNames: boolean;
+    minConfidence: number;
+    customPatterns: Array<{
+      name: string;
+      pattern: string;
+      confidence: number;
+    }>;
+  };
 }
 
 // Subscription and Pricing Schemas
@@ -277,3 +360,29 @@ export interface SubscriptionUsage {
   cost: number;
   resetDate: Date;
 }
+
+// Email Recovery and Security Questions
+export interface SecurityQuestion {
+  id: string;
+  question: string;
+  required: boolean;
+}
+
+export interface SecurityAnswers {
+  [questionId: string]: string;
+}
+
+export const emailChangeRequestSchema = z.object({
+  currentEmail: z.string().email('Invalid current email address'),
+  newEmail: z.string().email('Invalid new email address'),
+  reason: z.string().min(10, 'Please provide a detailed reason (at least 10 characters)').max(500, 'Reason too long'),
+  securityAnswers: z.record(z.string()).optional(),
+});
+
+export const adminEmailChangeReviewSchema = z.object({
+  action: z.enum(['approve', 'reject']),
+  adminNotes: z.string().optional(),
+});
+
+export type EmailChangeRequestInput = z.infer<typeof emailChangeRequestSchema>;
+export type AdminEmailChangeReview = z.infer<typeof adminEmailChangeReviewSchema>;

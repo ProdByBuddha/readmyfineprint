@@ -357,6 +357,74 @@ class SecurityLogger {
   }
 
   /**
+   * Log email change request submission
+   */
+  public logEmailChangeRequest(
+    ip: string, 
+    userAgent: string, 
+    userId: string, 
+    currentEmail: string, 
+    newEmail: string, 
+    reason: string
+  ): void {
+    this.logSecurityEvent({
+      eventType: SecurityEventType.AUTHENTICATION,
+      severity: SecuritySeverity.MEDIUM,
+      message: 'Email change request submitted',
+      ip,
+      userAgent,
+      endpoint: '/api/auth/request-email-change',
+      details: { 
+        userId, 
+        currentEmail, 
+        newEmail, 
+        reasonLength: reason.length 
+      }
+    });
+  }
+
+  /**
+   * Log successful email change
+   */
+  public logEmailChanged(
+    ip: string, 
+    userAgent: string, 
+    userId: string, 
+    oldEmail: string, 
+    newEmail: string
+  ): void {
+    this.logSecurityEvent({
+      eventType: SecurityEventType.AUTHENTICATION,
+      severity: SecuritySeverity.HIGH,
+      message: 'User email address changed',
+      ip,
+      userAgent,
+      details: { userId, oldEmail, newEmail }
+    });
+  }
+
+  /**
+   * Log failed email change verification
+   */
+  public logEmailChangeVerificationFailed(
+    ip: string, 
+    userAgent: string, 
+    requestId: string, 
+    userId: string,
+    attempts: number
+  ): void {
+    this.logSecurityEvent({
+      eventType: SecurityEventType.AUTHENTICATION,
+      severity: SecuritySeverity.HIGH,
+      message: 'Email change verification failed',
+      ip,
+      userAgent,
+      endpoint: '/api/auth/verify-email-change',
+      details: { requestId, userId, attempts }
+    });
+  }
+
+  /**
    * Get security statistics
    */
   public getSecurityStats(): Record<string, any> {

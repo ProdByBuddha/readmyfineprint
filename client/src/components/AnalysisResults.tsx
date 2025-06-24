@@ -4,6 +4,7 @@ import { Badge } from "@/components/ui/badge";
 import { Shield, ThumbsUp, AlertTriangle, XCircle, InfoIcon, FileText, Settings } from "lucide-react";
 import type { Document, DocumentAnalysis } from "@shared/schema";
 import { exportAnalysisToPDF } from "@/utils/pdfExport";
+import { PIIRedactionInfoComponent } from "@/components/PIIRedactionInfo";
 import { useState } from "react";
 
 interface AnalysisResultsProps {
@@ -174,6 +175,14 @@ Support our mission: ${window.location.origin + '/donate'}
             </Button>
           </div>
         </div>
+
+        {/* PII Redaction Information */}
+        {document.redactionInfo && (
+          <PIIRedactionInfoComponent 
+            redactionInfo={document.redactionInfo} 
+            className="mb-4 sm:mb-5"
+          />
+        )}
 
         {/* Overall Assessment */}
         <div className="bg-gradient-to-r from-secondary/10 to-primary/10 rounded-lg p-3 sm:p-4 mb-4 sm:mb-5">

@@ -5,6 +5,7 @@ import { consentLogger } from "./consent";
 import { requireAdminAuth, optionalUserAuth, requireUserAuth } from "./auth";
 import { insertDocumentSchema } from "@shared/schema";
 import { analyzeDocument } from "./openai";
+import { analyzeDocumentWithPII } from "./openai-with-pii";
 import { FileValidator, createSecureFileFilter } from "./file-validation";
 import { securityLogger, getClientInfo } from "./security-logger";
 import multer from "multer";
@@ -20,6 +21,7 @@ import { securityAlertManager } from './security-alert';
 import { emailService } from './email-service';
 import { emailVerificationService } from './email-verification';
 import { registerUserRoutes } from './user-routes';
+import { registerEmailRecoveryRoutes } from './email-recovery-routes';
 import { indexNowService } from './indexnow-service';
 import { subscriptionService } from './subscription-service';
 import { getTierById, SUBSCRIPTION_TIERS } from './subscription-tiers';
@@ -791,30 +793,43 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Add estimated wait time to response for user feedback
       const estimatedWaitTime = priorityQueue.getEstimatedWaitTime(subscriptionData.tier.id);
 
-      // Process document analysis through priority queue
-      const analysis = await priorityQueue.addToQueue(
+      // Process document analysis through priority queue with PII protection
+      const analysisResult = await priorityQueue.addToQueue(
         userId,
         subscriptionData.tier.id,
         async () => {
-          return await analyzeDocument(
+          return await analyzeDocumentWithPII(
             document.content, 
             document.title, 
-            analysisIp, 
-            analysisUserAgent, 
-            req.sessionId,
-            subscriptionData.tier.model,
-            userId
+            {
+              ip: analysisIp,
+              userAgent: analysisUserAgent,
+              sessionId: req.sessionId,
+              model: subscriptionData.tier.model,
+              userId: userId,
+              piiDetection: {
+                enabled: true, // Always enabled for maximum privacy protection
+                detectNames: true,
+                minConfidence: 0.7 // High confidence threshold for production
+              }
+            }
           );
         }
       );
 
-      // Update document with analysis results
-      const updatedDocument = await storage.updateDocumentAnalysis(req.sessionId, documentId, analysis, clientFingerprint);
+      // Update document with analysis results and redaction info
+      const updatedDocument = await storage.updateDocumentAnalysis(
+        req.sessionId, 
+        documentId, 
+        analysisResult.analysis, 
+        clientFingerprint,
+        analysisResult.redactionInfo
+      );
 
       // If this was a sample contract copied from another session, sync the analysis back to the original session
       if (originalSessionId && originalSessionId !== req.sessionId) {
         try {
-          await storage.updateDocumentAnalysis(originalSessionId, documentId, analysis, clientFingerprint);
+          await storage.updateDocumentAnalysis(originalSessionId, documentId, analysisResult.analysis, clientFingerprint, analysisResult.redactionInfo);
           console.log(`🔄 Analysis synced back to original session ${originalSessionId} for sample contract ${documentId}`);
         } catch (syncError) {
           console.warn(`⚠️ Failed to sync analysis back to original session ${originalSessionId}:`, syncError instanceof Error ? syncError.message : String(syncError));
@@ -1250,7 +1265,32 @@ export async function registerRoutes(app: Express): Promise<Server> {
       });
 
       const { subscriptionId, immediate } = cancelSchema.parse(req.body);
-      const userId = req.user?.id || req.sessionId || "anonymous";
+      let userId = req.user?.id || req.sessionId || "anonymous";
+      let subscriptionData;
+
+      // Check for subscription token authentication first
+      const subscriptionToken = req.headers['x-subscription-token'] as string;
+      const deviceFingerprint = req.headers['x-device-fingerprint'] as string;
+      
+      if (subscriptionToken) {
+        const clientIp = getClientInfo(req).ip;
+        subscriptionData = await subscriptionService.validateSubscriptionToken(subscriptionToken, deviceFingerprint, clientIp);
+        
+        if (subscriptionData && subscriptionData.subscription) {
+          userId = subscriptionData.subscription.userId;
+        } else {
+          return res.status(401).json({ 
+            error: "Your subscription token is invalid or expired. Please log in again." 
+          });
+        }
+      } else {
+        // Check if user is authenticated via session
+        if (userId === "anonymous" || userId.startsWith('session_')) {
+          return res.status(401).json({ 
+            error: "You must be logged in to cancel a subscription. Please log in with your subscription account first." 
+          });
+        }
+      }
 
       // Auto-detect test mode
       const useTestMode = process.env.NODE_ENV === 'development';
@@ -2172,6 +2212,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   // Register user management routes
   registerUserRoutes(app);
+  
+  // Register email recovery routes
+  registerEmailRecoveryRoutes(app);
 
   // Serve uploaded files securely with proper headers
   app.use('/uploads', (req, res, next) => {

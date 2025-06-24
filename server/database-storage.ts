@@ -1,6 +1,19 @@
 import { db } from "./db";
-import { users, userSubscriptions, usageRecords, type User, type UserSubscription, type UsageRecord, type InsertUser, type InsertUserSubscription, type InsertUsageRecord } from "@shared/schema";
-import { and, eq, desc } from "drizzle-orm";
+import { 
+  users, 
+  userSubscriptions, 
+  usageRecords, 
+  emailChangeRequests,
+  type User, 
+  type UserSubscription, 
+  type UsageRecord, 
+  type EmailChangeRequest,
+  type InsertUser, 
+  type InsertUserSubscription, 
+  type InsertUsageRecord,
+  type InsertEmailChangeRequest
+} from "@shared/schema";
+import { and, eq, desc, lt, sql } from "drizzle-orm";
 import { type Document, type InsertDocument } from "@shared/schema";
 import { type IStorage } from "./storage";
 
@@ -363,5 +376,363 @@ export class DatabaseStorage implements IStorage {
       this.clientSessions.set(clientFingerprint, new Set());
     }
     this.clientSessions.get(clientFingerprint)!.add(sessionId);
+  }
+
+  // Email Change Request methods
+  async createEmailChangeRequest(request: InsertEmailChangeRequest): Promise<EmailChangeRequest> {
+    const [emailChangeRequest] = await db
+      .insert(emailChangeRequests)
+      .values({
+        ...request,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      })
+      .returning();
+    return emailChangeRequest;
+  }
+
+  async getEmailChangeRequest(requestId: string): Promise<EmailChangeRequest | undefined> {
+    const [request] = await db
+      .select()
+      .from(emailChangeRequests)
+      .where(eq(emailChangeRequests.id, requestId));
+    return request || undefined;
+  }
+
+  async getUserPendingEmailChangeRequests(userId: string): Promise<EmailChangeRequest[]> {
+    const requests = await db
+      .select()
+      .from(emailChangeRequests)
+      .where(and(
+        eq(emailChangeRequests.userId, userId),
+        eq(emailChangeRequests.status, 'pending')
+      ))
+      .orderBy(desc(emailChangeRequests.createdAt));
+    return requests;
+  }
+
+  async getPendingEmailChangeRequests(limit: number = 50): Promise<EmailChangeRequest[]> {
+    const requests = await db
+      .select()
+      .from(emailChangeRequests)
+      .where(eq(emailChangeRequests.status, 'pending'))
+      .orderBy(desc(emailChangeRequests.createdAt))
+      .limit(limit);
+    return requests;
+  }
+
+  async updateEmailChangeRequestStatus(
+    requestId: string, 
+    status: string, 
+    adminNotes?: string
+  ): Promise<EmailChangeRequest | undefined> {
+    const [request] = await db
+      .update(emailChangeRequests)
+      .set({
+        status,
+        adminNotes,
+        updatedAt: new Date(),
+      })
+      .where(eq(emailChangeRequests.id, requestId))
+      .returning();
+    return request || undefined;
+  }
+
+  async reviewEmailChangeRequest(
+    requestId: string,
+    adminUserId: string,
+    status: string,
+    adminNotes?: string
+  ): Promise<EmailChangeRequest | undefined> {
+    const [request] = await db
+      .update(emailChangeRequests)
+      .set({
+        status,
+        adminNotes,
+        reviewedBy: adminUserId,
+        reviewedAt: new Date(),
+        updatedAt: new Date(),
+      })
+      .where(eq(emailChangeRequests.id, requestId))
+      .returning();
+    return request || undefined;
+  }
+
+  async incrementEmailChangeRequestAttempts(requestId: string): Promise<EmailChangeRequest | undefined> {
+    const [request] = await db
+      .update(emailChangeRequests)
+      .set({
+        attempts: sql`${emailChangeRequests.attempts} + 1`,
+        updatedAt: new Date(),
+      })
+      .where(eq(emailChangeRequests.id, requestId))
+      .returning();
+    return request || undefined;
+  }
+
+  async markExpiredEmailChangeRequests(): Promise<number> {
+    const results = await db
+      .update(emailChangeRequests)
+      .set({
+        status: 'expired',
+        updatedAt: new Date(),
+      })
+      .where(and(
+        eq(emailChangeRequests.status, 'pending'),
+        lt(emailChangeRequests.expiresAt, new Date())
+      ))
+      .returning();
+    return results.length;
+  }
+
+  // Admin Dashboard Methods
+  async getTotalUserCount(): Promise<number> {
+    const result = await db
+      .select({ count: sql`count(*)` })
+      .from(users);
+    return parseInt(result[0].count as string);
+  }
+
+  async getActiveSubscriptionCount(): Promise<number> {
+    const result = await db
+      .select({ count: sql`count(*)` })
+      .from(userSubscriptions)
+      .where(eq(userSubscriptions.status, 'active'));
+    return parseInt(result[0].count as string);
+  }
+
+  async getUserCountSince(date: Date): Promise<number> {
+    const result = await db
+      .select({ count: sql`count(*)` })
+      .from(users)
+      .where(sql`${users.createdAt} >= ${date}`);
+    return parseInt(result[0].count as string);
+  }
+
+  async getSubscriptionCountSince(date: Date): Promise<number> {
+    const result = await db
+      .select({ count: sql`count(*)` })
+      .from(userSubscriptions)
+      .where(and(
+        eq(userSubscriptions.status, 'active'),
+        sql`${userSubscriptions.createdAt} >= ${date}`
+      ));
+    return parseInt(result[0].count as string);
+  }
+
+  async getDocumentAnalysisCountSince(date: Date): Promise<number> {
+    // Since documents are session-based, we'll estimate from usage records
+    const result = await db
+      .select({ total: sql`sum(${usageRecords.documentsAnalyzed})` })
+      .from(usageRecords)
+      .where(sql`${usageRecords.createdAt} >= ${date}`);
+    return parseInt(result[0].total as string) || 0;
+  }
+
+  async getUsers(options: {
+    page: number;
+    limit: number;
+    search?: string;
+    sortBy: string;
+    sortOrder: string;
+    hasSubscription?: boolean;
+  }): Promise<{
+    users: User[];
+    total: number;
+    page: number;
+    limit: number;
+    totalPages: number;
+  }> {
+    const offset = (options.page - 1) * options.limit;
+    
+    // Build query conditions
+    let conditions = sql`1=1`;
+    
+    if (options.search) {
+      const searchTerm = `%${options.search}%`;
+      conditions = sql`(${users.email} ILIKE ${searchTerm} OR ${users.username} ILIKE ${searchTerm})`;
+    }
+
+    if (options.hasSubscription !== undefined) {
+      if (options.hasSubscription) {
+        conditions = sql`${conditions} AND EXISTS (
+          SELECT 1 FROM ${userSubscriptions} 
+          WHERE ${userSubscriptions.userId} = ${users.id} 
+          AND ${userSubscriptions.status} = 'active'
+        )`;
+      } else {
+        conditions = sql`${conditions} AND NOT EXISTS (
+          SELECT 1 FROM ${userSubscriptions} 
+          WHERE ${userSubscriptions.userId} = ${users.id} 
+          AND ${userSubscriptions.status} = 'active'
+        )`;
+      }
+    }
+
+    // Get total count
+    const totalResult = await db
+      .select({ count: sql`count(*)` })
+      .from(users)
+      .where(conditions);
+    const total = parseInt(totalResult[0].count as string);
+
+    // Get users with sorting
+    const orderColumn = options.sortBy === 'email' ? users.email : users.createdAt;
+    const orderDirection = options.sortOrder === 'asc' ? sql`ASC` : sql`DESC`;
+    
+    const userResults = await db
+      .select()
+      .from(users)
+      .where(conditions)
+      .orderBy(sql`${orderColumn} ${orderDirection}`)
+      .limit(options.limit)
+      .offset(offset);
+
+    return {
+      users: userResults.map(user => ({ ...user, hashedPassword: undefined } as any)),
+      total,
+      page: options.page,
+      limit: options.limit,
+      totalPages: Math.ceil(total / options.limit)
+    };
+  }
+
+  async getSubscriptionTiers(): Promise<any[]> {
+    // This would typically come from a tiers table, but for now return static data
+    return [
+      { id: 'free', name: 'Free', price: 0 },
+      { id: 'basic', name: 'Basic', price: 9.99 },
+      { id: 'premium', name: 'Premium', price: 19.99 },
+      { id: 'enterprise', name: 'Enterprise', price: 49.99 }
+    ];
+  }
+
+  async getUserGrowthData(startDate: Date): Promise<any[]> {
+    const result = await db
+      .select({
+        date: sql`DATE(${users.createdAt})`,
+        count: sql`count(*)`
+      })
+      .from(users)
+      .where(sql`${users.createdAt} >= ${startDate}`)
+      .groupBy(sql`DATE(${users.createdAt})`)
+      .orderBy(sql`DATE(${users.createdAt})`);
+    
+    return result;
+  }
+
+  async getSubscriptionAnalytics(startDate: Date): Promise<{
+    byTier: any[];
+    growth: any[];
+    churn: any[];
+  }> {
+    // Subscriptions by tier
+    const byTier = await db
+      .select({
+        tier: userSubscriptions.tierId,
+        count: sql`count(*)`
+      })
+      .from(userSubscriptions)
+      .where(eq(userSubscriptions.status, 'active'))
+      .groupBy(userSubscriptions.tierId);
+
+    // Subscription growth
+    const growth = await db
+      .select({
+        date: sql`DATE(${userSubscriptions.createdAt})`,
+        count: sql`count(*)`
+      })
+      .from(userSubscriptions)
+      .where(and(
+        eq(userSubscriptions.status, 'active'),
+        sql`${userSubscriptions.createdAt} >= ${startDate}`
+      ))
+      .groupBy(sql`DATE(${userSubscriptions.createdAt})`)
+      .orderBy(sql`DATE(${userSubscriptions.createdAt})`);
+
+    return {
+      byTier,
+      growth,
+      churn: [] // Would need additional tracking for churn analysis
+    };
+  }
+
+  async getUsageAnalytics(startDate: Date): Promise<{
+    totalDocuments: number;
+    totalTokens: number;
+    avgDocumentsPerUser: number;
+    byTier: any[];
+  }> {
+    const totalResult = await db
+      .select({
+        totalDocuments: sql`sum(${usageRecords.documentsAnalyzed})`,
+        totalTokens: sql`sum(${usageRecords.tokensUsed})`
+      })
+      .from(usageRecords)
+      .where(sql`${usageRecords.createdAt} >= ${startDate}`);
+
+    const userCountResult = await db
+      .select({ count: sql`count(DISTINCT ${usageRecords.userId})` })
+      .from(usageRecords)
+      .where(sql`${usageRecords.createdAt} >= ${startDate}`);
+
+    const totalDocuments = parseInt(totalResult[0]?.totalDocuments as string) || 0;
+    const totalTokens = parseInt(totalResult[0]?.totalTokens as string) || 0;
+    const userCount = parseInt(userCountResult[0]?.count as string) || 1;
+
+    const byTierResult = await db
+      .select({
+        tier: sql`COALESCE(${userSubscriptions.tierId}, 'free')`,
+        documents: sql`sum(${usageRecords.documentsAnalyzed})`,
+        tokens: sql`sum(${usageRecords.tokensUsed})`
+      })
+      .from(usageRecords)
+      .leftJoin(userSubscriptions, eq(usageRecords.subscriptionId, userSubscriptions.id))
+      .where(sql`${usageRecords.createdAt} >= ${startDate}`)
+      .groupBy(sql`COALESCE(${userSubscriptions.tierId}, 'free')`);
+
+    return {
+      totalDocuments,
+      totalTokens,
+      avgDocumentsPerUser: Math.round(totalDocuments / userCount),
+      byTier: byTierResult
+    };
+  }
+
+  async getRevenueAnalytics(startDate: Date): Promise<{
+    totalRevenue: number;
+    byTier: any[];
+    growth: any[];
+  }> {
+    // This would need payment records table for accurate revenue tracking
+    // For now, estimate based on active subscriptions and tier prices
+    const tierPrices: Record<string, number> = {
+      'free': 0,
+      'basic': 9.99,
+      'premium': 19.99,
+      'enterprise': 49.99
+    };
+
+    const byTier = await db
+      .select({
+        tier: userSubscriptions.tierId,
+        count: sql`count(*)`
+      })
+      .from(userSubscriptions)
+      .where(eq(userSubscriptions.status, 'active'))
+      .groupBy(userSubscriptions.tierId);
+
+    const estimatedRevenue = byTier.reduce((total, tier) => {
+      return total + (tierPrices[tier.tier] || 0) * parseInt(tier.count as string);
+    }, 0);
+
+    return {
+      totalRevenue: estimatedRevenue,
+      byTier: byTier.map(tier => ({
+        ...tier,
+        revenue: (tierPrices[tier.tier] || 0) * parseInt(tier.count as string)
+      })),
+      growth: [] // Would need historical revenue data
+    };
   }
 }
