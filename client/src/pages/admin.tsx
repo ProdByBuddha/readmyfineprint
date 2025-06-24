@@ -90,15 +90,54 @@ interface SecurityEvent {
 }
 
 function AdminLogin({ onLogin }: { onLogin: (token: string) => void }) {
-  const [step, setStep] = useState<'request' | 'verify'>('request');
   const [verificationCode, setVerificationCode] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const [codeSent, setCodeSent] = useState(false);
   const { toast } = useToast();
 
-  const handleRequestCode = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setIsLoading(true);
+  // Automatically send verification code when component mounts
+  useEffect(() => {
+    const sendInitialCode = async () => {
+      setIsLoading(true);
+      try {
+        const response = await fetch("/api/admin/request-verification", {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          }
+        });
 
+        const data = await response.json();
+
+        if (data.success) {
+          setCodeSent(true);
+          toast({
+            title: "Admin Verification Required",
+            description: "A verification code has been sent to your admin emails",
+          });
+        } else {
+          toast({
+            title: "Authentication Error",
+            description: data.error || "Failed to send verification code",
+            variant: "destructive"
+          });
+        }
+      } catch (error) {
+        toast({
+          title: "Connection Error",
+          description: "Failed to initiate admin verification",
+          variant: "destructive"
+        });
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    sendInitialCode();
+  }, [toast]);
+
+  const handleResendCode = async () => {
+    setIsLoading(true);
     try {
       const response = await fetch("/api/admin/request-verification", {
         method: 'POST',
@@ -110,22 +149,21 @@ function AdminLogin({ onLogin }: { onLogin: (token: string) => void }) {
       const data = await response.json();
 
       if (data.success) {
-        setStep('verify');
         toast({
-          title: "Verification Code Sent",
-          description: "Check your email for the 6-digit verification code",
+          title: "Code Resent",
+          description: "A new verification code has been sent",
         });
       } else {
         toast({
-          title: "Request Failed",
-          description: data.error || "Failed to send verification code",
+          title: "Resend Failed",
+          description: data.error || "Failed to resend verification code",
           variant: "destructive"
         });
       }
     } catch (error) {
       toast({
         title: "Error",
-        description: "Failed to request verification code",
+        description: "Failed to resend verification code",
         variant: "destructive"
       });
     } finally {
@@ -176,22 +214,28 @@ function AdminLogin({ onLogin }: { onLogin: (token: string) => void }) {
     <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-900">
       <Card className="w-full max-w-md">
         <CardHeader>
-          <CardTitle className="text-center">Admin Access</CardTitle>
+          <CardTitle className="text-center">Admin Verification</CardTitle>
         </CardHeader>
         <CardContent>
-          {step === 'request' ? (
-            <form onSubmit={handleRequestCode} className="space-y-4">
-              <div className="text-center">
-                <p className="text-sm text-muted-foreground mb-4">
-                  A verification code will be sent to admin@readmyfineprint.com and prodbybuddha@icloud.com
-                </p>
-              </div>
-              <Button type="submit" className="w-full" disabled={isLoading}>
-                {isLoading ? "Sending Code..." : "Send Verification Code"}
-              </Button>
-            </form>
+          {!codeSent ? (
+            <div className="text-center space-y-4">
+              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto"></div>
+              <p className="text-sm text-muted-foreground">
+                Sending verification code to admin emails...
+              </p>
+            </div>
           ) : (
             <form onSubmit={handleVerifyCode} className="space-y-4">
+              <div className="text-center mb-4">
+                <p className="text-sm text-muted-foreground">
+                  Verification code sent to:
+                </p>
+                <p className="text-xs text-muted-foreground">
+                  admin@readmyfineprint.com<br/>
+                  prodbybuddha@icloud.com
+                </p>
+              </div>
+              
               <div>
                 <Label htmlFor="code">6-Digit Verification Code</Label>
                 <Input
@@ -202,23 +246,26 @@ function AdminLogin({ onLogin }: { onLogin: (token: string) => void }) {
                   placeholder="Enter 6-digit code"
                   maxLength={6}
                   pattern="[0-9]{6}"
+                  autoFocus
                   required
                 />
                 <p className="text-xs text-muted-foreground mt-1">
                   Code expires in 10 minutes
                 </p>
               </div>
+              
               <div className="flex space-x-2">
                 <Button 
                   type="button" 
                   variant="outline" 
-                  onClick={() => setStep('request')}
+                  onClick={handleResendCode}
+                  disabled={isLoading}
                   className="flex-1"
                 >
-                  Back
+                  {isLoading ? "Sending..." : "Resend Code"}
                 </Button>
-                <Button type="submit" className="flex-1" disabled={isLoading}>
-                  {isLoading ? "Verifying..." : "Verify Code"}
+                <Button type="submit" className="flex-1" disabled={isLoading || !verificationCode}>
+                  {isLoading ? "Verifying..." : "Access Admin"}
                 </Button>
               </div>
             </form>

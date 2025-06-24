@@ -37,11 +37,11 @@ class AdminVerificationService {
    */
   async sendAdminVerificationCode(requestIp: string, userAgent: string): Promise<{ success: boolean; message: string }> {
     try {
-      // Check for rate limiting - max 3 codes per hour
+      // Check for rate limiting - max 5 codes per hour (increased for automatic sending)
       const recentCodes = Array.from(this.verificationCodes.values())
         .filter(code => code.createdAt.getTime() > Date.now() - (60 * 60 * 1000));
       
-      if (recentCodes.length >= 3) {
+      if (recentCodes.length >= 5) {
         securityLogger.logSecurityEvent({
           eventType: 'RATE_LIMIT',
           severity: 'MEDIUM',
