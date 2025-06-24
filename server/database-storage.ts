@@ -735,4 +735,24 @@ export class DatabaseStorage implements IStorage {
       growth: [] // Would need historical revenue data
     };
   }
+
+  async getUserById(userId: string): Promise<User | null> {
+    const result = await db
+      .select()
+      .from(users)
+      .where(eq(users.id, userId))
+      .limit(1);
+    
+    if (result.length === 0) return null;
+    
+    const user = result[0];
+    return { ...user, hashedPassword: undefined } as any;
+  }
+
+  async updateUser(userId: string, updates: Partial<User>): Promise<void> {
+    await db
+      .update(users)
+      .set(updates)
+      .where(eq(users.id, userId));
+  }
 }

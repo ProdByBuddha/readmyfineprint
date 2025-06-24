@@ -22,6 +22,7 @@ import Cookies from "@/pages/cookies";
 import Donate from "@/pages/donate";
 import Roadmap from "@/pages/roadmap";
 import Subscription from "@/pages/subscription";
+import AdminDashboard from "@/pages/admin";
 import NotFound from "@/pages/not-found";
 import { setupAutoSubmission } from "./lib/indexnow";
 import React, { useEffect } from 'react';
@@ -42,6 +43,10 @@ function Router() {
                 <Redirect to="/" replace /> : 
                 <Subscription />
             } 
+          />
+      <Route 
+            path="/admin" 
+            component={AdminDashboard} 
           />
       <Route component={NotFound} />
     </Switch>

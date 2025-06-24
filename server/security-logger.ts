@@ -491,6 +491,90 @@ class SecurityLogger {
       .sort((a, b) => b.count - a.count)
       .slice(0, 10);
   }
+
+  /**
+   * Get security events with filtering
+   */
+  getSecurityEvents(options: {
+    page?: number;
+    limit?: number;
+    severity?: string;
+    timeframe?: string;
+    type?: string;
+  } = {}) {
+    const { page = 1, limit = 50, severity, timeframe, type } = options;
+    
+    let filteredEvents = [...this.events];
+    
+    // Filter by timeframe
+    if (timeframe && timeframe !== 'all') {
+      const now = Date.now();
+      let cutoff: number;
+      
+      switch (timeframe) {
+        case '1h':
+          cutoff = now - (60 * 60 * 1000);
+          break;
+        case '24h':
+          cutoff = now - (24 * 60 * 60 * 1000);
+          break;
+        case '7d':
+          cutoff = now - (7 * 24 * 60 * 60 * 1000);
+          break;
+        case '30d':
+          cutoff = now - (30 * 24 * 60 * 60 * 1000);
+          break;
+        default:
+          cutoff = 0;
+      }
+      
+      filteredEvents = filteredEvents.filter(e => 
+        new Date(e.timestamp).getTime() > cutoff
+      );
+    }
+    
+    // Filter by severity
+    if (severity && severity !== 'all') {
+      filteredEvents = filteredEvents.filter(e => 
+        e.severity.toLowerCase() === severity.toLowerCase()
+      );
+    }
+    
+    // Filter by type
+    if (type && type !== 'all') {
+      filteredEvents = filteredEvents.filter(e => 
+        e.eventType === type
+      );
+    }
+    
+    // Sort by timestamp (newest first)
+    filteredEvents.sort((a, b) => 
+      new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime()
+    );
+    
+    // Paginate
+    const total = filteredEvents.length;
+    const startIndex = (page - 1) * limit;
+    const endIndex = startIndex + limit;
+    const events = filteredEvents.slice(startIndex, endIndex);
+    
+    return {
+      events: events.map(event => ({
+        id: event.fingerprint || crypto.randomUUID(),
+        type: event.eventType,
+        severity: event.severity,
+        message: event.message,
+        ip: event.ip,
+        userAgent: event.userAgent || 'Unknown',
+        timestamp: event.timestamp,
+        userId: event.details?.userId
+      })),
+      total,
+      page,
+      limit,
+      totalPages: Math.ceil(total / limit)
+    };
+  }
 }
 
 // Export singleton instance
