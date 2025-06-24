@@ -10,6 +10,10 @@ export const users = pgTable('users', {
   username: text('username').unique(),
   hashedPassword: text('hashed_password'),
   stripeCustomerId: text('stripe_customer_id').unique(),
+  emailVerified: boolean('email_verified').default(false).notNull(),
+  isActive: boolean('is_active').default(true).notNull(),
+  isAdmin: boolean('is_admin').default(false).notNull(),
+  lastLoginAt: timestamp('last_login_at'),
   createdAt: timestamp('created_at').defaultNow().notNull(),
   updatedAt: timestamp('updated_at').defaultNow().notNull(),
 });
