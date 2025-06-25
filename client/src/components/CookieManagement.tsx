@@ -1,4 +1,4 @@
-import { useState, useCallback, useEffect } from "react";
+import { useState } from "react";
 import { Cookie, Shield, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
@@ -12,63 +12,13 @@ interface CookieManagementProps {
 
 export function CookieManagement({ trigger, className }: CookieManagementProps) {
   const [isOpen, setIsOpen] = useState(false);
-  const [isChecking, setIsChecking] = useState(true);
-  const [isAccepted, setIsAccepted] = useState(false);
   const [isAccepting, setIsAccepting] = useState(false);
-  const { revokeConsent } = useCombinedConsent();
+  const { isAccepted, isCheckingConsent, revokeConsent, acceptAll } = useCombinedConsent();
 
-  // Check consent status when component mounts or dialog opens
-  const checkConsentStatus = useCallback(async () => {
-    setIsChecking(true);
-    try {
-      const response = await fetch('/api/consent/verify', {
-        method: 'POST',
-        credentials: 'include',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-      });
-      
-      if (response.ok) {
-        const result = await response.json();
-        setIsAccepted(result.hasConsented);
-      } else {
-        setIsAccepted(false);
-      }
-    } catch (error) {
-      console.warn('Failed to check consent status:', error);
-      setIsAccepted(false);
-    } finally {
-      setIsChecking(false);
-    }
-  }, []);
-
-  // Check status when dialog opens
-  useEffect(() => {
-    if (isOpen) {
-      checkConsentStatus();
-    }
-  }, [isOpen, checkConsentStatus]);
-
-  // Listen for consent changes - always listen, not just when open
-  useEffect(() => {
-    const handleConsentChange = () => {
-      checkConsentStatus();
-    };
-
-    window.addEventListener('consentChanged', handleConsentChange);
-    window.addEventListener('consentRevoked', handleConsentChange);
-
-    return () => {
-      window.removeEventListener('consentChanged', handleConsentChange);
-      window.removeEventListener('consentRevoked', handleConsentChange);
-    };
-  }, [checkConsentStatus]);
+  // No need for separate state management - use main consent state
 
   const handleRevokeAll = async () => {
     await revokeConsent();
-    // Update local state immediately
-    setIsAccepted(false);
     // Close modal after a brief delay to show success state
     setTimeout(() => setIsOpen(false), 500);
   };
@@ -76,25 +26,9 @@ export function CookieManagement({ trigger, className }: CookieManagementProps) 
   const handleAcceptConsent = async () => {
     setIsAccepting(true);
     try {
-      const response = await fetch('/api/consent', {
-        method: 'POST',
-        credentials: 'include',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-      });
-      
-      const result = await response.json();
-      if (result.success) {
-        // Update local state immediately
-        setIsAccepted(true);
-        // Dispatch events to notify other components
-        window.dispatchEvent(new CustomEvent('consentChanged'));
-        // Close modal after a brief delay to show success state
-        setTimeout(() => setIsOpen(false), 500);
-      } else {
-        console.warn('Failed to accept consent:', result.message);
-      }
+      await acceptAll();
+      // Close modal after a brief delay to show success state
+      setTimeout(() => setIsOpen(false), 500);
     } catch (error) {
       console.warn('Failed to accept consent:', error);
     } finally {
@@ -127,17 +61,17 @@ export function CookieManagement({ trigger, className }: CookieManagementProps) 
             <h4 className="font-medium text-sm mb-2 text-gray-900 dark:text-gray-100">Current Status</h4>
             <div className="flex items-center justify-between">
               <span className="text-sm text-gray-600 dark:text-gray-400">
-                {isChecking ? "Checking status..." : `All consents: ${isAccepted ? "Accepted" : "Not accepted"}`}
+                {isCheckingConsent ? "Checking status..." : `All consents: ${isAccepted ? "Accepted" : "Not accepted"}`}
               </span>
               <div className={`px-2 py-1 rounded text-xs font-medium flex items-center gap-1 ${
-                isChecking 
+                isCheckingConsent 
                   ? "bg-gray-100 text-gray-600 dark:bg-gray-700 dark:text-gray-400"
                   : isAccepted
                   ? "bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400"
                   : "bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-400"
               }`}>
-                {isChecking && <Loader2 className="w-3 h-3 animate-spin" />}
-                {isChecking ? "Checking" : isAccepted ? "Active" : "Inactive"}
+                {isCheckingConsent && <Loader2 className="w-3 h-3 animate-spin" />}
+                {isCheckingConsent ? "Checking" : isAccepted ? "Active" : "Inactive"}
               </div>
             </div>
           </div>
@@ -177,7 +111,7 @@ export function CookieManagement({ trigger, className }: CookieManagementProps) 
           </div>
 
           <div className="flex flex-col gap-2 pt-2">
-            {!isChecking && isAccepted ? (
+            {!isCheckingConsent && isAccepted ? (
               <Button
                 onClick={handleRevokeAll}
                 variant="outline"
@@ -185,7 +119,7 @@ export function CookieManagement({ trigger, className }: CookieManagementProps) 
               >
                 Revoke All Consents
               </Button>
-            ) : !isChecking ? (
+            ) : !isCheckingConsent ? (
               <Button
                 onClick={handleAcceptConsent}
                 disabled={isAccepting}

@@ -222,10 +222,10 @@ export function CombinedConsent({ onAccept }: CombinedConsentProps) {
 
 // Simple cookie banner for non-blocking consent
 export function CookieConsent() {
-  const { isAccepted, acceptAll } = useCombinedConsent();
+  const { isAccepted, acceptAll, isCheckingConsent } = useCombinedConsent();
 
-  // Don't show banner if already accepted
-  if (isAccepted) {
+  // Don't show banner if already accepted or still checking
+  if (isAccepted || isCheckingConsent) {
     return null;
   }
 
