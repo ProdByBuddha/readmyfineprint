@@ -45,12 +45,18 @@ export function useCombinedConsent() {
       
       if (response.ok) {
         const result = await response.json();
-        const hasConsented = result.hasConsented;
+        const hasConsented = result.hasConsented === true;
         
-        // Update cache
+        console.log('Consent check result:', { hasConsented, proof: !!result.proof, sessionResult: result });
+        
+        // Update cache and state
         consentCache = { status: hasConsented, timestamp: now };
         setIsAccepted(hasConsented);
+
+        // Force update to ensure all components sync
+        setForceUpdate(prev => prev + 1);
       } else {
+        console.warn('Consent check failed with status:', response.status);
         // Cache negative result briefly to prevent spam
         consentCache = { status: false, timestamp: now };
         setIsAccepted(false);
@@ -65,8 +71,11 @@ export function useCombinedConsent() {
   }, []);
 
   useEffect(() => {
-    // Only check consent on initial mount
+    // Check consent on initial mount and whenever the component mounts
     const initialCheck = async () => {
+      // Clear any stale cache on fresh mount to ensure fresh state
+      consentCache = null;
+      console.log('Initial consent check - clearing cache and checking fresh state');
       await checkConsent();
     };
     initialCheck();
@@ -81,6 +90,7 @@ export function useCombinedConsent() {
       // Debounce multiple consent change events
       clearTimeout(debounceTimer);
       debounceTimer = setTimeout(() => {
+        console.log('Handling consent change - rechecking consent');
         checkConsent();
       }, 100); // Reduced delay for faster updates
     };
@@ -94,6 +104,7 @@ export function useCombinedConsent() {
       
       // Force immediate re-check to ensure all components are synchronized
       setTimeout(() => {
+        console.log('Re-checking consent after revocation');
         checkConsent();
         // Force re-render of all components using this hook
         setForceUpdate(prev => prev + 1);

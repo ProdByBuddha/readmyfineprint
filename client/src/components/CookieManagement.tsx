@@ -22,7 +22,7 @@ export function CookieManagement({ trigger, className }: CookieManagementProps) 
     setLocalIsAccepted(isAccepted);
     setIsAccepting(false);
     setIsRevoking(false);
-    console.log('Cookie modal syncing - isAccepted:', isAccepted, 'forceUpdate:', forceUpdate);
+    console.log('Cookie modal syncing - isAccepted:', isAccepted, 'localIsAccepted will be:', isAccepted, 'forceUpdate:', forceUpdate);
   }, [isAccepted, forceUpdate]);
 
   // Listen for consent changes to reset states and trigger re-renders
