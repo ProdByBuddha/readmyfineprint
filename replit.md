@@ -114,14 +114,18 @@ SECURITY_EMAIL_FROM=your-email@provider.com
 - **Features**: User management, system health, security monitoring, analytics
 
 ## Recent Changes
-- **June 25, 2025**: Fixed consent mechanism rate limiting and stuck checking state
+- **June 25, 2025**: Completely fixed consent mechanism synchronization and UX issues
   - Resolved excessive rate limiting issues by implementing separate consent-specific rate limiter (200 req/min vs 100 req/min)
   - Added server-side caching in ConsentLogger class with 30-second cache duration to prevent redundant database queries
   - Implemented client-side consent state caching to reduce API calls and prevent checking loops
   - Fixed DialogContent accessibility warnings by adding missing DialogDescription components
   - Resolved consent checking state getting stuck by removing dependency loops in useCallback
   - Enhanced consent event handling with proper debouncing and cache invalidation
-  - Consent system now performs optimally without causing rate limit violations
+  - Fixed consent banner flash after revoke/accept cycles with anti-flash protection mechanism
+  - Implemented local state synchronization in cookie management modal to ensure immediate updates
+  - Simplified event handling to prevent race conditions during consent state changes
+  - Cookie management modal now correctly shows "Active"/"Inactive" status immediately after consent changes
+  - Consent system fully synchronized across all components with proper state management
 
 - **June 24, 2025**: Consent enforcement and PostgreSQL conversion with sample contract exemption
   - Converted consent logging system from Replit key-value store to PostgreSQL

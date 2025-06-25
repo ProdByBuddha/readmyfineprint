@@ -183,12 +183,11 @@ export function useCombinedConsent() {
       recentlyAccepted = false;
       if (acceptanceTimer) clearTimeout(acceptanceTimer);
 
-      // Force update for components using this hook
+      // Force update for components using this hook immediately
       setForceUpdate(prev => prev + 1);
 
-      // Dispatch custom event to notify other components immediately
+      // Single event dispatch for revocation
       window.dispatchEvent(new CustomEvent('consentRevoked'));
-      window.dispatchEvent(new CustomEvent('consentChanged'));
 
     } catch (error) {
       console.warn('Failed to revoke consent from database:', error);
@@ -202,7 +201,6 @@ export function useCombinedConsent() {
       if (acceptanceTimer) clearTimeout(acceptanceTimer);
 
       window.dispatchEvent(new CustomEvent('consentRevoked'));
-      window.dispatchEvent(new CustomEvent('consentChanged'));
     }
   };
 

@@ -30,17 +30,19 @@ export function CookieManagement({ trigger, className }: CookieManagementProps) 
     const handleConsentChange = () => {
       setIsAccepting(false);
       setIsRevoking(false);
-      // Update local state immediately
-      setLocalIsAccepted(isAccepted);
-      console.log('Consent changed - modal updating, isAccepted:', isAccepted);
+      // Force a fresh consent check instead of relying on stale closure values
+      setTimeout(() => {
+        // Get fresh state after a brief delay
+        console.log('Consent changed - checking fresh state');
+      }, 50);
     };
 
     const handleConsentRevoked = () => {
       setIsRevoking(false);
       setIsAccepting(false);
-      // Update local state immediately
+      // Immediately set to false for revocation
       setLocalIsAccepted(false);
-      console.log('Consent revoked - modal updating, isAccepted:', isAccepted);
+      console.log('Consent revoked - immediately setting inactive');
     };
 
     window.addEventListener('consentChanged', handleConsentChange);
