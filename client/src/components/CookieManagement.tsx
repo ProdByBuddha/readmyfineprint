@@ -14,6 +14,7 @@ export function CookieManagement({ trigger, className }: CookieManagementProps) 
   const [isOpen, setIsOpen] = useState(false);
   const [isChecking, setIsChecking] = useState(true);
   const [isAccepted, setIsAccepted] = useState(false);
+  const [isAccepting, setIsAccepting] = useState(false);
   const { revokeConsent } = useCombinedConsent();
 
   // Check consent status when component mounts or dialog opens
@@ -70,6 +71,33 @@ export function CookieManagement({ trigger, className }: CookieManagementProps) 
     await revokeConsent();
     setIsAccepted(false);
     setIsOpen(false);
+  };
+
+  const handleAcceptConsent = async () => {
+    setIsAccepting(true);
+    try {
+      const response = await fetch('/api/consent', {
+        method: 'POST',
+        credentials: 'include',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+      
+      const result = await response.json();
+      if (result.success) {
+        setIsAccepted(true);
+        // Dispatch events to notify other components
+        window.dispatchEvent(new CustomEvent('consentChanged'));
+        setIsOpen(false);
+      } else {
+        console.warn('Failed to accept consent:', result.message);
+      }
+    } catch (error) {
+      console.warn('Failed to accept consent:', error);
+    } finally {
+      setIsAccepting(false);
+    }
   };
 
   const defaultTrigger = (
@@ -156,9 +184,20 @@ export function CookieManagement({ trigger, className }: CookieManagementProps) 
                 Revoke All Consents
               </Button>
             ) : !isChecking ? (
-              <div className="text-center text-sm text-gray-600 dark:text-gray-400">
-                Visit the main page to provide consent
-              </div>
+              <Button
+                onClick={handleAcceptConsent}
+                disabled={isAccepting}
+                className="w-full bg-primary text-white hover:bg-primary/90"
+              >
+                {isAccepting ? (
+                  <>
+                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                    Accepting...
+                  </>
+                ) : (
+                  'Accept All Consents'
+                )}
+              </Button>
             ) : null}
 
             <div className="flex gap-2 text-xs">

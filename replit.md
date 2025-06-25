@@ -135,6 +135,8 @@ SECURITY_EMAIL_FROM=your-email@provider.com
     - Users who revoke consent get limited functionality with visual indicators
     - Migrated completely away from localStorage to database-only consent management
     - Consent state now purely database-driven for both free users and subscribers
+    - Added "Accept All Consents" button to cookie management modal for inactive users
+    - Users can now re-accept consent directly from cookie settings without navigating to main page
   - Admin endpoints remain exempt from all consent requirements
   - Improved performance and reliability with structured database storage
 
