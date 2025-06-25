@@ -50,12 +50,10 @@ export function CookieManagement({ trigger, className }: CookieManagementProps) 
     }
   }, [isOpen, checkConsentStatus]);
 
-  // Listen for consent changes
+  // Listen for consent changes - always listen, not just when open
   useEffect(() => {
     const handleConsentChange = () => {
-      if (isOpen) {
-        checkConsentStatus();
-      }
+      checkConsentStatus();
     };
 
     window.addEventListener('consentChanged', handleConsentChange);
@@ -65,12 +63,14 @@ export function CookieManagement({ trigger, className }: CookieManagementProps) 
       window.removeEventListener('consentChanged', handleConsentChange);
       window.removeEventListener('consentRevoked', handleConsentChange);
     };
-  }, [isOpen, checkConsentStatus]);
+  }, [checkConsentStatus]);
 
   const handleRevokeAll = async () => {
     await revokeConsent();
+    // Update local state immediately
     setIsAccepted(false);
-    setIsOpen(false);
+    // Close modal after a brief delay to show success state
+    setTimeout(() => setIsOpen(false), 500);
   };
 
   const handleAcceptConsent = async () => {
@@ -86,10 +86,12 @@ export function CookieManagement({ trigger, className }: CookieManagementProps) 
       
       const result = await response.json();
       if (result.success) {
+        // Update local state immediately
         setIsAccepted(true);
         // Dispatch events to notify other components
         window.dispatchEvent(new CustomEvent('consentChanged'));
-        setIsOpen(false);
+        // Close modal after a brief delay to show success state
+        setTimeout(() => setIsOpen(false), 500);
       } else {
         console.warn('Failed to accept consent:', result.message);
       }
@@ -194,6 +196,8 @@ export function CookieManagement({ trigger, className }: CookieManagementProps) 
                     <Loader2 className="w-4 h-4 mr-2 animate-spin" />
                     Accepting...
                   </>
+                ) : isAccepted ? (
+                  'Consent Accepted ✓'
                 ) : (
                   'Accept All Consents'
                 )}

@@ -76,15 +76,15 @@ export function useCombinedConsent() {
         return;
       }
 
+      // Dispatch custom event to notify other components
+      window.dispatchEvent(new CustomEvent('consentChanged'));
+
     } catch (error) {
       console.warn('Consent logging failed:', error);
       // Reset state if logging failed
       setIsAccepted(false);
       return;
     }
-    
-    // Dispatch custom event to notify other components
-    window.dispatchEvent(new CustomEvent('consentChanged'));
   };
 
   const revokeConsent = async () => {
@@ -106,13 +106,17 @@ export function useCombinedConsent() {
       if (!result.success) {
         console.warn('Failed to revoke consent in database:', result.message);
       }
+
+      // Dispatch custom event to notify other components
+      window.dispatchEvent(new CustomEvent('consentRevoked'));
+      window.dispatchEvent(new CustomEvent('consentChanged'));
+
     } catch (error) {
       console.warn('Failed to revoke consent from database:', error);
+      // Still dispatch events even if revocation failed
+      window.dispatchEvent(new CustomEvent('consentRevoked'));
+      window.dispatchEvent(new CustomEvent('consentChanged'));
     }
-    
-    // Dispatch custom event to notify other components
-    window.dispatchEvent(new CustomEvent('consentRevoked'));
-    window.dispatchEvent(new CustomEvent('consentChanged'));
   };
 
   return {
