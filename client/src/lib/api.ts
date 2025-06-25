@@ -213,9 +213,11 @@ export async function logConsent(): Promise<{
   message: string
 }> {
   try {
-    const response = await fetch('/api/consent', {
+    const sessionId = getGlobalSessionId();
+    console.log(`API: Logging consent with session: ${sessionId.substring(0, 16)}...`);
+    
+    const response = await sessionFetch('/api/consent', {
       method: 'POST',
-      credentials: 'include',
       headers: {
         'Content-Type': 'application/json',
       },

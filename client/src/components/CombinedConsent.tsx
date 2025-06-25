@@ -139,7 +139,7 @@ export function useCombinedConsent() {
     setIsCheckingConsent(true);
     
     try {
-      // Log consent to database only
+      // Log consent to database only - using the global API function that now uses sessionFetch
       const result = await logConsent();
 
       if (!result.success) {
@@ -149,23 +149,23 @@ export function useCombinedConsent() {
         return;
       }
 
-      // Update global state and local state immediately
-      globalConsentState = { status: true, timestamp: Date.now(), sessionId: getGlobalSessionId() };
+      // Immediately notify other components of the change
+      globalConsentState = { hasConsented: true, proof: result };
+      window.dispatchEvent(new CustomEvent('consentChanged'));
       setIsAccepted(true);
       setIsCheckingConsent(false);
-
-      // Mark as recently accepted to prevent banner flash
+      
+      // Force re-render of all components using this hook
+      setForceUpdate(prev => prev + 1);
+      
+      console.log('Consent accepted successfully');
       recentlyAccepted = true;
+      
+      // Clear the recent acceptance flag after some time
       if (acceptanceTimer) clearTimeout(acceptanceTimer);
       acceptanceTimer = setTimeout(() => {
         recentlyAccepted = false;
-      }, 1000); // Prevent banner for 1 second after acceptance
-
-      // Force update for components using this hook
-      setForceUpdate(prev => prev + 1);
-
-      // Dispatch custom event to notify other components immediately
-      window.dispatchEvent(new CustomEvent('consentChanged'));
+      }, 2000);
 
     } catch (error) {
       console.warn('Consent logging failed:', error);
