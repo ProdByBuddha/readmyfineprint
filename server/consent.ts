@@ -278,6 +278,37 @@ class ConsentLogger {
   }
 
   /**
+   * Revoke user consent by removing their consent record
+   */
+  async revokeConsent(ip: string, userAgent: string, userId?: string): Promise<{
+    success: boolean;
+    message: string;
+  }> {
+    try {
+      const userPseudonym = this.createUserPseudonym(ip, userAgent, userId);
+
+      // Delete all consent records for this user
+      const deletedRecords = await db
+        .delete(consentRecords)
+        .where(eq(consentRecords.userPseudonym, userPseudonym));
+
+      console.log(`Consent revoked for pseudonym: ${userPseudonym}`);
+
+      return {
+        success: true,
+        message: 'Consent successfully revoked'
+      };
+
+    } catch (error) {
+      console.error('Error revoking consent:', error);
+      return {
+        success: false,
+        message: error instanceof Error ? error.message : 'Unknown error'
+      };
+    }
+  }
+
+  /**
    * Get consent statistics
    */
   async getConsentStats(): Promise<{

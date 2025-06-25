@@ -551,6 +551,21 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Revoke consent (removes from database)
+  app.post("/api/consent/revoke", optionalUserAuth, async (req: any, res) => {
+    try {
+      const ip = req.ip || req.socket.remoteAddress || 'unknown';
+      const userAgent = req.get('User-Agent') || 'unknown';
+      const userId = req.user?.id; // Get user ID if authenticated
+
+      const result = await consentLogger.revokeConsent(ip, userAgent, userId);
+      res.json(result);
+    } catch (error) {
+      console.error("Error revoking consent:", error);
+      res.status(500).json({ error: "Failed to revoke consent" });
+    }
+  });
+
   // Get consent statistics (admin only)
   app.get("/api/consent/stats", requireAdminAuth, async (req, res) => {
     try {

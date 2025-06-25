@@ -16,11 +16,7 @@ export function useCombinedConsent() {
   const checkConsent = useCallback(async () => {
     setIsCheckingConsent(true);
     
-    const legalAccepted = localStorage.getItem('readmyfineprint-disclaimer-accepted');
-    const cookiesAccepted = localStorage.getItem('cookie-consent-accepted');
-    const localConsent = legalAccepted === 'true' && cookiesAccepted === 'true';
-    
-    // Always verify with database, regardless of local storage
+    // Check only with database - no localStorage dependency
     try {
       const response = await fetch('/api/consent/verify', {
         method: 'POST',
@@ -32,30 +28,13 @@ export function useCombinedConsent() {
       
       if (response.ok) {
         const result = await response.json();
-        const databaseConsent = result.hasConsented;
-        
-        // Sync local storage with database result
-        if (databaseConsent && !localConsent) {
-          // Database has consent but local doesn't - sync local
-          localStorage.setItem('readmyfineprint-disclaimer-accepted', 'true');
-          localStorage.setItem('readmyfineprint-disclaimer-date', new Date().toISOString());
-          localStorage.setItem('cookie-consent-accepted', 'true');
-        } else if (!databaseConsent && localConsent) {
-          // Local has consent but database doesn't - clear local
-          localStorage.removeItem('readmyfineprint-disclaimer-accepted');
-          localStorage.removeItem('readmyfineprint-disclaimer-date');
-          localStorage.removeItem('cookie-consent-accepted');
-        }
-        
-        setIsAccepted(databaseConsent);
+        setIsAccepted(result.hasConsented);
       } else {
-        // If database verification fails, trust local consent
-        setIsAccepted(localConsent);
+        setIsAccepted(false);
       }
     } catch (error) {
       console.warn('Failed to verify consent with database:', error);
-      // On error, trust local consent
-      setIsAccepted(localConsent);
+      setIsAccepted(false);
     } finally {
       setIsCheckingConsent(false);
     }
@@ -87,30 +66,21 @@ export function useCombinedConsent() {
     setIsCheckingConsent(false);
     
     try {
-      // Log consent to database first
+      // Log consent to database only
       const result = await logConsent();
-      
-      const acceptanceDate = new Date().toISOString();
-      localStorage.setItem('readmyfineprint-disclaimer-accepted', 'true');
-      localStorage.setItem('readmyfineprint-disclaimer-date', acceptanceDate);
-      localStorage.setItem('cookie-consent-accepted', 'true');
-
-      // Store consent verification data if provided
-      if (result.consentId && result.verificationToken) {
-        sessionStorage.setItem('readmyfineprint-consent-id', result.consentId);
-        sessionStorage.setItem('readmyfineprint-verification-token', result.verificationToken);
-      }
 
       if (!result.success) {
         console.warn('Consent logging warning:', result.message);
+        // Reset state if logging failed
+        setIsAccepted(false);
+        return;
       }
 
     } catch (error) {
-      console.warn('Consent logging failed, but continuing:', error);
-      // Still store locally and continue - don't block user
-      localStorage.setItem('readmyfineprint-disclaimer-accepted', 'true');
-      localStorage.setItem('readmyfineprint-disclaimer-date', new Date().toISOString());
-      localStorage.setItem('cookie-consent-accepted', 'true');
+      console.warn('Consent logging failed:', error);
+      // Reset state if logging failed
+      setIsAccepted(false);
+      return;
     }
     
     // Dispatch custom event to notify other components
@@ -118,27 +88,26 @@ export function useCombinedConsent() {
   };
 
   const revokeConsent = async () => {
-    // Clear local storage
-    localStorage.removeItem('readmyfineprint-disclaimer-accepted');
-    localStorage.removeItem('readmyfineprint-disclaimer-date');
-    localStorage.removeItem('cookie-consent-accepted');
-    
-    // Set consent state to revoked
+    // Set consent state to revoked immediately
     setIsAccepted(false);
     setIsCheckingConsent(false);
     
-    // Notify backend about consent revocation by calling the verify endpoint
-    // This will help track revoked users for analytics
+    // Revoke consent in the database
     try {
-      await fetch('/api/consent/verify', {
+      const response = await fetch('/api/consent/revoke', {
         method: 'POST',
         credentials: 'include',
         headers: {
           'Content-Type': 'application/json',
         },
       });
+      
+      const result = await response.json();
+      if (!result.success) {
+        console.warn('Failed to revoke consent in database:', result.message);
+      }
     } catch (error) {
-      console.warn('Failed to notify backend of consent revocation:', error);
+      console.warn('Failed to revoke consent from database:', error);
     }
     
     // Dispatch custom event to notify other components
@@ -165,31 +134,21 @@ export function CombinedConsent({ onAccept }: CombinedConsentProps) {
     setIsLogging(true);
 
     try {
-      // Log consent to server (anonymous, PII-protected)
+      // Log consent to database only
       const result = await logConsent();
 
-      // Store acceptance locally regardless of server logging result
-      const acceptanceDate = new Date().toISOString();
-      localStorage.setItem('readmyfineprint-disclaimer-accepted', 'true');
-      localStorage.setItem('readmyfineprint-disclaimer-date', acceptanceDate);
-      localStorage.setItem('cookie-consent-accepted', 'true');
-
-      // Store consent verification data if provided
-      if (result.consentId && result.verificationToken) {
-        sessionStorage.setItem('readmyfineprint-consent-id', result.consentId);
-        sessionStorage.setItem('readmyfineprint-verification-token', result.verificationToken);
-      }
-
       if (!result.success) {
-        console.warn('Consent logging warning:', result.message);
+        console.warn('Consent logging failed:', result.message);
+        // Reopen modal if logging failed
+        setIsOpen(true);
+        return;
       }
 
     } catch (error) {
-      console.warn('Consent logging failed, but continuing:', error);
-      // Still store locally and continue - don't block user
-      localStorage.setItem('readmyfineprint-disclaimer-accepted', 'true');
-      localStorage.setItem('readmyfineprint-disclaimer-date', new Date().toISOString());
-      localStorage.setItem('cookie-consent-accepted', 'true');
+      console.warn('Consent logging failed:', error);
+      // Reopen modal if logging failed
+      setIsOpen(true);
+      return;
     } finally {
       setIsLogging(false);
       onAccept();

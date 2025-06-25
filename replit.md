@@ -133,6 +133,8 @@ SECURITY_EMAIL_FROM=your-email@provider.com
     - Added consent checking state to prevent premature banner display
     - Implemented consent revocation with grayed-out UI experience
     - Users who revoke consent get limited functionality with visual indicators
+    - Migrated completely away from localStorage to database-only consent management
+    - Consent state now purely database-driven for both free users and subscribers
   - Admin endpoints remain exempt from all consent requirements
   - Improved performance and reliability with structured database storage
 
