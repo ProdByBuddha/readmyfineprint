@@ -3,6 +3,7 @@ import { AlertTriangle, Cookie, Shield } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { logConsent } from "@/lib/api";
+import { sessionFetch, getGlobalSessionId } from "../lib/sessionManager";
 
 interface CombinedConsentProps {
   onAccept: () => void;
@@ -181,12 +182,18 @@ export function useCombinedConsent() {
     setIsCheckingConsent(true);
     
     try {
-      const response = await fetch('/api/consent/revoke', {
+      const sessionId = getGlobalSessionId();
+      console.log(`Revoking consent with session: ${sessionId.substring(0, 16)}...`);
+      
+      const response = await sessionFetch('/api/consent/revoke', {
         method: 'POST',
-        credentials: 'include',
         headers: {
           'Content-Type': 'application/json',
         },
+        body: JSON.stringify({
+          ip: 'client-side-revoke',
+          userAgent: navigator.userAgent,
+        }),
       });
       
       const result = await response.json();
@@ -243,9 +250,23 @@ export function CombinedConsent({ onAccept }: CombinedConsentProps) {
     setIsLogging(true);
 
     try {
-      // Log consent to database only
-      const result = await logConsent();
+      const sessionId = getGlobalSessionId();
+      console.log(`Logging consent with session: ${sessionId.substring(0, 16)}...`);
+      
+      // Log consent to database using session fetch
+      const response = await sessionFetch('/api/consent', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          ip: 'client-side-consent',
+          userAgent: navigator.userAgent,
+          termsVersion: '1.0',
+        }),
+      });
 
+      const result = await response.json();
       if (!result.success) {
         console.warn('Consent logging failed:', result.message);
         setIsLogging(false);
