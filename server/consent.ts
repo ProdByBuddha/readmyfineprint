@@ -47,22 +47,26 @@ class ConsentLogger {
 
   /**
    * Creates a consistent pseudonym for a user based on stable identifiers
-   * For free users: based on device fingerprint (IP + User Agent)
+   * For free users: Use session ID as stable identifier (since IP changes in load balancer)
    * For subscribers: based on user ID (portable across devices)
    */
-  private createUserPseudonym(ip: string, userAgent: string, userId?: string): string {
+  private createUserPseudonym(ip: string, userAgent: string, userId?: string, sessionId?: string): string {
     let stableIdentifier: string;
     
     // Normalize inputs to ensure consistency
     const normalizedIp = (ip || 'unknown').trim();
     const normalizedUserAgent = (userAgent || 'unknown').trim();
     const normalizedUserId = userId?.trim();
+    const normalizedSessionId = sessionId?.trim();
     
     if (normalizedUserId && normalizedUserId !== 'anonymous' && !normalizedUserId.startsWith('session_')) {
       // Subscriber: Use user ID for cross-device consent
       stableIdentifier = `user:${normalizedUserId}`;
+    } else if (normalizedSessionId && normalizedSessionId.startsWith('session_')) {
+      // Free user with session: Use session ID as stable identifier (IP changes in load balancer)
+      stableIdentifier = `session:${normalizedSessionId}`;
     } else {
-      // Free user: Use device fingerprint for per-machine consent
+      // Fallback: Use device fingerprint for per-machine consent
       stableIdentifier = `device:${normalizedIp}:${normalizedUserAgent}`;
     }
     
@@ -123,7 +127,7 @@ class ConsentLogger {
 
       console.log(`Logging consent - IP: ${ip}, UA: ${userAgent?.substring(0, 20)}..., User: ${userId || 'none'}, Session: ${req.sessionId || 'none'}`);
 
-      const userPseudonym = this.createUserPseudonym(ip, userAgent, userId);
+      const userPseudonym = this.createUserPseudonym(ip, userAgent, userId, req.sessionId);
       const consentId = this.generateConsentId();
       const verificationToken = this.createVerificationToken(userPseudonym, timestamp);
 
@@ -229,10 +233,10 @@ class ConsentLogger {
    * Verify that a specific user has consented
    * This allows proving consent for a specific user/browser combination
    */
-  async verifyUserConsent(ip: string, userAgent: string, userId?: string): Promise<ConsentProof | null> {
+  async verifyUserConsent(ip: string, userAgent: string, userId?: string, sessionId?: string): Promise<ConsentProof | null> {
     try {
-      const userPseudonym = this.createUserPseudonym(ip, userAgent, userId);
-      console.log(`Verifying consent for pseudonym: ${userPseudonym} (IP: ${ip}, UA: ${userAgent?.substring(0, 20)}..., User: ${userId || 'none'})`);
+      const userPseudonym = this.createUserPseudonym(ip, userAgent, userId, sessionId);
+      console.log(`Verifying consent for pseudonym: ${userPseudonym} (IP: ${ip}, UA: ${userAgent?.substring(0, 20)}..., User: ${userId || 'none'}, Session: ${sessionId?.substring(0, 16) || 'none'})`);
       
       const cacheKey = `verify:${userPseudonym}`;
 
@@ -328,12 +332,12 @@ class ConsentLogger {
   /**
    * Revoke user consent by removing their consent record
    */
-  async revokeConsent(ip: string, userAgent: string, userId?: string): Promise<{
+  async revokeConsent(ip: string, userAgent: string, userId?: string, sessionId?: string): Promise<{
     success: boolean;
     message: string;
   }> {
     try {
-      const userPseudonym = this.createUserPseudonym(ip, userAgent, userId);
+      const userPseudonym = this.createUserPseudonym(ip, userAgent, userId, sessionId);
 
       // Clear cache for this user
       const cacheKey = `verify:${userPseudonym}`;

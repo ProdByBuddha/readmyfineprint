@@ -253,7 +253,8 @@ export async function requireConsent(req: Request, res: Response, next: NextFunc
     
     // Check for valid consent with user ID if available
     const userId = (req as any).user?.id;
-    const consentProof = await consentLogger.verifyUserConsent(ip, userAgent, userId);
+    const sessionId = (req as any).sessionId;
+    const consentProof = await consentLogger.verifyUserConsent(ip, userAgent, userId, sessionId);
     
     if (!consentProof) {
       securityLogger.logSecurityEvent(

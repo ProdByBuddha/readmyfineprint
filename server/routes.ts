@@ -521,7 +521,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       console.log(`Consent verification request - IP: ${ip}, UA: ${userAgent?.substring(0, 20)}..., User: ${userId || 'none'}, Session: ${req.sessionId || 'none'}`);
 
-      const proof = await consentLogger.verifyUserConsent(ip, userAgent, userId);
+      const proof = await consentLogger.verifyUserConsent(ip, userAgent, userId, req.sessionId);
       if (proof) {
         res.json({ hasConsented: true, proof });
       } else {
@@ -561,7 +561,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const userAgent = req.get('User-Agent') || 'unknown';
       const userId = req.user?.id; // Get user ID if authenticated
 
-      const result = await consentLogger.revokeConsent(ip, userAgent, userId);
+      console.log(`Consent revocation request - IP: ${ip}, UA: ${userAgent?.substring(0, 20)}..., User: ${userId || 'none'}, Session: ${req.sessionId || 'none'}`);
+
+      const result = await consentLogger.revokeConsent(ip, userAgent, userId, req.sessionId);
       res.json(result);
     } catch (error) {
       console.error("Error revoking consent:", error);

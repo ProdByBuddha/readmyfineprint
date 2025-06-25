@@ -114,16 +114,15 @@ SECURITY_EMAIL_FROM=your-email@provider.com
 - **Features**: User management, system health, security monitoring, analytics
 
 ## Recent Changes
-- **June 25, 2025**: Fixed session fragmentation causing consent state inconsistencies
-  - Identified critical session fragmentation issue where different components used different sessions
-  - Implemented session management system to force all components to use the same session ID
-  - Created sessionFetch wrapper to ensure consistent session headers across all API calls
-  - Added session ID tracking middleware on server to handle client-provided session IDs
-  - Enhanced consent debugging with session ID logging to track cross-component consistency
-  - Resolved post-refresh consent synchronization issues with persistent session storage
-  - Fixed the core issue where app appeared locked while cookie modal showed "Active" status
-  - All consent-related API calls now use the same session, eliminating state conflicts
-  - Consent system now maintains perfect synchronization across all components and refreshes
+- **June 25, 2025**: Fixed IP address inconsistency causing consent state conflicts
+  - Discovered load balancer was assigning different IP addresses to same session (10.82.9.80, 10.82.7.49, 10.82.10.124)
+  - This caused different pseudonyms for the same user session, leading to inconsistent consent verification
+  - Changed consent pseudonym generation to use session ID as stable identifier instead of changing IP
+  - Updated all consent methods (log, verify, revoke) to accept and use session ID parameter
+  - Enhanced debugging to track session ID, IP address, and pseudonym generation
+  - Fixed the root cause of different consent results for the same session/user
+  - Consent system now generates consistent pseudonyms regardless of IP address changes
+  - All components now share truly synchronized consent state across the entire session
 
 - **June 24, 2025**: Consent enforcement and PostgreSQL conversion with sample contract exemption
   - Converted consent logging system from Replit key-value store to PostgreSQL
