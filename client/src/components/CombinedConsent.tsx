@@ -8,8 +8,8 @@ interface CombinedConsentProps {
   onAccept: () => void;
 }
 
-// Cache consent status to prevent excessive API calls
-let consentCache: { status: boolean; timestamp: number } | null = null;
+// Global consent state to ensure all components are synchronized
+let globalConsentState: { status: boolean; timestamp: number; sessionId?: string } | null = null;
 const CACHE_DURATION = 30000; // 30 seconds cache
 
 // Track recent consent acceptance to prevent banner flash
@@ -23,10 +23,10 @@ export function useCombinedConsent() {
   const [forceUpdate, setForceUpdate] = useState(0);
 
   const checkConsent = useCallback(async () => {
-    // Check cache first to prevent excessive API calls
+    // Check global cache first to prevent excessive API calls
     const now = Date.now();
-    if (consentCache && (now - consentCache.timestamp) < CACHE_DURATION) {
-      setIsAccepted(consentCache.status);
+    if (globalConsentState && (now - globalConsentState.timestamp) < CACHE_DURATION) {
+      setIsAccepted(globalConsentState.status);
       setIsCheckingConsent(false);
       return;
     }
@@ -49,8 +49,8 @@ export function useCombinedConsent() {
         
         console.log('Consent check result:', { hasConsented, proof: !!result.proof, sessionResult: result });
         
-        // Update cache and state
-        consentCache = { status: hasConsented, timestamp: now };
+        // Update global state and local state
+        globalConsentState = { status: hasConsented, timestamp: now };
         setIsAccepted(hasConsented);
 
         // Force update to ensure all components sync
@@ -58,12 +58,13 @@ export function useCombinedConsent() {
       } else {
         console.warn('Consent check failed with status:', response.status);
         // Cache negative result briefly to prevent spam
-        consentCache = { status: false, timestamp: now };
+        globalConsentState = { status: false, timestamp: now };
         setIsAccepted(false);
       }
     } catch (error) {
       console.warn('Failed to verify consent with database:', error);
-      // Don't cache errors, but assume no consent to be safe
+      // Clear global cache and assume no consent to be safe
+      globalConsentState = null;
       setIsAccepted(false);
     } finally {
       setIsCheckingConsent(false);
@@ -73,9 +74,9 @@ export function useCombinedConsent() {
   useEffect(() => {
     // Check consent on initial mount and whenever the component mounts
     const initialCheck = async () => {
-      // Clear any stale cache on fresh mount to ensure fresh state
-      consentCache = null;
-      console.log('Initial consent check - clearing cache and checking fresh state');
+      // Clear any stale global cache on fresh mount to ensure fresh state
+      globalConsentState = null;
+      console.log('Initial consent check - clearing global cache and checking fresh state');
       await checkConsent();
     };
     initialCheck();
@@ -84,8 +85,8 @@ export function useCombinedConsent() {
     let debounceTimer: NodeJS.Timeout;
     
     const handleConsentChange = () => {
-      // Clear cache when consent changes
-      consentCache = null;
+      // Clear global cache when consent changes
+      globalConsentState = null;
       
       // Debounce multiple consent change events
       clearTimeout(debounceTimer);
@@ -96,8 +97,8 @@ export function useCombinedConsent() {
     };
 
     const handleConsentRevoked = () => {
-      // Clear cache and update state immediately
-      consentCache = null; // Clear cache entirely when revoked
+      // Clear global cache and update state immediately
+      globalConsentState = null; // Clear cache entirely when revoked
       setIsAccepted(false);
       setIsCheckingConsent(false);
       console.log('Consent revoked - enabling gray mode');
@@ -139,8 +140,8 @@ export function useCombinedConsent() {
         return;
       }
 
-      // Update cache and state immediately
-      consentCache = { status: true, timestamp: Date.now() };
+      // Update global state and local state immediately
+      globalConsentState = { status: true, timestamp: Date.now() };
       setIsAccepted(true);
       setIsCheckingConsent(false);
 
@@ -185,8 +186,8 @@ export function useCombinedConsent() {
         console.warn('Failed to revoke consent in database:', result.message);
       }
 
-      // Clear cache and update state immediately
-      consentCache = null; // Clear cache entirely when revoked
+      // Clear global cache and update state immediately
+      globalConsentState = null; // Clear cache entirely when revoked
       setIsAccepted(false);
       setIsCheckingConsent(false);
 
@@ -202,8 +203,8 @@ export function useCombinedConsent() {
 
     } catch (error) {
       console.warn('Failed to revoke consent from database:', error);
-      // Still clear cache and update state even if revocation failed
-      consentCache = null; // Clear cache entirely when revoked
+      // Still clear global cache and update state even if revocation failed
+      globalConsentState = null; // Clear cache entirely when revoked
       setIsAccepted(false);
       setIsCheckingConsent(false);
 
