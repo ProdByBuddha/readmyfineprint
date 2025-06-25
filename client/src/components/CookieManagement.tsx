@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Cookie, Shield, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogTrigger } from "@/components/ui/dialog";
@@ -13,14 +13,47 @@ interface CookieManagementProps {
 export function CookieManagement({ trigger, className }: CookieManagementProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [isAccepting, setIsAccepting] = useState(false);
+  const [isRevoking, setIsRevoking] = useState(false);
   const { isAccepted, isCheckingConsent, revokeConsent, acceptAll } = useCombinedConsent();
 
-  // No need for separate state management - use main consent state
+  // Reset loading states when consent state changes
+  useEffect(() => {
+    setIsAccepting(false);
+    setIsRevoking(false);
+  }, [isAccepted]);
+
+  // Listen for consent changes to reset states
+  useEffect(() => {
+    const handleConsentChange = () => {
+      setIsAccepting(false);
+      setIsRevoking(false);
+    };
+
+    const handleConsentRevoked = () => {
+      setIsRevoking(false);
+      setIsAccepting(false);
+    };
+
+    window.addEventListener('consentChanged', handleConsentChange);
+    window.addEventListener('consentRevoked', handleConsentRevoked);
+
+    return () => {
+      window.removeEventListener('consentChanged', handleConsentChange);
+      window.removeEventListener('consentRevoked', handleConsentRevoked);
+    };
+  }, []);
 
   const handleRevokeAll = async () => {
-    await revokeConsent();
-    // Close modal after a brief delay to show success state
-    setTimeout(() => setIsOpen(false), 500);
+    setIsRevoking(true);
+    try {
+      await revokeConsent();
+      // Close modal after a brief delay to show success state
+      setTimeout(() => setIsOpen(false), 500);
+    } catch (error) {
+      console.warn('Failed to revoke consent:', error);
+    } finally {
+      setIsRevoking(false);
+    }
   };
 
   const handleAcceptConsent = async () => {
@@ -117,10 +150,18 @@ export function CookieManagement({ trigger, className }: CookieManagementProps) 
             {!isCheckingConsent && isAccepted ? (
               <Button
                 onClick={handleRevokeAll}
+                disabled={isRevoking}
                 variant="outline"
                 className="w-full text-red-600 border-red-200 hover:bg-red-50 dark:text-red-400 dark:border-red-800 dark:hover:bg-red-950/30"
               >
-                Revoke All Consents
+                {isRevoking ? (
+                  <>
+                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                    Revoking...
+                  </>
+                ) : (
+                  'Revoke All Consents'
+                )}
               </Button>
             ) : !isCheckingConsent ? (
               <Button
@@ -133,13 +174,19 @@ export function CookieManagement({ trigger, className }: CookieManagementProps) 
                     <Loader2 className="w-4 h-4 mr-2 animate-spin" />
                     Accepting...
                   </>
-                ) : isAccepted ? (
-                  'Consent Accepted ✓'
                 ) : (
                   'Accept All Consents'
                 )}
               </Button>
-            ) : null}
+            ) : (
+              <Button
+                disabled
+                className="w-full bg-gray-200 dark:bg-gray-700 text-gray-500 cursor-not-allowed"
+              >
+                <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                Checking Status...
+              </Button>
+            )}
 
             <div className="flex gap-2 text-xs">
               <Link
