@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Cookie, Shield, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogTrigger } from "@/components/ui/dialog";
 import { useCombinedConsent } from "@/components/CombinedConsent";
 import { Link } from "wouter";
 
@@ -54,6 +54,9 @@ export function CookieManagement({ trigger, className }: CookieManagementProps) 
             <Shield className="w-5 h-5 text-primary" />
             Cookie Management
           </DialogTitle>
+          <DialogDescription className="text-sm text-gray-600 dark:text-gray-400">
+            Manage your privacy preferences and cookie settings
+          </DialogDescription>
         </DialogHeader>
 
         <div className="space-y-4">

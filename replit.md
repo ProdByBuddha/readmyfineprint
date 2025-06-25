@@ -114,6 +114,15 @@ SECURITY_EMAIL_FROM=your-email@provider.com
 - **Features**: User management, system health, security monitoring, analytics
 
 ## Recent Changes
+- **June 25, 2025**: Fixed consent mechanism rate limiting and stuck checking state
+  - Resolved excessive rate limiting issues by implementing separate consent-specific rate limiter (200 req/min vs 100 req/min)
+  - Added server-side caching in ConsentLogger class with 30-second cache duration to prevent redundant database queries
+  - Implemented client-side consent state caching to reduce API calls and prevent checking loops
+  - Fixed DialogContent accessibility warnings by adding missing DialogDescription components
+  - Resolved consent checking state getting stuck by removing dependency loops in useCallback
+  - Enhanced consent event handling with proper debouncing and cache invalidation
+  - Consent system now performs optimally without causing rate limit violations
+
 - **June 24, 2025**: Consent enforcement and PostgreSQL conversion with sample contract exemption
   - Converted consent logging system from Replit key-value store to PostgreSQL
   - Added consent_records table with proper schema and indexing

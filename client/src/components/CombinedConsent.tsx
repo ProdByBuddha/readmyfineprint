@@ -18,8 +18,6 @@ export function useCombinedConsent() {
   const [isCheckingConsent, setIsCheckingConsent] = useState(true);
 
   const checkConsent = useCallback(async () => {
-    if (isCheckingConsent) return; // Prevent multiple simultaneous checks
-    
     // Check cache first to prevent excessive API calls
     const now = Date.now();
     if (consentCache && (now - consentCache.timestamp) < CACHE_DURATION) {
@@ -28,6 +26,7 @@ export function useCombinedConsent() {
       return;
     }
     
+    // Set checking state
     setIsCheckingConsent(true);
     
     try {
@@ -53,16 +52,19 @@ export function useCombinedConsent() {
       }
     } catch (error) {
       console.warn('Failed to verify consent with database:', error);
-      // Don't cache errors, but don't spam either
+      // Don't cache errors, but assume no consent to be safe
       setIsAccepted(false);
     } finally {
       setIsCheckingConsent(false);
     }
-  }, [isCheckingConsent]);
+  }, []);
 
   useEffect(() => {
     // Only check consent on initial mount
-    checkConsent();
+    const initialCheck = async () => {
+      await checkConsent();
+    };
+    initialCheck();
 
     // Create event handlers with debouncing
     let debounceTimer: NodeJS.Timeout;
@@ -73,7 +75,9 @@ export function useCombinedConsent() {
       
       // Debounce multiple consent change events
       clearTimeout(debounceTimer);
-      debounceTimer = setTimeout(() => checkConsent(), 200);
+      debounceTimer = setTimeout(() => {
+        checkConsent();
+      }, 200);
     };
 
     const handleConsentRevoked = () => {
@@ -93,7 +97,7 @@ export function useCombinedConsent() {
       window.removeEventListener('consentChanged', handleConsentChange);
       window.removeEventListener('consentRevoked', handleConsentRevoked);
     };
-  }, [checkConsent]);
+  }, []);
 
   const acceptAll = async () => {
     if (isCheckingConsent) return; // Prevent multiple simultaneous accepts
