@@ -499,6 +499,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
     // Log consent acceptance
   app.post("/api/consent", optionalUserAuth, async (req: any, res) => {
     try {
+      const ip = req.ip || req.connection.remoteAddress || 'unknown';
+      const userAgent = req.get('User-Agent') || 'unknown';
+      const userId = req.user?.id; // Get user ID if authenticated
+
+      console.log(`Consent logging request - IP: ${ip}, UA: ${userAgent?.substring(0, 20)}..., User: ${userId || 'none'}, Session: ${req.sessionId || 'none'}`);
+
       const result = await consentLogger.logConsent(req);
       res.json(result);
     } catch (error) {
@@ -557,7 +563,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Revoke consent (removes from database)
   app.post("/api/consent/revoke", optionalUserAuth, async (req: any, res) => {
     try {
-      const ip = req.ip || req.socket.remoteAddress || 'unknown';
+      const ip = req.ip || req.connection.remoteAddress || 'unknown';
       const userAgent = req.get('User-Agent') || 'unknown';
       const userId = req.user?.id; // Get user ID if authenticated
 

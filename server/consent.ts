@@ -62,8 +62,9 @@ class ConsentLogger {
     if (normalizedUserId && normalizedUserId !== 'anonymous' && !normalizedUserId.startsWith('session_')) {
       // Subscriber: Use user ID for cross-device consent
       stableIdentifier = `user:${normalizedUserId}`;
-    } else if (normalizedSessionId && normalizedSessionId.startsWith('session_')) {
+    } else if (normalizedSessionId && (normalizedSessionId.startsWith('session_') || normalizedSessionId.length > 10)) {
       // Free user with session: Use session ID as stable identifier (IP changes in load balancer)
+      // Accept both client sessions (session_xxx) and server sessions (long hex strings)
       stableIdentifier = `session:${normalizedSessionId}`;
     } else {
       // Fallback: Use device fingerprint for per-machine consent
