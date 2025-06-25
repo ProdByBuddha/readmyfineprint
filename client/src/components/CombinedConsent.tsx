@@ -12,6 +12,10 @@ interface CombinedConsentProps {
 let consentCache: { status: boolean; timestamp: number } | null = null;
 const CACHE_DURATION = 30000; // 30 seconds cache
 
+// Track recent consent acceptance to prevent banner flash
+let recentlyAccepted = false;
+let acceptanceTimer: NodeJS.Timeout | null = null;
+
 // Combined hook for managing both legal and cookie consent
 export function useCombinedConsent() {
   const [isAccepted, setIsAccepted] = useState(false);
@@ -82,7 +86,7 @@ export function useCombinedConsent() {
 
     const handleConsentRevoked = () => {
       // Clear cache and update state immediately
-      consentCache = { status: false, timestamp: Date.now() };
+      consentCache = null; // Clear cache entirely when revoked
       setIsAccepted(false);
       setIsCheckingConsent(false);
       console.log('Consent revoked - enabling gray mode');
@@ -116,12 +120,19 @@ export function useCombinedConsent() {
         return;
       }
 
-      // Update cache and state
+      // Update cache and state immediately
       consentCache = { status: true, timestamp: Date.now() };
       setIsAccepted(true);
       setIsCheckingConsent(false);
 
-      // Dispatch custom event to notify other components
+      // Mark as recently accepted to prevent banner flash
+      recentlyAccepted = true;
+      if (acceptanceTimer) clearTimeout(acceptanceTimer);
+      acceptanceTimer = setTimeout(() => {
+        recentlyAccepted = false;
+      }, 1000); // Prevent banner for 1 second after acceptance
+
+      // Dispatch custom event to notify other components immediately
       window.dispatchEvent(new CustomEvent('consentChanged'));
 
     } catch (error) {
@@ -152,10 +163,14 @@ export function useCombinedConsent() {
         console.warn('Failed to revoke consent in database:', result.message);
       }
 
-      // Update cache and state immediately
-      consentCache = { status: false, timestamp: Date.now() };
+      // Clear cache and update state immediately
+      consentCache = null; // Clear cache entirely when revoked
       setIsAccepted(false);
       setIsCheckingConsent(false);
+
+      // Clear recent acceptance flag when revoking
+      recentlyAccepted = false;
+      if (acceptanceTimer) clearTimeout(acceptanceTimer);
 
       // Dispatch custom event to notify other components
       window.dispatchEvent(new CustomEvent('consentRevoked'));
@@ -167,10 +182,15 @@ export function useCombinedConsent() {
 
     } catch (error) {
       console.warn('Failed to revoke consent from database:', error);
-      // Still update cache and state even if revocation failed
-      consentCache = { status: false, timestamp: Date.now() };
+      // Still clear cache and update state even if revocation failed
+      consentCache = null; // Clear cache entirely when revoked
       setIsAccepted(false);
       setIsCheckingConsent(false);
+
+      // Clear recent acceptance flag when revoking
+      recentlyAccepted = false;
+      if (acceptanceTimer) clearTimeout(acceptanceTimer);
+
       window.dispatchEvent(new CustomEvent('consentRevoked'));
       setTimeout(() => {
         window.dispatchEvent(new CustomEvent('consentChanged'));
@@ -283,8 +303,8 @@ export function CombinedConsent({ onAccept }: CombinedConsentProps) {
 export function CookieConsent() {
   const { isAccepted, acceptAll, isCheckingConsent } = useCombinedConsent();
 
-  // Don't show banner if already accepted or still checking
-  if (isAccepted || isCheckingConsent) {
+  // Don't show banner if already accepted, still checking, or recently accepted
+  if (isAccepted || isCheckingConsent || recentlyAccepted) {
     return null;
   }
 
