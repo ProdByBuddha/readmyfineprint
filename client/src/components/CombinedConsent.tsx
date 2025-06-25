@@ -253,7 +253,7 @@ export function CombinedConsent({ onAccept }: CombinedConsentProps) {
       const sessionId = getGlobalSessionId();
       console.log(`Logging consent with session: ${sessionId.substring(0, 16)}...`);
       
-      // Log consent to database using session fetch
+      // Log consent to database using session fetch with client session ID
       const response = await sessionFetch('/api/consent', {
         method: 'POST',
         headers: {
