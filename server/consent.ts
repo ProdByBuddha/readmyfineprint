@@ -23,10 +23,26 @@ interface ConsentProof {
 
 class ConsentLogger {
   private masterKey: string;
+  private consentCache = new Map<string, { result: any; timestamp: number }>();
+  private readonly CACHE_DURATION = 30000; // 30 seconds cache
 
   constructor() {
     this.masterKey = process.env.CONSENT_MASTER_KEY || 'readmyfineprint-master-2024';
     console.log('✓ Consent logging enabled with PostgreSQL database');
+    
+    // Clean cache every 5 minutes
+    setInterval(() => {
+      this.cleanCache();
+    }, 5 * 60 * 1000);
+  }
+
+  private cleanCache(): void {
+    const now = Date.now();
+    for (const [key, entry] of this.consentCache.entries()) {
+      if (now - entry.timestamp > this.CACHE_DURATION) {
+        this.consentCache.delete(key);
+      }
+    }
   }
 
   /**
@@ -135,6 +151,10 @@ class ConsentLogger {
         verificationToken
       });
 
+      // Clear cache for this user since consent status changed
+      const cacheKey = `verify:${userPseudonym}`;
+      this.consentCache.delete(cacheKey);
+
       console.log(`Consent logged - ID: ${consentId}, Pseudonym: ${userPseudonym}`);
 
       return {
@@ -202,6 +222,14 @@ class ConsentLogger {
   async verifyUserConsent(ip: string, userAgent: string, userId?: string): Promise<ConsentProof | null> {
     try {
       const userPseudonym = this.createUserPseudonym(ip, userAgent, userId);
+      const cacheKey = `verify:${userPseudonym}`;
+
+      // Check cache first
+      const cached = this.consentCache.get(cacheKey);
+      const now = Date.now();
+      if (cached && (now - cached.timestamp) < this.CACHE_DURATION) {
+        return cached.result;
+      }
 
       // Find the latest consent record for this user
       const consentRecord = await db
@@ -211,24 +239,30 @@ class ConsentLogger {
         .orderBy(desc(consentRecords.createdAt))
         .limit(1);
 
-      if (!consentRecord.length) return null;
+      let result: ConsentProof | null = null;
 
-      const record = consentRecord[0];
-      const timestamp = record.createdAt.toISOString();
+      if (consentRecord.length > 0) {
+        const record = consentRecord[0];
+        const timestamp = record.createdAt.toISOString();
 
-      // Create verification signature
-      const verificationSignature = crypto
-        .createHmac('sha256', this.masterKey)
-        .update(`${record.userPseudonym}:${timestamp}:${record.termsVersion}`)
-        .digest('hex');
+        // Create verification signature
+        const verificationSignature = crypto
+          .createHmac('sha256', this.masterKey)
+          .update(`${record.userPseudonym}:${timestamp}:${record.termsVersion}`)
+          .digest('hex');
 
-      return {
-        user_pseudonym: record.userPseudonym,
-        timestamp,
-        terms_version: record.termsVersion,
-        consent_id: record.consentId,
-        verification_signature: verificationSignature
-      };
+        result = {
+          user_pseudonym: record.userPseudonym,
+          timestamp,
+          terms_version: record.termsVersion,
+          consent_id: record.consentId,
+          verification_signature: verificationSignature
+        };
+      }
+
+      // Cache the result
+      this.consentCache.set(cacheKey, { result, timestamp: now });
+      return result;
 
     } catch (error) {
       console.error('Error verifying user consent:', error);
@@ -286,6 +320,10 @@ class ConsentLogger {
   }> {
     try {
       const userPseudonym = this.createUserPseudonym(ip, userAgent, userId);
+
+      // Clear cache for this user
+      const cacheKey = `verify:${userPseudonym}`;
+      this.consentCache.delete(cacheKey);
 
       // Delete all consent records for this user
       const deletedRecords = await db
