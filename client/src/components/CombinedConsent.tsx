@@ -20,6 +20,7 @@ let acceptanceTimer: NodeJS.Timeout | null = null;
 export function useCombinedConsent() {
   const [isAccepted, setIsAccepted] = useState(false);
   const [isCheckingConsent, setIsCheckingConsent] = useState(true);
+  const [forceUpdate, setForceUpdate] = useState(0);
 
   const checkConsent = useCallback(async () => {
     // Check cache first to prevent excessive API calls
@@ -81,7 +82,7 @@ export function useCombinedConsent() {
       clearTimeout(debounceTimer);
       debounceTimer = setTimeout(() => {
         checkConsent();
-      }, 200);
+      }, 100); // Reduced delay for faster updates
     };
 
     const handleConsentRevoked = () => {
@@ -90,6 +91,13 @@ export function useCombinedConsent() {
       setIsAccepted(false);
       setIsCheckingConsent(false);
       console.log('Consent revoked - enabling gray mode');
+      
+      // Force immediate re-check to ensure all components are synchronized
+      setTimeout(() => {
+        checkConsent();
+        // Force re-render of all components using this hook
+        setForceUpdate(prev => prev + 1);
+      }, 100);
     };
 
     // Listen for custom consent events only
@@ -172,13 +180,9 @@ export function useCombinedConsent() {
       recentlyAccepted = false;
       if (acceptanceTimer) clearTimeout(acceptanceTimer);
 
-      // Dispatch custom event to notify other components
+      // Dispatch custom event to notify other components immediately
       window.dispatchEvent(new CustomEvent('consentRevoked'));
-      
-      // Wait a bit before dispatching the change event to prevent race conditions
-      setTimeout(() => {
-        window.dispatchEvent(new CustomEvent('consentChanged'));
-      }, 50);
+      window.dispatchEvent(new CustomEvent('consentChanged'));
 
     } catch (error) {
       console.warn('Failed to revoke consent from database:', error);
@@ -192,9 +196,7 @@ export function useCombinedConsent() {
       if (acceptanceTimer) clearTimeout(acceptanceTimer);
 
       window.dispatchEvent(new CustomEvent('consentRevoked'));
-      setTimeout(() => {
-        window.dispatchEvent(new CustomEvent('consentChanged'));
-      }, 50);
+      window.dispatchEvent(new CustomEvent('consentChanged'));
     }
   };
 

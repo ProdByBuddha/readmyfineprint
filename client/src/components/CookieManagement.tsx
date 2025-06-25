@@ -22,16 +22,20 @@ export function CookieManagement({ trigger, className }: CookieManagementProps) 
     setIsRevoking(false);
   }, [isAccepted]);
 
-  // Listen for consent changes to reset states
+  // Listen for consent changes to reset states and trigger re-renders
   useEffect(() => {
     const handleConsentChange = () => {
       setIsAccepting(false);
       setIsRevoking(false);
+      // Force a re-render by toggling a state
+      setIsOpen(prev => prev);
     };
 
     const handleConsentRevoked = () => {
       setIsRevoking(false);
       setIsAccepting(false);
+      // Force a re-render
+      setIsOpen(prev => prev);
     };
 
     window.addEventListener('consentChanged', handleConsentChange);
