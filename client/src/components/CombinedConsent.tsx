@@ -43,9 +43,14 @@ export function useCombinedConsent() {
   useEffect(() => {
     checkConsent();
 
-    // Create event handler
+    // Create event handlers
     const handleConsentChange = () => {
       checkConsent();
+    };
+
+    const handleConsentRevoked = () => {
+      setIsAccepted(false);
+      setIsCheckingConsent(false);
     };
 
     // Listen for storage changes from other components
@@ -53,17 +58,18 @@ export function useCombinedConsent() {
 
     // Listen for custom consent events
     window.addEventListener('consentChanged', handleConsentChange);
+    window.addEventListener('consentRevoked', handleConsentRevoked);
 
     return () => {
       window.removeEventListener('storage', handleConsentChange);
       window.removeEventListener('consentChanged', handleConsentChange);
+      window.removeEventListener('consentRevoked', handleConsentRevoked);
     };
   }, [checkConsent]);
 
   const acceptAll = async () => {
-    // Immediately set accepted to prevent multiple clicks
-    setIsAccepted(true);
-    setIsCheckingConsent(false);
+    // Set loading state
+    setIsCheckingConsent(true);
     
     try {
       // Log consent to database only
@@ -73,8 +79,13 @@ export function useCombinedConsent() {
         console.warn('Consent logging warning:', result.message);
         // Reset state if logging failed
         setIsAccepted(false);
+        setIsCheckingConsent(false);
         return;
       }
+
+      // Set accepted state and stop checking
+      setIsAccepted(true);
+      setIsCheckingConsent(false);
 
       // Dispatch custom event to notify other components
       window.dispatchEvent(new CustomEvent('consentChanged'));
@@ -83,14 +94,14 @@ export function useCombinedConsent() {
       console.warn('Consent logging failed:', error);
       // Reset state if logging failed
       setIsAccepted(false);
+      setIsCheckingConsent(false);
       return;
     }
   };
 
   const revokeConsent = async () => {
-    // Set consent state to revoked immediately
-    setIsAccepted(false);
-    setIsCheckingConsent(false);
+    // Set loading state
+    setIsCheckingConsent(true);
     
     // Revoke consent in the database
     try {
@@ -107,13 +118,19 @@ export function useCombinedConsent() {
         console.warn('Failed to revoke consent in database:', result.message);
       }
 
+      // Set revoked state and stop checking
+      setIsAccepted(false);
+      setIsCheckingConsent(false);
+
       // Dispatch custom event to notify other components
       window.dispatchEvent(new CustomEvent('consentRevoked'));
       window.dispatchEvent(new CustomEvent('consentChanged'));
 
     } catch (error) {
       console.warn('Failed to revoke consent from database:', error);
-      // Still dispatch events even if revocation failed
+      // Still set revoked state and dispatch events even if revocation failed
+      setIsAccepted(false);
+      setIsCheckingConsent(false);
       window.dispatchEvent(new CustomEvent('consentRevoked'));
       window.dispatchEvent(new CustomEvent('consentChanged'));
     }
@@ -133,8 +150,7 @@ export function CombinedConsent({ onAccept }: CombinedConsentProps) {
   const [isLogging, setIsLogging] = useState(false);
 
   const handleAccept = async () => {
-    // Immediately close modal to prevent multiple clicks
-    setIsOpen(false);
+    // Set logging state but keep modal open
     setIsLogging(true);
 
     try {
@@ -143,19 +159,20 @@ export function CombinedConsent({ onAccept }: CombinedConsentProps) {
 
       if (!result.success) {
         console.warn('Consent logging failed:', result.message);
-        // Reopen modal if logging failed
-        setIsOpen(true);
+        setIsLogging(false);
         return;
       }
 
+      // Close modal and call onAccept
+      setIsOpen(false);
+      onAccept();
+
     } catch (error) {
       console.warn('Consent logging failed:', error);
-      // Reopen modal if logging failed
-      setIsOpen(true);
+      setIsLogging(false);
       return;
     } finally {
       setIsLogging(false);
-      onAccept();
     }
   };
 
