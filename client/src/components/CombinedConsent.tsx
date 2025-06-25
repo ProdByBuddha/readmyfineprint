@@ -140,6 +140,9 @@ export function useCombinedConsent() {
         recentlyAccepted = false;
       }, 1000); // Prevent banner for 1 second after acceptance
 
+      // Force update for components using this hook
+      setForceUpdate(prev => prev + 1);
+
       // Dispatch custom event to notify other components immediately
       window.dispatchEvent(new CustomEvent('consentChanged'));
 
@@ -179,6 +182,9 @@ export function useCombinedConsent() {
       // Clear recent acceptance flag when revoking
       recentlyAccepted = false;
       if (acceptanceTimer) clearTimeout(acceptanceTimer);
+
+      // Force update for components using this hook
+      setForceUpdate(prev => prev + 1);
 
       // Dispatch custom event to notify other components immediately
       window.dispatchEvent(new CustomEvent('consentRevoked'));

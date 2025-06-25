@@ -15,27 +15,32 @@ export function CookieManagement({ trigger, className }: CookieManagementProps) 
   const [isAccepting, setIsAccepting] = useState(false);
   const [isRevoking, setIsRevoking] = useState(false);
   const { isAccepted, isCheckingConsent, revokeConsent, acceptAll, forceUpdate } = useCombinedConsent();
+  const [localIsAccepted, setLocalIsAccepted] = useState(isAccepted);
 
-  // Reset loading states when consent state changes
+  // Sync local state with the hook state immediately
   useEffect(() => {
+    setLocalIsAccepted(isAccepted);
     setIsAccepting(false);
     setIsRevoking(false);
-  }, [isAccepted]);
+    console.log('Cookie modal syncing - isAccepted:', isAccepted, 'forceUpdate:', forceUpdate);
+  }, [isAccepted, forceUpdate]);
 
   // Listen for consent changes to reset states and trigger re-renders
   useEffect(() => {
     const handleConsentChange = () => {
       setIsAccepting(false);
       setIsRevoking(false);
-      // Force a re-render using forceUpdate
-      console.log('Consent changed - modal updating');
+      // Update local state immediately
+      setLocalIsAccepted(isAccepted);
+      console.log('Consent changed - modal updating, isAccepted:', isAccepted);
     };
 
     const handleConsentRevoked = () => {
       setIsRevoking(false);
       setIsAccepting(false);
-      // Force a re-render using forceUpdate
-      console.log('Consent revoked - modal updating');
+      // Update local state immediately
+      setLocalIsAccepted(false);
+      console.log('Consent revoked - modal updating, isAccepted:', isAccepted);
     };
 
     window.addEventListener('consentChanged', handleConsentChange);
@@ -101,17 +106,17 @@ export function CookieManagement({ trigger, className }: CookieManagementProps) 
             <h4 className="font-medium text-sm mb-2 text-gray-900 dark:text-gray-100">Current Status</h4>
             <div className="flex items-center justify-between">
               <span className="text-sm text-gray-600 dark:text-gray-400">
-                {isCheckingConsent ? "Checking status..." : `All consents: ${isAccepted ? "Accepted" : "Not accepted"}`}
+                {isCheckingConsent ? "Checking status..." : `All consents: ${localIsAccepted ? "Accepted" : "Not accepted"}`}
               </span>
               <div className={`px-2 py-1 rounded text-xs font-medium flex items-center gap-1 ${
                 isCheckingConsent 
                   ? "bg-gray-100 text-gray-600 dark:bg-gray-700 dark:text-gray-400"
-                  : isAccepted
+                  : localIsAccepted
                   ? "bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400"
                   : "bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-400"
               }`}>
                 {isCheckingConsent && <Loader2 className="w-3 h-3 animate-spin" />}
-                {isCheckingConsent ? "Checking" : isAccepted ? "Active" : "Inactive"}
+                {isCheckingConsent ? "Checking" : localIsAccepted ? "Active" : "Inactive"}
               </div>
             </div>
           </div>
@@ -151,7 +156,7 @@ export function CookieManagement({ trigger, className }: CookieManagementProps) 
           </div>
 
           <div className="flex flex-col gap-2 pt-2">
-            {!isCheckingConsent && isAccepted ? (
+            {!isCheckingConsent && localIsAccepted ? (
               <Button
                 onClick={handleRevokeAll}
                 disabled={isRevoking}
