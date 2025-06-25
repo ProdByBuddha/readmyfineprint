@@ -53,19 +53,27 @@ class ConsentLogger {
   private createUserPseudonym(ip: string, userAgent: string, userId?: string): string {
     let stableIdentifier: string;
     
-    if (userId && userId !== 'anonymous' && !userId.startsWith('session_')) {
+    // Normalize inputs to ensure consistency
+    const normalizedIp = (ip || 'unknown').trim();
+    const normalizedUserAgent = (userAgent || 'unknown').trim();
+    const normalizedUserId = userId?.trim();
+    
+    if (normalizedUserId && normalizedUserId !== 'anonymous' && !normalizedUserId.startsWith('session_')) {
       // Subscriber: Use user ID for cross-device consent
-      stableIdentifier = `user:${userId}`;
+      stableIdentifier = `user:${normalizedUserId}`;
     } else {
       // Free user: Use device fingerprint for per-machine consent
-      stableIdentifier = `device:${ip}:${userAgent}`;
+      stableIdentifier = `device:${normalizedIp}:${normalizedUserAgent}`;
     }
     
-    return crypto
+    const pseudonym = crypto
       .createHmac('sha256', this.masterKey)
       .update(stableIdentifier)
       .digest('hex')
       .substring(0, 24); // Use first 24 chars as pseudonym
+      
+    console.log(`Generated pseudonym ${pseudonym} from identifier: ${stableIdentifier.substring(0, 50)}...`);
+    return pseudonym;
   }
 
   /**
@@ -112,6 +120,8 @@ class ConsentLogger {
       const ip = req.ip || req.connection.remoteAddress || 'unknown';
       const userAgent = req.get('User-Agent') || 'unknown';
       const userId = req.user?.id; // Get user ID if authenticated
+
+      console.log(`Logging consent - IP: ${ip}, UA: ${userAgent?.substring(0, 20)}..., User: ${userId || 'none'}, Session: ${req.sessionId || 'none'}`);
 
       const userPseudonym = this.createUserPseudonym(ip, userAgent, userId);
       const consentId = this.generateConsentId();
@@ -222,12 +232,15 @@ class ConsentLogger {
   async verifyUserConsent(ip: string, userAgent: string, userId?: string): Promise<ConsentProof | null> {
     try {
       const userPseudonym = this.createUserPseudonym(ip, userAgent, userId);
+      console.log(`Verifying consent for pseudonym: ${userPseudonym} (IP: ${ip}, UA: ${userAgent?.substring(0, 20)}..., User: ${userId || 'none'})`);
+      
       const cacheKey = `verify:${userPseudonym}`;
 
       // Check cache first
       const cached = this.consentCache.get(cacheKey);
       const now = Date.now();
       if (cached && (now - cached.timestamp) < this.CACHE_DURATION) {
+        console.log(`Using cached consent result for ${userPseudonym}: ${!!cached.result}`);
         return cached.result;
       }
 
@@ -262,6 +275,7 @@ class ConsentLogger {
 
       // Cache the result
       this.consentCache.set(cacheKey, { result, timestamp: now });
+      console.log(`Consent verification result for ${userPseudonym}: ${!!result} ${result ? `(ID: ${result.consent_id})` : ''}`);
       return result;
 
     } catch (error) {

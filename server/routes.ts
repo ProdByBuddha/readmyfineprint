@@ -514,9 +514,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Verify user consent (for proving specific user consent)
   app.post("/api/consent/verify", optionalUserAuth, async (req: any, res) => {
     try {
-      const ip = req.ip || req.socket.remoteAddress || 'unknown';
+      // Use consistent IP/UA extraction method as in logConsent
+      const ip = req.ip || req.connection.remoteAddress || 'unknown';
       const userAgent = req.get('User-Agent') || 'unknown';
       const userId = req.user?.id; // Get user ID if authenticated
+
+      console.log(`Consent verification request - IP: ${ip}, UA: ${userAgent?.substring(0, 20)}..., User: ${userId || 'none'}, Session: ${req.sessionId || 'none'}`);
 
       const proof = await consentLogger.verifyUserConsent(ip, userAgent, userId);
       if (proof) {
