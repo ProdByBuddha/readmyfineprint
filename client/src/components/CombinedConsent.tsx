@@ -205,6 +205,7 @@ export function useCombinedConsent() {
     isCheckingConsent,
     acceptAll,
     revokeConsent,
+    forceUpdate
   };
 }
 

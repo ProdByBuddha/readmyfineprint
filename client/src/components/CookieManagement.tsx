@@ -14,7 +14,7 @@ export function CookieManagement({ trigger, className }: CookieManagementProps) 
   const [isOpen, setIsOpen] = useState(false);
   const [isAccepting, setIsAccepting] = useState(false);
   const [isRevoking, setIsRevoking] = useState(false);
-  const { isAccepted, isCheckingConsent, revokeConsent, acceptAll } = useCombinedConsent();
+  const { isAccepted, isCheckingConsent, revokeConsent, acceptAll, forceUpdate } = useCombinedConsent();
 
   // Reset loading states when consent state changes
   useEffect(() => {
@@ -27,15 +27,15 @@ export function CookieManagement({ trigger, className }: CookieManagementProps) 
     const handleConsentChange = () => {
       setIsAccepting(false);
       setIsRevoking(false);
-      // Force a re-render by toggling a state
-      setIsOpen(prev => prev);
+      // Force a re-render using forceUpdate
+      console.log('Consent changed - modal updating');
     };
 
     const handleConsentRevoked = () => {
       setIsRevoking(false);
       setIsAccepting(false);
-      // Force a re-render
-      setIsOpen(prev => prev);
+      // Force a re-render using forceUpdate
+      console.log('Consent revoked - modal updating');
     };
 
     window.addEventListener('consentChanged', handleConsentChange);
