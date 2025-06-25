@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogTrigger } from "@/components/ui/dialog";
 import { useCombinedConsent } from "@/components/CombinedConsent";
 import { Link } from "wouter";
+import { getGlobalSessionId, sessionFetch } from '@/lib/sessionManager';
 
 interface CookieManagementProps {
   trigger?: React.ReactNode;
@@ -57,11 +58,30 @@ export function CookieManagement({ trigger, className }: CookieManagementProps) 
   const handleRevokeAll = async () => {
     setIsRevoking(true);
     try {
+      console.log('Cookie modal: Revoking consent from database...');
+      
+      // Revoke from database first
+      const response = await sessionFetch('/api/consent/revoke', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+
+      const result = await response.json();
+      if (!result.success) {
+        console.warn('Consent revocation failed:', result.message);
+        setIsRevoking(false);
+        return;
+      }
+
+      console.log('Cookie modal: Consent revoked successfully, updating UI state...');
+      
+      // Then update UI state
       await revokeConsent();
-      // Close modal after a brief delay to show success state
       setTimeout(() => setIsOpen(false), 500);
     } catch (error) {
-      console.warn('Failed to revoke consent:', error);
+      console.error('Failed to revoke consent:', error);
     } finally {
       setIsRevoking(false);
     }
@@ -70,11 +90,35 @@ export function CookieManagement({ trigger, className }: CookieManagementProps) 
   const handleAcceptConsent = async () => {
     setIsAccepting(true);
     try {
+      console.log('Cookie modal: Accepting consent and logging to database...');
+      
+      // First log consent to database
+      const response = await sessionFetch('/api/consent', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          ip: 'client-side-consent',
+          userAgent: navigator.userAgent,
+          termsVersion: '1.0',
+        }),
+      });
+
+      const result = await response.json();
+      if (!result.success) {
+        console.warn('Consent logging failed:', result.message);
+        setIsAccepting(false);
+        return;
+      }
+
+      console.log('Cookie modal: Consent logged successfully, updating UI state...');
+      
+      // Then update UI state
       await acceptAll();
-      // Close modal after a brief delay to show success state
       setTimeout(() => setIsOpen(false), 500);
     } catch (error) {
-      console.warn('Failed to accept consent:', error);
+      console.error('Failed to accept consent:', error);
     } finally {
       setIsAccepting(false);
     }
