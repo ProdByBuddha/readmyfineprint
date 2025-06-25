@@ -35,9 +35,11 @@ export function useCombinedConsent() {
     setIsCheckingConsent(true);
     
     try {
-      const response = await fetch('/api/consent/verify', {
+      const sessionId = getGlobalSessionId();
+      console.log(`Checking consent with session: ${sessionId.substring(0, 16)}...`);
+      
+      const response = await sessionFetch('/api/consent/verify', {
         method: 'POST',
-        credentials: 'include',
         headers: {
           'Content-Type': 'application/json',
         },
@@ -47,10 +49,15 @@ export function useCombinedConsent() {
         const result = await response.json();
         const hasConsented = result.hasConsented === true;
         
-        console.log('Consent check result:', { hasConsented, proof: !!result.proof, sessionResult: result });
+        console.log('Consent check result:', { 
+          hasConsented, 
+          proof: !!result.proof, 
+          sessionId: getGlobalSessionId().substring(0, 16),
+          sessionResult: result 
+        });
         
         // Update global state and local state
-        globalConsentState = { status: hasConsented, timestamp: now };
+        globalConsentState = { status: hasConsented, timestamp: now, sessionId: getGlobalSessionId() };
         setIsAccepted(hasConsented);
 
         // Force update to ensure all components sync
@@ -76,7 +83,8 @@ export function useCombinedConsent() {
     const initialCheck = async () => {
       // Clear any stale global cache on fresh mount to ensure fresh state
       globalConsentState = null;
-      console.log('Initial consent check - clearing global cache and checking fresh state');
+      const sessionId = getGlobalSessionId();
+      console.log(`Initial consent check - session: ${sessionId.substring(0, 16)}... - clearing global cache and checking fresh state`);
       await checkConsent();
     };
     initialCheck();
@@ -141,7 +149,7 @@ export function useCombinedConsent() {
       }
 
       // Update global state and local state immediately
-      globalConsentState = { status: true, timestamp: Date.now() };
+      globalConsentState = { status: true, timestamp: Date.now(), sessionId: getGlobalSessionId() };
       setIsAccepted(true);
       setIsCheckingConsent(false);
 
