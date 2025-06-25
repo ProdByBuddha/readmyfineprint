@@ -1,12 +1,16 @@
 import { useState, useEffect, useCallback } from "react";
 import { AlertTriangle, Cookie, Shield } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { logConsent } from "@/lib/api";
 
 interface CombinedConsentProps {
   onAccept: () => void;
 }
+
+// Cache consent status to prevent excessive API calls
+let consentCache: { status: boolean; timestamp: number } | null = null;
+const CACHE_DURATION = 30000; // 30 seconds cache
 
 // Combined hook for managing both legal and cookie consent
 export function useCombinedConsent() {
@@ -14,9 +18,18 @@ export function useCombinedConsent() {
   const [isCheckingConsent, setIsCheckingConsent] = useState(true);
 
   const checkConsent = useCallback(async () => {
+    if (isCheckingConsent) return; // Prevent multiple simultaneous checks
+    
+    // Check cache first to prevent excessive API calls
+    const now = Date.now();
+    if (consentCache && (now - consentCache.timestamp) < CACHE_DURATION) {
+      setIsAccepted(consentCache.status);
+      setIsCheckingConsent(false);
+      return;
+    }
+    
     setIsCheckingConsent(true);
     
-    // Check only with database - no localStorage dependency
     try {
       const response = await fetch('/api/consent/verify', {
         method: 'POST',
@@ -28,46 +41,63 @@ export function useCombinedConsent() {
       
       if (response.ok) {
         const result = await response.json();
-        setIsAccepted(result.hasConsented);
+        const hasConsented = result.hasConsented;
+        
+        // Update cache
+        consentCache = { status: hasConsented, timestamp: now };
+        setIsAccepted(hasConsented);
       } else {
+        // Cache negative result briefly to prevent spam
+        consentCache = { status: false, timestamp: now };
         setIsAccepted(false);
       }
     } catch (error) {
       console.warn('Failed to verify consent with database:', error);
+      // Don't cache errors, but don't spam either
       setIsAccepted(false);
     } finally {
       setIsCheckingConsent(false);
     }
-  }, []);
+  }, [isCheckingConsent]);
 
   useEffect(() => {
+    // Only check consent on initial mount
     checkConsent();
 
-    // Create event handlers
+    // Create event handlers with debouncing
+    let debounceTimer: NodeJS.Timeout;
+    
     const handleConsentChange = () => {
-      checkConsent();
+      // Clear cache when consent changes
+      consentCache = null;
+      
+      // Debounce multiple consent change events
+      clearTimeout(debounceTimer);
+      debounceTimer = setTimeout(() => checkConsent(), 200);
     };
 
     const handleConsentRevoked = () => {
+      // Clear cache and update state immediately
+      consentCache = { status: false, timestamp: Date.now() };
       setIsAccepted(false);
       setIsCheckingConsent(false);
+      console.log('Consent revoked - enabling gray mode');
     };
 
-    // Listen for storage changes from other components
-    window.addEventListener('storage', handleConsentChange);
-
-    // Listen for custom consent events
+    // Listen for custom consent events only
     window.addEventListener('consentChanged', handleConsentChange);
     window.addEventListener('consentRevoked', handleConsentRevoked);
 
     return () => {
-      window.removeEventListener('storage', handleConsentChange);
+      clearTimeout(debounceTimer);
       window.removeEventListener('consentChanged', handleConsentChange);
       window.removeEventListener('consentRevoked', handleConsentRevoked);
     };
   }, [checkConsent]);
 
   const acceptAll = async () => {
+    if (isCheckingConsent) return; // Prevent multiple simultaneous accepts
+    
     // Set loading state
     setIsCheckingConsent(true);
     
@@ -77,13 +107,13 @@ export function useCombinedConsent() {
 
       if (!result.success) {
         console.warn('Consent logging warning:', result.message);
-        // Reset state if logging failed
         setIsAccepted(false);
         setIsCheckingConsent(false);
         return;
       }
 
-      // Set accepted state and stop checking
+      // Update cache and state
+      consentCache = { status: true, timestamp: Date.now() };
       setIsAccepted(true);
       setIsCheckingConsent(false);
 
@@ -92,7 +122,6 @@ export function useCombinedConsent() {
 
     } catch (error) {
       console.warn('Consent logging failed:', error);
-      // Reset state if logging failed
       setIsAccepted(false);
       setIsCheckingConsent(false);
       return;
@@ -100,10 +129,11 @@ export function useCombinedConsent() {
   };
 
   const revokeConsent = async () => {
+    if (isCheckingConsent) return; // Prevent multiple simultaneous revocations
+    
     // Set loading state
     setIsCheckingConsent(true);
     
-    // Revoke consent in the database
     try {
       const response = await fetch('/api/consent/revoke', {
         method: 'POST',
@@ -118,21 +148,29 @@ export function useCombinedConsent() {
         console.warn('Failed to revoke consent in database:', result.message);
       }
 
-      // Set revoked state and stop checking
+      // Update cache and state immediately
+      consentCache = { status: false, timestamp: Date.now() };
       setIsAccepted(false);
       setIsCheckingConsent(false);
 
       // Dispatch custom event to notify other components
       window.dispatchEvent(new CustomEvent('consentRevoked'));
-      window.dispatchEvent(new CustomEvent('consentChanged'));
+      
+      // Wait a bit before dispatching the change event to prevent race conditions
+      setTimeout(() => {
+        window.dispatchEvent(new CustomEvent('consentChanged'));
+      }, 50);
 
     } catch (error) {
       console.warn('Failed to revoke consent from database:', error);
-      // Still set revoked state and dispatch events even if revocation failed
+      // Still update cache and state even if revocation failed
+      consentCache = { status: false, timestamp: Date.now() };
       setIsAccepted(false);
       setIsCheckingConsent(false);
       window.dispatchEvent(new CustomEvent('consentRevoked'));
-      window.dispatchEvent(new CustomEvent('consentChanged'));
+      setTimeout(() => {
+        window.dispatchEvent(new CustomEvent('consentChanged'));
+      }, 50);
     }
   };
 
@@ -188,9 +226,9 @@ export function CombinedConsent({ onAccept }: CombinedConsentProps) {
             <AlertTriangle className="w-4 h-4 text-amber-600 dark:text-amber-400" />
           </div>
           <DialogTitle className="text-lg font-bold text-gray-900 dark:text-gray-100">Privacy & Terms</DialogTitle>
-          <p className="text-xs text-gray-600 dark:text-gray-400">
+          <DialogDescription className="text-xs text-gray-600 dark:text-gray-400">
             Quick consent setup to get started
-          </p>
+          </DialogDescription>
         </DialogHeader>
 
         <div className="space-y-3">

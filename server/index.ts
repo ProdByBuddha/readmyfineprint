@@ -152,7 +152,33 @@ const processLimiter = rateLimit({
   },
 });
 
+// Special rate limiter for consent endpoints (higher limits for user experience)
+const consentLimiter = rateLimit({
+  windowMs: 60 * 1000, // 1 minute
+  max: 200, // Allow more requests for consent verification
+  message: {
+    error: "Too many consent requests. Please wait a moment before trying again."
+  },
+  standardHeaders: true,
+  legacyHeaders: false,
+  validate: false,
+  keyGenerator: (req) => {
+    const ip = req.ip || req.socket.remoteAddress || 'unknown';
+    const userAgent = req.get('User-Agent') || 'unknown';
+    const agentHash = crypto.createHash('md5').update(userAgent).digest('hex').substring(0, 8);
+    return `consent:${ip}:${agentHash}`;
+  },
+  handler: (req, res) => {
+    const { ip, userAgent } = getClientInfo(req);
+    securityLogger.logRateLimit(ip, userAgent, req.path, 200);
+    res.status(429).json({
+      error: "Too many consent requests. Please wait a moment before trying again."
+    });
+  },
+});
+
 // Apply rate limiting to different endpoint types
+app.use('/api/consent/', consentLimiter); // Special higher limits for consent endpoints
 app.use('/api/', apiLimiter);
 app.use('/api/admin/', adminLimiter);
 app.use('/api/documents/*/analyze', processLimiter);
