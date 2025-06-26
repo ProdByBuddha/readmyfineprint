@@ -3,6 +3,8 @@
  * Prevents session fragmentation that causes consent state inconsistencies
  */
 
+import { clearCSRFToken } from './csrfManager';
+
 let globalSessionId: string | null = null;
 
 /**
@@ -35,19 +37,42 @@ export function getGlobalSessionId(): string {
 export async function sessionFetch(url: string, options: RequestInit = {}): Promise<Response> {
   const sessionId = getGlobalSessionId();
   
-  // Merge session ID into headers
-  const headers = new Headers(options.headers || {});
-  headers.set('X-Session-ID', sessionId);
+  // For state-changing methods, use CSRF protection
+  const method = (options.method || 'GET').toUpperCase();
+  const needsCSRF = !['GET', 'HEAD', 'OPTIONS'].includes(method);
   
-  const finalOptions: RequestInit = {
-    ...options,
-    headers,
-    credentials: 'include', // Always include credentials for session cookies
-  };
+  if (needsCSRF) {
+    // Use fetchWithCSRF but ensure session ID consistency
+    const { fetchWithCSRF } = await import('./csrfManager');
+    
+    // Merge session ID into headers to ensure consistency
+    const headers = {
+      ...options.headers as Record<string, string> || {},
+      'X-Session-ID': sessionId,
+    };
+    
+    const finalOptions: RequestInit = {
+      ...options,
+      headers,
+      credentials: 'include',
+    };
 
-  console.log(`Making request to ${url} with session: ${sessionId.substring(0, 16)}...`);
-  
-  return fetch(url, finalOptions);
+    console.log(`Making CSRF-protected request to ${url} with session: ${sessionId.substring(0, 16)}...`);
+    return fetchWithCSRF(url, finalOptions);
+  } else {
+    // For safe methods, just add session ID
+    const headers = new Headers(options.headers || {});
+    headers.set('X-Session-ID', sessionId);
+    
+    const finalOptions: RequestInit = {
+      ...options,
+      headers,
+      credentials: 'include',
+    };
+
+    console.log(`Making request to ${url} with session: ${sessionId.substring(0, 16)}...`);
+    return fetch(url, finalOptions);
+  }
 }
 
 /**
@@ -56,4 +81,6 @@ export async function sessionFetch(url: string, options: RequestInit = {}): Prom
 export function clearSession(): void {
   globalSessionId = null;
   sessionStorage.removeItem('rmfp_session_id');
+  sessionStorage.removeItem('sessionId'); // Clear CSRF manager session ID too
+  clearCSRFToken(); // Clear CSRF token cache
 }
