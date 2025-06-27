@@ -27,8 +27,8 @@ async function setupLocalDatabase() {
       await adminDb.execute(sql`CREATE DATABASE readmyfineprint`);
       console.log('✅ Database created');
     } catch (error: any) {
-      if (error.message.includes('already exists')) {
-        console.log('ℹ️ Database already exists');
+      if (error.message.includes('already exists') || error.cause?.code === '42P04') {
+        console.log('ℹ️ Database already exists, continuing...');
       } else {
         throw error;
       }
@@ -196,23 +196,14 @@ async function setupLocalDatabase() {
     // 10. Consent records table
     await db.execute(sql`
       CREATE TABLE IF NOT EXISTS consent_records (
-        id TEXT PRIMARY KEY,
+        id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+        consent_id TEXT UNIQUE NOT NULL,
         user_pseudonym TEXT NOT NULL,
         ip_hash TEXT NOT NULL,
         user_agent_hash TEXT NOT NULL,
-        consent_timestamp TIMESTAMP NOT NULL,
-        consent_version TEXT NOT NULL,
-        purposes_accepted TEXT[] NOT NULL,
-        purposes_rejected TEXT[],
-        gpc_signal BOOLEAN,
-        dnta_signal BOOLEAN,
-        jurisdiction TEXT,
-        browser_privacy_config JSONB,
-        consent_flow_type TEXT,
-        withdraw_timestamp TIMESTAMP,
-        withdraw_reason TEXT,
-        created_at TIMESTAMP DEFAULT now() NOT NULL,
-        updated_at TIMESTAMP DEFAULT now() NOT NULL
+        terms_version TEXT NOT NULL,
+        verification_token TEXT NOT NULL,
+        created_at TIMESTAMP DEFAULT now() NOT NULL
       )
     `);
     console.log('✅ Consent records table created');

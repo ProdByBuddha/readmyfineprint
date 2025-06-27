@@ -11,6 +11,7 @@ import { AnalysisResults } from "@/components/AnalysisResults";
 import { SampleContracts } from "@/components/SampleContracts";
 import { DocumentHistory } from "@/components/DocumentHistory";
 import { AnalysisProgress } from "@/components/LoadingStates";
+import TradeSecretProtection from "@/components/TradeSecretProtection";
 
 import { MobileAppWrapper } from "@/components/MobileAppWrapper";
 import { useCombinedConsent } from "@/components/CombinedConsent";
@@ -51,12 +52,6 @@ export default function Home() {
     const handleConsentRevoked = () => {
       console.log('Consent revoked - enabling gray mode');
       setConsentRevoked(true);
-      announce("Consent revoked. Experience is now limited until you accept terms again.", 'assertive');
-      toast({
-        title: "Consent Revoked", 
-        description: "Your experience is now limited. Accept terms again to restore full functionality.",
-        variant: "destructive",
-      });
     };
 
     const handleConsentChanged = () => {
@@ -266,6 +261,7 @@ export default function Home() {
 
   return (
     <div ref={containerRef} className="bg-gray-50 dark:bg-gray-900 page-transition min-h-screen">
+      <TradeSecretProtection />
       <MobileAppWrapper>
         {/* Cookie Consent Banner */}
         {!consentAccepted && (
@@ -289,12 +285,11 @@ export default function Home() {
               {!hasSubscription() && (
                 <>
                   <h1 id="main-heading" className="text-3xl md:text-4xl lg:text-5xl font-bold text-gray-900 dark:text-white mb-4">
-                    Understand Any Contract in{" "}
-                    <span className="text-primary">Plain English</span>
+                    Privacy-First Legal Document Analysis
                   </h1>
                   <p className="text-lg md:text-xl text-gray-600 dark:text-gray-300 mb-4 max-w-3xl mx-auto">
-                    Upload or paste any legal document and get instant, clear summaries that
-                    highlight what matters most. No legal degree required.
+                    Get powerful AI insights from contracts, agreements, and legal documents 
+                    while keeping your sensitive information completely secure.
                   </p>
                 </>
               )}
@@ -306,15 +301,15 @@ export default function Home() {
                   <ul className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm text-gray-600 dark:text-gray-300">
                     <li className="flex items-center justify-center gap-2">
                       <span className="w-2 h-2 bg-primary rounded-full" aria-hidden="true"></span>
-                      <span>Advanced Analysis</span>
+                      <span>Military-Grade Security</span>
                     </li>
                     <li className="flex items-center justify-center gap-2">
                       <span className="w-2 h-2 bg-primary rounded-full" aria-hidden="true"></span>
-                      <span>Privacy-First Processing</span>
+                      <span>Privacy-Preserving AI</span>
                     </li>
                     <li className="flex items-center justify-center gap-2">
                       <span className="w-2 h-2 bg-primary rounded-full" aria-hidden="true"></span>
-                      <span>Instant Results</span>
+                      <span>Complete Audit Trails</span>
                     </li>
                   </ul>
                 </div>
@@ -325,8 +320,8 @@ export default function Home() {
                 <div className="bg-amber-50 dark:bg-amber-950/20 border border-amber-200 dark:border-amber-800 rounded-xl p-4 max-w-2xl mx-auto" role="alert" aria-labelledby="privacy-notice">
                   <h3 id="privacy-notice" className="sr-only">Privacy Notice</h3>
                   <p className="text-sm text-amber-800 dark:text-amber-200">
-                    <strong>Session-based tool:</strong> All data is temporary and will be cleared when you refresh the page.
-                    Your documents are never permanently stored.
+                    <strong>Enterprise-Grade Security:</strong> Your sensitive information is automatically protected using 
+                    advanced privacy technology. Documents processed with complete confidentiality.
                   </p>
                 </div>
               )}
@@ -401,16 +396,15 @@ export default function Home() {
                     <div className="border border-gray-200 dark:border-gray-700 rounded-xl p-4 md:p-6 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors">
                       <h4 className="font-medium mb-2 text-gray-900 dark:text-white">How accurate are the summaries?</h4>
                       <p className="text-sm leading-relaxed text-gray-700 dark:text-gray-300">
-                        Our advanced analysis engine has processed thousands of legal documents and is trained to identify
-                        common patterns and concerning clauses. While highly accurate, we recommend
-                        consulting with a legal professional for critical decisions.
+                        Our proprietary privacy-preserving analysis technology delivers comprehensive legal insights while 
+                        maintaining complete confidentiality. Powered by advanced AI that understands legal language.
                       </p>
                     </div>
                     <div className="border border-gray-200 dark:border-gray-700 rounded-xl p-4 md:p-6 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors">
                       <h4 className="font-medium mb-2 text-gray-900 dark:text-white">Is my document data secure?</h4>
                       <p className="text-sm leading-relaxed text-gray-700 dark:text-gray-300">
-                        Yes, all documents are encrypted in transit and at rest. We don't store your documents after analysis,
-                        and you can delete your summaries at any time. Your privacy is our top priority.
+                        Your sensitive information is automatically detected and shielded using enterprise-grade security protocols. 
+                        Our privacy-first architecture ensures sensitive data never leaves your control.
                       </p>
                     </div>
                     <div className="border border-gray-200 dark:border-gray-700 rounded-xl p-4 md:p-6 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors">

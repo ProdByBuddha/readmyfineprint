@@ -500,18 +500,6 @@ export class EmailRecoveryService {
     }
   }
 
-  /**
-   * Get pending email change requests (for admin dashboard)
-   */
-  async getPendingEmailChangeRequests(limit: number = 100): Promise<EmailChangeRequest[]> {
-    try {
-      const requests = await databaseStorage.getPendingEmailChangeRequests(limit);
-      return requests;
-    } catch (error) {
-      console.error('Error getting pending email requests:', error);
-      return [];
-    }
-  }
 }
 
 // Export singleton instance

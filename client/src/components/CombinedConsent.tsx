@@ -15,7 +15,7 @@ const CACHE_DURATION = 30000; // 30 seconds cache
 
 // Track recent consent acceptance to prevent banner flash
 let recentlyAccepted = false;
-let acceptanceTimer: NodeJS.Timeout | null = null;
+let acceptanceTimer: number | null = null;
 
 // Combined hook for managing both legal and cookie consent
 export function useCombinedConsent() {
@@ -24,6 +24,15 @@ export function useCombinedConsent() {
   const [forceUpdate, setForceUpdate] = useState(0);
 
   const checkConsent = useCallback(async () => {
+    // Check if we're in development mode and bypass consent checking
+    if (import.meta.env.DEV || import.meta.env.MODE === 'development') {
+      console.log('⚠️ Development mode: Bypassing consent verification');
+      setIsAccepted(true);
+      setIsCheckingConsent(false);
+      globalConsentState = { status: true, timestamp: Date.now() };
+      return;
+    }
+    
     // Check global cache first to prevent excessive API calls
     const now = Date.now();
     if (globalConsentState && (now - globalConsentState.timestamp) < CACHE_DURATION) {
@@ -91,7 +100,7 @@ export function useCombinedConsent() {
     initialCheck();
 
     // Create event handlers with debouncing
-    let debounceTimer: NodeJS.Timeout;
+    let debounceTimer: number;
     
     const handleConsentChange = () => {
       // Clear global cache when consent changes
@@ -99,7 +108,7 @@ export function useCombinedConsent() {
       
       // Debounce multiple consent change events
       clearTimeout(debounceTimer);
-      debounceTimer = setTimeout(() => {
+      debounceTimer = window.setTimeout(() => {
         console.log('Handling consent change - rechecking consent');
         checkConsent();
       }, 100); // Reduced delay for faster updates
@@ -138,6 +147,23 @@ export function useCombinedConsent() {
     // Set loading state
     setIsCheckingConsent(true);
     
+    // Check if we're in development mode and bypass consent logging
+    if (import.meta.env.DEV || import.meta.env.MODE === 'development') {
+      console.log('⚠️ Development mode: Bypassing consent logging');
+      globalConsentState = { status: true, timestamp: Date.now(), sessionId: getGlobalSessionId() };
+      window.dispatchEvent(new CustomEvent('consentChanged'));
+      setIsAccepted(true);
+      setIsCheckingConsent(false);
+      setForceUpdate(prev => prev + 1);
+      recentlyAccepted = true;
+      
+      if (acceptanceTimer) clearTimeout(acceptanceTimer);
+      acceptanceTimer = window.setTimeout(() => {
+        recentlyAccepted = false;
+      }, 2000);
+      return;
+    }
+    
     try {
       // Log consent to database only - using the global API function that now uses sessionFetch
       const result = await logConsent();
@@ -150,7 +176,7 @@ export function useCombinedConsent() {
       }
 
       // Immediately notify other components of the change
-      globalConsentState = { hasConsented: true, proof: result };
+      globalConsentState = { status: true, timestamp: Date.now(), sessionId: getGlobalSessionId() };
       window.dispatchEvent(new CustomEvent('consentChanged'));
       setIsAccepted(true);
       setIsCheckingConsent(false);
@@ -163,7 +189,7 @@ export function useCombinedConsent() {
       
       // Clear the recent acceptance flag after some time
       if (acceptanceTimer) clearTimeout(acceptanceTimer);
-      acceptanceTimer = setTimeout(() => {
+      acceptanceTimer = window.setTimeout(() => {
         recentlyAccepted = false;
       }, 2000);
 
@@ -180,6 +206,17 @@ export function useCombinedConsent() {
     
     // Set loading state
     setIsCheckingConsent(true);
+    
+    // Check if we're in development mode and bypass consent revocation
+    if (import.meta.env.DEV || import.meta.env.MODE === 'development') {
+      console.log('⚠️ Development mode: Bypassing consent revocation');
+      globalConsentState = null;
+      setIsAccepted(false);
+      setIsCheckingConsent(false);
+      window.dispatchEvent(new CustomEvent('consentRevoked'));
+      setForceUpdate(prev => prev + 1);
+      return;
+    }
     
     try {
       const sessionId = getGlobalSessionId();

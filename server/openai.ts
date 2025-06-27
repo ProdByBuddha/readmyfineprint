@@ -61,21 +61,31 @@ Focus on:
 
 Provide practical, actionable insights that help everyday users understand what they're agreeing to.`;
 
-    const response = await openai.chat.completions.create({
+    const requestPayload = {
       model: model,
       messages: [
         {
-          role: "system",
+          role: "system" as const,
           content: "You are a legal document analysis expert who specializes in making complex legal language understandable to everyday users. Always respond with valid JSON."
         },
         {
-          role: "user",
+          role: "user" as const,
           content: prompt
         }
       ],
-      response_format: { type: "json_object" },
+      response_format: { type: "json_object" as const },
       temperature: 0.3,
-    });
+    };
+
+    // Log the raw request payload
+    console.log(`📤 RAW REQUEST PAYLOAD TO OPENAI:`);
+    console.log(JSON.stringify(requestPayload, null, 2));
+
+    const response = await openai.chat.completions.create(requestPayload);
+
+    // Log the raw response payload
+    console.log(`📥 RAW RESPONSE PAYLOAD FROM OPENAI:`);
+    console.log(JSON.stringify(response, null, 2));
 
     // Debug the response
     console.log(`🤖 OpenAI Response received:`);

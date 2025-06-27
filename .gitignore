@@ -12,16 +12,42 @@ vite.config.ts.*
 .env.test
 .env.production
 .env.*.local
+.env.*
+!.env.example
 
 # Security keys and secrets
 *.key
 *.pem
 secrets.json
 
-# Environment variables - never commit these
-.env
-.env.local
-.env.development
-.env.production
-.env.test
-*.env
+# Logs
+*.log
+server.log
+vite.log
+
+# Temporary files
+temp/
+*.tmp
+*.temp
+
+# IDE and editor files
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS generated files
+Thumbs.db
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+
+# Patent documentation (confidential)
+patent/
+
+# IPFS deployment files
+.ipfs-cid
+.ipfs-deployment.json

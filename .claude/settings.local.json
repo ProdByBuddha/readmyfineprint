@@ -17,7 +17,24 @@
       "Bash(true)",
       "Bash(grep:*)",
       "Bash(pkill:*)",
-      "Bash(ls:*)"
+      "Bash(ls:*)",
+      "Bash(npm audit:*)",
+      "Bash(npm outdated:*)",
+      "Bash(npm update)",
+      "Bash(npm cache clean:*)",
+      "Bash(npx tsc:*)",
+      "Bash(npx drizzle-kit introspect:*)",
+      "Bash(pg_ctl:*)",
+      "Bash(cat:*)",
+      "Bash(git add:*)",
+      "Bash(psql:*)",
+      "Bash(claude mcp)",
+      "Bash(claude mcp get:*)",
+      "Bash(claude mcp:*)",
+      "Bash(awk:*)",
+      "Bash(mkdir:*)",
+      "Bash(git commit:*)",
+      "Bash(timeout 30s npm run dev)"
     ],
     "deny": []
   }

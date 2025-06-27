@@ -1,4 +1,5 @@
 import crypto from 'crypto';
+import { piiProtectionService } from './pii-protection-service';
 
 // Security event types
 export enum SecurityEventType {
@@ -10,7 +11,13 @@ export enum SecurityEventType {
   SESSION_MANAGEMENT = 'SESSION_MANAGEMENT',
   API_ACCESS = 'API_ACCESS',
   ERROR = 'ERROR',
-  SUSPICIOUS_ACTIVITY = 'SUSPICIOUS_ACTIVITY'
+  SUSPICIOUS_ACTIVITY = 'SUSPICIOUS_ACTIVITY',
+  USER_ACTIVITY = 'USER_ACTIVITY',
+  SECURITY_VIOLATION = 'SECURITY_VIOLATION',
+  ADMIN_ACTION = 'ADMIN_ACTION',
+  ACCOUNT_ACTIVITY = 'ACCOUNT_ACTIVITY',
+  EMAIL_VERIFICATION = 'EMAIL_VERIFICATION',
+  SYSTEM = 'SYSTEM'
 }
 
 // Security event severity levels
@@ -33,6 +40,11 @@ export interface SecurityEvent {
   endpoint?: string;
   details?: Record<string, any>;
   fingerprint?: string;
+  // New hashed fields for privacy protection
+  ipHash?: string;
+  userAgentHash?: string;
+  // Alias for eventType for backward compatibility
+  type?: SecurityEventType;
 }
 
 class SecurityLogger {
@@ -58,13 +70,83 @@ class SecurityLogger {
   }
 
   /**
-   * Log a security event
+   * Log a security event with PII protection
    */
-  public logSecurityEvent(event: Omit<SecurityEvent, 'timestamp' | 'fingerprint'>): void {
+  public async logSecurityEvent(event: Omit<SecurityEvent, 'timestamp' | 'fingerprint' | 'ipHash' | 'userAgentHash'>): Promise<void> {
+    try {
+      // Create protected version of the event
+      const protectedEntry = await piiProtectionService.createProtectedSecurityLogEntry({
+        ip: event.ip,
+        userAgent: event.userAgent,
+        endpoint: event.endpoint,
+        userId: event.details?.userId,
+        message: event.message,
+        eventType: event.eventType,
+        severity: event.severity,
+        details: event.details,
+      });
+
+      const fullEvent: SecurityEvent = {
+        timestamp: new Date().toISOString(),
+        eventType: event.eventType,
+        severity: event.severity,
+        message: event.message,
+        ip: event.ip,
+        userAgent: event.userAgent,
+        sessionId: event.sessionId,
+        endpoint: event.endpoint,
+        details: event.details,
+        fingerprint: this.generateFingerprint(event.ip, event.userAgent),
+        type: event.eventType,
+        ipHash: protectedEntry.ipHash,
+        userAgentHash: protectedEntry.userAgentHash
+      };
+
+      // Store event in memory (with rotation) - keeping original IP for now during migration
+      this.events.push(fullEvent);
+      if (this.events.length > this.maxEvents) {
+        this.events = this.events.slice(-this.maxEvents);
+      }
+
+      // Format log message based on severity (using original IP for console logs during migration)
+      const logMessage = this.formatLogMessage(fullEvent);
+
+      // Log to console with appropriate level
+      switch (fullEvent.severity) {
+        case SecuritySeverity.CRITICAL:
+          console.error(logMessage);
+          break;
+        case SecuritySeverity.HIGH:
+          console.warn(logMessage);
+          break;
+        case SecuritySeverity.MEDIUM:
+          console.warn(logMessage);
+          break;
+        case SecuritySeverity.LOW:
+          console.info(logMessage);
+          break;
+      }
+
+      // In production, you might want to send to external logging service
+      if (process.env.NODE_ENV === 'production') {
+        this.sendToExternalLogger(fullEvent);
+      }
+    } catch (error) {
+      console.error('❌ Failed to log security event with PII protection:', error);
+      // Fallback to original logging without PII protection
+      this.logSecurityEventLegacy(event);
+    }
+  }
+
+  /**
+   * Legacy security event logging (fallback without PII protection)
+   */
+  private logSecurityEventLegacy(event: Omit<SecurityEvent, 'timestamp' | 'fingerprint' | 'ipHash' | 'userAgentHash'>): void {
     const fullEvent: SecurityEvent = {
       ...event,
       timestamp: new Date().toISOString(),
-      fingerprint: this.generateFingerprint(event.ip, event.userAgent)
+      fingerprint: this.generateFingerprint(event.ip, event.userAgent),
+      type: event.eventType
     };
 
     // Store event in memory (with rotation)

@@ -7,13 +7,11 @@ import { Alert, AlertDescription } from '@/components/ui/alert';
 import { 
   Mail, 
   Shield, 
-  Clock, 
   CheckCircle,
   X,
   User,
   Calendar,
   AlertTriangle,
-  FileText,
   RefreshCw
 } from 'lucide-react';
 import type { EmailChangeRequest } from '@shared/schema';
@@ -205,7 +203,13 @@ export function AdminEmailChangeRequests({ className = '' }: AdminEmailChangeReq
             <div className="space-y-4">
               {requests.map((request) => (
                 <div key={request.id} className="border rounded-lg p-4 hover:bg-gray-50 dark:hover:bg-gray-800 cursor-pointer transition-colors">
-                  <div onClick={() => handleRequestClick(request)} className="space-y-3">
+                  <div 
+                    onClick={() => handleRequestClick(request)} 
+                    onKeyDown={(e) => e.key === 'Enter' && handleRequestClick(request)}
+                    role="button"
+                    tabIndex={0}
+                    className="space-y-3"
+                  >
                     <div className="flex items-center justify-between">
                       <div className="flex items-center space-x-3">
                         <Badge variant="outline" className={getStatusColor(request.status)}>
@@ -298,8 +302,9 @@ export function AdminEmailChangeRequests({ className = '' }: AdminEmailChangeReq
                       {/* Review Actions */}
                       <div className="space-y-4 pt-4 border-t">
                         <div>
-                          <label className="block text-sm font-medium mb-2">Admin Notes (Optional)</label>
+                          <label htmlFor="admin-notes" className="block text-sm font-medium mb-2">Admin Notes (Optional)</label>
                           <Textarea
+                            id="admin-notes"
                             value={reviewNotes}
                             onChange={(e) => setReviewNotes(e.target.value)}
                             placeholder="Add notes about your decision..."

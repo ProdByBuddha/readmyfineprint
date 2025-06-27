@@ -5,6 +5,8 @@
 
 import { SignJWT, jwtVerify, JWTPayload } from 'jose';
 import crypto from 'crypto';
+import { jwtSecretManager } from './jwt-secret-manager';
+import { securityLogger, SecurityEventType, SecuritySeverity } from './security-logger';
 
 interface SubscriptionTokenPayload extends JWTPayload {
   userId: string;
@@ -15,18 +17,52 @@ interface SubscriptionTokenPayload extends JWTPayload {
 }
 
 export class JOSETokenService {
-  private secretKey: Uint8Array;
+  private secretKey!: Uint8Array;
+  private initialized: boolean = false;
 
   constructor() {
-    const secret = process.env.SUBSCRIPTION_TOKEN_SECRET || process.env.JWT_SECRET || process.env.TOKEN_ENCRYPTION_KEY;
-    if (!secret) {
-      console.warn('⚠️ No SUBSCRIPTION_TOKEN_SECRET, JWT_SECRET, or TOKEN_ENCRYPTION_KEY found, JOSE tokens disabled');
-      // Use a default secret for fallback (not recommended for production)
-      this.secretKey = crypto.scryptSync('fallback-secret-key-not-for-production', 'subscription-salt', 32);
-    } else {
-      // Create a consistent 32-byte key from the secret
-      this.secretKey = crypto.scryptSync(secret, 'subscription-salt', 32);
-      console.log('✅ JOSE token service initialized with encryption key');
+    // Initialize will be called when needed
+  }
+  
+  private async initialize(): Promise<void> {
+    if (this.initialized) return;
+    
+    try {
+      // Use the new JWT secret manager for versioned secrets
+      await jwtSecretManager.initialize();
+      const { secret } = jwtSecretManager.getCurrentSecret();
+      
+      // Create a consistent 32-byte key from the versioned secret
+      this.secretKey = crypto.scryptSync(secret, 'subscription-salt-v2', 32);
+      this.initialized = true;
+      
+      securityLogger.logSecurityEvent({
+        eventType: SecurityEventType.SYSTEM,
+        severity: SecuritySeverity.LOW,
+        message: 'JOSE token service initialized with versioned secrets',
+        ip: 'system',
+        userAgent: 'jose-token-service',
+        endpoint: 'initialization'
+      });
+      
+      console.log('✅ JOSE token service initialized with versioned encryption key');
+    } catch (error) {
+      securityLogger.logSecurityEvent({
+        eventType: SecurityEventType.ERROR,
+        severity: SecuritySeverity.CRITICAL,
+        message: 'Failed to initialize JOSE token service',
+        ip: 'system',
+        userAgent: 'jose-token-service',
+        endpoint: 'initialization',
+        details: { error: error instanceof Error ? error.message : 'Unknown error' }
+      });
+      throw error;
+    }
+  }
+  
+  private async ensureInitialized(): Promise<void> {
+    if (!this.initialized) {
+      await this.initialize();
     }
   }
 
@@ -39,6 +75,7 @@ export class JOSETokenService {
     tierId: string;
     deviceFingerprint?: string;
   }): Promise<string> {
+    await this.ensureInitialized();
     try {
       const payload: SubscriptionTokenPayload = {
         userId: params.userId,
@@ -57,6 +94,7 @@ export class JOSETokenService {
         .setExpirationTime('30d')
         .setIssuer('readmyfineprint')
         .setAudience('subscription')
+        .setJti(payload.jti!) // Add JTI for revocation tracking
         .sign(this.secretKey);
 
       console.log(`Generated JOSE subscription token for user ${params.userId} (expires in 30 days)`);
@@ -71,6 +109,7 @@ export class JOSETokenService {
    * Validate and decode a subscription token
    */
   async validateSubscriptionToken(token: string): Promise<SubscriptionTokenPayload | null> {
+    await this.ensureInitialized();
     try {
       const { payload } = await jwtVerify(token, this.secretKey, {
         issuer: 'readmyfineprint',
@@ -128,54 +167,35 @@ export class JOSETokenService {
   }
 
   /**
-   * Revoke a token by adding it to a revocation list
-   * (Simple in-memory implementation - could be enhanced with Redis/database)
+   * Revoke a token using the secure JWT service
+   * @deprecated Use secureJWTService.revokeToken() for persistent revocation
    */
-  private revokedTokens = new Set<string>();
-
   async revokeToken(token: string, reason: string): Promise<boolean> {
+    console.warn('⚠️  JOSETokenService.revokeToken is deprecated. Use secureJWTService.revokeToken() for persistent revocation.');
+    
     try {
-      const tokenInfo = await this.extractTokenInfo(token);
-      if (!tokenInfo?.jti) return false;
-
-      this.revokedTokens.add(tokenInfo.jti);
-      console.log(`Revoked JOSE subscription token: ${reason} (ID: ${tokenInfo.jti})`);
-      
-      // Clean up expired revocations periodically
-      this.cleanupRevokedTokens();
-      
-      return true;
+      // Import secureJWTService dynamically to avoid circular dependencies
+      const { secureJWTService } = await import('./secure-jwt-service');
+      return await secureJWTService.revokeToken(token, reason, 'jose-service');
     } catch (error) {
-      console.error('Error revoking JOSE token:', error);
+      console.error('Error revoking JOSE token via secure service:', error);
       return false;
     }
   }
 
   /**
-   * Check if a token is revoked
+   * Check if a token is revoked using the secure JWT service
+   * @deprecated Use secureJWTService.validateAccessToken() for comprehensive validation
    */
   async isTokenRevoked(token: string): Promise<boolean> {
     try {
-      const tokenInfo = await this.extractTokenInfo(token);
-      return tokenInfo?.jti ? this.revokedTokens.has(tokenInfo.jti) : true;
+      // Import secureJWTService dynamically to avoid circular dependencies
+      const { secureJWTService } = await import('./secure-jwt-service');
+      const validation = await secureJWTService.validateAccessToken(token);
+      return validation.revoked || false;
     } catch (error) {
-      return true;
-    }
-  }
-
-  /**
-   * Clean up expired token revocations
-   */
-  private cleanupRevokedTokens(): void {
-    // In a real implementation, you'd want to:
-    // 1. Store revoked tokens with expiration times
-    // 2. Periodically clean up expired revocations
-    // 3. Use Redis or database for distributed systems
-    
-    // For now, just limit the size
-    if (this.revokedTokens.size > 10000) {
-      const tokensArray = Array.from(this.revokedTokens);
-      this.revokedTokens = new Set(tokensArray.slice(-5000)); // Keep last 5000
+      // If we can't check, assume not revoked to avoid false positives
+      return false;
     }
   }
 }

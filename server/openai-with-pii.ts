@@ -2,6 +2,9 @@ import OpenAI from "openai";
 import type { DocumentAnalysis, PIIRedactionInfo } from "@shared/schema";
 import { securityLogger } from "./security-logger";
 import { piiDetectionService, type PIIDetectionResult } from "./pii-detection";
+import { enhancedPiiDetectionService } from "./enhanced-pii-detection";
+import { piiEntanglementService } from "./pii-entanglement-service";
+import { payloadHashingService } from "./payload-hashing-service";
 
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY
@@ -10,6 +13,7 @@ const openai = new OpenAI({
 export interface AnalysisWithPII {
   analysis: DocumentAnalysis;
   redactionInfo: PIIRedactionInfo;
+  payloadFingerprint?: import('./payload-hashing-service').PayloadFingerprint;
 }
 
 export async function analyzeDocumentWithPII(
@@ -26,7 +30,10 @@ export async function analyzeDocumentWithPII(
       detectNames?: boolean;
       minConfidence?: number;
       customPatterns?: Array<{ name: string; regex: RegExp; confidence: number; }>;
+      useEnhancedDetection?: boolean; // Use multi-pass enhanced detection
+      aggressiveMode?: boolean; // Bias toward over-detection for privacy
     };
+    enablePayloadHashing?: boolean; // Enable multi-layer Russian Doll hashing
   } = {}
 ): Promise<AnalysisWithPII> {
   const {
@@ -35,28 +42,56 @@ export async function analyzeDocumentWithPII(
     sessionId,
     model = "gpt-4o",
     userId,
-    piiDetection = { enabled: true } // Always enabled for maximum privacy protection
+    piiDetection = { 
+      enabled: true, // Always enabled for maximum privacy protection
+      useEnhancedDetection: true, // Default to enhanced multi-pass detection
+      aggressiveMode: true // Default to aggressive mode for maximum privacy
+    },
+    enablePayloadHashing = true // Default to enabled for complete forensic traceability
   } = options;
 
   try {
+    const processingStart = performance.now();
+    const stageTimings: Record<string, number> = {};
+
     // Log OpenAI API usage for audit purposes
     if (ip && userAgent && sessionId) {
       securityLogger.logOpenAIUsage(ip, userAgent, sessionId, title);
     }
 
     let analysisContent = content;
-    let piiDetectionResult: PIIDetectionResult | null = null;
+    let piiDetectionResult: any = null;
 
-    // Perform mandatory PII detection and redaction for privacy protection
-    console.log(`🔍 Performing mandatory PII detection on document: "${title}"`);
+    // Choose detection method based on options
+    const detectionStart = performance.now();
     
-    piiDetectionResult = piiDetectionService.detectPII(content, {
-      detectNames: piiDetection.detectNames ?? true,
-      minConfidence: piiDetection.minConfidence ?? 0.7,
-      customPatterns: piiDetection.customPatterns ?? []
-    });
+    if (piiDetection.useEnhancedDetection) {
+      console.log(`🔍 Performing enhanced multi-pass PII detection on document: "${title}"`);
+      console.log(`   - Mode: ${piiDetection.aggressiveMode ? 'Aggressive (privacy-first)' : 'Balanced'}`);
+      
+      piiDetectionResult = await enhancedPiiDetectionService.detectPIIEnhanced(content, {
+        enableHashing: true,
+        sessionId: sessionId,
+        documentId: title || 'untitled',
+        aggressiveMode: piiDetection.aggressiveMode ?? true,
+        customPatterns: piiDetection.customPatterns ?? []
+      });
+    } else {
+      console.log(`🔍 Performing standard PII detection with Argon2 hashing on document: "${title}"`);
+      
+      piiDetectionResult = await piiDetectionService.detectPIIWithHashing(content, {
+        detectNames: piiDetection.detectNames ?? true,
+        minConfidence: piiDetection.minConfidence ?? 0.7,
+        customPatterns: piiDetection.customPatterns ?? [],
+        enableHashing: true,
+        sessionId: sessionId,
+        documentId: title || 'untitled'
+      });
+    }
+    
+    stageTimings.piiDetection = performance.now() - detectionStart;
 
-    // Create redaction info based on detection results
+    // Create redaction info based on detection results with enhanced hashing data
     const redactionInfo: PIIRedactionInfo = {
       hasRedactions: piiDetectionResult.matches.length > 0,
       originalContent: content,
@@ -71,12 +106,54 @@ export async function analyzeDocumentWithPII(
           pattern: p.regex.source,
           confidence: p.confidence
         }))
-      }
+      },
+      // Include Argon2 hashed PII data for secure entanglement
+      hashedMatches: piiDetectionResult.hashedMatches,
+      piiAnalytics: undefined // Will be calculated separately to avoid async issues
     };
+
+    // Calculate PII analytics if we have hashed matches
+    if (piiDetectionResult.hashedMatches?.length > 0) {
+      try {
+        const piiHashingModule = await import('./pii-hashing-service.js');
+        redactionInfo.piiAnalytics = piiHashingModule.piiHashingService.createPIIAnalyticsSummary(piiDetectionResult.hashedMatches);
+      } catch (error) {
+        console.warn('Could not calculate PII analytics:', error);
+      }
+    }
 
     if (piiDetectionResult.matches.length > 0) {
       console.log(`🛡️ Found ${piiDetectionResult.matches.length} PII matches, redacting for OpenAI analysis`);
-      console.log(`   - Types found: ${[...new Set(piiDetectionResult.matches.map(m => m.type))].join(', ')}`);
+      console.log(`   - Types found: ${[...new Set(piiDetectionResult.matches.map((m: any) => m.type))].join(', ')}`);
+      
+      // Log secure entanglement information if hashing was performed
+      if (redactionInfo.piiAnalytics && redactionInfo.piiAnalytics.documentPIIFingerprint) {
+        console.log(`🔗 PII Entanglement: Risk Score ${redactionInfo.piiAnalytics.riskScore}, Fingerprint ${redactionInfo.piiAnalytics.documentPIIFingerprint.substring(0, 8)}...`);
+        if (redactionInfo.piiAnalytics.entanglementIds && redactionInfo.piiAnalytics.entanglementIds.length > 0) {
+          console.log(`   - Entanglement IDs: ${redactionInfo.piiAnalytics.entanglementIds.map(id => id.substring(0, 12) + '...').join(', ')}`);
+        }
+        
+        // Store entanglement data for cross-document analysis
+        if (sessionId && redactionInfo.hashedMatches) {
+          piiEntanglementService.storeDocumentEntanglement(
+            sessionId, 
+            title || 'untitled',
+            redactionInfo.hashedMatches,
+            piiDetectionResult.detectionMetrics // Include enhanced detection metrics
+          );
+          
+          // Check for cross-document entanglements in this session
+          const entanglementCheck = piiEntanglementService.checkCrossDocumentEntanglement(
+            sessionId,
+            redactionInfo.hashedMatches
+          );
+          
+          if (entanglementCheck.hasSharedPII) {
+            console.log(`⚠️ Cross-document PII detected: ${entanglementCheck.sharedEntanglementIds.length} shared entanglements with previous document`);
+          }
+        }
+      }
+      
       analysisContent = piiDetectionResult.redactedText;
     } else {
       console.log(`✅ No PII detected in document: "${title}" - proceeding with original content`);
@@ -104,6 +181,9 @@ Document Title: ${title}`;
 
     // Add PII handling instructions if redactions were made
     if (redactionInfo.hasRedactions && piiDetectionResult) {
+      const instructionMethod = piiDetection.useEnhancedDetection ? 
+        'generateOpenAIInstructions' : 'generateOpenAIInstructions';
+      
       prompt += `\n\n${piiDetectionService.generateOpenAIInstructions(piiDetectionResult.redactionMap)}`;
     }
 
@@ -139,17 +219,30 @@ Focus on:
 
 Provide practical, actionable insights that help users understand what they're agreeing to.`;
 
-    const completion = await openai.chat.completions.create({
+    // Prepare API request payload for hashing
+    const apiRequestPayload = {
       model: model,
       messages: [
         {
-          role: "user",
+          role: "user" as const,
           content: prompt
         }
       ],
       temperature: 0.1,
       max_tokens: 4000
-    });
+    };
+
+    // Log the raw request payload
+    console.log(`📤 RAW REQUEST PAYLOAD TO OPENAI (WITH PII DETECTION):`);
+    console.log(JSON.stringify(apiRequestPayload, null, 2));
+
+    const apiStart = performance.now();
+    const completion = await openai.chat.completions.create(apiRequestPayload);
+    stageTimings.openaiCall = performance.now() - apiStart;
+
+    // Log the raw response payload
+    console.log(`📥 RAW RESPONSE PAYLOAD FROM OPENAI (WITH PII DETECTION):`);
+    console.log(JSON.stringify(completion, null, 2));
 
     const response = completion.choices[0]?.message?.content;
     if (!response) {
@@ -157,6 +250,22 @@ Provide practical, actionable insights that help users understand what they're a
     }
 
     console.log(`✅ Received response from OpenAI (${completion.usage?.total_tokens} tokens used)`);
+
+    // Track usage if userId is provided
+    if (userId && completion.usage) {
+      try {
+        const { subscriptionService } = await import("./subscription-service");
+        await subscriptionService.trackUsage(
+          userId,
+          completion.usage.total_tokens,
+          model
+        );
+        console.log(`📊 Usage tracked: +1 document, +${completion.usage.total_tokens} tokens for user ${userId}`);
+      } catch (error) {
+        console.error('❌ Failed to track usage:', error);
+        // Don't throw - usage tracking failures shouldn't break document analysis
+      }
+    }
 
     // Parse the JSON response
     let analysisData: DocumentAnalysis;
@@ -199,14 +308,62 @@ Provide practical, actionable insights that help users understand what they're a
     }
 
     // Restore PII in the analysis if redactions were made
+    const restorationStart = performance.now();
     if (redactionInfo.hasRedactions && piiDetectionResult) {
       console.log(`🔄 Restoring PII in analysis response`);
       analysisData = restorePIIInAnalysis(analysisData, piiDetectionResult.redactionMap);
     }
+    stageTimings.piiRestoration = performance.now() - restorationStart;
+
+    // Create multi-layer payload fingerprint if enabled
+    let payloadFingerprint = undefined;
+    if (enablePayloadHashing) {
+      const hashingStart = performance.now();
+      console.log(`🔐 Creating multi-layer payload fingerprint for forensic traceability`);
+      
+      try {
+        payloadFingerprint = await payloadHashingService.createPayloadFingerprint(
+          content, // Original content
+          analysisContent, // Redacted content sent to OpenAI
+          apiRequestPayload, // Complete API request
+          completion, // API response
+          redactionInfo.hashedMatches || [], // PII hashes
+          {
+            documentId: title || 'untitled',
+            sessionId: sessionId || 'unknown',
+            detectionMetrics: piiDetectionResult.detectionMetrics,
+            processingTimings: stageTimings
+          }
+        );
+        
+        stageTimings.payloadHashing = performance.now() - hashingStart;
+        
+        // Generate forensic report
+        const forensicReport = payloadHashingService.createForensicReport(payloadFingerprint);
+        console.log(`📊 Forensic Report ${forensicReport.reportId}:`);
+        console.log(`   - Chain Integrity: ${(forensicReport.integrityAnalysis.chainIntegrity * 100).toFixed(1)}%`);
+        console.log(`   - Forensic Utility: ${(forensicReport.integrityAnalysis.forensicUtility * 100).toFixed(1)}%`);
+        console.log(`   - Overall Risk: ${forensicReport.securityAssessment.overallRisk}`);
+        
+      } catch (error) {
+        console.error('❌ Failed to create payload fingerprint:', error);
+        stageTimings.payloadHashing = performance.now() - hashingStart;
+      }
+    }
+
+    const totalProcessingTime = performance.now() - processingStart;
+    console.log(`⏱️ Complete processing time: ${totalProcessingTime.toFixed(2)}ms`);
+    console.log(`   - PII Detection: ${stageTimings.piiDetection?.toFixed(2)}ms`);
+    console.log(`   - OpenAI API: ${stageTimings.openaiCall?.toFixed(2)}ms`);
+    console.log(`   - PII Restoration: ${stageTimings.piiRestoration?.toFixed(2)}ms`);
+    if (stageTimings.payloadHashing) {
+      console.log(`   - Payload Hashing: ${stageTimings.payloadHashing.toFixed(2)}ms`);
+    }
 
     return {
       analysis: analysisData,
-      redactionInfo
+      redactionInfo,
+      payloadFingerprint
     };
 
   } catch (error) {
@@ -215,10 +372,13 @@ Provide practical, actionable insights that help users understand what they're a
     // Return error analysis but still attempt PII detection for safety
     let fallbackRedactionInfo: PIIRedactionInfo;
     try {
-      const fallbackDetection = piiDetectionService.detectPII(content, {
+      const fallbackDetection = await piiDetectionService.detectPIIWithHashing(content, {
         detectNames: piiDetection.detectNames ?? true,
         minConfidence: piiDetection.minConfidence ?? 0.7,
-        customPatterns: piiDetection.customPatterns ?? []
+        customPatterns: piiDetection.customPatterns ?? [],
+        enableHashing: true,
+        sessionId: sessionId,
+        documentId: title || 'fallback'
       });
       
       fallbackRedactionInfo = {

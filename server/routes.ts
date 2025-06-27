@@ -7,7 +7,7 @@ import { insertDocumentSchema } from "@shared/schema";
 import { analyzeDocument } from "./openai";
 import { analyzeDocumentWithPII } from "./openai-with-pii";
 import { FileValidator, createSecureFileFilter } from "./file-validation";
-import { securityLogger, getClientInfo } from "./security-logger";
+import { securityLogger, getClientInfo, SecurityEventType, SecuritySeverity } from "./security-logger";
 import multer from "multer";
 import { z } from "zod";
 import mammoth from "mammoth";
@@ -23,10 +23,77 @@ import { emailVerificationService } from './email-verification';
 import { registerUserRoutes } from './user-routes';
 import { registerAdminRoutes } from './admin-routes';
 import { registerEmailRecoveryRoutes } from './email-recovery-routes';
+import { registerTwoFactorRoutes } from './two-factor-routes';
+import { registerTotpRoutes } from './totp-routes';
+import { registerCcpaRoutes } from './ccpa-compliance';
+import { registerAgeVerificationRoutes } from './age-verification-routes';
+import { registerLegalProfessionalRoutes } from './legal-professional-routes';
 import { indexNowService } from './indexnow-service';
+import blogRoutes from './blog-routes.js';
 import { subscriptionService } from './subscription-service';
+import { 
+  submitPiiDetectionFeedback, 
+  getFeedbackAnalytics, 
+  getImprovementSuggestions, 
+  getCommonFalsePositives,
+  getFeedbackSummary
+} from './rlhf-feedback-routes';
 import { getTierById, SUBSCRIPTION_TIERS } from './subscription-tiers';
 import { priorityQueue } from './priority-queue';
+import { createPseudonymizedEmail, verifyEmailMatch } from './argon2';
+
+/**
+ * Find user by email using deterministic hash entanglement
+ * This handles the bidirectional relationship between real and pseudonymized emails
+ */
+async function findUserByEmailWithEntanglement(email: string): Promise<any> {
+  console.log(`🔍 Looking up user for email: ${email}`);
+  
+  // First try direct lookup (works for both real emails stored as-is and pseudonymized emails)
+  let user = await databaseStorage.getUserByEmail(email);
+  if (user) {
+    console.log(`✅ Found user by direct email lookup`);
+    return user;
+  }
+  
+  // If not found and email doesn't look pseudonymized, create pseudonym and try lookup
+  if (!email.includes('@subscription.internalusers.email')) {
+    try {
+      const pseudonymizedEmail = await createPseudonymizedEmail(email);
+      console.log(`🔗 Generated pseudonym: ${email} -> ${pseudonymizedEmail}`);
+      
+      user = await databaseStorage.getUserByEmail(pseudonymizedEmail);
+      if (user) {
+        console.log(`✅ Found user by pseudonymized email lookup`);
+        return user;
+      }
+    } catch (error) {
+      console.error('❌ Failed to create pseudonymized email for lookup:', error);
+    }
+  } else {
+    // If email looks pseudonymized, try to find a user with a real email that matches
+    // This is more expensive but handles edge cases
+    try {
+      const allUsers = await databaseStorage.getUsers({ page: 1, limit: 1000, sortBy: 'createdAt', sortOrder: 'desc' });
+      
+      for (const potentialUser of allUsers.users) {
+        if (potentialUser.email && !potentialUser.email.includes('@subscription.internalusers.email')) {
+          // This user has a real email, check if it matches our pseudonym
+          const matches = await verifyEmailMatch(potentialUser.email, email);
+          if (matches) {
+            console.log(`✅ Found user by reverse email entanglement: ${email} matches ${potentialUser.email}`);
+            return potentialUser;
+          }
+        }
+      }
+    } catch (error) {
+      console.error('❌ Failed reverse email entanglement lookup:', error);
+    }
+  }
+  
+  console.log(`❌ No user found for email: ${email}`);
+  return null;
+}
 
 // Initialize Stripe instances for both test and live modes
 const getStripeInstance = (useTestMode: boolean = false) => {
@@ -695,61 +762,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   // Analyze document
   app.post("/api/documents/:id/analyze", async (req: any, res) => {
-    // Check consent for analysis - skip for sample contracts
-    try {
-      const { ip, userAgent } = getClientInfo(req);
-      
-      // Skip consent check for admin users
-      const adminKey = process.env.ADMIN_API_KEY;
-      const providedKey = req.headers['x-admin-key'] as string;
-      const adminToken = req.headers['x-admin-token'] as string;
-      
-      if (!(adminKey && (providedKey === adminKey || adminToken))) {
-        // Check if this is a sample contract analysis
-        const documentId = parseInt(req.params.id);
-        const document = await storage.getDocument(req.sessionId, documentId);
-        
-        // Skip consent for sample contracts
-        const isSampleContract = document && document.title && [
-          'sample', 'example', 'demo', 'template',
-          'residential lease', 'employment agreement', 'nda',
-          'service agreement', 'rental agreement'
-        ].some(keyword => document.title.toLowerCase().includes(keyword.toLowerCase()));
-        
-        if (!isSampleContract) {
-          // Get user ID for consent verification
-          const userId = req.user?.id;
-          
-          // Check for valid consent for non-sample analysis
-          const consentProof = await consentLogger.verifyUserConsent(ip, userAgent, userId);
-          
-          if (!consentProof) {
-            securityLogger.logSecurityEvent(
-              ip, 
-              userAgent, 
-              'CONSENT_REQUIRED', 
-              'HIGH', 
-              `Analysis denied - no valid consent found for ${req.path}`,
-              req.path
-            );
-            
-            return res.status(403).json({
-              error: 'Consent required for document analysis',
-              message: 'You must accept our terms and conditions to analyze your own documents',
-              code: 'CONSENT_REQUIRED',
-              requiresConsent: true
-            });
-          }
-        }
-      }
-    } catch (error) {
-      console.error('Error checking consent for analysis:', error);
-      return res.status(500).json({
-        error: 'Unable to verify consent',
-        message: 'Please try again or contact support',
-        code: 'CONSENT_VERIFICATION_ERROR'
-      });
-    }
     try {
       const documentId = parseInt(req.params.id);
 
@@ -763,29 +775,57 @@ export async function registerRoutes(app: Express): Promise<Server> {
       let document = await storage.getDocument(req.sessionId, documentId, clientFingerprint);
 
       let originalSessionId = null;
+      let isSampleDocument = false;
       
       if (!document) {
-        // For sample contracts, try to find the document in any recent session from the same client
-        console.log(`🔍 Document ${documentId} not found in current session, checking for sample contract in recent sessions`);
+        console.log(`🔍 Document ${documentId} not found in current session, searching across all sessions for client ${clientFingerprint}`);
         
-        // Try to find the document across all sessions (for sample contracts that are session-independent)
+        // Try to find the document across all sessions - prioritize any document match first
         const allSessions = storage.getAllSessions();
+        let foundDocument = null;
+        let foundSessionId = null;
         
         for (const [sessionId, sessionData] of allSessions) {
           const sessionDoc = await storage.getDocument(sessionId, documentId);
-          if (sessionDoc && sessionDoc.title.startsWith('Sample:')) {
-            console.log(`📋 Found sample contract ${documentId} in session ${sessionId}, making accessible to current session`);
-            // Copy the document to the current session for analysis
-            await storage.createDocument(req.sessionId, {
-              title: sessionDoc.title,
-              content: sessionDoc.content,
-              fileType: sessionDoc.fileType || undefined,
-              analysis: sessionDoc.analysis
-            }, clientFingerprint, documentId);
-            document = sessionDoc;
-            originalSessionId = sessionId;
-            break;
+          if (sessionDoc) {
+            // Prioritize non-sample documents
+            if (!sessionDoc.title.startsWith('Sample:')) {
+              foundDocument = sessionDoc;
+              foundSessionId = sessionId;
+              console.log(`🔍 Found regular document ${documentId} in session ${sessionId}`);
+              break; // Prefer non-sample documents
+            } else if (!foundDocument) {
+              // Only use sample document as fallback if no regular document found
+              foundDocument = sessionDoc;
+              foundSessionId = sessionId;
+              isSampleDocument = true;
+              console.log(`🔍 Found sample document ${documentId} in session ${sessionId} (fallback)`);
+            }
           }
+        }
+        
+        if (foundDocument) {
+          if (isSampleDocument) {
+            console.log(`📋 Found sample contract ${documentId} in session ${foundSessionId}, making accessible to current session`);
+            // Copy the sample document to the current session for analysis
+            await storage.createDocument(req.sessionId, {
+              title: foundDocument.title,
+              content: foundDocument.content,
+              fileType: foundDocument.fileType || undefined,
+              analysis: foundDocument.analysis
+            }, clientFingerprint, documentId);
+          } else {
+            console.log(`📋 Found regular document ${documentId} in session ${foundSessionId}, making accessible to current session`);
+            // Copy the regular document to the current session for analysis
+            await storage.createDocument(req.sessionId, {
+              title: foundDocument.title,
+              content: foundDocument.content,
+              fileType: foundDocument.fileType || undefined,
+              analysis: foundDocument.analysis
+            }, clientFingerprint, documentId);
+          }
+          document = foundDocument;
+          originalSessionId = foundSessionId;
         }
 
         if (!document) {
@@ -802,7 +842,89 @@ export async function registerRoutes(app: Express): Promise<Server> {
             }
           });
         } else {
-          console.log(`✅ Sample contract ${documentId} made accessible from session ${originalSessionId} to ${req.sessionId}`);
+          if (isSampleDocument) {
+            console.log(`✅ Sample contract ${documentId} made accessible from session ${originalSessionId} to ${req.sessionId}`);
+          } else {
+            console.log(`✅ Regular document ${documentId} made accessible from session ${originalSessionId} to ${req.sessionId}`);
+          }
+        }
+      }
+
+      // Check consent for analysis - skip for sample contracts and admin users
+      const { ip, userAgent } = getClientInfo(req);
+      
+      // Skip consent check for admin users
+      const adminKey = process.env.ADMIN_API_KEY;
+      const providedKey = req.headers['x-admin-key'] as string;
+      const adminToken = req.headers['x-admin-token'] as string;
+      
+      // Check if user is admin via subscription token
+      let isAdmin = false;
+      const adminSubscriptionToken = req.headers['x-subscription-token'] as string;
+      if (adminSubscriptionToken) {
+        try {
+          const { hybridTokenService } = await import('./hybrid-token-service');
+          const tokenData = await hybridTokenService.validateSubscriptionToken(adminSubscriptionToken);
+          if (tokenData) {
+            const user = await databaseStorage.getUser(tokenData.userId);
+            const adminEmails = ['admin@readmyfineprint.com', 'prodbybuddha@icloud.com'];
+            isAdmin = !!(user && adminEmails.includes(user.email));
+            if (isAdmin && user) {
+              console.log(`🔑 Admin user ${user.email} bypassing consent check for analysis`);
+            }
+          }
+        } catch (error) {
+          console.error('Error checking admin status via subscription token:', error);
+        }
+      }
+      
+      // Also check traditional admin authentication
+      const isTraditionalAdmin = adminKey && providedKey === adminKey && adminToken;
+      
+      if (!isAdmin && !isTraditionalAdmin) {
+        // Skip consent for sample contracts (now that we have the document)
+        const isSampleContract = document && document.title && [
+          'sample', 'example', 'demo', 'template',
+          'residential lease', 'employment agreement', 'nda',
+          'service agreement', 'rental agreement'
+        ].some(keyword => document.title.toLowerCase().includes(keyword.toLowerCase()));
+        
+        
+        if (!isSampleContract) {
+          try {
+            // Get user ID for consent verification
+            const userId = req.user?.id;
+            
+            // Check for valid consent for non-sample analysis
+            const consentProof = await consentLogger.verifyUserConsent(ip, userAgent, userId);
+            
+            if (!consentProof) {
+              securityLogger.logSecurityEvent({
+                eventType: SecurityEventType.SECURITY_VIOLATION,
+                severity: SecuritySeverity.HIGH,
+                message: `Analysis denied - no valid consent found for ${req.path}`,
+                ip,
+                userAgent,
+                endpoint: req.path
+              });
+              
+              return res.status(403).json({
+                error: 'Consent required for document analysis',
+                message: 'You must accept our terms and conditions to analyze your own documents',
+                code: 'CONSENT_REQUIRED',
+                requiresConsent: true
+              });
+            }
+          } catch (consentError) {
+            console.error('Error checking consent for analysis:', consentError);
+            return res.status(500).json({
+              error: 'Unable to verify consent',
+              message: 'Please try again or contact support',
+              code: 'CONSENT_VERIFICATION_ERROR'
+            });
+          }
+        } else {
+          console.log(`📋 Sample contract detected (${document.title}), skipping consent check`);
         }
       }
 
@@ -893,7 +1015,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
               piiDetection: {
                 enabled: true, // Always enabled for maximum privacy protection
                 detectNames: true,
-                minConfidence: 0.7 // High confidence threshold for production
+                minConfidence: 0.7, // High confidence threshold for production
+                useEnhancedDetection: true, // Enable multi-pass enhanced detection with local LLM
+                aggressiveMode: true // Bias toward over-detection for privacy
               }
             }
           );
@@ -947,7 +1071,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Get user subscription with usage data
-  app.get("/api/user/subscription", requireConsent, optionalUserAuth, async (req, res) => {
+  app.get("/api/user/subscription", optionalUserAuth, async (req, res) => {
     try {
       let subscriptionData;
       
@@ -1065,15 +1189,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Step 1: Request verification code for subscription login
-  app.post("/api/subscription/login/request-code", requireConsent, async (req, res) => {
+  app.post("/api/subscription/login/request-code", async (req, res) => {
     try {
       const { email } = req.body;
       if (!email || !email.includes('@')) {
         return res.status(400).json({ error: 'Valid email required' });
       }
 
-      // Find user by email
-      const user = await databaseStorage.getUserByEmail(email);
+      // Find user by email using deterministic hash entanglement
+      const user = await findUserByEmailWithEntanglement(email);
       if (!user) {
         return res.status(404).json({ 
           error: 'No subscription found for this email address. Please check your email or subscribe first.',
@@ -1163,7 +1287,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Step 2: Verify code and complete login
-  app.post("/api/subscription/login/verify", requireConsent, async (req, res) => {
+  app.post("/api/subscription/login/verify", async (req, res) => {
     try {
       const { email, code } = req.body;
       if (!email || !email.includes('@')) {
@@ -1192,9 +1316,23 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
 
       // Code verified! Now complete the login
-      const user = await databaseStorage.getUserByEmail(email);
+      const user = await findUserByEmailWithEntanglement(email);
       if (!user) {
         return res.status(404).json({ error: 'User not found' });
+      }
+
+      // Mark email as verified if this is their first successful verification
+      if (!user.emailVerified) {
+        await databaseStorage.updateUser(user.id, { 
+          emailVerified: true,
+          lastLoginAt: new Date()
+        });
+        console.log(`✅ Email verified for user: ${email}`);
+      } else {
+        // Just update last login time for already verified users
+        await databaseStorage.updateUser(user.id, { 
+          lastLoginAt: new Date()
+        });
       }
 
       const subscriptionData = await subscriptionService.getUserSubscriptionWithUsage(user.id);
@@ -1221,7 +1359,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Get subscription token after successful checkout
-  app.get("/api/subscription/token/:sessionId", requireConsent, async (req, res) => {
+  app.get("/api/subscription/token/:sessionId", async (req, res) => {
     try {
       const { sessionId } = req.params;
       console.log(`🔍 Token retrieval request for session: ${sessionId}`);
@@ -1277,7 +1415,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Create subscription checkout session
-  app.post("/api/subscription/create-checkout", requireConsent, optionalUserAuth, async (req, res) => {
+  app.post("/api/subscription/create-checkout", optionalUserAuth, async (req, res) => {
     try {
       // Input validation
       const checkoutSchema = z.object({
@@ -1710,6 +1848,90 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Logout endpoint - clears subscription token and documents
+  app.post("/api/logout", optionalUserAuth, async (req: any, res) => {
+    try {
+      const { ip, userAgent } = getClientInfo(req);
+      const subscriptionToken = req.headers['x-subscription-token'] as string;
+      const userId = req.user?.id;
+
+      console.log(`🚪 Logout request - IP: ${ip}, User: ${userId || 'anonymous'}, Session: ${req.sessionId}`);
+
+      let tokensRevoked = 0;
+      let documentsCleared = false;
+
+      // Clear documents from current session
+      try {
+        await storage.clearAllDocuments(req.sessionId);
+        documentsCleared = true;
+        console.log(`🗑️ Cleared documents for session: ${req.sessionId}`);
+      } catch (error) {
+        console.error('Error clearing documents during logout:', error);
+      }
+
+      // Revoke subscription token if provided
+      if (subscriptionToken) {
+        try {
+          const revoked = await subscriptionService.revokeSubscriptionToken(
+            subscriptionToken, 
+            'User logout'
+          );
+          if (revoked) {
+            tokensRevoked++;
+            console.log(`🔑 Revoked subscription token during logout`);
+          }
+        } catch (error) {
+          console.error('Error revoking subscription token during logout:', error);
+        }
+      }
+
+      // If we have a user ID, revoke all their tokens for security
+      if (userId) {
+        try {
+          const revokedCount = await subscriptionService.revokeAllUserTokens(
+            userId, 
+            'User logout - security cleanup'
+          );
+          tokensRevoked += revokedCount;
+          console.log(`🔒 Revoked ${revokedCount} additional tokens for user ${userId}`);
+        } catch (error) {
+          console.error('Error revoking user tokens during logout:', error);
+        }
+      }
+
+      // Log security event
+      securityLogger.logSecurityEvent({
+        eventType: 'LOGOUT' as any,
+        severity: 'LOW' as any,
+        message: 'User logged out successfully',
+        ip,
+        userAgent,
+        endpoint: '/api/logout',
+        details: {
+          userId: userId || 'anonymous',
+          sessionId: req.sessionId,
+          tokensRevoked,
+          documentsCleared,
+          hadSubscriptionToken: !!subscriptionToken
+        }
+      });
+
+      res.json({
+        success: true,
+        message: 'Logged out successfully',
+        details: {
+          tokensRevoked,
+          documentsCleared,
+          sessionCleared: true
+        }
+      });
+
+    } catch (error) {
+      console.error("Error during logout:", error);
+      res.status(500).json({ error: "Logout failed" });
+    }
+  });
+
   // Create payment intent endpoint with enhanced security and auto-detecting test/live mode
   app.post('/api/create-payment-intent', requireConsent, async (req, res) => {
     try {
@@ -2021,7 +2243,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
                 
                 // Store mapping from checkout session to token for frontend retrieval
                 console.log(`💾 Storing session token mapping...`);
-                await subscriptionService.storeSessionToken(checkoutSession.id, subscriptionToken);
+                await subscriptionService.storeSessionToken(checkoutSession.id, subscriptionToken, actualUserId);
                 
                 // Verify the token was stored correctly
                 console.log(`🔍 Verifying token storage...`);
@@ -2301,6 +2523,31 @@ export async function registerRoutes(app: Express): Promise<Server> {
   
   // Register email recovery routes
   registerEmailRecoveryRoutes(app);
+  
+  // Register 2FA routes
+  registerTwoFactorRoutes(app);
+  
+  // Register TOTP routes
+  registerTotpRoutes(app);
+  
+  // Register CCPA compliance routes
+  registerCcpaRoutes(app);
+  
+  // Register age verification routes
+  registerAgeVerificationRoutes(app);
+  
+  // Register legal professional routes
+  registerLegalProfessionalRoutes(app);
+  
+  // Register blog routes
+  app.use('/api/blog', blogRoutes);
+
+  // Register RLHF feedback routes for PII detection improvement
+  app.post('/api/rlhf/feedback', submitPiiDetectionFeedback);
+  app.get('/api/rlhf/analytics', requireAdminAuth, getFeedbackAnalytics);
+  app.get('/api/rlhf/improvements', requireAdminAuth, getImprovementSuggestions);
+  app.get('/api/rlhf/false-positives/:detectionType', requireAdminAuth, getCommonFalsePositives);
+  app.get('/api/rlhf/summary', getFeedbackSummary);
 
   // Serve uploaded files securely with proper headers
   app.use('/uploads', (req, res, next) => {

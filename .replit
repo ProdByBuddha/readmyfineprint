@@ -1,10 +1,10 @@
-modules = ["nodejs-20", "web", "postgresql-16"]
+modules = ["nodejs-20", "web", "postgresql-16", "python-3.11"]
 run = "npm run dev"
 hidden = [".config", ".git", "generated-icon.png", "node_modules", "dist"]
 
 [nix]
 channel = "stable-24_05"
-packages = ["imagemagick"]
+packages = ["imagemagick", "python311Packages.transformers", "python311Packages.torch", "python311Packages.tokenizers"]
 
 [deployment]
 deploymentTarget = "autoscale"
@@ -12,7 +12,7 @@ build = ["npm", "run", "build"]
 run = ["npm", "run", "start"]
 
 [workflows]
-runButton = "Project"
+runButton = "Start Dev + PII LLM"
 
 [[workflows.workflow]]
 name = "Project"
@@ -32,12 +32,26 @@ task = "shell.exec"
 args = "npm run dev"
 waitForPort = 5000
 
-[[ports]]
-localPort = 3000
-externalPort = 3000
+[[workflows.workflow]]
+name = "Start Dev + PII LLM"
+mode = "sequential"
+author = 30822729
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "npm run dev:with-llm"
+
+[[workflows.workflow]]
+name = "Test Blog"
+mode = "sequential"
+author = 30822729
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "npm run blog:setup"
 
 [[ports]]
-localPort = 3001
+localPort = 3000
 externalPort = 3001
 
 [[ports]]
@@ -45,9 +59,5 @@ localPort = 5000
 externalPort = 80
 
 [[ports]]
-localPort = 8000
-externalPort = 8000
-
-[[ports]]
-localPort = 8080
-externalPort = 8080
+localPort = 11434
+externalPort = 3000

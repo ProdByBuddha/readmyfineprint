@@ -1,10 +1,12 @@
 import { Request, Response, NextFunction } from 'express';
 import argon2 from 'argon2';
 import jwt from 'jsonwebtoken';
+import { secureJWTService } from './secure-jwt-service';
 import crypto from 'crypto';
-import { securityLogger, getClientInfo } from './security-logger';
+import { securityLogger, getClientInfo, SecurityEventType, SecuritySeverity } from './security-logger';
 import { databaseStorage } from './storage';
 import { consentLogger } from './consent';
+import { adminVerificationService } from './admin-verification';
 
 // Extend Request interface to include user
 declare global {
@@ -26,8 +28,6 @@ export function requireAdminAuth(req: Request, res: Response, next: NextFunction
   const adminKey = process.env.ADMIN_API_KEY;
   
   console.log(`🔍 Admin auth attempt for ${req.path}`);
-  console.log(`🔍 Headers:`, Object.keys(req.headers));
-  console.log(`🔍 x-admin-key present:`, !!req.headers['x-admin-key']);
 
   // Enforce admin key requirement in ALL environments for security
   if (!adminKey) {
@@ -43,45 +43,45 @@ export function requireAdminAuth(req: Request, res: Response, next: NextFunction
   const providedKey = req.headers['x-admin-key'] as string;
   const adminToken = req.headers['x-admin-token'] as string;
 
-  // Support both admin key and admin token authentication
-  if (providedKey) {
-    // Use timing-safe comparison to prevent timing attacks
-    const providedBuffer = Buffer.from(providedKey);
-    const adminBuffer = Buffer.from(adminKey);
-
-    if (providedBuffer.length !== adminBuffer.length ||
-        !crypto.timingSafeEqual(providedBuffer, adminBuffer)) {
-      securityLogger.logFailedAuth(ip, userAgent, 'Invalid admin key provided', req.path);
-      return res.status(403).json({
-        error: 'Invalid admin key.'
-      });
-    }
-
-    // Log successful admin authentication
-    securityLogger.logAdminAuth(ip, userAgent, req.path);
-    req.user = {
-      id: 'admin',
-      email: 'admin@readmyfineprint.com',
-      username: 'admin'
-    };
-    return next();
+  // Require both admin key AND valid admin token for security
+  if (!providedKey || !adminToken) {
+    securityLogger.logFailedAuth(ip, userAgent, 'Missing admin credentials', req.path);
+    return res.status(401).json({ 
+      error: 'Admin authentication required. Both admin key and verification token are needed.',
+      code: 'MISSING_ADMIN_CREDENTIALS'
+    });
   }
 
-  // Check admin token (from email verification)
-  if (adminToken) {
-    securityLogger.logAdminAuth(ip, userAgent, req.path + ' (via email verification)');
-    req.user = {
-      id: 'admin',
-      email: 'admin@readmyfineprint.com',
-      username: 'admin'
-    };
-    return next();
+  // Validate admin key
+  if (providedKey !== adminKey) {
+    securityLogger.logFailedAuth(ip, userAgent, 'Invalid admin key', req.path);
+    return res.status(401).json({ 
+      error: 'Invalid admin credentials',
+      code: 'INVALID_ADMIN_KEY'
+    });
   }
 
-  securityLogger.logFailedAuth(ip, userAgent, 'Missing admin authentication', req.path);
-  return res.status(401).json({
-    error: 'Admin authentication required.'
-  });
+  // Validate admin verification token
+  const tokenValidation = adminVerificationService.validateAdminToken(adminToken, ip, userAgent);
+  if (!tokenValidation.valid) {
+    securityLogger.logFailedAuth(ip, userAgent, `Invalid admin token: ${tokenValidation.message}`, req.path);
+    return res.status(401).json({ 
+      error: tokenValidation.message || 'Invalid admin token',
+      code: 'INVALID_ADMIN_TOKEN'
+    });
+  }
+
+  // Log successful authentication
+  securityLogger.logAdminAuth(ip, userAgent, req.path);
+  
+  // Set user context for admin user
+  req.user = {
+    id: 'admin',
+    email: tokenValidation.email || 'admin@readmyfineprint.com',
+    username: 'admin'
+  };
+
+  next();
 }
 
 /**
@@ -92,46 +92,35 @@ export async function optionalUserAuth(req: Request, res: Response, next: NextFu
   try {
     const { ip, userAgent } = getClientInfo(req);
 
-    // Try to get user from JWT token
+    // Try to get user from JWT token using secure JWT service
     const authHeader = req.headers.authorization;
     if (authHeader && authHeader.startsWith('Bearer ')) {
       const token = authHeader.substring(7);
 
-      if (process.env.JWT_SECRET) {
-        try {
-          const decoded = jwt.verify(token, process.env.JWT_SECRET) as any;
-          const user = await databaseStorage.getUser(decoded.userId);
-
+      try {
+        const validation = await secureJWTService.validateAccessToken(token);
+        if (validation.valid && validation.payload) {
+          const user = await databaseStorage.getUser(validation.payload.userId);
           if (user) {
             req.user = {
               id: user.id,
               email: user.email,
-              username: user.username || undefined,
             };
-            console.log(`🔑 User authenticated via JWT: ${user.email} (${user.id})`);
+            console.log(`🔑 User authenticated via secure JWT: ${user.email} (${user.id})`);
           }
-        } catch (jwtError) {
-          console.log('Invalid JWT token:', jwtError instanceof Error ? jwtError.message : 'Unknown error');
+        } else if (validation.expired) {
+          // Token is expired, could suggest refresh
+          console.log('JWT token expired:', validation.error);
+        } else {
+          console.log('JWT token validation failed:', validation.error);
         }
+      } catch (jwtError) {
+        console.log('Error validating JWT token:', jwtError instanceof Error ? jwtError.message : 'Unknown error');
       }
     }
 
-    // If no user found, try session-based authentication (for backwards compatibility)
-    if (!req.user) {
-      // Check for user ID in session or headers (temporary fallback)
-      const userId = req.headers['x-user-id'] as string;
-      if (userId) {
-        const user = await databaseStorage.getUser(userId);
-        if (user) {
-          req.user = {
-            id: user.id,
-            email: user.email,
-            username: user.username || undefined,
-          };
-          console.log(`🔑 User authenticated via header: ${user.email} (${user.id})`);
-        }
-      }
-    }
+    // REMOVED: Insecure fallback authentication methods
+    // No longer supporting header-based auth or session fallbacks
 
     next();
   } catch (error) {
@@ -160,71 +149,205 @@ export async function requireUserAuth(req: Request, res: Response, next: NextFun
 
 /**
  * Require admin authentication via subscription token
- * Checks if user has a valid subscription token and is an admin
+ * Admin users must have valid subscription tokens and be on ultimate tier
  */
 export async function requireAdminViaSubscription(req: Request, res: Response, next: NextFunction) {
   try {
     const { ip, userAgent } = getClientInfo(req);
-    const token = req.headers['x-subscription-token'] as string;
-    
-    if (!token) {
-      securityLogger.logFailedAuth(ip, userAgent, 'Missing subscription token for admin access', req.path);
-      return res.status(401).json({ error: 'Admin authentication required' });
+    const subscriptionToken = req.headers['x-subscription-token'] as string;
+
+    if (!subscriptionToken) {
+      return res.status(401).json({ error: 'Admin subscription token required' });
     }
 
-    // Validate subscription token using hybrid service
+    // Validate the subscription token first
     const { hybridTokenService } = await import("./hybrid-token-service");
-    const tokenData = await hybridTokenService.validateSubscriptionToken(token);
+    const tokenData = await hybridTokenService.validateSubscriptionToken(subscriptionToken);
     
     if (!tokenData) {
-      securityLogger.logFailedAuth(ip, userAgent, 'Invalid subscription token for admin access', req.path);
-      return res.status(401).json({ error: 'Invalid token' });
+      return res.status(401).json({ error: 'Invalid subscription token' });
     }
 
-    // Get user details
-    const user = await databaseStorage.getUser(tokenData.userId);
-    if (!user) {
-      securityLogger.logFailedAuth(ip, userAgent, 'User not found for admin access', req.path);
-      return res.status(401).json({ error: 'User not found' });
+    // Try to get user from database, but handle connection failures gracefully
+    let user: any = null;
+    let subscriptionData: any = null;
+    let databaseAvailable = true;
+
+    try {
+      user = await databaseStorage.getUser(tokenData.userId);
+      
+      // Additional security: Verify user has an active, legitimate subscription
+      const { subscriptionService } = await import("./subscription-service");
+      subscriptionData = await subscriptionService.getUserSubscriptionWithUsage(tokenData.userId);
+    } catch (dbError: any) {
+      console.error('Database connection error during admin auth:', dbError);
+      databaseAvailable = false;
+      
+      // Check if this is a connection termination error
+      if (dbError.message?.includes('terminating connection') || 
+          dbError.cause?.message?.includes('terminating connection') ||
+          dbError.code === '57P01') {
+        console.log('Database connection terminated, proceeding with token-based admin verification');
+      } else {
+        throw dbError; // Re-throw if it's not a connection issue
+      }
     }
 
-    // Check if user is admin
-    const adminEmails = ['admin@readmyfineprint.com', 'prodbybuddha@icloud.com'];
-    if (!adminEmails.includes(user.email)) {
-      securityLogger.logFailedAuth(ip, userAgent, `Non-admin user ${user.email} attempted admin access`, req.path);
-      return res.status(403).json({ error: 'Admin access denied' });
+    // If database is available, perform full verification
+    if (databaseAvailable && user && subscriptionData) {
+      // Check if user is admin by email
+      const adminEmails = ['admin@readmyfineprint.com', 'prodbybuddha@icloud.com'];
+      if (!adminEmails.includes(user.email)) {
+        securityLogger.logSecurityEvent({
+          eventType: SecurityEventType.AUTHENTICATION,
+          severity: SecuritySeverity.HIGH,
+          message: `Non-admin user attempted admin access via subscription token`,
+          ip,
+          userAgent,
+          endpoint: req.path,
+          details: {
+            userId: user.id,
+            email: user.email,
+            tokenUsed: true,
+            attemptedEndpoint: req.path
+          }
+        });
+        return res.status(403).json({ error: 'Admin access denied' });
+      }
+
+      // Admin users must have valid subscription - no free tier admin access
+      if (!subscriptionData.subscription || subscriptionData.tier.id === 'free') {
+        securityLogger.logSecurityEvent({
+          eventType: SecurityEventType.AUTHENTICATION,
+          severity: SecuritySeverity.HIGH,
+          message: `Admin user ${user.email} attempted access without valid paid subscription`,
+          ip,
+          userAgent,
+          endpoint: req.path,
+          details: {
+            userId: user.id,
+            email: user.email,
+            currentTier: subscriptionData.tier.id,
+            hasSubscription: !!subscriptionData.subscription
+          }
+        });
+        return res.status(403).json({ error: 'Admin access requires valid subscription' });
+      }
+
+      req.user = {
+        id: user.id,
+        email: user.email,
+        username: user.username || undefined
+      };
+    } else {
+      // Database unavailable - use token-based verification as fallback
+      console.log('Using token-based admin verification due to database unavailability');
+      
+      // Extract admin status from token data if available
+      const adminEmails = ['admin@readmyfineprint.com', 'prodbybuddha@icloud.com'];
+      
+      // SECURITY: Removed hardcoded admin user ID fallback
+      // Admin access now requires database verification - no hardcoded bypasses
+      securityLogger.logSecurityEvent({
+        eventType: SecurityEventType.AUTHENTICATION,
+        severity: SecuritySeverity.HIGH,
+        message: `Admin access denied during database outage - no fallback allowed`,
+        ip,
+        userAgent,
+        endpoint: req.path,
+        details: {
+          userId: tokenData.userId,
+          tokenUsed: true,
+          databaseAvailable: false,
+          attemptedEndpoint: req.path,
+          securityReason: 'Database verification required for admin access'
+        }
+      });
+      return res.status(503).json({ 
+        error: 'Admin access temporarily unavailable - database connection required for security verification',
+        code: 'DATABASE_VERIFICATION_REQUIRED' 
+      });
     }
 
-    // Log successful admin authentication
-    securityLogger.logAdminAuth(ip, userAgent, req.path + ' (via subscription token)');
-    req.user = {
-      id: user.id,
-      email: user.email,
-      username: user.username || undefined
-    };
+    // Log successful admin authentication (skip for dashboard auto-refresh)
+    const isDashboardAutoRefresh = req.headers['x-dashboard-auto-refresh'] === 'true';
+    if (!isDashboardAutoRefresh) {
+      const authMethod = databaseAvailable ? 'via subscription token' : 'via token fallback';
+      securityLogger.logAdminAuth(ip, userAgent, req.path + ` (${authMethod})`);
+    }
     
     next();
   } catch (error) {
     const { ip, userAgent } = getClientInfo(req);
     console.error('Admin auth error:', error);
-    securityLogger.logFailedAuth(ip, userAgent, 'Admin authentication error', req.path);
+    securityLogger.logSecurityEvent({
+      eventType: SecurityEventType.ERROR,
+      severity: SecuritySeverity.CRITICAL,
+      message: 'Admin authentication system error',
+      ip,
+      userAgent,
+      endpoint: req.path,
+      details: { error: error instanceof Error ? error.message : 'Unknown error' }
+    });
     return res.status(500).json({ error: 'Authentication failed' });
   }
 }
 
 /**
- * Generate JWT token for user
+ * Generate JWT token pair for user (DEPRECATED - use secureJWTService instead)
+ * @deprecated Use secureJWTService.generateTokenPair() for enhanced security
  */
-export function generateJWT(userId: string): string {
-  if (!process.env.JWT_SECRET) {
-    throw new Error('JWT_SECRET environment variable is required');
+export async function generateJWT(userId: string, email?: string): Promise<string> {
+  console.warn('⚠️  generateJWT is deprecated. Use secureJWTService.generateTokenPair() for enhanced security.');
+  
+  // Get user email if not provided
+  if (!email) {
+    const user = await databaseStorage.getUser(userId);
+    if (!user) {
+      throw new Error('User not found');
+    }
+    email = user.email;
   }
+  
+  // Use secure JWT service for token generation
+  const tokenPair = await secureJWTService.generateTokenPair(userId, email);
+  return tokenPair.accessToken;
+}
 
-  return jwt.sign(
-    { userId },
-    process.env.JWT_SECRET,
-    { expiresIn: '7d' } // 7 days
-  );
+/**
+ * Generate secure JWT token pair with refresh token
+ */
+export async function generateSecureTokenPair(userId: string, email: string, clientInfo: {
+  ip?: string;
+  userAgent?: string;
+  deviceFingerprint?: string;
+} = {}) {
+  return await secureJWTService.generateTokenPair(userId, email, clientInfo);
+}
+
+/**
+ * Refresh access token using refresh token
+ */
+export async function refreshAccessToken(refreshToken: string, clientInfo: {
+  ip?: string;
+  userAgent?: string;
+  deviceFingerprint?: string;
+} = {}) {
+  return await secureJWTService.refreshAccessToken(refreshToken, clientInfo);
+}
+
+/**
+ * Revoke JWT token
+ */
+export async function revokeJWTToken(token: string, reason: string, revokedBy: string = 'user') {
+  return await secureJWTService.revokeToken(token, reason, revokedBy);
+}
+
+/**
+ * Revoke all tokens for a user
+ */
+export async function revokeAllUserTokens(userId: string, reason: string, revokedBy: string = 'user') {
+  return await secureJWTService.revokeAllUserTokens(userId, reason, revokedBy);
 }
 
 /**
@@ -241,9 +364,32 @@ export async function requireConsent(req: Request, res: Response, next: NextFunc
     const providedKey = req.headers['x-admin-key'] as string;
     const adminToken = req.headers['x-admin-token'] as string;
     
-    // Skip consent check for admin users
+    // Skip consent check for admin users using traditional admin auth
     if (adminKey && (providedKey === adminKey || adminToken)) {
       return next();
+    }
+
+    // Check if this is an admin user via subscription token
+    const subscriptionToken = req.headers['x-subscription-token'] as string;
+    if (subscriptionToken) {
+      try {
+        const { hybridTokenService } = await import("./hybrid-token-service");
+        const tokenData = await hybridTokenService.validateSubscriptionToken(subscriptionToken);
+        
+        if (tokenData) {
+          const user = await databaseStorage.getUser(tokenData.userId);
+          
+          // Check if user is admin by email
+          const adminEmails = ['admin@readmyfineprint.com', 'prodbybuddha@icloud.com'];
+          if (user && adminEmails.includes(user.email)) {
+            // Admin user via subscription token - skip consent check
+            return next();
+          }
+        }
+      } catch (tokenError) {
+        console.error('Error validating admin subscription token in consent check:', tokenError);
+        // Continue to normal consent check if token validation fails
+      }
     }
 
     // Skip consent check for sample contract operations
@@ -257,14 +403,14 @@ export async function requireConsent(req: Request, res: Response, next: NextFunc
     const consentProof = await consentLogger.verifyUserConsent(ip, userAgent, userId, sessionId);
     
     if (!consentProof) {
-      securityLogger.logSecurityEvent(
-        ip, 
-        userAgent, 
-        'CONSENT_REQUIRED', 
-        'HIGH', 
-        `Access denied - no valid consent found for ${req.path}`,
-        req.path
-      );
+      securityLogger.logSecurityEvent({
+        eventType: SecurityEventType.AUTHORIZATION,
+        severity: SecuritySeverity.HIGH,
+        message: `Access denied - no valid consent found for ${req.path}`,
+        ip,
+        userAgent,
+        endpoint: req.path
+      });
       
       return res.status(403).json({
         error: 'Consent required',

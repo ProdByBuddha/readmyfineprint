@@ -6,8 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 // Alert components available if needed for future features
 // import { Alert, AlertDescription } from '@/components/ui/alert';
-import { Switch } from '@/components/ui/switch';
-import { Label } from '@/components/ui/label';
+
 
 interface SubscriptionTier {
   id: string;
@@ -32,7 +31,7 @@ const SUBSCRIPTION_TIERS: SubscriptionTier[] = [
   {
     id: "free",
     name: "Free",
-    description: "Perfect for trying out document analysis with basic features",
+    description: "Perfect for secure document analysis with enterprise-grade privacy protection",
     model: "gpt-4o-mini",
     monthlyPrice: 0,
     yearlyPrice: 0,
@@ -41,8 +40,8 @@ const SUBSCRIPTION_TIERS: SubscriptionTier[] = [
       "Analysis with GPT-4o-mini",
       "Standard rate limiting (lower priority)",
       "Email support",
-      "Enterprise-grade security",
-      "Full document insights"
+      "Military-grade privacy protection",
+      "Complete audit trails"
     ],
     limits: {
       documentsPerMonth: -1, // -1 indicates unlimited
@@ -56,16 +55,16 @@ const SUBSCRIPTION_TIERS: SubscriptionTier[] = [
   {
     id: "starter",
     name: "Starter",
-    description: "For individuals and teams who need faster processing with advanced AI",
+    description: "For professionals requiring enhanced privacy features and priority processing",
     model: "gpt-4.1-mini",
     monthlyPrice: 15,
     yearlyPrice: 150,
     features: [
       "Unlimited document analysis",
-      "Enhanced analysis with GPT-4.1-mini",
-      "Priority rate limiting (faster processing)",
+      "Advanced privacy-preserving analysis",
+      "Priority processing with enhanced security",
       "Email support",
-      "Enterprise-grade security"
+      "Advanced confidentiality features"
     ],
     limits: {
       documentsPerMonth: -1, // unlimited
@@ -164,6 +163,7 @@ const SUBSCRIPTION_TIERS: SubscriptionTier[] = [
       customIntegrations: true,
     }
   }
+  // Note: Ultimate tier is not displayed in public plans - it's admin-only
 ];
 
 interface SubscriptionPlansProps {
@@ -203,63 +203,55 @@ const calculateSavings = (monthlyPrice: number, yearlyPrice: number) => {
 
 export default function SubscriptionPlans({ currentTier, cancelAtPeriodEnd, onSelectPlan, onReactivate }: SubscriptionPlansProps) {
   const [billingCycle, setBillingCycle] = useState<'monthly' | 'yearly'>('monthly');
-  const [isConsidering, setIsConsidering] = useState(false);
 
   const handleSelectPlan = (tierId: string, billingCycle: 'monthly' | 'yearly') => {
-    if (tierId === 'enterprise') {
-      setIsConsidering(true); // Show "Coming Soon" popup
-    } else {
-      onSelectPlan(tierId, billingCycle);
-    }
+    // All available tiers are ready for selection
+    onSelectPlan(tierId, billingCycle);
   };
 
-  const handleCloseConsidering = () => {
-    setIsConsidering(false);
-  };
 
+
+  // Filter to show only available tiers (free and starter for now)
+  const availableTiers = SUBSCRIPTION_TIERS.filter(tier => 
+    tier.id === 'free' || tier.id === 'starter'
+  );
 
   return (
     <div className="w-full max-w-7xl mx-auto p-2">
       <div className="text-center mb-3">
-        <h2 className="text-xl font-bold text-gray-900 mb-1">
-          Choose Your Plan
-        </h2>
         <p className="text-sm text-gray-600 mb-2">
-          Powered by different AI models for optimal document analysis
+          All plans include enterprise-grade security and advanced privacy protection
         </p>
 
         {/* Billing Cycle Toggle */}
-        <div className="flex flex-col items-center justify-center mb-3">
-          <div className="flex items-center space-x-3">
-            <Label 
-              htmlFor="billing-toggle" 
-              className={`text-sm ${billingCycle === 'monthly' ? 'font-semibold text-gray-900 dark:text-white' : 'text-gray-600 dark:text-gray-400'}`}
-            >
-              Monthly
-            </Label>
-            <Switch
-              id="billing-toggle"
-              checked={billingCycle === 'yearly'}
-              onCheckedChange={(checked) => setBillingCycle(checked ? 'yearly' : 'monthly')}
+        <div className="flex items-center justify-center space-x-1 mb-3">
+          <span className={`text-xs ${billingCycle === 'monthly' ? 'text-gray-900 font-medium' : 'text-gray-500'}`}>
+            Monthly
+          </span>
+          <button
+            onClick={() => setBillingCycle(billingCycle === 'monthly' ? 'yearly' : 'monthly')}
+            className={`relative inline-flex h-5 w-9 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 ${
+              billingCycle === 'yearly' ? 'bg-blue-600' : 'bg-gray-200'
+            }`}
+          >
+            <span
+              className={`inline-block h-3 w-3 transform rounded-full bg-white transition-transform ${
+                billingCycle === 'yearly' ? 'translate-x-5' : 'translate-x-1'
+              }`}
             />
-            <Label 
-              htmlFor="billing-toggle" 
-              className={`text-sm ${billingCycle === 'yearly' ? 'font-semibold text-gray-900 dark:text-white' : 'text-gray-600 dark:text-gray-400'}`}
-            >
-              Yearly
-            </Label>
-          </div>
+          </button>
+          <span className={`text-xs ${billingCycle === 'yearly' ? 'text-gray-900 font-medium' : 'text-gray-500'}`}>
+            Yearly
+          </span>
           {billingCycle === 'yearly' && (
-            <Badge variant="secondary" className="mt-1 text-xs px-2 py-0.5">
-              Save up to 17%
-            </Badge>
+            <span className="text-xs text-green-600 font-medium ml-1">Save up to 17%</span>
           )}
         </div>
       </div>
 
       {/* Plans Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-        {SUBSCRIPTION_TIERS.filter(tier => ['free', 'starter'].includes(tier.id)).map((tier, index) => {
+        {availableTiers.map((tier, index) => {
           const price = billingCycle === 'yearly' ? tier.yearlyPrice : tier.monthlyPrice;
           const displayPrice = billingCycle === 'yearly' ? price / 12 : price;
           const savings = calculateSavings(tier.monthlyPrice, tier.yearlyPrice);
@@ -301,9 +293,9 @@ export default function SubscriptionPlans({ currentTier, cancelAtPeriodEnd, onSe
                     {tier.description}
                   </CardDescription>
 
-                  {/* AI Model Badge */}
+                  {/* Security Badge */}
                   <Badge variant="outline" className="text-xs mt-0.5">
-                    Powered by {tier.model}
+                    Enterprise Security
                   </Badge>
                 </CardHeader>
 
@@ -380,31 +372,6 @@ export default function SubscriptionPlans({ currentTier, cancelAtPeriodEnd, onSe
         })}
       </div>
 
-      {/* Coming Soon Modal */}
-      {isConsidering && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center">
-          <div className="bg-white dark:bg-gray-800 rounded-lg p-8 max-w-md w-full">
-            <div className="text-2xl font-semibold mb-4 dark:text-white">Coming Soon!</div>
-            <p className="text-gray-600 dark:text-gray-400 mb-6">
-              We&apos;re working hard to bring you the Enterprise plan. It will be available soon.
-            </p>
-            <div className="flex justify-end">
-              <Button variant="secondary" onClick={handleCloseConsidering}>
-                Okay
-              </Button>
-            </div>
-            <button
-                onClick={handleCloseConsidering}
-                className="absolute top-6 right-6 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 z-10"
-              >
-                <X className="w-5 h-5" />
-              </button>
-          </div>
-        </div>
-      )}
-
     </div>
   );
 }
-
-import { X } from "lucide-react";

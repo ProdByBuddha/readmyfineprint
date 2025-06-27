@@ -16,6 +16,7 @@ import {
 import { and, eq, desc, lt, sql } from "drizzle-orm";
 import { type Document, type InsertDocument } from "@shared/schema";
 import { type IStorage } from "./storage";
+// No argon2 imports needed for username since we removed the username field
 
 export class DatabaseStorage implements IStorage {
   // Document management (keeping session-based for now)
@@ -135,7 +136,7 @@ export class DatabaseStorage implements IStorage {
     return user;
   }
 
-  async updateUser(id: string, updates: Partial<InsertUser>): Promise<User | undefined> {
+  async updateUser(id: string, updates: Partial<Omit<User, 'id' | 'createdAt' | 'updatedAt'>>): Promise<User | undefined> {
     const [user] = await db
       .update(users)
       .set({
@@ -505,7 +506,7 @@ export class DatabaseStorage implements IStorage {
     const result = await db
       .select({ count: sql`count(*)` })
       .from(users)
-      .where(sql`${users.createdAt} >= ${date}`);
+      .where(sql`${users.createdAt} >= ${date.toISOString()}`);
     return parseInt(result[0].count as string);
   }
 
@@ -515,7 +516,7 @@ export class DatabaseStorage implements IStorage {
       .from(userSubscriptions)
       .where(and(
         eq(userSubscriptions.status, 'active'),
-        sql`${userSubscriptions.createdAt} >= ${date}`
+        sql`${userSubscriptions.createdAt} >= ${date.toISOString()}`
       ));
     return parseInt(result[0].count as string);
   }
@@ -525,7 +526,7 @@ export class DatabaseStorage implements IStorage {
     const result = await db
       .select({ total: sql`sum(${usageRecords.documentsAnalyzed})` })
       .from(usageRecords)
-      .where(sql`${usageRecords.createdAt} >= ${date}`);
+      .where(sql`${usageRecords.createdAt} >= ${date.toISOString()}`);
     return parseInt(result[0].total as string) || 0;
   }
 
@@ -550,7 +551,7 @@ export class DatabaseStorage implements IStorage {
     
     if (options.search) {
       const searchTerm = `%${options.search}%`;
-      conditions = sql`(${users.email} ILIKE ${searchTerm} OR ${users.username} ILIKE ${searchTerm})`;
+      conditions = sql`${users.email} ILIKE ${searchTerm}`;
     }
 
     if (options.hasSubscription !== undefined) {
@@ -589,7 +590,7 @@ export class DatabaseStorage implements IStorage {
       .offset(offset);
 
     return {
-      users: userResults.map(user => ({ ...user, hashedPassword: undefined } as any)),
+      users: userResults.map((user: any) => ({ ...user, hashedPassword: undefined })),
       total,
       page: options.page,
       limit: options.limit,
@@ -614,7 +615,7 @@ export class DatabaseStorage implements IStorage {
         count: sql`count(*)`
       })
       .from(users)
-      .where(sql`${users.createdAt} >= ${startDate}`)
+      .where(sql`${users.createdAt} >= ${startDate.toISOString()}`)
       .groupBy(sql`DATE(${users.createdAt})`)
       .orderBy(sql`DATE(${users.createdAt})`);
     
@@ -645,7 +646,7 @@ export class DatabaseStorage implements IStorage {
       .from(userSubscriptions)
       .where(and(
         eq(userSubscriptions.status, 'active'),
-        sql`${userSubscriptions.createdAt} >= ${startDate}`
+        sql`${userSubscriptions.createdAt} >= ${startDate.toISOString()}`
       ))
       .groupBy(sql`DATE(${userSubscriptions.createdAt})`)
       .orderBy(sql`DATE(${userSubscriptions.createdAt})`);
@@ -669,12 +670,12 @@ export class DatabaseStorage implements IStorage {
         totalTokens: sql`sum(${usageRecords.tokensUsed})`
       })
       .from(usageRecords)
-      .where(sql`${usageRecords.createdAt} >= ${startDate}`);
+      .where(sql`${usageRecords.createdAt} >= ${startDate.toISOString()}`);
 
     const userCountResult = await db
       .select({ count: sql`count(DISTINCT ${usageRecords.userId})` })
       .from(usageRecords)
-      .where(sql`${usageRecords.createdAt} >= ${startDate}`);
+      .where(sql`${usageRecords.createdAt} >= ${startDate.toISOString()}`);
 
     const totalDocuments = parseInt(totalResult[0]?.totalDocuments as string) || 0;
     const totalTokens = parseInt(totalResult[0]?.totalTokens as string) || 0;
@@ -688,7 +689,7 @@ export class DatabaseStorage implements IStorage {
       })
       .from(usageRecords)
       .leftJoin(userSubscriptions, eq(usageRecords.subscriptionId, userSubscriptions.id))
-      .where(sql`${usageRecords.createdAt} >= ${startDate}`)
+      .where(sql`${usageRecords.createdAt} >= ${startDate.toISOString()}`)
       .groupBy(sql`COALESCE(${userSubscriptions.tierId}, 'free')`);
 
     return {
@@ -722,13 +723,13 @@ export class DatabaseStorage implements IStorage {
       .where(eq(userSubscriptions.status, 'active'))
       .groupBy(userSubscriptions.tierId);
 
-    const estimatedRevenue = byTier.reduce((total, tier) => {
+    const estimatedRevenue = byTier.reduce((total: number, tier: any) => {
       return total + (tierPrices[tier.tier] || 0) * parseInt(tier.count as string);
     }, 0);
 
     return {
       totalRevenue: estimatedRevenue,
-      byTier: byTier.map(tier => ({
+      byTier: byTier.map((tier: any) => ({
         ...tier,
         revenue: (tierPrices[tier.tier] || 0) * parseInt(tier.count as string)
       })),
@@ -749,10 +750,4 @@ export class DatabaseStorage implements IStorage {
     return { ...user, hashedPassword: undefined } as any;
   }
 
-  async updateUser(userId: string, updates: Partial<User>): Promise<void> {
-    await db
-      .update(users)
-      .set(updates)
-      .where(eq(users.id, userId));
-  }
 }

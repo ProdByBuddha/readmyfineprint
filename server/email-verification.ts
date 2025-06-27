@@ -165,10 +165,16 @@ export class EmailVerificationService {
     attemptsRemaining?: number;
   }> {
     try {
-      // Clean up expired codes first
+      // Clean up expired codes first (with error handling)
       const now = new Date();
-      await db.delete(emailVerificationCodes)
-        .where(lt(emailVerificationCodes.expiresAt, now));
+      try {
+        await db.delete(emailVerificationCodes)
+          .where(lt(emailVerificationCodes.expiresAt, now));
+        console.log('✅ Email verification cleanup completed');
+      } catch (cleanupError) {
+        console.warn('⚠️ Email verification cleanup failed (non-critical):', cleanupError instanceof Error ? cleanupError.message : cleanupError);
+        // Continue with verification even if cleanup fails
+      }
 
       // Find the verification code
       const verificationRecord = await db.select()

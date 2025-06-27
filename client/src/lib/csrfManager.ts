@@ -13,6 +13,12 @@ class CSRFManager {
    * Get CSRF token from cache or fetch from server
    */
   async getToken(): Promise<string> {
+    // In development mode, return a dummy token
+    if (import.meta.env.DEV || import.meta.env.MODE === 'development') {
+      console.log('⚠️ Development mode: Using dummy CSRF token');
+      return 'dev-csrf-token';
+    }
+    
     // Return cached token if still valid
     if (this.token && Date.now() < this.tokenExpiry) {
       return this.token;
@@ -94,6 +100,17 @@ class CSRFManager {
       };
     } catch (error) {
       console.warn('⚠️ Failed to add CSRF token to headers:', error);
+      
+      // In development mode, continue with dummy token
+      if (import.meta.env.DEV || import.meta.env.MODE === 'development') {
+        const sessionId = await this.getSessionId();
+        return {
+          ...headers,
+          'x-csrf-token': 'dev-csrf-token',
+          'x-session-id': sessionId,
+        };
+      }
+      
       // Return headers without CSRF token - server will reject the request
       const sessionId = await this.getSessionId();
       return {

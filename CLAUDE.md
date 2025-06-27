@@ -68,6 +68,10 @@ npm run tokens:test-multidevice  # Test multi-device support
 npx tsx scripts/sync-stripe-customer-ids.ts    # Sync Stripe customer IDs to users table
 npx tsx scripts/verify-stripe-consistency.ts   # Verify Stripe data consistency
 npx tsx scripts/test-stripe-sync.ts            # Test Stripe sync functionality
+npm run blog:setup      # Initialize blog database and seed topics
+npm run llm:setup       # Set up local LLM for PII detection
+npm run llm:start       # Start local LLM server
+npm run dev:with-llm    # Start both LLM server and development server
 ```
 
 ## Key Technical Details
@@ -100,13 +104,28 @@ npx tsx scripts/test-stripe-sync.ts            # Test Stripe sync functionality
 - Uses OpenAI GPT-4o for analysis (requires OPENAI_API_KEY)
 - Session-based storage (documents not persisted permanently)
 
+### Auto-Blogging SEO System
+- AI-powered content generation using OpenAI GPT-4o
+- Automated blog posting with configurable schedules
+- Topic management with similarity detection to avoid duplicate content
+- SEO optimization with meta tags, structured data, and keyword targeting
+- Content categories: contract law, employment law, intellectual property, business law
+- Admin interface for blog management and analytics
+- Automatic sitemap updates and IndexNow submissions
+
 ## Environment Variables Required
 
 ```bash
-OPENAI_API_KEY=         # Required for document analysis
+OPENAI_API_KEY=         # Required for document analysis and blog generation
 STRIPE_SECRET_KEY=      # Required for payments
 STRIPE_PUBLISHABLE_KEY= # Required for payments
 ADMIN_API_KEY=          # Required for admin operations
+
+# Blog Configuration (Optional)
+BLOG_SCHEDULER_ENABLED=true    # Enable automated blog posting
+BLOG_POSTS_PER_DAY=3           # Number of posts to generate per day
+BLOG_POST_HOURS=9,13,17        # Hours to post (24h format, comma-separated)
+MIN_HOURS_BETWEEN_POSTS=4      # Minimum hours between posts
 ```
 
 ## Testing Notes

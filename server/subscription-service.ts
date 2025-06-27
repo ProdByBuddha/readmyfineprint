@@ -1,10 +1,13 @@
 import Stripe from 'stripe';
 import crypto from 'crypto';
-import type { UserSubscription, SubscriptionTier, User, InsertUserSubscription, UsageRecord, InsertUsageRecord } from '@shared/schema';
+import type { UserSubscription, SubscriptionTier, User, InsertUserSubscription, UsageRecord, InsertUsageRecord, SecurityQuestionsSetup } from '@shared/schema';
 import { SUBSCRIPTION_TIERS, getTierById } from './subscription-tiers';
 import { securityLogger } from './security-logger';
 import { databaseStorage } from './storage';
 import { hybridTokenService } from './hybrid-token-service';
+import { securityQuestionsService } from './security-questions-service';
+import { collectiveUserService } from './collective-user-service';
+import { postgresqlSessionStorage } from './postgresql-session-storage';
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
   apiVersion: '2025-05-28.basil',
@@ -16,6 +19,7 @@ interface CreateSubscriptionParams {
   email: string;
   paymentMethodId: string;
   billingCycle: 'monthly' | 'yearly';
+  securityQuestions?: SecurityQuestionsSetup;
 }
 
 interface SubscriptionUsage {
@@ -41,8 +45,9 @@ export class SubscriptionService {
     setInterval(async () => {
       try {
         console.log('🧹 Starting periodic token cleanup...');
-        const results = await hybridTokenService.cleanupExpired();
-        console.log(`🧹 Cleanup completed: ${results.tokensRemoved} expired tokens removed`);
+        const tokenResults = await hybridTokenService.cleanupExpired();
+        const sessionResults = await postgresqlSessionStorage.cleanupExpired();
+        console.log(`🧹 Cleanup completed: ${tokenResults.tokensRemoved} expired tokens removed, ${sessionResults.sessionsRemoved} expired sessions removed`);
       } catch (error) {
         console.error('Error during token cleanup:', error);
       }
@@ -51,8 +56,9 @@ export class SubscriptionService {
     // Also run cleanup on startup
     setTimeout(async () => {
       try {
-        const results = await hybridTokenService.cleanupExpired();
-        console.log(`🧹 Startup cleanup: ${results.tokensRemoved} expired tokens removed`);
+        const tokenResults = await hybridTokenService.cleanupExpired();
+        const sessionResults = await postgresqlSessionStorage.cleanupExpired();
+        console.log(`🧹 Startup cleanup: ${tokenResults.tokensRemoved} expired tokens removed, ${sessionResults.sessionsRemoved} expired sessions removed`);
       } catch (error) {
         console.error('Error during startup cleanup:', error);
       }
@@ -141,7 +147,7 @@ export class SubscriptionService {
     subscription: Stripe.Subscription;
     userSubscription: UserSubscription;
   }> {
-    const { userId, tierId, email, paymentMethodId, billingCycle } = params;
+    const { userId, tierId, email, paymentMethodId, billingCycle, securityQuestions } = params;
 
     const tier = getTierById(tierId);
     if (!tier) {
@@ -213,6 +219,18 @@ export class SubscriptionService {
         updatedAt: new Date(),
       };
 
+      // Save security questions if provided
+      if (securityQuestions && securityQuestions.questions.length > 0) {
+        try {
+          await securityQuestionsService.saveSecurityQuestions(userId, securityQuestions);
+          console.log(`✅ Security questions saved for user ${userId} during subscription`);
+        } catch (error) {
+          console.error(`❌ Failed to save security questions for user ${userId}:`, error);
+          // Note: We don't fail the subscription creation if security questions fail
+          // The user can set them up later
+        }
+      }
+
       securityLogger.logSecurityEvent({
         eventType: 'SUBSCRIPTION_CREATED' as any,
         severity: 'LOW' as any,
@@ -225,6 +243,7 @@ export class SubscriptionService {
           tierId,
           subscriptionId: subscription.id,
           billingCycle,
+          hasSecurityQuestions: !!securityQuestions?.questions.length,
         },
       });
 
@@ -327,66 +346,144 @@ export class SubscriptionService {
     suggestedUpgrade?: SubscriptionTier;
   }> {
     try {
-      // Handle anonymous/session users by routing through collective free tier user
-      if (userId === "anonymous" || userId.startsWith('session_')) {
-        const collectiveUserId = '00000000-0000-0000-0000-000000000001';
-        
-        // Get collective user's subscription (should be free tier)
-        const collectiveSubscription = await databaseStorage.getUserSubscription(collectiveUserId);
-        const tier = this.validateAndAssignTier(collectiveSubscription) || this.getFreeTier();
-        
-        // Get collective usage for current period
-        const currentPeriod = new Date().toISOString().slice(0, 7);
-        const collectiveUsageRecord = await databaseStorage.getUserUsage(collectiveUserId, currentPeriod);
-        
-        const usage: SubscriptionUsage = {
-          documentsAnalyzed: collectiveUsageRecord?.documentsAnalyzed || 0,
-          tokensUsed: collectiveUsageRecord?.tokensUsed || 0,
-          cost: parseFloat(collectiveUsageRecord?.cost || '0'),
-          resetDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
-        };
-
-        console.log(`📊 Anonymous user routed through collective free tier (${usage.documentsAnalyzed} docs used this month)`);
-
-        return {
-          subscription: collectiveSubscription,
-          tier,
-          usage,
-          canUpgrade: false,
-          suggestedUpgrade: undefined,
-        };
-      }
-
-      // Get user to verify they exist (only for authenticated users)
-      const user = await databaseStorage.getUser(userId);
-      if (!user) {
-        // Fall back to free tier for unknown users
-        console.log(`User ${userId} not found in database, using free tier`);
+      // Special handling for collective free user
+      if (userId === '00000000-0000-0000-0000-000000000001') {
         const tier = this.getFreeTier();
-        const usage: SubscriptionUsage = {
-          documentsAnalyzed: 0,
-          tokensUsed: 0,
-          cost: 0,
-          resetDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
-        };
-
         return {
           tier,
-          usage,
+          usage: {
+            documentsAnalyzed: 0,
+            tokensUsed: 0,
+            cost: 0,
+            resetDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
+          },
           canUpgrade: false,
           suggestedUpgrade: undefined,
         };
       }
 
-      // Get user's current subscription, create inactive free tier if none exists
-      const subscription = await this.ensureUserHasSubscription(userId);
+      // Check if this is a session ID (not a real user) - handle as free tier session user
+      if (userId.length === 32 || userId.includes('session_') || !userId.includes('-')) {
+        console.log(`📊 Session-based user detected (${userId}), providing free tier without subscription record`);
+        const tier = this.getFreeTier();
+        return {
+          tier,
+          usage: {
+            documentsAnalyzed: 0,
+            tokensUsed: 0,
+            cost: 0,
+            resetDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
+          },
+          canUpgrade: true,
+          suggestedUpgrade: this.getStarterTier(),
+        };
+      }
+
+      // Check if user is admin and handle admin subscription logic
+      let isAdmin = false;
+      let subscription: UserSubscription | undefined;
+      
+      try {
+        isAdmin = await this.isAdminByEmail(userId);
+      } catch (adminCheckError: any) {
+        console.error('Error checking admin email:', adminCheckError);
+        
+        // For known admin user ID, assume admin status during database issues
+        if (userId === '24c3ec47-dd61-4619-9c9e-18abbd0981ea') {
+          console.log('[Admin Fallback] Using known admin user ID for admin verification during database issue');
+          isAdmin = true;
+        }
+      }
+      
+      if (isAdmin) {
+        // For admin users, ensure they have ultimate tier subscription
+        try {
+          const existingSubscription = await databaseStorage.getUserSubscription(userId);
+          
+          if (!existingSubscription || existingSubscription.tierId !== 'ultimate') {
+            console.log(`[Admin Setup] Creating/updating ultimate tier subscription for admin user: ${userId}`);
+            
+            if (existingSubscription && existingSubscription.tierId !== 'ultimate') {
+              // Update existing subscription to ultimate tier
+              const now = new Date();
+              const futureDate = new Date(Date.now() + 365 * 24 * 60 * 60 * 1000); // 1 year
+              
+              const updatedSubscription = await databaseStorage.updateUserSubscription(existingSubscription.id, {
+                tierId: 'ultimate',
+                status: 'active',
+                currentPeriodStart: now,
+                currentPeriodEnd: futureDate,
+                cancelAtPeriodEnd: false,
+                stripeCustomerId: null, // Admin subscriptions don't use Stripe
+                stripeSubscriptionId: null
+              });
+              
+              subscription = updatedSubscription || existingSubscription;
+              console.log(`[Admin Setup] Updated existing subscription ${existingSubscription.id} to ultimate tier`);
+            } else {
+              // Create new ultimate tier subscription
+              const ultimateSubscription = await this.createAdminUltimateSubscription(userId);
+              subscription = ultimateSubscription || await this.ensureUserHasSubscription(userId);
+            }
+          } else {
+            subscription = existingSubscription;
+            console.log(`[Admin Setup] Admin user already has ultimate tier subscription`);
+          }
+        } catch (subscriptionError: any) {
+          console.error('Error managing admin subscription:', subscriptionError);
+          
+          // Check if this is a database connection issue
+          if (subscriptionError.message?.includes('terminating connection') || 
+              subscriptionError.cause?.message?.includes('terminating connection') ||
+              subscriptionError.code === '57P01') {
+            
+            console.log('[Admin Fallback] Database connection issue, providing admin tier without subscription record');
+            
+            // Return admin tier without subscription record during database issues
+            const tier = this.getUltimateTier();
+            const usage: SubscriptionUsage = {
+              documentsAnalyzed: 0,
+              tokensUsed: 0,
+              cost: 0,
+              resetDate: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000), // 1 year
+            };
+
+            return {
+              tier,
+              usage,
+              canUpgrade: false,
+              suggestedUpgrade: undefined,
+            };
+          } else {
+            throw subscriptionError; // Re-throw if not a connection issue
+          }
+        }
+      } else {
+        // For regular users, get or create subscription normally
+        subscription = await this.ensureUserHasSubscription(userId);
+      }
 
       // Determine tier with proper subscription validation
-      const tier = this.validateAndAssignTier(subscription);
+      const tier = await this.validateAndAssignTier(subscription);
 
       // Get current period usage
-      const currentPeriod = new Date().toISOString().slice(0, 7); // YYYY-MM format
-      const usageRecord = await databaseStorage.getUserUsage(userId, currentPeriod);
+      let usageRecord: any = null;
+      try {
+        const currentPeriod = new Date().toISOString().slice(0, 7); // YYYY-MM format
+        usageRecord = await databaseStorage.getUserUsage(userId, currentPeriod);
+      } catch (usageError: any) {
+        console.error('Error getting usage record:', usageError);
+        
+        // For admin users during database issues, provide default usage
+        if (isAdmin && (usageError.message?.includes('terminating connection') || 
+                       usageError.cause?.message?.includes('terminating connection') ||
+                       usageError.code === '57P01')) {
+          console.log('[Admin Fallback] Using default usage during database connection issue');
+          // usageRecord will remain null and we'll use defaults below
+        } else {
+          throw usageError; // Re-throw if not a connection issue
+        }
+      }
 
       // Calculate usage data
       const usage: SubscriptionUsage = {
@@ -411,7 +508,27 @@ export class SubscriptionService {
       };
     } catch (error) {
       console.error('Error getting user subscription:', error);
-      // Fallback to free tier
+      
+      // Enhanced fallback for admin users
+      if (userId === '24c3ec47-dd61-4619-9c9e-18abbd0981ea') {
+        console.log('[Admin Emergency Fallback] Providing ultimate tier for known admin during system error');
+        const tier = this.getUltimateTier();
+        const usage: SubscriptionUsage = {
+          documentsAnalyzed: 0,
+          tokensUsed: 0,
+          cost: 0,
+          resetDate: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000), // 1 year
+        };
+
+        return {
+          tier,
+          usage,
+          canUpgrade: false,
+          suggestedUpgrade: undefined,
+        };
+      }
+      
+      // Fallback to free tier for regular users
       const tier = SUBSCRIPTION_TIERS[0];
       const usage: SubscriptionUsage = {
         documentsAnalyzed: 0,
@@ -432,8 +549,19 @@ export class SubscriptionService {
   /**
    * Validate subscription status and assign appropriate tier
    * Ensures non-subscribers get free tier and subscribers get paid tiers only
+   * Ultimate tier is restricted to admin users only
+   * Admin users automatically get ultimate tier regardless of subscription status
    */
-  private validateAndAssignTier(subscription?: UserSubscription): SubscriptionTier {
+  private async validateAndAssignTier(subscription?: UserSubscription): Promise<SubscriptionTier> {
+    // PRIORITY: Check if user is admin - admins always get ultimate tier
+    if (subscription) {
+      const isAdminUser = await this.isAdminUser(subscription.userId);
+      if (isAdminUser) {
+        console.log(`[Admin Access] Ultimate tier automatically assigned to admin user: ${subscription.userId}`);
+        return this.getUltimateTier();
+      }
+    }
+
     // If no subscription exists, user is definitely free tier
     if (!subscription) {
       return this.getFreeTier();
@@ -459,37 +587,89 @@ export class SubscriptionService {
     // Get the requested tier from subscription
     const requestedTier = getTierById(subscription.tierId);
 
-    // If tier doesn't exist, default to free (except for ultimate which should always work)
+    // If tier doesn't exist, default to free tier
     if (!requestedTier) {
-      if (subscription.tierId === 'ultimate') {
-        console.error(`[CRITICAL] Ultimate tier not found in tier definitions! Creating fallback.`);
-        // Return a fallback ultimate tier
-        return {
-          id: 'ultimate',
-          name: 'Ultimate',
-          description: 'God mode - unlimited access',
-          model: 'gpt-4o',
-          monthlyPrice: 0,
-          yearlyPrice: 0,
-          features: ['Unlimited everything'],
-          limits: {
-            documentsPerMonth: -1,
-            tokensPerDocument: -1,
-            prioritySupport: true,
-            advancedAnalysis: true,
-            apiAccess: true,
-            customIntegrations: true,
+      console.warn(`[Subscription Enforcement] Invalid tier ID: ${subscription.tierId}, defaulting to free tier`);
+      securityLogger.logSecurityEvent({
+        eventType: 'SUBSCRIPTION_VALIDATION_FAILED' as any,
+        severity: 'HIGH' as any,
+        message: `Invalid tier ID attempted: ${subscription.tierId}`,
+        ip: 'system',
+        userAgent: 'subscription-service',
+        endpoint: 'validateAndAssignTier',
+        details: {
+          subscriptionId: subscription.id,
+          userId: subscription.userId,
+          attemptedTierId: subscription.tierId,
+          subscriptionStatus: subscription.status
+        },
+      });
+      return this.getFreeTier();
+    }
+
+    // CRITICAL SECURITY: Ultimate tier is admin-only
+    if (requestedTier.id === 'ultimate') {
+      const isAdminUser = await this.isAdminUser(subscription.userId);
+      if (!isAdminUser) {
+        console.error(`[CRITICAL SECURITY] Non-admin user attempted ultimate tier access: ${subscription.userId}`);
+        securityLogger.logSecurityEvent({
+          eventType: 'SUBSCRIPTION_BYPASS_ATTEMPT' as any,
+          severity: 'CRITICAL' as any,
+          message: `SECURITY BREACH: Non-admin user attempted ultimate tier access`,
+          ip: 'system',
+          userAgent: 'subscription-service',
+          endpoint: 'validateAndAssignTier',
+          details: {
+            subscriptionId: subscription.id,
+            userId: subscription.userId,
+            attemptedTierId: 'ultimate',
+            subscriptionStatus: subscription.status,
+            isAdmin: false,
+            securityViolation: true
           },
-          modelCosts: {
-            inputTokenCost: 2.50,
-            outputTokenCost: 10.00,
-            estimatedTokensPerDocument: 32000,
-            costPerDocument: 0.00,
+        });
+        // Force downgrade to free tier for security
+        return this.getFreeTier();
+      } else {
+        console.log(`[Admin Access] Ultimate tier granted to admin user: ${subscription.userId}`);
+        securityLogger.logSecurityEvent({
+          eventType: 'ADMIN_TIER_ACCESS' as any,
+          severity: 'MEDIUM' as any,
+          message: `Ultimate tier access granted to admin user`,
+          ip: 'system',
+          userAgent: 'subscription-service',
+          endpoint: 'validateAndAssignTier',
+          details: {
+            subscriptionId: subscription.id,
+            userId: subscription.userId,
+            tierId: 'ultimate',
+            isAdmin: true,
+            adminAccess: true
           },
-          popular: false
-        };
+        });
+        return requestedTier;
       }
-      console.warn(`[Subscription Enforcement] Invalid tier ID: ${subscription.tierId}, defaulting to free`);
+    }
+
+    // Strict validation: Prevent any unauthorized tier escalation
+    if (requestedTier.id !== 'free' && !isValidPaidSubscription) {
+      console.warn(`[Subscription Enforcement] Attempted paid tier access without valid subscription. User: ${subscription.userId}, Tier: ${requestedTier.id}, Status: ${subscription.status}`);
+      securityLogger.logSecurityEvent({
+        eventType: 'SUBSCRIPTION_BYPASS_ATTEMPT' as any,
+        severity: 'CRITICAL' as any,
+        message: `Attempted paid tier access without valid subscription`,
+        ip: 'system',
+        userAgent: 'subscription-service',
+        endpoint: 'validateAndAssignTier',
+        details: {
+          subscriptionId: subscription.id,
+          userId: subscription.userId,
+          attemptedTierId: subscription.tierId,
+          subscriptionStatus: subscription.status,
+          isValidPaid: isValidPaidSubscription,
+          isExpired: isExpired
+        },
+      });
       return this.getFreeTier();
     }
 
@@ -501,6 +681,112 @@ export class SubscriptionService {
 
     console.log(`[Subscription Enforcement] Valid subscription: ${requestedTier.name} tier assigned`);
     return requestedTier;
+  }
+
+  /**
+   * Check if a user is an admin user (authorized for ultimate tier)
+   */
+  private async isAdminUser(userId: string): Promise<boolean> {
+    try {
+      // Check by email since that's the primary admin verification method
+      return await this.isAdminByEmail(userId);
+    } catch (error) {
+      console.error('Error checking admin status:', error);
+      return false;
+    }
+  }
+
+  /**
+   * Check if a user has admin email (helper for admin verification)
+   */
+  async isAdminByEmail(userId: string): Promise<boolean> {
+    try {
+      const user = await databaseStorage.getUser(userId);
+      if (!user) return false;
+      
+      const adminEmails = ['admin@readmyfineprint.com', 'prodbybuddha@icloud.com'];
+      return adminEmails.includes(user.email);
+    } catch (error) {
+      console.error('Error checking admin email:', error);
+      return false;
+    }
+  }
+
+  /**
+   * Create ultimate tier subscription for admin users only
+   */
+  async createAdminUltimateSubscription(userId: string): Promise<UserSubscription | null> {
+    try {
+      // Verify user is admin
+      const isAdmin = await this.isAdminByEmail(userId);
+      if (!isAdmin) {
+        console.error(`[SECURITY] Non-admin user attempted ultimate subscription creation: ${userId}`);
+        securityLogger.logSecurityEvent({
+          eventType: 'SECURITY_VIOLATION' as any,
+          severity: 'CRITICAL' as any,
+          message: `Non-admin user attempted ultimate subscription creation`,
+          ip: 'system',
+          userAgent: 'subscription-service',
+          endpoint: 'createAdminUltimateSubscription',
+          details: {
+            userId,
+            attemptedTier: 'ultimate',
+            isAdmin: false,
+            securityViolation: true
+          },
+        });
+        return null;
+      }
+
+      const now = new Date();
+      const futureDate = new Date(Date.now() + 365 * 24 * 60 * 60 * 1000); // 1 year
+
+      const ultimateSubscription: InsertUserSubscription = {
+        userId: userId,
+        tierId: 'ultimate',
+        status: 'active', // Admin subscriptions are always active
+        stripeCustomerId: null, // No Stripe customer for admin
+        stripeSubscriptionId: null, // No Stripe subscription for admin
+        currentPeriodStart: now,
+        currentPeriodEnd: futureDate,
+        cancelAtPeriodEnd: false,
+      };
+
+      const createdSubscription = await databaseStorage.createUserSubscription(ultimateSubscription);
+      
+      securityLogger.logSecurityEvent({
+        eventType: 'ADMIN_SUBSCRIPTION_CREATED' as any,
+        severity: 'MEDIUM' as any,
+        message: `Ultimate tier subscription created for admin user`,
+        ip: 'system',
+        userAgent: 'subscription-service',
+        endpoint: 'createAdminUltimateSubscription',
+        details: {
+          userId,
+          tierId: 'ultimate',
+          subscriptionId: createdSubscription.id,
+          isAdmin: true,
+          adminTier: true
+        },
+      });
+
+      return createdSubscription;
+    } catch (error) {
+      console.error('Error creating admin ultimate subscription:', error);
+      securityLogger.logSecurityEvent({
+        eventType: 'SUBSCRIPTION_ERROR' as any,
+        severity: 'HIGH' as any,
+        message: `Error creating admin ultimate subscription`,
+        ip: 'system',
+        userAgent: 'subscription-service',
+        endpoint: 'createAdminUltimateSubscription',
+        details: {
+          userId,
+          error: error instanceof Error ? error.message : 'Unknown error'
+        },
+      });
+      return null;
+    }
   }
 
   /**
@@ -561,7 +847,6 @@ export class SubscriptionService {
         // Create the collective free tier user
         await databaseStorage.createUserWithId(collectiveUserId, {
           email: 'collective.free.tier@internal.system',
-          username: 'collective_free_tier',
           hashedPassword: null, // No password for system user
           stripeCustomerId: null,
         });
@@ -606,6 +891,13 @@ export class SubscriptionService {
   }
 
   /**
+   * Get the ultimate tier (admin-only tier)
+   */
+  private getUltimateTier(): SubscriptionTier {
+    return SUBSCRIPTION_TIERS.find(tier => tier.id === 'ultimate') || SUBSCRIPTION_TIERS[SUBSCRIPTION_TIERS.length - 1];
+  }
+
+  /**
    * Audit and fix subscription tier mismatches
    * This method can be called periodically to ensure data integrity
    */
@@ -633,7 +925,7 @@ export class SubscriptionService {
           ? getTierById(subscription.tierId) 
           : this.getFreeTier();
 
-        const validatedTier = this.validateAndAssignTier(subscription);
+        const validatedTier = await this.validateAndAssignTier(subscription);
 
         // Check for tier mismatches
         if (originalTier?.id !== validatedTier.id) {
@@ -720,7 +1012,7 @@ export class SubscriptionService {
         ? getTierById(subscription.tierId)?.id || 'free'
         : 'free';
 
-      const validatedTier = this.validateAndAssignTier(subscription);
+      const validatedTier = await this.validateAndAssignTier(subscription);
       const shouldBeTier = validatedTier.id;
 
       const isValid = currentTier === shouldBeTier;
@@ -744,15 +1036,30 @@ export class SubscriptionService {
   }
 
   /**
-   * Track document analysis usage
+   * Track document analysis usage with enhanced abuse prevention
    */
-  async trackUsage(userId: string, tokensUsed: number, model: string): Promise<void> {
+  async trackUsage(userId: string, tokensUsed: number, model: string, sessionData?: {
+    sessionId: string;
+    deviceFingerprint: string;
+    ipAddress: string;
+  }): Promise<void> {
     try {
-      // Route anonymous/session users through collective free tier user
+      // Route anonymous/session users through collective free tier user with enhanced tracking
       let trackingUserId = userId;
       
       if (userId === "anonymous" || userId.startsWith('session_')) {
         trackingUserId = '00000000-0000-0000-0000-000000000001';
+        
+        // Track usage through collective user service if session data is available
+        if (sessionData) {
+          await collectiveUserService.trackDocumentAnalysis(
+            sessionData.sessionId,
+            sessionData.deviceFingerprint,
+            sessionData.ipAddress,
+            tokensUsed
+          );
+        }
+        
         console.log(`📊 Routing anonymous usage tracking through collective free tier user`);
       } else {
         // Check if authenticated user exists in database
@@ -760,12 +1067,22 @@ export class SubscriptionService {
         if (!userExists) {
           console.log(`📊 User ${userId} not in database, routing through collective free tier for usage tracking`);
           trackingUserId = '00000000-0000-0000-0000-000000000001';
+          
+          // Also track through collective service for consistency
+          if (sessionData) {
+            await collectiveUserService.trackDocumentAnalysis(
+              sessionData.sessionId,
+              sessionData.deviceFingerprint,
+              sessionData.ipAddress,
+              tokensUsed
+            );
+          }
         }
       }
 
       // Get user's current subscription to determine tier with validation
       const subscription = await databaseStorage.getUserSubscription(trackingUserId);
-      const tier = this.validateAndAssignTier(subscription);
+      const tier = await this.validateAndAssignTier(subscription);
 
       const cost = this.calculateTokenCost(tokensUsed, tier);
       const currentPeriod = new Date().toISOString().slice(0, 7); // YYYY-MM format
@@ -1023,20 +1340,24 @@ export class SubscriptionService {
         return existingUser.id;
       }
 
-      // If email is a real customer email (not sanitized), create unique internal email
+      // If email is a real customer email (not sanitized), create hashed internal email
       let finalEmail = params.email;
-      if (!params.email.includes('@subscription.internal')) {
-        // Create a unique internal email to avoid conflicts
-        const timestamp = Date.now();
-        finalEmail = `subscriber_${params.stripeCustomerId}_${timestamp}@subscription.internal`;
-        console.log(`Using unique internal email: ${finalEmail} for customer email: ${params.email}`);
+      if (!params.email.includes('@subscription.internalusers.email')) {
+        // Import Argon2 hashing functions
+        const { createPseudonymizedEmail } = await import('./argon2');
+        
+        // Create a secure Argon2-hashed internal email to protect customer PII
+        finalEmail = await createPseudonymizedEmail(params.email);
+        console.log(`Using Argon2-hashed internal email: ${finalEmail} for customer email: ${params.email}`);
       }
 
       // Create a minimal user record for subscription tracking
+      // Email is automatically verified since they completed payment through Stripe
       const user = await databaseStorage.createUser({
         email: finalEmail,
-        username: `subscriber_${params.stripeCustomerId.slice(-8)}_${Date.now()}`, // Unique username
         hashedPassword: crypto.randomBytes(32).toString('hex'), // Random password, can't be used to login
+        emailVerified: true, // Payment transaction verifies the email
+        lastLoginAt: new Date(), // Set initial login time
       });
 
       console.log(`Created subscription user ${user.id} for Stripe customer ${params.stripeCustomerId}`);
@@ -1044,20 +1365,27 @@ export class SubscriptionService {
     } catch (error) {
       console.error('Error creating subscription user:', error);
       
-      // If it's still a duplicate constraint error, try one more time with a unique email
+      // If it's still a duplicate constraint error, try one more time with a salted hash
       if (error instanceof Error && error.message.includes('duplicate key value violates unique constraint')) {
         try {
-          const uniqueEmail = `subscriber_${params.stripeCustomerId}_${Date.now()}_${Math.random().toString(36).slice(2)}@subscription.internal`;
+          // Import Argon2 hashing functions
+          const { createPseudonymizedEmail } = await import('./argon2');
+          
+          // Create a unique salted email by adding timestamp to original email before hashing
+          const saltedEmail = `${params.email}_${Date.now()}_${Math.random().toString(36).slice(2)}`;
+          const uniqueEmail = await createPseudonymizedEmail(saltedEmail);
+          
           const user = await databaseStorage.createUser({
             email: uniqueEmail,
-            username: `subscriber_${params.stripeCustomerId.slice(-8)}_${Date.now()}`,
             hashedPassword: crypto.randomBytes(32).toString('hex'),
+            emailVerified: true, // Payment transaction verifies the email
+            lastLoginAt: new Date(), // Set initial login time
           });
           
-          console.log(`Created subscription user ${user.id} with unique email after retry`);
+          console.log(`Created subscription user ${user.id} with unique Argon2-hashed email after retry`);
           return user.id;
         } catch (retryError) {
-          console.error('Failed to create user even with unique email:', retryError);
+          console.error('Failed to create user even with unique hashed email:', retryError);
           throw retryError;
         }
       }
@@ -1208,7 +1536,7 @@ export class SubscriptionService {
     try {
       // Get user's subscription to determine tier
       const subscription = await databaseStorage.getUserSubscription(userId);
-      const tier = this.validateAndAssignTier(subscription);
+      const tier = await this.validateAndAssignTier(subscription);
       
       // Use hybrid token service (prefers JOSE, falls back to PostgreSQL)
       const token = await hybridTokenService.generateSubscriptionToken({
@@ -1303,25 +1631,18 @@ export class SubscriptionService {
 
   /**
    * Store mapping from checkout session to subscription token
-   * Using simple in-memory mapping for session -> token mapping
+   * Uses PostgreSQL for persistent storage
    */
-  private sessionTokenMap = new Map<string, string>();
-  
-  async storeSessionToken(sessionId: string, token: string): Promise<void> {
-    this.sessionTokenMap.set(sessionId, token);
+  async storeSessionToken(sessionId: string, token: string, userId?: string): Promise<void> {
+    await postgresqlSessionStorage.storeSessionToken(sessionId, token, userId);
     console.log(`Stored session token mapping for session ${sessionId}`);
-    
-    // Clean up after 1 hour
-    setTimeout(() => {
-      this.sessionTokenMap.delete(sessionId);
-    }, 60 * 60 * 1000);
   }
 
   /**
    * Get subscription token by checkout session ID
    */
   async getTokenBySession(sessionId: string): Promise<string | null> {
-    return this.sessionTokenMap.get(sessionId) || null;
+    return await postgresqlSessionStorage.getTokenBySession(sessionId);
   }
 
   /**

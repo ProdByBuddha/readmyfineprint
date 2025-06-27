@@ -5,6 +5,13 @@ export function useCookieConsent() {
   const [isAccepted, setIsAccepted] = useState(false);
 
   useEffect(() => {
+    // In development mode, automatically accept cookies
+    if (import.meta.env.DEV || import.meta.env.MODE === 'development') {
+      console.log('⚠️ Development mode: Auto-accepting cookies');
+      setIsAccepted(true);
+      return;
+    }
+    
     const consentAccepted = localStorage.getItem('cookie-consent-accepted');
     setIsAccepted(consentAccepted === 'true');
   }, []);

@@ -10,10 +10,21 @@ interface VerificationCode {
   used: boolean;
 }
 
+interface AdminToken {
+  token: string;
+  email: string;
+  createdAt: Date;
+  expiresAt: Date;
+  ipAddress: string;
+  userAgent: string;
+}
+
 class AdminVerificationService {
   private static instance: AdminVerificationService;
   private verificationCodes = new Map<string, VerificationCode>();
+  private adminTokens = new Map<string, AdminToken>();
   private readonly CODE_EXPIRY_MINUTES = 10;
+  private readonly TOKEN_EXPIRY_HOURS = 24; // Admin tokens expire after 24 hours
   private readonly CODE_LENGTH = 6;
 
   private constructor() {}
@@ -189,21 +200,37 @@ class AdminVerificationService {
       // Mark as used
       verification.used = true;
 
-      // Generate admin session token
+      // Generate secure admin session token
       const adminToken = crypto.randomBytes(32).toString('hex');
+      const now = new Date();
+      const tokenExpiresAt = new Date(now.getTime() + this.TOKEN_EXPIRY_HOURS * 60 * 60 * 1000);
+
+      // Store the admin token with metadata
+      this.adminTokens.set(adminToken, {
+        token: adminToken,
+        email: verification.email,
+        createdAt: now,
+        expiresAt: tokenExpiresAt,
+        ipAddress: requestIp,
+        userAgent
+      });
 
       securityLogger.logSecurityEvent({
         eventType: SecurityEventType.AUTHENTICATION,
         severity: SecuritySeverity.MEDIUM,
-        message: 'Admin verification successful',
+        message: 'Admin verification successful - token issued',
         ip: requestIp,
         userAgent,
         endpoint: '/api/admin/verify-code',
-        details: { adminEmail: verification.email }
+        details: { 
+          adminEmail: verification.email,
+          tokenExpiresAt: tokenExpiresAt.toISOString()
+        }
       });
 
-      // Clean up expired codes
+      // Clean up expired codes and tokens
       this.cleanupExpiredCodes();
+      this.cleanupExpiredTokens();
 
       return { 
         success: true, 
@@ -228,6 +255,84 @@ class AdminVerificationService {
   }
 
   /**
+   * Validate admin token
+   */
+  validateAdminToken(token: string, requestIp: string, userAgent: string): { valid: boolean; email?: string; message?: string } {
+    this.cleanupExpiredTokens();
+    
+    const adminToken = this.adminTokens.get(token);
+    
+    if (!adminToken) {
+      securityLogger.logSecurityEvent({
+        eventType: SecurityEventType.AUTHENTICATION,
+        severity: SecuritySeverity.HIGH,
+        message: 'Invalid admin token attempted',
+        ip: requestIp,
+        userAgent,
+        endpoint: 'admin-token-validation',
+        details: { 
+          tokenPrefix: token.substring(0, 8) + '...', 
+          reason: 'Token not found'
+        }
+      });
+      return { valid: false, message: 'Invalid admin token' };
+    }
+
+    if (Date.now() > adminToken.expiresAt.getTime()) {
+      this.adminTokens.delete(token);
+      securityLogger.logSecurityEvent({
+        eventType: SecurityEventType.AUTHENTICATION,
+        severity: SecuritySeverity.MEDIUM,
+        message: 'Expired admin token attempted',
+        ip: requestIp,
+        userAgent,
+        endpoint: 'admin-token-validation',
+        details: { adminEmail: adminToken.email }
+      });
+      return { valid: false, message: 'Admin token has expired' };
+    }
+
+    // Optional: Add IP/User-Agent validation for extra security
+    // Uncomment if you want stricter validation:
+    // if (adminToken.ipAddress !== requestIp || adminToken.userAgent !== userAgent) {
+    //   securityLogger.logSecurityEvent({
+    //     eventType: SecurityEventType.AUTHENTICATION,
+    //     severity: SecuritySeverity.HIGH,
+    //     message: 'Admin token used from different location',
+    //     ip: requestIp,
+    //     userAgent,
+    //     endpoint: 'admin-token-validation',
+    //     details: { 
+    //       originalIp: adminToken.ipAddress,
+    //       originalUserAgent: adminToken.userAgent,
+    //       adminEmail: adminToken.email
+    //     }
+    //   });
+    //   return { valid: false, message: 'Token validation failed' };
+    // }
+
+    return { valid: true, email: adminToken.email };
+  }
+
+  /**
+   * Revoke admin token
+   */
+  revokeAdminToken(token: string): boolean {
+    const deleted = this.adminTokens.delete(token);
+    if (deleted) {
+      securityLogger.logSecurityEvent({
+        eventType: SecurityEventType.AUTHENTICATION,
+        severity: SecuritySeverity.LOW,
+        message: 'Admin token revoked',
+        ip: 'system',
+        userAgent: 'admin-verification-service',
+        endpoint: 'admin-token-revocation'
+      });
+    }
+    return deleted;
+  }
+
+  /**
    * Clean up expired verification codes
    */
   private cleanupExpiredCodes(): void {
@@ -240,15 +345,40 @@ class AdminVerificationService {
   }
 
   /**
+   * Clean up expired admin tokens
+   */
+  private cleanupExpiredTokens(): void {
+    const now = Date.now();
+    for (const [token, adminToken] of this.adminTokens) {
+      if (now > adminToken.expiresAt.getTime()) {
+        this.adminTokens.delete(token);
+      }
+    }
+  }
+
+  /**
    * Get active verification stats (for monitoring)
    */
-  getVerificationStats(): { active: number; used: number; expired: number } {
+  getVerificationStats(): { 
+    codes: { active: number; used: number; expired: number };
+    tokens: { active: number; expired: number };
+  } {
     this.cleanupExpiredCodes();
+    this.cleanupExpiredTokens();
+    
     const codes = Array.from(this.verificationCodes.values());
+    const tokens = Array.from(this.adminTokens.values());
+    
     return {
-      active: codes.filter(c => !c.used).length,
-      used: codes.filter(c => c.used).length,
-      expired: 0 // Already cleaned up
+      codes: {
+        active: codes.filter(c => !c.used).length,
+        used: codes.filter(c => c.used).length,
+        expired: 0 // Already cleaned up
+      },
+      tokens: {
+        active: tokens.length,
+        expired: 0 // Already cleaned up
+      }
     };
   }
 }

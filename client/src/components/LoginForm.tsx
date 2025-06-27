@@ -185,7 +185,6 @@ export function LoginForm({ onLoginSuccess, isAdmin = false, onEmailRecovery }: 
           placeholder="Enter 6-digit code"
           maxLength={6}
           pattern="[0-9]{6}"
-          autoFocus
           required
         />
       </div>

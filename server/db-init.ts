@@ -3,16 +3,14 @@
  * Ensures database is ready before server starts
  */
 
-import { db, getDatabaseStatus } from './db';
+import { db, getDatabaseStatus, ensureDbInitialized } from './db';
 import { sql } from 'drizzle-orm';
 
 export async function initializeDatabase() {
   console.log('🔄 Initializing database connection...');
   
-  // Wait for dynamic imports to complete if using fallback
-  if (process.env.USE_DB_FALLBACK === 'true' || process.env.NODE_ENV === 'development') {
-    await new Promise(resolve => setTimeout(resolve, 2000));
-  }
+  // Ensure database is properly initialized
+  await ensureDbInitialized();
   
   try {
     // Test the connection

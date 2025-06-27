@@ -1,5 +1,7 @@
 import { apiRequest } from "./queryClient";
-import type { Document, UserSubscription, SubscriptionTier, SubscriptionUsage } from "@shared/schema";
+import type { Document, UserSubscription, SubscriptionTier, SubscriptionUsage, SecurityQuestion, SecurityQuestionsSetup } from "@shared/schema";
+import { getGlobalSessionId, sessionFetch, clearSession } from "./sessionManager";
+import { fetchWithCSRF } from "./csrfManager";
 
 // Interface for consent verification proof
 interface ConsentProof {
@@ -10,25 +12,11 @@ interface ConsentProof {
   [key: string]: unknown;
 }
 
-// Session ID management for non-apiRequest calls
-function getSessionId(): string {
-  // This should match the session ID from queryClient
-  // For now, let's get it from a global or generate consistently
-  let sessionId = sessionStorage.getItem('app-session-id');
-  if (!sessionId) {
-    sessionId = crypto.getRandomValues(new Uint8Array(16))
-      .reduce((str, byte) => str + byte.toString(16).padStart(2, '0'), '');
-    sessionStorage.setItem('app-session-id', sessionId);
-  }
-  return sessionId;
-}
-
 export async function createDocument(data: { title: string; content: string; fileType?: string }) {
-  const response = await fetch('/api/documents', {
+  const response = await fetchWithCSRF('/api/documents', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
-      'x-session-id': getSessionId(),
     },
     body: JSON.stringify(data),
   });
@@ -64,18 +52,132 @@ export async function uploadDocument(file: File): Promise<Document> {
   const formData = new FormData();
   formData.append('file', file);
 
-  const response = await fetch('/api/documents/upload', {
+  const response = await fetchWithCSRF('/api/documents/upload', {
     method: 'POST',
-    headers: {
-      'x-session-id': getSessionId(),
-    },
     body: formData,
-    credentials: 'include',
   });
 
   if (!response.ok) {
     const error = await response.text();
     throw new Error(error);
+  }
+
+  return response.json();
+}
+
+// Security Questions API Functions
+
+export async function getSecurityQuestions(): Promise<{ questions: SecurityQuestion[] }> {
+  const response = await fetch('/api/security-questions/available', {
+    method: 'GET',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    credentials: 'include',
+  });
+
+  if (!response.ok) {
+    const errorData = await response.json().catch(() => ({ error: 'Unknown server error' }));
+    throw new Error(errorData.error || `HTTP error! status: ${response.status}`);
+  }
+
+  return response.json();
+}
+
+export async function getUserSecurityQuestions(): Promise<{ 
+  questions: SecurityQuestion[], 
+  hasSecurityQuestions: boolean, 
+  count: number 
+}> {
+  const response = await fetch('/api/security-questions/user', {
+    method: 'GET',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    credentials: 'include',
+  });
+
+  if (!response.ok) {
+    const errorData = await response.json().catch(() => ({ error: 'Unknown server error' }));
+    throw new Error(errorData.error || `HTTP error! status: ${response.status}`);
+  }
+
+  return response.json();
+}
+
+export async function setupSecurityQuestions(data: SecurityQuestionsSetup): Promise<{ 
+  success: boolean, 
+  message: string, 
+  questionCount: number 
+}> {
+  const response = await fetchWithCSRF('/api/security-questions/setup', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(data),
+  });
+
+  if (!response.ok) {
+    const errorData = await response.json().catch(() => ({ error: 'Unknown server error' }));
+    throw new Error(errorData.error || `HTTP error! status: ${response.status}`);
+  }
+
+  return response.json();
+}
+
+export async function updateSecurityQuestions(data: SecurityQuestionsSetup): Promise<{ 
+  success: boolean, 
+  message: string, 
+  questionCount: number 
+}> {
+  const response = await fetchWithCSRF('/api/security-questions/update', {
+    method: 'PUT',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(data),
+  });
+
+  if (!response.ok) {
+    const errorData = await response.json().catch(() => ({ error: 'Unknown server error' }));
+    throw new Error(errorData.error || `HTTP error! status: ${response.status}`);
+  }
+
+  return response.json();
+}
+
+export async function verifySecurityQuestions(answers: { [questionId: string]: string }): Promise<{ 
+  verified: boolean, 
+  message?: string 
+}> {
+  const response = await fetchWithCSRF('/api/security-questions/verify', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({ answers }),
+  });
+
+  if (!response.ok) {
+    const errorData = await response.json().catch(() => ({ error: 'Unknown server error' }));
+    throw new Error(errorData.error || `HTTP error! status: ${response.status}`);
+  }
+
+  return response.json();
+}
+
+export async function deleteSecurityQuestions(): Promise<{ success: boolean, message: string }> {
+  const response = await fetchWithCSRF('/api/security-questions', {
+    method: 'DELETE',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+  });
+
+  if (!response.ok) {
+    const errorData = await response.json().catch(() => ({ error: 'Unknown server error' }));
+    throw new Error(errorData.error || `HTTP error! status: ${response.status}`);
   }
 
   return response.json();
@@ -102,6 +204,7 @@ export async function analyzeDocument(id: number): Promise<Document> {
 
   return response.json();
 }
+
 
 // Poll for document analysis completion (future feature - priority queue)
 // async function pollForDocumentAnalysis(documentId: number, queueInfo: any): Promise<Document> {
@@ -147,7 +250,7 @@ export async function getQueueStatus(): Promise<{
 }> {
   const response = await fetch('/api/queue/status', {
     headers: {
-      'x-session-id': getSessionId(),
+      'x-session-id': getGlobalSessionId(),
     },
   });
 
@@ -159,10 +262,11 @@ export async function getQueueStatus(): Promise<{
   return response.json();
 }
 
+
 export async function getDocument(documentId: number): Promise<Document> {
   const response = await fetch(`/api/documents/${documentId}`, {
     headers: {
-      'x-session-id': getSessionId(),
+      'x-session-id': getGlobalSessionId(),
     },
     credentials: 'include',
   });
@@ -174,10 +278,11 @@ export async function getDocument(documentId: number): Promise<Document> {
   return response.json();
 }
 
+
 export async function getAllDocuments(): Promise<Document[]> {
   const response = await fetch('/api/documents', {
     headers: {
-      'x-session-id': getSessionId(),
+      'x-session-id': getGlobalSessionId(),
     },
     credentials: 'include',
   });
@@ -189,13 +294,11 @@ export async function getAllDocuments(): Promise<Document[]> {
   return response.json();
 }
 
+
 export async function clearAllDocuments(): Promise<{ message: string }> {
-  const response = await fetch('/api/documents', {
+  const response = await fetchWithCSRF('/api/documents', {
     method: 'DELETE',
-    headers: {
-      'x-session-id': getSessionId(),
-    },
-    credentials: 'include',
+    headers: {},
   });
 
   if (!response.ok) {
@@ -204,6 +307,7 @@ export async function clearAllDocuments(): Promise<{ message: string }> {
 
   return response.json();
 }
+
 
 export async function logConsent(): Promise<{
   success: boolean;
@@ -243,9 +347,8 @@ export async function verifyUserConsent(): Promise<{
   proof: ConsentProof;
 } | null> {
   try {
-    const response = await fetch('/api/consent/verify', {
+    const response = await fetchWithCSRF('/api/consent/verify', {
       method: 'POST',
-      credentials: 'include',
       headers: {
         'Content-Type': 'application/json',
       },
@@ -267,9 +370,8 @@ export async function verifyConsentByToken(consentId: string, verificationToken:
   proof: ConsentProof;
 } | null> {
   try {
-    const response = await fetch('/api/consent/verify-token', {
+    const response = await fetchWithCSRF('/api/consent/verify-token', {
       method: 'POST',
-      credentials: 'include',
       headers: {
         'Content-Type': 'application/json',
       },
@@ -284,6 +386,60 @@ export async function verifyConsentByToken(consentId: string, verificationToken:
   } catch (error) {
     console.error('Failed to verify consent by token:', error);
     return null;
+  }
+}
+
+export async function logout(): Promise<{
+  success: boolean;
+  message: string;
+  details: {
+    tokensRevoked: number;
+    documentsCleared: boolean;
+    sessionCleared: boolean;
+  };
+}> {
+  try {
+    const subscriptionToken = localStorage.getItem('subscriptionToken');
+    
+    const response = await fetchWithCSRF('/api/logout', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        ...(subscriptionToken && { 'x-subscription-token': subscriptionToken }),
+      },
+    });
+
+    if (!response.ok) {
+      throw new Error('Logout request failed');
+    }
+
+    const result = await response.json();
+    
+    // Clear local storage after successful server logout
+    localStorage.removeItem('subscriptionToken');
+    
+    // Clear session storage
+    clearSession();
+    
+    console.log('🚪 Logout successful:', result);
+    return result;
+  } catch (error) {
+    console.error('Failed to logout:', error);
+    
+    // Even if server logout fails, clear local data
+    localStorage.removeItem('subscriptionToken');
+    clearSession();
+    
+    // Return a fallback response
+    return {
+      success: false,
+      message: 'Logout completed locally (server cleanup may have failed)',
+      details: {
+        tokensRevoked: 0,
+        documentsCleared: false,
+        sessionCleared: true
+      }
+    };
   }
 }
 
@@ -354,6 +510,7 @@ export async function getUserSubscription(): Promise<{
   return response.json();
 }
 
+
 export async function createCustomerPortalSession(): Promise<{ url: string }> {
   const headers: Record<string, string> = {
     'Content-Type': 'application/json',
@@ -362,19 +519,18 @@ export async function createCustomerPortalSession(): Promise<{ url: string }> {
   // Include subscription token if available
   const subscriptionToken = localStorage.getItem('subscriptionToken');
   if (subscriptionToken) {
-    headers['X-Subscription-Token'] = subscriptionToken;
+    headers['x-subscription-token'] = subscriptionToken;
   }
 
   // Include device fingerprint if available
   const deviceFingerprint = localStorage.getItem('deviceFingerprint');
   if (deviceFingerprint) {
-    headers['X-Device-Fingerprint'] = deviceFingerprint;
+    headers['x-device-fingerprint'] = deviceFingerprint;
   }
 
-  const response = await fetch('/api/subscription/customer-portal', {
+  const response = await fetchWithCSRF('/api/subscription/customer-portal', {
     method: 'POST',
     headers,
-    credentials: 'include',
   });
 
   if (!response.ok) {
@@ -385,6 +541,7 @@ export async function createCustomerPortalSession(): Promise<{ url: string }> {
   return response.json();
 }
 
+
 export async function reactivateSubscription(): Promise<{ success: boolean; message: string }> {
   const headers: Record<string, string> = {
     'Content-Type': 'application/json',
@@ -393,24 +550,137 @@ export async function reactivateSubscription(): Promise<{ success: boolean; mess
   // Include subscription token if available
   const subscriptionToken = localStorage.getItem('subscriptionToken');
   if (subscriptionToken) {
-    headers['X-Subscription-Token'] = subscriptionToken;
+    headers['x-subscription-token'] = subscriptionToken;
   }
 
   // Include device fingerprint if available
   const deviceFingerprint = localStorage.getItem('deviceFingerprint');
   if (deviceFingerprint) {
-    headers['X-Device-Fingerprint'] = deviceFingerprint;
+    headers['x-device-fingerprint'] = deviceFingerprint;
   }
 
-  const response = await fetch('/api/subscription/reactivate', {
+  const response = await fetchWithCSRF('/api/subscription/reactivate', {
     method: 'POST',
     headers,
-    credentials: 'include',
   });
 
   if (!response.ok) {
     const errorData = await response.json().catch(() => ({ error: 'Unknown server error' }));
     throw new Error(errorData.error || `HTTP error! status: ${response.status}`);
+  }
+
+  return response.json();
+}
+
+// RLHF Feedback API - for improving PII detection accuracy
+
+export interface PiiDetectionFeedbackData {
+  detectionSessionId: string;
+  detectedText: string;
+  detectionType: string;
+  detectionMethod: string;
+  confidence: number;
+  context?: string;
+  userVote: 'correct' | 'incorrect' | 'partially_correct';
+  feedbackConfidence?: number;
+  feedbackReason?: string;
+  documentType?: 'lease' | 'contract' | 'legal' | 'other';
+  documentLength?: number;
+}
+
+/**
+ * Submit feedback on PII detection accuracy
+ */
+export async function submitPiiDetectionFeedback(feedbackData: PiiDetectionFeedbackData) {
+  const sessionId = getGlobalSessionId();
+  
+  const response = await fetchWithCSRF('/api/rlhf/feedback', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+      ...feedbackData,
+      sessionId
+    }),
+  });
+
+  if (!response.ok) {
+    let errorMessage = `Failed to submit feedback: ${response.statusText}`;
+    try {
+      const errorData = await response.json();
+      if (errorData.error) {
+        errorMessage = errorData.error;
+      }
+    } catch (parseError) {
+      // If we can't parse the response, use the status text
+    }
+    throw new Error(errorMessage);
+  }
+
+  return response.json();
+}
+
+/**
+ * Get public feedback summary for displaying accuracy metrics
+ */
+export async function getFeedbackSummary() {
+  const response = await fetch('/api/rlhf/summary', {
+    method: 'GET',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+  });
+
+  if (!response.ok) {
+    throw new Error(`Failed to fetch feedback summary: ${response.statusText}`);
+  }
+
+  return response.json();
+}
+
+/**
+ * Get detailed analytics (admin only)
+ */
+export async function getFeedbackAnalytics(params?: {
+  startDate?: string;
+  endDate?: string;
+  detectionType?: string;
+  detectionMethod?: string;
+}) {
+  const searchParams = new URLSearchParams();
+  if (params?.startDate) searchParams.append('startDate', params.startDate);
+  if (params?.endDate) searchParams.append('endDate', params.endDate);
+  if (params?.detectionType) searchParams.append('detectionType', params.detectionType);
+  if (params?.detectionMethod) searchParams.append('detectionMethod', params.detectionMethod);
+
+  const response = await fetchWithCSRF(`/api/rlhf/analytics?${searchParams}`, {
+    method: 'GET',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+  });
+
+  if (!response.ok) {
+    throw new Error(`Failed to fetch feedback analytics: ${response.statusText}`);
+  }
+
+  return response.json();
+}
+
+/**
+ * Get improvement suggestions (admin only)
+ */
+export async function getImprovementSuggestions() {
+  const response = await fetchWithCSRF('/api/rlhf/improvements', {
+    method: 'GET',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+  });
+
+  if (!response.ok) {
+    throw new Error(`Failed to fetch improvement suggestions: ${response.statusText}`);
   }
 
   return response.json();

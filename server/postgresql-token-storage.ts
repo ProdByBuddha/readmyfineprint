@@ -3,7 +3,7 @@
  * Secure storage for subscription tokens using PostgreSQL database
  */
 
-import { db } from './db';
+import { db, ensureDbInitialized } from './db';
 import { subscriptionTokens, type SubscriptionToken, type InsertSubscriptionToken } from '@shared/schema';
 import { eq, and, lt, sql } from 'drizzle-orm';
 import crypto from 'crypto';
@@ -148,6 +148,14 @@ export class PostgreSQLTokenStorage {
    */
   async cleanupExpired(): Promise<{ tokensRemoved: number }> {
     try {
+      await ensureDbInitialized();
+      
+      // Check if database has delete method
+      if (!db || typeof db.delete !== 'function') {
+        console.log('⚠️ Database delete method not available, skipping token cleanup');
+        return { tokensRemoved: 0 };
+      }
+      
       const now = new Date();
       
       const result = await db

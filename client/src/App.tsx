@@ -24,6 +24,9 @@ import Roadmap from "@/pages/roadmap";
 import Subscription from "@/pages/subscription";
 import AdminDashboard from "@/pages/admin";
 import { EmailRecoveryPage } from "@/pages/EmailRecovery";
+import TrustPage from "@/pages/trust";
+import BlogPage from "@/pages/blog";
+import BlogPostPage from "@/pages/blog-post";
 import NotFound from "@/pages/not-found";
 import { setupAutoSubmission } from "./lib/indexnow";
 import React, { useEffect, useState } from 'react';
@@ -50,6 +53,9 @@ function Router() {
             component={AdminDashboard} 
           />
       <Route path="/email-recovery" component={EmailRecoveryPage} />
+      <Route path="/trust" component={TrustPage} />
+      <Route path="/blog" component={BlogPage} />
+      <Route path="/blog/:slug" component={BlogPostPage} />
       <Route component={NotFound} />
     </Switch>
   );

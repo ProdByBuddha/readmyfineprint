@@ -22,7 +22,75 @@ const ENV_VARIABLES: EnvConfig[] = [
     name: 'ADMIN_API_KEY',
     required: true,
     description: 'Admin API key for protected endpoints (required for security)',
-    validator: (value) => value.length >= 16 && value.length <= 128
+    validator: (value) => {
+      if (value.length < 32) {
+        console.error('SECURITY ERROR: ADMIN_API_KEY must be at least 32 characters for security');
+        return false;
+      }
+      if (value.length > 128) {
+        console.error('ADMIN_API_KEY is too long (max 128 characters)');
+        return false;
+      }
+      // Check for common weak patterns
+      const weakPatterns = ['admin', 'password', '123456', 'test', 'demo', 'default'];
+      const lowerValue = value.toLowerCase();
+      if (weakPatterns.some(pattern => lowerValue.includes(pattern))) {
+        console.error('SECURITY ERROR: ADMIN_API_KEY contains weak patterns. Use a strong, random key.');
+        return false;
+      }
+      return true;
+    }
+  },
+  {
+    name: 'JWT_SECRET',
+    required: true,
+    description: 'JWT secret for token signing (required for authentication security)',
+    validator: (value) => {
+      if (value.length < 32) {
+        console.error('SECURITY ERROR: JWT_SECRET must be at least 32 characters for security');
+        return false;
+      }
+      // Check for common weak patterns
+      const weakPatterns = ['secret', 'password', '123456', 'test', 'demo', 'default', 'jwt'];
+      const lowerValue = value.toLowerCase();
+      if (weakPatterns.some(pattern => lowerValue.includes(pattern))) {
+        console.error('SECURITY ERROR: JWT_SECRET contains weak patterns. Use a strong, random secret.');
+        return false;
+      }
+      return true;
+    }
+  },
+  {
+    name: 'TOKEN_ENCRYPTION_KEY',
+    required: true,
+    description: 'Encryption key for subscription tokens (required for security)',
+    validator: (value) => {
+      if (value.length < 32) {
+        console.error('SECURITY ERROR: TOKEN_ENCRYPTION_KEY must be at least 32 characters for security');
+        return false;
+      }
+      if (value.length > 256) {
+        console.error('TOKEN_ENCRYPTION_KEY is too long (max 256 characters)');
+        return false;
+      }
+      return true;
+    }
+  },
+  {
+    name: 'PASSWORD_PEPPER',
+    required: true,
+    description: 'Pepper for password hashing (required for enhanced security)',
+    validator: (value) => {
+      if (value.length < 32) {
+        console.error('SECURITY ERROR: PASSWORD_PEPPER must be at least 32 characters for security');
+        return false;
+      }
+      if (value.length > 256) {
+        console.error('PASSWORD_PEPPER is too long (max 256 characters)');
+        return false;
+      }
+      return true;
+    }
   },
   {
     name: 'ALLOWED_ORIGINS',
@@ -54,18 +122,6 @@ const ENV_VARIABLES: EnvConfig[] = [
     required: false,
     description: 'Replit KV database URL for consent logging (auto-provided in development)',
     validator: (value) => value.includes('kv.replit.com') || value.includes('repldb.com')
-  },
-  {
-    name: 'TOKEN_ENCRYPTION_KEY',
-    required: false,
-    description: 'Optional encryption key for subscription tokens (enhances security)',
-    validator: (value) => value.length >= 16 && value.length <= 256
-  },
-  {
-    name: 'PASSWORD_PEPPER',
-    required: false,
-    description: 'Pepper for password hashing (recommended for production)',
-    validator: (value) => value.length >= 16 && value.length <= 256
   }
 ];
 

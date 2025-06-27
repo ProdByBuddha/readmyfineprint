@@ -11,8 +11,11 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import SubscriptionPlans from '@/components/SubscriptionPlans';
 import { StripeWrapper } from '@/components/StripeWrapper';
 import { SubscriptionLogin } from '@/components/SubscriptionLogin';
+import AccountDeletion from '@/components/AccountDeletion';
+import DataExportButton from '@/components/DataExportButton';
 import { getStoredDeviceFingerprint } from '@/utils/deviceFingerprint';
 import { createCustomerPortalSession, reactivateSubscription } from '@/lib/api';
+import TradeSecretProtection from '@/components/TradeSecretProtection';
 
 interface SubscriptionData {
   subscription?: {
@@ -64,6 +67,7 @@ export default function SubscriptionPage() {
     const urlParams = new URLSearchParams(window.location.search);
     const sessionId = urlParams.get('session_id');
     const success = urlParams.get('success');
+    const email = urlParams.get('email');
     
     if (success === 'true' && sessionId) {
       // This is a successful subscription - we need to get the subscription token
@@ -71,6 +75,25 @@ export default function SubscriptionPage() {
       handleSuccessfulSubscription(sessionId);
     } else {
       fetchSubscriptionData();
+    }
+    
+    // Check for tab parameter in URL to navigate directly to specific tab
+    const tabParam = urlParams.get('tab');
+    if (tabParam === 'plans') {
+      setActiveTab('plans');
+      // Clean up URL by removing tab parameter
+      const newUrl = new URL(window.location.href);
+      newUrl.searchParams.delete('tab');
+      window.history.replaceState({}, document.title, newUrl.pathname + newUrl.search);
+    }
+    
+    // If email parameter is provided, automatically navigate to plans section
+    if (email && email.includes('@')) {
+      setActiveTab('plans');
+      // Clean up URL by removing email parameter
+      const newUrl = new URL(window.location.href);
+      newUrl.searchParams.delete('email');
+      window.history.replaceState({}, document.title, newUrl.pathname + newUrl.search);
     }
   }, []);
 
@@ -88,6 +111,17 @@ export default function SubscriptionPage() {
             localStorage.setItem('subscriptionToken', token);
             // Token stored successfully
             setSubscriptionData(subscription);
+            
+            // Trigger storage event to notify other components (like Header)
+            window.dispatchEvent(new StorageEvent('storage', {
+              key: 'subscriptionToken',
+              newValue: token,
+              oldValue: null,
+              storageArea: localStorage
+            }));
+            
+            // Also dispatch custom event for same-tab updates
+            window.dispatchEvent(new CustomEvent('authStateChanged'));
           }
         }
       } catch {
@@ -124,8 +158,8 @@ export default function SubscriptionPage() {
       
       // Include subscription token and device fingerprint for security
       if (subscriptionToken) {
-        headers['X-Subscription-Token'] = subscriptionToken;
-        headers['X-Device-Fingerprint'] = getStoredDeviceFingerprint();
+        headers['x-subscription-token'] = subscriptionToken;
+        headers['x-device-fingerprint'] = getStoredDeviceFingerprint();
       }
       
       const response = await fetch('/api/user/subscription', {
@@ -250,8 +284,8 @@ export default function SubscriptionPage() {
         const deviceFingerprint = getStoredDeviceFingerprint();
         
         if (subscriptionToken) {
-          headers['X-Subscription-Token'] = subscriptionToken;
-          headers['X-Device-Fingerprint'] = deviceFingerprint;
+          headers['x-subscription-token'] = subscriptionToken;
+          headers['x-device-fingerprint'] = deviceFingerprint;
         }
 
         const response = await fetch('/api/subscription/cancel', {
@@ -293,8 +327,8 @@ export default function SubscriptionPage() {
         console.log(`[Downgrade Frontend] Token: ${subscriptionToken ? 'present' : 'missing'}, Device FP: ${deviceFingerprint}`);
         
         if (subscriptionToken) {
-          headers['X-Subscription-Token'] = subscriptionToken;
-          headers['X-Device-Fingerprint'] = deviceFingerprint;
+          headers['x-subscription-token'] = subscriptionToken;
+          headers['x-device-fingerprint'] = deviceFingerprint;
         }
 
         const response = await fetch('/api/subscription/downgrade-to-free', {
@@ -418,6 +452,7 @@ export default function SubscriptionPage() {
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-slate-900">
+      <TradeSecretProtection />
       <div className="max-w-7xl mx-auto px-4 py-8">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -426,17 +461,22 @@ export default function SubscriptionPage() {
         >
           <div className="flex items-center justify-between">
             <div>
-              <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">Subscription Management</h1>
-              <p className="text-gray-600 dark:text-gray-300">Manage your subscription and upgrade your plan</p>
+              <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">Privacy-First Document Analysis Plans</h1>
+              <p className="text-gray-600 dark:text-gray-300">Choose the plan that fits your secure document processing needs</p>
             </div>
           </div>
         </motion.div>
 
         <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-          <TabsList className="grid w-full grid-cols-3 h-auto">
+          <TabsList className={`grid w-full h-auto ${subscriptionData.tier.id === 'free' ? 'grid-cols-2' : 'grid-cols-4'}`}>
             <TabsTrigger value="overview" className="text-sm px-2 py-3 min-h-[44px] flex items-center justify-center">Overview</TabsTrigger>
             <TabsTrigger value="plans" className="text-sm px-2 py-3 min-h-[44px] flex items-center justify-center">Plans</TabsTrigger>
-            <TabsTrigger value="billing" className="text-sm px-2 py-3 min-h-[44px] flex items-center justify-center">Billing</TabsTrigger>
+            {subscriptionData.tier.id !== 'free' && (
+              <TabsTrigger value="billing" className="text-sm px-2 py-3 min-h-[44px] flex items-center justify-center">Billing</TabsTrigger>
+            )}
+            {subscriptionData.tier.id !== 'free' && (
+              <TabsTrigger value="account" className="text-sm px-2 py-3 min-h-[44px] flex items-center justify-center">Account</TabsTrigger>
+            )}
           </TabsList>
 
           <TabsContent value="overview" className="space-y-6">
@@ -457,7 +497,7 @@ export default function SubscriptionPage() {
                   <div className="flex items-center justify-between mb-4">
                     <div>
                       <h3 className="text-xl font-semibold dark:text-white">{subscriptionData.tier.name}</h3>
-                      <p className="text-gray-600 dark:text-gray-300">Powered by {subscriptionData.tier.model}</p>
+                      <p className="text-gray-600 dark:text-gray-300">Enterprise-grade security with advanced AI analysis</p>
                     </div>
                     <div className="text-right">
                       <div className="text-2xl font-bold dark:text-white">
@@ -486,7 +526,7 @@ export default function SubscriptionPage() {
                       <div className="text-xl font-semibold">
                         {subscriptionData.tier.limits.advancedAnalysis ? <CheckCircle className="h-6 w-6 text-green-500 mx-auto" /> : <span className="text-gray-400">-</span>}
                       </div>
-                      <div className="text-sm text-gray-600 dark:text-gray-300">Advanced Analysis</div>
+                      <div className="text-sm text-gray-600 dark:text-gray-300">Privacy-Preserving Analysis</div>
                     </div>
                     <div className="text-center p-3 bg-gray-50 dark:bg-gray-800 rounded-lg">
                       <div className="text-xl font-semibold">
@@ -573,7 +613,7 @@ export default function SubscriptionPage() {
                       <div>
                         <strong className="dark:text-white">Ready to upgrade or already subscribed?</strong>
                         <p className="text-sm mt-1 dark:text-gray-300">
-                          Upgrade to {subscriptionData.suggestedUpgrade.name} for just ${subscriptionData.suggestedUpgrade.monthlyPrice}/month, or log in if you already have a subscription.
+                          Upgrade to {subscriptionData.suggestedUpgrade.name} for advanced privacy protection and enhanced document analysis capabilities.
                         </p>
                       </div>
                       <div className="flex space-x-2">
@@ -730,6 +770,78 @@ export default function SubscriptionPage() {
                           </Button>
                         </div>
                       )}
+                    </div>
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          <TabsContent value="account" className="space-y-6">
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Settings className="h-5 w-5" />
+                  Account Settings
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-6">
+                {subscriptionData && (
+                  <div className="space-y-4">
+                    <div className="grid gap-4 md:grid-cols-2">
+                      <div>
+                        <label className="text-sm font-medium text-gray-700 dark:text-gray-300">Email Address</label>
+                        <div className="mt-1 p-3 bg-gray-50 dark:bg-gray-800 rounded-md">
+                          <span className="text-gray-900 dark:text-gray-100">
+                            {/* This would need to be passed from user context or fetched */}
+                            {localStorage.getItem('userEmail') || 'Loading...'}
+                          </span>
+                        </div>
+                      </div>
+                      <div>
+                        <label className="text-sm font-medium text-gray-700 dark:text-gray-300">Account Status</label>
+                        <div className="mt-1 p-3 bg-gray-50 dark:bg-gray-800 rounded-md">
+                          <Badge variant="default" className="bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-300">
+                            Active
+                          </Badge>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="border-t pt-6">
+                      <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">Data & Privacy</h3>
+                      <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">
+                        Manage your account data and privacy settings. Export your data or delete your account permanently.
+                      </p>
+                      
+                      <div className="space-y-4">
+                        <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-4">
+                          <div className="flex items-center justify-between">
+                            <div>
+                              <h4 className="font-medium text-blue-900 dark:text-blue-100 mb-1">Download Your Data</h4>
+                              <p className="text-sm text-blue-700 dark:text-blue-300">
+                                Export all your personal data, usage history, and audit trails (GDPR compliant).
+                              </p>
+                            </div>
+                            <DataExportButton />
+                          </div>
+                        </div>
+                      </div>
+                      
+                      <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-4">
+                        <h4 className="text-sm font-semibold text-red-800 dark:text-red-300 mb-2">Delete Account</h4>
+                        <p className="text-sm text-red-700 dark:text-red-400 mb-3">
+                          Permanently delete your account and all associated data. Financial records will be retained for compliance.
+                        </p>
+                        <AccountDeletion 
+                          userEmail={localStorage.getItem('userEmail') || ''} 
+                          onSuccess={() => {
+                            // Clear local storage and redirect
+                            localStorage.clear();
+                            window.location.href = '/';
+                          }}
+                        />
+                      </div>
                     </div>
                   </div>
                 )}

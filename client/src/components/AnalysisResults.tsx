@@ -5,7 +5,10 @@ import { Shield, ThumbsUp, AlertTriangle, XCircle, InfoIcon, FileText, Settings 
 import type { Document, DocumentAnalysis } from "@shared/schema";
 import { exportAnalysisToPDF } from "@/utils/pdfExport";
 import { PIIRedactionInfoComponent } from "@/components/PIIRedactionInfo";
-import { useState } from "react";
+import { PiiDetectionFeedback, type PIIDetection, type FeedbackData } from "@/components/PiiDetectionFeedback";
+import { submitPiiDetectionFeedback } from "@/lib/api";
+import { useToast } from "@/hooks/use-toast";
+import { useState, useMemo } from "react";
 
 interface AnalysisResultsProps {
   document: Document;
@@ -15,6 +18,64 @@ export function AnalysisResults({ document }: AnalysisResultsProps) {
   const [isExporting, setIsExporting] = useState(false);
   const [exportQuality, setExportQuality] = useState<'standard' | 'high'>('high');
   const analysis = document.analysis as DocumentAnalysis;
+  const { toast } = useToast();
+
+  // Convert PII matches to feedback format with detection session ID
+  const piiDetections: PIIDetection[] = useMemo(() => {
+    if (!document.redactionInfo?.matches) return [];
+    
+    const detectionSessionId = `doc_${document.id}_${Date.now()}`;
+    
+    return document.redactionInfo.matches.map((match, index) => ({
+      id: `${detectionSessionId}_${index}`,
+      type: match.type,
+      detectedText: match.value,
+      confidence: match.confidence,
+      detectionMethod: 'composite', // Default since we don't have this info in current schema
+      context: document.content.substring(
+        Math.max(0, match.start - 50),
+        Math.min(document.content.length, match.end + 50)
+      ),
+      startIndex: match.start,
+      endIndex: match.end
+    }));
+  }, [document]);
+
+  // Handle feedback submission
+  const handlePiiFeedback = async (feedbackData: FeedbackData) => {
+    try {
+      const detection = piiDetections.find(d => d.id === feedbackData.detectionId);
+      if (!detection) {
+        throw new Error('Detection not found');
+      }
+
+      await submitPiiDetectionFeedback({
+        detectionSessionId: detection.id.split('_').slice(0, -1).join('_'),
+        detectedText: detection.detectedText,
+        detectionType: detection.type,
+        detectionMethod: detection.detectionMethod,
+        confidence: detection.confidence,
+        context: detection.context,
+        userVote: feedbackData.vote,
+        feedbackConfidence: feedbackData.confidence,
+        feedbackReason: feedbackData.reason,
+        documentType: 'contract', // Default, could be enhanced to detect document type
+        documentLength: document.content.length
+      });
+
+      toast({
+        title: "Feedback submitted",
+        description: "Thank you for helping improve our PII detection accuracy!",
+      });
+    } catch (error) {
+      console.error('Failed to submit PII feedback:', error);
+      toast({
+        title: "Failed to submit feedback",
+        description: "Please try again later.",
+        variant: "destructive",
+      });
+    }
+  };
 
   if (!analysis) {
     return (
@@ -180,6 +241,16 @@ Support our mission: ${window.location.origin + '/donate'}
         {document.redactionInfo && (
           <PIIRedactionInfoComponent 
             redactionInfo={document.redactionInfo} 
+            className="mb-4 sm:mb-5"
+          />
+        )}
+
+        {/* PII Detection Feedback */}
+        {piiDetections.length > 0 && (
+          <PiiDetectionFeedback
+            detections={piiDetections}
+            documentType="contract"
+            onFeedbackSubmit={handlePiiFeedback}
             className="mb-4 sm:mb-5"
           />
         )}

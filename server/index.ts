@@ -6,6 +6,8 @@ import { setupVite, serveStatic, log } from "./vite";
 import { addSecurityHeaders } from "./auth";
 import { validateEnvironmentOrExit, logEnvironmentStatus } from "./env-validation";
 import { securityLogger, getClientInfo } from "./security-logger";
+import { provideCsrfToken, verifyCsrfToken } from "./csrf-protection";
+import { hashIpAddress, hashUserAgent } from "./argon2";
 import crypto from "crypto";
 
 // Validate environment variables before starting the server
@@ -15,6 +17,8 @@ logEnvironmentStatus();
 
 // Import subscription service for collective user initialization
 import { subscriptionService } from './subscription-service';
+import { initializeDatabase } from './db-init';
+import { blogScheduler } from './blog-scheduler.js';
 
 const app = express();
 
@@ -193,28 +197,73 @@ app.use('/api/stripe-webhook', express.raw({ type: 'application/json' }));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 
-// Session management middleware with deduplication
+// Distributed session management
+let sessionStorage: any = null;
+
+// Initialize distributed session storage after database is ready
+async function initializeSessionStorage() {
+  try {
+    const { initializeDatabase } = await import('./db-with-fallback');
+    const database = await initializeDatabase();
+    const { DistributedSessionStorage } = await import('./distributed-session-storage');
+    
+    sessionStorage = await DistributedSessionStorage.initialize(database, {
+      defaultTTL: 2 * 60 * 60 * 1000, // 2 hours
+      cleanupInterval: 15 * 60 * 1000, // 15 minutes
+      maxSessionsPerUser: 5,
+      enableCleanup: true
+    });
+    
+    console.log('✅ Distributed session storage initialized');
+  } catch (error) {
+    console.error('⚠️ Failed to initialize distributed session storage:', error);
+    // Fall back to in-memory session handling
+  }
+}
+
+// Legacy in-memory session tracking for fallback
 const recentSessions = new Map<string, number>();
 const SESSION_LOG_COOLDOWN = 5000; // 5 seconds
 
-app.use((req: any, res, next) => {
+app.use(async (req: any, res, next) => {
   let sessionId = req.headers['x-session-id'] as string;
   const isNewSession = !sessionId;
+  const { ip, userAgent } = getClientInfo(req);
 
-    if (!sessionId) {
+  if (!sessionId) {
     sessionId = crypto.randomBytes(16).toString('hex');
     res.setHeader('x-session-id', sessionId);
 
+    // Create session in distributed storage if available
+    if (sessionStorage) {
+      try {
+        const ipHash = await hashIpAddress(ip);
+        const userAgentHash = await hashUserAgent(userAgent);
+        
+        await sessionStorage.createSession(
+          sessionId,
+          { created: new Date(), lastActivity: new Date() },
+          undefined, // userId will be set after authentication
+          ipHash,
+          userAgentHash
+        );
+      } catch (error) {
+        console.error('Failed to create distributed session:', error);
+      }
+    }
+
     // Log new session creation with client-based deduplication
     const now = Date.now();
-    const { ip, userAgent } = getClientInfo(req);
     const clientKey = `${ip}:${userAgent}`;
     const lastClientSession = recentSessions.get(clientKey);
 
     if (!lastClientSession || (now - lastClientSession) > SESSION_LOG_COOLDOWN) {
       securityLogger.logSessionCreated(ip, userAgent, sessionId);
       recentSessions.set(clientKey, now);
-      console.log(`📝 New session logged for client: ${sessionId}`);
+      // Only log session creation in development mode to reduce noise
+      if (process.env.NODE_ENV === 'development' || process.env.SESSION_DEBUG === 'true') {
+        console.log(`📝 New session logged for client: ${sessionId}`);
+      }
 
       // Clean up old entries periodically
       if (recentSessions.size > 1000) {
@@ -225,6 +274,13 @@ app.use((req: any, res, next) => {
           }
         });
       }
+    }
+  } else if (sessionStorage) {
+    // Touch existing session to extend TTL
+    try {
+      await sessionStorage.touchSession(sessionId);
+    } catch (error) {
+      // Session might not exist in distributed storage, that's okay
     }
   }
 
@@ -237,6 +293,10 @@ app.use((req: any, res, next) => {
 
   next();
 });
+
+// Add CSRF protection middleware
+app.use(provideCsrfToken);
+app.use(verifyCsrfToken);
 
 app.use((req, res, next) => {
   const start = Date.now();
@@ -268,7 +328,34 @@ app.use((req, res, next) => {
   next();
 });
 
+// CSRF Protection - provide tokens to clients and verify on state-changing requests
+app.use(provideCsrfToken);
+app.use(verifyCsrfToken);
+
 (async () => {
+  // Initialize database connection
+  try {
+    await initializeDatabase();
+  } catch (error) {
+    console.error('❌ Failed to initialize database:', error);
+    if (process.env.NODE_ENV === 'production') {
+      process.exit(1);
+    } else {
+      console.log('⚠️ Continuing in development mode despite database issues');
+    }
+  }
+  
+  // Initialize Enhanced PII Detection with Local LLM
+  console.log('🔧 Initializing Enhanced PII Detection with Local LLM...');
+  try {
+    const { enhancedPiiDetectionService } = await import('./enhanced-pii-detection');
+    await enhancedPiiDetectionService.initialize();
+    console.log('✅ Enhanced PII Detection with Local LLM initialized');
+  } catch (error) {
+    console.warn('⚠️ Warning: Failed to initialize Enhanced PII Detection:', error);
+    // Don't fail server startup for this
+  }
+  
   // Ensure collective free tier user exists for anonymous traffic routing
   console.log('🔧 Initializing collective free tier user routing...');
   try {
@@ -278,6 +365,42 @@ app.use((req, res, next) => {
     console.warn('⚠️ Warning: Failed to initialize collective free tier user:', error);
     // Don't fail server startup for this
   }
+
+  // Add health check endpoint
+  app.get('/health', async (req, res) => {
+    try {
+      const { getDatabaseStatus } = await import('./db-with-fallback');
+      const dbStatus = getDatabaseStatus();
+      
+      const healthStatus = {
+        status: 'healthy',
+        timestamp: new Date().toISOString(),
+        version: process.env.npm_package_version || '1.0.0',
+        database: {
+          status: dbStatus.circuitBreakers.neon.isHealthy || dbStatus.circuitBreakers.local.isHealthy ? 'healthy' : 'unhealthy',
+          activeConnection: dbStatus.currentDatabase,
+          circuitBreakers: dbStatus.circuitBreakers
+        },
+        memory: {
+          used: Math.round(process.memoryUsage().heapUsed / 1024 / 1024),
+          total: Math.round(process.memoryUsage().heapTotal / 1024 / 1024),
+          rss: Math.round(process.memoryUsage().rss / 1024 / 1024)
+        },
+        uptime: Math.round(process.uptime())
+      };
+
+      // Overall health check
+      const isHealthy = dbStatus.circuitBreakers.neon.isHealthy || dbStatus.circuitBreakers.local.isHealthy;
+      
+      res.status(isHealthy ? 200 : 503).json(healthStatus);
+    } catch (error) {
+      res.status(503).json({
+        status: 'unhealthy',
+        timestamp: new Date().toISOString(),
+        error: 'Health check failed'
+      });
+    }
+  });
 
   const server = await registerRoutes(app);
 
@@ -309,9 +432,21 @@ app.use((req, res, next) => {
         const serverInstance = server.listen({
           port,
           host: "0.0.0.0",
-        }, () => {
+        }, async () => {
           const actualPort = (serverInstance.address() as any)?.port || port;
           log(`serving on port ${actualPort}`);
+          
+          // Initialize distributed session storage after server starts
+          await initializeSessionStorage();
+          
+          // Start blog scheduler if enabled
+          try {
+            blogScheduler.start();
+            console.log('✅ Blog scheduler initialized');
+          } catch (error) {
+            console.warn('⚠️ Blog scheduler failed to start:', error);
+          }
+          
           serverStarted = true;
           resolve();
         });

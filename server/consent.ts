@@ -1,5 +1,5 @@
 import crypto from 'crypto';
-import { db } from './db';
+import { db, getDatabaseStatus } from './db';
 import { consentRecords } from '../shared/schema';
 import { eq, desc, count, and, gte } from 'drizzle-orm';
 
@@ -28,7 +28,13 @@ class ConsentLogger {
 
   constructor() {
     this.masterKey = process.env.CONSENT_MASTER_KEY || 'readmyfineprint-master-2024';
-    console.log('✓ Consent logging enabled with PostgreSQL database');
+    
+    // Check if we're in development mode
+    if (process.env.NODE_ENV === 'development' || process.env.USE_DB_FALLBACK === 'true') {
+      console.log('⚠️ Consent logging initialized in development mode (database operations will be bypassed)');
+    } else {
+      console.log('✓ Consent logging enabled with PostgreSQL database');
+    }
     
     // Clean cache every 5 minutes
     setInterval(() => {
@@ -121,6 +127,18 @@ class ConsentLogger {
     message: string;
   }> {
     try {
+      // Check if we're using local database fallback and bypass consent logging
+      const dbStatus = getDatabaseStatus?.();
+      if (dbStatus?.isUsingLocalDb || process.env.NODE_ENV === 'development') {
+        console.log('⚠️ Development mode: Bypassing consent logging');
+        return {
+          success: true,
+          consentId: 'dev-consent-' + Date.now(),
+          verificationToken: 'dev-token',
+          userPseudonym: 'dev-user',
+          message: 'Development mode - consent logging bypassed'
+        };
+      }
       const timestamp = new Date().toISOString();
       const ip = req.ip || req.connection.remoteAddress || 'unknown';
       const userAgent = req.get('User-Agent') || 'unknown';
@@ -194,6 +212,18 @@ class ConsentLogger {
    */
   async verifyConsent(req: any): Promise<ConsentProof | null> {
     try {
+      // Check if we're using local database fallback and bypass consent verification
+      const dbStatus = getDatabaseStatus?.();
+      if (dbStatus?.isUsingLocalDb || process.env.NODE_ENV === 'development') {
+        console.log('⚠️ Development mode: Bypassing consent verification');
+        return {
+          user_pseudonym: 'dev-user',
+          timestamp: new Date().toISOString(),
+          terms_version: '1.0',
+          consent_id: 'dev-consent',
+          verification_signature: 'dev-signature'
+        };
+      }
       const ip = req.ip || req.connection.remoteAddress || 'unknown';
       const userAgent = req.get('User-Agent') || 'unknown';
       const userPseudonym = this.createUserPseudonym(ip, userAgent);
@@ -236,6 +266,18 @@ class ConsentLogger {
    */
   async verifyUserConsent(ip: string, userAgent: string, userId?: string, sessionId?: string): Promise<ConsentProof | null> {
     try {
+      // Check if we're using local database fallback and bypass consent verification
+      const dbStatus = getDatabaseStatus?.();
+      if (dbStatus?.isUsingLocalDb || process.env.NODE_ENV === 'development') {
+        console.log('⚠️ Development mode: Bypassing user consent verification');
+        return {
+          user_pseudonym: 'dev-user',
+          timestamp: new Date().toISOString(),
+          terms_version: '1.0',
+          consent_id: 'dev-consent',
+          verification_signature: 'dev-signature'
+        };
+      }
       const userPseudonym = this.createUserPseudonym(ip, userAgent, userId, sessionId);
       console.log(`Verifying consent for pseudonym: ${userPseudonym} (IP: ${ip}, UA: ${userAgent?.substring(0, 20)}..., User: ${userId || 'none'}, Session: ${sessionId?.substring(0, 16) || 'none'})`);
       

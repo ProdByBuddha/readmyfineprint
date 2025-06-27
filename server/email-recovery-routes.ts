@@ -1,10 +1,47 @@
 import { Express, Request, Response } from "express";
 import { z } from "zod";
-import { requireAdminAuth, requireUserAuth, optionalUserAuth } from "./auth";
+import { requireAdminAuth, requireUserAuth, optionalUserAuth, requireAdminViaSubscription } from "./auth";
 import { emailRecoveryService } from "./email-recovery-service";
 import { securityLogger, getClientInfo } from "./security-logger";
 import { databaseStorage } from "./storage";
 import { emailChangeRequestSchema, adminEmailChangeReviewSchema } from "@shared/schema";
+import Stripe from 'stripe';
+
+const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
+  apiVersion: '2025-05-28.basil',
+});
+
+/**
+ * Translate email change request emails for admin view
+ */
+async function translateEmailChangeRequestsForAdmin(requests: any[]): Promise<any[]> {
+  const translatedRequests = await Promise.all(requests.map(async (request) => {
+    const translatedRequest = { ...request };
+    
+    // Translate current email
+    if (request.currentEmail && request.currentEmail.includes('@subscription.internalusers.email')) {
+      try {
+        // Get user by pseudonymized email to find Stripe customer ID
+        const user = await databaseStorage.getUserByEmail(request.currentEmail);
+        if (user?.stripeCustomerId) {
+          const customer = await stripe.customers.retrieve(user.stripeCustomerId);
+          if (customer && !customer.deleted && typeof customer.email === 'string') {
+            translatedRequest.currentEmail = customer.email;
+            translatedRequest.pseudonymizedCurrentEmail = request.currentEmail;
+          }
+        }
+      } catch (error) {
+        console.error(`Failed to translate current email for request ${request.id}:`, error);
+        translatedRequest.currentEmail = `[LOOKUP_FAILED] ${request.currentEmail}`;
+      }
+    }
+    
+    // Note: newEmail should already be real since it's user-provided
+    return translatedRequest;
+  }));
+  
+  return translatedRequests;
+}
 
 // Rate limiting for email recovery requests
 const requestLimits = new Map<string, { count: number; resetTime: number }>();
@@ -181,16 +218,18 @@ export function registerEmailRecoveryRoutes(app: Express) {
   });
 
   /**
-   * Admin: Get pending email change requests
-   * Requires admin authentication
+   * Admin: Get pending email change requests (subscription-based auth)
    */
-  app.get("/api/admin/email-change-requests", requireAdminAuth, async (req: Request, res: Response) => {
+  app.get("/api/admin/email-change-requests-subscription", requireAdminViaSubscription, async (req: Request, res: Response) => {
     try {
       const limit = parseInt(req.query.limit as string) || 50;
       
       const requests = await emailRecoveryService.getPendingEmailChangeRequests(limit);
       
-      res.json({ requests });
+      // Translate pseudonymized emails to real emails for admin access
+      const translatedRequests = await translateEmailChangeRequestsForAdmin(requests);
+      
+      res.json({ requests: translatedRequests });
 
     } catch (error) {
       console.error("Get pending email change requests error:", error);
@@ -199,7 +238,67 @@ export function registerEmailRecoveryRoutes(app: Express) {
   });
 
   /**
-   * Admin: Review email change request (approve/reject)
+   * Admin: Get pending email change requests (original admin auth)
+   * Requires admin authentication
+   */
+  app.get("/api/admin/email-change-requests", requireAdminAuth, async (req: Request, res: Response) => {
+    try {
+      const limit = parseInt(req.query.limit as string) || 50;
+      
+      const requests = await emailRecoveryService.getPendingEmailChangeRequests(limit);
+      
+      // Translate pseudonymized emails to real emails for admin access
+      const translatedRequests = await translateEmailChangeRequestsForAdmin(requests);
+      
+      res.json({ requests: translatedRequests });
+
+    } catch (error) {
+      console.error("Get pending email change requests error:", error);
+      res.status(500).json({ error: "Failed to get pending requests" });
+    }
+  });
+
+  /**
+   * Admin: Review email change request (approve/reject) (subscription-based auth)
+   */
+  app.post("/api/admin/email-change-requests-subscription/:requestId/review", requireAdminViaSubscription, async (req: Request, res: Response) => {
+    try {
+      const { requestId } = req.params;
+      const adminUserId = (req as any).user?.id;
+      
+      if (!adminUserId) {
+        return res.status(401).json({ error: "Admin user ID not found" });
+      }
+
+      const reviewData = adminEmailChangeReviewSchema.parse(req.body);
+      
+      const result = await emailRecoveryService.reviewEmailChangeRequest(
+        requestId,
+        adminUserId,
+        reviewData.action,
+        reviewData.adminNotes
+      );
+
+      if (!result.success) {
+        return res.status(400).json({ error: result.error });
+      }
+
+      res.json({ 
+        success: true,
+        message: `Email change request ${reviewData.action}ed successfully`
+      });
+
+    } catch (error) {
+      console.error("Review email change request error:", error);
+      if (error instanceof z.ZodError) {
+        return res.status(400).json({ error: "Invalid input", details: error.errors });
+      }
+      res.status(500).json({ error: "Failed to review email change request" });
+    }
+  });
+
+  /**
+   * Admin: Review email change request (approve/reject) (original admin auth)
    * Requires admin authentication
    */
   app.post("/api/admin/email-change-requests/:requestId/review", requireAdminAuth, async (req: Request, res: Response) => {
@@ -239,7 +338,59 @@ export function registerEmailRecoveryRoutes(app: Express) {
   });
 
   /**
-   * Admin: Get detailed email change request
+   * Admin: Get detailed email change request (subscription-based auth)
+   */
+  app.get("/api/admin/email-change-requests-subscription/:requestId", requireAdminViaSubscription, async (req: Request, res: Response) => {
+    try {
+      const { requestId } = req.params;
+      
+      const request = await databaseStorage.getEmailChangeRequest(requestId);
+      if (!request) {
+        return res.status(404).json({ error: "Request not found" });
+      }
+
+      // Get user details
+      const user = await databaseStorage.getUser(request.userId);
+      
+      // Translate request emails for admin view
+      const translatedRequests = await translateEmailChangeRequestsForAdmin([request]);
+      const translatedRequest = translatedRequests[0];
+      
+      // Translate user email if needed
+      let translatedUser = user;
+      if (user && user.email?.includes('@subscription.internalusers.email') && user.stripeCustomerId) {
+        try {
+          const customer = await stripe.customers.retrieve(user.stripeCustomerId);
+          if (customer && !customer.deleted && typeof customer.email === 'string') {
+            translatedUser = {
+              ...user,
+              email: customer.email
+            };
+          }
+        } catch (error) {
+          console.error(`Failed to translate user email:`, error);
+        }
+      }
+      
+      res.json({ 
+        request: translatedRequest,
+        user: translatedUser ? {
+          id: translatedUser.id,
+          email: translatedUser.email,
+          username: undefined, // Username property not available in User type
+          createdAt: translatedUser.createdAt,
+          pseudonymizedEmail: (translatedUser as any).pseudonymizedEmail
+        } : null
+      });
+
+    } catch (error) {
+      console.error("Get email change request details error:", error);
+      res.status(500).json({ error: "Failed to get request details" });
+    }
+  });
+
+  /**
+   * Admin: Get detailed email change request (original admin auth)
    * Requires admin authentication
    */
   app.get("/api/admin/email-change-requests/:requestId", requireAdminAuth, async (req: Request, res: Response) => {
@@ -254,13 +405,34 @@ export function registerEmailRecoveryRoutes(app: Express) {
       // Get user details
       const user = await databaseStorage.getUser(request.userId);
       
+      // Translate request emails for admin view
+      const translatedRequests = await translateEmailChangeRequestsForAdmin([request]);
+      const translatedRequest = translatedRequests[0];
+      
+      // Translate user email if needed
+      let translatedUser = user;
+      if (user && user.email?.includes('@subscription.internalusers.email') && user.stripeCustomerId) {
+        try {
+          const customer = await stripe.customers.retrieve(user.stripeCustomerId);
+          if (customer && !customer.deleted && typeof customer.email === 'string') {
+            translatedUser = {
+              ...user,
+              email: customer.email
+            };
+          }
+        } catch (error) {
+          console.error(`Failed to translate user email:`, error);
+        }
+      }
+      
       res.json({ 
-        request,
-        user: user ? {
-          id: user.id,
-          email: user.email,
-          username: user.username,
-          createdAt: user.createdAt
+        request: translatedRequest,
+        user: translatedUser ? {
+          id: translatedUser.id,
+          email: translatedUser.email,
+          username: undefined, // Username property not available in User type
+          createdAt: translatedUser.createdAt,
+          pseudonymizedEmail: (translatedUser as any).pseudonymizedEmail
         } : null
       });
 

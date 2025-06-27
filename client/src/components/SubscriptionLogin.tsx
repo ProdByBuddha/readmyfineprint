@@ -176,6 +176,17 @@ export function SubscriptionLogin({
         localStorage.setItem("subscriptionToken", data.token);
         console.log("Successfully logged into subscription");
 
+        // Trigger storage event to notify other components (like Header)
+        window.dispatchEvent(new StorageEvent('storage', {
+          key: 'subscriptionToken',
+          newValue: data.token,
+          oldValue: null,
+          storageArea: localStorage
+        }));
+        
+        // Also dispatch custom event for same-tab updates
+        window.dispatchEvent(new CustomEvent('authStateChanged'));
+
         // Call success callback
         onSuccess(data.token, data.subscription);
       } else {
@@ -311,7 +322,7 @@ export function SubscriptionLogin({
                 type="button"
                 variant="secondary"
                 className="w-full"
-                onClick={() => window.location.href = '/subscription'}
+                onClick={() => window.location.href = '/subscription?tab=plans'}
                 disabled={loading}
               >
                 <Crown className="mr-2 h-4 w-4 text-yellow-600" />
@@ -323,7 +334,7 @@ export function SubscriptionLogin({
                   <span className="w-full border-t" />
                 </div>
                 <div className="relative flex justify-center text-xs uppercase">
-                  <span className="bg-background px-2 text-muted-foreground">
+                  <span className="bg-background dark:bg-gray-800 px-2 text-muted-foreground">
                     Need help?
                   </span>
                 </div>

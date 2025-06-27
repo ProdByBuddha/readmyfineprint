@@ -1,5 +1,5 @@
 import { Button } from "@/components/ui/button";
-import { Moon, Sun, Heart, Crown, LogOut, Settings } from "lucide-react";
+import { Moon, Sun, Heart, Crown, LogOut, Settings, Shield, BookOpen } from "lucide-react";
 import { Link } from "wouter";
 import { useTheme } from "@/components/ThemeProvider";
 import { useIsMobile } from "@/hooks/use-mobile";
@@ -69,8 +69,15 @@ export function Header() {
     // Listen for storage changes (in case user logs in/out in another tab)
     window.addEventListener('storage', checkLoginStatus);
     
+    // Also listen for custom auth update events (for same-tab updates)
+    const handleAuthUpdate = () => {
+      setTimeout(checkLoginStatus, 100); // Small delay to ensure localStorage is updated
+    };
+    window.addEventListener('authStateChanged', handleAuthUpdate);
+    
     return () => {
       window.removeEventListener('storage', checkLoginStatus);
+      window.removeEventListener('authStateChanged', handleAuthUpdate);
     };
   }, [checkLoginStatus]);
 
@@ -83,21 +90,44 @@ export function Header() {
     setShowLogin(true);
   };
 
-  const handleLogoutClick = (e: React.MouseEvent) => {
+  const handleLogoutClick = async (e: React.MouseEvent) => {
     e.preventDefault();
     
-    // Clear the subscription token
-    localStorage.removeItem('subscriptionToken');
-    setIsLoggedIn(false);
-    setIsAdmin(false);
-    
-    toast({
-      title: "Logged Out",
-      description: "You have been successfully logged out.",
-    });
+    try {
+      // Import logout function dynamically to avoid import issues
+      const { logout } = await import('@/lib/api');
+      
+      // Call the logout API which clears documents and revokes tokens
+      const result = await logout();
+      
+      setIsLoggedIn(false);
+      setIsAdmin(false);
+      
+      toast({
+        title: "Logged Out",
+        description: result.success 
+          ? `Successfully logged out. Cleared ${result.details.tokensRevoked} tokens and ${result.details.documentsCleared ? 'documents' : 'no documents'}.`
+          : "Logged out locally. Some server cleanup may have failed.",
+      });
 
-    // Redirect to home page
-    window.location.href = '/';
+      // Redirect to home page
+      window.location.href = '/';
+    } catch (error) {
+      console.error('Logout failed:', error);
+      
+      // Fallback - clear local state even if API fails
+      localStorage.removeItem('subscriptionToken');
+      setIsLoggedIn(false);
+      setIsAdmin(false);
+      
+      toast({
+        title: "Logged Out",
+        description: "Logged out locally. Please refresh if you experience any issues.",
+        variant: "destructive",
+      });
+      
+      window.location.href = '/';
+    }
   };
 
   const handleLoginSuccess = async () => {
@@ -111,8 +141,8 @@ export function Header() {
       description: "Welcome back! You're now logged into your account.",
     });
     
-    // Redirect to home page
-    window.location.href = '/';
+    // Don't redirect - let the user stay on current page
+    // window.location.href = '/';
   };
 
   return (
@@ -157,16 +187,38 @@ export function Header() {
             role="navigation"
             aria-label="Main navigation"
           >
-            <Link to="/subscription">
+            <Link to="/subscription?tab=plans">
               <Button
                 variant="ghost"
                 size="sm"
                 className="mr-2"
-                aria-label="Manage subscription"
+                aria-label="View subscription plans"
                 onClick={handleSubscriptionClick}
               >
                 <Crown className="w-4 h-4 mr-2 text-yellow-600" aria-hidden="true" />
                 Plans
+              </Button>
+            </Link>
+            <Link to="/trust">
+              <Button
+                variant="ghost"
+                size="sm"
+                className="mr-2"
+                aria-label="Trust and security information"
+              >
+                <Shield className="w-4 h-4 mr-2 text-green-600" aria-hidden="true" />
+                Trust
+              </Button>
+            </Link>
+            <Link to="/blog">
+              <Button
+                variant="ghost"
+                size="sm"
+                className="mr-2"
+                aria-label="Legal insights and contract law blog"
+              >
+                <BookOpen className="w-4 h-4 mr-2 text-purple-600" aria-hidden="true" />
+                Blog
               </Button>
             </Link>
             {isAdmin && (
@@ -284,12 +336,12 @@ export function Header() {
               </Button>
             )}
             {!import.meta.env.PROD && (
-              <Link to="/subscription">
+              <Link to="/subscription?tab=plans">
                 <Button
                   variant="ghost"
                   size="sm"
                   className="h-10 w-10 p-0 rounded-full transition-all duration-200 active:scale-95"
-                  aria-label="Manage subscription"
+                  aria-label="View subscription plans"
                   onClick={handleSubscriptionClick}
                 >
                   <Crown className="w-4 h-4 text-yellow-600" aria-hidden="true" />

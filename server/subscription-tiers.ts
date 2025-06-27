@@ -18,7 +18,7 @@ export const SUBSCRIPTION_TIERS: SubscriptionTier[] = [
   {
     id: "free",
     name: "Free",
-    description: "Perfect for trying out document analysis with unlimited scans",
+    description: "Perfect for trying out document analysis with basic features",
     model: "gpt-4o-mini",
     monthlyPrice: 0,
     yearlyPrice: 0,
@@ -32,18 +32,19 @@ export const SUBSCRIPTION_TIERS: SubscriptionTier[] = [
     ],
     limits: {
       documentsPerMonth: -1, // -1 indicates unlimited
-      tokensPerDocument: 128000, // GPT-4o-mini context limit
+      tokensPerDocument: 16000,
       prioritySupport: false,
       advancedAnalysis: false,
       apiAccess: false,
       customIntegrations: false,
     },
     modelCosts: {
-      inputTokenCost: 0.50, // per 1M tokens
-      outputTokenCost: 1.50, // per 1M tokens
-      estimatedTokensPerDocument: 3500,
-      costPerDocument: 0.00425, // (2000 * 0.50 + 1500 * 1.50) / 1,000,000
-    }
+      inputTokenCost: 0.15,
+      outputTokenCost: 0.60,
+      estimatedTokensPerDocument: 2800,
+      costPerDocument: 0.00084, // (2000 * 0.15 + 800 * 0.60) / 1,000,000
+    },
+    popular: false
   },
   {
     id: "starter",
@@ -113,7 +114,7 @@ export const SUBSCRIPTION_TIERS: SubscriptionTier[] = [
     name: "Business",
     description: "For established businesses with high-volume document processing needs",
     model: "gpt-4-turbo",
-    monthlyPrice: 250, // 5x profit: ($0.065 * 500 docs * 5) = $162.50, rounded up for enterprise features
+    monthlyPrice: 250, // 5x profit on model costs + premium for features
     yearlyPrice: 2500, // 2 months free
     features: [
       "500 document analyses per month",
@@ -148,7 +149,7 @@ export const SUBSCRIPTION_TIERS: SubscriptionTier[] = [
     name: "Enterprise",
     description: "For large organizations requiring maximum capability and reasoning power",
     model: "o1-preview",
-    monthlyPrice: 500, // 5x profit: ($0.12 * 1000 docs * 5) = $600, but competitive enterprise pricing
+    monthlyPrice: 500, // 5x profit on model costs + premium enterprise features
     yearlyPrice: 5000, // 2 months free
     features: [
       "1000+ document analyses per month",
@@ -183,17 +184,19 @@ export const SUBSCRIPTION_TIERS: SubscriptionTier[] = [
   {
     id: "ultimate",
     name: "Ultimate",
-    description: "God mode - unlimited access to all features",
+    description: "Admin-only tier with unlimited access for system administration",
     model: "gpt-4o",
-    monthlyPrice: 0,
+    monthlyPrice: 0, // No cost for admin tier
     yearlyPrice: 0,
     features: [
-      "Unlimited everything",
+      "Unlimited document analysis",
       "All AI models available",
-      "Complete system access",
-      "Admin privileges",
-      "No restrictions",
-      "Development access"
+      "System administration access",
+      "Complete feature access",
+      "Development and testing privileges",
+      "Admin dashboard access",
+      "Security monitoring tools",
+      "User management capabilities"
     ],
     limits: {
       documentsPerMonth: -1, // Unlimited
@@ -207,19 +210,21 @@ export const SUBSCRIPTION_TIERS: SubscriptionTier[] = [
       inputTokenCost: 2.50,
       outputTokenCost: 10.00,
       estimatedTokensPerDocument: 32000,
-      costPerDocument: 0.00, // No cost for ultimate tier
+      costPerDocument: 0.00, // No cost for admin tier
     },
-    popular: false
+    popular: false,
+    adminOnly: true // Mark as admin-only tier
   }
 ];
 
 /**
  * Get subscription tier by ID
  */
-export function getTierById(tierId: string): SubscriptionTier | undefined {
-  const tier = SUBSCRIPTION_TIERS.find(tier => tier.id === tierId);
-  if (!tier && tierId === 'ultimate') {
-    console.error(`Ultimate tier not found in SUBSCRIPTION_TIERS. Available tiers: ${SUBSCRIPTION_TIERS.map(t => t.id).join(', ')}`);
+export function getTierById(id: string): SubscriptionTier | undefined {
+  const tier = SUBSCRIPTION_TIERS.find(tier => tier.id === id);
+  if (!tier) {
+    console.error(`Invalid tier ID requested: ${id}. Available tiers: ${SUBSCRIPTION_TIERS.map(t => t.id).join(', ')}`);
+    return undefined;
   }
   return tier;
 }
