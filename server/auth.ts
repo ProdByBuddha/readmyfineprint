@@ -26,7 +26,7 @@ declare global {
 export async function requireAdminAuth(req: Request, res: Response, next: NextFunction) {
   const { ip, userAgent } = getClientInfo(req);
   const adminKey = process.env.ADMIN_API_KEY;
-  
+
   console.log(`🔍 Admin auth attempt for ${req.path}`);
 
   // Enforce admin key requirement in ALL environments for security
@@ -66,7 +66,7 @@ export async function requireAdminAuth(req: Request, res: Response, next: NextFu
         console.log('Development JWT validation failed:', jwtError);
       }
     }
-    
+
     // Fallback to API key bypass
     if (providedKey === adminKey) {
       console.log('🔓 Development mode: Admin access granted with API key only');
@@ -110,7 +110,7 @@ export async function requireAdminAuth(req: Request, res: Response, next: NextFu
 
   // Log successful authentication
   securityLogger.logAdminAuth(ip, userAgent, req.path);
-  
+
   // Set user context for admin user
   req.user = {
     id: 'admin',
@@ -200,7 +200,7 @@ export async function requireAdminViaSubscription(req: Request, res: Response, n
     // Validate the subscription token first
     const { hybridTokenService } = await import("./hybrid-token-service");
     const tokenData = await hybridTokenService.validateSubscriptionToken(subscriptionToken);
-    
+
     if (!tokenData) {
       return res.status(401).json({ error: 'Invalid subscription token' });
     }
@@ -212,14 +212,14 @@ export async function requireAdminViaSubscription(req: Request, res: Response, n
 
     try {
       user = await databaseStorage.getUser(tokenData.userId);
-      
+
       // Additional security: Verify user has an active, legitimate subscription
       const { subscriptionService } = await import("./subscription-service");
       subscriptionData = await subscriptionService.getUserSubscriptionWithUsage(tokenData.userId);
     } catch (dbError: any) {
       console.error('Database connection error during admin auth:', dbError);
       databaseAvailable = false;
-      
+
       // Check if this is a connection termination error
       if (dbError.message?.includes('terminating connection') || 
           dbError.cause?.message?.includes('terminating connection') ||
@@ -279,10 +279,10 @@ export async function requireAdminViaSubscription(req: Request, res: Response, n
     } else {
       // Database unavailable - use token-based verification as fallback
       console.log('Using token-based admin verification due to database unavailability');
-      
+
       // Extract admin status from token data if available
       const adminEmails = ['admin@readmyfineprint.com', 'prodbybuddha@icloud.com'];
-      
+
       // SECURITY: Removed hardcoded admin user ID fallback
       // Admin access now requires database verification - no hardcoded bypasses
       securityLogger.logSecurityEvent({
@@ -312,7 +312,7 @@ export async function requireAdminViaSubscription(req: Request, res: Response, n
       const authMethod = databaseAvailable ? 'via subscription token' : 'via token fallback';
       securityLogger.logAdminAuth(ip, userAgent, req.path + ` (${authMethod})`);
     }
-    
+
     next();
   } catch (error) {
     const { ip, userAgent } = getClientInfo(req);
@@ -336,7 +336,7 @@ export async function requireAdminViaSubscription(req: Request, res: Response, n
  */
 export async function generateJWT(userId: string, email?: string): Promise<string> {
   console.warn('⚠️  generateJWT is deprecated. Use secureJWTService.generateTokenPair() for enhanced security.');
-  
+
   // Get user email if not provided
   if (!email) {
     const user = await databaseStorage.getUser(userId);
@@ -345,7 +345,7 @@ export async function generateJWT(userId: string, email?: string): Promise<strin
     }
     email = user.email;
   }
-  
+
   // Use secure JWT service for token generation
   const tokenPair = await secureJWTService.generateTokenPair(userId, email);
   return tokenPair.accessToken;
@@ -395,12 +395,12 @@ export async function revokeAllUserTokens(userId: string, reason: string, revoke
 export async function requireConsent(req: Request, res: Response, next: NextFunction) {
   try {
     const { ip, userAgent } = getClientInfo(req);
-    
+
     // Check if this is an admin request (admin endpoints are exempt from consent)
     const adminKey = process.env.ADMIN_API_KEY;
     const providedKey = req.headers['x-admin-key'] as string;
     const adminToken = req.headers['x-admin-token'] as string;
-    
+
     // Skip consent check for admin users using traditional admin auth
     if (adminKey && (providedKey === adminKey || adminToken)) {
       return next();
@@ -412,10 +412,10 @@ export async function requireConsent(req: Request, res: Response, next: NextFunc
       try {
         const { hybridTokenService } = await import("./hybrid-token-service");
         const tokenData = await hybridTokenService.validateSubscriptionToken(subscriptionToken);
-        
+
         if (tokenData) {
           const user = await databaseStorage.getUser(tokenData.userId);
-          
+
           // Check if user is admin by email
           const adminEmails = ['admin@readmyfineprint.com', 'prodbybuddha@icloud.com'];
           if (user && adminEmails.includes(user.email)) {
@@ -433,12 +433,12 @@ export async function requireConsent(req: Request, res: Response, next: NextFunc
     if (isSampleContractRequest(req)) {
       return next();
     }
-    
+
     // Check for valid consent with user ID if available
     const userId = (req as any).user?.id;
     const sessionId = (req as any).sessionId;
     const consentProof = await consentLogger.verifyUserConsent(ip, userAgent, userId, sessionId);
-    
+
     if (!consentProof) {
       securityLogger.logSecurityEvent({
         eventType: SecurityEventType.AUTHORIZATION,
@@ -448,7 +448,7 @@ export async function requireConsent(req: Request, res: Response, next: NextFunc
         userAgent,
         endpoint: req.path
       });
-      
+
       return res.status(403).json({
         error: 'Consent required',
         message: 'You must accept our terms and conditions to access this service',
@@ -456,11 +456,11 @@ export async function requireConsent(req: Request, res: Response, next: NextFunc
         requiresConsent: true
       });
     }
-    
+
     // Attach consent proof to request for potential use in handlers
     (req as any).consentProof = consentProof;
     next();
-    
+
   } catch (error) {
     console.error('Error checking consent:', error);
     // In case of error, require consent to be safe
@@ -478,7 +478,7 @@ export async function requireConsent(req: Request, res: Response, next: NextFunc
 function isSampleContractRequest(req: Request): boolean {
   const path = req.path;
   const body = req.body;
-  
+
   // Allow sample contract creation (when title contains sample contract keywords)
   if (path === '/api/documents' && req.method === 'POST') {
     const title = body?.title || '';
@@ -487,19 +487,19 @@ function isSampleContractRequest(req: Request): boolean {
       'residential lease', 'employment agreement', 'nda',
       'service agreement', 'rental agreement'
     ];
-    
+
     return sampleKeywords.some(keyword => 
       title.toLowerCase().includes(keyword.toLowerCase())
     );
   }
-  
+
   // Allow accessing documents that are sample contracts
   if (path.startsWith('/api/documents/') && req.method === 'GET') {
     // This will be allowed but we'll need to verify in the route handler
     // that it's actually a sample contract
     return false; // Let the route handler decide based on document content
   }
-  
+
   return false;
 }
 
@@ -530,7 +530,7 @@ export function addSecurityHeaders(req: Request, res: Response, next: NextFuncti
   // In development, allow Replit scripts; in production, restrict further
   const isDevelopment = process.env.NODE_ENV === 'development';
   const replitSources = isDevelopment ? ' https://replit.com' : '';
-  
+
   res.setHeader('Content-Security-Policy',
     "default-src 'self'; " +
     `script-src 'self' 'unsafe-inline' 'unsafe-eval' https://js.stripe.com https://m.stripe.com${replitSources}; ` +
