@@ -29,6 +29,13 @@ export async function initializeDatabase() {
       console.log('Please check your Neon dashboard at https://console.neon.tech/');
     }
     
+    // Check if it's a connection error to Neon
+    if (error.message?.includes('connection') || error.message?.includes('socket') || error.message?.includes('timeout')) {
+      console.log('\n⚠️ Unable to connect to Neon database');
+      console.log('💡 This may be due to network issues or database unavailability');
+      console.log('🔄 The app will continue in development mode using fallback storage');
+    }
+    
     throw error;
   }
 }
