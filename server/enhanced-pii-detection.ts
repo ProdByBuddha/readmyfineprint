@@ -53,6 +53,15 @@ export class EnhancedPIIDetectionService {
    * Initialize the service including local LLM
    */
   async initialize(): Promise<void> {
+    // Check if Local LLM is enabled
+    const isLocalLLMEnabled = process.env.ENABLE_LOCAL_LLM === 'true';
+    
+    if (!isLocalLLMEnabled) {
+      console.log('📊 Enhanced PII Detection initialized (regex-only mode, Local LLM disabled)');
+      this.isLLMInitialized = false;
+      return;
+    }
+    
     try {
       console.log('🤖 Initializing Enhanced PII Detection with Local LLM...');
       await localLLMService.initialize();
