@@ -1,0 +1,31 @@
+❌ Database initialization failed: Database connection test failed
+[1] [0] 
+[1] [0] ⚠️ Unable to connect to Neon database
+[1] [0] 💡 This may be due to network issues or database unavailability
+[1] [0] 🔄 The app will continue in development mode using fallback storage
+[1] [0] ❌ Failed to initialize database: Error: Database connection test failed
+[1] [0]     at initializeDatabase (/home/runner/workspace/server/db-init.ts:21:11)
+[1] [0]     at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+[1] [0]     at async <anonymous> (/home/runner/workspace/server/index.ts:338:5)
+[1] [0] ⚠️ Continuing in development mode despite database issues
+[1] [0] 🔧 Initializing Enhanced PII Detection with Local LLM...
+[1] [0] 📊 Enhanced PII Detection initialized (regex-only mode, Local LLM disabled)
+[1] [0] ✅ Enhanced PII Detection with Local LLM initialized
+[1] [0] 🔧 Initializing collective free tier user routing...
+[1] [0] ✅ Email service configured and verified with SMTP (smtp.mail.me.com)
+[1] [0] ✅ Collective free tier user routing initialized
+[1] [0] 🔧 Initializing sample documents for demo...
+[1] [0] ⚠️ Warning: Failed to initialize sample documents: TypeError: databaseStorage.initializeSampleDocuments is not a function
+[1] [0]     at <anonymous> (/home/runner/workspace/server/index.ts:374:23)
+[1] [0]     at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+[1] [0] ✅ Two-Factor Authentication routes registered
+[1] [0] 1:45:37 AM [express] serving on port 5000
+[1] [0] 🔄 Initializing database connection...
+[1] [0] ❌ Database initialization failed: Database connection test failed
+[1] [0] ⚠️ Failed to initialize distributed session storage: Error: Database connection test failed
+[1] [0]     at initializeDatabase (/home/runner/workspace/server/db-init.ts:21:11)
+[1] [0]     at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+[1] [0]     at async initializeSessionStorage (/home/runner/workspace/server/index.ts:207:22)
+[1] [0]     at async Server.<anonymous> (/home/runner/workspace/server/index.ts:556:11)
+[1] [0] 
+[1] [0] ⚠️ Unable to connect to Neon database

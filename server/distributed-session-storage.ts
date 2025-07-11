@@ -640,6 +640,7 @@ class DistributedSessionStorage {
   static async initialize(database: any, config?: Partial<SessionConfig>): Promise<DistributedSessionStorage> {
     // Create sessions table if it doesn't exist
     try {
+      // Use the sql template from drizzle-orm for postgres-js compatibility
       await database.execute(sql`
         CREATE TABLE IF NOT EXISTS sessions (
           id TEXT PRIMARY KEY,

@@ -204,10 +204,11 @@ let sessionStorage: any = null;
 async function initializeSessionStorage() {
   try {
     const { initializeDatabase } = await import('./db-init');
-    const database = await initializeDatabase();
+    await initializeDatabase();
+    const { db } = await import('./db');
     const { DistributedSessionStorage } = await import('./distributed-session-storage');
     
-    sessionStorage = await DistributedSessionStorage.initialize(database, {
+    sessionStorage = await DistributedSessionStorage.initialize(db, {
       defaultTTL: 2 * 60 * 60 * 1000, // 2 hours
       cleanupInterval: 15 * 60 * 1000, // 15 minutes
       maxSessionsPerUser: 5,
