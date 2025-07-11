@@ -119,15 +119,11 @@ class CSRFProtection {
    * Middleware to provide CSRF token to client
    */
   tokenProvider = (req: any, res: Response, next: NextFunction) => {
-    // In development mode, provide a dummy token
+    // Skip CSRF entirely in development mode
     if (process.env.NODE_ENV === 'development' || process.env.USE_DB_FALLBACK === 'true') {
-      const dummyToken = 'dev-csrf-token';
-      res.setHeader('X-CSRF-Token', dummyToken);
-      
       if (req.path === '/api/csrf-token' && req.method === 'GET') {
-        return res.json({ csrfToken: dummyToken });
+        return res.json({ csrfToken: 'dev-disabled' });
       }
-      
       return next();
     }
     
@@ -157,9 +153,8 @@ class CSRFProtection {
     const method = req.method.toUpperCase();
     const path = req.path;
 
-    // Skip CSRF verification in development mode
+    // Skip CSRF verification entirely in development mode
     if (process.env.NODE_ENV === 'development' || process.env.USE_DB_FALLBACK === 'true') {
-      console.log(`⚠️ Development mode: Bypassing CSRF verification for ${method} ${path}`);
       return next();
     }
 
