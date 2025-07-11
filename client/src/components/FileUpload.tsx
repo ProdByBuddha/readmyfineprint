@@ -185,7 +185,7 @@ export function FileUpload({ onDocumentCreated, disabled = false, consentAccepte
         <div className={`flex flex-col gap-8 ${hasSubscription() ? '' : 'lg:flex-row'}`}>
           {/* Upload Area */}
           <div className={hasSubscription() ? 'w-full' : 'lg:w-1/2'}>
-            <h3 className="text-2xl font-semibold mb-6 text-[#c7d3d9]">Upload Your Document</h3>
+            <h3 className="text-2xl font-semibold mb-6 text-gray-900 dark:text-[#c7d3d9]">Upload Your Document</h3>
 
             {/* File Upload */}
             <div
@@ -215,12 +215,12 @@ export function FileUpload({ onDocumentCreated, disabled = false, consentAccepte
                 ) : uploadSuccess ? (
                   <CheckCircle className="w-12 h-12 text-green-500 mb-4" aria-hidden="true" />
                 ) : (
-                  <CloudUpload className="w-12 h-12 text-gray-400 mb-4" aria-hidden="true" />
+                  <CloudUpload className="w-12 h-12 text-gray-400 dark:text-gray-500 mb-4" aria-hidden="true" />
                 )}
-                <p className="text-lg font-medium mb-2 text-[#c7d3d9]">
+                <p className="text-lg font-medium mb-2 text-gray-900 dark:text-[#c7d3d9]">
                   {uploadError ? "Upload Failed" : uploadSuccess ? "Upload Successful" : "Drop your file here or click to browse"}
                 </p>
-                <p id="file-upload-description" className="text-sm text-gray-500 mb-4">
+                <p id="file-upload-description" className="text-sm text-gray-500 dark:text-gray-400 mb-4">
                   Supports DOCX, TXT, and PDF files up to 25MB
                 </p>
                 {uploadError && (
@@ -287,7 +287,7 @@ export function FileUpload({ onDocumentCreated, disabled = false, consentAccepte
                 aria-describedby="text-input-description"
                 aria-invalid={uploadError && textContent.trim() === '' ? 'true' : 'false'}
               />
-              <p id="text-input-description" className="text-xs text-gray-500 mt-2">
+              <p id="text-input-description" className="text-xs text-gray-500 dark:text-gray-400 mt-2">
                 You can paste any contract or legal document text here for analysis.
               </p>
             </div>
@@ -310,7 +310,7 @@ export function FileUpload({ onDocumentCreated, disabled = false, consentAccepte
                 </>
               )}
             </Button>
-            <p id="text-submit-description" className="text-xs text-gray-500 mt-2 text-center">
+            <p id="text-submit-description" className="text-xs text-gray-500 dark:text-gray-400 mt-2 text-center">
               Click to analyze the pasted text content
             </p>
           </div>

@@ -5,36 +5,74 @@ server/public
 vite.config.ts.*
 *.tar.gz
 
-# Environment variables
+# Environment variables (comprehensive)
 .env
+.env.*
 .env.local
 .env.development
 .env.test
 .env.production
+.env.staging
 .env.*.local
-.env.*
 !.env.example
 
-# Security keys and secrets
+# Security keys and secrets (comprehensive)
 *.key
 *.pem
+*.p12
+*.pfx
 secrets.json
+config.json
+settings.json
+credentials.json
+auth.json
 
-# Logs
+# API keys and tokens
+*apikey*
+*api_key*
+*api-key*
+*token*
+*secret*
+*password*
+*credential*
+
+# Stripe keys (both test and live)
+stripe_*
+*stripe*
+sk_*
+pk_*
+
+# Database files
+*.db
+*.sqlite
+*.sqlite3
+
+# Logs and debug files
 *.log
+*.log.*
 server.log
 vite.log
+debug.log
+error.log
+access.log
 
 # Temporary files
 temp/
+tmp/
 *.tmp
 *.temp
+*.cache
+cache/
 
 # IDE and editor files
 .vscode/
 .idea/
 *.swp
 *.swo
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
 
 # OS generated files
 Thumbs.db
@@ -44,10 +82,42 @@ Thumbs.db
 .Spotlight-V100
 .Trashes
 ehthumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+
+# Build and deployment
+build/
+dist/
+out/
+coverage/
+*.tgz
 
 # Patent documentation (confidential)
 patent/
+legal/
+contracts/
 
 # IPFS deployment files
 .ipfs-cid
 .ipfs-deployment.json
+
+# Backup files
+*.backup
+*.bak
+*.orig
+*.save
+
+# Security scans and reports
+security-report.*
+vulnerability-report.*
+audit-report.*
+
+# CI/CD secrets
+.github/workflows/secrets/
+.gitlab-ci-secrets/
+.circleci/secrets/
+
+# Docker secrets
+docker-compose.override.yml
+docker-compose.*.yml
+.dockerignore.local

@@ -48,6 +48,17 @@ export class BlogContentService {
     });
   }
 
+  // Clean up markdown code blocks from content
+  private cleanMarkdownCodeBlocks(content: string): string {
+    // Remove HTML markdown code blocks
+    content = content.replace(/```html\s*\n([\s\S]*?)\n```/g, '$1');
+    // Remove any other markdown code blocks
+    content = content.replace(/```\w*\s*\n([\s\S]*?)\n```/g, '$1');
+    // Clean up any remaining backticks
+    content = content.replace(/```/g, '');
+    return content.trim();
+  }
+
   // Get next topic to write about, avoiding recent topics
   async getNextTopic(): Promise<BlogTopic | null> {
     try {
@@ -185,7 +196,11 @@ Aim for 1500-2500 total words. Make it comprehensive but accessible.`;
       const content = response.choices[0].message.content;
       if (!content) throw new Error('No content generated');
 
-      return JSON.parse(content) as ContentOutline;
+      // Handle markdown-wrapped JSON
+      const jsonMatch = content.match(/```json\s*\n([\s\S]*?)\n```/);
+      const jsonContent = jsonMatch ? jsonMatch[1] : content;
+
+      return JSON.parse(jsonContent) as ContentOutline;
     } catch (error) {
       console.error('Error generating content outline:', error);
       throw new Error('Failed to generate content outline');
@@ -194,38 +209,215 @@ Aim for 1500-2500 total words. Make it comprehensive but accessible.`;
 
   // Generate full blog post content
   async generateBlogPost(topic: BlogTopic, outline: ContentOutline): Promise<GeneratedContent> {
-    const prompt = `Write a comprehensive, SEO-optimized blog post based on this outline:
+    try {
+      // First, generate metadata and structure
+      const metadataPrompt = `Create SEO metadata and structure for a blog post about "${topic.title}".
 
-Title: ${topic.title}
 Target Audience: ${topic.targetAudience}
-Difficulty: ${topic.difficulty}
 Keywords: ${topic.keywords}
 
-Outline:
-${JSON.stringify(outline, null, 2)}
-
-Requirements:
-1. Write in a professional yet accessible tone
-2. Include practical examples and scenarios
-3. Use headers (H2, H3) for structure
-4. Include actionable advice
-5. Make complex legal concepts easy to understand
-6. Add disclaimers where appropriate
-7. Optimize for SEO with natural keyword integration
-8. Write 1500-2500 words
-9. Include internal linking opportunities (mention "contract analysis" services)
-
-Return a JSON object with:
+Return JSON with:
 {
   "title": "SEO-optimized title (50-60 chars)",
   "excerpt": "Compelling excerpt (150-160 chars)",
-  "content": "Full HTML content with proper heading structure",
   "metaTitle": "Meta title (50-60 chars)",
-  "metaDescription": "Meta description (150-160 chars)", 
+  "metaDescription": "Meta description (150-160 chars)",
   "keywords": "comma-separated target keywords",
   "tags": ["tag1", "tag2", "tag3"],
-  "structuredData": {JSON-LD schema for blog post}
+  "structuredData": {JSON-LD schema}
 }`;
+
+      const metadataResponse = await this.openai.chat.completions.create({
+        model: 'gpt-4o',
+        messages: [
+          {
+            role: 'system',
+            content: 'You are an SEO expert. Create optimized metadata for legal blog posts. Return valid JSON only.'
+          },
+          {
+            role: 'user',
+            content: metadataPrompt
+          }
+        ],
+        temperature: 0.7,
+        max_tokens: 1000,
+      });
+
+      const metadataContent = metadataResponse.choices[0].message.content || '{}';
+      const metadataJsonMatch = metadataContent.match(/```json\s*\n([\s\S]*?)\n```/);
+      const metadataJson = metadataJsonMatch ? metadataJsonMatch[1] : metadataContent;
+      const metadata = JSON.parse(metadataJson);
+
+      // Now generate the full content in sections
+      let fullContent = '';
+      
+      // Generate introduction
+      const introPrompt = `Write an engaging introduction for a blog post about "${topic.title}".
+      
+Context: ${outline.introduction}
+Target Audience: ${topic.targetAudience}
+Keywords to naturally include: ${topic.keywords}
+
+Write 200-300 words that:
+- Hook the reader immediately
+- Explain what they'll learn
+- Show why this matters to them
+- Set up the main sections
+
+Return clean HTML with <p> tags only. Do not wrap in markdown code blocks.`;
+
+      const introResponse = await this.openai.chat.completions.create({
+        model: 'gpt-4o',
+        messages: [
+          {
+            role: 'system',
+            content: 'You are a legal content writer. Write clear, engaging introductions that help readers understand complex legal topics. Focus on educational content and avoid making specific service recommendations. IMPORTANT: Return clean HTML only, never wrap your response in markdown code blocks or backticks.'
+          },
+          {
+            role: 'user',
+            content: introPrompt
+          }
+        ],
+        temperature: 0.7,
+        max_tokens: 600,
+      });
+
+      fullContent = this.cleanMarkdownCodeBlocks(introResponse.choices[0].message.content || '');
+
+      // Generate each section
+      for (const section of outline.sections) {
+        const sectionPrompt = `Write a detailed section for a legal blog post.
+
+Section Title: ${section.title}
+Target Word Count: ${section.wordCount}
+Key Points to Cover:
+${section.points.map(p => `- ${p}`).join('\n')}
+
+Target Audience: ${topic.targetAudience}
+Keywords: ${topic.keywords}
+
+Requirements:
+- Start with <h2>${section.title}</h2>
+- Use <h3> for subsections if needed
+- Include practical examples
+- Add relevant legal disclaimers
+- Use <p>, <ul>, <ol> tags appropriately
+- Make it educational yet accessible
+
+Write ${section.wordCount} words of high-quality content. Return clean HTML only, do not wrap in markdown code blocks.`;
+
+        const sectionResponse = await this.openai.chat.completions.create({
+          model: 'gpt-4o',
+          messages: [
+            {
+              role: 'system',
+              content: 'You are an expert legal content writer. Write detailed, informative sections that explain complex legal concepts clearly. IMPORTANT: Return clean HTML only, never wrap your response in markdown code blocks or backticks.'
+            },
+            {
+              role: 'user',
+              content: sectionPrompt
+            }
+          ],
+          temperature: 0.7,
+          max_tokens: Math.ceil(section.wordCount * 2.5), // Allow generous buffer for tokens
+        });
+
+        fullContent += '\n\n' + this.cleanMarkdownCodeBlocks(sectionResponse.choices[0].message.content || '');
+      }
+
+      // Generate conclusion and CTA
+      const conclusionPrompt = `Write a strong conclusion and call-to-action for a blog post about "${topic.title}".
+
+Conclusion Overview: ${outline.conclusion}
+Call to Action: ${outline.callToAction}
+
+Include:
+- <h2>Conclusion</h2>
+- Summary of key takeaways (use <ul> list)
+- Final thoughts (2-3 paragraphs)
+- Call to action mentioning ReadMyFinePrint's AI-powered contract analysis tool
+- Professional disclaimer about legal advice
+
+IMPORTANT: ReadMyFinePrint is an AI-powered contract analysis tool, NOT a law firm or legal service with human lawyers. Do not refer to "legal experts," "team of legal professionals," or human attorneys. It's an automated AI service for document analysis.
+
+Write 300-400 words total. Return clean HTML only, do not wrap in markdown code blocks.`;
+
+      const conclusionResponse = await this.openai.chat.completions.create({
+        model: 'gpt-4o',
+        messages: [
+          {
+            role: 'system',
+            content: 'You are a legal content writer. Write compelling conclusions that summarize key points and encourage action. IMPORTANT: ReadMyFinePrint is an AI-powered contract analysis tool, NOT a law firm with human lawyers. Never refer to "legal experts," "team of legal professionals," or human attorneys. It provides automated AI-powered document analysis. Return clean HTML only, never wrap your response in markdown code blocks or backticks.'
+          },
+          {
+            role: 'user',
+            content: conclusionPrompt
+          }
+        ],
+        temperature: 0.7,
+        max_tokens: 800,
+      });
+
+      fullContent += '\n\n' + this.cleanMarkdownCodeBlocks(conclusionResponse.choices[0].message.content || '');
+
+      // Clean up any remaining markdown code blocks
+      fullContent = this.cleanMarkdownCodeBlocks(fullContent);
+
+      // Add legal disclaimer at the end
+      fullContent += `\n\n<div class="legal-disclaimer">
+<h3>Legal Disclaimer</h3>
+<p>The information provided in this blog post is for educational and informational purposes only. It should not be construed as legal advice or create an attorney-client relationship. For specific legal guidance tailored to your situation, please consult with a qualified attorney in your jurisdiction.</p>
+<p>ReadMyFinePrint, a service of Nexus Integrated Technologies, helps you understand complex legal documents with AI-powered analysis. <a href="/upload">Try our contract analysis tool</a> to get instant insights into your legal documents.</p>
+</div>`;
+
+      // Validate content completeness
+      const wordCount = this.countWords(fullContent);
+      console.log(`Generated article with ${wordCount} words`);
+      
+      if (wordCount < 1200) {
+        console.warn(`Article is shorter than expected (${wordCount} words). Regenerating...`);
+        // Try a simpler approach if the sectioned approach failed
+        return this.generateBlogPostSimple(topic, outline);
+      }
+
+      const readingTime = Math.ceil(wordCount / 200); // 200 WPM average
+
+      return {
+        ...metadata,
+        content: fullContent,
+        readingTime,
+        wordCount,
+      };
+    } catch (error) {
+      console.error('Error generating blog post:', error);
+      // Fallback to simpler generation method
+      try {
+        return await this.generateBlogPostSimple(topic, outline);
+      } catch (fallbackError) {
+        console.error('Fallback generation also failed:', fallbackError);
+        throw new Error('Failed to generate blog post content');
+      }
+    }
+  }
+
+  // Simpler fallback method for generating blog posts
+  private async generateBlogPostSimple(topic: BlogTopic, outline: ContentOutline): Promise<GeneratedContent> {
+    const prompt = `Write a complete, SEO-optimized blog post about "${topic.title}".
+
+Target: ${topic.targetAudience}, ${topic.difficulty} level
+Keywords: ${topic.keywords}
+
+Structure:
+${outline.sections.map(s => `- ${s.title}: ${s.points.join(', ')}`).join('\n')}
+
+Requirements:
+- 1500+ words minimum
+- Professional yet accessible tone
+- Use H2 and H3 headers
+- Include examples and practical advice
+- End with legal disclaimer and CTA
+
+Format as complete HTML with all sections. Make it comprehensive and educational.`;
 
     try {
       const response = await this.openai.chat.completions.create({
@@ -233,7 +425,7 @@ Return a JSON object with:
         messages: [
           {
             role: 'system',
-            content: 'You are an expert legal content writer who creates high-quality, SEO-optimized blog posts about contract law and legal topics. Write engaging, informative content that helps readers understand complex legal concepts. Always respond with valid JSON only.'
+            content: 'You are an expert legal content writer. Write complete, well-structured blog posts that are educational and engaging.'
           },
           {
             role: 'user',
@@ -241,26 +433,45 @@ Return a JSON object with:
           }
         ],
         temperature: 0.7,
-        max_tokens: 4000,
+        max_tokens: 7000, // Safe maximum for gpt-4o
       });
 
-      const content = response.choices[0].message.content;
-      if (!content) throw new Error('No content generated');
+      const content = response.choices[0].message.content || '';
+      const wordCount = this.countWords(content);
+      const readingTime = Math.ceil(wordCount / 200);
 
-      const generatedData = JSON.parse(content);
-      
-      // Calculate reading time and word count
-      const wordCount = this.countWords(generatedData.content);
-      const readingTime = Math.ceil(wordCount / 200); // 200 WPM average
+      // Generate metadata separately
+      const metadataResponse = await this.openai.chat.completions.create({
+        model: 'gpt-4o',
+        messages: [
+          {
+            role: 'system',
+            content: 'Create SEO metadata for blog posts. Return JSON only.'
+          },
+          {
+            role: 'user',
+            content: `Create metadata for: "${topic.title}"
+Return: {"title":"","excerpt":"","metaTitle":"","metaDescription":"","keywords":"","tags":[],"structuredData":{}}`
+          }
+        ],
+        temperature: 0.7,
+        max_tokens: 500,
+      });
+
+      const metadataContent = metadataResponse.choices[0].message.content || '{}';
+      const metadataJsonMatch = metadataContent.match(/```json\s*\n([\s\S]*?)\n```/);
+      const metadataJson = metadataJsonMatch ? metadataJsonMatch[1] : metadataContent;
+      const metadata = JSON.parse(metadataJson);
 
       return {
-        ...generatedData,
+        ...metadata,
+        content,
         readingTime,
         wordCount,
       };
     } catch (error) {
-      console.error('Error generating blog post:', error);
-      throw new Error('Failed to generate blog post content');
+      console.error('Simple generation failed:', error);
+      throw error;
     }
   }
 
@@ -338,7 +549,7 @@ Return a JSON object with:
           readingTime: generatedContent.readingTime,
           wordCount: generatedContent.wordCount,
           structuredData: JSON.stringify(generatedContent.structuredData),
-        } as InsertBlogPost)
+        })
         .returning();
 
       // Record content generation
@@ -352,7 +563,7 @@ Return a JSON object with:
         prompt: `Topic: ${topic.title}`,
         qualityScore: '8.5',
         status: 'approved',
-      } as InsertContentGeneration);
+      });
 
       // Mark topic as used
       await db

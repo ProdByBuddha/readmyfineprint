@@ -10,8 +10,8 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Heart, Loader2, Lock, AlertCircle } from "lucide-react";
 import { loadStripe, Stripe } from "@stripe/stripe-js";
 
-// Get Stripe public key - this will be injected by Vite
-const stripePublicKey = "pk_live_51RWZgOC9Th2WdqbcMR7Sst10N0eZBUHfSyKvs38vqgJMf4d7x0YVOKaYJyKNQQRJLI4PVBe55xjh3YYdDQPQz8Rp00xdnZZltu";
+// Get Stripe public key from environment variables
+const stripePublicKey = import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY;
 
 const stripePromise = loadStripe(stripePublicKey);
 

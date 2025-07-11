@@ -180,7 +180,7 @@ export function TermsOfService() {
                 Hold Harmless
               </h4>
               <p className="text-sm text-gray-600 dark:text-gray-400">
-                You agree to hold ReadMyFinePrint harmless from any decisions
+                You agree to hold Nexus Integrated Technologies (DBA ReadMyFinePrint) harmless from any decisions
                 made based on our analysis.
               </p>
             </div>
@@ -401,13 +401,24 @@ export function TermsOfService() {
             Contact & Governing Law
           </h4>
           <p className="text-blue-800 dark:text-blue-300 text-sm">
-            These terms are governed by applicable law. For questions about
-            these terms, please contact us through our support channels at{" "}
+            These terms are governed by the laws of the State of California, United States. 
+            For questions about these terms, please contact us through our support channels at{" "}
             <a href="mailto:admin@readmyfineprint.com">
               admin@readmyfineprint.com
             </a>
             . By using ReadMyFinePrint, you agree to these terms and conditions.
           </p>
+          <div className="mt-4 text-xs text-blue-700 dark:text-blue-400">
+            <p>
+              <strong>Service Provider:</strong> Nexus Integrated Technologies (DBA ReadMyFinePrint)
+            </p>
+            <p>
+              <strong>Registered Address:</strong> California, United States
+            </p>
+            <p>
+              <strong>Service:</strong> ReadMyFinePrint - AI-Powered Contract Analysis Platform
+            </p>
+          </div>
         </CardContent>
       </Card>
     </div>

@@ -9,8 +9,8 @@ async function createJoseAdminToken() {
   try {
     console.log('🔧 Creating JOSE admin token...');
     
-    // Use the admin user ID we created earlier (from the database output)
-    const adminUserId = 'd1417da4-487f-435e-b881-274f29b21609'; // admin@readmyfineprint.com
+    // Use the correct admin user ID for prodbybuddha@icloud.com
+    const adminUserId = '24c3ec47-dd61-4619-9c9e-18abbd0981ea'; // prodbybuddha@icloud.com
     
     console.log(`👤 Creating token for admin user: ${adminUserId}`);
     

@@ -195,7 +195,7 @@ export function Header() {
                 aria-label="View subscription plans"
                 onClick={handleSubscriptionClick}
               >
-                <Crown className="w-4 h-4 mr-2 text-yellow-600" aria-hidden="true" />
+                <Crown className="w-4 h-4 mr-2 text-yellow-600 dark:text-yellow-400" aria-hidden="true" />
                 Plans
               </Button>
             </Link>
@@ -206,7 +206,7 @@ export function Header() {
                 className="mr-2"
                 aria-label="Trust and security information"
               >
-                <Shield className="w-4 h-4 mr-2 text-green-600" aria-hidden="true" />
+                <Shield className="w-4 h-4 mr-2 text-green-600 dark:text-green-400" aria-hidden="true" />
                 Trust
               </Button>
             </Link>
@@ -217,7 +217,7 @@ export function Header() {
                 className="mr-2"
                 aria-label="Legal insights and contract law blog"
               >
-                <BookOpen className="w-4 h-4 mr-2 text-purple-600" aria-hidden="true" />
+                <BookOpen className="w-4 h-4 mr-2 text-purple-600 dark:text-purple-400" aria-hidden="true" />
                 Blog
               </Button>
             </Link>
@@ -229,7 +229,7 @@ export function Header() {
                   className="mr-2"
                   aria-label="Admin Dashboard"
                 >
-                  <Settings className="w-4 h-4 mr-2 text-blue-600" aria-hidden="true" />
+                  <Settings className="w-4 h-4 mr-2 text-blue-600 dark:text-blue-400" aria-hidden="true" />
                   Admin
                 </Button>
               </Link>
@@ -242,7 +242,7 @@ export function Header() {
                 disabled
                 aria-label="Checking login status"
               >
-                <div className="w-4 h-4 mr-2 border border-gray-400 border-t-transparent rounded-full animate-spin" />
+                <div className="w-4 h-4 mr-2 border border-gray-400 dark:border-gray-500 border-t-transparent rounded-full animate-spin" />
                 Loading...
               </Button>
             ) : isLoggedIn ? (
@@ -311,7 +311,7 @@ export function Header() {
                 disabled
                 aria-label="Checking login status"
               >
-                <div className="w-3 h-3 mr-1 border border-gray-400 border-t-transparent rounded-full animate-spin" />
+                <div className="w-3 h-3 mr-1 border border-gray-400 dark:border-gray-500 border-t-transparent rounded-full animate-spin" />
               </Button>
             ) : isLoggedIn ? (
               <Button
@@ -344,7 +344,7 @@ export function Header() {
                   aria-label="View subscription plans"
                   onClick={handleSubscriptionClick}
                 >
-                  <Crown className="w-4 h-4 text-yellow-600" aria-hidden="true" />
+                  <Crown className="w-4 h-4 text-yellow-600 dark:text-yellow-400" aria-hidden="true" />
                 </Button>
               </Link>
             )}
@@ -356,7 +356,7 @@ export function Header() {
                   className="h-10 w-10 p-0 rounded-full transition-all duration-200 active:scale-95"
                   aria-label="Admin Dashboard"
                 >
-                  <Settings className="w-4 h-4 text-blue-600" aria-hidden="true" />
+                  <Settings className="w-4 h-4 text-blue-600 dark:text-blue-400" aria-hidden="true" />
                 </Button>
               </Link>
             )}
@@ -367,7 +367,7 @@ export function Header() {
                 className="h-10 w-10 p-0 rounded-full transition-all duration-200 active:scale-95"
                 aria-label="Support us with a donation"
               >
-                <Heart className="w-4 h-4 text-red-500" aria-hidden="true" />
+                <Heart className="w-4 h-4 text-red-500 dark:text-red-400" aria-hidden="true" />
               </Button>
             </Link>
             <Button

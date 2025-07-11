@@ -16,6 +16,7 @@ import { useScrollToTop } from "@/hooks/useScrollToTop";
 import { useFocusVisible, useReducedMotion, useHighContrast } from "@/hooks/useAccessibility";
 import { useSEO } from "@/lib/seo";
 import Home from "@/pages/home";
+import Upload from "@/pages/upload";
 import Privacy from "@/pages/privacy";
 import Terms from "@/pages/terms";
 import Cookies from "@/pages/cookies";
@@ -35,6 +36,7 @@ function Router() {
   return (
     <Switch>
       <Route path="/" component={Home} />
+      <Route path="/upload" component={Upload} />
       <Route path="/privacy" component={Privacy} />
       <Route path="/terms" component={Terms} />
       <Route path="/cookies" component={Cookies} />

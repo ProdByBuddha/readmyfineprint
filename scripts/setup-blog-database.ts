@@ -1,6 +1,6 @@
 #!/usr/bin/env tsx
 
-import { ensureDbInitialized, db } from '../server/db.js';
+import { db } from '../server/db.js';
 import { 
   blogPosts, 
   blogTopics, 
@@ -15,7 +15,7 @@ async function setupBlogDatabase() {
   
   try {
     // Ensure database is initialized
-    await ensureDbInitialized();
+    await db;
     console.log('✅ Database connection established');
     
     // Note: Tables are automatically created by Drizzle ORM based on schema

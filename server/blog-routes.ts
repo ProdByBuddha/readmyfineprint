@@ -21,75 +21,7 @@ const router = Router();
 // Get all published blog posts with pagination
 router.get('/posts', async (req, res) => {
   try {
-    // In development mode, return mock blog posts
-    if (process.env.NODE_ENV === 'development' || process.env.REPLIT_DB_URL) {
-      console.log('🔄 Blog posts bypassed in mock mode');
-      const page = parseInt(req.query.page as string) || 1;
-      const limit = parseInt(req.query.limit as string) || 10;
-      
-      const mockPosts = [
-        {
-          id: 1,
-          slug: 'understanding-nda-contracts',
-          title: 'Understanding Non-Disclosure Agreements: A Complete Guide',
-          excerpt: 'Learn everything you need to know about NDAs, when to use them, and how to negotiate better terms.',
-          category: 'Contract Law',
-          tags: ['NDA', 'confidentiality', 'contracts'],
-          publishedAt: new Date('2024-01-15'),
-          readingTime: 8,
-          viewCount: 245,
-          shareCount: 12,
-          isFeatured: true,
-          metaDescription: 'Complete guide to understanding and negotiating non-disclosure agreements',
-          keywords: 'NDA, non-disclosure agreement, confidentiality, contract law'
-        },
-        {
-          id: 2,
-          slug: 'employment-contract-red-flags',
-          title: 'Employment Contract Red Flags Every Worker Should Know',
-          excerpt: 'Key warning signs in employment contracts that could harm your rights and how to spot them.',
-          category: 'Employment Law',
-          tags: ['employment', 'contracts', 'worker rights'],
-          publishedAt: new Date('2024-01-10'),
-          readingTime: 6,
-          viewCount: 189,
-          shareCount: 8,
-          isFeatured: false,
-          metaDescription: 'Warning signs in employment contracts that protect worker rights',
-          keywords: 'employment contract, worker rights, contract negotiation'
-        },
-        {
-          id: 3,
-          slug: 'real-estate-contract-basics',
-          title: 'Real Estate Contract Basics for First-Time Buyers',
-          excerpt: 'Essential knowledge for understanding real estate purchase agreements and protecting yourself.',
-          category: 'Real Estate',
-          tags: ['real estate', 'property', 'contracts'],
-          publishedAt: new Date('2024-01-05'),
-          readingTime: 10,
-          viewCount: 156,
-          shareCount: 5,
-          isFeatured: false,
-          metaDescription: 'Guide to real estate contracts for first-time home buyers',
-          keywords: 'real estate contract, property purchase, home buying'
-        }
-      ];
-      
-      const total = mockPosts.length;
-      const totalPages = Math.ceil(total / limit);
-      
-      return res.json({
-        posts: mockPosts.slice((page - 1) * limit, page * limit),
-        pagination: {
-          page,
-          limit,
-          total,
-          totalPages,
-          hasNext: page < totalPages,
-          hasPrev: page > 1,
-        },
-      });
-    }
+    // Use real database for blog posts
 
     await db;
     
@@ -177,86 +109,7 @@ router.get('/posts', async (req, res) => {
 // Get single blog post by slug
 router.get('/posts/:slug', async (req, res) => {
   try {
-    // In development mode, return mock blog post
-    if (process.env.NODE_ENV === 'development' || process.env.REPLIT_DB_URL) {
-      console.log('🔄 Blog post by slug bypassed in mock mode');
-      const { slug } = req.params;
-      
-      const mockPosts = {
-        'understanding-nda-contracts': {
-          id: 1,
-          slug: 'understanding-nda-contracts',
-          title: 'Understanding Non-Disclosure Agreements: A Complete Guide',
-          excerpt: 'Learn everything you need to know about NDAs, when to use them, and how to negotiate better terms.',
-          content: `<h2>What is a Non-Disclosure Agreement?</h2>
-          <p>A Non-Disclosure Agreement (NDA) is a legal contract that establishes a confidential relationship between parties...</p>
-          <h2>When Should You Use an NDA?</h2>
-          <p>NDAs are commonly used in business situations where sensitive information needs to be shared...</p>
-          <h2>Key Terms to Understand</h2>
-          <p>When reviewing an NDA, pay attention to these critical elements...</p>`,
-          category: 'Contract Law',
-          tags: ['NDA', 'confidentiality', 'contracts'],
-          publishedAt: new Date('2024-01-15'),
-          readingTime: 8,
-          viewCount: 245,
-          shareCount: 12,
-          isFeatured: true,
-          metaDescription: 'Complete guide to understanding and negotiating non-disclosure agreements',
-          keywords: 'NDA, non-disclosure agreement, confidentiality, contract law',
-          status: 'published',
-          isActive: true,
-          createdAt: new Date('2024-01-15'),
-          updatedAt: new Date('2024-01-15')
-        },
-        'employment-contract-red-flags': {
-          id: 2,
-          slug: 'employment-contract-red-flags',
-          title: 'Employment Contract Red Flags Every Worker Should Know',
-          excerpt: 'Key warning signs in employment contracts that could harm your rights and how to spot them.',
-          content: `<h2>Common Employment Contract Red Flags</h2>
-          <p>When reviewing an employment contract, watch out for these warning signs...</p>
-          <h2>Non-Compete Clauses</h2>
-          <p>Overly broad non-compete clauses can severely limit your future career options...</p>`,
-          category: 'Employment Law',
-          tags: ['employment', 'contracts', 'worker rights'],
-          publishedAt: new Date('2024-01-10'),
-          readingTime: 6,
-          viewCount: 189,
-          shareCount: 8,
-          isFeatured: false,
-          metaDescription: 'Warning signs in employment contracts that protect worker rights',
-          keywords: 'employment contract, worker rights, contract negotiation',
-          status: 'published',
-          isActive: true,
-          createdAt: new Date('2024-01-10'),
-          updatedAt: new Date('2024-01-10')
-        }
-      };
-      
-      const post = mockPosts[slug as keyof typeof mockPosts];
-      if (!post) {
-        return res.status(404).json({ error: 'Blog post not found' });
-      }
-      
-      const relatedPosts = [
-        {
-          id: 3,
-          slug: 'real-estate-contract-basics',
-          title: 'Real Estate Contract Basics for First-Time Buyers',
-          excerpt: 'Essential knowledge for understanding real estate purchase agreements.',
-          publishedAt: new Date('2024-01-05'),
-          readingTime: 10
-        }
-      ];
-      
-      return res.json({
-        post: {
-          ...post,
-          viewCount: post.viewCount + 1
-        },
-        relatedPosts
-      });
-    }
+    // Use real database for blog posts
 
     await db;
     
@@ -324,16 +177,7 @@ router.get('/posts/:slug', async (req, res) => {
 // Get blog categories
 router.get('/categories', async (req, res) => {
   try {
-    // In development mode, return mock categories
-    if (process.env.NODE_ENV === 'development' || process.env.REPLIT_DB_URL) {
-      console.log('🔄 Blog categories bypassed in mock mode');
-      const mockCategories = [
-        { name: 'Contract Law', count: 5, slug: 'contract-law' },
-        { name: 'Employment Law', count: 3, slug: 'employment-law' },
-        { name: 'Real Estate', count: 2, slug: 'real-estate' }
-      ];
-      return res.json({ categories: mockCategories });
-    }
+    // Use real database for categories
 
     await db;
     

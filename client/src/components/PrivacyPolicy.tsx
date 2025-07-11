@@ -411,6 +411,14 @@ export function PrivacyPolicy() {
             </a>
             .
           </p>
+          <div className="mt-4 text-xs text-blue-700 dark:text-blue-400">
+            <p>
+              <strong>Data Controller:</strong> Nexus Integrated Technologies (DBA ReadMyFinePrint)
+            </p>
+            <p>
+              <strong>Service Provider:</strong> ReadMyFinePrint - AI-Powered Contract Analysis
+            </p>
+          </div>
         </CardContent>
       </Card>
     </div>

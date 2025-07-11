@@ -41,7 +41,7 @@ export function DocumentLoadingSkeleton() {
               <div className="space-y-4">
                 {[1, 2, 3].map((i) => (
                   <div key={i} className="border rounded-lg">
-                    <div className="bg-gray-50 p-4 border-b">
+                    <div className="bg-gray-50 dark:bg-gray-800 p-4 border-b">
                       <div className="flex items-center justify-between">
                         <Skeleton className="h-5 w-32" />
                         <Skeleton className="h-6 w-16 rounded-full" />

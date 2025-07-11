@@ -103,22 +103,22 @@ html, body {
   height: 100%;
   overflow-x: hidden;
   position: relative;
-  background-color: #f9fafb; /* Light mode background */
+  background-color: hsl(180, 20%, 98%); /* Light mode background - matches --background */
 }
 
 /* Dark mode background for root elements */
 .dark html, .dark body {
-  background-color: #111827; /* Dark mode background */
+  background-color: hsl(185, 25%, 6%) !important; /* Dark mode background - matches --background */
 }
 
 /* Ensure root div also has proper background */
 #root {
   min-height: 100vh;
-  background-color: #f9fafb;
+  background-color: hsl(180, 20%, 98%); /* Light mode background - matches --background */
 }
 
 .dark #root {
-  background-color: #111827;
+  background-color: hsl(185, 25%, 6%) !important; /* Dark mode background - matches --background */
 }
 
 /* Fix input text visibility in dark mode */
@@ -333,14 +333,10 @@ html {
   transition: width 0.2s ease-out;
 }
 
+/* Consistent light mode styling */
 html {
   background-color: hsl(180, 20%, 98%);
   color: hsl(185, 10%, 12%);
-}
-
-html.dark {
-  background-color: hsl(185, 25%, 6%);
-  color: hsl(180, 25%, 91%);
 }
 
 body {

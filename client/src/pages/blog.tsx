@@ -5,6 +5,8 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
 import { Clock, Search, Calendar, Eye, Share2 } from 'lucide-react';
+import { MobileAppWrapper } from '@/components/MobileAppWrapper';
+import TradeSecretProtection from '@/components/TradeSecretProtection';
 
 interface BlogPost {
   id: string;
@@ -131,13 +133,16 @@ export default function BlogPage() {
   };
 
   return (
-    <div className="container mx-auto px-4 py-8 max-w-6xl">
+    <div className="bg-gray-50 dark:bg-gray-900 page-transition min-h-screen">
+      <TradeSecretProtection />
+      <MobileAppWrapper>
+        <div className="container mx-auto px-4 py-8 max-w-6xl">
       {/* Header */}
       <div className="text-center mb-12">
-        <h1 className="text-4xl font-bold text-gray-900 mb-4">
+        <h1 className="text-4xl font-bold text-gray-900 dark:text-gray-100 mb-4">
           Legal Insights & Contract Law Blog
         </h1>
-        <p className="text-xl text-gray-600 max-w-2xl mx-auto">
+        <p className="text-xl text-gray-600 dark:text-gray-300 max-w-2xl mx-auto">
           Expert advice, guides, and insights to help you understand contracts, 
           negotiate better terms, and protect your legal interests.
         </p>
@@ -193,14 +198,14 @@ export default function BlogPage() {
           {[...Array(6)].map((_, i) => (
             <Card key={i} className="animate-pulse">
               <CardHeader>
-                <div className="h-4 bg-gray-200 rounded w-3/4"></div>
-                <div className="h-3 bg-gray-200 rounded w-1/2"></div>
+                <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-3/4"></div>
+                <div className="h-3 bg-gray-200 dark:bg-gray-700 rounded w-1/2"></div>
               </CardHeader>
               <CardContent>
                 <div className="space-y-2">
-                  <div className="h-3 bg-gray-200 rounded"></div>
-                  <div className="h-3 bg-gray-200 rounded w-5/6"></div>
-                  <div className="h-3 bg-gray-200 rounded w-2/3"></div>
+                  <div className="h-3 bg-gray-200 dark:bg-gray-700 rounded"></div>
+                  <div className="h-3 bg-gray-200 dark:bg-gray-700 rounded w-5/6"></div>
+                  <div className="h-3 bg-gray-200 dark:bg-gray-700 rounded w-2/3"></div>
                 </div>
               </CardContent>
             </Card>
@@ -223,7 +228,7 @@ export default function BlogPage() {
                       <Badge variant="default">Featured</Badge>
                     )}
                   </div>
-                  <CardTitle className="line-clamp-2 hover:text-blue-600">
+                  <CardTitle className="line-clamp-2 hover:text-blue-600 dark:hover:text-blue-400">
                     <Link href={`/blog/${post.slug}`}>
                       {post.title}
                     </Link>
@@ -233,7 +238,7 @@ export default function BlogPage() {
                   </CardDescription>
                 </CardHeader>
                 <CardContent>
-                  <div className="flex items-center justify-between text-sm text-gray-500 mb-4">
+                  <div className="flex items-center justify-between text-sm text-gray-500 dark:text-gray-400 mb-4">
                     <div className="flex items-center gap-4">
                       <div className="flex items-center gap-1">
                         <Calendar className="h-4 w-4" />
@@ -246,7 +251,7 @@ export default function BlogPage() {
                     </div>
                   </div>
                   
-                  <div className="flex items-center justify-between text-sm text-gray-500 mb-4">
+                  <div className="flex items-center justify-between text-sm text-gray-500 dark:text-gray-400 mb-4">
                     <div className="flex items-center gap-4">
                       <div className="flex items-center gap-1">
                         <Eye className="h-4 w-4" />
@@ -276,10 +281,10 @@ export default function BlogPage() {
           {/* No Posts */}
           {posts.length === 0 && (
             <div className="text-center py-12">
-              <h3 className="text-lg font-semibold text-gray-900 mb-2">
+              <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-2">
                 No articles found
               </h3>
-              <p className="text-gray-600">
+              <p className="text-gray-600 dark:text-gray-300">
                 Try adjusting your search terms or filters.
               </p>
             </div>
@@ -295,7 +300,7 @@ export default function BlogPage() {
               >
                 Previous
               </Button>
-              <span className="text-sm text-gray-600">
+              <span className="text-sm text-gray-600 dark:text-gray-300">
                 Page {pagination.page} of {pagination.totalPages}
               </span>
               <Button
@@ -309,6 +314,8 @@ export default function BlogPage() {
           )}
         </>
       )}
+        </div>
+      </MobileAppWrapper>
     </div>
   );
 }

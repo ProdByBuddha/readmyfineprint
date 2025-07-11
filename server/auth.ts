@@ -233,7 +233,7 @@ export async function requireAdminViaSubscription(req: Request, res: Response, n
     // If database is available, perform full verification
     if (databaseAvailable && user && subscriptionData) {
       // Check if user is admin by email
-      const adminEmails = ['admin@readmyfineprint.com', 'prodbybuddha@icloud.com'];
+      const adminEmails = ['admin@readmyfineprint.com', 'prodbybuddha@icloud.com', 'beatsbybuddha@gmail.com'];
       if (!adminEmails.includes(user.email)) {
         securityLogger.logSecurityEvent({
           eventType: SecurityEventType.AUTHENTICATION,
@@ -281,7 +281,7 @@ export async function requireAdminViaSubscription(req: Request, res: Response, n
       console.log('Using token-based admin verification due to database unavailability');
 
       // Extract admin status from token data if available
-      const adminEmails = ['admin@readmyfineprint.com', 'prodbybuddha@icloud.com'];
+      const adminEmails = ['admin@readmyfineprint.com', 'prodbybuddha@icloud.com', 'beatsbybuddha@gmail.com'];
 
       // SECURITY: Removed hardcoded admin user ID fallback
       // Admin access now requires database verification - no hardcoded bypasses
@@ -417,7 +417,7 @@ export async function requireConsent(req: Request, res: Response, next: NextFunc
           const user = await databaseStorage.getUser(tokenData.userId);
 
           // Check if user is admin by email
-          const adminEmails = ['admin@readmyfineprint.com', 'prodbybuddha@icloud.com'];
+          const adminEmails = ['admin@readmyfineprint.com', 'prodbybuddha@icloud.com', 'beatsbybuddha@gmail.com'];
           if (user && adminEmails.includes(user.email)) {
             // Admin user via subscription token - skip consent check
             return next();

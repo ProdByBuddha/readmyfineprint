@@ -1,8 +1,11 @@
 {
-  "name": "rest-express",
+  "name": "readmyfineprint",
   "version": "1.0.0",
   "type": "module",
   "license": "UNLICENSED",
+  "private": true,
+  "author": "Nexus Integrated Technologies",
+  "description": "Privacy-First AI-Powered Contract Analysis Platform",
   "scripts": {
     "dev": "concurrently \"npm run server:dev\" \"npm run client:dev\"",
     "server:dev": "tsx watch server/index.ts",

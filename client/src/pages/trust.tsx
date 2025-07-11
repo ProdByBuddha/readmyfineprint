@@ -13,11 +13,11 @@ export default function TrustPage() {
         {
           subtitle: 'Infrastructure Security',
           items: [
-            'AES-256 encryption for data at rest',
             'TLS 1.3 for all data in transit',
-            'PostgreSQL database with row-level security',
-            'Distributed session storage with automatic cleanup',
-            'Rate limiting and DDoS protection'
+            'PostgreSQL database with connection encryption',
+            'Session-based storage with automatic cleanup',
+            'Rate limiting with IP-based throttling',
+            'Comprehensive security headers (CSP, HSTS, XSS protection)'
           ]
         },
         {
@@ -33,11 +33,11 @@ export default function TrustPage() {
         {
           subtitle: 'Authentication & Access Control',
           items: [
-            'Multi-factor authentication (TOTP)',
-            'Argon2 password hashing',
-            'JWT tokens with automatic rotation',
+            'Multi-factor authentication (TOTP) available',
+            'Argon2 password hashing with salt',
+            'JWT tokens with versioned secrets',
             'Session-based document access control',
-            'Security questions for account recovery'
+            'Admin-only access controls and verification'
           ]
         }
       ]
@@ -70,11 +70,11 @@ export default function TrustPage() {
         {
           subtitle: 'PII Protection',
           items: [
-            'Advanced PII detection algorithms',
-            'Automatic PII hashing and entanglement',
-            'Russian doll encryption for sensitive data',
-            'Audit logs without PII exposure',
-            'Secure data export functionality'
+            'PII detection with pattern matching',
+            'Automatic PII hashing with Argon2',
+            'Security logs with hashed IP addresses',
+            'Pseudonymized email addresses for privacy',
+            'Audit trails without sensitive data exposure'
           ]
         }
       ]
@@ -97,11 +97,11 @@ export default function TrustPage() {
         {
           subtitle: 'Security Standards',
           items: [
-            'OWASP ASVS Level 2 Ready',
-            'ISO 27001 aligned practices',
-            'SOC 2 Type II ready infrastructure',
-            'NIST Cybersecurity Framework',
-            'CIS Controls implementation'
+            'OWASP Top 10 protection measures',
+            'Security best practices implementation',
+            'Regular security audits and monitoring',
+            'Vulnerability scanning and assessment',
+            'Secure coding practices'
           ]
         },
         {
@@ -124,31 +124,31 @@ export default function TrustPage() {
         {
           subtitle: 'Monitoring & Detection',
           items: [
-            '24/7 security monitoring',
-            'Real-time threat detection',
-            'Automated security alerts',
-            'Anomaly detection systems',
-            'Security audit logging'
+            'Security event logging and monitoring',
+            'Rate limiting with automatic blocking',
+            'Suspicious activity detection',
+            'Failed authentication tracking',
+            'Comprehensive audit trail'
           ]
         },
         {
           subtitle: 'Response Procedures',
           items: [
-            'Incident response team activation',
-            'Automated containment measures',
-            'User notification within 72 hours',
-            'Root cause analysis',
-            'Post-incident security review'
+            'Prompt incident response protocols',
+            'Automated security blocking measures',
+            'User notification procedures',
+            'Security incident investigation',
+            'Post-incident security improvements'
           ]
         },
         {
           subtitle: 'Business Continuity',
           items: [
-            'Automated backup systems',
-            'Disaster recovery procedures',
-            'Circuit breaker patterns',
-            'Graceful degradation',
-            '99.9% uptime SLA'
+            'Database backup and recovery',
+            'Error handling and recovery procedures',
+            'Circuit breaker patterns for resilience',
+            'Graceful degradation of services',
+            'High availability design patterns'
           ]
         }
       ]
@@ -175,23 +175,23 @@ export default function TrustPage() {
       {/* Main Content */}
       <div className="container mx-auto px-4 py-12 lg:py-16">
         <div className="max-w-6xl mx-auto">
-          {/* Security Badges */}
+          {/* Security Badges - Actual Implementation Status */}
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-12">
             <div className="bg-green-50 dark:bg-green-900/20 rounded-lg p-4 text-center">
-              <div className="text-2xl font-bold text-green-600 dark:text-green-400">9.8/10</div>
-              <div className="text-sm text-gray-600 dark:text-gray-400">Security Score</div>
+              <div className="text-2xl font-bold text-green-600 dark:text-green-400">✓</div>
+              <div className="text-sm text-gray-600 dark:text-gray-400">Security Headers</div>
             </div>
             <div className="bg-blue-50 dark:bg-blue-900/20 rounded-lg p-4 text-center">
-              <div className="text-2xl font-bold text-blue-600 dark:text-blue-400">AES-256</div>
-              <div className="text-sm text-gray-600 dark:text-gray-400">Encryption</div>
+              <div className="text-2xl font-bold text-blue-600 dark:text-blue-400">Argon2</div>
+              <div className="text-sm text-gray-600 dark:text-gray-400">Password Hashing</div>
             </div>
             <div className="bg-purple-50 dark:bg-purple-900/20 rounded-lg p-4 text-center">
-              <div className="text-2xl font-bold text-purple-600 dark:text-purple-400">GDPR</div>
-              <div className="text-sm text-gray-600 dark:text-gray-400">Compliant</div>
+              <div className="text-2xl font-bold text-purple-600 dark:text-purple-400">TLS 1.3</div>
+              <div className="text-sm text-gray-600 dark:text-gray-400">In Transit</div>
             </div>
             <div className="bg-orange-50 dark:bg-orange-900/20 rounded-lg p-4 text-center">
-              <div className="text-2xl font-bold text-orange-600 dark:text-orange-400">99.9%</div>
-              <div className="text-sm text-gray-600 dark:text-gray-400">Uptime SLA</div>
+              <div className="text-2xl font-bold text-orange-600 dark:text-orange-400">JWT</div>
+              <div className="text-sm text-gray-600 dark:text-gray-400">Auth Tokens</div>
             </div>
           </div>
 
@@ -303,28 +303,28 @@ export default function TrustPage() {
             </div>
           </div>
           
-          {/* Trust Badges */}
+          {/* Security Implementation Status */}
           <div className="mt-12 text-center">
-            <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-6">Verified Security Status</h3>
+            <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-6">Security Implementation Status</h3>
             <div className="flex flex-wrap justify-center gap-3">
               <img
-                src="https://img.shields.io/badge/Security-9.8%2F10-brightgreen?style=for-the-badge"
-                alt="Security Score"
+                src="https://img.shields.io/badge/Security%20Headers-Implemented-brightgreen?style=for-the-badge"
+                alt="Security Headers"
                 className="h-8"
               />
               <img
-                src="https://img.shields.io/badge/Build-Passing-brightgreen?style=for-the-badge"
-                alt="Build Status"
+                src="https://img.shields.io/badge/Authentication-Argon2-brightgreen?style=for-the-badge"
+                alt="Argon2 Authentication"
                 className="h-8"
               />
               <img
-                src="https://img.shields.io/badge/GDPR-Compliant-blue?style=for-the-badge"
+                src="https://img.shields.io/badge/Privacy-GDPR%20Compliant-blue?style=for-the-badge"
                 alt="GDPR Compliant"
                 className="h-8"
               />
               <img
-                src="https://img.shields.io/badge/Encryption-AES%20256-blue?style=for-the-badge"
-                alt="AES 256 Encryption"
+                src="https://img.shields.io/badge/Encryption-TLS%201.3-blue?style=for-the-badge"
+                alt="TLS 1.3 Encryption"
                 className="h-8"
               />
               <img

@@ -1,6 +1,5 @@
 import { Link } from "wouter";
 import { Heart, Cookie, Share2 } from "lucide-react";
-import { SecurityBadges } from "@/components/SecurityBadges";
 import { CookieManagement } from "@/components/CookieManagement";
 import { useToast } from "@/hooks/use-toast";
 
@@ -168,10 +167,6 @@ export function Footer() {
             </a>
           </div>
 
-          {/* Security Badges */}
-          <div className="flex items-center">
-            <SecurityBadges variant="footer" className="scale-75" />
-          </div>
         </div>
       </div>
     </footer>

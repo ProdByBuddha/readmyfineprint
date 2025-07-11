@@ -254,6 +254,14 @@ export function CookiePolicy() {
             only what&apos;s necessary for a great user experience. If you have questions about
             our cookie practices, please contact us through our support channels at <a href="mailto:admin@readmyfineprint.com">admin@readmyfineprint.com</a>.
           </p>
+          <div className="mt-4 text-xs text-blue-700 dark:text-blue-400">
+            <p>
+              <strong>Cookie Controller:</strong> Nexus Integrated Technologies (DBA ReadMyFinePrint)
+            </p>
+            <p>
+              <strong>Service:</strong> ReadMyFinePrint - AI-Powered Contract Analysis
+            </p>
+          </div>
         </CardContent>
       </Card>
     </div>

@@ -81,7 +81,7 @@ export function AnalysisResults({ document }: AnalysisResultsProps) {
     return (
       <Card className="p-8">
         <CardContent className="text-center">
-          <p className="text-gray-600">No analysis available for this document.</p>
+          <p className="text-gray-600 dark:text-gray-300">No analysis available for this document.</p>
         </CardContent>
       </Card>
     );

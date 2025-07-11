@@ -16,6 +16,8 @@ import {
   Copy,
   CheckCircle
 } from 'lucide-react';
+import { MobileAppWrapper } from '@/components/MobileAppWrapper';
+import TradeSecretProtection from '@/components/TradeSecretProtection';
 
 interface BlogPost {
   id: string;
@@ -142,6 +144,18 @@ export default function BlogPostPage() {
     }
   };
 
+  const processContent = (content: string) => {
+    // Check if content is wrapped in markdown code blocks
+    const htmlBlockMatch = content.match(/```html\s*\n([\s\S]*?)\n```/);
+    if (htmlBlockMatch) {
+      // Extract HTML from markdown code block and combine with rest of content
+      const htmlContent = htmlBlockMatch[1];
+      const remainingContent = content.replace(/```html\s*\n[\s\S]*?\n```\s*/, '');
+      return htmlContent + remainingContent;
+    }
+    return content;
+  };
+
   const shareUrl = `${window.location.origin}/blog/${slug}`;
   const shareTitle = post?.title || '';
 
@@ -174,12 +188,12 @@ export default function BlogPostPage() {
     return (
       <div className="container mx-auto px-4 py-8 max-w-4xl">
         <div className="animate-pulse space-y-6">
-          <div className="h-8 bg-gray-200 rounded w-1/4"></div>
-          <div className="h-12 bg-gray-200 rounded w-3/4"></div>
-          <div className="h-4 bg-gray-200 rounded w-1/2"></div>
+          <div className="h-8 bg-gray-200 dark:bg-gray-700 rounded w-1/4"></div>
+          <div className="h-12 bg-gray-200 dark:bg-gray-700 rounded w-3/4"></div>
+          <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-1/2"></div>
           <div className="space-y-3">
             {[...Array(10)].map((_, i) => (
-              <div key={i} className="h-4 bg-gray-200 rounded"></div>
+              <div key={i} className="h-4 bg-gray-200 dark:bg-gray-700 rounded"></div>
             ))}
           </div>
         </div>
@@ -191,10 +205,10 @@ export default function BlogPostPage() {
     return (
       <div className="container mx-auto px-4 py-8 max-w-4xl">
         <div className="text-center py-12">
-          <h1 className="text-2xl font-bold text-gray-900 mb-4">
+          <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-4">
             {error || 'Article Not Found'}
           </h1>
-          <p className="text-gray-600 mb-6">
+          <p className="text-gray-600 dark:text-gray-300 mb-6">
             The article you're looking for doesn't exist or has been moved.
           </p>
           <Link href="/blog">
@@ -209,9 +223,12 @@ export default function BlogPostPage() {
   }
 
   return (
-    <div className="container mx-auto px-4 py-8 max-w-4xl">
+    <div className="bg-gray-50 dark:bg-gray-900 page-transition min-h-screen">
+      <TradeSecretProtection />
+      <MobileAppWrapper>
+        <div className="container mx-auto px-4 py-8 max-w-4xl">
       {/* Back to Blog */}
-      <Link href="/blog" className="inline-flex items-center text-blue-600 hover:text-blue-800 mb-6">
+      <Link href="/blog" className="inline-flex items-center text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 mb-6">
         <ArrowLeft className="h-4 w-4 mr-2" />
         Back to Blog
       </Link>
@@ -228,15 +245,15 @@ export default function BlogPostPage() {
             )}
           </div>
 
-          <h1 className="text-4xl font-bold text-gray-900 mb-4 leading-tight">
+          <h1 className="text-4xl font-bold text-gray-900 dark:text-gray-100 mb-4 leading-tight">
             {post.title}
           </h1>
 
-          <p className="text-xl text-gray-600 mb-6">
+          <p className="text-xl text-gray-600 dark:text-gray-300 mb-6">
             {post.excerpt}
           </p>
 
-          <div className="flex items-center justify-between text-sm text-gray-500 mb-6">
+          <div className="flex items-center justify-between text-sm text-gray-500 dark:text-gray-400 mb-6">
             <div className="flex items-center gap-6">
               <div className="flex items-center gap-2">
                 <Calendar className="h-4 w-4" />
@@ -269,14 +286,14 @@ export default function BlogPostPage() {
 
         {/* Article Content */}
         <div 
-          className="prose prose-lg max-w-none prose-headings:text-gray-900 prose-p:text-gray-700 prose-a:text-blue-600 prose-a:no-underline hover:prose-a:underline prose-strong:text-gray-900 prose-ul:text-gray-700 prose-ol:text-gray-700 prose-blockquote:text-gray-600 prose-blockquote:border-l-blue-500"
-          dangerouslySetInnerHTML={{ __html: post.content }}
+          className="prose prose-lg max-w-none prose-headings:text-gray-900 prose-p:text-gray-700 prose-a:text-blue-600 prose-a:no-underline hover:prose-a:underline prose-strong:text-gray-900 prose-ul:text-gray-700 prose-ol:text-gray-700 prose-blockquote:text-gray-600 prose-blockquote:border-l-blue-500 dark:prose-headings:text-gray-100 dark:prose-p:text-gray-300 dark:prose-strong:text-gray-100 dark:prose-ul:text-gray-300 dark:prose-ol:text-gray-300 dark:prose-blockquote:text-gray-400 dark:prose-blockquote:border-l-blue-400 dark:prose-em:text-gray-400"
+          dangerouslySetInnerHTML={{ __html: processContent(post.content) }}
         />
 
         {/* Share Section */}
         <div className="mt-12 pt-8 border-t">
           <div className="flex items-center justify-between">
-            <h3 className="text-lg font-semibold text-gray-900">
+            <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">
               Share this article
             </h3>
             <div className="flex items-center gap-3">
@@ -328,7 +345,7 @@ export default function BlogPostPage() {
       {/* Related Posts */}
       {relatedPosts.length > 0 && (
         <section>
-          <h2 className="text-2xl font-bold text-gray-900 mb-6">
+          <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-6">
             Related Articles
           </h2>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -342,10 +359,10 @@ export default function BlogPostPage() {
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <p className="text-gray-600 line-clamp-3 mb-4">
+                  <p className="text-gray-600 dark:text-gray-300 line-clamp-3 mb-4">
                     {relatedPost.excerpt}
                   </p>
-                  <div className="flex items-center justify-between text-sm text-gray-500">
+                  <div className="flex items-center justify-between text-sm text-gray-500 dark:text-gray-400">
                     <div className="flex items-center gap-1">
                       <Calendar className="h-4 w-4" />
                       {formatDate(relatedPost.publishedAt)}
@@ -361,6 +378,8 @@ export default function BlogPostPage() {
           </div>
         </section>
       )}
+        </div>
+      </MobileAppWrapper>
     </div>
   );
 }

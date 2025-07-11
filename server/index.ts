@@ -108,7 +108,7 @@ const apiLimiter = rateLimit({
 // Stricter rate limiting for admin endpoints
 const adminLimiter = rateLimit({
   windowMs: 5 * 60 * 1000, // 5 minutes
-  max: 10, // Very limited for admin endpoints
+  max: 50, // Increased limit for admin endpoints (was 10)
   message: {
     error: "Too many admin requests from this IP, please try again later."
   },
@@ -121,10 +121,34 @@ const adminLimiter = rateLimit({
   },
   handler: (req, res) => {
     const { ip, userAgent } = getClientInfo(req);
-    securityLogger.logRateLimit(ip, userAgent, req.path, 10);
+    securityLogger.logRateLimit(ip, userAgent, req.path, 50);
     res.status(429).json({
       error: "Too many admin requests from this IP, please try again later.",
       retryAfter: Math.ceil(5 * 60)
+    });
+  },
+});
+
+// Separate rate limiter for admin dashboard endpoints that refresh frequently
+const adminDashboardLimiter = rateLimit({
+  windowMs: 1 * 60 * 1000, // 1 minute
+  max: 30, // Higher limit for dashboard endpoints
+  message: {
+    error: "Too many dashboard requests from this IP, please try again later."
+  },
+  standardHeaders: true,
+  legacyHeaders: false,
+  validate: false,
+  keyGenerator: (req) => {
+    const ip = req.ip || req.socket.remoteAddress || 'unknown';
+    return `admin_dashboard:${ip}`;
+  },
+  handler: (req, res) => {
+    const { ip, userAgent } = getClientInfo(req);
+    securityLogger.logRateLimit(ip, userAgent, req.path, 30);
+    res.status(429).json({
+      error: "Too many dashboard requests from this IP, please try again later.",
+      retryAfter: Math.ceil(1 * 60)
     });
   },
 });
@@ -184,6 +208,11 @@ const consentLimiter = rateLimit({
 // Apply rate limiting to different endpoint types
 app.use('/api/consent/', consentLimiter); // Special higher limits for consent endpoints
 app.use('/api/', apiLimiter);
+// More specific admin rate limiting - dashboard endpoints get higher limits
+app.use('/api/admin/metrics-subscription', adminDashboardLimiter);
+app.use('/api/admin/system-health-subscription', adminDashboardLimiter);
+app.use('/api/admin/activity-subscription', adminDashboardLimiter);
+app.use('/api/admin/security-events-subscription', adminDashboardLimiter);
 app.use('/api/admin/', adminLimiter);
 app.use('/api/documents/*/analyze', processLimiter);
 app.use('/api/documents/upload', processLimiter);
