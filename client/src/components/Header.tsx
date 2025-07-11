@@ -23,22 +23,15 @@ export function Header() {
   // Shared login status check function
   const checkLoginStatus = useCallback(async () => {
     setIsCheckingAuth(true);
-    const token = localStorage.getItem('subscriptionToken');
     
-    if (!token) {
-      setIsLoggedIn(false);
-      setIsCheckingAuth(false);
-      return;
-    }
-
-    // Validate token with backend
+    // Validate session with backend using cookies
     try {
-      const response = await fetch('/api/users/validate-token', {
+      const response = await fetch('/api/users/validate-session', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'x-subscription-token': token,
         },
+        credentials: 'include', // Important: include cookies in the request
       });
 
       if (response.ok) {
@@ -47,16 +40,15 @@ export function Header() {
         // Check if user is admin based on email
         setIsAdmin(data.email === 'admin@readmyfineprint.com' || data.email === 'prodbybuddha@icloud.com');
       } else {
-        // Token is invalid, remove it
-        localStorage.removeItem('subscriptionToken');
+        // Session is invalid or expired
         setIsLoggedIn(false);
         setIsAdmin(false);
       }
     } catch (error) {
-      // On error, assume token is invalid
-      console.warn('Token validation failed:', error);
-      localStorage.removeItem('subscriptionToken');
+      // On error, assume session is invalid
+      console.warn('Session validation failed:', error);
       setIsLoggedIn(false);
+      setIsAdmin(false);
     } finally {
       setIsCheckingAuth(false);
     }
@@ -116,7 +108,6 @@ export function Header() {
       console.error('Logout failed:', error);
       
       // Fallback - clear local state even if API fails
-      localStorage.removeItem('subscriptionToken');
       setIsLoggedIn(false);
       setIsAdmin(false);
       

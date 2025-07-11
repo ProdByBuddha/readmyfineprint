@@ -171,26 +171,16 @@ export function SubscriptionLogin({
         throw new Error("Invalid response from server. Please try again.");
       }
 
-      if (data.success && data.token) {
-        // Store the new token
-        localStorage.setItem("subscriptionToken", data.token);
+      if (data.success) {
         console.log("Successfully logged into subscription");
-
-        // Trigger storage event to notify other components (like Header)
-        window.dispatchEvent(new StorageEvent('storage', {
-          key: 'subscriptionToken',
-          newValue: data.token,
-          oldValue: null,
-          storageArea: localStorage
-        }));
         
-        // Also dispatch custom event for same-tab updates
+        // Dispatch custom event for same-tab updates
         window.dispatchEvent(new CustomEvent('authStateChanged'));
 
-        // Call success callback
-        onSuccess(data.token, data.subscription);
+        // Call success callback without token (session is managed by cookies now)
+        onSuccess('', data.subscription);
       } else {
-        throw new Error(data.error || "Login failed - no token received");
+        throw new Error(data.error || "Login failed");
       }
     } catch (error) {
       console.error("Verification error:", error);

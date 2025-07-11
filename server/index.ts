@@ -1,5 +1,6 @@
 import express, { type Request, Response, NextFunction } from "express";
 import cors from "cors";
+import cookieParser from "cookie-parser";
 import rateLimit from "express-rate-limit";
 import { registerRoutes } from "./routes";
 import { setupVite, serveStatic, log } from "./vite";
@@ -27,6 +28,9 @@ app.set('trust proxy', 1);
 
 // Add security headers
 app.use(addSecurityHeaders);
+
+// Add cookie parser middleware
+app.use(cookieParser());
 
 // Enhanced security middleware - block only critical sensitive files
 app.use((req, res, next) => {

@@ -399,14 +399,12 @@ export async function logout(): Promise<{
   };
 }> {
   try {
-    const subscriptionToken = localStorage.getItem('subscriptionToken');
-    
     const response = await fetchWithCSRF('/api/logout', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        ...(subscriptionToken && { 'x-subscription-token': subscriptionToken }),
       },
+      credentials: 'include', // Include cookies
     });
 
     if (!response.ok) {
@@ -415,7 +413,7 @@ export async function logout(): Promise<{
 
     const result = await response.json();
     
-    // Clear local storage after successful server logout
+    // Clear any remaining local storage (for backward compatibility)
     localStorage.removeItem('subscriptionToken');
     
     // Clear session storage

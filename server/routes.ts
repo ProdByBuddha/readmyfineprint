@@ -1440,16 +1440,30 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       const subscriptionData = await subscriptionService.getUserSubscriptionWithUsage(user.id);
       
-      // Generate new device token for this login
-      const newToken = await subscriptionService.generateSubscriptionToken(
+      // Generate JWT tokens using secure JWT service
+      const { secureJWTService } = await import('./secure-jwt-service');
+      const { accessToken, refreshToken } = await secureJWTService.generateTokenPair(
         user.id,
-        subscriptionData.subscription!.id,
-        deviceFingerprint
+        email,
+        user.username || undefined
       );
+
+      // Store session in PostgreSQL
+      const { postgresqlSessionStorage } = await import('./postgresql-session-storage');
+      const sessionId = crypto.randomUUID();
+      await postgresqlSessionStorage.storeSessionToken(sessionId, accessToken, user.id);
+
+      // Set secure httpOnly cookie with session ID
+      res.cookie('sessionId', sessionId, {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === 'production',
+        sameSite: 'strict',
+        maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
+        path: '/'
+      });
 
       res.json({
         success: true,
-        token: newToken,
         subscription: subscriptionData
       });
     } catch (error) {
@@ -2018,6 +2032,26 @@ export async function registerRoutes(app: Express): Promise<Server> {
           hadSubscriptionToken: !!subscriptionToken
         }
       });
+
+      // Clear the session cookie
+      res.clearCookie('sessionId', {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === 'production',
+        sameSite: 'strict',
+        path: '/'
+      });
+
+      // Also clear session from PostgreSQL if present
+      const sessionId = req.cookies?.sessionId;
+      if (sessionId) {
+        try {
+          const { postgresqlSessionStorage } = await import('./postgresql-session-storage');
+          await postgresqlSessionStorage.removeSessionToken(sessionId);
+          console.log(`🔒 Removed session from PostgreSQL: ${sessionId}`);
+        } catch (error) {
+          console.error('Error removing session from PostgreSQL:', error);
+        }
+      }
 
       res.json({
         success: true,

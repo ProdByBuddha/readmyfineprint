@@ -7,6 +7,7 @@ import { securityLogger, SecurityEventType, SecuritySeverity } from "./security-
 import { hashPassword, verifyPassword, createPseudonymizedEmail, verifyEmailMatch } from "./argon2";
 import { accountDeletionService } from "./account-deletion-service";
 import { twoFactorService } from "./two-factor-service";
+import crypto from "crypto";
 
 /**
  * Find user by email using deterministic hash entanglement
@@ -219,8 +220,18 @@ export function registerUserRoutes(app: Express) {
         // Don't fail login if this fails
       }
 
-      // Generate JWT token for logged-in user
-      const token = generateJWT(user.id);
+      // Generate JWT tokens using secure JWT service
+      const { secureJWTService } = await import('./secure-jwt-service');
+      const { accessToken, refreshToken } = await secureJWTService.generateTokenPair(
+        user.id,
+        email,
+        user.username || undefined
+      );
+
+      // Store session in PostgreSQL
+      const { postgresqlSessionStorage } = await import('./postgresql-session-storage');
+      const sessionId = crypto.randomUUID();
+      await postgresqlSessionStorage.storeSessionToken(sessionId, accessToken, user.id);
 
       // Remove password from response
       const { hashedPassword: _, ...userResponse } = user;
@@ -235,9 +246,19 @@ export function registerUserRoutes(app: Express) {
         details: { userId: user.id, email, twoFactorUsed: hasTwoFactorEnabled }
       });
 
+      // Set secure httpOnly cookie with session ID
+      res.cookie('sessionId', sessionId, {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === 'production',
+        sameSite: 'strict',
+        maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
+        path: '/'
+      });
+
       res.json({
         user: userResponse,
-        token
+        // Don't send token in response body anymore
+        message: 'Login successful'
       });
     } catch (error) {
       console.error("Login error:", error);
@@ -248,7 +269,51 @@ export function registerUserRoutes(app: Express) {
     }
   });
 
-  // Validate subscription token
+  // Validate session (new cookie-based endpoint)
+  app.post("/api/users/validate-session", async (req: Request, res: Response) => {
+    try {
+      const sessionId = req.cookies?.sessionId;
+      
+      if (!sessionId) {
+        return res.status(401).json({ error: "No session found" });
+      }
+      
+      // Get token from session storage
+      const { postgresqlSessionStorage } = await import('./postgresql-session-storage');
+      const token = await postgresqlSessionStorage.getTokenBySession(sessionId);
+      
+      if (!token) {
+        return res.status(401).json({ error: "Session expired or invalid" });
+      }
+
+      // Validate the JWT token
+      const { secureJWTService } = await import('./secure-jwt-service');
+      const validation = await secureJWTService.validateAccessToken(token);
+      
+      if (!validation.valid || !validation.payload) {
+        return res.status(401).json({ error: "Invalid session token" });
+      }
+
+      // Get user details
+      const user = await databaseStorage.getUser(validation.payload.userId);
+      if (!user) {
+        return res.status(401).json({ error: "User not found" });
+      }
+
+      // Session is valid
+      res.json({ 
+        valid: true, 
+        userId: user.id,
+        email: user.email,
+        username: user.username
+      });
+    } catch (error) {
+      console.error("Session validation error:", error);
+      res.status(500).json({ error: "Session validation failed" });
+    }
+  });
+
+  // Keep the old endpoint for backward compatibility but mark as deprecated
   app.post("/api/users/validate-token", async (req: Request, res: Response) => {
     try {
       const token = req.headers['x-subscription-token'] as string;
