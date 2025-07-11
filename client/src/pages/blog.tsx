@@ -122,7 +122,7 @@ export default function BlogPage() {
   };
 
   const parseTags = (tags?: string) => {
-    if (!tags) return [];
+    if (!tags || typeof tags !== 'string') return [];
     try {
       return JSON.parse(tags);
     } catch {
