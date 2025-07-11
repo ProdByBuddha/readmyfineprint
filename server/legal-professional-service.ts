@@ -1,5 +1,5 @@
 import crypto from 'crypto';
-import { db } from './db-with-fallback';
+import { db } from './db';
 import { users } from '@shared/schema';
 import { eq } from 'drizzle-orm';
 import { securityLogger } from './security-logger';

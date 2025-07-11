@@ -3,7 +3,7 @@
  * Secure storage for session-to-token mappings using PostgreSQL database
  */
 
-import { db, ensureDbInitialized } from './db';
+import { db } from './db';
 import { sessionTokens, type SessionToken, type InsertSessionToken } from '@shared/schema';
 import { eq, lt } from 'drizzle-orm';
 
@@ -95,7 +95,7 @@ export class PostgreSQLSessionStorage {
    */
   async cleanupExpired(): Promise<{ sessionsRemoved: number }> {
     try {
-      await ensureDbInitialized();
+      // Database already initialized with original setup
       
       // Check if database has delete method
       if (!db || typeof db.delete !== 'function') {

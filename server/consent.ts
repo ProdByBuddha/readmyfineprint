@@ -1,5 +1,5 @@
 import crypto from 'crypto';
-import { db, getDatabaseStatus } from './db';
+import { db } from './db';
 import { consentRecords } from '../shared/schema';
 import { eq, desc, count, and, gte } from 'drizzle-orm';
 
@@ -127,9 +127,8 @@ class ConsentLogger {
     message: string;
   }> {
     try {
-      // Check if we're using local database fallback and bypass consent logging
-      const dbStatus = getDatabaseStatus?.();
-      if (dbStatus?.isUsingLocalDb || process.env.NODE_ENV === 'development') {
+      // Check if we're in development mode and bypass consent logging
+      if (process.env.NODE_ENV === 'development') {
         console.log('⚠️ Development mode: Bypassing consent logging');
         return {
           success: true,
@@ -212,9 +211,8 @@ class ConsentLogger {
    */
   async verifyConsent(req: any): Promise<ConsentProof | null> {
     try {
-      // Check if we're using local database fallback and bypass consent verification
-      const dbStatus = getDatabaseStatus?.();
-      if (dbStatus?.isUsingLocalDb || process.env.NODE_ENV === 'development') {
+      // Check if we're in development mode and bypass consent verification
+      if (process.env.NODE_ENV === 'development') {
         console.log('⚠️ Development mode: Bypassing consent verification');
         return {
           user_pseudonym: 'dev-user',
@@ -266,9 +264,8 @@ class ConsentLogger {
    */
   async verifyUserConsent(ip: string, userAgent: string, userId?: string, sessionId?: string): Promise<ConsentProof | null> {
     try {
-      // Check if we're using local database fallback and bypass consent verification
-      const dbStatus = getDatabaseStatus?.();
-      if (dbStatus?.isUsingLocalDb || process.env.NODE_ENV === 'development') {
+      // Check if we're in development mode and bypass consent verification
+      if (process.env.NODE_ENV === 'development') {
         console.log('⚠️ Development mode: Bypassing user consent verification');
         return {
           user_pseudonym: 'dev-user',

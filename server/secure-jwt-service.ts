@@ -7,25 +7,16 @@ import jwt from 'jsonwebtoken';
 import crypto from 'crypto';
 import { jwtSecretManager } from './jwt-secret-manager';
 import { securityLogger, SecurityEventType, SecuritySeverity, getClientInfo } from './security-logger';
-import { ensureDbInitialized } from './db';
+// import { ensureDbInitialized } from './db'; // Not needed with original db setup
 import { eq, and, lt } from 'drizzle-orm';
 
-// Import database and schema after ensuring initialization
-let db: any;
-let jwtTokenRevocations: any;
-let refreshTokens: any;
-let jwtSecretVersions: any;
+// Import database and schema directly
+import { db } from './db';
+import { jwtTokenRevocations, refreshTokens, jwtSecretVersions } from '@shared/schema';
 
 async function initializeDatabase() {
-  if (!db) {
-    await ensureDbInitialized();
-    const dbModule = await import('./db');
-    const schemaModule = await import('@shared/schema');
-    db = dbModule.db;
-    jwtTokenRevocations = schemaModule.jwtTokenRevocations;
-    refreshTokens = schemaModule.refreshTokens;
-    jwtSecretVersions = schemaModule.jwtSecretVersions;
-  }
+  // Database is already initialized with the original setup
+  // No need for additional initialization
 }
 
 interface AccessTokenPayload {

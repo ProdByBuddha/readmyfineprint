@@ -1,5 +1,5 @@
 import crypto from 'crypto';
-import { db } from './db-with-fallback';
+import { db } from './db';
 import { twoFactorCodes, users } from '@shared/schema';
 import { eq, and, lt, gt } from 'drizzle-orm';
 import { emailService } from './email-service';

@@ -6,7 +6,7 @@
 import fs from 'fs/promises';
 import path from 'path';
 import crypto from 'crypto';
-import { ensureDbInitialized, getDatabaseStatus } from './db';
+import { db } from './db';
 import { securityLogger, SecurityEventType, SecuritySeverity } from './security-logger';
 
 interface BackupConfig {
@@ -313,14 +313,9 @@ export class BackupService {
    * Backup database (both Neon and local PostgreSQL)
    */
   private async backupDatabase(backupPath: string): Promise<{ size: number; path: string }> {
-    await ensureDbInitialized();
-    const dbStatus = getDatabaseStatus();
-    
-    if (dbStatus.isUsingLocalDb) {
-      return await this.backupLocalPostgreSQL(backupPath);
-    } else {
-      return await this.backupNeonDatabase(backupPath);
-    }
+    // Database already initialized with original setup
+    // Always use Neon database with the original setup
+    return await this.backupNeonDatabase(backupPath);
   }
 
   /**

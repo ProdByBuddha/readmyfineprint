@@ -1,7 +1,7 @@
 import { authenticator } from 'otplib';
 import * as QRCode from 'qrcode';
 import crypto from 'crypto';
-import { db } from './db-with-fallback';
+import { db } from './db';
 import { totpSecrets, users } from '@shared/schema';
 import { eq } from 'drizzle-orm';
 import { securityLogger } from './security-logger';

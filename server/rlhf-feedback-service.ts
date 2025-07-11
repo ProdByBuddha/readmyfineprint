@@ -5,7 +5,7 @@
 
 import crypto from 'node:crypto';
 import { sql } from 'drizzle-orm';
-import { initializeDatabase } from './db-with-fallback';
+import { db } from './db';
 import { hashIpAddress, hashUserAgent } from './argon2';
 import type { 
   PiiDetectionFeedback,

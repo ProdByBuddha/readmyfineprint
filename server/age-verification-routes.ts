@@ -2,7 +2,7 @@ import type { Express } from 'express';
 import { z } from 'zod';
 import { optionalUserAuth, requireUserAuth } from './auth';
 import { getClientInfo, securityLogger } from './security-logger';
-import { db } from './db-with-fallback';
+import { db } from './db';
 import { users } from '@shared/schema';
 import { eq } from 'drizzle-orm';
 import { emailService } from './email-service';

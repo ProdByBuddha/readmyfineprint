@@ -203,7 +203,7 @@ let sessionStorage: any = null;
 // Initialize distributed session storage after database is ready
 async function initializeSessionStorage() {
   try {
-    const { initializeDatabase } = await import('./db-with-fallback');
+    const { initializeDatabase } = await import('./db-init');
     const database = await initializeDatabase();
     const { DistributedSessionStorage } = await import('./distributed-session-storage');
     
@@ -382,17 +382,24 @@ app.use(verifyCsrfToken);
   // Add health check endpoint
   app.get('/health', async (req, res) => {
     try {
-      const { getDatabaseStatus } = await import('./db-with-fallback');
-      const dbStatus = getDatabaseStatus();
+      // Database health check with original setup
+      let dbHealthy = true;
+      try {
+        const { db } = await import('./db');
+        const { sql } = await import('drizzle-orm');
+        await db.execute(sql`SELECT 1 as health_check`);
+      } catch (error) {
+        dbHealthy = false;
+      }
       
       const healthStatus = {
         status: 'healthy',
         timestamp: new Date().toISOString(),
         version: process.env.npm_package_version || '1.0.0',
         database: {
-          status: dbStatus.circuitBreakers.neon.isHealthy || dbStatus.circuitBreakers.local.isHealthy ? 'healthy' : 'unhealthy',
-          activeConnection: dbStatus.currentDatabase,
-          circuitBreakers: dbStatus.circuitBreakers
+          status: dbHealthy ? 'healthy' : 'unhealthy',
+          activeConnection: 'neon',
+          type: 'postgresql'
         },
         memory: {
           used: Math.round(process.memoryUsage().heapUsed / 1024 / 1024),

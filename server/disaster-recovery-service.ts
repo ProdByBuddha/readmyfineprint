@@ -5,7 +5,7 @@
 
 import fs from 'fs/promises';
 import path from 'path';
-import { ensureDbInitialized } from './db';
+// import { ensureDbInitialized } from './db'; // Not needed with original db setup
 import { securityLogger, SecurityEventType, SecuritySeverity } from './security-logger';
 import { backupService } from './backup-service';
 
@@ -361,13 +361,11 @@ export class DisasterRecoveryService {
    */
   private async checkDatabaseHealth(): Promise<SystemHealth['database']> {
     try {
-      await ensureDbInitialized();
-      const { db, getDatabaseStatus } = await import('./db');
+      // Database already initialized with original setup
+      const { db } = await import('./db');
       
       // Test database connection
       await db.execute('SELECT 1 as health_check');
-      
-      const status = getDatabaseStatus();
       const backupStatus = backupService.getBackupStatus();
 
       return {
@@ -694,7 +692,7 @@ export class DisasterRecoveryService {
     process.env.USE_DB_FALLBACK = 'true';
     
     // Reinitialize database connection
-    await ensureDbInitialized();
+    // Database already initialized with original setup
     
     return { fallback: 'activated', message: 'Switched to local PostgreSQL fallback' };
   }
