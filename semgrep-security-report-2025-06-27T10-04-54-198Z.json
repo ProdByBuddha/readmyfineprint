@@ -1,0 +1,734 @@
+{
+  "scanInfo": {
+    "timestamp": "2025-06-27T10:04:54.199Z",
+    "tool": "Semgrep",
+    "totalFindings": 90
+  },
+  "summary": {
+    "high": 5,
+    "medium": 33,
+    "low": 52
+  },
+  "findings": [
+    {
+      "ruleId": "html.security.audit.missing-integrity.missing-integrity",
+      "severity": "WARNING",
+      "message": "This tag is missing an 'integrity' subresource integrity attribute. The 'integrity' attribute allows for the browser to verify that externally hosted files (for example from a CDN) are delivered without unexpected manipulation. Without this attribute, if an attacker can modify the externally hosted resource, this could lead to XSS and other types of attacks. To prevent this, include the base64-encoded cryptographic hash of the resource (file) you’re telling the browser to fetch in the 'integrity' attribute for all externally hosted files.",
+      "file": "client/index.html",
+      "line": 15,
+      "code": "requires login"
+    },
+    {
+      "ruleId": "html.security.audit.missing-integrity.missing-integrity",
+      "severity": "WARNING",
+      "message": "This tag is missing an 'integrity' subresource integrity attribute. The 'integrity' attribute allows for the browser to verify that externally hosted files (for example from a CDN) are delivered without unexpected manipulation. Without this attribute, if an attacker can modify the externally hosted resource, this could lead to XSS and other types of attacks. To prevent this, include the base64-encoded cryptographic hash of the resource (file) you’re telling the browser to fetch in the 'integrity' attribute for all externally hosted files.",
+      "file": "client/index.html",
+      "line": 172,
+      "code": "requires login"
+    },
+    {
+      "ruleId": "html.security.audit.missing-integrity.missing-integrity",
+      "severity": "WARNING",
+      "message": "This tag is missing an 'integrity' subresource integrity attribute. The 'integrity' attribute allows for the browser to verify that externally hosted files (for example from a CDN) are delivered without unexpected manipulation. Without this attribute, if an attacker can modify the externally hosted resource, this could lead to XSS and other types of attacks. To prevent this, include the base64-encoded cryptographic hash of the resource (file) you’re telling the browser to fetch in the 'integrity' attribute for all externally hosted files.",
+      "file": "client/index.html",
+      "line": 181,
+      "code": "requires login"
+    },
+    {
+      "ruleId": "javascript.lang.security.audit.unsafe-formatstring.unsafe-formatstring",
+      "severity": "INFO",
+      "message": "Detected string concatenation with a non-literal variable in a util.format / console.log function. If an attacker injects a format specifier in the string, it will forge the log message. Try to use constant values for the format string.",
+      "file": "client/src/components/AdminEmailChangeRequests.tsx",
+      "line": 129,
+      "code": "requires login"
+    },
+    {
+      "ruleId": "javascript.lang.security.audit.unsafe-formatstring.unsafe-formatstring",
+      "severity": "INFO",
+      "message": "Detected string concatenation with a non-literal variable in a util.format / console.log function. If an attacker injects a format specifier in the string, it will forge the log message. Try to use constant values for the format string.",
+      "file": "client/src/components/StripeWrapper.tsx",
+      "line": 55,
+      "code": "requires login"
+    },
+    {
+      "ruleId": "javascript.browser.security.insufficient-postmessage-origin-validation.insufficient-postmessage-origin-validation",
+      "severity": "WARNING",
+      "message": "No validation of origin is done by the addEventListener API. It may be possible to exploit this flaw to perform Cross Origin attacks such as Cross-Site Scripting(XSS).",
+      "file": "client/src/lib/indexnow.ts",
+      "line": 91,
+      "code": "requires login"
+    },
+    {
+      "ruleId": "javascript.lang.security.audit.unsafe-formatstring.unsafe-formatstring",
+      "severity": "INFO",
+      "message": "Detected string concatenation with a non-literal variable in a util.format / console.log function. If an attacker injects a format specifier in the string, it will forge the log message. Try to use constant values for the format string.",
+      "file": "scripts/create-admin-token.ts",
+      "line": 70,
+      "code": "requires login"
+    },
+    {
+      "ruleId": "javascript.lang.security.audit.path-traversal.path-join-resolve-traversal.path-join-resolve-traversal",
+      "severity": "WARNING",
+      "message": "Detected possible user input going into a `path.join` or `path.resolve` function. This could possibly lead to a path traversal vulnerability,  where the attacker can access arbitrary files stored in the file system. Instead, be sure to sanitize or validate user input first.",
+      "file": "scripts/ipfs-deploy.js",
+      "line": 26,
+      "code": "requires login"
+    },
+    {
+      "ruleId": "javascript.lang.security.audit.path-traversal.path-join-resolve-traversal.path-join-resolve-traversal",
+      "severity": "WARNING",
+      "message": "Detected possible user input going into a `path.join` or `path.resolve` function. This could possibly lead to a path traversal vulnerability,  where the attacker can access arbitrary files stored in the file system. Instead, be sure to sanitize or validate user input first.",
+      "file": "scripts/ipfs-deploy.js",
+      "line": 26,
+      "code": "requires login"
+    },
+    {
+      "ruleId": "javascript.lang.security.audit.path-traversal.path-join-resolve-traversal.path-join-resolve-traversal",
+      "severity": "WARNING",
+      "message": "Detected possible user input going into a `path.join` or `path.resolve` function. This could possibly lead to a path traversal vulnerability,  where the attacker can access arbitrary files stored in the file system. Instead, be sure to sanitize or validate user input first.",
+      "file": "scripts/ipfs-deploy.js",
+      "line": 27,
+      "code": "requires login"
+    },
+    {
+      "ruleId": "javascript.lang.security.audit.path-traversal.path-join-resolve-traversal.path-join-resolve-traversal",
+      "severity": "WARNING",
+      "message": "Detected possible user input going into a `path.join` or `path.resolve` function. This could possibly lead to a path traversal vulnerability,  where the attacker can access arbitrary files stored in the file system. Instead, be sure to sanitize or validate user input first.",
+      "file": "scripts/ipfs-deploy.js",
+      "line": 27,
+      "code": "requires login"
+    },
+    {
+      "ruleId": "problem-based-packs.insecure-transport.js-node.using-http-server.using-http-server",
+      "severity": "WARNING",
+      "message": "Checks for any usage of http servers instead of https servers. Encourages the usage of https protocol instead of http, which does not have TLS and is therefore unencrypted. Using http can lead to man-in-the-middle attacks in which the attacker is able to read sensitive information.",
+      "file": "scripts/local-llm-server.cjs",
+      "line": 292,
+      "code": "requires login"
+    },
+    {
+      "ruleId": "javascript.lang.security.audit.unsafe-formatstring.unsafe-formatstring",
+      "severity": "INFO",
+      "message": "Detected string concatenation with a non-literal variable in a util.format / console.log function. If an attacker injects a format specifier in the string, it will forge the log message. Try to use constant values for the format string.",
+      "file": "scripts/migrate-free-tier-status.ts",
+      "line": 57,
+      "code": "requires login"
+    },
+    {
+      "ruleId": "javascript.lang.security.audit.path-traversal.path-join-resolve-traversal.path-join-resolve-traversal",
+      "severity": "WARNING",
+      "message": "Detected possible user input going into a `path.join` or `path.resolve` function. This could possibly lead to a path traversal vulnerability,  where the attacker can access arbitrary files stored in the file system. Instead, be sure to sanitize or validate user input first.",
+      "file": "scripts/nft-storage-deploy.js",
+      "line": 32,
+      "code": "requires login"
+    },
+    {
+      "ruleId": "javascript.lang.security.audit.path-traversal.path-join-resolve-traversal.path-join-resolve-traversal",
+      "severity": "WARNING",
+      "message": "Detected possible user input going into a `path.join` or `path.resolve` function. This could possibly lead to a path traversal vulnerability,  where the attacker can access arbitrary files stored in the file system. Instead, be sure to sanitize or validate user input first.",
+      "file": "scripts/nft-storage-deploy.js",
+      "line": 32,
+      "code": "requires login"
+    },
+    {
+      "ruleId": "javascript.lang.security.audit.path-traversal.path-join-resolve-traversal.path-join-resolve-traversal",
+      "severity": "WARNING",
+      "message": "Detected possible user input going into a `path.join` or `path.resolve` function. This could possibly lead to a path traversal vulnerability,  where the attacker can access arbitrary files stored in the file system. Instead, be sure to sanitize or validate user input first.",
+      "file": "scripts/nft-storage-deploy.js",
+      "line": 33,
+      "code": "requires login"
+    },
+    {
+      "ruleId": "javascript.lang.security.audit.path-traversal.path-join-resolve-traversal.path-join-resolve-traversal",
+      "severity": "WARNING",
+      "message": "Detected possible user input going into a `path.join` or `path.resolve` function. This could possibly lead to a path traversal vulnerability,  where the attacker can access arbitrary files stored in the file system. Instead, be sure to sanitize or validate user input first.",
+      "file": "scripts/nft-storage-deploy.js",
+      "line": 33,
+      "code": "requires login"
+    },
+    {
+      "ruleId": "javascript.lang.security.audit.unsafe-formatstring.unsafe-formatstring",
+      "severity": "INFO",
+      "message": "Detected string concatenation with a non-literal variable in a util.format / console.log function. If an attacker injects a format specifier in the string, it will forge the log message. Try to use constant values for the format string.",
+      "file": "scripts/sync-stripe-customer-ids.ts",
+      "line": 55,
+      "code": "requires login"
+    },
+    {
+      "ruleId": "javascript.lang.security.audit.unsafe-formatstring.unsafe-formatstring",
+      "severity": "INFO",
+      "message": "Detected string concatenation with a non-literal variable in a util.format / console.log function. If an attacker injects a format specifier in the string, it will forge the log message. Try to use constant values for the format string.",
+      "file": "scripts/test-backup-restoration.ts",
+      "line": 286,
+      "code": "requires login"
+    },
+    {
+      "ruleId": "javascript.lang.security.audit.unsafe-formatstring.unsafe-formatstring",
+      "severity": "INFO",
+      "message": "Detected string concatenation with a non-literal variable in a util.format / console.log function. If an attacker injects a format specifier in the string, it will forge the log message. Try to use constant values for the format string.",
+      "file": "scripts/test-hybrid-crypto.ts",
+      "line": 30,
+      "code": "requires login"
+    },
+    {
+      "ruleId": "javascript.lang.security.audit.path-traversal.path-join-resolve-traversal.path-join-resolve-traversal",
+      "severity": "WARNING",
+      "message": "Detected possible user input going into a `path.join` or `path.resolve` function. This could possibly lead to a path traversal vulnerability,  where the attacker can access arbitrary files stored in the file system. Instead, be sure to sanitize or validate user input first.",
+      "file": "scripts/update-sitemap.js",
+      "line": 68,
+      "code": "requires login"
+    },
+    {
+      "ruleId": "javascript.lang.security.audit.unsafe-formatstring.unsafe-formatstring",
+      "severity": "INFO",
+      "message": "Detected string concatenation with a non-literal variable in a util.format / console.log function. If an attacker injects a format specifier in the string, it will forge the log message. Try to use constant values for the format string.",
+      "file": "server/admin-routes.ts",
+      "line": 45,
+      "code": "requires login"
+    },
+    {
+      "ruleId": "javascript.lang.security.audit.unsafe-formatstring.unsafe-formatstring",
+      "severity": "INFO",
+      "message": "Detected string concatenation with a non-literal variable in a util.format / console.log function. If an attacker injects a format specifier in the string, it will forge the log message. Try to use constant values for the format string.",
+      "file": "server/admin-routes.ts",
+      "line": 963,
+      "code": "requires login"
+    },
+    {
+      "ruleId": "javascript.express.security.injection.raw-html-format.raw-html-format",
+      "severity": "WARNING",
+      "message": "User data flows into the host portion of this manually-constructed HTML. This can introduce a Cross-Site-Scripting (XSS) vulnerability if this comes from user-provided input. Consider using a sanitization library such as DOMPurify to sanitize the HTML within.",
+      "file": "server/age-verification-routes.ts",
+      "line": 250,
+      "code": "requires login"
+    },
+    {
+      "ruleId": "javascript.lang.security.audit.unsafe-formatstring.unsafe-formatstring",
+      "severity": "INFO",
+      "message": "Detected string concatenation with a non-literal variable in a util.format / console.log function. If an attacker injects a format specifier in the string, it will forge the log message. Try to use constant values for the format string.",
+      "file": "server/argon2.ts",
+      "line": 627,
+      "code": "requires login"
+    },
+    {
+      "ruleId": "javascript.lang.security.audit.unsafe-formatstring.unsafe-formatstring",
+      "severity": "INFO",
+      "message": "Detected string concatenation with a non-literal variable in a util.format / console.log function. If an attacker injects a format specifier in the string, it will forge the log message. Try to use constant values for the format string.",
+      "file": "server/backup-monitoring.ts",
+      "line": 206,
+      "code": "requires login"
+    },
+    {
+      "ruleId": "javascript.lang.security.audit.path-traversal.path-join-resolve-traversal.path-join-resolve-traversal",
+      "severity": "WARNING",
+      "message": "Detected possible user input going into a `path.join` or `path.resolve` function. This could possibly lead to a path traversal vulnerability,  where the attacker can access arbitrary files stored in the file system. Instead, be sure to sanitize or validate user input first.",
+      "file": "server/backup-service.ts",
+      "line": 331,
+      "code": "requires login"
+    },
+    {
+      "ruleId": "javascript.lang.security.audit.path-traversal.path-join-resolve-traversal.path-join-resolve-traversal",
+      "severity": "WARNING",
+      "message": "Detected possible user input going into a `path.join` or `path.resolve` function. This could possibly lead to a path traversal vulnerability,  where the attacker can access arbitrary files stored in the file system. Instead, be sure to sanitize or validate user input first.",
+      "file": "server/backup-service.ts",
+      "line": 362,
+      "code": "requires login"
+    },
+    {
+      "ruleId": "javascript.lang.security.audit.unsafe-formatstring.unsafe-formatstring",
+      "severity": "INFO",
+      "message": "Detected string concatenation with a non-literal variable in a util.format / console.log function. If an attacker injects a format specifier in the string, it will forge the log message. Try to use constant values for the format string.",
+      "file": "server/backup-service.ts",
+      "line": 379,
+      "code": "requires login"
+    },
+    {
+      "ruleId": "javascript.lang.security.audit.path-traversal.path-join-resolve-traversal.path-join-resolve-traversal",
+      "severity": "WARNING",
+      "message": "Detected possible user input going into a `path.join` or `path.resolve` function. This could possibly lead to a path traversal vulnerability,  where the attacker can access arbitrary files stored in the file system. Instead, be sure to sanitize or validate user input first.",
+      "file": "server/backup-service.ts",
+      "line": 395,
+      "code": "requires login"
+    },
+    {
+      "ruleId": "javascript.lang.security.audit.path-traversal.path-join-resolve-traversal.path-join-resolve-traversal",
+      "severity": "WARNING",
+      "message": "Detected possible user input going into a `path.join` or `path.resolve` function. This could possibly lead to a path traversal vulnerability,  where the attacker can access arbitrary files stored in the file system. Instead, be sure to sanitize or validate user input first.",
+      "file": "server/backup-service.ts",
+      "line": 414,
+      "code": "requires login"
+    },
+    {
+      "ruleId": "javascript.lang.security.audit.unsafe-formatstring.unsafe-formatstring",
+      "severity": "INFO",
+      "message": "Detected string concatenation with a non-literal variable in a util.format / console.log function. If an attacker injects a format specifier in the string, it will forge the log message. Try to use constant values for the format string.",
+      "file": "server/backup-service.ts",
+      "line": 420,
+      "code": "requires login"
+    },
+    {
+      "ruleId": "javascript.lang.security.audit.path-traversal.path-join-resolve-traversal.path-join-resolve-traversal",
+      "severity": "WARNING",
+      "message": "Detected possible user input going into a `path.join` or `path.resolve` function. This could possibly lead to a path traversal vulnerability,  where the attacker can access arbitrary files stored in the file system. Instead, be sure to sanitize or validate user input first.",
+      "file": "server/backup-service.ts",
+      "line": 427,
+      "code": "requires login"
+    },
+    {
+      "ruleId": "javascript.lang.security.audit.path-traversal.path-join-resolve-traversal.path-join-resolve-traversal",
+      "severity": "WARNING",
+      "message": "Detected possible user input going into a `path.join` or `path.resolve` function. This could possibly lead to a path traversal vulnerability,  where the attacker can access arbitrary files stored in the file system. Instead, be sure to sanitize or validate user input first.",
+      "file": "server/backup-service.ts",
+      "line": 443,
+      "code": "requires login"
+    },
+    {
+      "ruleId": "javascript.lang.security.audit.path-traversal.path-join-resolve-traversal.path-join-resolve-traversal",
+      "severity": "WARNING",
+      "message": "Detected possible user input going into a `path.join` or `path.resolve` function. This could possibly lead to a path traversal vulnerability,  where the attacker can access arbitrary files stored in the file system. Instead, be sure to sanitize or validate user input first.",
+      "file": "server/backup-service.ts",
+      "line": 463,
+      "code": "requires login"
+    },
+    {
+      "ruleId": "javascript.lang.security.audit.path-traversal.path-join-resolve-traversal.path-join-resolve-traversal",
+      "severity": "WARNING",
+      "message": "Detected possible user input going into a `path.join` or `path.resolve` function. This could possibly lead to a path traversal vulnerability,  where the attacker can access arbitrary files stored in the file system. Instead, be sure to sanitize or validate user input first.",
+      "file": "server/backup-service.ts",
+      "line": 481,
+      "code": "requires login"
+    },
+    {
+      "ruleId": "javascript.lang.security.audit.path-traversal.path-join-resolve-traversal.path-join-resolve-traversal",
+      "severity": "WARNING",
+      "message": "Detected possible user input going into a `path.join` or `path.resolve` function. This could possibly lead to a path traversal vulnerability,  where the attacker can access arbitrary files stored in the file system. Instead, be sure to sanitize or validate user input first.",
+      "file": "server/backup-service.ts",
+      "line": 502,
+      "code": "requires login"
+    },
+    {
+      "ruleId": "javascript.lang.security.audit.unsafe-formatstring.unsafe-formatstring",
+      "severity": "INFO",
+      "message": "Detected string concatenation with a non-literal variable in a util.format / console.log function. If an attacker injects a format specifier in the string, it will forge the log message. Try to use constant values for the format string.",
+      "file": "server/backup-service.ts",
+      "line": 557,
+      "code": "requires login"
+    },
+    {
+      "ruleId": "javascript.lang.security.audit.path-traversal.path-join-resolve-traversal.path-join-resolve-traversal",
+      "severity": "WARNING",
+      "message": "Detected possible user input going into a `path.join` or `path.resolve` function. This could possibly lead to a path traversal vulnerability,  where the attacker can access arbitrary files stored in the file system. Instead, be sure to sanitize or validate user input first.",
+      "file": "server/backup-service.ts",
+      "line": 667,
+      "code": "requires login"
+    },
+    {
+      "ruleId": "javascript.lang.security.audit.path-traversal.path-join-resolve-traversal.path-join-resolve-traversal",
+      "severity": "WARNING",
+      "message": "Detected possible user input going into a `path.join` or `path.resolve` function. This could possibly lead to a path traversal vulnerability,  where the attacker can access arbitrary files stored in the file system. Instead, be sure to sanitize or validate user input first.",
+      "file": "server/backup-service.ts",
+      "line": 667,
+      "code": "requires login"
+    },
+    {
+      "ruleId": "javascript.lang.security.audit.path-traversal.path-join-resolve-traversal.path-join-resolve-traversal",
+      "severity": "WARNING",
+      "message": "Detected possible user input going into a `path.join` or `path.resolve` function. This could possibly lead to a path traversal vulnerability,  where the attacker can access arbitrary files stored in the file system. Instead, be sure to sanitize or validate user input first.",
+      "file": "server/backup-service.ts",
+      "line": 668,
+      "code": "requires login"
+    },
+    {
+      "ruleId": "javascript.lang.security.audit.path-traversal.path-join-resolve-traversal.path-join-resolve-traversal",
+      "severity": "WARNING",
+      "message": "Detected possible user input going into a `path.join` or `path.resolve` function. This could possibly lead to a path traversal vulnerability,  where the attacker can access arbitrary files stored in the file system. Instead, be sure to sanitize or validate user input first.",
+      "file": "server/backup-service.ts",
+      "line": 668,
+      "code": "requires login"
+    },
+    {
+      "ruleId": "javascript.lang.security.audit.path-traversal.path-join-resolve-traversal.path-join-resolve-traversal",
+      "severity": "WARNING",
+      "message": "Detected possible user input going into a `path.join` or `path.resolve` function. This could possibly lead to a path traversal vulnerability,  where the attacker can access arbitrary files stored in the file system. Instead, be sure to sanitize or validate user input first.",
+      "file": "server/backup-service.ts",
+      "line": 683,
+      "code": "requires login"
+    },
+    {
+      "ruleId": "javascript.lang.security.audit.path-traversal.path-join-resolve-traversal.path-join-resolve-traversal",
+      "severity": "WARNING",
+      "message": "Detected possible user input going into a `path.join` or `path.resolve` function. This could possibly lead to a path traversal vulnerability,  where the attacker can access arbitrary files stored in the file system. Instead, be sure to sanitize or validate user input first.",
+      "file": "server/backup-service.ts",
+      "line": 683,
+      "code": "requires login"
+    },
+    {
+      "ruleId": "javascript.lang.security.audit.unsafe-formatstring.unsafe-formatstring",
+      "severity": "INFO",
+      "message": "Detected string concatenation with a non-literal variable in a util.format / console.log function. If an attacker injects a format specifier in the string, it will forge the log message. Try to use constant values for the format string.",
+      "file": "server/circuit-breaker.ts",
+      "line": 94,
+      "code": "requires login"
+    },
+    {
+      "ruleId": "javascript.lang.security.audit.unsafe-formatstring.unsafe-formatstring",
+      "severity": "INFO",
+      "message": "Detected string concatenation with a non-literal variable in a util.format / console.log function. If an attacker injects a format specifier in the string, it will forge the log message. Try to use constant values for the format string.",
+      "file": "server/database-storage.ts",
+      "line": 402,
+      "code": "requires login"
+    },
+    {
+      "ruleId": "javascript.lang.security.audit.unsafe-formatstring.unsafe-formatstring",
+      "severity": "INFO",
+      "message": "Detected string concatenation with a non-literal variable in a util.format / console.log function. If an attacker injects a format specifier in the string, it will forge the log message. Try to use constant values for the format string.",
+      "file": "server/db-with-fallback.ts",
+      "line": 58,
+      "code": "requires login"
+    },
+    {
+      "ruleId": "javascript.lang.security.audit.unsafe-formatstring.unsafe-formatstring",
+      "severity": "INFO",
+      "message": "Detected string concatenation with a non-literal variable in a util.format / console.log function. If an attacker injects a format specifier in the string, it will forge the log message. Try to use constant values for the format string.",
+      "file": "server/disaster-recovery-service.ts",
+      "line": 549,
+      "code": "requires login"
+    },
+    {
+      "ruleId": "javascript.lang.security.audit.unsafe-formatstring.unsafe-formatstring",
+      "severity": "INFO",
+      "message": "Detected string concatenation with a non-literal variable in a util.format / console.log function. If an attacker injects a format specifier in the string, it will forge the log message. Try to use constant values for the format string.",
+      "file": "server/email-recovery-routes.ts",
+      "line": 34,
+      "code": "requires login"
+    },
+    {
+      "ruleId": "javascript.node-crypto.security.create-de-cipher-no-iv.create-de-cipher-no-iv",
+      "severity": "ERROR",
+      "message": "The deprecated functions 'createCipher' and 'createDecipher' generate the same initialization vector every time. For counter modes such as CTR, GCM, or CCM this leads to break of both confidentiality and integrity, if the key is used more than once. Other modes are still affected in their strength, though they're not completely broken. Use 'createCipheriv' or 'createDecipheriv' instead.",
+      "file": "server/email-recovery-service.ts",
+      "line": 56,
+      "code": "requires login"
+    },
+    {
+      "ruleId": "javascript.node-crypto.security.create-de-cipher-no-iv.create-de-cipher-no-iv",
+      "severity": "ERROR",
+      "message": "The deprecated functions 'createCipher' and 'createDecipher' generate the same initialization vector every time. For counter modes such as CTR, GCM, or CCM this leads to break of both confidentiality and integrity, if the key is used more than once. Other modes are still affected in their strength, though they're not completely broken. Use 'createCipheriv' or 'createDecipheriv' instead.",
+      "file": "server/email-recovery-service.ts",
+      "line": 67,
+      "code": "requires login"
+    },
+    {
+      "ruleId": "problem-based-packs.insecure-transport.js-node.bypass-tls-verification.bypass-tls-verification",
+      "severity": "WARNING",
+      "message": "Checks for setting the environment variable NODE_TLS_REJECT_UNAUTHORIZED to 0, which disables TLS verification. This should only be used for debugging purposes. Setting the option rejectUnauthorized to false bypasses verification against the list of trusted CAs, which also leads to insecure transport. These options lead to vulnerability to MTM attacks, and should not be used.",
+      "file": "server/email-service.ts",
+      "line": 47,
+      "code": "requires login"
+    },
+    {
+      "ruleId": "javascript.lang.security.audit.unsafe-formatstring.unsafe-formatstring",
+      "severity": "INFO",
+      "message": "Detected string concatenation with a non-literal variable in a util.format / console.log function. If an attacker injects a format specifier in the string, it will forge the log message. Try to use constant values for the format string.",
+      "file": "server/encrypted-storage.ts",
+      "line": 203,
+      "code": "requires login"
+    },
+    {
+      "ruleId": "javascript.lang.security.audit.unsafe-formatstring.unsafe-formatstring",
+      "severity": "INFO",
+      "message": "Detected string concatenation with a non-literal variable in a util.format / console.log function. If an attacker injects a format specifier in the string, it will forge the log message. Try to use constant values for the format string.",
+      "file": "server/encrypted-storage.ts",
+      "line": 245,
+      "code": "requires login"
+    },
+    {
+      "ruleId": "javascript.lang.security.audit.unsafe-formatstring.unsafe-formatstring",
+      "severity": "INFO",
+      "message": "Detected string concatenation with a non-literal variable in a util.format / console.log function. If an attacker injects a format specifier in the string, it will forge the log message. Try to use constant values for the format string.",
+      "file": "server/encrypted-storage.ts",
+      "line": 270,
+      "code": "requires login"
+    },
+    {
+      "ruleId": "javascript.lang.security.audit.unsafe-formatstring.unsafe-formatstring",
+      "severity": "INFO",
+      "message": "Detected string concatenation with a non-literal variable in a util.format / console.log function. If an attacker injects a format specifier in the string, it will forge the log message. Try to use constant values for the format string.",
+      "file": "server/encrypted-storage.ts",
+      "line": 292,
+      "code": "requires login"
+    },
+    {
+      "ruleId": "javascript.lang.security.audit.unsafe-formatstring.unsafe-formatstring",
+      "severity": "INFO",
+      "message": "Detected string concatenation with a non-literal variable in a util.format / console.log function. If an attacker injects a format specifier in the string, it will forge the log message. Try to use constant values for the format string.",
+      "file": "server/encrypted-storage.ts",
+      "line": 323,
+      "code": "requires login"
+    },
+    {
+      "ruleId": "javascript.lang.security.audit.unsafe-formatstring.unsafe-formatstring",
+      "severity": "INFO",
+      "message": "Detected string concatenation with a non-literal variable in a util.format / console.log function. If an attacker injects a format specifier in the string, it will forge the log message. Try to use constant values for the format string.",
+      "file": "server/encrypted-storage.ts",
+      "line": 341,
+      "code": "requires login"
+    },
+    {
+      "ruleId": "javascript.lang.security.audit.unsafe-formatstring.unsafe-formatstring",
+      "severity": "INFO",
+      "message": "Detected string concatenation with a non-literal variable in a util.format / console.log function. If an attacker injects a format specifier in the string, it will forge the log message. Try to use constant values for the format string.",
+      "file": "server/encrypted-storage.ts",
+      "line": 443,
+      "code": "requires login"
+    },
+    {
+      "ruleId": "javascript.node-crypto.security.gcm-no-tag-length.gcm-no-tag-length",
+      "severity": "ERROR",
+      "message": "The call to 'createDecipheriv' with the Galois Counter Mode (GCM) mode of operation is missing an expected authentication tag length. If the expected authentication tag length is not specified or otherwise checked, the application might be tricked into verifying a shorter-than-expected authentication tag. This can be abused by an attacker to spoof ciphertexts or recover the implicit authentication key of GCM, allowing arbitrary forgeries.",
+      "file": "server/hybrid-crypto-service.ts",
+      "line": 399,
+      "code": "requires login"
+    },
+    {
+      "ruleId": "javascript.lang.security.audit.unsafe-formatstring.unsafe-formatstring",
+      "severity": "INFO",
+      "message": "Detected string concatenation with a non-literal variable in a util.format / console.log function. If an attacker injects a format specifier in the string, it will forge the log message. Try to use constant values for the format string.",
+      "file": "server/hybrid-security-manager.ts",
+      "line": 318,
+      "code": "requires login"
+    },
+    {
+      "ruleId": "javascript.lang.security.audit.unsafe-formatstring.unsafe-formatstring",
+      "severity": "INFO",
+      "message": "Detected string concatenation with a non-literal variable in a util.format / console.log function. If an attacker injects a format specifier in the string, it will forge the log message. Try to use constant values for the format string.",
+      "file": "server/indexnow-service.ts",
+      "line": 116,
+      "code": "requires login"
+    },
+    {
+      "ruleId": "javascript.lang.security.audit.unsafe-formatstring.unsafe-formatstring",
+      "severity": "INFO",
+      "message": "Detected string concatenation with a non-literal variable in a util.format / console.log function. If an attacker injects a format specifier in the string, it will forge the log message. Try to use constant values for the format string.",
+      "file": "server/pii-hashing-service.ts",
+      "line": 76,
+      "code": "requires login"
+    },
+    {
+      "ruleId": "javascript.lang.security.audit.unsafe-formatstring.unsafe-formatstring",
+      "severity": "INFO",
+      "message": "Detected string concatenation with a non-literal variable in a util.format / console.log function. If an attacker injects a format specifier in the string, it will forge the log message. Try to use constant values for the format string.",
+      "file": "server/pii-hashing-service.ts",
+      "line": 103,
+      "code": "requires login"
+    },
+    {
+      "ruleId": "javascript.lang.security.audit.unsafe-formatstring.unsafe-formatstring",
+      "severity": "INFO",
+      "message": "Detected string concatenation with a non-literal variable in a util.format / console.log function. If an attacker injects a format specifier in the string, it will forge the log message. Try to use constant values for the format string.",
+      "file": "server/priority-queue.ts",
+      "line": 126,
+      "code": "requires login"
+    },
+    {
+      "ruleId": "javascript.lang.security.audit.unsafe-formatstring.unsafe-formatstring",
+      "severity": "INFO",
+      "message": "Detected string concatenation with a non-literal variable in a util.format / console.log function. If an attacker injects a format specifier in the string, it will forge the log message. Try to use constant values for the format string.",
+      "file": "server/replit-token-storage.ts",
+      "line": 305,
+      "code": "requires login"
+    },
+    {
+      "ruleId": "javascript.lang.security.audit.unsafe-formatstring.unsafe-formatstring",
+      "severity": "INFO",
+      "message": "Detected string concatenation with a non-literal variable in a util.format / console.log function. If an attacker injects a format specifier in the string, it will forge the log message. Try to use constant values for the format string.",
+      "file": "server/replit-token-storage.ts",
+      "line": 334,
+      "code": "requires login"
+    },
+    {
+      "ruleId": "javascript.lang.security.audit.unsafe-formatstring.unsafe-formatstring",
+      "severity": "INFO",
+      "message": "Detected string concatenation with a non-literal variable in a util.format / console.log function. If an attacker injects a format specifier in the string, it will forge the log message. Try to use constant values for the format string.",
+      "file": "server/replit-token-storage.ts",
+      "line": 343,
+      "code": "requires login"
+    },
+    {
+      "ruleId": "javascript.lang.security.audit.unsafe-formatstring.unsafe-formatstring",
+      "severity": "INFO",
+      "message": "Detected string concatenation with a non-literal variable in a util.format / console.log function. If an attacker injects a format specifier in the string, it will forge the log message. Try to use constant values for the format string.",
+      "file": "server/replit-token-storage.ts",
+      "line": 367,
+      "code": "requires login"
+    },
+    {
+      "ruleId": "javascript.lang.security.audit.unsafe-formatstring.unsafe-formatstring",
+      "severity": "INFO",
+      "message": "Detected string concatenation with a non-literal variable in a util.format / console.log function. If an attacker injects a format specifier in the string, it will forge the log message. Try to use constant values for the format string.",
+      "file": "server/replit-token-storage.ts",
+      "line": 409,
+      "code": "requires login"
+    },
+    {
+      "ruleId": "javascript.lang.security.audit.unsafe-formatstring.unsafe-formatstring",
+      "severity": "INFO",
+      "message": "Detected string concatenation with a non-literal variable in a util.format / console.log function. If an attacker injects a format specifier in the string, it will forge the log message. Try to use constant values for the format string.",
+      "file": "server/replit-token-storage.ts",
+      "line": 436,
+      "code": "requires login"
+    },
+    {
+      "ruleId": "javascript.lang.security.audit.unsafe-formatstring.unsafe-formatstring",
+      "severity": "INFO",
+      "message": "Detected string concatenation with a non-literal variable in a util.format / console.log function. If an attacker injects a format specifier in the string, it will forge the log message. Try to use constant values for the format string.",
+      "file": "server/replit-token-storage.ts",
+      "line": 474,
+      "code": "requires login"
+    },
+    {
+      "ruleId": "javascript.lang.security.audit.unsafe-formatstring.unsafe-formatstring",
+      "severity": "INFO",
+      "message": "Detected string concatenation with a non-literal variable in a util.format / console.log function. If an attacker injects a format specifier in the string, it will forge the log message. Try to use constant values for the format string.",
+      "file": "server/replit-token-storage.ts",
+      "line": 553,
+      "code": "requires login"
+    },
+    {
+      "ruleId": "javascript.lang.security.audit.unsafe-formatstring.unsafe-formatstring",
+      "severity": "INFO",
+      "message": "Detected string concatenation with a non-literal variable in a util.format / console.log function. If an attacker injects a format specifier in the string, it will forge the log message. Try to use constant values for the format string.",
+      "file": "server/replit-token-storage.ts",
+      "line": 597,
+      "code": "requires login"
+    },
+    {
+      "ruleId": "javascript.lang.security.audit.unsafe-formatstring.unsafe-formatstring",
+      "severity": "INFO",
+      "message": "Detected string concatenation with a non-literal variable in a util.format / console.log function. If an attacker injects a format specifier in the string, it will forge the log message. Try to use constant values for the format string.",
+      "file": "server/replit-token-storage.ts",
+      "line": 603,
+      "code": "requires login"
+    },
+    {
+      "ruleId": "javascript.lang.security.audit.unsafe-formatstring.unsafe-formatstring",
+      "severity": "INFO",
+      "message": "Detected string concatenation with a non-literal variable in a util.format / console.log function. If an attacker injects a format specifier in the string, it will forge the log message. Try to use constant values for the format string.",
+      "file": "server/replit-token-storage.ts",
+      "line": 608,
+      "code": "requires login"
+    },
+    {
+      "ruleId": "javascript.lang.security.audit.unsafe-formatstring.unsafe-formatstring",
+      "severity": "INFO",
+      "message": "Detected string concatenation with a non-literal variable in a util.format / console.log function. If an attacker injects a format specifier in the string, it will forge the log message. Try to use constant values for the format string.",
+      "file": "server/replit-token-storage.ts",
+      "line": 627,
+      "code": "requires login"
+    },
+    {
+      "ruleId": "javascript.lang.security.audit.unsafe-formatstring.unsafe-formatstring",
+      "severity": "INFO",
+      "message": "Detected string concatenation with a non-literal variable in a util.format / console.log function. If an attacker injects a format specifier in the string, it will forge the log message. Try to use constant values for the format string.",
+      "file": "server/replit-token-storage.ts",
+      "line": 717,
+      "code": "requires login"
+    },
+    {
+      "ruleId": "javascript.lang.security.audit.unsafe-formatstring.unsafe-formatstring",
+      "severity": "INFO",
+      "message": "Detected string concatenation with a non-literal variable in a util.format / console.log function. If an attacker injects a format specifier in the string, it will forge the log message. Try to use constant values for the format string.",
+      "file": "server/replit-token-storage.ts",
+      "line": 758,
+      "code": "requires login"
+    },
+    {
+      "ruleId": "javascript.lang.security.audit.unsafe-formatstring.unsafe-formatstring",
+      "severity": "INFO",
+      "message": "Detected string concatenation with a non-literal variable in a util.format / console.log function. If an attacker injects a format specifier in the string, it will forge the log message. Try to use constant values for the format string.",
+      "file": "server/routes.ts",
+      "line": 284,
+      "code": "requires login"
+    },
+    {
+      "ruleId": "javascript.lang.security.audit.unsafe-formatstring.unsafe-formatstring",
+      "severity": "INFO",
+      "message": "Detected string concatenation with a non-literal variable in a util.format / console.log function. If an attacker injects a format specifier in the string, it will forge the log message. Try to use constant values for the format string.",
+      "file": "server/routes.ts",
+      "line": 1145,
+      "code": "requires login"
+    },
+    {
+      "ruleId": "javascript.express.security.injection.raw-html-format.raw-html-format",
+      "severity": "WARNING",
+      "message": "User data flows into the host portion of this manually-constructed HTML. This can introduce a Cross-Site-Scripting (XSS) vulnerability if this comes from user-provided input. Consider using a sanitization library such as DOMPurify to sanitize the HTML within.",
+      "file": "server/routes.ts",
+      "line": 1356,
+      "code": "requires login"
+    },
+    {
+      "ruleId": "javascript.lang.security.audit.unsafe-formatstring.unsafe-formatstring",
+      "severity": "INFO",
+      "message": "Detected string concatenation with a non-literal variable in a util.format / console.log function. If an attacker injects a format specifier in the string, it will forge the log message. Try to use constant values for the format string.",
+      "file": "server/routes.ts",
+      "line": 1507,
+      "code": "requires login"
+    },
+    {
+      "ruleId": "javascript.lang.security.audit.unsafe-formatstring.unsafe-formatstring",
+      "severity": "INFO",
+      "message": "Detected string concatenation with a non-literal variable in a util.format / console.log function. If an attacker injects a format specifier in the string, it will forge the log message. Try to use constant values for the format string.",
+      "file": "server/routes.ts",
+      "line": 1512,
+      "code": "requires login"
+    },
+    {
+      "ruleId": "problem-based-packs.insecure-transport.js-node.bypass-tls-verification.bypass-tls-verification",
+      "severity": "WARNING",
+      "message": "Checks for setting the environment variable NODE_TLS_REJECT_UNAUTHORIZED to 0, which disables TLS verification. This should only be used for debugging purposes. Setting the option rejectUnauthorized to false bypasses verification against the list of trusted CAs, which also leads to insecure transport. These options lead to vulnerability to MTM attacks, and should not be used.",
+      "file": "server/security-alert.ts",
+      "line": 117,
+      "code": "requires login"
+    },
+    {
+      "ruleId": "javascript.lang.security.audit.unsafe-formatstring.unsafe-formatstring",
+      "severity": "INFO",
+      "message": "Detected string concatenation with a non-literal variable in a util.format / console.log function. If an attacker injects a format specifier in the string, it will forge the log message. Try to use constant values for the format string.",
+      "file": "server/security-alert.ts",
+      "line": 356,
+      "code": "requires login"
+    },
+    {
+      "ruleId": "javascript.lang.security.audit.unsafe-formatstring.unsafe-formatstring",
+      "severity": "INFO",
+      "message": "Detected string concatenation with a non-literal variable in a util.format / console.log function. If an attacker injects a format specifier in the string, it will forge the log message. Try to use constant values for the format string.",
+      "file": "server/subscription-service.ts",
+      "line": 228,
+      "code": "requires login"
+    },
+    {
+      "ruleId": "javascript.node-crypto.security.create-de-cipher-no-iv.create-de-cipher-no-iv",
+      "severity": "ERROR",
+      "message": "The deprecated functions 'createCipher' and 'createDecipher' generate the same initialization vector every time. For counter modes such as CTR, GCM, or CCM this leads to break of both confidentiality and integrity, if the key is used more than once. Other modes are still affected in their strength, though they're not completely broken. Use 'createCipheriv' or 'createDecipheriv' instead.",
+      "file": "server/totp-service.ts",
+      "line": 44,
+      "code": "requires login"
+    },
+    {
+      "ruleId": "javascript.node-crypto.security.create-de-cipher-no-iv.create-de-cipher-no-iv",
+      "severity": "ERROR",
+      "message": "The deprecated functions 'createCipher' and 'createDecipher' generate the same initialization vector every time. For counter modes such as CTR, GCM, or CCM this leads to break of both confidentiality and integrity, if the key is used more than once. Other modes are still affected in their strength, though they're not completely broken. Use 'createCipheriv' or 'createDecipheriv' instead.",
+      "file": "server/totp-service.ts",
+      "line": 66,
+      "code": "requires login"
+    },
+    {
+      "ruleId": "javascript.lang.security.audit.unsafe-formatstring.unsafe-formatstring",
+      "severity": "INFO",
+      "message": "Detected string concatenation with a non-literal variable in a util.format / console.log function. If an attacker injects a format specifier in the string, it will forge the log message. Try to use constant values for the format string.",
+      "file": "server/user-routes.ts",
+      "line": 155,
+      "code": "requires login"
+    }
+  ]
+}

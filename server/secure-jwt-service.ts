@@ -156,18 +156,20 @@ export class SecureJWTService {
         algorithm: algorithm as jwt.Algorithm
       });
 
-      // Store refresh token in database
-      const refreshTokenHash = this.hashToken(refreshToken);
+      // Store refresh token in database (skip in mock mode)
       const refreshExpiry = new Date(refreshExp * 1000);
+      if (!(process.env.NODE_ENV === 'development' || process.env.REPLIT_DB_URL)) {
+        const refreshTokenHash = this.hashToken(refreshToken);
 
-      await db.insert(refreshTokens).values({
-        tokenHash: refreshTokenHash,
-        userId,
-        deviceFingerprint: clientInfo.deviceFingerprint,
-        ipAddress: clientInfo.ip,
-        userAgent: clientInfo.userAgent,
-        expiresAt: refreshExpiry
-      });
+        await db.insert(refreshTokens).values({
+          tokenHash: refreshTokenHash,
+          userId,
+          deviceFingerprint: clientInfo.deviceFingerprint,
+          ipAddress: clientInfo.ip,
+          userAgent: clientInfo.userAgent,
+          expiresAt: refreshExpiry
+        });
+      }
 
       // Clean up old refresh tokens for this user
       await this.cleanupUserRefreshTokens(userId);
@@ -287,21 +289,25 @@ export class SecureJWTService {
       const now = Math.floor(Date.now() / 1000);
       const accessJti = crypto.randomUUID();
 
-      // Get user email from database (you might want to cache this)
-      const userResult = await db.query.users.findFirst({
-        where: (users: any, { eq }: any) => eq(users.id, userId),
-        columns: { email: true }
-      });
+      // Get user email from database (skip in mock mode)
+      let userEmail = 'admin@readmyfineprint.com'; // Default for mock mode
+      if (!(process.env.NODE_ENV === 'development' || process.env.REPLIT_DB_URL)) {
+        const userResult = await db.query.users.findFirst({
+          where: (users: any, { eq }: any) => eq(users.id, userId),
+          columns: { email: true }
+        });
 
-      if (!userResult) {
-        throw new Error('User not found');
+        if (!userResult) {
+          throw new Error('User not found');
+        }
+        userEmail = userResult.email;
       }
 
       const accessExp = now + (15 * 60); // 15 minutes
 
       const accessPayload: AccessTokenPayload = {
         userId,
-        email: userResult.email,
+        email: userEmail,
         tokenType: 'access',
         version,
         jti: accessJti,
@@ -363,22 +369,24 @@ export class SecureJWTService {
       const payload = decoded.payload as any;
       const tokenHash = this.hashToken(token);
 
-      // Add to revocation list
-      await db.insert(jwtTokenRevocations).values({
-        jti: payload.jti,
-        tokenHash,
-        userId: payload.userId,
-        tokenType: payload.tokenType || 'access',
-        reason,
-        revokedBy,
-        expiresAt: new Date(payload.exp * 1000)
-      });
+      // Add to revocation list (skip in mock mode)
+      if (!(process.env.NODE_ENV === 'development' || process.env.REPLIT_DB_URL)) {
+        await db.insert(jwtTokenRevocations).values({
+          jti: payload.jti,
+          tokenHash,
+          userId: payload.userId,
+          tokenType: payload.tokenType || 'access',
+          reason,
+          revokedBy,
+          expiresAt: new Date(payload.exp * 1000)
+        });
 
-      // If it's a refresh token, also mark it as inactive in refresh tokens table
-      if (payload.tokenType === 'refresh') {
-        await db.update(refreshTokens)
-          .set({ isActive: false })
-          .where(eq(refreshTokens.tokenHash, tokenHash));
+        // If it's a refresh token, also mark it as inactive in refresh tokens table
+        if (payload.tokenType === 'refresh') {
+          await db.update(refreshTokens)
+            .set({ isActive: false })
+            .where(eq(refreshTokens.tokenHash, tokenHash));
+        }
       }
 
       securityLogger.logSecurityEvent({
@@ -419,6 +427,11 @@ export class SecureJWTService {
     await this.ensureInitialized();
 
     try {
+      // Skip all database operations in mock mode
+      if (process.env.NODE_ENV === 'development' || process.env.REPLIT_DB_URL) {
+        return 0;
+      }
+
       // Mark all refresh tokens as inactive
       const refreshResult = await db.update(refreshTokens)
         .set({ isActive: false })
@@ -485,6 +498,11 @@ export class SecureJWTService {
     await this.ensureInitialized();
 
     try {
+      // Skip cleanup in mock mode
+      if (process.env.NODE_ENV === 'development' || process.env.REPLIT_DB_URL) {
+        return { tokensRemoved: 0, revocationsRemoved: 0 };
+      }
+
       const now = new Date();
 
       // Remove expired refresh tokens
@@ -528,16 +546,18 @@ export class SecureJWTService {
       const version = payload.version || 1;
       const tokenHash = this.hashToken(token);
 
-      // Check if refresh token exists and is active
-      const storedToken = await db.query.refreshTokens.findFirst({
-        where: and(
-          eq(refreshTokens.tokenHash, tokenHash),
-          eq(refreshTokens.isActive, true)
-        )
-      });
+      // Check if refresh token exists and is active (skip in mock mode)
+      if (!(process.env.NODE_ENV === 'development' || process.env.REPLIT_DB_URL)) {
+        const storedToken = await db.query.refreshTokens.findFirst({
+          where: and(
+            eq(refreshTokens.tokenHash, tokenHash),
+            eq(refreshTokens.isActive, true)
+          )
+        });
 
-      if (!storedToken) {
-        return { valid: false, error: 'Refresh token not found or inactive' };
+        if (!storedToken) {
+          return { valid: false, error: 'Refresh token not found or inactive' };
+        }
       }
 
       // Get secret for this version
@@ -570,6 +590,11 @@ export class SecureJWTService {
 
   private async isTokenRevoked(jti: string): Promise<boolean> {
     try {
+      // Skip revocation check in mock mode
+      if (process.env.NODE_ENV === 'development' || process.env.REPLIT_DB_URL) {
+        return false;
+      }
+
       const revocation = await db.query.jwtTokenRevocations.findFirst({
         where: eq(jwtTokenRevocations.jti, jti)
       });
@@ -583,6 +608,11 @@ export class SecureJWTService {
 
   private async updateRefreshTokenUsage(token: string): Promise<void> {
     try {
+      // Skip in mock mode
+      if (process.env.NODE_ENV === 'development' || process.env.REPLIT_DB_URL) {
+        return;
+      }
+
       const tokenHash = this.hashToken(token);
       await db.update(refreshTokens)
         .set({ lastUsed: new Date() })
@@ -593,6 +623,11 @@ export class SecureJWTService {
   }
 
   private async cleanupUserRefreshTokens(userId: string): Promise<void> {
+    // Skip cleanup in development/mock mode
+    if (process.env.NODE_ENV === 'development' || process.env.REPLIT_DB_URL) {
+      return;
+    }
+    
     try {
       // Get all user's refresh tokens, ordered by creation date
       const userTokens = await db.query.refreshTokens.findMany({

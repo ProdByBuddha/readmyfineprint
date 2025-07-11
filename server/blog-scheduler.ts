@@ -20,7 +20,7 @@ export class BlogScheduler {
 
   constructor(config?: Partial<SchedulerConfig>) {
     this.config = {
-      enabled: process.env.BLOG_SCHEDULER_ENABLED === 'true',
+      enabled: process.env.BLOG_SCHEDULER_ENABLED === 'true' || process.env.NODE_ENV === 'development',
       postsPerDay: parseInt(process.env.BLOG_POSTS_PER_DAY || '3'),
       hours: this.parseHours(process.env.BLOG_POST_HOURS || '9,13,17'), // 9 AM, 1 PM, 5 PM
       maxPostsPerHour: 1,
@@ -58,7 +58,6 @@ export class BlogScheduler {
       const job = cron.schedule(cronExpression, async () => {
         await this.handleScheduledPost(hour);
       }, {
-        scheduled: false,
         timezone: this.config.timezone,
       });
 
@@ -72,7 +71,6 @@ export class BlogScheduler {
     const analyticsJob = cron.schedule('0 2 * * *', async () => {
       await this.updateAnalytics();
     }, {
-      scheduled: false,
       timezone: this.config.timezone,
     });
 

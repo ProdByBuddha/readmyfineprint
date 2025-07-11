@@ -23,7 +23,7 @@ declare global {
 }
 
 // Simple admin authentication middleware
-export function requireAdminAuth(req: Request, res: Response, next: NextFunction) {
+export async function requireAdminAuth(req: Request, res: Response, next: NextFunction) {
   const { ip, userAgent } = getClientInfo(req);
   const adminKey = process.env.ADMIN_API_KEY;
   
@@ -42,6 +42,43 @@ export function requireAdminAuth(req: Request, res: Response, next: NextFunction
 
   const providedKey = req.headers['x-admin-key'] as string;
   const adminToken = req.headers['x-admin-token'] as string;
+  const authHeader = req.headers.authorization as string;
+
+  // Development mode bypass - check for JWT token from auto-login
+  if (process.env.NODE_ENV === 'development') {
+    // Check for Bearer token from development auto-login
+    if (authHeader && authHeader.startsWith('Bearer ')) {
+      const jwtToken = authHeader.substring(7);
+      try {
+        const { secureJWTService } = await import('./secure-jwt-service');
+        const validation = await secureJWTService.validateAccessToken(jwtToken);
+        if (validation.valid && validation.payload) {
+          console.log('🔓 Development mode: Admin access granted with JWT token');
+          securityLogger.logAdminAuth(ip, userAgent, req.path + ' (dev JWT)');
+          req.user = {
+            id: validation.payload.userId,
+            email: validation.payload.email || 'admin@readmyfineprint.com',
+            username: 'admin'
+          };
+          return next();
+        }
+      } catch (jwtError) {
+        console.log('Development JWT validation failed:', jwtError);
+      }
+    }
+    
+    // Fallback to API key bypass
+    if (providedKey === adminKey) {
+      console.log('🔓 Development mode: Admin access granted with API key only');
+      securityLogger.logAdminAuth(ip, userAgent, req.path);
+      req.user = {
+        id: 'dev-admin',
+        email: 'admin@readmyfineprint.com',
+        username: 'admin'
+      };
+      return next();
+    }
+  }
 
   // Require both admin key AND valid admin token for security
   if (!providedKey || !adminToken) {
@@ -483,15 +520,32 @@ export function addSecurityHeaders(req: Request, res: Response, next: NextFuncti
   // HSTS (HTTP Strict Transport Security) - tells browsers/crawlers to only use HTTPS
   res.setHeader('Strict-Transport-Security', 'max-age=31536000; includeSubDomains; preload');
 
-  // Content Security Policy with comprehensive Stripe, Shields.io, and Replit support
+  // Additional security headers
+  res.setHeader('Permissions-Policy', 'geolocation=(), microphone=(), camera=(), payment=()');
+  res.setHeader('Cross-Origin-Embedder-Policy', 'require-corp');
+  res.setHeader('Cross-Origin-Opener-Policy', 'same-origin');
+  res.setHeader('Cross-Origin-Resource-Policy', 'same-origin');
+
+  // Enhanced Content Security Policy with comprehensive security directives
+  // In development, allow Replit scripts; in production, restrict further
+  const isDevelopment = process.env.NODE_ENV === 'development';
+  const replitSources = isDevelopment ? ' https://replit.com' : '';
+  
   res.setHeader('Content-Security-Policy',
     "default-src 'self'; " +
-    "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://js.stripe.com https://m.stripe.com https://replit.com; " +
-    "script-src-elem 'self' 'unsafe-inline' https://js.stripe.com https://m.stripe.com https://replit.com; " +
+    `script-src 'self' 'unsafe-inline' 'unsafe-eval' https://js.stripe.com https://m.stripe.com${replitSources}; ` +
+    `script-src-elem 'self' 'unsafe-inline' https://js.stripe.com https://m.stripe.com${replitSources}; ` +
     "style-src 'self' 'unsafe-inline' https://js.stripe.com; " +
     "img-src 'self' data: https://img.shields.io https://js.stripe.com; " +
-    "connect-src 'self' https://api.openai.com https://api.stripe.com https://js.stripe.com https://m.stripe.com; " +
-    "frame-src https://js.stripe.com https://hooks.stripe.com https://m.stripe.com;"
+    `connect-src 'self' https://api.openai.com https://api.stripe.com https://js.stripe.com https://m.stripe.com${replitSources}; ` +
+    "frame-src https://js.stripe.com https://hooks.stripe.com https://m.stripe.com; " +
+    "object-src 'none'; " +
+    "base-uri 'self'; " +
+    "form-action 'self' https://js.stripe.com https://api.stripe.com; " +
+    "frame-ancestors 'none'; " +
+    "upgrade-insecure-requests; " +
+    "report-uri /api/security/csp-report; " +
+    "report-to csp-endpoint;"
   );
 
   next();

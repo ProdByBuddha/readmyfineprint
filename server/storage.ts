@@ -16,6 +16,9 @@ export interface IStorage {
   createUser(insertUser: InsertUser): Promise<User>;
   createUserWithId(id: string, insertUser: InsertUser): Promise<User>;
   updateUser(id: string, updates: Partial<InsertUser>): Promise<User | undefined>;
+  
+  // Sample document management
+  initializeSampleDocuments?(): void;
 
   // Subscription management
   getUserSubscription(userId: string): Promise<UserSubscription | undefined>;

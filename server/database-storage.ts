@@ -16,7 +16,6 @@ import {
 import { and, eq, desc, lt, sql } from "drizzle-orm";
 import { type Document, type InsertDocument } from "@shared/schema";
 import { type IStorage } from "./storage";
-// No argon2 imports needed for username since we removed the username field
 
 export class DatabaseStorage implements IStorage {
   // Document management (keeping session-based for now)
@@ -45,14 +44,19 @@ export class DatabaseStorage implements IStorage {
 
   async getDocument(sessionId: string, id: number, clientFingerprint?: string): Promise<Document | undefined> {
     const session = this.sessions.get(sessionId);
-    if (!session) return undefined;
-    session.lastAccessed = new Date();
-    return session.documents.get(id);
+    if (session) {
+      session.lastAccessed = new Date();
+      return session.documents.get(id);
+    }
+    return undefined;
   }
 
   async getAllDocuments(sessionId: string): Promise<Document[]> {
     const session = this.sessions.get(sessionId);
-    if (!session) return [];
+    if (!session) {
+      return [];
+    }
+    
     session.lastAccessed = new Date();
     return Array.from(session.documents.values());
   }
@@ -153,18 +157,13 @@ export class DatabaseStorage implements IStorage {
   }
 
   async userExists(userId: string): Promise<boolean> {
-    try {
-      const [user] = await db
-        .select({ id: users.id })
-        .from(users)
-        .where(eq(users.id, userId))
-        .limit(1);
+    const [user] = await db
+      .select({ id: users.id })
+      .from(users)
+      .where(eq(users.id, userId))
+      .limit(1);
 
-      return !!user;
-    } catch (error) {
-      console.error('Error checking if user exists:', error);
-      return false;
-    }
+    return !!user;
   }
 
   // Subscription management methods
@@ -196,7 +195,7 @@ export class DatabaseStorage implements IStorage {
       .returning();
 
     // Sync Stripe customer ID to user table if provided
-    if (subscription.stripeCustomerId && subscription.userId) {
+    if (subscription && subscription.stripeCustomerId && subscription.userId) {
       await this.syncUserStripeCustomerId(subscription.userId, subscription.stripeCustomerId);
     }
 
@@ -749,5 +748,4 @@ export class DatabaseStorage implements IStorage {
     const user = result[0];
     return { ...user, hashedPassword: undefined } as any;
   }
-
 }

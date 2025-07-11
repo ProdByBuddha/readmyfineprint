@@ -261,7 +261,7 @@ export default function BlogPage() {
 
                   {parseTags(post.tags).length > 0 && (
                     <div className="flex flex-wrap gap-1">
-                      {parseTags(post.tags).slice(0, 3).map((tag, index) => (
+                      {parseTags(post.tags).slice(0, 3).map((tag: string, index: number) => (
                         <Badge key={index} variant="outline" className="text-xs">
                           {tag}
                         </Badge>

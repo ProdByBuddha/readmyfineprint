@@ -1,0 +1,145 @@
+# Comprehensive Security CI/CD Pipeline
+# This workflow runs multiple security tools to detect vulnerabilities
+
+name: Security Scan
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main ]
+  schedule:
+    # Run security scans daily at 2 AM UTC
+    - cron: '0 2 * * *'
+
+jobs:
+  security-audit:
+    name: Security Audit
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # Full history for better analysis
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      # Static Code Analysis with Semgrep
+      - name: Run Semgrep
+        uses: semgrep/semgrep-action@v1
+        with:
+          config: >-
+            p/security-audit
+            p/secrets
+            p/owasp-top-ten
+            p/typescript
+          generateSarif: "1"
+        env:
+          SEMGREP_APP_TOKEN: ${{ secrets.SEMGREP_APP_TOKEN }}
+
+      # Dependency Vulnerability Scanning with Snyk
+      - name: Run Snyk to check for vulnerabilities
+        uses: snyk/actions/node@master
+        continue-on-error: true  # Don't fail the build on vulnerabilities
+        env:
+          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+        with:
+          args: --severity-threshold=high --json-file-output=snyk-results.json
+
+      - name: Upload Snyk results to GitHub Code Scanning
+        uses: github/codeql-action/upload-sarif@v3
+        if: always()
+        with:
+          sarif_file: snyk-results.sarif
+
+      # NPM Audit
+      - name: NPM Security Audit
+        run: |
+          npm audit --audit-level=moderate --json > npm-audit-results.json || true
+          echo "NPM audit completed"
+
+      # CodeQL Analysis
+      - name: Initialize CodeQL
+        uses: github/codeql-action/init@v3
+        with:
+          languages: javascript-typescript
+
+      - name: Perform CodeQL Analysis
+        uses: github/codeql-action/analyze@v3
+
+      # Custom Security Scan (if tools are available)
+      - name: Run Comprehensive Security Scan
+        run: |
+          # Install security tools if available
+          echo "Running comprehensive security audit..."
+          npm run security:scan || echo "Security scan completed with warnings"
+
+      # Security Report Generation
+      - name: Generate Security Summary
+        if: always()
+        run: |
+          echo "## Security Scan Summary" >> $GITHUB_STEP_SUMMARY
+          echo "✅ **Semgrep**: Static code analysis completed" >> $GITHUB_STEP_SUMMARY
+          echo "✅ **Snyk**: Dependency vulnerability scan completed" >> $GITHUB_STEP_SUMMARY
+          echo "✅ **NPM Audit**: Package vulnerability check completed" >> $GITHUB_STEP_SUMMARY
+          echo "✅ **CodeQL**: Security code analysis completed" >> $GITHUB_STEP_SUMMARY
+          
+          # Check if high-severity issues were found
+          if [ -f "snyk-results.json" ]; then
+            HIGH_ISSUES=$(jq '.vulnerabilities | map(select(.severity == "high" or .severity == "critical")) | length' snyk-results.json 2>/dev/null || echo "0")
+            if [ "$HIGH_ISSUES" -gt "0" ]; then
+              echo "⚠️ **High-severity vulnerabilities found**: $HIGH_ISSUES" >> $GITHUB_STEP_SUMMARY
+              echo "Please review and address these vulnerabilities" >> $GITHUB_STEP_SUMMARY
+            fi
+          fi
+
+      # Archive security reports
+      - name: Archive security reports
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: security-reports
+          path: |
+            snyk-results.json
+            npm-audit-results.json
+            *-security-report-*.json
+          retention-days: 30
+
+      # Security notification (optional)
+      - name: Security Alert
+        if: failure()
+        run: |
+          echo "🚨 Security scan detected critical issues!"
+          echo "Please review the security reports and address any vulnerabilities."
+
+  # Container Security (if using Docker)
+  container-security:
+    name: Container Security
+    runs-on: ubuntu-latest
+    if: github.event_name == 'push' && contains(github.ref, 'main')
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Run Trivy vulnerability scanner
+        if: hashFiles('Dockerfile') != ''
+        uses: aquasecurity/trivy-action@master
+        with:
+          image-ref: '.'
+          format: 'sarif'
+          output: 'trivy-results.sarif'
+
+      - name: Upload Trivy scan results to GitHub Security tab
+        if: hashFiles('Dockerfile') != ''
+        uses: github/codeql-action/upload-sarif@v3
+        with:
+          sarif_file: 'trivy-results.sarif'

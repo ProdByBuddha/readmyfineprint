@@ -1,0 +1,69 @@
+# GitHub Dependabot configuration for automated dependency updates
+# This helps maintain security by automatically updating vulnerable dependencies
+
+version: 2
+updates:
+  # Enable version updates for npm (package.json)
+  - package-ecosystem: "npm"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "tuesday"
+      time: "09:00"
+      timezone: "America/New_York"
+    # Group minor and patch updates together to reduce noise
+    groups:
+      minor-and-patch:
+        patterns:
+          - "*"
+        update-types:
+          - "minor"
+          - "patch"
+    # Security updates get separate PRs for immediate attention
+    open-pull-requests-limit: 10
+    reviewers:
+      - "prodbybuddha"
+    assignees:
+      - "prodbybuddha"
+    commit-message:
+      prefix: "security"
+      include: "scope"
+    # Only update production dependencies weekly, dev dependencies monthly
+    allow:
+      - dependency-type: "direct:production"
+      - dependency-type: "indirect"
+    # Ignore major version updates for stability (handle manually)
+    ignore:
+      - dependency-name: "*"
+        update-types: ["version-update:semver-major"]
+    # Custom labels for security tracking
+    labels:
+      - "dependencies"
+      - "security"
+      - "automated"
+
+  # Monitor GitHub Actions security updates
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "tuesday"
+      time: "10:00"
+      timezone: "America/New_York"
+    labels:
+      - "github-actions"
+      - "security"
+      - "automated"
+
+  # Monitor Docker dependencies if using containers
+  - package-ecosystem: "docker"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "tuesday"
+      time: "11:00"
+      timezone: "America/New_York"
+    labels:
+      - "docker"
+      - "security"
+      - "automated"

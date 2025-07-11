@@ -29,6 +29,7 @@ import {
   X
 } from "lucide-react";
 import { apiRequest } from "@/lib/queryClient";
+import { adminApiRequest } from "@/lib/api";
 import TradeSecretProtection from "@/components/TradeSecretProtection";
 import LawEnforcementRequest from '@/components/LawEnforcementRequest';
 import { BlogAdmin } from '@/components/BlogAdmin';
@@ -296,13 +297,9 @@ function DashboardOverview({ adminToken }: { adminToken: string }) {
   const { data: metricsData, isLoading: metricsLoading, error: metricsError } = useQuery({
     queryKey: ["/api/admin/metrics"],
     queryFn: async () => {
-      const response = await apiRequest("GET", "/api/admin/metrics-subscription", {
-        headers: { 
-          "x-subscription-token": adminToken || "",
-          "x-dashboard-auto-refresh": "true" // Prevent security events
-        }
+      return await adminApiRequest("/api/admin/metrics-subscription", {
+        method: 'GET'
       });
-      return await response.json();
     },
     refetchInterval: 30000, // Refresh every 30 seconds
     refetchIntervalInBackground: true
@@ -311,13 +308,9 @@ function DashboardOverview({ adminToken }: { adminToken: string }) {
   const { data: systemHealthData, isLoading: healthLoading, error: healthError } = useQuery({
     queryKey: ["/api/admin/system-health"],
     queryFn: async () => {
-      const response = await apiRequest("GET", "/api/admin/system-health-subscription", {
-        headers: { 
-          "x-subscription-token": adminToken || "",
-          "x-dashboard-auto-refresh": "true" // Prevent security events
-        }
+      return await adminApiRequest("/api/admin/system-health-subscription", {
+        method: 'GET'
       });
-      return await response.json();
     },
     refetchInterval: 5000, // Refresh every 5 seconds for real-time health
     refetchIntervalInBackground: true
@@ -1341,9 +1334,38 @@ export default function AdminDashboard() {
   const [isCheckingAuth, setIsCheckingAuth] = useState(true);
   const [isAdmin, setIsAdmin] = useState(false);
 
-  // Check if user is admin using existing subscription token
+  // Check if user is admin using existing subscription token or development mode auto-login
   useEffect(() => {
     const checkAdminStatus = async () => {
+      // First, check if we're in development mode and try auto-login
+      if (import.meta.env.DEV || import.meta.env.MODE === 'development') {
+        console.log('🔧 Development mode detected, attempting auto-admin login...');
+        try {
+          const response = await fetch('/api/dev/auto-admin-login', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+          });
+
+          if (response.ok) {
+            const data = await response.json();
+            console.log('✅ Development auto-login successful:', data.user.email);
+            setIsAdmin(true);
+            setAdminToken(data.token);
+            // Store the token for other admin API calls
+            localStorage.setItem('devAdminToken', data.token);
+            setIsCheckingAuth(false);
+            return;
+          } else {
+            console.log('⚠️ Development auto-login failed, falling back to subscription token check');
+          }
+        } catch (error) {
+          console.error('Development auto-login error:', error);
+        }
+      }
+
+      // Fallback to subscription token validation
       const token = localStorage.getItem('subscriptionToken');
       
       if (!token) {

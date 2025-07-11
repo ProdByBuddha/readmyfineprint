@@ -7,6 +7,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useToast } from '@/hooks/use-toast';
+import { adminApiRequest } from '@/lib/api';
 import { 
   Play, 
   Square, 
@@ -85,33 +86,35 @@ export function BlogAdmin() {
   const loadData = async () => {
     try {
       setLoading(true);
-      const token = localStorage.getItem('subscriptionToken');
       
       // Load posts
-      const postsResponse = await fetch('/api/blog/admin/posts', {
-        headers: { 'x-subscription-token': token || '' },
-      });
-      if (postsResponse.ok) {
-        const postsData = await postsResponse.json();
+      try {
+        const postsData = await adminApiRequest('/api/blog/admin/posts', {
+          method: 'GET'
+        });
         setPosts(postsData.posts);
+      } catch (error) {
+        console.error('Failed to load posts:', error);
       }
       
       // Load topics
-      const topicsResponse = await fetch('/api/blog/admin/topics', {
-        headers: { 'x-subscription-token': token || '' },
-      });
-      if (topicsResponse.ok) {
-        const topicsData = await topicsResponse.json();
+      try {
+        const topicsData = await adminApiRequest('/api/blog/admin/topics', {
+          method: 'GET'
+        });
         setTopics(topicsData.topics);
+      } catch (error) {
+        console.error('Failed to load topics:', error);
       }
       
       // Load scheduler status
-      const schedulerResponse = await fetch('/api/blog/admin/scheduler/status', {
-        headers: { 'x-subscription-token': token || '' },
-      });
-      if (schedulerResponse.ok) {
-        const schedulerData = await schedulerResponse.json();
+      try {
+        const schedulerData = await adminApiRequest('/api/blog/admin/scheduler/status', {
+          method: 'GET'
+        });
         setSchedulerStatus(schedulerData);
+      } catch (error) {
+        console.error('Failed to load scheduler status:', error);
       }
     } catch (error) {
       console.error('Error loading blog admin data:', error);
@@ -131,21 +134,15 @@ export function BlogAdmin() {
 
   const handleStartScheduler = async () => {
     try {
-      const token = localStorage.getItem('subscriptionToken');
-      const response = await fetch('/api/blog/admin/scheduler/start', {
-        method: 'POST',
-        headers: { 'x-subscription-token': token || '' },
+      await adminApiRequest('/api/blog/admin/scheduler/start', {
+        method: 'POST'
       });
       
-      if (response.ok) {
-        toast({
-          title: 'Success',
-          description: 'Blog scheduler started successfully',
-        });
-        loadData();
-      } else {
-        throw new Error('Failed to start scheduler');
-      }
+      toast({
+        title: 'Success',
+        description: 'Blog scheduler started successfully',
+      });
+      loadData();
     } catch (error) {
       toast({
         title: 'Error',
@@ -157,21 +154,15 @@ export function BlogAdmin() {
 
   const handleStopScheduler = async () => {
     try {
-      const token = localStorage.getItem('subscriptionToken');
-      const response = await fetch('/api/blog/admin/scheduler/stop', {
-        method: 'POST',
-        headers: { 'x-subscription-token': token || '' },
+      await adminApiRequest('/api/blog/admin/scheduler/stop', {
+        method: 'POST'
       });
       
-      if (response.ok) {
-        toast({
-          title: 'Success',
-          description: 'Blog scheduler stopped successfully',
-        });
-        loadData();
-      } else {
-        throw new Error('Failed to stop scheduler');
-      }
+      toast({
+        title: 'Success',
+        description: 'Blog scheduler stopped successfully',
+      });
+      loadData();
     } catch (error) {
       toast({
         title: 'Error',
@@ -184,13 +175,9 @@ export function BlogAdmin() {
   const handleGeneratePost = async () => {
     try {
       setGeneratingPost(true);
-      const token = localStorage.getItem('subscriptionToken');
-      const response = await fetch('/api/blog/admin/scheduler/trigger', {
-        method: 'POST',
-        headers: { 'x-subscription-token': token || '' },
+      const result = await adminApiRequest('/api/blog/admin/scheduler/trigger', {
+        method: 'POST'
       });
-      
-      const result = await response.json();
       
       if (result.success) {
         toast({
@@ -214,21 +201,15 @@ export function BlogAdmin() {
 
   const handleSeedTopics = async () => {
     try {
-      const token = localStorage.getItem('subscriptionToken');
-      const response = await fetch('/api/blog/admin/seed-topics', {
-        method: 'POST',
-        headers: { 'x-subscription-token': token || '' },
+      await adminApiRequest('/api/blog/admin/seed-topics', {
+        method: 'POST'
       });
       
-      if (response.ok) {
-        toast({
-          title: 'Success',
-          description: 'Topics seeded successfully',
-        });
-        loadData();
-      } else {
-        throw new Error('Failed to seed topics');
-      }
+      toast({
+        title: 'Success',
+        description: 'Topics seeded successfully',
+      });
+      loadData();
     } catch (error) {
       toast({
         title: 'Error',
@@ -240,33 +221,24 @@ export function BlogAdmin() {
 
   const handleCreateTopic = async () => {
     try {
-      const token = localStorage.getItem('subscriptionToken');
-      const response = await fetch('/api/blog/admin/topics', {
+      await adminApiRequest('/api/blog/admin/topics', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'x-subscription-token': token || '',
-        },
         body: JSON.stringify(newTopic),
       });
       
-      if (response.ok) {
-        toast({
-          title: 'Success',
-          description: 'Topic created successfully',
-        });
-        setNewTopic({
-          title: '',
-          description: '',
-          category: 'contract-law',
-          difficulty: 'beginner',
-          targetAudience: 'general',
-          priority: 5,
-        });
-        loadData();
-      } else {
-        throw new Error('Failed to create topic');
-      }
+      toast({
+        title: 'Success',
+        description: 'Topic created successfully',
+      });
+      setNewTopic({
+        title: '',
+        description: '',
+        category: 'contract-law',
+        difficulty: 'beginner',
+        targetAudience: 'general',
+        priority: 5,
+      });
+      loadData();
     } catch (error) {
       toast({
         title: 'Error',

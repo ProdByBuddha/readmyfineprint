@@ -112,12 +112,12 @@ export class BlogContentService {
       const topicTitle = topic.title.toLowerCase();
 
       for (const post of recentPosts) {
-        const postKeywords = post.keywords?.toLowerCase().split(',').map(k => k.trim()) || [];
+        const postKeywords = post.keywords?.toLowerCase().split(',').map((k: string) => k.trim()) || [];
         const postTitle = post.title.toLowerCase();
 
         // Check title similarity
         const titleWords = topicTitle.split(' ').filter(w => w.length > 3);
-        const postTitleWords = postTitle.split(' ').filter(w => w.length > 3);
+        const postTitleWords = postTitle.split(' ').filter((w: string) => w.length > 3);
         const titleOverlap = titleWords.filter(w => postTitleWords.includes(w)).length;
         
         if (titleOverlap > titleWords.length * 0.5) {
@@ -350,7 +350,7 @@ Return a JSON object with:
         generatedContent: generatedContent.content,
         aiModel: 'gpt-4o',
         prompt: `Topic: ${topic.title}`,
-        qualityScore: 8.5,
+        qualityScore: '8.5',
         status: 'approved',
       } as InsertContentGeneration);
 

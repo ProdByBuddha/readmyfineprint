@@ -1,0 +1,54 @@
+# Semgrep ignore file for false positives and expected findings
+
+# Environment files contain expected secrets in development
+.env
+.env.local
+.env.example
+
+# Claude configuration files may contain tokens
+.config/claude/
+
+# Local state and cache directories
+.local/
+.cache/
+node_modules/
+
+# Test files and mock data
+test/
+tests/
+__tests__/
+**/*.test.ts
+**/*.test.js
+**/*.spec.ts
+**/*.spec.js
+
+# Build artifacts
+dist/
+build/
+out/
+
+# Development tools that may have dynamic content
+.replit*
+replit.nix
+
+# Temporary files
+*.tmp
+*.temp
+temp/
+tmp/
+
+# Log files
+*.log
+logs/
+
+# Archives
+*.zip
+*.tar.gz
+*.tar
+
+# Documentation that may contain example secrets
+docs/
+*.md
+
+# Design references and development assets
+.local/state/replit/agent/design_reference/

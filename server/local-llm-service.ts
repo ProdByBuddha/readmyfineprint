@@ -95,8 +95,8 @@ class LocalLLMService {
   private async checkOllamaStatus(): Promise<boolean> {
     try {
       const response = await fetch(`${this.ollamaUrl}/api/tags`, {
-        method: 'GET',
-        timeout: 5000
+        method: 'GET'
+        // timeout: 5000 // RequestInit doesn't support timeout directly
       });
       return response.ok;
     } catch {

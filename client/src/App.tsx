@@ -76,6 +76,42 @@ function App() {
     setupAutoSubmission();
   }, []);
 
+  // Auto-login as admin in development mode
+  useEffect(() => {
+    const autoLogin = async () => {
+      if (import.meta.env.DEV && !localStorage.getItem('token')) {
+        try {
+          const response = await fetch('/api/dev/auto-admin-login', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+          });
+          
+          if (response.ok) {
+            const data = await response.json();
+            localStorage.setItem('token', data.token);
+            localStorage.setItem('refreshToken', data.refreshToken);
+            localStorage.setItem('user', JSON.stringify(data.user));
+            console.log('🔐 Auto-logged in as admin in development mode');
+            
+            // Show notification
+            const { toast } = await import('@/hooks/use-toast');
+            toast({
+              title: "Development Mode",
+              description: "You've been automatically logged in as admin",
+              duration: 5000,
+            });
+          }
+        } catch (error) {
+          console.warn('Auto-login failed:', error);
+        }
+      }
+    };
+    
+    autoLogin();
+  }, []);
+
   // Listen for consent requirement events from API calls
   useEffect(() => {
     const handleConsentRequired = () => {

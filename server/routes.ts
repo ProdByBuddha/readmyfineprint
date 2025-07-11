@@ -562,6 +562,109 @@ async function extractTextFromFile(buffer: Buffer, mimetype: string, filename: s
 }
 
 export async function registerRoutes(app: Express): Promise<Server> {
+  
+  // CSP violation reporting endpoint
+  app.post('/api/security/csp-report', (req, res) => {
+    const { ip, userAgent } = getClientInfo(req);
+    
+    try {
+      const cspReport = req.body;
+      
+      // Log CSP violation for security monitoring
+      securityLogger.logSecurityEvent({
+        eventType: SecurityEventType.AUTHENTICATION,
+        severity: SecuritySeverity.MEDIUM,
+        message: `CSP violation detected: ${cspReport['csp-report']?.['blocked-uri'] || 'unknown'}`,
+        ip,
+        userAgent,
+        endpoint: '/api/security/csp-report',
+        details: {
+          violatedDirective: cspReport['csp-report']?.['violated-directive'],
+          blockedUri: cspReport['csp-report']?.['blocked-uri'],
+          documentUri: cspReport['csp-report']?.['document-uri'],
+          sourceFile: cspReport['csp-report']?.['source-file'],
+          lineNumber: cspReport['csp-report']?.['line-number']
+        }
+      });
+      
+      console.log('🛡️ CSP Violation Report:', cspReport);
+      
+      // Send to external security monitoring if configured
+      if (process.env.SECURITY_WEBHOOK_URL) {
+        fetch(process.env.SECURITY_WEBHOOK_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            type: 'csp_violation',
+            timestamp: new Date().toISOString(),
+            report: cspReport,
+            ip,
+            userAgent
+          })
+        }).catch(err => console.log('Security webhook failed:', err));
+      }
+      
+      res.status(204).send(); // No content response for CSP reports
+    } catch (error) {
+      console.error('CSP report processing error:', error);
+      res.status(500).json({ error: 'Internal server error' });
+    }
+  });
+
+  // Development-only auto-admin login endpoint - NO authentication required
+  if (process.env.NODE_ENV === 'development') {
+    app.post("/api/dev/auto-admin-login", async (req, res) => {
+      try {
+        const adminEmail = 'admin@readmyfineprint.com';
+        const adminId = 'dev-admin-001';
+        
+        // Find or create admin user
+        let adminUser = await databaseStorage.getUserByEmail(adminEmail);
+        
+        if (!adminUser) {
+          // Create admin user WITHOUT password - not needed in dev
+          adminUser = await databaseStorage.createUser({
+            email: adminEmail,
+            isAdmin: true, // Mark as admin
+            emailVerified: true // Auto-verify in dev
+            // No password field - using email verification in production
+          });
+        }
+        
+        // Generate JWT token directly - bypass all authentication
+        const { secureJWTService } = await import('./secure-jwt-service');
+        const tokenPair = await secureJWTService.generateTokenPair(
+          adminUser?.id || adminId,
+          adminEmail,
+          {
+            ip: req.ip || 'unknown',
+            userAgent: req.get('user-agent') || 'unknown',
+            deviceFingerprint: 'dev-admin'
+          }
+        );
+        
+        const token = tokenPair.accessToken;
+        const refreshToken = tokenPair.refreshToken;
+        
+        console.log('🔐 Development auto-login successful for admin@readmyfineprint.com');
+        console.log('⚡ No authentication required - dev mode bypass active');
+        
+        res.json({
+          message: "Auto-login successful (development mode)",
+          user: {
+            id: adminUser?.id || adminId,
+            email: adminEmail,
+            tier: 'ultimate'
+          },
+          token,
+          refreshToken
+        });
+      } catch (error: any) {
+        console.error('Auto-login error:', error);
+        res.status(500).json({ message: "Auto-login failed", error: error.message });
+      }
+    });
+  }
 
     // Log consent acceptance
   app.post("/api/consent", optionalUserAuth, async (req: any, res) => {

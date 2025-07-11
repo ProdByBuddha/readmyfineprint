@@ -366,6 +366,19 @@ app.use(verifyCsrfToken);
     // Don't fail server startup for this
   }
 
+  // Initialize sample documents for demo purposes in development mode
+  if (process.env.NODE_ENV === 'development') {
+    console.log('🔧 Initializing sample documents for demo...');
+    try {
+      const { databaseStorage } = await import('./storage');
+      databaseStorage.initializeSampleDocuments();
+      console.log('✅ Sample documents initialized');
+    } catch (error) {
+      console.warn('⚠️ Warning: Failed to initialize sample documents:', error);
+      // Don't fail server startup for this
+    }
+  }
+
   // Add health check endpoint
   app.get('/health', async (req, res) => {
     try {
@@ -403,6 +416,102 @@ app.use(verifyCsrfToken);
   });
 
   const server = await registerRoutes(app);
+
+  // Development-only landing page for Replit webview
+  if (process.env.NODE_ENV === 'development') {
+    app.get('/', (req, res) => {
+      // Get the correct Replit dev URL
+      const replitHost = req.get('host');
+      const baseUrl = replitHost ? `https://${replitHost}` : 'http://localhost:5000';
+      const frontendUrl = replitHost 
+        ? baseUrl.replace('.replit.dev', '.replit.dev:5173').replace(':80', ':5173')
+        : 'http://localhost:5173';
+      
+      res.send(`
+        <!DOCTYPE html>
+        <html>
+        <head>
+          <title>ReadMyFinePrint - Dev Mode</title>
+          <style>
+            body {
+              font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+              background: #0f0f0f;
+              color: #fff;
+              display: flex;
+              align-items: center;
+              justify-content: center;
+              height: 100vh;
+              margin: 0;
+            }
+            .container {
+              text-align: center;
+              padding: 2rem;
+              background: #1a1a1a;
+              border-radius: 12px;
+              box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+            }
+            .logo {
+              font-size: 3rem;
+              margin-bottom: 1rem;
+            }
+            h1 {
+              margin: 0.5rem 0;
+              font-size: 2rem;
+            }
+            .status {
+              color: #22c55e;
+              margin: 1rem 0;
+            }
+            .links {
+              margin-top: 2rem;
+            }
+            a {
+              display: inline-block;
+              padding: 0.75rem 2rem;
+              margin: 0.5rem;
+              background: #3b82f6;
+              color: white;
+              text-decoration: none;
+              border-radius: 8px;
+              transition: background 0.2s;
+            }
+            a:hover {
+              background: #2563eb;
+            }
+            .admin {
+              background: #8b5cf6;
+            }
+            .admin:hover {
+              background: #7c3aed;
+            }
+            .info {
+              margin-top: 2rem;
+              font-size: 0.875rem;
+              color: #999;
+            }
+          </style>
+        </head>
+        <body>
+          <div class="container">
+            <div class="logo">📄</div>
+            <h1>ReadMyFinePrint</h1>
+            <p class="status">✅ Development Server Running</p>
+            <p>Auto-Admin Login Enabled</p>
+            <div class="links">
+              <a href="${frontendUrl}" target="_blank">Open Frontend →</a>
+              <a href="${frontendUrl}/admin" target="_blank" class="admin">Admin Dashboard →</a>
+            </div>
+            <div class="info">
+              <p>Frontend: ${frontendUrl}</p>
+              <p>Backend API: /api</p>
+              <p>You are automatically logged in as admin@readmyfineprint.com</p>
+            </div>
+          </div>
+        </body>
+        </html>
+      `);
+    });
+  }
 
   app.use((err: any, _req: Request, res: Response, _next: NextFunction) => {
     const status = err.status || err.statusCode || 500;
@@ -445,6 +554,40 @@ app.use(verifyCsrfToken);
             console.log('✅ Blog scheduler initialized');
           } catch (error) {
             console.warn('⚠️ Blog scheduler failed to start:', error);
+          }
+          
+          // Auto-login as admin in development mode
+          if (process.env.NODE_ENV === 'development') {
+            try {
+              const adminEmail = 'admin@readmyfineprint.com';
+              
+              console.log('\n🔐 Development Mode: Auto-Admin Login Enabled');
+              console.log('📧 Admin Email:', adminEmail);
+              console.log('🌐 Admin URL: http://localhost:' + actualPort + '/admin');
+              console.log('⚡ No authentication required - just visit the admin page!');
+              console.log('\n✨ You are automatically logged in as admin in development mode!');
+              console.log('⚠️  This is for development only - never use in production!\n');
+              
+              // Create admin user if doesn't exist (no password needed)
+              const { databaseStorage } = await import('./storage');
+              const existingAdmin = await databaseStorage.getUserByEmail(adminEmail);
+              
+              if (!existingAdmin) {
+                // Create admin user WITHOUT password
+                await databaseStorage.createUser({
+                  email: adminEmail,
+                  isAdmin: true, // Mark as admin
+                  emailVerified: true // Auto-verify in dev
+                });
+                console.log('✅ Admin user created successfully (no password required in dev)');
+              } else {
+                console.log('✅ Admin user already exists');
+              }
+              
+            } catch (error) {
+              console.warn('⚠️ Auto-admin setup note:', error instanceof Error ? error.message : 'Unknown error');
+              console.log('💡 This is normal in mock database mode - admin access still works!');
+            }
           }
           
           serverStarted = true;

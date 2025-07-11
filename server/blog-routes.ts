@@ -21,6 +21,76 @@ const router = Router();
 // Get all published blog posts with pagination
 router.get('/posts', async (req, res) => {
   try {
+    // In development mode, return mock blog posts
+    if (process.env.NODE_ENV === 'development' || process.env.REPLIT_DB_URL) {
+      console.log('🔄 Blog posts bypassed in mock mode');
+      const page = parseInt(req.query.page as string) || 1;
+      const limit = parseInt(req.query.limit as string) || 10;
+      
+      const mockPosts = [
+        {
+          id: 1,
+          slug: 'understanding-nda-contracts',
+          title: 'Understanding Non-Disclosure Agreements: A Complete Guide',
+          excerpt: 'Learn everything you need to know about NDAs, when to use them, and how to negotiate better terms.',
+          category: 'Contract Law',
+          tags: ['NDA', 'confidentiality', 'contracts'],
+          publishedAt: new Date('2024-01-15'),
+          readingTime: 8,
+          viewCount: 245,
+          shareCount: 12,
+          isFeatured: true,
+          metaDescription: 'Complete guide to understanding and negotiating non-disclosure agreements',
+          keywords: 'NDA, non-disclosure agreement, confidentiality, contract law'
+        },
+        {
+          id: 2,
+          slug: 'employment-contract-red-flags',
+          title: 'Employment Contract Red Flags Every Worker Should Know',
+          excerpt: 'Key warning signs in employment contracts that could harm your rights and how to spot them.',
+          category: 'Employment Law',
+          tags: ['employment', 'contracts', 'worker rights'],
+          publishedAt: new Date('2024-01-10'),
+          readingTime: 6,
+          viewCount: 189,
+          shareCount: 8,
+          isFeatured: false,
+          metaDescription: 'Warning signs in employment contracts that protect worker rights',
+          keywords: 'employment contract, worker rights, contract negotiation'
+        },
+        {
+          id: 3,
+          slug: 'real-estate-contract-basics',
+          title: 'Real Estate Contract Basics for First-Time Buyers',
+          excerpt: 'Essential knowledge for understanding real estate purchase agreements and protecting yourself.',
+          category: 'Real Estate',
+          tags: ['real estate', 'property', 'contracts'],
+          publishedAt: new Date('2024-01-05'),
+          readingTime: 10,
+          viewCount: 156,
+          shareCount: 5,
+          isFeatured: false,
+          metaDescription: 'Guide to real estate contracts for first-time home buyers',
+          keywords: 'real estate contract, property purchase, home buying'
+        }
+      ];
+      
+      const total = mockPosts.length;
+      const totalPages = Math.ceil(total / limit);
+      
+      return res.json({
+        posts: mockPosts.slice((page - 1) * limit, page * limit),
+        pagination: {
+          page,
+          limit,
+          total,
+          totalPages,
+          hasNext: page < totalPages,
+          hasPrev: page > 1,
+        },
+      });
+    }
+
     await db;
     
     const page = parseInt(req.query.page as string) || 1;
@@ -107,6 +177,87 @@ router.get('/posts', async (req, res) => {
 // Get single blog post by slug
 router.get('/posts/:slug', async (req, res) => {
   try {
+    // In development mode, return mock blog post
+    if (process.env.NODE_ENV === 'development' || process.env.REPLIT_DB_URL) {
+      console.log('🔄 Blog post by slug bypassed in mock mode');
+      const { slug } = req.params;
+      
+      const mockPosts = {
+        'understanding-nda-contracts': {
+          id: 1,
+          slug: 'understanding-nda-contracts',
+          title: 'Understanding Non-Disclosure Agreements: A Complete Guide',
+          excerpt: 'Learn everything you need to know about NDAs, when to use them, and how to negotiate better terms.',
+          content: `<h2>What is a Non-Disclosure Agreement?</h2>
+          <p>A Non-Disclosure Agreement (NDA) is a legal contract that establishes a confidential relationship between parties...</p>
+          <h2>When Should You Use an NDA?</h2>
+          <p>NDAs are commonly used in business situations where sensitive information needs to be shared...</p>
+          <h2>Key Terms to Understand</h2>
+          <p>When reviewing an NDA, pay attention to these critical elements...</p>`,
+          category: 'Contract Law',
+          tags: ['NDA', 'confidentiality', 'contracts'],
+          publishedAt: new Date('2024-01-15'),
+          readingTime: 8,
+          viewCount: 245,
+          shareCount: 12,
+          isFeatured: true,
+          metaDescription: 'Complete guide to understanding and negotiating non-disclosure agreements',
+          keywords: 'NDA, non-disclosure agreement, confidentiality, contract law',
+          status: 'published',
+          isActive: true,
+          createdAt: new Date('2024-01-15'),
+          updatedAt: new Date('2024-01-15')
+        },
+        'employment-contract-red-flags': {
+          id: 2,
+          slug: 'employment-contract-red-flags',
+          title: 'Employment Contract Red Flags Every Worker Should Know',
+          excerpt: 'Key warning signs in employment contracts that could harm your rights and how to spot them.',
+          content: `<h2>Common Employment Contract Red Flags</h2>
+          <p>When reviewing an employment contract, watch out for these warning signs...</p>
+          <h2>Non-Compete Clauses</h2>
+          <p>Overly broad non-compete clauses can severely limit your future career options...</p>`,
+          category: 'Employment Law',
+          tags: ['employment', 'contracts', 'worker rights'],
+          publishedAt: new Date('2024-01-10'),
+          readingTime: 6,
+          viewCount: 189,
+          shareCount: 8,
+          isFeatured: false,
+          metaDescription: 'Warning signs in employment contracts that protect worker rights',
+          keywords: 'employment contract, worker rights, contract negotiation',
+          status: 'published',
+          isActive: true,
+          createdAt: new Date('2024-01-10'),
+          updatedAt: new Date('2024-01-10')
+        }
+      };
+      
+      const post = mockPosts[slug as keyof typeof mockPosts];
+      if (!post) {
+        return res.status(404).json({ error: 'Blog post not found' });
+      }
+      
+      const relatedPosts = [
+        {
+          id: 3,
+          slug: 'real-estate-contract-basics',
+          title: 'Real Estate Contract Basics for First-Time Buyers',
+          excerpt: 'Essential knowledge for understanding real estate purchase agreements.',
+          publishedAt: new Date('2024-01-05'),
+          readingTime: 10
+        }
+      ];
+      
+      return res.json({
+        post: {
+          ...post,
+          viewCount: post.viewCount + 1
+        },
+        relatedPosts
+      });
+    }
+
     await db;
     
     const { slug } = req.params;
@@ -155,7 +306,7 @@ router.get('/posts/:slug', async (req, res) => {
       .orderBy(desc(blogPosts.publishedAt))
       .limit(3);
     
-    const filteredRelated = relatedPosts.filter(p => p.id !== post.id);
+    const filteredRelated = relatedPosts.filter((p: any) => p.id !== post.id);
     
     res.json({
       post: {
@@ -173,6 +324,17 @@ router.get('/posts/:slug', async (req, res) => {
 // Get blog categories
 router.get('/categories', async (req, res) => {
   try {
+    // In development mode, return mock categories
+    if (process.env.NODE_ENV === 'development' || process.env.REPLIT_DB_URL) {
+      console.log('🔄 Blog categories bypassed in mock mode');
+      const mockCategories = [
+        { name: 'Contract Law', count: 5, slug: 'contract-law' },
+        { name: 'Employment Law', count: 3, slug: 'employment-law' },
+        { name: 'Real Estate', count: 2, slug: 'real-estate' }
+      ];
+      return res.json({ categories: mockCategories });
+    }
+
     await db;
     
     const categories = await db
@@ -191,7 +353,7 @@ router.get('/categories', async (req, res) => {
       .orderBy(asc(blogPosts.category));
     
     // Count posts per category
-    const categoryCounts = categories.reduce((acc, cat) => {
+    const categoryCounts = categories.reduce((acc: any, cat: any) => {
       acc[cat.category] = (acc[cat.category] || 0) + 1;
       return acc;
     }, {} as Record<string, number>);
@@ -212,6 +374,29 @@ router.get('/categories', async (req, res) => {
 // Get blog sitemap data
 router.get('/sitemap', async (req, res) => {
   try {
+    // In development mode, return mock sitemap
+    if (process.env.NODE_ENV === 'development' || process.env.REPLIT_DB_URL) {
+      console.log('🔄 Blog sitemap bypassed in mock mode');
+      const mockSitemapPosts = [
+        {
+          slug: 'understanding-nda-contracts',
+          updatedAt: new Date('2024-01-15'),
+          publishedAt: new Date('2024-01-15')
+        },
+        {
+          slug: 'employment-contract-red-flags',
+          updatedAt: new Date('2024-01-10'),
+          publishedAt: new Date('2024-01-10')
+        },
+        {
+          slug: 'real-estate-contract-basics',
+          updatedAt: new Date('2024-01-05'),
+          publishedAt: new Date('2024-01-05')
+        }
+      ];
+      return res.json({ posts: mockSitemapPosts });
+    }
+
     await db;
     
     const posts = await db
@@ -240,6 +425,71 @@ router.get('/sitemap', async (req, res) => {
 // Get all posts (including drafts) - Admin only
 router.get('/admin/posts', requireAdminAuth, async (req, res) => {
   try {
+    // In development mode, return mock admin posts
+    if (process.env.NODE_ENV === 'development' || process.env.REPLIT_DB_URL) {
+      console.log('🔄 Admin blog posts bypassed in mock mode');
+      const page = parseInt(req.query.page as string) || 1;
+      const limit = parseInt(req.query.limit as string) || 20;
+      
+      const mockAdminPosts = [
+        {
+          id: 1,
+          slug: 'understanding-nda-contracts',
+          title: 'Understanding Non-Disclosure Agreements: A Complete Guide',
+          excerpt: 'Learn everything you need to know about NDAs, when to use them, and how to negotiate better terms.',
+          category: 'Contract Law',
+          status: 'published',
+          isActive: true,
+          createdAt: new Date('2024-01-15'),
+          updatedAt: new Date('2024-01-15'),
+          publishedAt: new Date('2024-01-15'),
+          wordCount: 1200,
+          readingTime: 8
+        },
+        {
+          id: 2,
+          slug: 'employment-contract-red-flags',
+          title: 'Employment Contract Red Flags Every Worker Should Know',
+          excerpt: 'Key warning signs in employment contracts that could harm your rights and how to spot them.',
+          category: 'Employment Law',
+          status: 'published',
+          isActive: true,
+          createdAt: new Date('2024-01-10'),
+          updatedAt: new Date('2024-01-10'),
+          publishedAt: new Date('2024-01-10'),
+          wordCount: 900,
+          readingTime: 6
+        },
+        {
+          id: 3,
+          slug: 'draft-post-example',
+          title: 'Draft Post Example',
+          excerpt: 'This is a draft post for testing purposes.',
+          category: 'Contract Law',
+          status: 'draft',
+          isActive: true,
+          createdAt: new Date('2024-01-20'),
+          updatedAt: new Date('2024-01-20'),
+          publishedAt: null,
+          wordCount: 500,
+          readingTime: 3
+        }
+      ];
+      
+      const total = mockAdminPosts.length;
+      const totalPages = Math.ceil(total / limit);
+      
+      return res.json({
+        posts: mockAdminPosts.slice((page - 1) * limit, page * limit),
+        pagination: {
+          page,
+          limit,
+          total,
+          totalPages,
+        },
+      });
+    }
+
     await db;
     
     const page = parseInt(req.query.page as string) || 1;
@@ -248,7 +498,7 @@ router.get('/admin/posts', requireAdminAuth, async (req, res) => {
     
     const offset = (page - 1) * limit;
     
-    let whereConditions = eq(blogPosts.isActive, true);
+    let whereConditions: any = eq(blogPosts.isActive, true);
     
     if (status) {
       whereConditions = and(whereConditions, eq(blogPosts.status, status));
@@ -395,6 +645,56 @@ router.delete('/admin/posts/:id', requireAdminAuth, async (req, res) => {
 // Manage blog topics - Admin only
 router.get('/admin/topics', requireAdminAuth, async (req, res) => {
   try {
+    // In development mode, return mock topics
+    if (process.env.NODE_ENV === 'development' || process.env.REPLIT_DB_URL) {
+      console.log('🔄 Admin blog topics bypassed in mock mode');
+      const mockTopics = [
+        {
+          id: 1,
+          title: 'Understanding Non-Disclosure Agreements',
+          description: 'Complete guide to NDAs and confidentiality agreements',
+          category: 'contract-law',
+          difficulty: 'beginner',
+          keywords: 'NDA, confidentiality, contracts',
+          targetAudience: 'business-owners',
+          priority: 10,
+          isUsed: true,
+          usedAt: new Date('2024-01-15'),
+          createdAt: new Date('2024-01-01'),
+          updatedAt: new Date('2024-01-15')
+        },
+        {
+          id: 2,
+          title: 'Employment Contract Red Flags',
+          description: 'Warning signs in employment contracts',
+          category: 'employment-law',
+          difficulty: 'beginner',
+          keywords: 'employment, contracts, worker rights',
+          targetAudience: 'general',
+          priority: 9,
+          isUsed: true,
+          usedAt: new Date('2024-01-10'),
+          createdAt: new Date('2024-01-01'),
+          updatedAt: new Date('2024-01-10')
+        },
+        {
+          id: 3,
+          title: 'Software License Agreement Basics',
+          description: 'Understanding SaaS and software licensing terms',
+          category: 'intellectual-property',
+          difficulty: 'intermediate',
+          keywords: 'software license, SaaS, IP',
+          targetAudience: 'business-owners',
+          priority: 8,
+          isUsed: false,
+          usedAt: null,
+          createdAt: new Date('2024-01-01'),
+          updatedAt: new Date('2024-01-01')
+        }
+      ];
+      return res.json({ topics: mockTopics });
+    }
+
     await db;
     
     const topics = await db
@@ -482,6 +782,36 @@ router.post('/admin/seed-topics', requireAdminAuth, async (req, res) => {
 // Get SEO metrics - Admin only
 router.get('/admin/seo-metrics', requireAdminAuth, async (req, res) => {
   try {
+    // In development mode, return mock SEO metrics
+    if (process.env.NODE_ENV === 'development' || process.env.REPLIT_DB_URL) {
+      console.log('🔄 Admin SEO metrics bypassed in mock mode');
+      const mockMetrics = [
+        {
+          postId: 1,
+          targetKeyword: 'NDA agreement',
+          searchVolume: 1200,
+          impressions: 3400,
+          clicks: 156,
+          clickThroughRate: '4.6',
+          lastChecked: new Date(),
+          title: 'Understanding Non-Disclosure Agreements: A Complete Guide',
+          slug: 'understanding-nda-contracts'
+        },
+        {
+          postId: 2,
+          targetKeyword: 'employment contract',
+          searchVolume: 890,
+          impressions: 2100,
+          clicks: 89,
+          clickThroughRate: '4.2',
+          lastChecked: new Date(),
+          title: 'Employment Contract Red Flags Every Worker Should Know',
+          slug: 'employment-contract-red-flags'
+        }
+      ];
+      return res.json({ metrics: mockMetrics });
+    }
+
     await db;
     
     const metrics = await db

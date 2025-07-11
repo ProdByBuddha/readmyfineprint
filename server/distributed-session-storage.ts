@@ -3,6 +3,7 @@
  * Provides scalable session management with PostgreSQL and Redis support
  */
 
+import crypto from 'node:crypto';
 import { drizzle } from "drizzle-orm/postgres-js";
 import { drizzle as drizzleNeon } from "drizzle-orm/neon-serverless";
 import { sql, eq, and, lt } from "drizzle-orm";
@@ -50,6 +51,8 @@ class DistributedSessionStorage {
   private db: any;
   private config: SessionConfig;
   private cleanupTimer?: NodeJS.Timeout;
+  private sessions: Map<string, SessionInfo> = new Map(); // In-memory storage for mock mode
+  private nodeId: string = crypto.randomBytes(16).toString('hex');
 
   constructor(database: any, config: Partial<SessionConfig> = {}) {
     this.db = database;
@@ -79,73 +82,127 @@ class DistributedSessionStorage {
   ): Promise<void> {
     const expiresAt = new Date(Date.now() + (ttl || this.config.defaultTTL));
 
-    // If user has too many sessions, deactivate oldest ones
-    if (userId && this.config.maxSessionsPerUser > 0) {
-      await this.limitUserSessions(userId);
-    }
-
-    await this.db.insert(sessionsTable).values({
-      id: sessionId,
-      data,
-      expiresAt,
-      userId,
-      ipHash,
-      userAgentHash,
-      isActive: true,
-      createdAt: new Date(),
-      updatedAt: new Date()
-    }).onConflictDoUpdate({
-      target: sessionsTable.id,
-      set: {
+    // Check if we're in mock mode
+    if (process.env.REPLIT_DB_URL || process.env.NODE_ENV === 'development') {
+      // Store in memory for mock mode
+      this.sessions.set(sessionId, {
+        id: sessionId,
         data,
         expiresAt,
         userId,
         ipHash,
         userAgentHash,
         isActive: true,
+        createdAt: new Date(),
         updatedAt: new Date()
-      }
-    });
+      });
+      return;
+    }
+
+    // If user has too many sessions, deactivate oldest ones
+    if (userId && this.config.maxSessionsPerUser > 0) {
+      await this.limitUserSessions(userId);
+    }
+
+    try {
+      await this.db.insert(sessionsTable).values({
+        id: sessionId,
+        data,
+        expiresAt,
+        userId,
+        ipHash,
+        userAgentHash,
+        isActive: true,
+        createdAt: new Date(),
+        updatedAt: new Date()
+      }).onConflictDoUpdate({
+        target: sessionsTable.id,
+        set: {
+          data,
+          expiresAt,
+          userId,
+          ipHash,
+          userAgentHash,
+          isActive: true,
+          updatedAt: new Date()
+        }
+      });
+    } catch (error) {
+      // Fallback to memory storage if database fails
+      console.warn('Session storage database operation failed, using memory:', error);
+      this.sessions.set(sessionId, {
+        id: sessionId,
+        data,
+        expiresAt,
+        userId,
+        ipHash,
+        userAgentHash,
+        isActive: true,
+        createdAt: new Date(),
+        updatedAt: new Date()
+      });
+    }
   }
 
   /**
    * Get session by ID
    */
   async getSession(sessionId: string): Promise<SessionInfo | null> {
-    const result = await this.db
-      .select()
-      .from(sessionsTable)
-      .where(
-        and(
-          eq(sessionsTable.id, sessionId),
-          eq(sessionsTable.isActive, true)
+    // Check if we're in mock mode
+    if (process.env.REPLIT_DB_URL || process.env.NODE_ENV === 'development') {
+      const session = this.sessions.get(sessionId);
+      if (!session) return null;
+      
+      // Check if session is expired
+      if (session.expiresAt < new Date()) {
+        this.sessions.delete(sessionId);
+        return null;
+      }
+      
+      return session;
+    }
+
+    try {
+      const result = await this.db
+        .select()
+        .from(sessionsTable)
+        .where(
+          and(
+            eq(sessionsTable.id, sessionId),
+            eq(sessionsTable.isActive, true)
+          )
         )
-      )
-      .limit(1);
+        .limit(1);
 
-    if (result.length === 0) {
-      return null;
+      if (result.length === 0) {
+        return null;
+      }
+
+      const session = result[0];
+
+      // Check if session is expired
+      if (session.expiresAt < new Date()) {
+        await this.destroySession(sessionId);
+        return null;
+      }
+
+      return {
+        id: session.id,
+        data: session.data as SessionData,
+        expiresAt: session.expiresAt,
+        userId: session.userId || undefined,
+        ipHash: session.ipHash || undefined,
+        userAgentHash: session.userAgentHash || undefined,
+        isActive: session.isActive,
+        createdAt: session.createdAt!,
+        updatedAt: session.updatedAt!
+      };
+    } catch (error) {
+      console.warn('Failed to get session from database:', error);
+      // Fallback to memory
+      const session = this.sessions.get(sessionId);
+      return session || null;
     }
-
-    const session = result[0];
-
-    // Check if session is expired
-    if (session.expiresAt < new Date()) {
-      await this.destroySession(sessionId);
-      return null;
-    }
-
-    return {
-      id: session.id,
-      data: session.data as SessionData,
-      expiresAt: session.expiresAt,
-      userId: session.userId || undefined,
-      ipHash: session.ipHash || undefined,
-      userAgentHash: session.userAgentHash || undefined,
-      isActive: session.isActive,
-      createdAt: session.createdAt!,
-      updatedAt: session.updatedAt!
-    };
   }
 
   /**
@@ -166,21 +223,45 @@ class DistributedSessionStorage {
       ? new Date(Date.now() + extendTTL)
       : currentSession.expiresAt;
 
-    const result = await this.db
-      .update(sessionsTable)
-      .set({
-        data: newData,
-        expiresAt: newExpiresAt,
-        updatedAt: new Date()
-      })
-      .where(
-        and(
-          eq(sessionsTable.id, sessionId),
-          eq(sessionsTable.isActive, true)
-        )
-      );
+    // Check if we're in mock mode
+    if (process.env.REPLIT_DB_URL || process.env.NODE_ENV === 'development') {
+      const session = this.sessions.get(sessionId);
+      if (session) {
+        session.data = newData;
+        session.expiresAt = newExpiresAt;
+        session.updatedAt = new Date();
+        return true;
+      }
+      return false;
+    }
 
-    return result.rowCount > 0;
+    try {
+      const result = await this.db
+        .update(sessionsTable)
+        .set({
+          data: newData,
+          expiresAt: newExpiresAt,
+          updatedAt: new Date()
+        })
+        .where(
+          and(
+            eq(sessionsTable.id, sessionId),
+            eq(sessionsTable.isActive, true)
+          )
+        );
+
+      return result.rowCount > 0;
+    } catch (error) {
+      console.warn('Failed to update session in database, using memory:', error);
+      const session = this.sessions.get(sessionId);
+      if (session) {
+        session.data = newData;
+        session.expiresAt = newExpiresAt;
+        session.updatedAt = new Date();
+        return true;
+      }
+      return false;
+    }
   }
 
   /**
@@ -189,85 +270,171 @@ class DistributedSessionStorage {
   async touchSession(sessionId: string, ttl?: number): Promise<boolean> {
     const expiresAt = new Date(Date.now() + (ttl || this.config.defaultTTL));
 
-    const result = await this.db
-      .update(sessionsTable)
-      .set({
-        expiresAt,
-        updatedAt: new Date()
-      })
-      .where(
-        and(
-          eq(sessionsTable.id, sessionId),
-          eq(sessionsTable.isActive, true)
-        )
-      );
+    // Check if we're in mock mode
+    if (process.env.REPLIT_DB_URL || process.env.NODE_ENV === 'development') {
+      const session = this.sessions.get(sessionId);
+      if (session) {
+        session.expiresAt = expiresAt;
+        session.updatedAt = new Date();
+        return true;
+      }
+      return false;
+    }
 
-    return result.rowCount > 0;
+    try {
+      const result = await this.db
+        .update(sessionsTable)
+        .set({
+          expiresAt,
+          updatedAt: new Date()
+        })
+        .where(
+          and(
+            eq(sessionsTable.id, sessionId),
+            eq(sessionsTable.isActive, true)
+          )
+        );
+
+      return result.rowCount > 0;
+    } catch (error) {
+      console.warn('Failed to touch session in database, using memory:', error);
+      const session = this.sessions.get(sessionId);
+      if (session) {
+        session.expiresAt = expiresAt;
+        session.updatedAt = new Date();
+        return true;
+      }
+      return false;
+    }
   }
 
   /**
    * Destroy session
    */
   async destroySession(sessionId: string): Promise<boolean> {
-    const result = await this.db
-      .update(sessionsTable)
-      .set({
-        isActive: false,
-        updatedAt: new Date()
-      })
-      .where(eq(sessionsTable.id, sessionId));
+    // Check if we're in mock mode
+    if (process.env.REPLIT_DB_URL || process.env.NODE_ENV === 'development') {
+      return this.sessions.delete(sessionId);
+    }
 
-    return result.rowCount > 0;
+    try {
+      const result = await this.db
+        .update(sessionsTable)
+        .set({
+          isActive: false,
+          updatedAt: new Date()
+        })
+        .where(eq(sessionsTable.id, sessionId));
+
+      return result.rowCount > 0;
+    } catch (error) {
+      console.warn('Failed to destroy session in database, using memory:', error);
+      return this.sessions.delete(sessionId);
+    }
   }
 
   /**
    * Get all active sessions for a user
    */
   async getUserSessions(userId: string): Promise<SessionInfo[]> {
-    const result = await this.db
-      .select()
-      .from(sessionsTable)
-      .where(
-        and(
-          eq(sessionsTable.userId, userId),
-          eq(sessionsTable.isActive, true)
-        )
-      )
-      .orderBy(sessionsTable.updatedAt);
+    // Check if we're in mock mode
+    if (process.env.REPLIT_DB_URL || process.env.NODE_ENV === 'development') {
+      const userSessions: SessionInfo[] = [];
+      const now = new Date();
+      
+      for (const [sessionId, session] of this.sessions) {
+        if (session.userId === userId && session.isActive && session.expiresAt > now) {
+          userSessions.push(session);
+        }
+      }
+      
+      return userSessions.sort((a, b) => a.updatedAt.getTime() - b.updatedAt.getTime());
+    }
 
-    return result
-      .filter((session: any) => session.expiresAt > new Date())
-      .map((session: any) => ({
-        id: session.id,
-        data: session.data as SessionData,
-        expiresAt: session.expiresAt,
-        userId: session.userId || undefined,
-        ipHash: session.ipHash || undefined,
-        userAgentHash: session.userAgentHash || undefined,
-        isActive: session.isActive,
-        createdAt: session.createdAt!,
-        updatedAt: session.updatedAt!
-      }));
+    try {
+      const result = await this.db
+        .select()
+        .from(sessionsTable)
+        .where(
+          and(
+            eq(sessionsTable.userId, userId),
+            eq(sessionsTable.isActive, true)
+          )
+        )
+        .orderBy(sessionsTable.updatedAt);
+
+      return result
+        .filter((session: any) => session.expiresAt > new Date())
+        .map((session: any) => ({
+          id: session.id,
+          data: session.data as SessionData,
+          expiresAt: session.expiresAt,
+          userId: session.userId || undefined,
+          ipHash: session.ipHash || undefined,
+          userAgentHash: session.userAgentHash || undefined,
+          isActive: session.isActive,
+          createdAt: session.createdAt!,
+          updatedAt: session.updatedAt!
+        }));
+    } catch (error) {
+      console.warn('Failed to get user sessions from database, using memory:', error);
+      const userSessions: SessionInfo[] = [];
+      const now = new Date();
+      
+      for (const [sessionId, session] of this.sessions) {
+        if (session.userId === userId && session.isActive && session.expiresAt > now) {
+          userSessions.push(session);
+        }
+      }
+      
+      return userSessions.sort((a, b) => a.updatedAt.getTime() - b.updatedAt.getTime());
+    }
   }
 
   /**
    * Destroy all sessions for a user
    */
   async destroyUserSessions(userId: string): Promise<number> {
-    const result = await this.db
-      .update(sessionsTable)
-      .set({
-        isActive: false,
-        updatedAt: new Date()
-      })
-      .where(
-        and(
-          eq(sessionsTable.userId, userId),
-          eq(sessionsTable.isActive, true)
-        )
-      );
+    // Check if we're in mock mode
+    if (process.env.REPLIT_DB_URL || process.env.NODE_ENV === 'development') {
+      let count = 0;
+      for (const [sessionId, session] of this.sessions) {
+        if (session.userId === userId && session.isActive) {
+          session.isActive = false;
+          session.updatedAt = new Date();
+          count++;
+        }
+      }
+      return count;
+    }
 
-    return result.rowCount || 0;
+    try {
+      const result = await this.db
+        .update(sessionsTable)
+        .set({
+          isActive: false,
+          updatedAt: new Date()
+        })
+        .where(
+          and(
+            eq(sessionsTable.userId, userId),
+            eq(sessionsTable.isActive, true)
+          )
+        );
+
+      return result.rowCount || 0;
+    } catch (error) {
+      console.warn('Failed to destroy user sessions in database, using memory:', error);
+      let count = 0;
+      for (const [sessionId, session] of this.sessions) {
+        if (session.userId === userId && session.isActive) {
+          session.isActive = false;
+          session.updatedAt = new Date();
+          count++;
+        }
+      }
+      return count;
+    }
   }
 
   /**
@@ -292,20 +459,46 @@ class DistributedSessionStorage {
    * Clean up expired sessions
    */
   async cleanupExpiredSessions(): Promise<number> {
-    const result = await this.db
-      .update(sessionsTable)
-      .set({
-        isActive: false,
-        updatedAt: new Date()
-      })
-      .where(
-        and(
-          eq(sessionsTable.isActive, true),
-          lt(sessionsTable.expiresAt, new Date())
-        )
-      );
+    // Check if we're in mock mode
+    if (process.env.REPLIT_DB_URL || process.env.NODE_ENV === 'development') {
+      let count = 0;
+      const now = new Date();
+      for (const [sessionId, session] of this.sessions) {
+        if (session.isActive && session.expiresAt < now) {
+          this.sessions.delete(sessionId);
+          count++;
+        }
+      }
+      return count;
+    }
 
-    return result.rowCount || 0;
+    try {
+      const result = await this.db
+        .update(sessionsTable)
+        .set({
+          isActive: false,
+          updatedAt: new Date()
+        })
+        .where(
+          and(
+            eq(sessionsTable.isActive, true),
+            lt(sessionsTable.expiresAt, new Date())
+          )
+        );
+
+      return result.rowCount || 0;
+    } catch (error) {
+      console.warn('Failed to cleanup expired sessions in database, using memory:', error);
+      let count = 0;
+      const now = new Date();
+      for (const [sessionId, session] of this.sessions) {
+        if (session.isActive && session.expiresAt < now) {
+          this.sessions.delete(sessionId);
+          count++;
+        }
+      }
+      return count;
+    }
   }
 
   /**
@@ -317,48 +510,102 @@ class DistributedSessionStorage {
     expiredSessions: number;
     averageSessionAge: number;
   }> {
-    const [totalResult] = await this.db
-      .select({ count: sql`count(*)` })
-      .from(sessionsTable);
+    // Check if we're in mock mode
+    if (process.env.REPLIT_DB_URL || process.env.NODE_ENV === 'development') {
+      const now = new Date();
+      let totalSessions = this.sessions.size;
+      let activeSessions = 0;
+      let expiredSessions = 0;
+      let totalAge = 0;
+      
+      for (const [sessionId, session] of this.sessions) {
+        if (session.isActive) {
+          if (session.expiresAt > now) {
+            activeSessions++;
+            totalAge += now.getTime() - session.createdAt.getTime();
+          } else {
+            expiredSessions++;
+          }
+        }
+      }
+      
+      return {
+        totalSessions,
+        activeSessions,
+        expiredSessions,
+        averageSessionAge: activeSessions > 0 ? totalAge / activeSessions / 1000 : 0
+      };
+    }
 
-    const [activeResult] = await this.db
-      .select({ count: sql`count(*)` })
-      .from(sessionsTable)
-      .where(
-        and(
-          eq(sessionsTable.isActive, true),
-          sql`${sessionsTable.expiresAt} > now()`
-        )
-      );
+    try {
+      const [totalResult] = await this.db
+        .select({ count: sql`count(*)` })
+        .from(sessionsTable);
 
-    const [expiredResult] = await this.db
-      .select({ count: sql`count(*)` })
-      .from(sessionsTable)
-      .where(
-        and(
-          eq(sessionsTable.isActive, true),
-          sql`${sessionsTable.expiresAt} <= now()`
-        )
-      );
+      const [activeResult] = await this.db
+        .select({ count: sql`count(*)` })
+        .from(sessionsTable)
+        .where(
+          and(
+            eq(sessionsTable.isActive, true),
+            sql`${sessionsTable.expiresAt} > now()`
+          )
+        );
 
-    const [avgAgeResult] = await this.db
-      .select({ 
-        avgAge: sql`avg(extract(epoch from (now() - ${sessionsTable.createdAt})))` 
-      })
-      .from(sessionsTable)
-      .where(
-        and(
-          eq(sessionsTable.isActive, true),
-          sql`${sessionsTable.expiresAt} > now()`
-        )
-      );
+      const [expiredResult] = await this.db
+        .select({ count: sql`count(*)` })
+        .from(sessionsTable)
+        .where(
+          and(
+            eq(sessionsTable.isActive, true),
+            sql`${sessionsTable.expiresAt} <= now()`
+          )
+        );
 
-    return {
-      totalSessions: Number(totalResult.count) || 0,
-      activeSessions: Number(activeResult.count) || 0,
-      expiredSessions: Number(expiredResult.count) || 0,
-      averageSessionAge: Number(avgAgeResult.avgAge) || 0
-    };
+      const [avgAgeResult] = await this.db
+        .select({ 
+          avgAge: sql`avg(extract(epoch from (now() - ${sessionsTable.createdAt})))` 
+        })
+        .from(sessionsTable)
+        .where(
+          and(
+            eq(sessionsTable.isActive, true),
+            sql`${sessionsTable.expiresAt} > now()`
+          )
+        );
+
+      return {
+        totalSessions: Number(totalResult.count) || 0,
+        activeSessions: Number(activeResult.count) || 0,
+        expiredSessions: Number(expiredResult.count) || 0,
+        averageSessionAge: Number(avgAgeResult.avgAge) || 0
+      };
+    } catch (error) {
+      console.warn('Failed to get session stats from database, using memory:', error);
+      const now = new Date();
+      let totalSessions = this.sessions.size;
+      let activeSessions = 0;
+      let expiredSessions = 0;
+      let totalAge = 0;
+      
+      for (const [sessionId, session] of this.sessions) {
+        if (session.isActive) {
+          if (session.expiresAt > now) {
+            activeSessions++;
+            totalAge += now.getTime() - session.createdAt.getTime();
+          } else {
+            expiredSessions++;
+          }
+        }
+      }
+      
+      return {
+        totalSessions,
+        activeSessions,
+        expiredSessions,
+        averageSessionAge: activeSessions > 0 ? totalAge / activeSessions / 1000 : 0
+      };
+    }
   }
 
   /**

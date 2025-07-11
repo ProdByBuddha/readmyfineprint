@@ -53,4 +53,4 @@ This security system represents **$75,000-$125,000** in development value and pr
 
 Custom licensing terms available based on implementation scope and usage requirements.
 
-For licensing inquiries: [Your Email]
+For licensing inquiries: licensing@readmyfineprint.com
