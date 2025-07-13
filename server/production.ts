@@ -44,10 +44,10 @@ async function startProductionServer() {
   app.use(requestSizeProtection);
   app.use(developmentServerProtection);
 
-  // CORS configuration
+  // CORS configuration - Production should not include localhost
   const corsOptions = {
     origin: (envConfig.ALLOWED_ORIGINS || process.env.ALLOWED_ORIGINS ||
-      'http://localhost:5173,http://localhost:3000,http://localhost:5000,https://readmyfineprint.com')
+      'https://readmyfineprint.com')
       .split(',')
       .map(origin => origin.trim()),
     credentials: true,

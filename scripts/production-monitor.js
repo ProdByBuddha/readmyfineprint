@@ -26,10 +26,10 @@ const isDevelopment = process.env.NODE_ENV === 'development';
 const MONITORING_CONFIG = {
   server: {
     host: process.env.MONITOR_HOST || 'localhost',
-    port: parseInt(process.env.PORT || '5000'),
+    port: parseInt(process.env.PORT || (isProduction ? '3000' : '5000')),
     healthEndpoint: '/api/health',
     timeout: isProduction ? 30000 : 10000, // 30s in prod, 10s in dev
-    // In production, also check external URL if available
+    // In production, use external URL for health checks if available
     externalUrl: process.env.EXTERNAL_URL || null // e.g., 'https://readmyfineprint.com'
   },
   email: {
@@ -97,8 +97,13 @@ class ProductionMonitor {
       const controller = new AbortController();
       const timeoutId = setTimeout(() => controller.abort(), MONITORING_CONFIG.server.timeout);
 
+      // In production, use external URL if available, otherwise fall back to localhost
+      const baseUrl = isProduction && MONITORING_CONFIG.server.externalUrl 
+        ? MONITORING_CONFIG.server.externalUrl
+        : `http://${MONITORING_CONFIG.server.host}:${MONITORING_CONFIG.server.port}`;
+
       const response = await fetch(
-        `http://${MONITORING_CONFIG.server.host}:${MONITORING_CONFIG.server.port}${MONITORING_CONFIG.server.healthEndpoint}`,
+        `${baseUrl}${MONITORING_CONFIG.server.healthEndpoint}`,
         { signal: controller.signal }
       );
 
@@ -190,8 +195,13 @@ class ProductionMonitor {
       const controller = new AbortController();
       const timeoutId = setTimeout(() => controller.abort(), MONITORING_CONFIG.database.timeout);
 
+      // In production, use external URL if available, otherwise fall back to localhost
+      const baseUrl = isProduction && MONITORING_CONFIG.server.externalUrl 
+        ? MONITORING_CONFIG.server.externalUrl
+        : `http://${MONITORING_CONFIG.server.host}:${MONITORING_CONFIG.server.port}`;
+
       const response = await fetch(
-        `http://${MONITORING_CONFIG.server.host}:${MONITORING_CONFIG.server.port}${MONITORING_CONFIG.database.healthEndpoint}`,
+        `${baseUrl}${MONITORING_CONFIG.database.healthEndpoint}`,
         { signal: controller.signal }
       );
 
@@ -255,8 +265,13 @@ class ProductionMonitor {
       const controller = new AbortController();
       const timeoutId = setTimeout(() => controller.abort(), MONITORING_CONFIG.email.timeout);
 
+      // In production, use external URL if available, otherwise fall back to localhost
+      const baseUrl = isProduction && MONITORING_CONFIG.server.externalUrl 
+        ? MONITORING_CONFIG.server.externalUrl
+        : `http://${MONITORING_CONFIG.server.host}:${MONITORING_CONFIG.server.port}`;
+
       const response = await fetch(
-        `http://${MONITORING_CONFIG.server.host}:${MONITORING_CONFIG.server.port}${MONITORING_CONFIG.email.testEndpoint}`,
+        `${baseUrl}${MONITORING_CONFIG.email.testEndpoint}`,
         {
           method: 'POST',
           headers: {

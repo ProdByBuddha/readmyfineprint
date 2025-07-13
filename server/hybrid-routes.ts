@@ -94,10 +94,11 @@ export function registerHybridRoutes(app: Express) {
   app.get('/api/hybrid/status', async (req: Request, res: Response) => {
     try {
       // Test Node.js LLM
-      const nodeResponse = await fetch('http://localhost:11434/api/tags').catch(() => null);
+      const ollamaUrl = process.env.OLLAMA_URL || 'http://localhost:11434';
+      const nodeResponse = await fetch(`${ollamaUrl}/api/tags`).catch(() => null);
       
       // Test Ollama (if installed)
-      const ollamaResponse = await fetch('http://localhost:11434/api/tags').catch(() => null);
+      const ollamaResponse = await fetch(`${ollamaUrl}/api/tags`).catch(() => null);
       
       res.json({
         nodeLLM: {

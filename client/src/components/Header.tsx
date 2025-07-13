@@ -32,6 +32,7 @@ export function Header() {
   const { theme, toggleTheme } = useTheme();
   const isMobile = useIsMobile();
   const mobileMenuRef = useRef<HTMLDivElement>(null);
+  const burgerButtonRef = useRef<HTMLButtonElement>(null);
 
   // Check authentication status on component mount and when location changes
   useEffect(() => {
@@ -79,7 +80,8 @@ export function Header() {
   // Close mobile menu when clicking outside
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
-      if (mobileMenuRef.current && !mobileMenuRef.current.contains(event.target as Node)) {
+      if (mobileMenuRef.current && !mobileMenuRef.current.contains(event.target as Node) &&
+          burgerButtonRef.current && !burgerButtonRef.current.contains(event.target as Node)) {
         setIsMobileMenuOpen(false);
       }
     };
@@ -386,6 +388,7 @@ export function Header() {
               
               {/* Burger menu button */}
               <Button
+                ref={burgerButtonRef}
                 variant="ghost"
                 size="sm"
                 className="h-9 w-9 p-0 transition-all duration-200 active:scale-95"
