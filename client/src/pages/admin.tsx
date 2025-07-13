@@ -1853,6 +1853,7 @@ export default function AdminDashboard() {
           credentials: 'include',
           headers: {
             'Content-Type': 'application/json',
+            'x-session-id': sessionStorage.getItem('app-session-id') || 'anonymous',
           },
         });
 
@@ -1862,13 +1863,19 @@ export default function AdminDashboard() {
           const data = await response.json();
           console.log('Session data received:', data);
           
-          const adminEmails = ['admin@readmyfineprint.com', 'prodbybuddha@icloud.com'];
-          
-          if (data.user && adminEmails.includes(data.user.email)) {
-            console.log('✅ Admin access granted via session cookie');
-            setIsAdmin(true);
+          // Check if user is authenticated and is admin
+          if (data.authenticated && data.user) {
+            const adminEmails = ['admin@readmyfineprint.com', 'prodbybuddha@icloud.com'];
+            
+            if (adminEmails.includes(data.user.email)) {
+              console.log('✅ Admin access granted via session cookie');
+              setIsAdmin(true);
+            } else {
+              console.log('❌ User is not admin:', data.user?.email);
+              setIsAdmin(false);
+            }
           } else {
-            console.log('❌ User is not admin:', data.user?.email);
+            console.log('❌ User is not authenticated:', data);
             setIsAdmin(false);
           }
         } else {
@@ -1917,7 +1924,10 @@ export default function AdminDashboard() {
                     try {
                       const response = await fetch('/api/auth/session', {
                         method: 'GET',
-                        credentials: 'include'
+                        credentials: 'include',
+                        headers: {
+                          'x-session-id': sessionStorage.getItem('app-session-id') || 'anonymous',
+                        }
                       });
                       const data = await response.json();
                       console.log('Session test result:', { status: response.status, data });

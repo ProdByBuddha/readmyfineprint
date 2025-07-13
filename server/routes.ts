@@ -1662,80 +1662,108 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.get("/api/auth/session", async (req, res) => {
     try {
       const sessionId = req.cookies?.sessionId;
+      const clientSessionId = req.headers['x-session-id'] as string;
       
       console.log(`🔍 Session validation request:`, {
         sessionId: sessionId ? `${sessionId.slice(0, 8)}...` : 'none',
+        clientSessionId: clientSessionId ? `${clientSessionId.slice(0, 8)}...` : 'none',
         cookies: Object.keys(req.cookies || {}),
         headers: {
           cookie: req.headers.cookie ? 'present' : 'missing',
-          authorization: req.headers.authorization ? 'present' : 'missing'
+          authorization: req.headers.authorization ? 'present' : 'missing',
+          'x-session-id': req.headers['x-session-id'] ? 'present' : 'missing'
         }
       });
       
-      if (!sessionId) {
-        console.log('❌ No session ID found in cookies');
-        return res.status(401).json({ error: 'No session found' });
-      }
-
-      // Get token from database
-      const { postgresqlSessionStorage } = await import('./postgresql-session-storage');
-      const token = await postgresqlSessionStorage.getTokenBySession(sessionId);
-      
-      console.log(`🔍 Token lookup result:`, {
-        found: !!token,
-        tokenPrefix: token ? `${token.slice(0, 16)}...` : 'none'
-      });
-      
-      if (!token) {
-        console.log('❌ No token found for session');
-        return res.status(401).json({ error: 'Invalid session' });
-      }
-
-      // Validate the token
-      const { hybridTokenService } = await import('./hybrid-token-service');
-      const tokenData = await hybridTokenService.validateSubscriptionToken(token);
-      
-      console.log(`🔍 Token validation result:`, {
-        valid: !!tokenData,
-        userId: tokenData?.userId || 'none',
-        tierId: tokenData?.tierId || 'none'
-      });
-      
-      if (!tokenData) {
-        console.log('❌ Token validation failed');
-        return res.status(401).json({ error: 'Invalid token' });
-      }
-
-      if (!tokenData.userId) {
-        console.error('Session token validation successful but userId is undefined:', tokenData);
-        return res.status(401).json({ error: 'Invalid session: missing user ID' });
-      }
-
-      // Get user data
-      const user = await databaseStorage.getUser(tokenData.userId);
-      
-      console.log(`🔍 User lookup result:`, {
-        found: !!user,
-        email: user?.email || 'none',
-        isAdmin: user?.isAdmin || false
-      });
-      
-      if (!user) {
-        console.log('❌ User not found');
-        return res.status(401).json({ error: 'User not found' });
-      }
-
-      console.log(`✅ Session validation successful for ${user.email}`);
-      
-      res.json({
-        user: {
-          id: user.id,
-          email: user.email
+      // Check for authenticated user session (sessionId cookie)
+      if (sessionId) {
+        console.log('🔍 Checking authenticated user session...');
+        
+        // Get token from database
+        const { postgresqlSessionStorage } = await import('./postgresql-session-storage');
+        const token = await postgresqlSessionStorage.getTokenBySession(sessionId);
+        
+        console.log(`🔍 Token lookup result:`, {
+          found: !!token,
+          tokenPrefix: token ? `${token.slice(0, 16)}...` : 'none'
+        });
+        
+        if (!token) {
+          console.log('❌ No token found for session');
+          return res.status(401).json({ error: 'Invalid session', authenticated: false });
         }
+
+        // Validate the token
+        const { hybridTokenService } = await import('./hybrid-token-service');
+        const tokenData = await hybridTokenService.validateSubscriptionToken(token);
+        
+        console.log(`🔍 Token validation result:`, {
+          valid: !!tokenData,
+          userId: tokenData?.userId || 'none',
+          tierId: tokenData?.tierId || 'none'
+        });
+        
+        if (!tokenData) {
+          console.log('❌ Token validation failed');
+          return res.status(401).json({ error: 'Invalid token', authenticated: false });
+        }
+
+        if (!tokenData.userId) {
+          console.error('Session token validation successful but userId is undefined:', tokenData);
+          return res.status(401).json({ error: 'Invalid session: missing user ID', authenticated: false });
+        }
+
+        // Get user data
+        const user = await databaseStorage.getUser(tokenData.userId);
+        
+        console.log(`🔍 User lookup result:`, {
+          found: !!user,
+          email: user?.email || 'none',
+          isAdmin: user?.isAdmin || false
+        });
+        
+        if (!user) {
+          console.log('❌ User not found');
+          return res.status(401).json({ error: 'User not found', authenticated: false });
+        }
+
+        console.log(`✅ Session validation successful for ${user.email}`);
+        
+        return res.json({
+          authenticated: true,
+          user: {
+            id: user.id,
+            email: user.email
+          }
+        });
+      }
+      
+      // Check for client session (x-session-id header) - unauthenticated user
+      if (clientSessionId) {
+        console.log('🔍 Checking client session for unauthenticated user...');
+        
+        // For unauthenticated users, we just confirm the session exists
+        // The session was created by the session middleware in index.ts
+        console.log(`✅ Client session validation successful: ${clientSessionId.slice(0, 8)}...`);
+        
+        return res.json({
+          authenticated: false,
+          sessionId: clientSessionId,
+          message: 'Valid client session (unauthenticated)'
+        });
+      }
+      
+      // No session found at all
+      console.log('❌ No session ID found in cookies or headers');
+      return res.status(401).json({ 
+        error: 'No session found', 
+        authenticated: false,
+        message: 'No sessionId cookie or x-session-id header found'
       });
+      
     } catch (error) {
       console.error('Session validation error:', error);
-      res.status(500).json({ error: 'Session validation failed' });
+      res.status(500).json({ error: 'Session validation failed', authenticated: false });
     }
   });
 
