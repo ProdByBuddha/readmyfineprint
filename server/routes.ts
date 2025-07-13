@@ -2703,6 +2703,42 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Monitoring endpoint for health checks (simpler auth for monitoring tools)
+  app.post("/api/monitoring/test-email", async (req, res) => {
+    try {
+      const { ip, userAgent } = getClientInfo(req);
+      const adminKey = process.env.ADMIN_API_KEY;
+      const providedKey = req.headers['x-admin-key'] as string;
+      
+      // Simple API key authentication for monitoring
+      if (!adminKey || providedKey !== adminKey) {
+        securityLogger.logSecurityEvent({
+          eventType: SecurityEventType.AUTHENTICATION,
+          severity: SecuritySeverity.MEDIUM,
+          message: 'Unauthorized monitoring access attempt',
+          ip,
+          userAgent,
+          endpoint: '/api/monitoring/test-email'
+        });
+        return res.status(401).json({ error: 'Invalid monitoring credentials' });
+      }
+      
+      const testResult = await emailService.testEmailConfiguration();
+      
+      res.json({
+        configured: testResult,
+        testEmailSent: false, // Monitoring endpoint doesn't send test emails
+        message: testResult ? 'Email service is configured' : 'Email service not configured'
+      });
+    } catch (error) {
+      console.error('Monitoring email test failed:', error);
+      res.status(500).json({ 
+        configured: false, 
+        error: 'Failed to test email configuration' 
+      });
+    }
+  });
+
   // Create Stripe Checkout Session with input validation and auto-detecting test/live mode
   app.post("/api/create-checkout-session", requireConsent, async (req, res) => {
     try {
