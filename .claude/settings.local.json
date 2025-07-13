@@ -38,7 +38,9 @@
       "Bash(npx drizzle-kit:*)",
       "mcp__ide__getDiagnostics",
       "Bash(ss:*)",
-      "Bash(timeout:*)"
+      "Bash(timeout:*)",
+      "Bash(test:*)",
+      "Bash(npx vite:*)"
     ],
     "deny": []
   }

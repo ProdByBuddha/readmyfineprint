@@ -565,7 +565,16 @@ app.use(verifyCsrfToken);
   // setting up all the other routes so the catch-all route
   // doesn't interfere with the other routes
   if (app.get("env") === "development") {
-    await setupVite(app, server);
+    // In Replit environment, skip vite middleware and let vite run separately
+    if (process.env.REPL_ID) {
+      console.log("🔧 Running in Replit - Vite will run as a separate process");
+      // Simple proxy to vite dev server
+      app.use("*", (req, res) => {
+        res.redirect(`http://localhost:5173${req.originalUrl}`);
+      });
+    } else {
+      await setupVite(app, server);
+    }
   } else {
     serveStatic(app);
   }
