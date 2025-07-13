@@ -186,20 +186,15 @@ export async function deleteSecurityQuestions(): Promise<{ success: boolean, mes
 export async function analyzeDocument(id: number): Promise<Document> {
   const headers: Record<string, string> = {};
 
-  // Include subscription token if available
-  const subscriptionToken = localStorage.getItem('subscriptionToken');
-  if (subscriptionToken) {
-    headers['x-subscription-token'] = subscriptionToken;
-  }
-
-  // Include device fingerprint if available
+  // Include device fingerprint if available (still needed for security)
   const deviceFingerprint = localStorage.getItem('deviceFingerprint');
   if (deviceFingerprint) {
     headers['x-device-fingerprint'] = deviceFingerprint;
   }
 
   const response = await apiRequest('POST', `/api/documents/${id}/analyze`, {
-    headers
+    headers,
+    credentials: 'include' // This sends httpOnly cookies automatically
   });
 
   return response.json();
@@ -473,36 +468,19 @@ export async function getUserSubscription(): Promise<{
     'Content-Type': 'application/json',
   };
 
-  // Include subscription token if available
-  const subscriptionToken = localStorage.getItem('subscriptionToken');
-  if (subscriptionToken) {
-    headers['x-subscription-token'] = subscriptionToken;
-  }
-
-  // Include device fingerprint if available
+  // Include device fingerprint if available (still needed for security)
   const deviceFingerprint = localStorage.getItem('deviceFingerprint');
   if (deviceFingerprint) {
     headers['x-device-fingerprint'] = deviceFingerprint;
   }
 
   const response = await fetch('/api/user/subscription', {
+    credentials: 'include', // This sends httpOnly cookies automatically
     headers,
   });
 
   if (!response.ok) {
     throw new Error('Failed to fetch subscription data');
-  }
-
-  // Store any token updates from server
-  const newToken = response.headers.get('X-Subscription-Token');
-  if (newToken) {
-    localStorage.setItem('subscriptionToken', newToken);
-  }
-
-  // Check if token was invalidated
-  const tokenInvalid = response.headers.get('X-Subscription-Token-Invalid');
-  if (tokenInvalid) {
-    localStorage.removeItem('subscriptionToken');
   }
 
   return response.json();
@@ -514,13 +492,7 @@ export async function createCustomerPortalSession(): Promise<{ url: string }> {
     'Content-Type': 'application/json',
   };
 
-  // Include subscription token if available
-  const subscriptionToken = localStorage.getItem('subscriptionToken');
-  if (subscriptionToken) {
-    headers['x-subscription-token'] = subscriptionToken;
-  }
-
-  // Include device fingerprint if available
+  // Include device fingerprint if available (still needed for security)
   const deviceFingerprint = localStorage.getItem('deviceFingerprint');
   if (deviceFingerprint) {
     headers['x-device-fingerprint'] = deviceFingerprint;
@@ -528,6 +500,7 @@ export async function createCustomerPortalSession(): Promise<{ url: string }> {
 
   const response = await fetchWithCSRF('/api/subscription/customer-portal', {
     method: 'POST',
+    credentials: 'include', // This sends httpOnly cookies automatically
     headers,
   });
 
@@ -545,13 +518,7 @@ export async function reactivateSubscription(): Promise<{ success: boolean; mess
     'Content-Type': 'application/json',
   };
 
-  // Include subscription token if available
-  const subscriptionToken = localStorage.getItem('subscriptionToken');
-  if (subscriptionToken) {
-    headers['x-subscription-token'] = subscriptionToken;
-  }
-
-  // Include device fingerprint if available
+  // Include device fingerprint if available (still needed for security)
   const deviceFingerprint = localStorage.getItem('deviceFingerprint');
   if (deviceFingerprint) {
     headers['x-device-fingerprint'] = deviceFingerprint;
@@ -559,6 +526,7 @@ export async function reactivateSubscription(): Promise<{ success: boolean; mess
 
   const response = await fetchWithCSRF('/api/subscription/reactivate', {
     method: 'POST',
+    credentials: 'include', // This sends httpOnly cookies automatically
     headers,
   });
 

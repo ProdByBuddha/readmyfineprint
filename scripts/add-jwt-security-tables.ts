@@ -3,17 +3,17 @@
  * Adds tables for JWT token revocation, refresh tokens, and secret versioning
  */
 
-import { ensureDbInitialized } from '../server/db';
+import { db } from '../server/db';
 
 async function addJWTSecurityTables() {
   console.log('🔄 Starting JWT security tables migration...');
 
   try {
-    // Ensure database connection
-    await ensureDbInitialized();
-    
-    // Import database and schema
-    const { db } = await import('../server/db');
+    // Check if database connection is available
+    if (!db) {
+      console.error('❌ Database connection not available');
+      process.exit(1);
+    }
     
     console.log('📊 Creating JWT security tables...');
 

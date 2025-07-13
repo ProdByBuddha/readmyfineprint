@@ -190,7 +190,17 @@ export async function requireAdminViaSubscription(req: Request, res: Response, n
     let subscriptionToken = req.headers['x-subscription-token'] as string;
     let tokenData: any = null;
 
-    // First try to get token from header
+    // First try to get token from httpOnly cookie (more secure)
+    subscriptionToken = req.cookies?.subscriptionToken;
+    
+    // Fallback to header for backward compatibility
+    if (!subscriptionToken) {
+      subscriptionToken = req.headers['x-subscription-token'] as string;
+      if (subscriptionToken) {
+        console.log(`⚠️ Using deprecated header-based subscription token (migrate to cookies)`);
+      }
+    }
+    
     if (subscriptionToken) {
       const { hybridTokenService } = await import("./hybrid-token-service");
       tokenData = await hybridTokenService.validateSubscriptionToken(subscriptionToken);
@@ -424,8 +434,12 @@ export async function requireConsent(req: Request, res: Response, next: NextFunc
       return next();
     }
 
-    // Check if this is an admin user via subscription token
-    const subscriptionToken = req.headers['x-subscription-token'] as string;
+    // Check if this is an admin user via subscription token (try cookie first, then header)
+    let subscriptionToken = req.cookies?.subscriptionToken;
+    if (!subscriptionToken) {
+      subscriptionToken = req.headers['x-subscription-token'] as string;
+    }
+    
     if (subscriptionToken) {
       try {
         const { hybridTokenService } = await import("./hybrid-token-service");

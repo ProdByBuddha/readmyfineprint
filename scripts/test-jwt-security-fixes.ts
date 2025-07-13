@@ -4,7 +4,7 @@
  */
 
 import crypto from 'crypto';
-import { ensureDbInitialized } from '../server/db';
+import { db } from '../server/db';
 import { jwtSecretManager } from '../server/jwt-secret-manager';
 import { secureJWTService } from '../server/secure-jwt-service';
 import { addJWTSecurityTables } from './add-jwt-security-tables';
@@ -57,7 +57,7 @@ class JWTSecurityTester {
 
     try {
       // Ensure database is initialized
-      await ensureDbInitialized();
+      // await ensureDbInitialized(); // This line is removed as per the edit hint
 
       // Run database migration to add JWT security tables
       await addJWTSecurityTables();
@@ -259,6 +259,7 @@ class JWTSecurityTester {
 
       const passed = 
         revocationResult === true &&
+        validation.valid === false &&
         validation.revoked === true;
 
       this.addResult('Token Revocation', passed, {

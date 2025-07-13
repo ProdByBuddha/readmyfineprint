@@ -139,7 +139,7 @@ export function Header() {
       setUser(null);
       setIsAdmin(false);
       
-      // Clear local storage
+      // Clear any remaining localStorage items from old auth system
       localStorage.removeItem('token');
       localStorage.removeItem('refreshToken');
       localStorage.removeItem('user');
@@ -165,6 +165,8 @@ export function Header() {
       setIsLoggedIn(false);
       setUser(null);
       setIsAdmin(false);
+      
+      // Clear any remaining localStorage items from old auth system
       localStorage.removeItem('token');
       localStorage.removeItem('refreshToken');
       localStorage.removeItem('user');

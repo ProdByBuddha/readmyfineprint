@@ -48,8 +48,9 @@ export function AdminEmailChangeRequests({ className = '' }: AdminEmailChangeReq
 
     try {
       const response = await fetch('/api/admin/email-change-requests', {
+        credentials: 'include',
         headers: {
-          'Authorization': `Bearer ${localStorage.getItem('authToken')}` // Adjust based on your auth
+          'Content-Type': 'application/json',
         }
       });
 
@@ -75,8 +76,9 @@ export function AdminEmailChangeRequests({ className = '' }: AdminEmailChangeReq
 
     try {
       const response = await fetch(`/api/admin/email-change-requests/${request.id}`, {
+        credentials: 'include',
         headers: {
-          'Authorization': `Bearer ${localStorage.getItem('authToken')}`
+          'Content-Type': 'application/json',
         }
       });
 
@@ -103,9 +105,9 @@ export function AdminEmailChangeRequests({ className = '' }: AdminEmailChangeReq
     try {
       const response = await fetch(`/api/admin/email-change-requests/${selectedRequest.id}/review`, {
         method: 'POST',
+        credentials: 'include',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${localStorage.getItem('authToken')}`
         },
         body: JSON.stringify({
           action,

@@ -1008,7 +1008,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       // Check if user is admin via subscription token
       let isAdmin = false;
-      const adminSubscriptionToken = req.headers['x-subscription-token'] as string;
+      
+      // Check for admin subscription token (try cookie first, then header)
+      let adminSubscriptionToken = req.cookies?.subscriptionToken;
+      if (!adminSubscriptionToken) {
+        adminSubscriptionToken = req.headers['x-subscription-token'] as string;
+      }
+      
       if (adminSubscriptionToken) {
         try {
           const { hybridTokenService } = await import('./hybrid-token-service');
@@ -1091,7 +1097,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
       let userId = req.user?.id || req.sessionId || "anonymous";
       let subscriptionData;
       
-      const subscriptionToken = req.headers['x-subscription-token'] as string;
+      // Try to get subscription token from httpOnly cookie first (more secure)
+      let subscriptionToken = req.cookies?.subscriptionToken;
+      
+      // Fallback to header for backward compatibility (will be deprecated)
+      if (!subscriptionToken) {
+        subscriptionToken = req.headers['x-subscription-token'] as string;
+        if (subscriptionToken) {
+          console.log(`⚠️ Using deprecated header-based subscription token (migrate to cookies)`);
+        }
+      }
+      
       if (subscriptionToken) {
         console.log(`🔑 Found subscription token in analysis request: ${subscriptionToken.slice(0, 16)}...`);
         
@@ -1307,7 +1323,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
       let subscriptionData;
       
       // Check for subscription token first (for persistent subscription access)
-      const subscriptionToken = req.headers['x-subscription-token'] as string;
+      // Try httpOnly cookie first (more secure)
+      let subscriptionToken = req.cookies?.subscriptionToken;
+      
+      // Fallback to header for backward compatibility
+      if (!subscriptionToken) {
+        subscriptionToken = req.headers['x-subscription-token'] as string;
+        if (subscriptionToken) {
+          console.log(`⚠️ Using deprecated header-based subscription token (migrate to cookies)`);
+        }
+      }
+      
       if (subscriptionToken) {
         // Get device fingerprint and client IP for security validation
         const deviceFingerprint = req.headers['x-device-fingerprint'] as string;
@@ -1320,12 +1346,23 @@ export async function registerRoutes(app: Express): Promise<Server> {
         );
         
         if (subscriptionData) {
-          // Add the token to response so frontend can store it
-          res.setHeader('X-Subscription-Token', subscriptionToken);
+          // Token is valid - ensure it's stored as httpOnly cookie
+          res.cookie('subscriptionToken', subscriptionToken, {
+            httpOnly: true,
+            secure: process.env.NODE_ENV === 'production',
+            sameSite: 'strict',
+            maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
+            path: '/'
+          });
           return res.json(subscriptionData);
         } else {
-          // Token was invalid or expired - clear it from client
-          res.setHeader('X-Subscription-Token-Invalid', 'true');
+          // Token was invalid or expired - clear the cookie
+          res.clearCookie('subscriptionToken', {
+            httpOnly: true,
+            secure: process.env.NODE_ENV === 'production',
+            sameSite: 'strict',
+            path: '/'
+          });
         }
       }
       
@@ -1782,8 +1819,18 @@ export async function registerRoutes(app: Express): Promise<Server> {
         const subscriptionData = await subscriptionService.validateSubscriptionToken(token);
         if (subscriptionData) {
           console.log(`✅ Token validation successful for session: ${sessionId}`);
+          
+          // Set the subscription token as an httpOnly cookie for security
+          res.cookie('subscriptionToken', token, {
+            httpOnly: true,
+            secure: process.env.NODE_ENV === 'production',
+            sameSite: 'strict',
+            maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
+            path: '/'
+          });
+          
           res.json({ 
-            token,
+            success: true,
             subscription: subscriptionData
           });
         } else {
@@ -1960,7 +2007,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
       console.log(`[Downgrade] Initial userId: ${userId}, sessionId: ${req.sessionId}, user: ${req.user ? 'authenticated' : 'not authenticated'}`);
       
       // Check for subscription token authentication first
-      const subscriptionToken = req.headers['x-subscription-token'] as string;
+      // Try httpOnly cookie first (more secure)
+      let subscriptionToken = req.cookies?.subscriptionToken;
+      
+      // Fallback to header for backward compatibility
+      if (!subscriptionToken) {
+        subscriptionToken = req.headers['x-subscription-token'] as string;
+        if (subscriptionToken) {
+          console.log(`⚠️ Using deprecated header-based subscription token (migrate to cookies)`);
+        }
+      }
+      
       const deviceFingerprint = req.headers['x-device-fingerprint'] as string;
       
       console.log(`[Downgrade] Headers - subscription token: ${subscriptionToken ? 'present' : 'missing'}, device fingerprint: ${deviceFingerprint ? 'present' : 'missing'}`);
@@ -2042,7 +2099,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
       let subscriptionData;
       
       // Check for subscription token authentication first
-      const subscriptionToken = req.headers['x-subscription-token'] as string;
+      // Try httpOnly cookie first (more secure)
+      let subscriptionToken = req.cookies?.subscriptionToken;
+      
+      // Fallback to header for backward compatibility
+      if (!subscriptionToken) {
+        subscriptionToken = req.headers['x-subscription-token'] as string;
+        if (subscriptionToken) {
+          console.log(`⚠️ Using deprecated header-based subscription token (migrate to cookies)`);
+        }
+      }
+      
       const deviceFingerprint = req.headers['x-device-fingerprint'] as string;
       
       if (subscriptionToken) {
@@ -2331,6 +2398,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       // Clear the session cookie
       res.clearCookie('sessionId', {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === 'production',
+        sameSite: 'strict',
+        path: '/'
+      });
+      
+      // Clear the subscription token cookie
+      res.clearCookie('subscriptionToken', {
         httpOnly: true,
         secure: process.env.NODE_ENV === 'production',
         sameSite: 'strict',

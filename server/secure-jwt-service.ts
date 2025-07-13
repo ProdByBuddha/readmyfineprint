@@ -147,9 +147,9 @@ export class SecureJWTService {
         algorithm: algorithm as jwt.Algorithm
       });
 
-      // Store refresh token in database (skip in mock mode)
+      // Store refresh token in database (skip only in true mock mode)
       const refreshExpiry = new Date(refreshExp * 1000);
-      if (!(process.env.NODE_ENV === 'development' || process.env.REPLIT_DB_URL)) {
+      if (process.env.DATABASE_URL) {
         const refreshTokenHash = this.hashToken(refreshToken);
 
         await db.insert(refreshTokens).values({
@@ -280,9 +280,9 @@ export class SecureJWTService {
       const now = Math.floor(Date.now() / 1000);
       const accessJti = crypto.randomUUID();
 
-      // Get user email from database (skip in mock mode)
+      // Get user email from database (skip only in true mock mode)
       let userEmail = 'admin@readmyfineprint.com'; // Default for mock mode
-      if (!(process.env.NODE_ENV === 'development' || process.env.REPLIT_DB_URL)) {
+      if (process.env.DATABASE_URL) {
         const userResult = await db.query.users.findFirst({
           where: (users: any, { eq }: any) => eq(users.id, userId),
           columns: { email: true }
@@ -360,8 +360,8 @@ export class SecureJWTService {
       const payload = decoded.payload as any;
       const tokenHash = this.hashToken(token);
 
-      // Add to revocation list (skip in mock mode)
-      if (!(process.env.NODE_ENV === 'development' || process.env.REPLIT_DB_URL)) {
+      // Add to revocation list (skip only in true mock mode)
+      if (process.env.DATABASE_URL) {
         await db.insert(jwtTokenRevocations).values({
           jti: payload.jti,
           tokenHash,
@@ -418,8 +418,8 @@ export class SecureJWTService {
     await this.ensureInitialized();
 
     try {
-      // Skip all database operations in mock mode
-      if (process.env.NODE_ENV === 'development' || process.env.REPLIT_DB_URL) {
+      // Skip all database operations in mock mode (only if no DATABASE_URL)
+      if (!process.env.DATABASE_URL) {
         return 0;
       }
 
@@ -489,8 +489,8 @@ export class SecureJWTService {
     await this.ensureInitialized();
 
     try {
-      // Skip cleanup in mock mode
-      if (process.env.NODE_ENV === 'development' || process.env.REPLIT_DB_URL) {
+      // Skip cleanup in mock mode (only if no DATABASE_URL)
+      if (!process.env.DATABASE_URL) {
         return { tokensRemoved: 0, revocationsRemoved: 0 };
       }
 
@@ -537,8 +537,8 @@ export class SecureJWTService {
       const version = payload.version || 1;
       const tokenHash = this.hashToken(token);
 
-      // Check if refresh token exists and is active (skip in mock mode)
-      if (!(process.env.NODE_ENV === 'development' || process.env.REPLIT_DB_URL)) {
+      // Check if refresh token exists and is active (skip only in true mock mode)
+      if (process.env.DATABASE_URL) {
         const storedToken = await db.query.refreshTokens.findFirst({
           where: and(
             eq(refreshTokens.tokenHash, tokenHash),
@@ -581,8 +581,8 @@ export class SecureJWTService {
 
   private async isTokenRevoked(jti: string): Promise<boolean> {
     try {
-      // Skip revocation check in mock mode
-      if (process.env.NODE_ENV === 'development' || process.env.REPLIT_DB_URL) {
+      // Skip revocation check only if we don't have a DATABASE_URL (true mock mode)
+      if (!process.env.DATABASE_URL) {
         return false;
       }
 
@@ -599,8 +599,8 @@ export class SecureJWTService {
 
   private async updateRefreshTokenUsage(token: string): Promise<void> {
     try {
-      // Skip in mock mode
-      if (process.env.NODE_ENV === 'development' || process.env.REPLIT_DB_URL) {
+      // Skip only in true mock mode
+      if (!process.env.DATABASE_URL) {
         return;
       }
 
@@ -614,8 +614,8 @@ export class SecureJWTService {
   }
 
   private async cleanupUserRefreshTokens(userId: string): Promise<void> {
-    // Skip cleanup in development/mock mode
-    if (process.env.NODE_ENV === 'development' || process.env.REPLIT_DB_URL) {
+    // Skip cleanup only in true mock mode
+    if (!process.env.DATABASE_URL) {
       return;
     }
     
