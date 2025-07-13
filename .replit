@@ -4,12 +4,18 @@ hidden = [".config", ".git", "generated-icon.png", "node_modules", "dist"]
 
 [nix]
 channel = "stable-24_05"
-packages = ["imagemagick", "python311Packages.transformers", "python311Packages.torch", "python311Packages.tokenizers"]
+packages = ["imagemagick", "python311Packages.transformers", "python311Packages.torch", "python311Packages.tokenizers", "lsof"]
 
 [deployment]
 deploymentTarget = "autoscale"
 build = ["npm", "run", "build"]
 run = ["npm", "run", "start"]
+
+[env]
+START_MONITORING = "true"
+MONITORING_EMAIL_ALERTS = "true"
+MONITORING_EMAIL_RECIPIENT = "prodbybuddha@icloud.com"
+MONITORING_EMAIL_SUBJECT = "ReadMyFinePrint Production Alert"
 
 [workflows]
 runButton = "Start Dev + PII LLM"
@@ -61,6 +67,18 @@ externalPort = 80
 [[ports]]
 localPort = 5173
 externalPort = 5173
+
+[[ports]]
+localPort = 5174
+externalPort = 3002
+
+[[ports]]
+localPort = 5175
+externalPort = 3003
+
+[[ports]]
+localPort = 5176
+externalPort = 4200
 
 [[ports]]
 localPort = 11434
