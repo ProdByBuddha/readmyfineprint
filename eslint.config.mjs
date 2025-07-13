@@ -6,7 +6,26 @@ import reactHooks from 'eslint-plugin-react-hooks';
 import jsxA11y from 'eslint-plugin-jsx-a11y';
 
 export default [
+  // Global ignores
+  {
+    ignores: [
+      '.pythonlibs/**',
+      'node_modules/**',
+      'dist/**',
+      'ZAP_2.16.1/**',
+      '**/*.py',
+      '**/*.jar',
+      '**/*.so',
+      '**/*.dll',
+      '**/*.dylib',
+      'public/**',
+      'scripts/local-llm-server.py',
+      'scripts/*.cjs',
+      'server/start.js'
+    ]
+  },
   js.configs.recommended,
+  // Client-side React/TypeScript configuration
   {
     files: ['client/src/**/*.{js,ts,jsx,tsx}'],
     languageOptions: {
@@ -122,6 +141,59 @@ export default [
       'jsx-a11y/tabindex-no-positive': 'error',
       'jsx-a11y/interactive-supports-focus': 'error',
       'jsx-a11y/mouse-events-have-key-events': 'error'
+    }
+  },
+  // Server-side TypeScript configuration
+  {
+    files: ['server/**/*.ts', 'scripts/**/*.ts', 'shared/**/*.ts'],
+    languageOptions: {
+      ecmaVersion: 2022,
+      sourceType: 'module',
+      parser: tsparser,
+      parserOptions: {
+        project: './tsconfig.server.json'
+      },
+      globals: {
+        console: 'readonly',
+        process: 'readonly',
+        Buffer: 'readonly',
+        __dirname: 'readonly',
+        __filename: 'readonly',
+        global: 'readonly',
+        module: 'readonly',
+        require: 'readonly',
+        exports: 'readonly',
+        setTimeout: 'readonly',
+        setInterval: 'readonly',
+        clearTimeout: 'readonly',
+        clearInterval: 'readonly',
+        crypto: 'readonly',
+        URL: 'readonly',
+        URLSearchParams: 'readonly',
+        FormData: 'readonly',
+        AbortController: 'readonly',
+        Headers: 'readonly',
+        Request: 'readonly',
+        Response: 'readonly',
+        fetch: 'readonly',
+        TextEncoder: 'readonly',
+        TextDecoder: 'readonly',
+        NodeJS: 'readonly'
+      }
+    },
+    plugins: {
+      '@typescript-eslint': tseslint
+    },
+    rules: {
+      ...tseslint.configs.recommended.rules,
+      '@typescript-eslint/no-unused-vars': 'warn',
+      '@typescript-eslint/no-explicit-any': 'warn',
+      '@typescript-eslint/ban-ts-comment': 'warn',
+      '@typescript-eslint/no-unused-expressions': 'warn',
+      'no-console': 'off', // Allow console in server code
+      'no-debugger': 'error',
+      'no-unused-vars': 'off',
+      'no-undef': 'error'
     }
   }
 ];

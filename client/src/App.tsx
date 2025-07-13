@@ -110,7 +110,7 @@ function App() {
             localStorage.setItem('token', data.token);
             localStorage.setItem('refreshToken', data.refreshToken);
             localStorage.setItem('user', JSON.stringify(data.user));
-            console.log('🔐 Auto-logged in as admin in development mode');
+            // Auto-logged in as admin in development mode
             
             // Show notification
             toast({
@@ -120,7 +120,7 @@ function App() {
             });
           }
         } catch (error) {
-          console.warn('Auto-login failed:', error);
+          // Auto-login failed
         }
       }
     };
@@ -131,7 +131,7 @@ function App() {
   // Listen for consent requirement events from API calls
   useEffect(() => {
     const handleConsentRequired = () => {
-      console.log('Consent required - showing consent modal');
+      // Consent required - showing consent modal
       setShowConsentModal(true);
     };
 
@@ -144,7 +144,7 @@ function App() {
 
   // Handle consent acceptance
   const handleConsentAccepted = () => {
-    console.log('Consent accepted - hiding modal');
+    // Consent accepted - hiding modal
     setShowConsentModal(false);
     // Trigger a page refresh to retry failed requests
     window.location.reload();

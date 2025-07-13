@@ -251,7 +251,7 @@ export class ZeroPIIAnalyzer {
         /\d+\s+[A-Za-z\s]+(?:Street|St|Avenue|Ave|Road|Rd|Boulevard|Blvd|Lane|Ln|Drive|Dr|Circle|Cir|Court|Ct|Place|Pl|Way|Parkway|Pkwy)\b/g,
         /\b(?:Address|Addr)\.?:?\s*\d+\s+[A-Za-z\s]+(?:Street|St|Avenue|Ave|Road|Rd|Boulevard|Blvd|Lane|Ln|Drive|Dr)\b/g,
         /\bP\.?O\.?\s+Box\s+\d+\b/g,  // PO Box
-        /\b(?:Apt|Apartment|Unit|Suite|Ste)\.?\s*\#?\d+[A-Za-z]?\b/g,  // Apartment/Unit numbers
+        /\b(?:Apt|Apartment|Unit|Suite|Ste)\.?\s*#?\d+[A-Za-z]?\b/g,  // Apartment/Unit numbers
       ],
       'CREDIT_CARD': [
         /\b(?:\d{4}[-\s]?){3}\d{4}\b/g,  // 4 groups of 4 digits
