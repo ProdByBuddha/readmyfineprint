@@ -104,7 +104,12 @@ class ProductionMonitor {
 
       const response = await fetch(
         `${baseUrl}${MONITORING_CONFIG.server.healthEndpoint}`,
-        { signal: controller.signal }
+        {
+          signal: controller.signal,
+          headers: {
+            'User-Agent': 'ReadMyFinePrint-Monitor/1.0'
+          }
+        }
       );
 
       clearTimeout(timeoutId);
@@ -154,7 +159,12 @@ class ProductionMonitor {
 
       const response = await fetch(
         `${MONITORING_CONFIG.server.externalUrl}${MONITORING_CONFIG.server.healthEndpoint}`,
-        { signal: controller.signal }
+        {
+          signal: controller.signal,
+          headers: {
+            'User-Agent': 'ReadMyFinePrint-Monitor/1.0'
+          }
+        }
       );
 
       clearTimeout(timeoutId);
@@ -202,7 +212,12 @@ class ProductionMonitor {
 
       const response = await fetch(
         `${baseUrl}${MONITORING_CONFIG.database.healthEndpoint}`,
-        { signal: controller.signal }
+        {
+          signal: controller.signal,
+          headers: {
+            'User-Agent': 'ReadMyFinePrint-Monitor/1.0'
+          }
+        }
       );
 
       clearTimeout(timeoutId);
@@ -276,7 +291,8 @@ class ProductionMonitor {
           method: 'POST',
           headers: {
             'x-admin-key': adminKey,
-            'Content-Type': 'application/json'
+            'Content-Type': 'application/json',
+            'User-Agent': 'ReadMyFinePrint-Monitor/1.0'
           },
           signal: controller.signal
         }

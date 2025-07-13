@@ -16,6 +16,7 @@ export class SecurityMiddleware {
   private options: SecurityOptions;
   private suspiciousPatterns: RegExp[];
   private blockedUserAgents: RegExp[];
+  private allowedMonitoringAgents: RegExp[];
 
   constructor(options: SecurityOptions = {}) {
     this.options = {
@@ -43,6 +44,11 @@ export class SecurityMiddleware {
       /node-fetch/i,
       /axios/i,
     ];
+    
+    // Allow specific monitoring user agents
+    this.allowedMonitoringAgents = [
+      /ReadMyFinePrint-Monitor/i,
+    ];
   }
 
   /**
@@ -61,8 +67,9 @@ export class SecurityMiddleware {
         return res.status(403).json({ error: 'Forbidden request pattern' });
       }
 
-      // Block suspicious user agents in production
-      if (this.blockedUserAgents.some(pattern => pattern.test(userAgent))) {
+      // Block suspicious user agents in production, but allow monitoring agents
+      if (this.blockedUserAgents.some(pattern => pattern.test(userAgent)) &&
+          !this.allowedMonitoringAgents.some(pattern => pattern.test(userAgent))) {
         console.warn(`🚨 Blocked suspicious user agent: ${userAgent} from ${ip}`);
         return res.status(403).json({ error: 'Forbidden user agent' });
       }
@@ -110,7 +117,7 @@ export class SecurityMiddleware {
       return next();
     }
 
-    const { ip, userAgent } = getClientInfo(req);
+    const { ip } = getClientInfo(req);
 
     // Block direct access to development server endpoints
     const devServerPatterns = [
