@@ -36,31 +36,48 @@ export function Header() {
 
   // Check authentication status on component mount and when location changes
   useEffect(() => {
-    const checkAuth = () => {
-      const token = localStorage.getItem('token');
-      const userData = localStorage.getItem('user');
+    const checkAuth = async () => {
+      setIsCheckingAuth(true);
       
-      if (token && userData) {
-        try {
-          const parsedUser = JSON.parse(userData);
-          setUser(parsedUser);
-          setIsLoggedIn(true);
-          setIsAdmin(parsedUser.email === 'admin@readmyfineprint.com' || parsedUser.email === 'prodbybuddha@icloud.com');
-        } catch (error) {
-          console.error('Error parsing user data:', error);
-          // Clear invalid data
-          localStorage.removeItem('token');
-          localStorage.removeItem('user');
+      try {
+        // Check session cookie authentication via the session endpoint
+        const response = await fetch('/api/auth/session', {
+          method: 'GET',
+          credentials: 'include',
+          headers: {
+            'Content-Type': 'application/json',
+            'x-session-id': sessionStorage.getItem('app-session-id') || 'anonymous',
+          },
+        });
+
+        if (response.ok) {
+          const data = await response.json();
+          
+          // Check if user is authenticated
+          if (data.authenticated && data.user) {
+            setUser(data.user);
+            setIsLoggedIn(true);
+            setIsAdmin(data.user.email === 'admin@readmyfineprint.com' || data.user.email === 'prodbybuddha@icloud.com');
+          } else {
+            // User is not authenticated
+            setIsLoggedIn(false);
+            setUser(null);
+            setIsAdmin(false);
+          }
+        } else {
+          // Session validation failed
           setIsLoggedIn(false);
           setUser(null);
           setIsAdmin(false);
         }
-      } else {
+      } catch (error) {
+        console.error('Error checking authentication:', error);
         setIsLoggedIn(false);
         setUser(null);
         setIsAdmin(false);
+      } finally {
+        setIsCheckingAuth(false);
       }
-      setIsCheckingAuth(false);
     };
 
     checkAuth();
@@ -71,9 +88,11 @@ export function Header() {
     };
 
     window.addEventListener('authUpdate', handleAuthUpdate);
+    window.addEventListener('authStateChanged', handleAuthUpdate);
     
     return () => {
       window.removeEventListener('authUpdate', handleAuthUpdate);
+      window.removeEventListener('authStateChanged', handleAuthUpdate);
     };
   }, [location]);
 
@@ -165,30 +184,18 @@ export function Header() {
   const handleLoginSuccess = async () => {
     setShowLogin(false);
     
-    // Refresh auth state
-    const token = localStorage.getItem('token');
-    const userData = localStorage.getItem('user');
+    // Trigger auth update event for other components to refresh their state
+    window.dispatchEvent(new Event('authUpdate'));
+    window.dispatchEvent(new CustomEvent('authStateChanged'));
     
-    if (token && userData) {
-      try {
-        const parsedUser = JSON.parse(userData);
-        setUser(parsedUser);
-        setIsLoggedIn(true);
-        setIsAdmin(parsedUser.email === 'admin@readmyfineprint.com' || parsedUser.email === 'prodbybuddha@icloud.com');
-        
-        // Trigger auth update event for other components
-        window.dispatchEvent(new Event('authUpdate'));
-        
-        toast({
-          title: "Login successful",
-          description: `Welcome back, ${parsedUser.email}!`,
-          duration: 3000,
-        });
-        
-      } catch (error) {
-        console.error('Error parsing user data after login:', error);
-      }
-    }
+    // The auth state will be updated by the useEffect that listens to these events
+    // and calls checkAuth which will fetch the current session state
+    
+    toast({
+      title: "Login successful",
+      description: "Welcome back!",
+      duration: 3000,
+    });
   };
 
   return (

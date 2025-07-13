@@ -97,21 +97,41 @@ function App() {
   // Auto-login as admin in development mode
   useEffect(() => {
     const autoLogin = async () => {
-      if (import.meta.env.DEV && !localStorage.getItem('token')) {
+      if (import.meta.env.DEV) {
         try {
+          // Check if already logged in via session cookie
+          const sessionResponse = await fetch('/api/auth/session', {
+            method: 'GET',
+            credentials: 'include',
+            headers: {
+              'Content-Type': 'application/json',
+              'x-session-id': sessionStorage.getItem('app-session-id') || 'anonymous',
+            },
+          });
+          
+          if (sessionResponse.ok) {
+            const sessionData = await sessionResponse.json();
+            if (sessionData.authenticated && sessionData.user) {
+              // Already logged in, no need to auto-login
+              return;
+            }
+          }
+          
+          // Not logged in, try auto-login
           const response = await fetch('/api/dev/auto-admin-login', {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json',
             },
+            credentials: 'include',
           });
           
           if (response.ok) {
             const data = await response.json();
-            localStorage.setItem('token', data.token);
-            localStorage.setItem('refreshToken', data.refreshToken);
-            localStorage.setItem('user', JSON.stringify(data.user));
-            // Auto-logged in as admin in development mode
+            
+            // Trigger auth update event for other components
+            window.dispatchEvent(new Event('authUpdate'));
+            window.dispatchEvent(new CustomEvent('authStateChanged'));
             
             // Show notification
             toast({
