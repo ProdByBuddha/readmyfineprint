@@ -15,7 +15,6 @@ declare global {
       user?: {
         id: string;
         email: string;
-        username?: string;
       };
       sessionId?: string;
     }
@@ -57,8 +56,7 @@ export async function requireAdminAuth(req: Request, res: Response, next: NextFu
           securityLogger.logAdminAuth(ip, userAgent, req.path + ' (dev JWT)');
           req.user = {
             id: validation.payload.userId,
-            email: validation.payload.email || 'admin@readmyfineprint.com',
-            username: 'admin'
+            email: validation.payload.email || 'admin@readmyfineprint.com'
           };
           return next();
         }
@@ -73,8 +71,7 @@ export async function requireAdminAuth(req: Request, res: Response, next: NextFu
       securityLogger.logAdminAuth(ip, userAgent, req.path);
       req.user = {
         id: 'dev-admin',
-        email: 'admin@readmyfineprint.com',
-        username: 'admin'
+        email: 'admin@readmyfineprint.com'
       };
       return next();
     }
@@ -114,8 +111,7 @@ export async function requireAdminAuth(req: Request, res: Response, next: NextFu
   // Set user context for admin user
   req.user = {
     id: 'admin',
-    email: tokenValidation.email || 'admin@readmyfineprint.com',
-    username: 'admin'
+    email: tokenValidation.email || 'admin@readmyfineprint.com'
   };
 
   next();
@@ -296,8 +292,7 @@ export async function requireAdminViaSubscription(req: Request, res: Response, n
 
       req.user = {
         id: user.id,
-        email: user.email,
-        username: user.username || undefined
+        email: user.email
       };
     } else {
       // Database unavailable - use token-based verification as fallback

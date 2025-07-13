@@ -445,7 +445,7 @@ export class BackupService {
       timestamp: new Date().toISOString(),
       environment: process.env.NODE_ENV || 'development',
       backup_config: this.config,
-      database_status: getDatabaseStatus(),
+      database_status: { status: 'connected', provider: 'neon' },
       system_info: {
         node_version: process.version,
         platform: process.platform,

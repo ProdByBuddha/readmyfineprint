@@ -902,16 +902,4 @@ export class DatabaseStorage implements IStorage {
     return argon2.hash(password);
   }
 
-  async getUserPendingEmailChangeRequests(userId: string): Promise<EmailChangeRequest[]> {
-    const results = await db
-      .select()
-      .from(emailChangeRequests)
-      .where(and(
-        eq(emailChangeRequests.userId, userId),
-        eq(emailChangeRequests.status, 'pending')
-      ))
-      .orderBy(desc(emailChangeRequests.createdAt));
-    
-    return results;
-  }
 }

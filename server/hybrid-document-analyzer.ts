@@ -132,13 +132,13 @@ export class HybridDocumentAnalyzer {
         fileType: 'text/plain'
       };
 
-      const openaiResult = await openaiAnalyze(mockDocument);
+      const openaiResult = await openaiAnalyze(cleanText, 'Hybrid Analysis Document', undefined, undefined, undefined, 'gpt-4o', userId);
       
       return {
-        detailedAnalysis: openaiResult.analysis || 'OpenAI analysis completed',
-        legalRisks: openaiResult.legalRisks || [],
-        recommendations: openaiResult.recommendations || [],
-        complexity: this.assessComplexity(openaiResult.analysis || '')
+        detailedAnalysis: openaiResult.summary || 'OpenAI analysis completed',
+        legalRisks: openaiResult.keyFindings?.redFlags || [],
+        recommendations: openaiResult.sections?.map(s => s.summary) || [],
+        complexity: this.assessComplexity(openaiResult.summary || '')
       };
     } catch (error) {
       console.error('OpenAI analysis failed:', error);

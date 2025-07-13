@@ -304,8 +304,7 @@ export function registerUserRoutes(app: Express) {
       res.json({ 
         valid: true, 
         userId: user.id,
-        email: user.email,
-        username: user.username
+        email: user.email
       });
     } catch (error) {
       console.error("Session validation error:", error);

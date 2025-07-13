@@ -10,7 +10,7 @@ import { collectiveUserService } from './collective-user-service';
 import { postgresqlSessionStorage } from './postgresql-session-storage';
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
-  apiVersion: '2025-05-28.basil',
+  apiVersion: '2025-06-30.basil',
 });
 
 interface CreateSubscriptionParams {
@@ -285,9 +285,9 @@ export class SubscriptionService {
   }
 
   /**
-   * Update subscription tier
+   * Update Stripe subscription tier
    */
-  async updateSubscriptionTier(
+  async updateStripeSubscriptionTier(
     subscriptionId: string,
     newTierId: string,
     billingCycle: 'monthly' | 'yearly'
@@ -1525,6 +1525,95 @@ export class SubscriptionService {
       await databaseStorage.updateUserSubscription(subscription.id, updates);
     } catch (error) {
       console.error('Error canceling subscription:', error);
+      throw error;
+    }
+  }
+
+
+
+  /**
+   * Update subscription tier by user ID (admin method)
+   */
+  async updateSubscriptionTier(userId: string, newTierId: string, reason?: string): Promise<UserSubscription | null> {
+    try {
+      const subscription = await databaseStorage.getUserSubscription(userId);
+      if (!subscription) {
+        throw new Error('No subscription found to update');
+      }
+
+      const newTier = getTierById(newTierId);
+      if (!newTier) {
+        throw new Error(`Invalid tier ID: ${newTierId}`);
+      }
+
+      // Update the subscription tier
+      const updatedSubscription = await databaseStorage.updateUserSubscription(subscription.id, {
+        tierId: newTierId,
+        status: 'active'
+      });
+
+      // Log the admin action
+      securityLogger.logSecurityEvent({
+        eventType: 'SUBSCRIPTION_TIER_UPDATED' as any,
+        severity: 'MEDIUM' as any,
+        message: `Admin updated subscription tier for user ${userId} to ${newTierId}`,
+        ip: 'system',
+        userAgent: 'subscription-service',
+        endpoint: 'admin-tier-update',
+        details: {
+          userId,
+          newTierId,
+          reason: reason || 'Admin action',
+          subscriptionId: subscription.id
+        }
+      });
+
+      return updatedSubscription || null;
+    } catch (error) {
+      console.error('Error updating subscription tier:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * Extend subscription period (admin method)
+   */
+  async extendSubscription(userId: string, days: number = 30, reason?: string): Promise<UserSubscription | null> {
+    try {
+      const subscription = await databaseStorage.getUserSubscription(userId);
+      if (!subscription) {
+        throw new Error('No subscription found to extend');
+      }
+
+      // Extend the current period end date
+      const newPeriodEnd = new Date(subscription.currentPeriodEnd);
+      newPeriodEnd.setDate(newPeriodEnd.getDate() + days);
+
+      const updatedSubscription = await databaseStorage.updateUserSubscription(subscription.id, {
+        currentPeriodEnd: newPeriodEnd,
+        status: 'active'
+      });
+
+      // Log the admin action
+      securityLogger.logSecurityEvent({
+        eventType: 'SUBSCRIPTION_EXTENDED' as any,
+        severity: 'MEDIUM' as any,
+        message: `Admin extended subscription for user ${userId} by ${days} days`,
+        ip: 'system',
+        userAgent: 'subscription-service',
+        endpoint: 'admin-extend-subscription',
+        details: {
+          userId,
+          extensionDays: days,
+          newPeriodEnd: newPeriodEnd.toISOString(),
+          reason: reason || 'Admin action',
+          subscriptionId: subscription.id
+        }
+      });
+
+      return updatedSubscription || null;
+    } catch (error) {
+      console.error('Error extending subscription:', error);
       throw error;
     }
   }

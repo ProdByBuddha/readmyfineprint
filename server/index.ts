@@ -8,6 +8,7 @@ import { addSecurityHeaders } from "./auth";
 import { validateEnvironmentOrExit, logEnvironmentStatus } from "./env-validation";
 import { securityLogger, getClientInfo } from "./security-logger";
 import { provideCsrfToken, verifyCsrfToken } from "./csrf-protection";
+import { enhancedCorsProtection, requestSizeProtection, developmentServerProtection } from "./security-middleware";
 import { hashIpAddress, hashUserAgent } from "./argon2";
 import crypto from "crypto";
 
@@ -29,6 +30,11 @@ app.set('trust proxy', 1);
 
 // Add security headers
 app.use(addSecurityHeaders);
+
+// Add enhanced security middleware for esbuild vulnerability protection
+app.use(enhancedCorsProtection);
+app.use(requestSizeProtection);
+app.use(developmentServerProtection);
 
 // Add cookie parser middleware
 app.use(cookieParser());

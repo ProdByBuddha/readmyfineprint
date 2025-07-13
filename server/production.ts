@@ -8,6 +8,7 @@ import { registerRoutes } from './routes.js';
 import { addSecurityHeaders } from './auth.js';
 import { validateEnvironmentOrExit, logEnvironmentStatus } from './env-validation.js';
 import { securityLogger, getClientInfo } from './security-logger.js';
+import { enhancedCorsProtection, requestSizeProtection, developmentServerProtection } from './security-middleware.js';
 import crypto from 'crypto';
 
 const __filename = fileURLToPath(import.meta.url);
@@ -27,6 +28,11 @@ async function startProductionServer() {
 
   // Add security headers
   app.use(addSecurityHeaders);
+
+  // Add enhanced security middleware for esbuild vulnerability protection
+  app.use(enhancedCorsProtection);
+  app.use(requestSizeProtection);
+  app.use(developmentServerProtection);
 
   // CORS configuration
   const corsOptions = {

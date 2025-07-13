@@ -12,7 +12,7 @@ import Stripe from 'stripe';
 import crypto from 'crypto';
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
-  apiVersion: '2025-05-28.basil',
+  apiVersion: '2025-06-30.basil',
 });
 
 /**
@@ -533,7 +533,6 @@ export function registerAdminRoutes(app: Express) {
       const { userId } = req.params;
       const updateSchema = z.object({
         email: z.string().email().optional(),
-        username: z.string().optional(),
         // Add other updateable fields as needed
       });
 
@@ -577,7 +576,6 @@ export function registerAdminRoutes(app: Express) {
       const { userId } = req.params;
       const updateSchema = z.object({
         email: z.string().email().optional(),
-        username: z.string().optional(),
         // Add other updateable fields as needed
       });
 
@@ -769,8 +767,8 @@ export function registerAdminRoutes(app: Express) {
       // Update user with temporary password and force password change
       await databaseStorage.updateUser(userId, {
         hashedPassword,
-        mustChangePassword: true,
-        passwordChangedAt: new Date()
+
+
       });
 
       // Log the admin action
@@ -848,7 +846,7 @@ export function registerAdminRoutes(app: Express) {
           if (!tierId) {
             return res.status(400).json({ error: "tierId is required for upgrade/downgrade" });
           }
-          result = await subscriptionService.changeSubscriptionTier(userId, tierId, reason);
+          result = await subscriptionService.updateSubscriptionTier(userId, tierId, reason);
           break;
         case 'extend':
           const { days = 30 } = req.body;
@@ -913,7 +911,7 @@ export function registerAdminRoutes(app: Express) {
         return res.status(404).json({ error: "User not found" });
       }
 
-      const clearanceResults = {};
+      const clearanceResults: Record<string, any> = {};
 
       for (const dataType of typesToClear) {
         try {
@@ -932,7 +930,7 @@ export function registerAdminRoutes(app: Express) {
               break;
           }
         } catch (error) {
-          clearanceResults[dataType] = { error: error.message };
+          clearanceResults[dataType] = { error: error instanceof Error ? error.message : 'Unknown error' };
         }
       }
 
@@ -1035,14 +1033,15 @@ export function registerAdminRoutes(app: Express) {
               const tempPassword = crypto.randomBytes(8).toString('base64').slice(0, 12);
               const hashedPassword = await databaseStorage.hashPassword(tempPassword);
               result = await databaseStorage.updateUser(userId, {
-                hashedPassword,
-                mustChangePassword: true
+                hashedPassword
               });
-              result.temporaryPassword = tempPassword;
+              if (result) {
+                (result as any).temporaryPassword = tempPassword;
+              }
               break;
             case 'clear_data':
               const dataTypes = options.dataTypes || ['documents'];
-              result = {};
+              result = {} as Record<string, any>;
               for (const dataType of dataTypes) {
                 switch (dataType) {
                   case 'documents':
@@ -1067,7 +1066,7 @@ export function registerAdminRoutes(app: Express) {
           results.push({ 
             userId, 
             success: false, 
-            error: error.message 
+            error: error instanceof Error ? error.message : 'Unknown error' 
           });
         }
       }
@@ -1145,7 +1144,6 @@ export function registerAdminRoutes(app: Express) {
       // Create user without password since system uses email verification
       const newUser = await databaseStorage.createUser({
         email,
-        username: username || null,
         hashedPassword: null, // No password needed for email verification auth
         emailVerified,
         isActive

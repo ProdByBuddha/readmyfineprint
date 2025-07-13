@@ -72,6 +72,20 @@ export default defineConfig({
       '.repl.run',
       'edcf3ef7-a826-4eed-8e04-7a485b2e183a-00-1wytaob2mj6u8.kirk.replit.dev'
     ],
+    // Enhanced CORS protection to mitigate esbuild vulnerability
+    cors: {
+      origin: [
+        'http://localhost:5000',
+        'https://localhost:5000',
+        /^https?:\/\/.*\.replit\.dev$/,
+        /^https?:\/\/.*\.repl\.co$/,
+        /^https?:\/\/.*\.replit\.app$/,
+        /^https?:\/\/.*\.repl\.run$/,
+      ],
+      credentials: true,
+      methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+      allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
+    },
     fs: {
       strict: true,
       deny: ["**/.*"],

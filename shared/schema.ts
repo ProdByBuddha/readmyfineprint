@@ -16,6 +16,8 @@ export const users = pgTable('users', {
   isDeleted: boolean('is_deleted').default(false).notNull(),
   deletedAt: timestamp('deleted_at'),
   deletionReason: text('deletion_reason'), // 'user_request', 'admin_action', 'compliance'
+  suspendedAt: timestamp('suspended_at'), // When user was suspended
+  suspensionReason: text('suspension_reason'), // Reason for suspension
   lastLoginAt: timestamp('last_login_at'),
   // 2FA Settings
   twoFactorEnabled: boolean('two_factor_enabled').default(false).notNull(),

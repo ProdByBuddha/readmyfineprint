@@ -1217,13 +1217,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
             return await analyzeDocument(
               document.content,
               document.title,
-              {
-                ip: analysisIp,
-                userAgent: analysisUserAgent,
-                sessionId: req.sessionId,
-                model: subscriptionData.tier.model,
-                userId: userId
-              }
+              analysisIp,
+              analysisUserAgent,
+              req.sessionId,
+              subscriptionData.tier.model,
+              userId
             );
           }
         }
@@ -1631,8 +1629,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.json({
         user: {
           id: user.id,
-          email: user.email,
-          username: user.username
+          email: user.email
         }
       });
     } catch (error) {
@@ -2960,7 +2957,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Mailing List Signup
-  app.post("/api/mailing-list/signup", requireConsent, async (req: Request, res: Response) => {
+  app.post("/api/mailing-list/signup", requireConsent, async (req: any, res: any) => {
     try {
       const clientInfo = getClientInfo(req);
       
@@ -2974,9 +2971,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Check if user is logged in to get their userId
       let userId: string | null = null;
       try {
-        const authResult = await optionalUserAuth(req, res, () => {});
-        if (authResult && typeof authResult === 'object' && 'userId' in authResult) {
-          userId = authResult.userId;
+        await optionalUserAuth(req, res, () => {});
+        if (req.user && req.user.id) {
+          userId = req.user.id;
         }
       } catch (error) {
         // User not logged in, continue without userId
@@ -3013,17 +3010,18 @@ export async function registerRoutes(app: Express): Promise<Server> {
             })
             .where(eq(mailingList.id, existingEntry[0].id));
 
-          await securityLogger.logEvent({
+          await securityLogger.logSecurityEvent({
             eventType: SecurityEventType.MAILING_LIST_RESUBSCRIBE,
             severity: SecuritySeverity.LOW,
             message: `User resubscribed to mailing list: ${signupData.subscriptionType}`,
-            userId: userId || undefined,
-            metadata: {
+            ip: clientInfo.ip,
+            userAgent: clientInfo.userAgent,
+            details: {
+              userId: userId || undefined,
               email: signupData.email,
               subscriptionType: signupData.subscriptionType,
               source: signupData.source,
             },
-            clientInfo,
           });
 
           return res.json({ 
@@ -3043,8 +3041,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
         subscriptionType: signupData.subscriptionType,
         source: signupData.source,
         status: 'active',
-        ipHash: clientInfo.ipHash,
-        userAgentHash: clientInfo.userAgentHash,
+        ipHash: crypto.createHash('sha256').update(clientInfo.ip).digest('hex'),
+        userAgentHash: crypto.createHash('sha256').update(clientInfo.userAgent).digest('hex'),
         unsubscribeToken: unsubscribeToken,
       };
 
@@ -3144,17 +3142,17 @@ ReadMyFinePrint | Privacy-First AI-Powered Contract Analysis
         // Don't fail the signup if email fails
       }
 
-      await securityLogger.logEvent({
+      await securityLogger.logSecurityEvent({
         eventType: SecurityEventType.MAILING_LIST_SIGNUP,
         severity: SecuritySeverity.LOW,
         message: `New mailing list signup: ${signupData.subscriptionType}`,
-        userId: userId || undefined,
-        metadata: {
+        ip: clientInfo.ip,
+        userAgent: clientInfo.userAgent,
+        details: {
           email: signupData.email,
           subscriptionType: signupData.subscriptionType,
           source: signupData.source,
         },
-        clientInfo,
       });
 
       res.json({ 
@@ -3181,7 +3179,7 @@ ReadMyFinePrint | Privacy-First AI-Powered Contract Analysis
   });
 
   // Mailing List Unsubscribe
-  app.get("/api/mailing-list/unsubscribe", async (req: Request, res: Response) => {
+  app.get("/api/mailing-list/unsubscribe", async (req: any, res: any) => {
     try {
       const token = req.query.token as string;
       
@@ -3305,17 +3303,18 @@ ReadMyFinePrint | Privacy-First AI-Powered Contract Analysis
 
       // Log security event
       const clientInfo = getClientInfo(req);
-      await securityLogger.logEvent({
+      await securityLogger.logSecurityEvent({
         eventType: SecurityEventType.MAILING_LIST_SIGNUP, // Reuse existing event type
         severity: SecuritySeverity.LOW,
         message: `Mailing list unsubscribe: ${mailingListEntry.subscriptionType}`,
-        userId: mailingListEntry.userId || undefined,
-        metadata: {
+        ip: clientInfo.ip,
+        userAgent: clientInfo.userAgent,
+        details: {
+          userId: mailingListEntry.userId || undefined,
           email: mailingListEntry.email,
           subscriptionType: mailingListEntry.subscriptionType,
           action: 'unsubscribe',
         },
-        clientInfo,
       });
 
       res.json({ 

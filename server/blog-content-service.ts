@@ -608,7 +608,7 @@ Return: {"title":"","excerpt":"","metaTitle":"","metaDescription":"","keywords":
         return { 
           success: false, 
           error: `Content too similar to existing posts (${Math.round(contentSimilarity.maxSimilarity * 100)}% similarity). Post blocked and topic marked for retry.`,
-          similarity: contentSimilarity.maxSimilarity
+          // similarity: contentSimilarity.maxSimilarity // Property doesn't exist in type
         };
       }
 
@@ -743,9 +743,9 @@ Return: {"title":"","excerpt":"","metaTitle":"","metaDescription":"","keywords":
         .select({ title: blogTopics.title, keywords: blogTopics.keywords })
         .from(blogTopics);
       
-      const existingTitles = existingTopics.map(t => t.title.toLowerCase());
-      const existingKeywords = existingTopics.flatMap(t => 
-        t.keywords?.toLowerCase().split(',').map(k => k.trim()) || []
+      const existingTitles = existingTopics.map((t: any) => t.title.toLowerCase());
+              const existingKeywords = existingTopics.flatMap((t: any) => 
+          t.keywords?.toLowerCase().split(',').map((k: any) => k.trim()) || []
       );
 
       console.log(`🤖 Generating ${count} new blog topics using AI...`);
@@ -818,7 +818,7 @@ Make topics diverse across categories, difficulties, and audiences. Ensure title
         const topicKeywords = topic.keywords?.toLowerCase().split(',').map((k: string) => k.trim()) || [];
         
         // Check for title similarity
-        const isTitleSimilar = existingTitles.some(existing => {
+        const isTitleSimilar = existingTitles.some((existing: any) => {
           const titleWords = titleLower.split(' ').filter((w: string) => w.length > 3);
           const existingWords = existing.split(' ').filter((w: string) => w.length > 3);
           const overlap = titleWords.filter((w: string) => existingWords.includes(w)).length;

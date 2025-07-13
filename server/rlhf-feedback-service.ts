@@ -71,7 +71,7 @@ class RlhfFeedbackService {
    */
   async submitFeedback(submission: RlhfFeedbackSubmission): Promise<{ success: boolean; feedbackId?: string }> {
     try {
-      const db = await initializeDatabase();
+      // Database connection already available through imported db
       
       // Create session pseudonym (consistent per session but anonymous)
       const sessionPseudonym = crypto
@@ -143,7 +143,7 @@ class RlhfFeedbackService {
     detectionMethod?: string;
   } = {}): Promise<FeedbackAnalytics> {
     try {
-      const db = await initializeDatabase();
+      // Database connection already available through imported db
       const { startDate, endDate, detectionType, detectionMethod } = options;
       
       // Build WHERE clause conditions
@@ -350,7 +350,7 @@ class RlhfFeedbackService {
    */
   private async updateMetricsAsync(detectionType: string, detectionMethod: string): Promise<void> {
     try {
-      const db = await initializeDatabase();
+      // Database connection already available through imported db
       
       // Calculate daily metrics for today
       const today = new Date();
@@ -424,7 +424,7 @@ class RlhfFeedbackService {
     examples: string[];
   }>> {
     try {
-      const db = await initializeDatabase();
+      // Database connection already available through imported db
       
       const result = await db.execute(sql`
         SELECT 

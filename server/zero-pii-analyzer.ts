@@ -530,6 +530,8 @@ export class ZeroPIIAnalyzer {
         {
           totalMatches: 0,
           highConfidenceMatches: 0,
+          mediumConfidenceMatches: 0,
+          lowConfidenceMatches: 0,
           falsePositiveRisk: 0.0,
           coverageConfidence: 1.0
         }

@@ -84,7 +84,7 @@ router.get('/posts', async (req, res) => {
       .offset(offset);
 
     // Add displayViewCount and displayShareCount to each post
-    const postsWithDisplayCounts = posts.map(post => ({
+    const postsWithDisplayCounts = posts.map((post: any) => ({
       ...post,
       displayViewCount: (post.viewCount || 0) + (post.artificialViewCount || 0),
       displayShareCount: (post.shareCount || 0) + (post.artificialShareCount || 0)
@@ -208,7 +208,7 @@ router.get('/categories', async (req, res) => {
       .groupBy(blogPosts.category)
       .orderBy(asc(blogPosts.category));
     
-    const formattedCategories = categories.map(cat => ({
+    const formattedCategories = categories.map((cat: any) => ({
       name: cat.category,
       count: cat.count,
       slug: cat.category.toLowerCase().replace(/\s+/g, '-'),
