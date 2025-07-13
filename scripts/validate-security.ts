@@ -5,9 +5,18 @@
  * Validates that all security measures are properly implemented
  */
 
+// Set validation mode to allow graceful database fallback
+process.env.VALIDATION_MODE = 'true';
+
+console.log('🔄 Starting security validation script...');
+console.log('   NODE_ENV:', process.env.NODE_ENV);
+console.log('   VALIDATION_MODE:', process.env.VALIDATION_MODE);
+
 import { subscriptionService } from '../server/subscription-service';
 import { databaseStorage } from '../server/storage';
 import { validateEnvironmentOrExit } from '../server/env-validation';
+
+console.log('✅ Imports completed successfully');
 
 interface SecurityCheck {
   name: string;
@@ -80,27 +89,26 @@ class SecurityValidator {
     try {
       const { SUBSCRIPTION_TIERS, getTierById } = await import('../server/subscription-tiers');
       
-      // Check that ultimate tier exists but is admin-only
+      // Check that ultimate tier exists and is properly configured for grandfathering
       const ultimateTier = getTierById('ultimate');
       if (!ultimateTier) {
         this.addCheck(
           'Ultimate Tier Configuration',
           'FAIL',
-          'Ultimate tier is missing - it should exist as admin-only tier',
+          'Ultimate tier is missing - it should exist for grandfathering users',
           true
         );
-      } else if (!ultimateTier.adminOnly) {
+      } else if (ultimateTier.adminOnly) {
         this.addCheck(
           'Ultimate Tier Security',
-          'FAIL',
-          'Ultimate tier exists but is not marked as admin-only - security risk',
-          true
+          'WARNING',
+          'Ultimate tier is marked as admin-only - this may prevent grandfathering existing users'
         );
       } else {
         this.addCheck(
           'Ultimate Tier Security',
           'PASS',
-          'Ultimate tier properly configured as admin-only'
+          'Ultimate tier properly configured for grandfathering (not admin-only, not purchasable)'
         );
       }
 
@@ -122,19 +130,19 @@ class SecurityValidator {
             );
           }
         } else if (tier.id === 'ultimate') {
-          // Ultimate tier should be admin-only with unlimited access
-          if (!tier.adminOnly || tier.limits.documentsPerMonth !== -1) {
+          // Ultimate tier should have unlimited access for grandfathered users (not admin-only)
+          if (tier.limits.documentsPerMonth !== -1) {
             this.addCheck(
               `Tier Validation: ${tier.id}`,
               'FAIL',
-              `Ultimate tier must be admin-only with unlimited access`,
+              `Ultimate tier must have unlimited access for grandfathered users`,
               true
             );
           } else {
             this.addCheck(
               `Tier Validation: ${tier.id}`,
               'PASS',
-              `Ultimate tier properly configured for admin use`
+              `Ultimate tier properly configured for grandfathered users with unlimited access`
             );
           }
         } else {

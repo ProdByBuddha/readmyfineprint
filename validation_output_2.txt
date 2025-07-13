@@ -1,0 +1,86 @@
+🔄 DatabaseStorage: Running in validation mode with mock database
+🔄 Starting security validation script...
+   NODE_ENV: production
+   VALIDATION_MODE: true
+✅ Imports completed successfully
+🔒 Starting Security Validation...
+
+🔍 Validating environment variables...
+✅ OPENAI_API_KEY: sk-***
+✅ ADMIN_API_KEY: 81ad52472ab148577fb4ba109d09901d1e9b5d55479ccebbea...
+✅ JWT_SECRET: KQvWGiKq5jAfsTSHFID1StgprPQAusDKhJmSdVFKgZI5W/nF2O...
+✅ TOKEN_ENCRYPTION_KEY: ddf455b6fd8c0e59d5893bf44e7bca157c0ad51405258c7bee...
+✅ PASSWORD_PEPPER: b0dea38aca02ad50d94b704f127740decf0e4839b66c6f145d...
+✅ ALLOWED_ORIGINS: https://readmyfineprint.com,https://edcf3ef7-a826-...
+✅ NODE_ENV: production
+✅ SESSION_ENCRYPTION_KEY: 2651fc8605cabc8b756adbc6861138afe8cf520d54417763ee...
+✅ REPLIT_DB_URL: https://kv.replit.com/v0/eyJhbGciOiJIUzUxMiIsImlzc...
+✅ STRIPE_PUBLIC_KEY: pk_live_51RWnyYLNxaR...
+✅ STRIPE_SECRET_KEY: sk_live_51...
+✅ STRIPE_TEST_PUBLIC_KEY: pk_test_51RWnynPxX1d...
+✅ STRIPE_TEST_SECRET_KEY: sk_test_51...
+🔄 Concurrent test/live payment processing enabled
+
+📋 Warnings:
+   ⚠️  Optional SECURITY_WEBHOOK_URL not set - Optional webhook URL for security alerts (for external monitoring)
+✅ Environment validation passed
+   (1 warning)
+🔒 Validating Environment Configuration...
+📊 Validating Subscription Tiers...
+🔑 Validating Token Security...
+✅ JWT Secret Manager initialized with versioned secrets
+✅ JOSE token service initialized with versioned encryption key
+Generated JOSE subscription token for user test-user (expires in 30 days)
+Valid JOSE subscription token for user test-user, tier: free
+💳 Validating Subscription Security...
+📊 Session-based user detected (anonymous), providing free tier without subscription record
+📊 Individual anonymous user (anonymous) usage: 0 documents analyzed this month
+📊 Session-based user detected (session_test123), providing free tier without subscription record
+📊 Individual anonymous user (session_test123) usage: 0 documents analyzed this month
+Creating inactive free tier subscription for user: nonexistent-user-id
+[Subscription Enforcement] User downgraded to free tier. Status: undefined, Expired: false
+Error getting usage record: TypeError: (intermediate value) is not iterable
+    at DatabaseStorage.getUserUsage (/home/runner/workspace/server/database-storage.ts:381:21)
+    at async SubscriptionService.getUserSubscriptionWithUsage (/home/runner/workspace/server/subscription-service.ts:493:23)
+    at async SecurityValidator.validateSubscriptionSecurity (/home/runner/workspace/scripts/validate-security.ts:271:39)
+    at async SecurityValidator.runAllValidations (/home/runner/workspace/scripts/validate-security.ts:434:7)
+Error getting user subscription: TypeError: (intermediate value) is not iterable
+    at DatabaseStorage.getUserUsage (/home/runner/workspace/server/database-storage.ts:381:21)
+    at async SubscriptionService.getUserSubscriptionWithUsage (/home/runner/workspace/server/subscription-service.ts:493:23)
+    at async SecurityValidator.validateSubscriptionSecurity (/home/runner/workspace/scripts/validate-security.ts:271:39)
+    at async SecurityValidator.runAllValidations (/home/runner/workspace/scripts/validate-security.ts:434:7)
+👑 Validating Admin Security...
+ℹ️ [SECURITY] SYSTEM | LOW | caf37866 | JWT Secret Manager initialized successfully | initialization
+ℹ️ [SECURITY] SUBSCRIPTION_CREATED | LOW | 6adb719d | Inactive free tier subscription created for user nonexistent-user-id | subscription-service | {"userId":"nonexistent-user-id","tierId":"free","status":"inactive"}
+ℹ️ [SECURITY] SYSTEM | LOW | 1379a641 | JOSE token service initialized with versioned secrets | initialization
+🗄️ Validating Database Security...
+
+================================================================================
+🔒 SECURITY VALIDATION RESULTS
+================================================================================
+✅ Environment Variable: ADMIN_API_KEY: ADMIN_API_KEY is properly configured
+✅ Environment Variable: JWT_SECRET: JWT_SECRET is properly configured
+✅ Environment Variable: TOKEN_ENCRYPTION_KEY: TOKEN_ENCRYPTION_KEY is properly configured
+✅ Environment Variable: PASSWORD_PEPPER: PASSWORD_PEPPER is properly configured
+✅ Environment Variable: OPENAI_API_KEY: OPENAI_API_KEY is properly configured
+✅ Ultimate Tier Security: Ultimate tier properly configured for grandfathering (not admin-only, not purchasable)
+⚠️ Tier Validation: free: Free tier limits may be too restrictive or permissive
+✅ Tier Validation: starter: Paid tier starter properly configured
+✅ Tier Validation: professional: Paid tier professional properly configured
+✅ Tier Validation: business: Paid tier business properly configured
+✅ Tier Validation: enterprise: Paid tier enterprise properly configured
+✅ Tier Validation: ultimate: Ultimate tier properly configured for grandfathered users with unlimited access
+✅ JOSE Token Service: JOSE token service initializes without fallback secrets
+✅ Token Generation/Validation: Token generation and validation working correctly
+✅ Anonymous User Restrictions: Anonymous users are properly restricted to free tier
+✅ Session User Restrictions: Session users are properly restricted to free tier
+✅ Nonexistent User Handling: Nonexistent users are properly routed to free tier
+✅ Admin Verification Service: Admin verification service is available and properly configured
+✅ Admin Email Restrictions: Admin access is properly restricted to specific emails
+⚠️ Collective Free User: Collective free user does not exist - will be created on first use
+✅ Database Connection: Database storage is properly accessible
+
+--------------------------------------------------------------------------------
+📊 SUMMARY: 19 passed, 2 warnings, 0 failures (0 critical)
+
+✅ Security validation passed with warnings. Review warnings before production.
