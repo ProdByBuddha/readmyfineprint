@@ -3,6 +3,9 @@ import type { Document, UserSubscription, SubscriptionTier, SubscriptionUsage, S
 import { getGlobalSessionId, sessionFetch, clearSession } from "./sessionManager";
 import { fetchWithCSRF } from "./csrfManager";
 
+// Export sessionFetch for use in hooks
+export { sessionFetch };
+
 // Interface for consent verification proof
 interface ConsentProof {
   timestamp: string;
