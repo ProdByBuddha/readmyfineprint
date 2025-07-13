@@ -26,7 +26,7 @@ const isDevelopment = process.env.NODE_ENV === 'development';
 const MONITORING_CONFIG = {
   server: {
     host: process.env.MONITOR_HOST || 'localhost',
-    port: parseInt(process.env.PORT || (isProduction ? '3000' : '5000')),
+    port: parseInt(process.env.PORT || '5000'),
     healthEndpoint: '/api/health',
     timeout: isProduction ? 30000 : 10000, // 30s in prod, 10s in dev
     // In production, use external URL for health checks if available
@@ -465,7 +465,10 @@ class ProductionMonitor {
     }
 
     try {
-      const serverUrl = `http://${MONITORING_CONFIG.server.host}:${MONITORING_CONFIG.server.port}`;
+      // Use external URL in production, otherwise use local server
+      const serverUrl = isProduction && MONITORING_CONFIG.server.externalUrl 
+        ? MONITORING_CONFIG.server.externalUrl
+        : `http://${MONITORING_CONFIG.server.host}:${MONITORING_CONFIG.server.port}`;
       
       // Create email content
       const isFailure = alert.type === 'failure';
@@ -516,7 +519,7 @@ Generated: ${new Date().toISOString()}
         html: emailBody.replace(/\n/g, '<br>')
       };
 
-      const response = await fetch(`${serverUrl}/api/admin/send-alert-email`, {
+      const response = await fetch(`${serverUrl}/api/monitoring/send-alert-email`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

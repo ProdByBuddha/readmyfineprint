@@ -2739,6 +2739,54 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Monitoring alert email endpoint (simpler auth for monitoring tools)
+  app.post("/api/monitoring/send-alert-email", async (req, res) => {
+    try {
+      const { ip, userAgent } = getClientInfo(req);
+      const adminKey = process.env.ADMIN_API_KEY;
+      const providedKey = req.headers['authorization']?.replace('Bearer ', '');
+      
+      // Simple API key authentication for monitoring
+      if (!adminKey || providedKey !== adminKey) {
+        securityLogger.logSecurityEvent({
+          eventType: SecurityEventType.AUTHENTICATION,
+          severity: SecuritySeverity.MEDIUM,
+          message: 'Unauthorized monitoring alert attempt',
+          ip,
+          userAgent,
+          endpoint: '/api/monitoring/send-alert-email'
+        });
+        return res.status(401).json({ error: 'Invalid monitoring credentials' });
+      }
+      
+      const { to, subject, text, html } = req.body;
+      
+      // Validate required fields
+      if (!to || !subject || !text) {
+        return res.status(400).json({ 
+          error: 'Missing required fields: to, subject, text are required' 
+        });
+      }
+      
+      // Send the alert email
+      const sent = await emailService.sendEmail({ to, subject, text, html });
+      
+      if (sent) {
+        console.log(`📧 Monitoring alert email sent to ${to}`);
+        res.json({ success: true, message: 'Alert email sent successfully' });
+      } else {
+        res.status(500).json({ success: false, error: 'Failed to send alert email' });
+      }
+    } catch (error) {
+      console.error('Monitoring alert email failed:', error);
+      res.status(500).json({ 
+        success: false, 
+        error: 'Failed to send alert email',
+        message: error instanceof Error ? error.message : 'Unknown error'
+      });
+    }
+  });
+
   // Create Stripe Checkout Session with input validation and auto-detecting test/live mode
   app.post("/api/create-checkout-session", requireConsent, async (req, res) => {
     try {

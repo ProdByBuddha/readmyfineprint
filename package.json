@@ -48,6 +48,7 @@
     "security:nuclei": "./nuclei -u http://localhost:5000 -severity critical,high,medium",
     "security:zap": "curl -s http://localhost:8080/JSON/core/view/version/ && echo 'ZAP is running' || echo 'Start ZAP first'",
     "subscription:init": "node scripts/init-subscriptions.js",
+    "db:migrate": "tsx scripts/add-missing-columns.ts",
     "db:setup-local": "tsx scripts/setup-local-db.ts",
     "db:status": "tsx scripts/check-db-status.ts",
     "db:create-mailing-list": "tsx scripts/add-mailing-list-table.ts",

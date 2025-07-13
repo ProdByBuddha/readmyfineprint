@@ -33,6 +33,14 @@ const app = express();
 const PORT = parseInt(process.env.PORT || '5000');
 
 async function startProductionServer() {
+  // Run database migrations check
+  try {
+    const { checkAndRunMigrations } = await import('../scripts/check-db-migrations.js');
+    await checkAndRunMigrations();
+  } catch (error) {
+    console.error('⚠️  Migration check failed, continuing with server startup:', error);
+  }
+  
   // Configure trust proxy securely - only trust the first proxy
   app.set('trust proxy', 1);
 
