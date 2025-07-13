@@ -9,6 +9,7 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 import { CheckCircle, Heart, ArrowLeft, CreditCard, Loader2, Wallet, Copy, Target, ArrowRight } from "lucide-react";
 import { SocialShare } from "@/components/SocialShare";
 import { Link } from "wouter";
+import { useDonationTracking } from "../hooks/useDonationTracking";
 
 interface DonateButtonProps {
   amount: number;
@@ -83,6 +84,9 @@ export default function DonatePage() {
   const [copiedAddress, setCopiedAddress] = useState<string | null>(null);
   const [isProcessing, setIsProcessing] = useState(false);
 
+  // Use database-backed donation tracking
+  const { visited: hasVisitedBefore, markAsVisited } = useDonationTracking();
+
   const success = searchParams.get('success') === 'true';
   const canceled = searchParams.get('canceled') === 'true';
   const amount = searchParams.get('amount');
@@ -115,7 +119,6 @@ export default function DonatePage() {
 
   // Check if user is returning to donation page and show thank you message
   useEffect(() => {
-    const hasVisitedBefore = localStorage.getItem('donationPageVisited');
     const lastVisit = localStorage.getItem('donationPageLastVisit');
     const now = Date.now();
     
@@ -137,10 +140,10 @@ export default function DonatePage() {
     
     // Update visit tracking for regular visits (not canceled page)
     if (!canceled) {
-      localStorage.setItem('donationPageVisited', 'true');
+      markAsVisited(); // Use database-backed tracking
       localStorage.setItem('donationPageLastVisit', now.toString());
     }
-  }, [canceled]);
+  }, [canceled, hasVisitedBefore, markAsVisited]);
 
   const handleAmountSelect = (amount: number) => {
     setSelectedAmount(amount);

@@ -28,6 +28,10 @@ const donationTrackingSchema = z.object({
   visited: z.boolean()
 });
 
+const deviceFingerprintSchema = z.object({
+  fingerprint: z.string().min(1)
+});
+
 const bulkMigrationSchema = z.object({
   theme: z.enum(['light', 'dark']).optional(),
   legalDisclaimerAccepted: z.boolean().optional(),
@@ -379,6 +383,67 @@ export function registerUserPreferencesRoutes(app: Express) {
     } catch (error) {
       console.error('Error deleting preference:', error);
       res.status(500).json({ error: 'Failed to delete preference' });
+    }
+  });
+
+  /**
+   * Get user device fingerprint backup
+   * GET /api/user/preferences/device-fingerprint
+   */
+  app.get('/api/user/preferences/device-fingerprint', requireUserAuth, async (req: Request, res: Response) => {
+    try {
+      const userId = (req as any).user.id;
+      const { ip, userAgent } = getClientInfo(req);
+      
+      const fingerprint = await userPreferencesService.getUserPreference(userId, 'device_fingerprint_backup');
+      
+      securityLogger.logSecurityEvent({
+        eventType: SecurityEventType.USER_ACTIVITY,
+        severity: SecuritySeverity.LOW,
+        message: 'User retrieved device fingerprint backup',
+        ip,
+        userAgent,
+        endpoint: '/api/user/preferences/device-fingerprint',
+        details: { userId, hasFingerprint: !!fingerprint }
+      });
+      
+      res.json({ fingerprint: fingerprint || null });
+    } catch (error) {
+      console.error('Error getting device fingerprint backup:', error);
+      res.status(500).json({ error: 'Failed to get device fingerprint backup' });
+    }
+  });
+
+  /**
+   * Set user device fingerprint backup
+   * POST /api/user/preferences/device-fingerprint
+   */
+  app.post('/api/user/preferences/device-fingerprint', requireUserAuth, async (req: Request, res: Response) => {
+    try {
+      const userId = (req as any).user.id;
+      const { ip, userAgent } = getClientInfo(req);
+      
+      const { fingerprint } = deviceFingerprintSchema.parse(req.body);
+      
+      await userPreferencesService.setUserPreference(userId, 'device_fingerprint_backup', fingerprint);
+      
+      securityLogger.logSecurityEvent({
+        eventType: SecurityEventType.USER_ACTIVITY,
+        severity: SecuritySeverity.LOW,
+        message: 'User updated device fingerprint backup',
+        ip,
+        userAgent,
+        endpoint: '/api/user/preferences/device-fingerprint',
+        details: { userId, fingerprintLength: fingerprint.length }
+      });
+      
+      res.json({ success: true, fingerprint });
+    } catch (error) {
+      console.error('Error setting device fingerprint backup:', error);
+      if (error instanceof z.ZodError) {
+        return res.status(400).json({ error: 'Invalid device fingerprint', details: error.errors });
+      }
+      res.status(500).json({ error: 'Failed to set device fingerprint backup' });
     }
   });
 

@@ -4,6 +4,8 @@ import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { logConsent } from "@/lib/api";
 import { sessionFetch, getGlobalSessionId } from "../lib/sessionManager";
+import { useLegalDisclaimer } from "../hooks/useLegalDisclaimer";
+import { useCookieConsent } from "../hooks/useCookieConsent";
 
 interface CombinedConsentProps {
   onAccept: () => void;
@@ -22,6 +24,29 @@ export function useCombinedConsent() {
   const [isAccepted, setIsAccepted] = useState(false);
   const [isCheckingConsent, setIsCheckingConsent] = useState(true);
   const [forceUpdate, setForceUpdate] = useState(0);
+  
+  // Use the new database-backed hooks
+  const { accepted: legalAccepted, loading: legalLoading } = useLegalDisclaimer();
+  const { isAccepted: cookieAccepted, loading: cookieLoading } = useCookieConsent();
+
+  // Update combined consent state based on individual consents
+  useEffect(() => {
+    if (legalLoading || cookieLoading) {
+      setIsCheckingConsent(true);
+      return;
+    }
+
+    const combinedAccepted = legalAccepted && cookieAccepted;
+    setIsAccepted(combinedAccepted);
+    setIsCheckingConsent(false);
+    
+    // Update global state
+    globalConsentState = { 
+      status: combinedAccepted, 
+      timestamp: Date.now(),
+      sessionId: getGlobalSessionId()
+    };
+  }, [legalAccepted, cookieAccepted, legalLoading, cookieLoading]);
 
   const checkConsent = useCallback(async () => {
     // Check if we're in development mode and bypass consent checking
