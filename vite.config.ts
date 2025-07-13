@@ -19,12 +19,35 @@ export default defineConfig({
   build: {
     outDir: path.resolve(import.meta.dirname, "dist/public"),
     emptyOutDir: true,
+    // Increase chunk size warning limit to 1MB (from default 500KB)
+    chunkSizeWarningLimit: 1000,
     // SEO and Performance optimizations
     rollupOptions: {
       output: {
         manualChunks: {
+          // Core React libraries
           vendor: ['react', 'react-dom'],
-          ui: ['@radix-ui/react-dialog'],
+          // UI components
+          ui: [
+            '@radix-ui/react-dialog',
+            '@radix-ui/react-dropdown-menu',
+            '@radix-ui/react-toast',
+            '@radix-ui/react-select',
+            '@radix-ui/react-switch',
+            '@radix-ui/react-tabs',
+            '@radix-ui/react-tooltip'
+          ],
+          // Large third-party libraries
+          utils: [
+            'html2canvas',
+            'dompurify',
+            'clsx',
+            'tailwind-merge'
+          ],
+          // API and state management
+          api: [
+            '@tanstack/react-query'
+          ]
         },
       },
     },

@@ -3,36 +3,38 @@
  * Prevents session fragmentation that causes consent state inconsistencies
  */
 
-import { clearCSRFToken } from './csrfManager';
+import { fetchWithCSRF } from './csrfManager';
 
+// Session ID management - use sessionStorage for consistency
 let globalSessionId: string | null = null;
 
-/**
- * Generate a consistent session identifier
- */
 function generateSessionId(): string {
-  return 'session_' + Math.random().toString(36).substr(2, 16) + Date.now().toString(36);
+  return crypto.getRandomValues(new Uint8Array(16))
+    .reduce((str, byte) => str + byte.toString(16).padStart(2, '0'), '');
 }
 
-/**
- * Get or create a global session ID that all components will use
- */
 export function getGlobalSessionId(): string {
   if (!globalSessionId) {
-    // Try to get from sessionStorage first
-    const stored = sessionStorage.getItem('rmfp_session_id');
-    if (stored) {
-      globalSessionId = stored;
-    } else {
-      globalSessionId = generateSessionId();
-      sessionStorage.setItem('rmfp_session_id', globalSessionId);
-    }
+    globalSessionId = sessionStorage.getItem('app-session-id') || generateSessionId();
+    sessionStorage.setItem('app-session-id', globalSessionId);
   }
   return globalSessionId;
 }
 
+export function updateSessionId(newSessionId: string): void {
+  globalSessionId = newSessionId;
+  sessionStorage.setItem('app-session-id', newSessionId);
+}
+
+export function generateNewSessionId(): string {
+  const newId = generateSessionId();
+  updateSessionId(newId);
+  return newId;
+}
+
 /**
- * Create fetch wrapper that ensures session consistency
+ * Session-aware fetch that automatically includes session ID
+ * For state-changing operations, this will also handle CSRF tokens
  */
 export async function sessionFetch(url: string, options: RequestInit = {}): Promise<Response> {
   const sessionId = getGlobalSessionId();
@@ -42,45 +44,43 @@ export async function sessionFetch(url: string, options: RequestInit = {}): Prom
   const needsCSRF = !['GET', 'HEAD', 'OPTIONS'].includes(method);
   
   if (needsCSRF) {
-    // Use fetchWithCSRF but ensure session ID consistency
-    const { fetchWithCSRF } = await import('./csrfManager');
-    
-    // Merge session ID into headers to ensure consistency
+    // Use fetchWithCSRF with session ID
     const headers = {
       ...options.headers as Record<string, string> || {},
       'x-session-id': sessionId,
     };
     
-    const finalOptions: RequestInit = {
+    return fetchWithCSRF(url, {
       ...options,
       headers,
-      credentials: 'include',
-    };
-
-    console.log(`Making CSRF-protected request to ${url} with session: ${sessionId.substring(0, 16)}...`);
-    return fetchWithCSRF(url, finalOptions);
-  } else {
-    // For safe methods, just add session ID
-    const headers = new Headers(options.headers || {});
-    headers.set('x-session-id', sessionId);
-    
-    const finalOptions: RequestInit = {
-      ...options,
-      headers,
-      credentials: 'include',
-    };
-
-    console.log(`Making request to ${url} with session: ${sessionId.substring(0, 16)}...`);
-    return fetch(url, finalOptions);
+    });
   }
+  
+  // For GET requests, just add session ID
+  const headers = {
+    ...options.headers as Record<string, string> || {},
+    'x-session-id': sessionId,
+  };
+  
+  const response = await fetch(url, {
+    ...options,
+    headers,
+    credentials: 'include',
+  });
+  
+  // Update session ID if server provides one
+  const serverSessionId = response.headers.get('x-session-id');
+  if (serverSessionId && serverSessionId !== sessionId) {
+    updateSessionId(serverSessionId);
+  }
+  
+  return response;
 }
 
-/**
- * Clear session data (for logout, etc.)
- */
 export function clearSession(): void {
   globalSessionId = null;
-  sessionStorage.removeItem('rmfp_session_id');
-  sessionStorage.removeItem('sessionId'); // Clear CSRF manager session ID too
-  clearCSRFToken(); // Clear CSRF token cache
+  sessionStorage.removeItem('app-session-id');
+  
+  // Generate new session ID immediately
+  generateNewSessionId();
 }

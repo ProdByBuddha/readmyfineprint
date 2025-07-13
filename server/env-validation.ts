@@ -102,7 +102,6 @@ const ENV_VARIABLES: EnvConfig[] = [
     name: 'NODE_ENV',
     required: false,
     description: 'Node environment (development, production)',
-    defaultValue: 'development',
     validator: (value) => ['development', 'production', 'test'].includes(value)
   },
   {
@@ -136,8 +135,11 @@ export function validateEnvironment(): ValidationResult {
   const errors: string[] = [];
   const warnings: string[] = [];
   const config: Record<string, string> = {};
+  const isProduction = process.env.NODE_ENV === 'production';
 
-  console.log('🔍 Validating environment variables...');
+  if (!isProduction) {
+    console.log('🔍 Validating environment variables...');
+  }
 
   for (const envVar of ENV_VARIABLES) {
     const value = process.env[envVar.name];
@@ -166,7 +168,11 @@ export function validateEnvironment(): ValidationResult {
     }
 
     config[envVar.name] = value;
-    console.log(`✅ ${envVar.name}: ${envVar.name === 'OPENAI_API_KEY' ? 'sk-***' : value.length > 50 ? value.substring(0, 50) + '...' : value}`);
+    
+    // Only log environment variables in development mode
+    if (!isProduction) {
+      console.log(`✅ ${envVar.name}: ${envVar.name === 'OPENAI_API_KEY' ? 'sk-***' : value.length > 50 ? value.substring(0, 50) + '...' : value}`);
+    }
   }
 
   // Special validation for production environment
@@ -183,31 +189,43 @@ export function validateEnvironment(): ValidationResult {
   const stripeTestSecretKey = process.env.STRIPE_TEST_SECRET_KEY;
 
   if (stripePublicKey && stripeSecretKey) {
-    console.log('✅ STRIPE_PUBLIC_KEY:', stripePublicKey.substring(0, 20) + '...');
-    console.log('✅ STRIPE_SECRET_KEY:', stripeSecretKey.substring(0, 10) + '...');
+    // Only log Stripe keys in development mode
+    if (!isProduction) {
+      console.log('✅ STRIPE_PUBLIC_KEY:', stripePublicKey.substring(0, 20) + '...');
+      console.log('✅ STRIPE_SECRET_KEY:', stripeSecretKey.substring(0, 10) + '...');
 
-    if (stripeTestPublicKey && stripeTestSecretKey) {
-      console.log('✅ STRIPE_TEST_PUBLIC_KEY:', stripeTestPublicKey.substring(0, 20) + '...');
-      console.log('✅ STRIPE_TEST_SECRET_KEY:', stripeTestSecretKey.substring(0, 10) + '...');
-      console.log('🔄 Concurrent test/live payment processing enabled');
+      if (stripeTestPublicKey && stripeTestSecretKey) {
+        console.log('✅ STRIPE_TEST_PUBLIC_KEY:', stripeTestPublicKey.substring(0, 20) + '...');
+        console.log('✅ STRIPE_TEST_SECRET_KEY:', stripeTestSecretKey.substring(0, 10) + '...');
+        console.log('🔄 Concurrent test/live payment processing enabled');
+      } else {
+        warnings.push('⚠️  Optional Stripe test keys not set - Only live payments will be processed');
+      }
     } else {
-      warnings.push('⚠️  Optional Stripe test keys not set - Only live payments will be processed');
+      // In production, just check if concurrent processing is enabled
+      if (stripeTestPublicKey && stripeTestSecretKey) {
+        console.log('🔄 Concurrent test/live payment processing enabled');
+      }
     }
   } else {
-    warnings.push('⚠️  Optional Stripe keys not set - Donation functionality will be disabled');
+    if (!isProduction) {
+      warnings.push('⚠️  Optional Stripe keys not set - Donation functionality will be disabled');
+    }
   }
 
   const success = errors.length === 0;
 
-  if (warnings.length > 0) {
+  if (!isProduction && warnings.length > 0) {
     console.log('\n📋 Warnings:');
     warnings.forEach(warning => console.log(`   ${warning}`));
   }
 
   if (success) {
-    console.log('✅ Environment validation passed');
-    if (warnings.length > 0) {
-      console.log(`   (${warnings.length} warning${warnings.length === 1 ? '' : 's'})`);
+    if (!isProduction) {
+      console.log('✅ Environment validation passed');
+      if (warnings.length > 0) {
+        console.log(`   (${warnings.length} warning${warnings.length === 1 ? '' : 's'})`);
+      }
     }
   } else {
     console.log('\n❌ Environment validation failed:');
@@ -232,7 +250,7 @@ export function validateEnvironmentOrExit(): Record<string, string> {
     console.log('2. Check your deployment configuration');
     console.log('3. Ensure all API keys are valid and accessible');
     console.log('\nFor development, you can create a .env file (not committed to git):');
-    console.log('   OPENAI_API_KEY=sk-your-openai-key-here');
+    console.log('   OPENAI_API_KEY=your-openai-api-key-here');
     console.log('   ADMIN_API_KEY=your-secure-admin-key-here  # Required (16+ chars)');
     console.log('\nFor production, set these environment variables in your deployment platform.');
 

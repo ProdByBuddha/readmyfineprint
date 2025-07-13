@@ -1,6 +1,6 @@
 /**
- * CSRF Token Manager for Frontend
- * Handles fetching, storing, and including CSRF tokens in requests
+ * CSRF Protection Manager
+ * Handles CSRF token management for secure requests
  */
 
 class CSRFManager {
@@ -10,15 +10,9 @@ class CSRFManager {
   private fetchPromise: Promise<string> | null = null;
 
   /**
-   * Get CSRF token from cache or fetch from server
+   * Get or fetch CSRF token
    */
-  async getToken(): Promise<string> {
-    // In development mode, return a dummy token
-    if (import.meta.env.DEV || import.meta.env.MODE === 'development') {
-      console.log('⚠️ Development mode: Using dummy CSRF token');
-      return 'dev-csrf-token';
-    }
-    
+  async getToken(sessionId: string): Promise<string> {
     // Return cached token if still valid
     if (this.token && Date.now() < this.tokenExpiry) {
       return this.token;
@@ -26,11 +20,17 @@ class CSRFManager {
 
     // If there's already a fetch in progress, wait for it
     if (this.fetchPromise) {
-      return this.fetchPromise;
+      try {
+        return await this.fetchPromise;
+      } catch (error) {
+        // If the promise failed, clear it and try again
+        this.fetchPromise = null;
+        throw error;
+      }
     }
 
-    // Start new fetch
-    this.fetchPromise = this.fetchTokenFromServer();
+    // Start a new fetch
+    this.fetchPromise = this.fetchTokenFromServer(sessionId);
     
     try {
       const token = await this.fetchPromise;
@@ -43,136 +43,108 @@ class CSRFManager {
   }
 
   /**
-   * Fetch CSRF token from server
+   * Fetch fresh CSRF token from server
    */
-  private async fetchTokenFromServer(): Promise<string> {
+  private async fetchTokenFromServer(sessionId: string): Promise<string> {
     try {
-      const sessionId = await this.getSessionId();
       const response = await fetch('/api/csrf-token', {
         method: 'GET',
-        credentials: 'include', // Include cookies for session
         headers: {
+          'Content-Type': 'application/json',
           'x-session-id': sessionId,
         },
+        credentials: 'include',
       });
 
       if (!response.ok) {
-        throw new Error(`Failed to fetch CSRF token: ${response.statusText}`);
+        throw new Error(`Failed to fetch CSRF token: ${response.status}`);
       }
 
       const data = await response.json();
+      
       if (!data.csrfToken) {
         throw new Error('No CSRF token received from server');
       }
 
       // Cache the token
-      this.token = data.csrfToken as string;
+      this.token = data.csrfToken;
       this.tokenExpiry = Date.now() + this.TOKEN_VALIDITY;
-
-      console.log('🔒 CSRF token refreshed');
-      return this.token;
+      
+      return data.csrfToken;
     } catch (error) {
-      console.error('❌ Failed to fetch CSRF token:', error);
+      console.error('Error fetching CSRF token:', error);
       throw error;
     }
   }
 
   /**
-   * Get session ID from sessionManager to ensure consistency
-   */
-  private async getSessionId(): Promise<string> {
-    // Import getGlobalSessionId dynamically to avoid circular imports
-    const { getGlobalSessionId } = await import('./sessionManager');
-    return getGlobalSessionId();
-  }
-
-  /**
    * Add CSRF token to request headers
    */
-  async addTokenToHeaders(headers: Record<string, string> = {}): Promise<Record<string, string>> {
+  async addTokenToHeaders(sessionId: string, headers: Record<string, string> = {}): Promise<Record<string, string>> {
     try {
-      const token = await this.getToken();
-      const sessionId = await this.getSessionId();
+      const token = await this.getToken(sessionId);
+      
       return {
         ...headers,
         'x-csrf-token': token,
-        'x-session-id': sessionId,
       };
     } catch (error) {
-      console.warn('⚠️ Failed to add CSRF token to headers:', error);
-      
-      // In development mode, continue with dummy token
-      if (import.meta.env.DEV || import.meta.env.MODE === 'development') {
-        const sessionId = await this.getSessionId();
-        return {
-          ...headers,
-          'x-csrf-token': 'dev-csrf-token',
-          'x-session-id': sessionId,
-        };
-      }
-      
-      // Return headers without CSRF token - server will reject the request
-      const sessionId = await this.getSessionId();
-      return {
-        ...headers,
-        'x-session-id': sessionId,
-      };
+      console.error('Failed to add CSRF token to headers:', error);
+      // Return headers without CSRF token rather than failing the request
+      return headers;
     }
   }
 
   /**
    * Make a fetch request with CSRF protection
    */
-  async fetch(url: string, options: RequestInit = {}): Promise<Response> {
-    // Only add CSRF token for state-changing methods
+  async fetch(url: string, options: RequestInit = {}, sessionId: string): Promise<Response> {
     const method = (options.method || 'GET').toUpperCase();
-    const needsCSRF = !['GET', 'HEAD', 'OPTIONS'].includes(method);
-
-    if (needsCSRF) {
-      const headers = await this.addTokenToHeaders(options.headers as Record<string, string> || {});
-      options.headers = headers;
-    } else {
-      // For safe methods, still add session ID
-      const sessionId = await this.getSessionId();
-      const headers = {
-        ...options.headers as Record<string, string> || {},
-        'x-session-id': sessionId,
-      };
-      options.headers = headers;
+    
+    // Skip CSRF for safe methods
+    if (['GET', 'HEAD', 'OPTIONS'].includes(method)) {
+      return fetch(url, {
+        ...options,
+        credentials: 'include',
+      });
     }
 
-    // Include credentials for session management
-    options.credentials = options.credentials || 'include';
+    try {
+      // Add CSRF token to headers
+      const headers = await this.addTokenToHeaders(sessionId, options.headers as Record<string, string> || {});
+      
+      const response = await fetch(url, {
+        ...options,
+        headers,
+        credentials: 'include',
+      });
 
-    const response = await fetch(url, options);
-
-    // If we get a CSRF error, try to refresh token and retry once
-    if (response.status === 403 && needsCSRF) {
-      try {
-        const errorData = await response.clone().json();
-        if (errorData.code === 'CSRF_TOKEN_INVALID' || errorData.code === 'CSRF_TOKEN_MISSING') {
-          console.log('🔄 CSRF token invalid, refreshing and retrying...');
+      // If we get a 403 with CSRF error, clear token and retry once
+      if (response.status === 403) {
+        const errorText = await response.text();
+        if (errorText.includes('CSRF') || errorText.includes('csrf')) {
+          console.log('CSRF token invalid, clearing and retrying...');
+          this.clearToken();
           
-          // Clear cached token and refetch
-          this.token = null;
-          this.tokenExpiry = 0;
-          
-          const newHeaders = await this.addTokenToHeaders(options.headers as Record<string, string> || {});
-          options.headers = newHeaders;
-          
-          // Retry the request
-          return fetch(url, options);
+          // Retry once with fresh token
+          const retryHeaders = await this.addTokenToHeaders(sessionId, options.headers as Record<string, string> || {});
+          return fetch(url, {
+            ...options,
+            headers: retryHeaders,
+            credentials: 'include',
+          });
         }
-      } catch (parseError) {
-        // If we can't parse the error, just return the original response
       }
-    }
 
-    return response;
+      return response;
+    } catch (error) {
+      console.error('CSRF fetch error:', error);
+      throw error;
+    }
   }
 
   /**
-   * Clear cached token (useful for logout)
+   * Clear cached token (for logout, token expiry, etc.)
    */
   clearToken(): void {
     this.token = null;
@@ -181,27 +153,46 @@ class CSRFManager {
   }
 
   /**
-   * Check if token is cached and valid
+   * Check if we have a valid cached token
    */
   hasValidToken(): boolean {
     return this.token !== null && Date.now() < this.tokenExpiry;
   }
 
   /**
-   * Get current token without fetching (returns null if not cached)
+   * Get current token without fetching (for debugging)
    */
   getCurrentToken(): string | null {
-    if (this.hasValidToken()) {
-      return this.token;
-    }
-    return null;
+    return this.token;
   }
 }
 
-// Create singleton instance
-export const csrfManager = new CSRFManager();
+// Global CSRF manager instance
+const csrfManager = new CSRFManager();
 
-// Export convenience functions
-export const fetchWithCSRF = csrfManager.fetch.bind(csrfManager);
-export const getCSRFToken = csrfManager.getToken.bind(csrfManager);
-export const clearCSRFToken = csrfManager.clearToken.bind(csrfManager);
+/**
+ * Fetch wrapper with CSRF protection
+ * This function requires a session ID to be passed in to avoid circular dependencies
+ */
+export async function fetchWithCSRF(url: string, options: RequestInit = {}): Promise<Response> {
+  // Get session ID from sessionStorage directly to avoid circular import
+  const sessionId = sessionStorage.getItem('app-session-id') || 'anonymous';
+  
+  return csrfManager.fetch(url, options, sessionId);
+}
+
+/**
+ * Clear CSRF token (for logout, etc.)
+ */
+export function clearCSRFToken(): void {
+  csrfManager.clearToken();
+}
+
+/**
+ * Check if CSRF manager has a valid token
+ */
+export function hasValidCSRFToken(): boolean {
+  return csrfManager.hasValidToken();
+}
+
+export { csrfManager };

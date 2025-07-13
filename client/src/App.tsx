@@ -15,59 +15,72 @@ import { PageTransition } from "@/components/PageTransition";
 import { useScrollToTop } from "@/hooks/useScrollToTop";
 import { useFocusVisible, useReducedMotion, useHighContrast } from "@/hooks/useAccessibility";
 import { useSEO } from "@/lib/seo";
-import Home from "@/pages/home";
-import Upload from "@/pages/upload";
-import Privacy from "@/pages/privacy";
-import Terms from "@/pages/terms";
-import Cookies from "@/pages/cookies";
-import Donate from "@/pages/donate";
-import Roadmap from "@/pages/roadmap";
-import Subscription from "@/pages/subscription";
-import AdminDashboard from "@/pages/admin";
-import { EmailRecoveryPage } from "@/pages/EmailRecovery";
-import TrustPage from "@/pages/trust";
-import BlogPage from "@/pages/blog";
-import BlogPostPage from "@/pages/blog-post";
-import UnsubscribePage from "@/pages/unsubscribe";
-import NotFound from "@/pages/not-found";
+import { useToast } from "@/hooks/use-toast";
 import { setupAutoSubmission } from "./lib/indexnow";
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, lazy, Suspense } from 'react';
+
+// Lazy load route components for better code splitting
+const Home = lazy(() => import("@/pages/home"));
+const Upload = lazy(() => import("@/pages/upload"));
+const Privacy = lazy(() => import("@/pages/privacy"));
+const Terms = lazy(() => import("@/pages/terms"));
+const Cookies = lazy(() => import("@/pages/cookies"));
+const Donate = lazy(() => import("@/pages/donate"));
+const Roadmap = lazy(() => import("@/pages/roadmap"));
+const Subscription = lazy(() => import("@/pages/subscription"));
+const AdminDashboard = lazy(() => import("@/pages/admin"));
+const EmailRecoveryPage = lazy(() => import("@/pages/EmailRecovery").then(module => ({ default: module.EmailRecoveryPage })));
+const TrustPage = lazy(() => import("@/pages/trust"));
+const BlogPage = lazy(() => import("@/pages/blog"));
+const BlogPostPage = lazy(() => import("@/pages/blog-post"));
+const UnsubscribePage = lazy(() => import("@/pages/unsubscribe"));
+const NotFound = lazy(() => import("@/pages/not-found"));
+
+// Loading component for suspense
+const PageLoader = () => (
+  <div className="flex items-center justify-center min-h-screen">
+    <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
+  </div>
+);
 
 function Router() {
   return (
-    <Switch>
-      <Route path="/" component={Home} />
-      <Route path="/upload" component={Upload} />
-      <Route path="/privacy" component={Privacy} />
-      <Route path="/terms" component={Terms} />
-      <Route path="/cookies" component={Cookies} />
-      <Route path="/donate" component={Donate} />
-      <Route path="/roadmap" component={Roadmap} />
-      <Route 
-            path="/subscription" 
-            component={() => 
-              import.meta.env.PROD ? 
-                <Redirect to="/" replace /> : 
-                <Subscription />
-            } 
-          />
-      <Route 
-            path="/admin" 
-            component={AdminDashboard} 
-          />
-      <Route path="/email-recovery" component={EmailRecoveryPage} />
-      <Route path="/trust" component={TrustPage} />
-      <Route path="/blog" component={BlogPage} />
-      <Route path="/blog/:slug" component={BlogPostPage} />
-      <Route path="/unsubscribe" component={UnsubscribePage} />
-      <Route component={NotFound} />
-    </Switch>
+    <Suspense fallback={<PageLoader />}>
+      <Switch>
+        <Route path="/" component={Home} />
+        <Route path="/upload" component={Upload} />
+        <Route path="/privacy" component={Privacy} />
+        <Route path="/terms" component={Terms} />
+        <Route path="/cookies" component={Cookies} />
+        <Route path="/donate" component={Donate} />
+        <Route path="/roadmap" component={Roadmap} />
+        <Route 
+              path="/subscription" 
+              component={() => 
+                import.meta.env.PROD ? 
+                  <Redirect to="/" replace /> : 
+                  <Subscription />
+              } 
+            />
+        <Route 
+              path="/admin" 
+              component={AdminDashboard} 
+            />
+        <Route path="/email-recovery" component={EmailRecoveryPage} />
+        <Route path="/trust" component={TrustPage} />
+        <Route path="/blog" component={BlogPage} />
+        <Route path="/blog/:slug" component={BlogPostPage} />
+        <Route path="/unsubscribe" component={UnsubscribePage} />
+        <Route component={NotFound} />
+      </Switch>
+    </Suspense>
   );
 }
 
 function App() {
   const [location] = useLocation();
   const [showConsentModal, setShowConsentModal] = useState(false);
+  const { toast } = useToast();
   
   useScrollToTop();
   useSEO(location);
@@ -100,7 +113,6 @@ function App() {
             console.log('🔐 Auto-logged in as admin in development mode');
             
             // Show notification
-            const { toast } = await import('@/hooks/use-toast');
             toast({
               title: "Development Mode",
               description: "You've been automatically logged in as admin",
@@ -114,7 +126,7 @@ function App() {
     };
     
     autoLogin();
-  }, []);
+  }, [toast]);
 
   // Listen for consent requirement events from API calls
   useEffect(() => {

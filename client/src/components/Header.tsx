@@ -1,80 +1,82 @@
-import { Button } from "@/components/ui/button";
-import { Moon, Sun, Heart, Crown, LogOut, Settings, Shield, BookOpen } from "lucide-react";
-import { Link } from "wouter";
-import { useTheme } from "@/components/ThemeProvider";
-import { useIsMobile } from "@/hooks/use-mobile";
-import { useToast } from "@/hooks/use-toast";
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect } from 'react';
+import { Link, useLocation } from 'wouter';
+import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
+import { 
+  DropdownMenu, 
+  DropdownMenuContent, 
+  DropdownMenuItem, 
+  DropdownMenuSeparator, 
+  DropdownMenuTrigger 
+} from '@/components/ui/dropdown-menu';
+import { FileText, User, LogOut, Settings, Menu, X, Crown, Shield, AlertCircle, Moon, Sun, Heart, BookOpen } from 'lucide-react';
+import { LoginForm } from './LoginForm';
+import { logout } from '@/lib/api';
+import { useToast } from '@/hooks/use-toast';
+import { clearSession } from '@/lib/sessionManager';
+import { clearCSRFToken } from '@/lib/csrfManager';
+import { useTheme } from '@/components/ThemeProvider';
+import { useIsMobile } from '@/hooks/use-mobile';
+import { SubscriptionLogin } from '@/components/SubscriptionLogin';
 import ReactDOM from 'react-dom';
-import { SubscriptionLogin } from "@/components/SubscriptionLogin";
 
 export function Header() {
-  const { theme, toggleTheme } = useTheme();
-  const isMobile = useIsMobile();
-  const { toast } = useToast();
-  const [showLogin, setShowLogin] = useState(false);
+  const [location, navigate] = useLocation();
   const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [user, setUser] = useState<any>(null);
+  const [showLogin, setShowLogin] = useState(false);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isCheckingAuth, setIsCheckingAuth] = useState(true);
   const [isAdmin, setIsAdmin] = useState(false);
+  const { toast } = useToast();
+  const { theme, toggleTheme } = useTheme();
+  const isMobile = useIsMobile();
 
-  // Note: Development mode check available if needed
-  // const isDevelopment = import.meta.env.DEV || import.meta.env.MODE === 'development';
-
-  // Shared login status check function
-  const checkLoginStatus = useCallback(async () => {
-    setIsCheckingAuth(true);
-    
-    // Validate session with backend using cookies
-    try {
-      const response = await fetch('/api/users/validate-session', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        credentials: 'include', // Important: include cookies in the request
-      });
-
-      if (response.ok) {
-        const data = await response.json();
-        setIsLoggedIn(true);
-        // Check if user is admin based on email
-        setIsAdmin(data.email === 'admin@readmyfineprint.com' || data.email === 'prodbybuddha@icloud.com');
+  // Check authentication status on component mount and when location changes
+  useEffect(() => {
+    const checkAuth = () => {
+      const token = localStorage.getItem('token');
+      const userData = localStorage.getItem('user');
+      
+      if (token && userData) {
+        try {
+          const parsedUser = JSON.parse(userData);
+          setUser(parsedUser);
+          setIsLoggedIn(true);
+          setIsAdmin(parsedUser.email === 'admin@readmyfineprint.com' || parsedUser.email === 'prodbybuddha@icloud.com');
+        } catch (error) {
+          console.error('Error parsing user data:', error);
+          // Clear invalid data
+          localStorage.removeItem('token');
+          localStorage.removeItem('user');
+          setIsLoggedIn(false);
+          setUser(null);
+          setIsAdmin(false);
+        }
       } else {
-        // Session is invalid or expired
         setIsLoggedIn(false);
+        setUser(null);
         setIsAdmin(false);
       }
-    } catch (error) {
-      // On error, assume session is invalid
-      console.warn('Session validation failed:', error);
-      setIsLoggedIn(false);
-      setIsAdmin(false);
-    } finally {
       setIsCheckingAuth(false);
-    }
-  }, []);
-
-  // Check login status on component mount and when localStorage changes
-  useEffect(() => {
-    checkLoginStatus();
-
-    // Listen for storage changes (in case user logs in/out in another tab)
-    window.addEventListener('storage', checkLoginStatus);
-    
-    // Also listen for custom auth update events (for same-tab updates)
-    const handleAuthUpdate = () => {
-      setTimeout(checkLoginStatus, 100); // Small delay to ensure localStorage is updated
     };
-    window.addEventListener('authStateChanged', handleAuthUpdate);
+
+    checkAuth();
+    
+    // Listen for auth updates
+    const handleAuthUpdate = () => {
+      checkAuth();
+    };
+
+    window.addEventListener('authUpdate', handleAuthUpdate);
     
     return () => {
-      window.removeEventListener('storage', checkLoginStatus);
-      window.removeEventListener('authStateChanged', handleAuthUpdate);
+      window.removeEventListener('authUpdate', handleAuthUpdate);
     };
-  }, [checkLoginStatus]);
+  }, [location]);
 
   const handleSubscriptionClick = () => {
-    // Allow navigation to subscription page
+    navigate('/subscription?tab=plans');
   };
 
   const handleLoginClick = (e: React.MouseEvent) => {
@@ -86,54 +88,82 @@ export function Header() {
     e.preventDefault();
     
     try {
-      // Import logout function dynamically to avoid import issues
-      const { logout } = await import('@/lib/api');
-      
       // Call the logout API which clears documents and revokes tokens
       const result = await logout();
       
       setIsLoggedIn(false);
+      setUser(null);
       setIsAdmin(false);
       
+      // Clear local storage
+      localStorage.removeItem('token');
+      localStorage.removeItem('refreshToken');
+      localStorage.removeItem('user');
+      
+      // Clear session and CSRF tokens
+      clearSession();
+      clearCSRFToken();
+      
+      // Show success message
       toast({
-        title: "Logged Out",
-        description: result.success 
-          ? `Successfully logged out. Cleared ${result.details.tokensRevoked} tokens and ${result.details.documentsCleared ? 'documents' : 'no documents'}.`
-          : "Logged out locally. Some server cleanup may have failed.",
+        title: "Logged out successfully",
+        description: `${result.details.tokensRevoked} tokens revoked, documents cleared`,
+        duration: 3000,
       });
-
-      // Redirect to home page
-      window.location.href = '/';
+      
+      // Redirect to home
+      navigate('/');
+      
     } catch (error) {
-      console.error('Logout failed:', error);
+      console.error('Logout error:', error);
       
-      // Fallback - clear local state even if API fails
+      // Even if API call fails, clear local data
       setIsLoggedIn(false);
+      setUser(null);
       setIsAdmin(false);
+      localStorage.removeItem('token');
+      localStorage.removeItem('refreshToken');
+      localStorage.removeItem('user');
+      clearSession();
+      clearCSRFToken();
       
       toast({
-        title: "Logged Out",
-        description: "Logged out locally. Please refresh if you experience any issues.",
-        variant: "destructive",
+        title: "Logged out",
+        description: "Session cleared locally",
+        duration: 3000,
       });
       
-      window.location.href = '/';
+      navigate('/');
     }
   };
 
   const handleLoginSuccess = async () => {
     setShowLogin(false);
     
-    // Re-check login status to validate the token
-    await checkLoginStatus();
+    // Refresh auth state
+    const token = localStorage.getItem('token');
+    const userData = localStorage.getItem('user');
     
-    toast({
-      title: "Login Successful",
-      description: "Welcome back! You're now logged into your account.",
-    });
-    
-    // Don't redirect - let the user stay on current page
-    // window.location.href = '/';
+    if (token && userData) {
+      try {
+        const parsedUser = JSON.parse(userData);
+        setUser(parsedUser);
+        setIsLoggedIn(true);
+        setIsAdmin(parsedUser.email === 'admin@readmyfineprint.com' || parsedUser.email === 'prodbybuddha@icloud.com');
+        
+        // Trigger auth update event for other components
+        window.dispatchEvent(new Event('authUpdate'));
+        
+        toast({
+          title: "Login successful",
+          description: `Welcome back, ${parsedUser.email}!`,
+          duration: 3000,
+        });
+        
+      } catch (error) {
+        console.error('Error parsing user data after login:', error);
+      }
+    }
   };
 
   return (
