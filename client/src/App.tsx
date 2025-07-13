@@ -18,6 +18,7 @@ import { useSEO } from "@/lib/seo";
 import { useToast } from "@/hooks/use-toast";
 import { setupAutoSubmission } from "./lib/indexnow";
 import React, { useEffect, useState, lazy, Suspense } from 'react';
+import { DirectionProvider } from "@radix-ui/react-direction";
 
 // Lazy load route components for better code splitting
 const Home = lazy(() => import("@/pages/home"));
@@ -156,41 +157,43 @@ function App() {
         <TooltipProvider>
           <ErrorBoundary>
             <SkipLinks />
-            <div className="h-screen flex flex-col app-container bg-gray-50 dark:bg-gray-900">
-              {/* Fixed Header */}
-              <Header />
+            <DirectionProvider dir="ltr">
+              <div className="h-screen flex flex-col app-container bg-gray-50 dark:bg-gray-900">
+                {/* Fixed Header */}
+                <Header />
 
-              {/* Scrollable Main Content Area */}
-              <SEOBreadcrumbs />
+                {/* Scrollable Main Content Area */}
+                <SEOBreadcrumbs />
 
-              <main
-                id="main-content"
-                role="main"
-                tabIndex={-1}
-                className="flex-1 overflow-y-auto bg-gray-50 dark:bg-gray-900 scroll-smooth custom-scrollbar"
-                aria-label="Main content"
-              >
-                <PageTransition>
-                  <Router />
-                </PageTransition>
-              </main>
+                <main
+                  id="main-content"
+                  role="main"
+                  tabIndex={-1}
+                  className="flex-1 overflow-y-auto bg-gray-50 dark:bg-gray-900 scroll-smooth custom-scrollbar"
+                  aria-label="Main content"
+                >
+                  <PageTransition>
+                    <Router />
+                  </PageTransition>
+                </main>
 
-              {/* Fixed Footer */}
-              <Footer />
-            </div>
-            <Toaster />
-            <CookieConsent />
-            {showConsentModal && (
-              <CombinedConsent onAccept={handleConsentAccepted} />
-            )}
-            <ScrollToTop />
-            {/* Live region for announcements */}
-            <div
-              id="announcements"
-              aria-live="polite"
-              aria-atomic="true"
-              className="sr-only"
-            ></div>
+                {/* Fixed Footer */}
+                <Footer />
+              </div>
+              <Toaster />
+              <CookieConsent />
+              {showConsentModal && (
+                <CombinedConsent onAccept={handleConsentAccepted} />
+              )}
+              <ScrollToTop />
+              {/* Live region for announcements */}
+              <div
+                id="announcements"
+                aria-live="polite"
+                aria-atomic="true"
+                className="sr-only"
+              ></div>
+            </DirectionProvider>
           </ErrorBoundary>
         </TooltipProvider>
       </ThemeProvider>

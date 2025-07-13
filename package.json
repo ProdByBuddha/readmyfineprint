@@ -7,8 +7,8 @@
   "author": "Nexus Integrated Technologies",
   "description": "Privacy-First AI-Powered Contract Analysis Platform",
   "scripts": {
-    "dev": "concurrently \"npm run server:dev\" \"npm run client:dev\"",
-    "server:dev": "tsx watch server/index.ts",
+    "dev": "unset NODE_ENV && NODE_ENV=development concurrently \"npm run server:dev\" \"npm run client:dev\"",
+    "server:dev": "unset NODE_ENV && NODE_ENV=development tsx watch server/index.ts",
     "client:dev": "vite",
     "llm:replit": "python3 scripts/local-llm-server.py",
     "llm:setup-python": "pip install -r requirements.txt || echo 'Python dependencies not installed - using regex fallback'",
@@ -68,7 +68,7 @@
     "llm:setup": "npx tsx scripts/setup-nodejs-llm.ts",
     "llm:setup-ollama": "./scripts/setup-ollama-replit.sh",
     "llm:ollama": "./scripts/ollama-service.sh",
-    "dev:with-llm": "concurrently \"npm run llm:start\" \"npm run dev\"",
+    "dev:with-llm": "unset NODE_ENV && NODE_ENV=development concurrently \"npm run llm:start\" \"npm run dev\"",
     "crypto:test": "tsx scripts/test-hybrid-crypto.ts"
   },
   "dependencies": {

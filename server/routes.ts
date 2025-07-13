@@ -669,6 +669,20 @@ export async function registerRoutes(app: Express): Promise<Server> {
         const sessionId = crypto.randomUUID();
         await postgresqlSessionStorage.storeSessionToken(sessionId, token, adminUser.id);
 
+        console.log(`🔐 Development auto-login successful:`, {
+          userId: adminUser.id,
+          email: adminEmail,
+          sessionId: `${sessionId.slice(0, 8)}...`,
+          tokenPrefix: `${token.slice(0, 16)}...`,
+          cookieSettings: {
+            httpOnly: true,
+            secure: process.env.NODE_ENV === 'production',
+            sameSite: 'strict',
+            maxAge: 7 * 24 * 60 * 60 * 1000,
+            path: '/'
+          }
+        });
+
         // Set secure httpOnly cookie with session ID
         res.cookie('sessionId', sessionId, {
           httpOnly: true,
@@ -1533,27 +1547,44 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
 
       // Code verified! Now complete the login
-      const user = await findUserByEmailWithEntanglement(email);
-      if (!user) {
-        return res.status(404).json({ error: 'User not found' });
-      }
-
-      // Mark email as verified if this is their first successful verification
-      if (!user.emailVerified) {
-        await databaseStorage.updateUser(user.id, { 
-          emailVerified: true,
-          lastLoginAt: new Date()
-        });
-        console.log(`✅ Email verified for user: ${email}`);
-      } else {
-        // Just update last login time for already verified users
-        await databaseStorage.updateUser(user.id, { 
-          lastLoginAt: new Date()
-        });
-      }
-
-      const subscriptionData = await subscriptionService.getUserSubscriptionWithUsage(user.id);
+      let user = await findUserByEmailWithEntanglement(email);
       
+      // Check if this is an admin email
+      const adminEmails = ['admin@readmyfineprint.com', 'prodbybuddha@icloud.com'];
+      const isAdminEmail = adminEmails.includes(email);
+      
+      if (!user) {
+        // If user doesn't exist and it's an admin email, create the admin user
+        if (isAdminEmail) {
+          console.log(`🔐 Creating admin user for: ${email}`);
+          user = await databaseStorage.createUser({
+            email: email,
+            isAdmin: true,
+            emailVerified: true,
+            hashedPassword: null // No password needed for email verification auth
+          });
+          console.log(`✅ Admin user created: ${email}`);
+        } else {
+          return res.status(404).json({ error: 'User not found' });
+        }
+      }
+      
+      // Mark email as verified if this is their first successful verification
+      // Also ensure admin users have the isAdmin flag set
+      const updateData: any = { lastLoginAt: new Date() };
+      
+      if (!user.emailVerified) {
+        updateData.emailVerified = true;
+        console.log(`✅ Email verified for user: ${email}`);
+      }
+      
+      if (isAdminEmail && !user.isAdmin) {
+        updateData.isAdmin = true;
+        console.log(`🔐 Admin flag set for admin user: ${email}`);
+      }
+      
+      await databaseStorage.updateUser(user.id, updateData);
+
       // Generate JWT tokens using secure JWT service
       const { secureJWTService } = await import('./secure-jwt-service');
       const { accessToken, refreshToken } = await secureJWTService.generateTokenPair(
@@ -1566,6 +1597,20 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const { postgresqlSessionStorage } = await import('./postgresql-session-storage');
       const sessionId = crypto.randomUUID();
       await postgresqlSessionStorage.storeSessionToken(sessionId, accessToken, user.id);
+
+      console.log(`🔐 Email verification login successful:`, {
+        userId: user.id,
+        email: user.email,
+        sessionId: `${sessionId.slice(0, 8)}...`,
+        accessTokenPrefix: `${accessToken.slice(0, 16)}...`,
+        cookieSettings: {
+          httpOnly: true,
+          secure: process.env.NODE_ENV === 'production',
+          sameSite: 'strict',
+          maxAge: 7 * 24 * 60 * 60 * 1000,
+          path: '/'
+        }
+      });
 
       // Set secure httpOnly cookie with session ID
       res.cookie('sessionId', sessionId, {
@@ -1594,7 +1639,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const sessionId = req.cookies?.sessionId;
       
+      console.log(`🔍 Session validation request:`, {
+        sessionId: sessionId ? `${sessionId.slice(0, 8)}...` : 'none',
+        cookies: Object.keys(req.cookies || {}),
+        headers: {
+          cookie: req.headers.cookie ? 'present' : 'missing',
+          authorization: req.headers.authorization ? 'present' : 'missing'
+        }
+      });
+      
       if (!sessionId) {
+        console.log('❌ No session ID found in cookies');
         return res.status(401).json({ error: 'No session found' });
       }
 
@@ -1602,7 +1657,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const { postgresqlSessionStorage } = await import('./postgresql-session-storage');
       const token = await postgresqlSessionStorage.getTokenBySession(sessionId);
       
+      console.log(`🔍 Token lookup result:`, {
+        found: !!token,
+        tokenPrefix: token ? `${token.slice(0, 16)}...` : 'none'
+      });
+      
       if (!token) {
+        console.log('❌ No token found for session');
         return res.status(401).json({ error: 'Invalid session' });
       }
 
@@ -1610,7 +1671,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const { hybridTokenService } = await import('./hybrid-token-service');
       const tokenData = await hybridTokenService.validateSubscriptionToken(token);
       
+      console.log(`🔍 Token validation result:`, {
+        valid: !!tokenData,
+        userId: tokenData?.userId || 'none',
+        tierId: tokenData?.tierId || 'none'
+      });
+      
       if (!tokenData) {
+        console.log('❌ Token validation failed');
         return res.status(401).json({ error: 'Invalid token' });
       }
 
@@ -1622,10 +1690,19 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Get user data
       const user = await databaseStorage.getUser(tokenData.userId);
       
+      console.log(`🔍 User lookup result:`, {
+        found: !!user,
+        email: user?.email || 'none',
+        isAdmin: user?.isAdmin || false
+      });
+      
       if (!user) {
+        console.log('❌ User not found');
         return res.status(401).json({ error: 'User not found' });
       }
 
+      console.log(`✅ Session validation successful for ${user.email}`);
+      
       res.json({
         user: {
           id: user.id,

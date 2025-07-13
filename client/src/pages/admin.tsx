@@ -1815,6 +1815,8 @@ export default function AdminDashboard() {
   // Check if user is admin using existing subscription token
   useEffect(() => {
     const checkAdminStatus = async () => {
+      console.log('🔍 Starting admin authentication check...');
+      
       // Check if we're in development mode and try auto-login
       if (import.meta.env.DEV || import.meta.env.MODE === 'development') {
         console.log('🔧 Development mode detected, attempting auto-admin login...');
@@ -1824,17 +1826,19 @@ export default function AdminDashboard() {
             headers: {
               'Content-Type': 'application/json',
             },
+            credentials: 'include',
           });
 
           if (response.ok) {
             const data = await response.json();
             console.log('✅ Development auto-login successful:', data.user.email);
             setIsAdmin(true);
-            // Token is stored in httpOnly cookie by the server
             setIsCheckingAuth(false);
             return;
           } else {
-            console.log('⚠️ Development auto-login failed, falling back to subscription token check');
+            console.log('⚠️ Development auto-login failed, status:', response.status);
+            const errorText = await response.text();
+            console.log('Error details:', errorText);
           }
         } catch (error) {
           console.error('Development auto-login error:', error);
@@ -1842,26 +1846,40 @@ export default function AdminDashboard() {
       }
 
       // Check if user is authenticated via session cookie
+      console.log('🔍 Checking session cookie authentication...');
       try {
         const response = await fetch('/api/auth/session', {
           method: 'GET',
-          credentials: 'include', // Include cookies
+          credentials: 'include',
           headers: {
             'Content-Type': 'application/json',
           },
         });
 
+        console.log('Session check response status:', response.status);
+
         if (response.ok) {
           const data = await response.json();
+          console.log('Session data received:', data);
+          
           const adminEmails = ['admin@readmyfineprint.com', 'prodbybuddha@icloud.com'];
           
           if (data.user && adminEmails.includes(data.user.email)) {
+            console.log('✅ Admin access granted via session cookie');
             setIsAdmin(true);
-            // Session is managed by cookies, no token needed in state
+          } else {
+            console.log('❌ User is not admin:', data.user?.email);
+            setIsAdmin(false);
           }
+        } else {
+          console.log('❌ Session check failed with status:', response.status);
+          const errorText = await response.text();
+          console.log('Session error details:', errorText);
+          setIsAdmin(false);
         }
       } catch (error) {
-        console.error('Admin auth check failed:', error);
+        console.error('❌ Admin auth check failed:', error);
+        setIsAdmin(false);
       } finally {
         setIsCheckingAuth(false);
       }
@@ -1882,19 +1900,105 @@ export default function AdminDashboard() {
     );
   }
 
-  // Redirect if not admin
+  // Show debug info if not admin
   if (!isAdmin) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <Card className="w-full max-w-md">
+      <div className="min-h-screen flex items-center justify-center p-4">
+        <Card className="w-full max-w-2xl">
           <CardHeader>
-            <CardTitle className="text-center text-red-600">Access Denied</CardTitle>
+            <CardTitle className="text-center text-red-600">Admin Access Debug</CardTitle>
           </CardHeader>
-          <CardContent className="text-center">
-            <p className="mb-4">You don't have admin access to this page.</p>
-            <Button onClick={() => window.location.href = '/'}>
+          <CardContent>
+            <div className="space-y-4">
+              <div>
+                <h3 className="font-semibold mb-2">Session Cookie Test</h3>
+                <Button 
+                  onClick={async () => {
+                    try {
+                      const response = await fetch('/api/auth/session', {
+                        method: 'GET',
+                        credentials: 'include'
+                      });
+                      const data = await response.json();
+                      console.log('Session test result:', { status: response.status, data });
+                      alert(`Session test: ${response.status} - ${JSON.stringify(data, null, 2)}`);
+                    } catch (error) {
+                      console.error('Session test error:', error);
+                      alert(`Session test error: ${error}`);
+                    }
+                  }}
+                  className="mb-2"
+                >
+                  Test Session Cookie
+                </Button>
+              </div>
+              
+              <div>
+                <h3 className="font-semibold mb-2">Cookie Information</h3>
+                <Button 
+                  onClick={() => {
+                    const cookies = document.cookie;
+                    console.log('All cookies:', cookies);
+                    alert(`Cookies: ${cookies || 'No cookies found'}`);
+                  }}
+                  className="mb-2"
+                >
+                  Check Cookies
+                </Button>
+              </div>
+              
+              <div>
+                <h3 className="font-semibold mb-2">Email Verification Login</h3>
+                <p className="text-sm text-gray-600 mb-2">
+                  After successful email verification, the session cookie should be set automatically.
+                </p>
+                <Button 
+                  onClick={() => {
+                    window.location.href = '/subscription?tab=login';
+                  }}
+                  className="mb-2"
+                >
+                  Go to Email Verification Login
+                </Button>
+              </div>
+              
+              <div>
+                <h3 className="font-semibold mb-2">Development Auto-Login</h3>
+                <Button 
+                  onClick={async () => {
+                    try {
+                      const response = await fetch('/api/dev/auto-admin-login', {
+                        method: 'POST',
+                        headers: {
+                          'Content-Type': 'application/json',
+                        },
+                        credentials: 'include',
+                      });
+                      const data = await response.json();
+                      console.log('Auto-login result:', { status: response.status, data });
+                      if (response.ok) {
+                        alert('Auto-login successful! Refreshing page...');
+                        window.location.reload();
+                      } else {
+                        alert(`Auto-login failed: ${response.status} - ${JSON.stringify(data, null, 2)}`);
+                      }
+                    } catch (error) {
+                      console.error('Auto-login error:', error);
+                      alert(`Auto-login error: ${error}`);
+                    }
+                  }}
+                  className="mb-2"
+                >
+                  Try Development Auto-Login
+                </Button>
+              </div>
+            </div>
+            
+            <div className="mt-6 pt-4 border-t">
+              <Button onClick={() => window.location.href = '/'} variant="outline">
               Return to Home
             </Button>
+            </div>
           </CardContent>
         </Card>
       </div>
