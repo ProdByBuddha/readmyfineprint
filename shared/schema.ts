@@ -135,6 +135,19 @@ export const consentRecords = pgTable('consent_records', {
   createdAt: timestamp('created_at').defaultNow().notNull(),
 });
 
+export const userPreferences = pgTable('user_preferences', {
+  id: uuid('id').primaryKey().defaultRandom(),
+  userId: uuid('user_id').references(() => users.id, { onDelete: 'cascade' }).notNull(),
+  preferenceKey: text('preference_key').notNull(),
+  preferenceValue: text('preference_value').notNull(), // JSON string
+  preferenceType: text('preference_type').notNull().default('user'), // 'user' or 'system'
+  expiresAt: timestamp('expires_at'),
+  createdAt: timestamp('created_at').defaultNow().notNull(),
+  updatedAt: timestamp('updated_at').defaultNow().notNull(),
+}, (table) => ({
+  uniqueUserPreference: { columns: [table.userId, table.preferenceKey] },
+}));
+
 // Security Questions Table
 export const securityQuestions = pgTable('security_questions', {
   id: uuid('id').primaryKey().defaultRandom(),
@@ -276,6 +289,7 @@ export const usersRelations = relations(users, ({ many }) => ({
   jwtTokenRevocations: many(jwtTokenRevocations),
   twoFactorCodes: many(twoFactorCodes),
   userRoles: many(userRoles),
+  userPreferences: many(userPreferences),
 }));
 
 export const userSubscriptionsRelations = relations(userSubscriptions, ({ one, many }) => ({
@@ -384,6 +398,13 @@ export const userRolesRelations = relations(userRoles, ({ one }) => ({
   }),
 }));
 
+export const userPreferencesRelations = relations(userPreferences, ({ one }) => ({
+  user: one(users, {
+    fields: [userPreferences.userId],
+    references: [users.id],
+  }),
+}));
+
 // Insert Schemas
 const insertUserSchemaBase = createInsertSchema(users).omit({
   id: true,
@@ -469,6 +490,12 @@ const insertMailingListSchemaBase = createInsertSchema(mailingList).omit({
   updatedAt: true,
 });
 
+const insertUserPreferencesSchemaBase = createInsertSchema(userPreferences).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
 export const insertUserSchema = insertUserSchemaBase;
 export const insertUserSubscriptionSchema = insertUserSubscriptionSchemaBase;
 export const insertUsageRecordSchema = insertUsageRecordSchemaBase;
@@ -484,6 +511,7 @@ export const insertJwtSecretVersionSchema = insertJwtSecretVersionSchemaBase;
 export const insertTwoFactorCodeSchema = insertTwoFactorCodeSchemaBase;
 export const insertTotpSecretSchema = insertTotpSecretSchemaBase;
 export const insertMailingListSchema = insertMailingListSchemaBase;
+export const insertUserPreferencesSchema = insertUserPreferencesSchemaBase;
 
 // Database Types
 export type User = typeof users.$inferSelect;
@@ -629,6 +657,15 @@ export type InsertMailingList = {
   userAgentHash?: string | null;
   unsubscribeToken?: string | null;
   unsubscribedAt?: Date | null;
+};
+
+export type UserPreference = typeof userPreferences.$inferSelect;
+export type InsertUserPreference = {
+  userId: string;
+  preferenceKey: string;
+  preferenceValue: string;
+  preferenceType?: string;
+  expiresAt?: Date | null;
 };
 
 export const insertDocumentSchema = z.object({

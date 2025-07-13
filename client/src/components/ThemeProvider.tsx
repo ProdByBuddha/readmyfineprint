@@ -1,4 +1,5 @@
-import { createContext, useContext, useEffect, useState } from "react";
+import { createContext, useContext, useEffect } from "react";
+import { useThemePreference } from "../hooks/useThemePreference";
 
 type Theme = "light" | "dark";
 
@@ -6,19 +7,18 @@ type ThemeProviderContextType = {
   theme: Theme;
   setTheme: (theme: Theme) => void;
   toggleTheme: () => void;
+  loading: boolean;
+  error: string | null;
 };
 
 const ThemeProviderContext = createContext<ThemeProviderContextType | undefined>(undefined);
 
 export function ThemeProvider({ children }: { children: React.ReactNode }) {
-  const [theme, setTheme] = useState<Theme>(() => {
-    if (typeof window !== "undefined") {
-      return (localStorage.getItem("theme") as Theme) || "light";
-    }
-    return "light";
-  });
+  const { theme, setTheme, toggleTheme, loading, error } = useThemePreference();
 
   useEffect(() => {
+    if (loading) return; // Don't apply theme changes while loading
+    
     const root = window.document.documentElement;
     const body = window.document.body;
     
@@ -27,18 +27,14 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
     
     root.classList.add(theme);
     body.classList.add(theme);
-    
-    localStorage.setItem("theme", theme);
-  }, [theme]);
-
-  const toggleTheme = () => {
-    setTheme(theme === "light" ? "dark" : "light");
-  };
+  }, [theme, loading]);
 
   const value = {
     theme,
     setTheme,
     toggleTheme,
+    loading,
+    error,
   };
 
   return (
