@@ -1585,6 +1585,25 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       await databaseStorage.updateUser(user.id, updateData);
 
+      // Get user's subscription data for response
+      let subscriptionData = null;
+      try {
+        subscriptionData = await subscriptionService.getUserSubscriptionWithUsage(user.id);
+      } catch (error) {
+        console.warn('Could not retrieve subscription data:', error);
+        // For admin users, provide a default response
+        if (isAdminEmail) {
+          subscriptionData = {
+            subscription: {
+              status: 'active',
+              tierId: 'ultimate',
+              tier: { name: 'Ultimate', description: 'Admin access' }
+            },
+            usage: { documentsProcessed: 0, monthlyLimit: -1 }
+          };
+        }
+      }
+
       // Generate JWT tokens using secure JWT service
       const { secureJWTService } = await import('./secure-jwt-service');
       const { accessToken, refreshToken } = await secureJWTService.generateTokenPair(
@@ -1623,7 +1642,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       res.json({
         success: true,
-        subscription: subscriptionData
+        subscription: subscriptionData,
+        user: {
+          id: user.id,
+          email: user.email,
+          isAdmin: user.isAdmin
+        }
       });
     } catch (error) {
       console.error("Error verifying subscription login:", error);
