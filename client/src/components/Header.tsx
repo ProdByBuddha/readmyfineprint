@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Link, useLocation } from 'wouter';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -31,6 +31,7 @@ export function Header() {
   const { toast } = useToast();
   const { theme, toggleTheme } = useTheme();
   const isMobile = useIsMobile();
+  const mobileMenuRef = useRef<HTMLDivElement>(null);
 
   // Check authentication status on component mount and when location changes
   useEffect(() => {
@@ -73,6 +74,28 @@ export function Header() {
     return () => {
       window.removeEventListener('authUpdate', handleAuthUpdate);
     };
+  }, [location]);
+
+  // Close mobile menu when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (mobileMenuRef.current && !mobileMenuRef.current.contains(event.target as Node)) {
+        setIsMobileMenuOpen(false);
+      }
+    };
+
+    if (isMobileMenuOpen) {
+      document.addEventListener('mousedown', handleClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [isMobileMenuOpen]);
+
+  // Close mobile menu when location changes
+  useEffect(() => {
+    setIsMobileMenuOpen(false);
   }, [location]);
 
   const handleSubscriptionClick = () => {
@@ -187,16 +210,18 @@ export function Header() {
         <div className={`flex justify-between items-center ${isMobile ? 'h-14' : 'h-16'}`}>
           <Link to="/" aria-label="ReadMyFinePrint - Go to homepage">
             <div className="flex items-center space-x-3 cursor-pointer group">
-              <img
-                src="/og-image.png"
-                alt="ReadMyFinePrint Logo"
-                className={`${isMobile ? 'w-10 h-10' : 'w-12 h-12'} object-contain rounded-lg transition-transform duration-200 group-active:scale-95`}
-              />
+              <div className={`${isMobile ? 'p-1' : 'p-1.5'} bg-gradient-to-br from-blue-50 to-blue-100 dark:from-blue-900/20 dark:to-blue-800/20 rounded-xl shadow-sm group-hover:shadow-md transition-all duration-200 group-active:scale-95`}>
+                <img
+                  src="/og-image.png"
+                  alt="ReadMyFinePrint Logo"
+                  className={`${isMobile ? 'w-8 h-8' : 'w-10 h-10'} object-contain rounded-lg`}
+                />
+              </div>
               <h1 className="text-xl font-bold text-primary dark:text-primary hidden md:block">
                 ReadMyFinePrint
               </h1>
               {isMobile && (
-                <h1 className="text-lg font-bold text-primary dark:text-primary">
+                <h1 className="text-lg font-bold text-primary dark:text-primary tracking-tight">
                   RMFP
                 </h1>
               )}
@@ -320,96 +345,161 @@ export function Header() {
 
           {/* Mobile navigation */}
           <nav
-            className="md:hidden flex items-center space-x-1"
+            className="md:hidden flex items-center space-x-2"
             role="navigation"
             aria-label="Mobile navigation"
           >
-            {isCheckingAuth ? (
+            {/* Primary actions - always visible */}
+            <div className="flex items-center space-x-2">
+              {isCheckingAuth ? (
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="h-9 px-3 text-xs transition-all duration-200"
+                  disabled
+                  aria-label="Checking login status"
+                >
+                  <div className="w-3 h-3 mr-1 border border-gray-400 dark:border-gray-500 border-t-transparent rounded-full animate-spin" />
+                </Button>
+              ) : isLoggedIn ? (
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="h-9 px-3 text-xs transition-all duration-200 active:scale-95"
+                  aria-label="Logout"
+                  onClick={handleLogoutClick}
+                >
+                  <LogOut className="w-3 h-3 mr-1" aria-hidden="true" />
+                  Logout
+                </Button>
+              ) : (
+                <Button
+                  variant="default"
+                  size="sm"
+                  className="h-9 px-3 text-xs bg-blue-600 hover:bg-blue-700 text-white transition-all duration-200 active:scale-95"
+                  aria-label="Login or Subscribe"
+                  onClick={handleLoginClick}
+                >
+                  Login
+                </Button>
+              )}
+              
+              {/* Burger menu button */}
               <Button
-                variant="outline"
+                variant="ghost"
                 size="sm"
-                className="h-8 px-3 text-xs transition-all duration-200"
-                disabled
-                aria-label="Checking login status"
+                className="h-9 w-9 p-0 transition-all duration-200 active:scale-95"
+                aria-label={isMobileMenuOpen ? "Close menu" : "Open menu"}
+                onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
               >
-                <div className="w-3 h-3 mr-1 border border-gray-400 dark:border-gray-500 border-t-transparent rounded-full animate-spin" />
+                {isMobileMenuOpen ? (
+                  <X className="w-5 h-5" aria-hidden="true" />
+                ) : (
+                  <Menu className="w-5 h-5" aria-hidden="true" />
+                )}
               </Button>
-            ) : isLoggedIn ? (
-              <Button
-                variant="outline"
-                size="sm"
-                className="h-8 px-3 text-xs transition-all duration-200 active:scale-95"
-                aria-label="Logout"
-                onClick={handleLogoutClick}
-              >
-                <LogOut className="w-3 h-3 mr-1" aria-hidden="true" />
-                Logout
-              </Button>
-            ) : (
-              <Button
-                variant="default"
-                size="sm"
-                className="h-8 px-3 text-xs bg-blue-600 hover:bg-blue-700 text-white transition-all duration-200 active:scale-95"
-                aria-label="Login or Subscribe"
-                onClick={handleLoginClick}
-              >
-                Login
-              </Button>
-            )}
-            {!import.meta.env.PROD && (
+            </div>
+          </nav>
+        </div>
+
+        {/* Mobile dropdown menu */}
+        {isMobileMenuOpen && (
+          <div 
+            ref={mobileMenuRef}
+            className="md:hidden bg-white/95 dark:bg-slate-900/95 backdrop-blur-lg border-t border-gray-200 dark:border-gray-700 shadow-lg animate-in slide-in-from-top-2 duration-200"
+          >
+            <div className="px-4 py-3 space-y-2">
               <Link to="/subscription?tab=plans">
                 <Button
                   variant="ghost"
                   size="sm"
-                  className="h-10 w-10 p-0 rounded-full transition-all duration-200 active:scale-95"
+                  className="w-full justify-start h-10 transition-all duration-200 active:scale-95"
                   aria-label="View subscription plans"
-                  onClick={handleSubscriptionClick}
+                  onClick={() => {
+                    handleSubscriptionClick();
+                    setIsMobileMenuOpen(false);
+                  }}
                 >
-                  <Crown className="w-4 h-4 text-yellow-600 dark:text-yellow-400" aria-hidden="true" />
+                  <Crown className="w-4 h-4 mr-3 text-yellow-600 dark:text-yellow-400" aria-hidden="true" />
+                  Plans
                 </Button>
               </Link>
-            )}
-            {isAdmin && (
-              <Link to="/admin">
+              
+              <Link to="/trust">
                 <Button
                   variant="ghost"
                   size="sm"
-                  className="h-10 w-10 p-0 rounded-full transition-all duration-200 active:scale-95"
-                  aria-label="Admin Dashboard"
+                  className="w-full justify-start h-10 transition-all duration-200 active:scale-95"
+                  aria-label="Trust and security information"
+                  onClick={() => setIsMobileMenuOpen(false)}
                 >
-                  <Settings className="w-4 h-4 text-blue-600 dark:text-blue-400" aria-hidden="true" />
+                  <Shield className="w-4 h-4 mr-3 text-green-600 dark:text-green-400" aria-hidden="true" />
+                  Trust
                 </Button>
               </Link>
-            )}
-            <Link to="/donate">
-              <Button
-                variant="outline"
-                size="sm"
-                className="h-10 w-10 p-0 rounded-full transition-all duration-200 active:scale-95"
-                aria-label="Support us with a donation"
-              >
-                <Heart className="w-4 h-4 text-red-500 dark:text-red-400" aria-hidden="true" />
-              </Button>
-            </Link>
-            <Button
-              onClick={toggleTheme}
-              variant="ghost"
-              size="sm"
-              className="h-10 w-10 p-0 rounded-full transition-all duration-200 active:scale-95"
-              aria-label={`Switch to ${theme === "light" ? "dark" : "light"} theme`}
-              aria-pressed={theme === "dark"}
-            >
-              {theme === "light" ? (
-                <Moon className="w-4 h-4" aria-hidden="true" />
-              ) : (
-                <Sun className="w-4 h-4" aria-hidden="true" />
+              
+              <Link to="/blog">
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="w-full justify-start h-10 transition-all duration-200 active:scale-95"
+                  aria-label="Legal insights and contract law blog"
+                  onClick={() => setIsMobileMenuOpen(false)}
+                >
+                  <BookOpen className="w-4 h-4 mr-3 text-purple-600 dark:text-purple-400" aria-hidden="true" />
+                  Blog
+                </Button>
+              </Link>
+              
+              {isAdmin && (
+                <Link to="/admin">
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="w-full justify-start h-10 transition-all duration-200 active:scale-95"
+                    aria-label="Admin Dashboard"
+                    onClick={() => setIsMobileMenuOpen(false)}
+                  >
+                    <Settings className="w-4 h-4 mr-3 text-blue-600 dark:text-blue-400" aria-hidden="true" />
+                    Admin
+                  </Button>
+                </Link>
               )}
-              <span className="sr-only">
-                {theme === "light" ? "Switch to dark theme" : "Switch to light theme"}
-              </span>
-            </Button>
-          </nav>
-        </div>
+              
+              <Link to="/donate">
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="w-full justify-start h-10 transition-all duration-200 active:scale-95"
+                  aria-label="Support us with a donation"
+                  onClick={() => setIsMobileMenuOpen(false)}
+                >
+                  <Heart className="w-4 h-4 mr-3 text-red-500 dark:text-red-400" aria-hidden="true" />
+                  Donate
+                </Button>
+              </Link>
+              
+              <Button
+                onClick={() => {
+                  toggleTheme();
+                  setIsMobileMenuOpen(false);
+                }}
+                variant="ghost"
+                size="sm"
+                className="w-full justify-start h-10 transition-all duration-200 active:scale-95"
+                aria-label={`Switch to ${theme === "light" ? "dark" : "light"} theme`}
+                aria-pressed={theme === "dark"}
+              >
+                {theme === "light" ? (
+                  <Moon className="w-4 h-4 mr-3" aria-hidden="true" />
+                ) : (
+                  <Sun className="w-4 h-4 mr-3" aria-hidden="true" />
+                )}
+                {theme === "light" ? "Dark Mode" : "Light Mode"}
+              </Button>
+            </div>
+          </div>
+        )}
       </div>
 
       {/* Login Modal - Portal to document body */}
