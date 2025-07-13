@@ -16,6 +16,16 @@ const __dirname = path.dirname(__filename);
 
 // Validate environment variables before starting the server
 console.log('🚀 Starting ReadMyFinePrint Production Server...');
+
+// Check for DATABASE_URL specifically and provide helpful error message
+if (!process.env.DATABASE_URL) {
+  console.error('❌ DATABASE_URL is not set in the deployment environment.');
+  console.error('   This is required for the production server to connect to the database.');
+  console.error('   Please configure the DATABASE_URL environment variable in your deployment platform.');
+  console.error('   For Replit deployments, make sure the PostgreSQL database is provisioned.');
+  process.exit(1);
+}
+
 const envConfig = validateEnvironmentOrExit();
 logEnvironmentStatus();
 
@@ -77,6 +87,49 @@ async function startProductionServer() {
     (req as any).clientInfo = clientInfo;
     
     next();
+  });
+
+  // Add health check endpoint
+  app.get('/health', async (_req, res) => {
+    try {
+      // Database health check with original setup
+      let dbHealthy = true;
+      try {
+        const { db } = await import('./db.js');
+        const { sql } = await import('drizzle-orm');
+        await db.execute(sql`SELECT 1 as health_check`);
+      } catch (error) {
+        dbHealthy = false;
+      }
+      
+      const healthStatus = {
+        status: 'healthy',
+        timestamp: new Date().toISOString(),
+        version: process.env.npm_package_version || '1.0.0',
+        database: {
+          status: dbHealthy ? 'healthy' : 'unhealthy',
+          activeConnection: 'neon',
+          type: 'postgresql'
+        },
+        memory: {
+          used: Math.round(process.memoryUsage().heapUsed / 1024 / 1024),
+          total: Math.round(process.memoryUsage().heapTotal / 1024 / 1024),
+          rss: Math.round(process.memoryUsage().rss / 1024 / 1024)
+        },
+        uptime: Math.round(process.uptime())
+      };
+
+      // Overall health check
+      const isHealthy = dbHealthy;
+      
+      res.status(isHealthy ? 200 : 503).json(healthStatus);
+    } catch (error) {
+      res.status(503).json({
+        status: 'unhealthy',
+        timestamp: new Date().toISOString(),
+        error: 'Health check failed'
+      });
+    }
   });
 
   // Register API routes
