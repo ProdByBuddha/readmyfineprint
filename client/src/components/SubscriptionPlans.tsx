@@ -1,9 +1,11 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { Check, Crown, Zap, Star, Sparkles, AlertTriangle } from 'lucide-react';
+import { Check, Crown, Zap, Star, Sparkles, AlertTriangle, Target, ArrowRight } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
+import { Link } from 'wouter';
+import { MailingListModal } from '@/components/MailingListModal';
 // Alert components available if needed for future features
 // import { Alert, AlertDescription } from '@/components/ui/alert';
 
@@ -31,20 +33,18 @@ const SUBSCRIPTION_TIERS: SubscriptionTier[] = [
   {
     id: "free",
     name: "Free",
-    description: "Perfect for secure document analysis with enterprise-grade privacy protection",
+    description: "Perfect for trying out document analysis with basic features",
     model: "gpt-4o-mini",
     monthlyPrice: 0,
     yearlyPrice: 0,
     features: [
-      "Unlimited document analysis",
       "Analysis with GPT-4o-mini",
       "Standard rate limiting (lower priority)",
       "Email support",
-      "Military-grade privacy protection",
-      "Complete audit trails"
+      "Full document insights"
     ],
     limits: {
-      documentsPerMonth: -1, // -1 indicates unlimited
+      documentsPerMonth: 10, // Individual limit for free tier users
       tokensPerDocument: 16000,
       prioritySupport: false,
       advancedAnalysis: false,
@@ -55,19 +55,18 @@ const SUBSCRIPTION_TIERS: SubscriptionTier[] = [
   {
     id: "starter",
     name: "Starter",
-    description: "For professionals requiring enhanced privacy features and priority processing",
+    description: "For individuals and teams who need faster processing with advanced AI",
     model: "gpt-4.1-mini",
     monthlyPrice: 15,
     yearlyPrice: 150,
     features: [
-      "Unlimited document analysis",
-      "Advanced privacy-preserving analysis",
-      "Priority processing with enhanced security",
+      "Enhanced analysis with GPT-4.1-mini",
+      "Priority rate limiting (faster processing)",
       "Email support",
-      "Advanced confidentiality features"
+      "Advanced analysis features"
     ],
     limits: {
-      documentsPerMonth: -1, // unlimited
+      documentsPerMonth: 50, // 50 documents per month
       tokensPerDocument: 128000,
       prioritySupport: false,
       advancedAnalysis: true,
@@ -84,85 +83,23 @@ const SUBSCRIPTION_TIERS: SubscriptionTier[] = [
     monthlyPrice: 75,
     yearlyPrice: 750,
     features: [
-      "200 document analyses per month",
       "Premium analysis with GPT-4o",
       "Priority processing",
-      "Priority email & chat support",
+      "Priority email support",
       "Advanced analysis features",
-      "API access (100 calls/month)",
-      "Custom integrations",
-      "Advanced export options",
-      "Usage analytics dashboard"
+      "Advanced export options (PDF & Data)",
+      "Higher document limits"
     ],
     limits: {
       documentsPerMonth: 200,
       tokensPerDocument: 128000,
       prioritySupport: true,
       advancedAnalysis: true,
-      apiAccess: true,
-      customIntegrations: true,
-    }
-  },
-  {
-    id: "business",
-    name: "Business",
-    description: "For established businesses with high-volume document processing needs",
-    model: "gpt-4-turbo",
-    monthlyPrice: 250,
-    yearlyPrice: 2500,
-    features: [
-      "500 document analyses per month",
-      "Advanced analysis with GPT-4-Turbo",
-      "Fastest processing priority",
-      "24/7 priority support",
-      "Advanced AI analysis features",
-      "Full API access (unlimited)",
-      "Custom integrations & webhooks",
-      "White-label options",
-      "Advanced analytics & reporting",
-      "Team collaboration features",
-      "SSO integration"
-    ],
-    limits: {
-      documentsPerMonth: 500,
-      tokensPerDocument: 128000,
-      prioritySupport: true,
-      advancedAnalysis: true,
-      apiAccess: true,
-      customIntegrations: true,
-    }
-  },
-  {
-    id: "enterprise",
-    name: "Enterprise",
-    description: "For large organizations requiring maximum capability and reasoning power",
-    model: "o1-preview",
-    monthlyPrice: 500,
-    yearlyPrice: 5000,
-    features: [
-      "1000+ document analyses per month",
-      "Most advanced analysis with o1-preview",
-      "Maximum reasoning capability",
-      "Dedicated account manager",
-      "24/7 premium support & SLA",
-      "Most advanced AI reasoning",
-      "Full API access with higher limits",
-      "Custom model fine-tuning options",
-      "Complete white-label solution",
-      "Advanced security & compliance",
-      "Custom deployment options",
-      "Training & onboarding",
-      "Custom contract terms"
-    ],
-    limits: {
-      documentsPerMonth: 1000,
-      tokensPerDocument: 128000,
-      prioritySupport: true,
-      advancedAnalysis: true,
-      apiAccess: true,
-      customIntegrations: true,
+      apiAccess: false,
+      customIntegrations: false,
     }
   }
+  // Note: Business and Enterprise tiers are temporarily hidden until features are fully implemented
   // Note: Ultimate tier is not displayed in public plans - it's admin-only
 ];
 
@@ -189,7 +126,7 @@ const getTierColor = (tierId: string) => {
     case 'free': return 'text-gray-600';
     case 'starter': return 'text-blue-600';
     case 'professional': return 'text-purple-600';
-    case 'business': return 'text-gold-600';
+    case 'business': return 'text-amber-600'; // Fixed: gold -> amber (valid Tailwind class)
     case 'enterprise': return 'text-red-600';
     default: return 'text-gray-600';
   }
@@ -203,28 +140,52 @@ const calculateSavings = (monthlyPrice: number, yearlyPrice: number) => {
 
 export default function SubscriptionPlans({ currentTier, cancelAtPeriodEnd, onSelectPlan, onReactivate }: SubscriptionPlansProps) {
   const [billingCycle, setBillingCycle] = useState<'monthly' | 'yearly'>('monthly');
+  const [showMailingListModal, setShowMailingListModal] = useState(false);
+  const [userEmail, setUserEmail] = useState<string | null>(null);
+
+  // Check if user is logged in to get their email
+  useEffect(() => {
+    const checkUserAuth = async () => {
+      try {
+        const response = await fetch('/api/user/profile', {
+          credentials: 'include',
+        });
+        
+        if (response.ok) {
+          const userData = await response.json();
+          if (userData.user?.email) {
+            setUserEmail(userData.user.email);
+          }
+        }
+      } catch (error) {
+        // User not logged in, continue without email
+      }
+    };
+
+    checkUserAuth();
+  }, []);
 
   const handleSelectPlan = (tierId: string, billingCycle: 'monthly' | 'yearly') => {
     // All available tiers are ready for selection
     onSelectPlan(tierId, billingCycle);
   };
 
+  const handleNotifyMeClick = () => {
+    setShowMailingListModal(true);
+  };
 
-
-  // Filter to show only available tiers (free and starter for now)
-  const availableTiers = SUBSCRIPTION_TIERS.filter(tier => 
-    tier.id === 'free' || tier.id === 'starter'
-  );
+  // All tiers are now available for selection
+  const availableTiers = SUBSCRIPTION_TIERS;
 
   return (
-    <div className="w-full max-w-7xl mx-auto p-2">
-      <div className="text-center mb-3">
-        <p className="text-sm text-gray-600 mb-2">
-          All plans include enterprise-grade security and advanced privacy protection
+    <div className="w-full max-w-7xl mx-auto p-4">
+      <div className="text-center mb-6">
+        <p className="text-sm text-gray-600 mb-4">
+          All plans include advanced privacy protection
         </p>
 
         {/* Billing Cycle Toggle */}
-        <div className="flex items-center justify-center space-x-1 mb-3">
+        <div className="flex items-center justify-center space-x-2 mb-4">
           <span className={`text-xs ${billingCycle === 'monthly' ? 'text-gray-900 font-medium' : 'text-gray-500'}`}>
             Monthly
           </span>
@@ -250,8 +211,8 @@ export default function SubscriptionPlans({ currentTier, cancelAtPeriodEnd, onSe
       </div>
 
       {/* Plans Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-        {availableTiers.map((tier, index) => {
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 lg:gap-6">
+        {SUBSCRIPTION_TIERS.map((tier, index) => {
           const price = billingCycle === 'yearly' ? tier.yearlyPrice : tier.monthlyPrice;
           const displayPrice = billingCycle === 'yearly' ? price / 12 : price;
           const savings = calculateSavings(tier.monthlyPrice, tier.yearlyPrice);
@@ -263,13 +224,13 @@ export default function SubscriptionPlans({ currentTier, cancelAtPeriodEnd, onSe
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: index * 0.1 }}
-              className={`relative ${tier.popular ? 'scale-105' : ''}`}
+              className={`relative ${tier.popular ? 'scale-105 z-10' : ''}`}
             >
-              <Card className={`h-full flex flex-col relative ${
-                tier.popular ? 'border-blue-500 border-2 shadow-lg' : 'border-gray-200'
-              } ${isCurrentTier ? 'ring-2 ring-green-500' : ''}`}>
+              <Card className={`h-full flex flex-col relative min-h-[520px] ${
+                tier.popular ? 'border-blue-500 border-2 shadow-xl' : 'border-gray-200'
+              } ${isCurrentTier ? 'ring-2 ring-green-500' : ''} hover:shadow-lg transition-all duration-200`}>
                 {tier.popular && (
-                  <div className="absolute -top-3 left-1/2 transform -translate-x-1/2">
+                  <div className="absolute -top-3 left-1/2 transform -translate-x-1/2 z-10">
                     <Badge className="bg-blue-500 text-white px-3 py-1">
                       Most Popular
                     </Badge>
@@ -277,70 +238,76 @@ export default function SubscriptionPlans({ currentTier, cancelAtPeriodEnd, onSe
                 )}
 
                 {isCurrentTier && (
-                  <div className="absolute -top-3 right-4">
+                  <div className="absolute -top-3 right-4 z-10">
                     <Badge className="bg-green-500 text-white px-3 py-1">
                       Current Plan
                     </Badge>
                   </div>
                 )}
 
-                <CardHeader className="text-center pb-1 pt-3">
-                  <div className={`mx-auto mb-1 ${getTierColor(tier.id)}`}>
+                <CardHeader className="text-center pb-6 pt-8">
+                  <div className={`mx-auto mb-4 ${getTierColor(tier.id)}`}>
                     {getTierIcon(tier.id)}
                   </div>
-                  <CardTitle className="text-base font-bold">{tier.name}</CardTitle>
-                  <CardDescription className="text-xs h-8 flex items-center justify-center">
+                  <CardTitle className="text-xl font-bold mb-3">{tier.name}</CardTitle>
+                  <CardDescription className="text-sm min-h-[3rem] flex items-center justify-center px-3 text-center leading-relaxed">
                     {tier.description}
                   </CardDescription>
-
-                  {/* Security Badge */}
-                  <Badge variant="outline" className="text-xs mt-0.5">
-                    Enterprise Security
-                  </Badge>
                 </CardHeader>
 
-                <CardContent className="flex-1 flex flex-col pt-1 px-4 pb-4">
+                <CardContent className="flex-1 flex flex-col pt-2 px-6 pb-8">
                   {/* Pricing */}
-                  <div className="text-center mb-3">
+                  <div className="text-center mb-8">
                     {tier.id === 'free' ? (
-                      <div className="text-3xl font-bold">Free</div>
+                      <div className="text-3xl font-bold mb-2">Free</div>
                     ) : (
                       <>
-                        <div className="text-3xl font-bold">
+                        <div className="text-3xl font-bold mb-2">
                           ${displayPrice.toFixed(0)}
                           <span className="text-base font-normal text-gray-600">
                             /month
                           </span>
                         </div>
                         {billingCycle === 'yearly' && savings > 0 && (
-                          <div className="text-sm text-green-600 font-medium">
+                          <div className="text-sm text-green-600 font-medium mt-2">
                             Save {savings}% yearly
                           </div>
                         )}
                         {billingCycle === 'yearly' && (
-                          <div className="text-xs text-gray-500">
+                          <div className="text-xs text-gray-500 mt-1">
                             ${price} billed annually
                           </div>
                         )}
                       </>
                     )}
+                    
+                    {/* Document Limit & Model Display */}
+                    <div className="mt-4 space-y-2">
+                      <div className="text-sm font-medium text-gray-700">
+                        {tier.limits.documentsPerMonth === -1 
+                          ? 'Unlimited documents' 
+                          : `${tier.limits.documentsPerMonth} documents/month`}
+                      </div>
+                      <div className="text-xs text-gray-500">
+                        Powered by {tier.model}
+                      </div>
+                    </div>
                   </div>
 
                   {/* Features */}
-                  <ul className="space-y-1 mb-3 flex-1">
+                  <ul className="space-y-4 mb-8 flex-1">
                     {tier.features.map((feature, idx) => (
-                      <li key={idx} className="flex items-start space-x-2 text-xs">
-                        <Check className="h-3 w-3 text-green-500 mt-0.5 flex-shrink-0" />
-                        <span>{feature}</span>
+                      <li key={idx} className="flex items-start space-x-3 text-sm">
+                        <Check className="h-4 w-4 text-green-500 mt-1 flex-shrink-0" />
+                        <span className="leading-relaxed text-gray-700">{feature}</span>
                       </li>
                     ))}
                   </ul>
 
-
                   {/* Action Button */}
-                  {!(tier.id === 'free' && currentTier === 'free') && !(tier.id === 'free' && cancelAtPeriodEnd) && (
+                  <div className="mt-auto pt-4">
                     <Button
-                      className={`w-full ${
+                      className={`w-full py-4 text-base font-medium ${
                         tier.popular ? 'bg-blue-600 hover:bg-blue-700' : 
                         (isCurrentTier && cancelAtPeriodEnd) ? 'bg-green-600 hover:bg-green-700 text-white' : ''
                       }`}
@@ -359,19 +326,125 @@ export default function SubscriptionPlans({ currentTier, cancelAtPeriodEnd, onSe
                       ) : isCurrentTier ? (
                         'Current Plan'
                       ) : tier.id === 'free' ? (
-                        'Downgrade'
+                        'Get Started'
                       ) : (
                         `Choose ${tier.name}`
                       )}
                     </Button>
-                  )}
+                  </div>
                 </CardContent>
               </Card>
             </motion.div>
           );
         })}
+        
+        {/* Coming Soon Card */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: SUBSCRIPTION_TIERS.length * 0.1 }}
+          className="relative"
+        >
+          <Card className="h-full flex flex-col relative min-h-[520px] border-dashed border-2 border-gray-300 bg-gray-50 dark:bg-gray-800 dark:border-gray-600">
+            <div className="absolute -top-3 left-1/2 transform -translate-x-1/2 z-10">
+              <Badge className="bg-orange-500 text-white px-3 py-1">
+                Coming Soon
+              </Badge>
+            </div>
+
+            <CardHeader className="text-center pb-6 pt-8">
+              <div className="mx-auto mb-4 text-orange-500">
+                <svg className="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+                </svg>
+              </div>
+              <CardTitle className="text-xl font-bold text-gray-600 dark:text-gray-300">More Plans</CardTitle>
+              <CardDescription className="text-sm min-h-[3rem] flex items-center justify-center px-3 text-center leading-relaxed text-gray-500 dark:text-gray-400">
+                Enterprise features in development
+              </CardDescription>
+            </CardHeader>
+
+            <CardContent className="flex-1 flex flex-col pt-2 px-6 pb-8">
+              {/* Pricing placeholder */}
+              <div className="text-center mb-8">
+                <div className="text-3xl font-bold mb-2 text-gray-400 dark:text-gray-500">
+                  Coming Soon
+                </div>
+                <div className="text-xs text-gray-400 dark:text-gray-500 mt-1">
+                  Pricing to be announced
+                </div>
+              </div>
+
+              {/* Features */}
+              <ul className="space-y-4 mb-8 flex-1">
+                <li className="flex items-start space-x-3 text-sm">
+                  <div className="h-4 w-4 rounded-full bg-orange-100 dark:bg-orange-900 flex items-center justify-center mt-1 flex-shrink-0">
+                    <div className="h-2 w-2 rounded-full bg-orange-500"></div>
+                  </div>
+                  <span className="leading-relaxed text-gray-600 dark:text-gray-300">Team collaboration features</span>
+                </li>
+                <li className="flex items-start space-x-3 text-sm">
+                  <div className="h-4 w-4 rounded-full bg-orange-100 dark:bg-orange-900 flex items-center justify-center mt-1 flex-shrink-0">
+                    <div className="h-2 w-2 rounded-full bg-orange-500"></div>
+                  </div>
+                  <span className="leading-relaxed text-gray-600 dark:text-gray-300">API access & integrations</span>
+                </li>
+                <li className="flex items-start space-x-3 text-sm">
+                  <div className="h-4 w-4 rounded-full bg-orange-100 dark:bg-orange-900 flex items-center justify-center mt-1 flex-shrink-0">
+                    <div className="h-2 w-2 rounded-full bg-orange-500"></div>
+                  </div>
+                  <span className="leading-relaxed text-gray-600 dark:text-gray-300">SSO integration</span>
+                </li>
+                <li className="flex items-start space-x-3 text-sm">
+                  <div className="h-4 w-4 rounded-full bg-orange-100 dark:bg-orange-900 flex items-center justify-center mt-1 flex-shrink-0">
+                    <div className="h-2 w-2 rounded-full bg-orange-500"></div>
+                  </div>
+                  <span className="leading-relaxed text-gray-600 dark:text-gray-300">White-label options</span>
+                </li>
+                <li className="flex items-start space-x-3 text-sm">
+                  <div className="h-4 w-4 rounded-full bg-orange-100 dark:bg-orange-900 flex items-center justify-center mt-1 flex-shrink-0">
+                    <div className="h-2 w-2 rounded-full bg-orange-500"></div>
+                  </div>
+                  <span className="leading-relaxed text-gray-600 dark:text-gray-300">Custom deployment</span>
+                </li>
+              </ul>
+
+              {/* Action Button */}
+              <div className="mt-auto pt-4 space-y-3">
+                <Link to="/roadmap">
+                  <Button
+                    className="w-full py-4 text-base font-medium bg-purple-600 hover:bg-purple-700 text-white"
+                    variant="default"
+                  >
+                    <Target className="w-4 h-4 mr-2" />
+                    View Development Roadmap
+                    <ArrowRight className="w-4 h-4 ml-2" />
+                  </Button>
+                </Link>
+                <Button
+                  className="w-full py-3 text-sm font-medium"
+                  variant="outline"
+                  onClick={handleNotifyMeClick}
+                >
+                  Notify Me When Available
+                </Button>
+                <p className="text-xs text-center text-gray-500 dark:text-gray-400">
+                  See our roadmap for detailed development timeline
+                </p>
+              </div>
+            </CardContent>
+          </Card>
+        </motion.div>
       </div>
 
+      {/* Mailing List Modal */}
+      <MailingListModal
+        isOpen={showMailingListModal}
+        onClose={() => setShowMailingListModal(false)}
+        subscriptionType="enterprise_features"
+        source="subscription_plans"
+        userEmail={userEmail || undefined}
+      />
     </div>
   );
 }

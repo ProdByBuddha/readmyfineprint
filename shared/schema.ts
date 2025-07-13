@@ -208,6 +208,22 @@ export const totpSecrets = pgTable('totp_secrets', {
   updatedAt: timestamp('updated_at').defaultNow().notNull(),
 });
 
+// Mailing List Table
+export const mailingList = pgTable('mailing_list', {
+  id: uuid('id').primaryKey().defaultRandom(),
+  email: text('email').notNull(),
+  userId: uuid('user_id').references(() => users.id, { onDelete: 'cascade' }), // Optional - for logged in users
+  subscriptionType: text('subscription_type').notNull().default('enterprise_features'), // 'enterprise_features', 'product_updates', 'general'
+  source: text('source').notNull().default('subscription_plans'), // 'subscription_plans', 'footer', 'popup', 'manual'
+  status: text('status').notNull().default('active'), // 'active', 'unsubscribed', 'bounced'
+  ipHash: text('ip_hash'), // Hashed IP for analytics
+  userAgentHash: text('user_agent_hash'), // Hashed user agent
+  unsubscribeToken: text('unsubscribe_token').unique(), // Unique token for unsubscribe links
+  unsubscribedAt: timestamp('unsubscribed_at'),
+  createdAt: timestamp('created_at').defaultNow().notNull(),
+  updatedAt: timestamp('updated_at').defaultNow().notNull(),
+});
+
 // RBAC (Role-Based Access Control) Tables
 export const roles = pgTable('roles', {
   id: uuid('id').primaryKey().defaultRandom(),
@@ -445,6 +461,12 @@ const insertTotpSecretSchemaBase = createInsertSchema(totpSecrets).omit({
   updatedAt: true,
 });
 
+const insertMailingListSchemaBase = createInsertSchema(mailingList).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
 export const insertUserSchema = insertUserSchemaBase;
 export const insertUserSubscriptionSchema = insertUserSubscriptionSchemaBase;
 export const insertUsageRecordSchema = insertUsageRecordSchemaBase;
@@ -459,6 +481,7 @@ export const insertJwtTokenRevocationSchema = insertJwtTokenRevocationSchemaBase
 export const insertJwtSecretVersionSchema = insertJwtSecretVersionSchemaBase;
 export const insertTwoFactorCodeSchema = insertTwoFactorCodeSchemaBase;
 export const insertTotpSecretSchema = insertTotpSecretSchemaBase;
+export const insertMailingListSchema = insertMailingListSchemaBase;
 
 // Database Types
 export type User = typeof users.$inferSelect;
@@ -591,6 +614,19 @@ export type InsertTotpSecret = {
   backupCodes?: string | null;
   lastUsedAt?: Date | null;
   isActive?: boolean;
+};
+
+export type MailingList = typeof mailingList.$inferSelect;
+export type InsertMailingList = {
+  email: string;
+  userId?: string | null;
+  subscriptionType?: string;
+  source?: string;
+  status?: string;
+  ipHash?: string | null;
+  userAgentHash?: string | null;
+  unsubscribeToken?: string | null;
+  unsubscribedAt?: Date | null;
 };
 
 export const insertDocumentSchema = z.object({
@@ -762,7 +798,9 @@ export const blogPosts = pgTable('blog_posts', {
   readingTime: integer('reading_time'), // Estimated reading time in minutes
   wordCount: integer('word_count'),
   viewCount: integer('view_count').default(0),
+  artificialViewCount: integer('artificial_view_count').default(0),
   shareCount: integer('share_count').default(0),
+  artificialShareCount: integer('artificial_share_count').default(0),
   isActive: boolean('is_active').default(true).notNull(),
   isFeatured: boolean('is_featured').default(false).notNull(),
   canonicalUrl: text('canonical_url'),
@@ -1122,3 +1160,10 @@ export const piiDetectionFeedbackSchema = z.object({
 });
 
 export type PiiDetectionFeedbackInput = z.infer<typeof piiDetectionFeedbackSchema>;
+
+export const insertContentGenerationSchema = createInsertSchema(contentGeneration).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+

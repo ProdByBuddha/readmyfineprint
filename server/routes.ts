@@ -28,6 +28,8 @@ import { registerTotpRoutes } from './totp-routes';
 import { registerCcpaRoutes } from './ccpa-compliance';
 import { registerAgeVerificationRoutes } from './age-verification-routes';
 import { registerLegalProfessionalRoutes } from './legal-professional-routes';
+import { registerHybridRoutes } from './hybrid-routes';
+import { registerTierSecurityRoutes } from './tier-security-routes';
 import { indexNowService } from './indexnow-service';
 import blogRoutes from './blog-routes.js';
 import { subscriptionService } from './subscription-service';
@@ -41,11 +43,29 @@ import {
 import { getTierById, SUBSCRIPTION_TIERS } from './subscription-tiers';
 import { priorityQueue } from './priority-queue';
 import { createPseudonymizedEmail, verifyEmailMatch } from './argon2';
+import { mailingList, insertMailingListSchema, type InsertMailingList } from '@shared/schema';
+import { eq, and } from 'drizzle-orm';
+import { db } from './db';
 
 /**
  * Find user by email using deterministic hash entanglement
  * This handles the bidirectional relationship between real and pseudonymized emails
  */
+/**
+ * Get the correct client base URL based on environment
+ * In development: points to Vite dev server (port 5173)
+ * In production: uses the request host
+ */
+function getClientBaseUrl(req: any): string {
+  if (process.env.NODE_ENV === 'development') {
+    // In development, always point to the Vite dev server
+    return 'http://localhost:5173';
+  } else {
+    // In production, use the same protocol and host as the request
+    return `${req.protocol}://${req.get('host')}`;
+  }
+}
+
 async function findUserByEmailWithEntanglement(email: string): Promise<any> {
   console.log(`🔍 Looking up user for email: ${email}`);
   
@@ -631,20 +651,32 @@ export async function registerRoutes(app: Express): Promise<Server> {
           });
         }
         
-        // Generate JWT token directly - bypass all authentication
-        const { secureJWTService } = await import('./secure-jwt-service');
-        const tokenPair = await secureJWTService.generateTokenPair(
-          adminUser?.id || adminId,
-          adminEmail,
-          {
-            ip: req.ip || 'unknown',
-            userAgent: req.get('user-agent') || 'unknown',
-            deviceFingerprint: 'dev-admin'
-          }
-        );
+        // Ensure we have a valid admin user
+        if (!adminUser) {
+          throw new Error('Admin user not found or created');
+        }
+
+        // Generate subscription token for admin access
+        const { hybridTokenService } = await import('./hybrid-token-service');
+        const token = await hybridTokenService.generateSubscriptionToken({
+          userId: adminUser.id,
+          tierId: 'ultimate', // Admin gets ultimate tier
+          deviceFingerprint: 'dev-admin'
+        });
         
-        const token = tokenPair.accessToken;
-        const refreshToken = tokenPair.refreshToken;
+        // Store session in database
+        const { postgresqlSessionStorage } = await import('./postgresql-session-storage');
+        const sessionId = crypto.randomUUID();
+        await postgresqlSessionStorage.storeSessionToken(sessionId, token, adminUser.id);
+
+        // Set secure httpOnly cookie with session ID
+        res.cookie('sessionId', sessionId, {
+          httpOnly: true,
+          secure: process.env.NODE_ENV === 'production',
+          sameSite: 'strict',
+          maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
+          path: '/'
+        });
         
         console.log('🔐 Development auto-login successful for admin@readmyfineprint.com');
         console.log('⚡ No authentication required - dev mode bypass active');
@@ -652,12 +684,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
         res.json({
           message: "Auto-login successful (development mode)",
           user: {
-            id: adminUser?.id || adminId,
+            id: adminUser.id,
             email: adminEmail,
             tier: 'ultimate'
-          },
-          token,
-          refreshToken
+          }
         });
       } catch (error: any) {
         console.error('Auto-login error:', error);
@@ -872,7 +902,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
       console.log(`🔍 Analysis request: DocumentID=${documentId}, SessionID=${req.sessionId}`);
 
       // Generate client fingerprint for session consolidation
-      const { ip: clientIp, userAgent: clientUA } = getClientInfo(req);
+      const clientInfo = getClientInfo(req);
+      const { ip: clientIp, userAgent: clientUA } = clientInfo;
       const clientFingerprint = crypto.createHash('md5').update(`${clientIp}:${clientUA}`).digest('hex').substring(0, 16);
 
       let document = await storage.getDocument(req.sessionId, documentId, clientFingerprint);
@@ -969,6 +1000,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
           const { hybridTokenService } = await import('./hybrid-token-service');
           const tokenData = await hybridTokenService.validateSubscriptionToken(adminSubscriptionToken);
           if (tokenData) {
+            if (!tokenData.userId) {
+              console.warn('🔍 Admin token validation successful but userId is undefined:', tokenData);
+            }
             const user = await databaseStorage.getUser(tokenData.userId);
             const adminEmails = ['admin@readmyfineprint.com', 'prodbybuddha@icloud.com'];
             isAdmin = !!(user && adminEmails.includes(user.email));
@@ -1101,45 +1135,127 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Add estimated wait time to response for user feedback
       const estimatedWaitTime = priorityQueue.getEstimatedWaitTime(subscriptionData.tier.id);
 
-      // Process document analysis through priority queue with PII protection
+      // Check for test mode to skip OpenAI calls
+      const isTestMode = req.headers['x-skip-openai'] === 'true' || req.body.skipOpenAI === true || req.body.testMode === true;
+      
+      if (isTestMode) {
+        console.log(`🧪 Test mode enabled - skipping OpenAI analysis for document ${documentId}`);
+        
+        // Create a mock analysis result for testing
+        const mockAnalysis = {
+          summary: `This is a mock analysis for testing rate limiting on the ${subscriptionData.tier.id} tier. Document: ${document.title}`,
+          keyPoints: [
+            "Mock analysis point 1",
+            "Mock analysis point 2", 
+            "Mock analysis point 3"
+          ],
+          risks: ["Mock risk assessment"],
+          recommendations: ["Mock recommendation"],
+          confidence: 0.95,
+          processingTime: Math.random() * 1000 + 500, // Random processing time
+          model: subscriptionData.tier.model,
+          testMode: true
+        };
+
+        // Update document with mock analysis
+        const updatedDocument = await storage.updateDocumentAnalysis(
+          req.sessionId, 
+          documentId, 
+          mockAnalysis, 
+          clientFingerprint
+        );
+
+        // Track usage for rate limiting testing
+        await subscriptionService.trackUsage(
+          userId,
+          1500, // Mock token usage
+          subscriptionData.tier.model,
+          {
+            sessionId: req.sessionId,
+            deviceFingerprint: clientFingerprint,
+            ipAddress: clientInfo.ip
+          }
+        );
+
+        console.log(`✅ Mock analysis completed for ${subscriptionData.tier.id} tier user (test mode)`);
+        return res.json(updatedDocument);
+      }
+
+      // Check if user has Professional tier for PII redaction features
+      const { validateProfessionalAccess } = await import('./tier-validation.js');
+      const tierValidation = await validateProfessionalAccess(userId);
+      
+      // Process document analysis through priority queue with conditional PII protection
       const analysisResult = await priorityQueue.addToQueue(
         userId,
         subscriptionData.tier.id,
         async () => {
-          return await analyzeDocumentWithPII(
-            document.content, 
-            document.title, 
-            {
-              ip: analysisIp,
-              userAgent: analysisUserAgent,
-              sessionId: req.sessionId,
-              model: subscriptionData.tier.model,
-              userId: userId,
-              piiDetection: {
-                enabled: true, // Always enabled for maximum privacy protection
-                detectNames: true,
-                minConfidence: 0.7, // High confidence threshold for production
-                useEnhancedDetection: true, // Enable multi-pass enhanced detection with local LLM
-                aggressiveMode: true // Bias toward over-detection for privacy
+          // Use PII protection only for Professional tier and above
+          if (tierValidation.hasAccess) {
+            console.log(`🔒 Using PII protection for ${tierValidation.currentTier} tier user ${userId}`);
+            return await analyzeDocumentWithPII(
+              document.content, 
+              document.title, 
+              {
+                ip: analysisIp,
+                userAgent: analysisUserAgent,
+                sessionId: req.sessionId,
+                model: subscriptionData.tier.model,
+                userId: userId,
+                piiDetection: {
+                  enabled: true, // Always enabled for maximum privacy protection
+                  detectNames: true,
+                  minConfidence: 0.7, // High confidence threshold for production
+                  useEnhancedDetection: true, // Enable multi-pass enhanced detection with local LLM
+                  aggressiveMode: true // Bias toward over-detection for privacy
+                }
               }
-            }
-          );
+            );
+          } else {
+            console.log(`📝 Using standard analysis for ${tierValidation.currentTier} tier user ${userId}`);
+            // Fall back to regular analysis without PII protection
+            return await analyzeDocument(
+              document.content,
+              document.title,
+              {
+                ip: analysisIp,
+                userAgent: analysisUserAgent,
+                sessionId: req.sessionId,
+                model: subscriptionData.tier.model,
+                userId: userId
+              }
+            );
+          }
         }
       );
+
+      // Normalize analysis result - handle both direct analysis and { analysis, redactionInfo } formats
+      let analysis, redactionInfo;
+      if (analysisResult && typeof analysisResult === 'object' && 'analysis' in analysisResult) {
+        // Format from analyzeDocumentWithPII: { analysis, redactionInfo }
+        analysis = analysisResult.analysis;
+        redactionInfo = analysisResult.redactionInfo;
+        console.log(`📋 Using PII-protected analysis result`);
+      } else {
+        // Format from analyzeDocument: analysis directly
+        analysis = analysisResult;
+        redactionInfo = undefined;
+        console.log(`📋 Using standard analysis result`);
+      }
 
       // Update document with analysis results and redaction info
       const updatedDocument = await storage.updateDocumentAnalysis(
         req.sessionId, 
         documentId, 
-        analysisResult.analysis, 
+        analysis, 
         clientFingerprint,
-        analysisResult.redactionInfo
+        redactionInfo
       );
 
       // If this was a sample contract copied from another session, sync the analysis back to the original session
       if (originalSessionId && originalSessionId !== req.sessionId) {
         try {
-          await storage.updateDocumentAnalysis(originalSessionId, documentId, analysisResult.analysis, clientFingerprint, analysisResult.redactionInfo);
+          await storage.updateDocumentAnalysis(originalSessionId, documentId, analysis, clientFingerprint, redactionInfo);
           console.log(`🔄 Analysis synced back to original session ${originalSessionId} for sample contract ${documentId}`);
         } catch (syncError) {
           console.warn(`⚠️ Failed to sync analysis back to original session ${originalSessionId}:`, syncError instanceof Error ? syncError.message : String(syncError));
@@ -1475,6 +1591,56 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Session validation endpoint
+  app.get("/api/auth/session", async (req, res) => {
+    try {
+      const sessionId = req.cookies?.sessionId;
+      
+      if (!sessionId) {
+        return res.status(401).json({ error: 'No session found' });
+      }
+
+      // Get token from database
+      const { postgresqlSessionStorage } = await import('./postgresql-session-storage');
+      const token = await postgresqlSessionStorage.getTokenBySession(sessionId);
+      
+      if (!token) {
+        return res.status(401).json({ error: 'Invalid session' });
+      }
+
+      // Validate the token
+      const { hybridTokenService } = await import('./hybrid-token-service');
+      const tokenData = await hybridTokenService.validateSubscriptionToken(token);
+      
+      if (!tokenData) {
+        return res.status(401).json({ error: 'Invalid token' });
+      }
+
+      if (!tokenData.userId) {
+        console.error('Session token validation successful but userId is undefined:', tokenData);
+        return res.status(401).json({ error: 'Invalid session: missing user ID' });
+      }
+
+      // Get user data
+      const user = await databaseStorage.getUser(tokenData.userId);
+      
+      if (!user) {
+        return res.status(401).json({ error: 'User not found' });
+      }
+
+      res.json({
+        user: {
+          id: user.id,
+          email: user.email,
+          username: user.username
+        }
+      });
+    } catch (error) {
+      console.error('Session validation error:', error);
+      res.status(500).json({ error: 'Session validation failed' });
+    }
+  });
+
   // Get subscription token after successful checkout
   app.get("/api/subscription/token/:sessionId", async (req, res) => {
     try {
@@ -1574,8 +1740,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
           quantity: 1,
         }],
         mode: 'subscription',
-        success_url: `${req.protocol}://${req.get('host')}/subscription?session_id={CHECKOUT_SESSION_ID}&success=true`,
-        cancel_url: `${req.protocol}://${req.get('host')}/subscription`,
+        success_url: `${getClientBaseUrl(req)}/subscription?session_id={CHECKOUT_SESSION_ID}&success=true`,
+        cancel_url: `${getClientBaseUrl(req)}/subscription`,
         client_reference_id: userId,
         metadata: {
           tierId,
@@ -1792,7 +1958,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Create customer portal session
       const session = await stripeInstance.billingPortal.sessions.create({
         customer: currentSubscription.subscription.stripeCustomerId,
-        return_url: `${req.protocol}://${req.get('host')}/subscription?tab=billing`,
+        return_url: `${getClientBaseUrl(req)}/subscription?tab=billing`,
       });
 
       res.json({ url: session.url });
@@ -1947,6 +2113,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
 
       console.log(`✅ Document ${documentId} found and returned (GET)`);
+      console.log(`📊 Document analysis status: ${document.analysis ? 'Present' : 'Missing'}`);
+      if (document.analysis) {
+        console.log(`📊 Analysis type: ${typeof document.analysis}, keys: ${Object.keys(document.analysis).join(', ')}`);
+      }
       res.json(document);
     } catch (error) {
       console.error("Error fetching document:", error);
@@ -2584,8 +2754,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
           quantity: 1,
         }],
         mode: 'payment',
-        success_url: validatedData.success_url || `${req.protocol}://${req.get('host')}/donate?success=true&amount=${amount}`,
-        cancel_url: validatedData.cancel_url || `${req.protocol}://${req.get('host')}/donate?canceled=true`,
+        success_url: validatedData.success_url || `${getClientBaseUrl(req)}/donate?success=true&amount=${amount}`,
+        cancel_url: validatedData.cancel_url || `${getClientBaseUrl(req)}/donate?canceled=true`,
         metadata: {
           type: "donation",
           source: "readmyfineprint",
@@ -2667,6 +2837,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Register TOTP routes
   registerTotpRoutes(app);
   
+  // Register tier security routes
+  registerTierSecurityRoutes(app);
+  
   // Register CCPA compliance routes
   registerCcpaRoutes(app);
   
@@ -2676,8 +2849,99 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Register legal professional routes
   registerLegalProfessionalRoutes(app);
   
+  // Register hybrid analysis routes
+  registerHybridRoutes(app);
+  
   // Register blog routes
   app.use('/api/blog', blogRoutes);
+
+  // Contact card endpoints
+  app.get('/contact.vcf', async (req, res) => {
+    try {
+      const { vCardService } = await import('./vcard-service.js');
+      const userAgent = req.get('User-Agent');
+      
+      const { vcard, filename, version } = await vCardService.generateContactCardForClient(userAgent);
+      
+      // Set appropriate headers for vCard download
+      res.setHeader('Content-Type', 'text/vcard; charset=utf-8');
+      res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);
+      res.setHeader('Cache-Control', 'public, max-age=3600'); // Cache for 1 hour
+      res.setHeader('X-VCard-Version', version);
+      
+      // Optional: Add custom headers for debugging
+      if (process.env.NODE_ENV === 'development') {
+        res.setHeader('X-User-Agent', userAgent || 'unknown');
+        res.setHeader('X-VCard-Type', version);
+      }
+      
+      res.send(vcard);
+    } catch (error) {
+      console.error('Error generating contact card:', error);
+      res.status(500).json({ error: 'Failed to generate contact card' });
+    }
+  });
+
+  // Alternative endpoint for API access
+  app.get('/api/contact/vcard', async (req, res) => {
+    try {
+      const { vCardService } = await import('./vcard-service.js');
+      const userAgent = req.get('User-Agent');
+      const format = req.query.format as string; // 'v2', 'v3', 'v4', or 'auto'
+      
+      let result;
+      
+      if (format === 'v2') {
+        const vcard = await vCardService.generateCompatibleContactCard();
+        result = { vcard, filename: 'ReadMyFinePrint-v2.vcf', version: '2.1' };
+      } else if (format === 'v3') {
+        const vcard = await vCardService.generateContactCard();
+        result = { vcard, filename: 'ReadMyFinePrint-v3.vcf', version: '3.0' };
+      } else if (format === 'v4') {
+        const vcard = await vCardService.generateEnhancedContactCard();
+        result = { vcard, filename: 'ReadMyFinePrint-v4.vcf', version: '4.0' };
+      } else {
+        result = await vCardService.generateContactCardForClient(userAgent);
+      }
+      
+      const { download } = req.query;
+      
+      if (download === 'true') {
+        // Serve as downloadable file
+        res.setHeader('Content-Type', 'text/vcard; charset=utf-8');
+        res.setHeader('Content-Disposition', `attachment; filename="${result.filename}"`);
+        res.send(result.vcard);
+      } else {
+        // Serve as JSON for API consumption
+        res.json({
+          vcard: result.vcard,
+          filename: result.filename,
+          version: result.version,
+          generatedAt: new Date().toISOString(),
+          userAgent: userAgent
+        });
+      }
+    } catch (error) {
+      console.error('Error generating contact card via API:', error);
+      res.status(500).json({ error: 'Failed to generate contact card' });
+    }
+  });
+
+  // Handle Stripe checkout redirects to /subscription
+  app.get('/subscription', (req, res) => {
+    // In development, redirect to the client dev server (Vite on port 5173)
+    // In production, this should redirect to the same domain
+    if (process.env.NODE_ENV === 'development') {
+      const clientUrl = `http://localhost:5173/subscription${req.url.includes('?') ? req.url.substring(req.url.indexOf('?')) : ''}`;
+      console.log(`🔀 Redirecting Stripe checkout to client dev server: ${clientUrl}`);
+      res.redirect(302, clientUrl);
+    } else {
+      // In production, just serve the client app (this would be handled by your reverse proxy/CDN)
+      // For now, redirect to root and let client routing handle it
+      const queryString = req.url.includes('?') ? req.url.substring(req.url.indexOf('?')) : '';
+      res.redirect(302, `/${queryString}`);
+    }
+  });
 
   // Register RLHF feedback routes for PII detection improvement
   app.post('/api/rlhf/feedback', submitPiiDetectionFeedback);
@@ -2693,6 +2957,380 @@ export async function registerRoutes(app: Express): Promise<Server> {
     res.setHeader('X-Frame-Options', 'DENY');
     res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
     next();
+  });
+
+  // Mailing List Signup
+  app.post("/api/mailing-list/signup", requireConsent, async (req: Request, res: Response) => {
+    try {
+      const clientInfo = getClientInfo(req);
+      
+      // Validate input
+      const signupData = z.object({
+        email: z.string().email(),
+        subscriptionType: z.string().optional().default('enterprise_features'),
+        source: z.string().optional().default('subscription_plans'),
+      }).parse(req.body);
+
+      // Check if user is logged in to get their userId
+      let userId: string | null = null;
+      try {
+        const authResult = await optionalUserAuth(req, res, () => {});
+        if (authResult && typeof authResult === 'object' && 'userId' in authResult) {
+          userId = authResult.userId;
+        }
+      } catch (error) {
+        // User not logged in, continue without userId
+      }
+
+      // Check if email already exists in mailing list
+      const existingEntry = await db
+        .select()
+        .from(mailingList)
+        .where(and(
+          eq(mailingList.email, signupData.email),
+          eq(mailingList.subscriptionType, signupData.subscriptionType)
+        ))
+        .limit(1);
+
+      if (existingEntry.length > 0) {
+        // If already subscribed and active, return success
+        if (existingEntry[0].status === 'active') {
+          return res.json({ 
+            success: true, 
+            message: 'Already subscribed to this mailing list',
+            alreadySubscribed: true 
+          });
+        }
+        
+        // If unsubscribed, reactivate
+        if (existingEntry[0].status === 'unsubscribed') {
+          await db
+            .update(mailingList)
+            .set({
+              status: 'active',
+              unsubscribedAt: null,
+              updatedAt: new Date(),
+            })
+            .where(eq(mailingList.id, existingEntry[0].id));
+
+          await securityLogger.logEvent({
+            eventType: SecurityEventType.MAILING_LIST_RESUBSCRIBE,
+            severity: SecuritySeverity.LOW,
+            message: `User resubscribed to mailing list: ${signupData.subscriptionType}`,
+            userId: userId || undefined,
+            metadata: {
+              email: signupData.email,
+              subscriptionType: signupData.subscriptionType,
+              source: signupData.source,
+            },
+            clientInfo,
+          });
+
+          return res.json({ 
+            success: true, 
+            message: 'Successfully resubscribed to mailing list',
+            resubscribed: true 
+          });
+        }
+      }
+
+      // Create new mailing list entry
+      const unsubscribeToken = crypto.randomBytes(32).toString('hex');
+      
+      const newEntry: InsertMailingList = {
+        email: signupData.email,
+        userId: userId,
+        subscriptionType: signupData.subscriptionType,
+        source: signupData.source,
+        status: 'active',
+        ipHash: clientInfo.ipHash,
+        userAgentHash: clientInfo.userAgentHash,
+        unsubscribeToken: unsubscribeToken,
+      };
+
+      await db.insert(mailingList).values(newEntry);
+
+      // Send confirmation email
+      try {
+        const clientBaseUrl = getClientBaseUrl(req);
+        const unsubscribeUrl = `${clientBaseUrl}/unsubscribe?token=${unsubscribeToken}`;
+        
+        await emailService.sendEmail({
+          to: signupData.email,
+          subject: 'ReadMyFinePrint - Mailing List Confirmation',
+          html: `
+            <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
+              <h2 style="color: #2563eb; text-align: center;">Welcome to ReadMyFinePrint!</h2>
+              
+              <div style="background: #f8fafc; border-radius: 8px; padding: 20px; margin: 20px 0;">
+                <h3 style="margin-top: 0; color: #1e40af;">✅ Subscription Confirmed</h3>
+                <p>You've successfully subscribed to receive notifications about our <strong>${signupData.subscriptionType.replace('_', ' ')}</strong> features.</p>
+                
+                <div style="background: #dbeafe; border: 1px solid #3b82f6; border-radius: 6px; padding: 15px; margin: 15px 0;">
+                  <p style="margin: 0; color: #1e40af;"><strong>What to expect:</strong></p>
+                  <ul style="margin: 10px 0; color: #1e40af;">
+                    <li>Early access notifications for new enterprise features</li>
+                    <li>Product updates and announcements</li>
+                    <li>Special offers and pricing information</li>
+                    <li>Development progress updates</li>
+                  </ul>
+                </div>
+              </div>
+              
+              <div style="background: #f0f9ff; border-radius: 8px; padding: 20px; margin: 20px 0;">
+                <h3 style="margin-top: 0; color: #0369a1;">🚀 Coming Soon</h3>
+                <p>We're working hard to bring you exciting new features including:</p>
+                <ul>
+                  <li>Advanced team collaboration tools</li>
+                  <li>API access for developers</li>
+                  <li>White-label solutions</li>
+                  <li>Enhanced analytics and reporting</li>
+                </ul>
+                <p>You'll be among the first to know when these features become available!</p>
+              </div>
+              
+              <div style="text-align: center; margin: 30px 0;">
+                <a href="${clientBaseUrl}/roadmap" style="background: #2563eb; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; display: inline-block;">
+                  View Development Roadmap
+                </a>
+              </div>
+              
+              <hr style="border: none; border-top: 1px solid #e5e7eb; margin: 30px 0;">
+              
+              <div style="background: #fef3c7; border: 1px solid #f59e0b; border-radius: 6px; padding: 15px; margin: 20px 0;">
+                <p style="margin: 0; color: #92400e; font-size: 14px;">
+                  <strong>Privacy Notice:</strong> We respect your privacy and will never share your email address with third parties. 
+                  You can unsubscribe at any time using the link below.
+                </p>
+              </div>
+              
+              <div style="text-align: center; color: #6b7280; font-size: 12px; margin-top: 30px;">
+                <p>You're receiving this email because you signed up for ReadMyFinePrint notifications.</p>
+                <p>
+                  <a href="${unsubscribeUrl}" style="color: #6b7280; text-decoration: underline;">
+                    Unsubscribe from this mailing list
+                  </a>
+                </p>
+                <p>ReadMyFinePrint | Privacy-First AI-Powered Contract Analysis</p>
+              </div>
+            </div>
+          `,
+          text: `
+Welcome to ReadMyFinePrint!
+
+You've successfully subscribed to receive notifications about our ${signupData.subscriptionType.replace('_', ' ')} features.
+
+What to expect:
+- Early access notifications for new enterprise features
+- Product updates and announcements  
+- Special offers and pricing information
+- Development progress updates
+
+We're working hard to bring you exciting new features including advanced team collaboration tools, API access, white-label solutions, and enhanced analytics.
+
+View our development roadmap: ${clientBaseUrl}/roadmap
+
+Privacy Notice: We respect your privacy and will never share your email address with third parties.
+
+To unsubscribe: ${unsubscribeUrl}
+
+ReadMyFinePrint | Privacy-First AI-Powered Contract Analysis
+          `
+        });
+        
+        console.log(`📧 Confirmation email sent to ${signupData.email}`);
+      } catch (emailError) {
+        console.error('Failed to send confirmation email:', emailError);
+        // Don't fail the signup if email fails
+      }
+
+      await securityLogger.logEvent({
+        eventType: SecurityEventType.MAILING_LIST_SIGNUP,
+        severity: SecuritySeverity.LOW,
+        message: `New mailing list signup: ${signupData.subscriptionType}`,
+        userId: userId || undefined,
+        metadata: {
+          email: signupData.email,
+          subscriptionType: signupData.subscriptionType,
+          source: signupData.source,
+        },
+        clientInfo,
+      });
+
+      res.json({ 
+        success: true, 
+        message: 'Successfully subscribed to mailing list. Please check your email for confirmation.' 
+      });
+
+    } catch (error) {
+      console.error('Mailing list signup error:', error);
+      
+      if (error instanceof z.ZodError) {
+        return res.status(400).json({ 
+          success: false, 
+          error: 'Invalid input', 
+          details: error.errors 
+        });
+      }
+      
+      res.status(500).json({ 
+        success: false, 
+        error: 'Failed to subscribe to mailing list' 
+      });
+    }
+  });
+
+  // Mailing List Unsubscribe
+  app.get("/api/mailing-list/unsubscribe", async (req: Request, res: Response) => {
+    try {
+      const token = req.query.token as string;
+      
+      if (!token) {
+        return res.status(400).json({ 
+          success: false, 
+          error: 'Unsubscribe token is required' 
+        });
+      }
+
+      // Find the mailing list entry by token
+      const entry = await db
+        .select()
+        .from(mailingList)
+        .where(eq(mailingList.unsubscribeToken, token))
+        .limit(1);
+
+      if (entry.length === 0) {
+        return res.status(404).json({ 
+          success: false, 
+          error: 'Invalid or expired unsubscribe token' 
+        });
+      }
+
+      const mailingListEntry = entry[0];
+
+      // Check if already unsubscribed
+      if (mailingListEntry.status === 'unsubscribed') {
+        return res.json({ 
+          success: true, 
+          message: 'You are already unsubscribed from this mailing list',
+          alreadyUnsubscribed: true 
+        });
+      }
+
+      // Update status to unsubscribed
+      await db
+        .update(mailingList)
+        .set({
+          status: 'unsubscribed',
+          unsubscribedAt: new Date(),
+          updatedAt: new Date(),
+        })
+        .where(eq(mailingList.id, mailingListEntry.id));
+
+      // Send confirmation email
+      try {
+        await emailService.sendEmail({
+          to: mailingListEntry.email,
+          subject: 'ReadMyFinePrint - Unsubscribe Confirmation',
+          html: `
+            <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
+              <h2 style="color: #dc2626; text-align: center;">Unsubscribe Confirmed</h2>
+              
+              <div style="background: #fef2f2; border-radius: 8px; padding: 20px; margin: 20px 0;">
+                <h3 style="margin-top: 0; color: #dc2626;">✅ Successfully Unsubscribed</h3>
+                <p>You have been successfully unsubscribed from our <strong>${mailingListEntry.subscriptionType.replace('_', ' ')}</strong> mailing list.</p>
+                
+                <div style="background: #fee2e2; border: 1px solid #fca5a5; border-radius: 6px; padding: 15px; margin: 15px 0;">
+                  <p style="margin: 0; color: #dc2626;"><strong>What this means:</strong></p>
+                  <ul style="margin: 10px 0; color: #dc2626;">
+                    <li>You will no longer receive notifications about enterprise features</li>
+                    <li>No more product updates or announcements</li>
+                    <li>No special offers or pricing information</li>
+                    <li>No development progress updates</li>
+                  </ul>
+                </div>
+              </div>
+              
+              <div style="background: #f0f9ff; border-radius: 8px; padding: 20px; margin: 20px 0;">
+                <h3 style="margin-top: 0; color: #0369a1;">We're Sorry to See You Go</h3>
+                <p>We respect your decision and hope you'll consider subscribing again in the future if our features become relevant to your needs.</p>
+                
+                <div style="text-align: center; margin: 20px 0;">
+                  <a href="${getClientBaseUrl(req)}/roadmap" style="background: #2563eb; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; display: inline-block;">
+                    View What We're Building
+                  </a>
+                </div>
+              </div>
+              
+              <hr style="border: none; border-top: 1px solid #e5e7eb; margin: 30px 0;">
+              
+              <div style="background: #f3f4f6; border-radius: 6px; padding: 15px; margin: 20px 0;">
+                <p style="margin: 0; color: #374151; font-size: 14px;">
+                  <strong>Changed your mind?</strong> You can always resubscribe by visiting our subscription page and entering your email again.
+                </p>
+              </div>
+              
+              <div style="text-align: center; color: #6b7280; font-size: 12px; margin-top: 30px;">
+                <p>This is a confirmation that you've been unsubscribed from ReadMyFinePrint notifications.</p>
+                <p>ReadMyFinePrint | Privacy-First AI-Powered Contract Analysis</p>
+              </div>
+            </div>
+          `,
+          text: `
+Unsubscribe Confirmed
+
+You have been successfully unsubscribed from our ${mailingListEntry.subscriptionType.replace('_', ' ')} mailing list.
+
+What this means:
+- You will no longer receive notifications about enterprise features
+- No more product updates or announcements
+- No special offers or pricing information
+- No development progress updates
+
+We're sorry to see you go. We respect your decision and hope you'll consider subscribing again in the future if our features become relevant to your needs.
+
+View what we're building: ${getClientBaseUrl(req)}/roadmap
+
+Changed your mind? You can always resubscribe by visiting our subscription page and entering your email again.
+
+ReadMyFinePrint | Privacy-First AI-Powered Contract Analysis
+          `
+        });
+        
+        console.log(`📧 Unsubscribe confirmation email sent to ${mailingListEntry.email}`);
+      } catch (emailError) {
+        console.error('Failed to send unsubscribe confirmation email:', emailError);
+        // Don't fail the unsubscribe if email fails
+      }
+
+      // Log security event
+      const clientInfo = getClientInfo(req);
+      await securityLogger.logEvent({
+        eventType: SecurityEventType.MAILING_LIST_SIGNUP, // Reuse existing event type
+        severity: SecuritySeverity.LOW,
+        message: `Mailing list unsubscribe: ${mailingListEntry.subscriptionType}`,
+        userId: mailingListEntry.userId || undefined,
+        metadata: {
+          email: mailingListEntry.email,
+          subscriptionType: mailingListEntry.subscriptionType,
+          action: 'unsubscribe',
+        },
+        clientInfo,
+      });
+
+      res.json({ 
+        success: true, 
+        message: 'Successfully unsubscribed from mailing list. You will receive a confirmation email shortly.' 
+      });
+
+    } catch (error) {
+      console.error('Mailing list unsubscribe error:', error);
+      
+      res.status(500).json({ 
+        success: false, 
+        error: 'Failed to unsubscribe from mailing list' 
+      });
+    }
   });
 
   const httpServer = createServer(app);

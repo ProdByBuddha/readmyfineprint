@@ -1,18 +1,70 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Badge } from '@/components/ui/badge';
-import { Download, Shield, Clock, FileText, AlertCircle } from 'lucide-react';
+import { Download, Shield, Clock, FileText, AlertCircle, Crown, Lock } from 'lucide-react';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { useToast } from '@/hooks/use-toast';
 
 const DataExportButton: React.FC = () => {
   const [isExporting, setIsExporting] = useState(false);
   const [showDialog, setShowDialog] = useState(false);
+  const [userTier, setUserTier] = useState<string>('free');
+  const [hasProfessionalAccess, setHasProfessionalAccess] = useState(false);
   const { toast } = useToast();
 
+  // Check user's tier on component mount
+  useEffect(() => {
+    const checkUserTier = async () => {
+      try {
+        const subscriptionToken = localStorage.getItem('subscriptionToken');
+        if (!subscriptionToken) {
+          setUserTier('free');
+          setHasProfessionalAccess(false);
+          return;
+        }
+
+        const response = await fetch('/api/user/subscription', {
+          headers: {
+            'x-subscription-token': subscriptionToken,
+          },
+          credentials: 'include'
+        });
+
+        if (response.ok) {
+          const data = await response.json();
+          const tier = data.subscription?.tierId || 'free';
+          setUserTier(tier);
+          
+          // Professional tier or higher (professional, business, enterprise, ultimate)
+          const professionalTiers = ['professional', 'business', 'enterprise', 'ultimate'];
+          setHasProfessionalAccess(professionalTiers.includes(tier));
+        } else {
+          setUserTier('free');
+          setHasProfessionalAccess(false);
+        }
+      } catch (error) {
+        console.error('Error checking user tier:', error);
+        setUserTier('free');
+        setHasProfessionalAccess(false);
+      }
+    };
+
+    checkUserTier();
+  }, []);
+
   const handleDownload = async () => {
+    // Check tier access before proceeding
+    if (!hasProfessionalAccess) {
+      toast({
+        title: "Professional Tier Required",
+        description: "Data export is available for Professional tier and above. Please upgrade your subscription.",
+        variant: "destructive"
+      });
+      return;
+    }
+
     setIsExporting(true);
     
     try {
@@ -36,6 +88,16 @@ const DataExportButton: React.FC = () => {
         },
         credentials: 'include'
       });
+
+      if (response.status === 403) {
+        const errorData = await response.json();
+        toast({
+          title: "Upgrade Required",
+          description: errorData.message || "This feature requires Professional tier or higher",
+          variant: "destructive"
+        });
+        return;
+      }
 
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
@@ -79,9 +141,20 @@ const DataExportButton: React.FC = () => {
   return (
     <Dialog open={showDialog} onOpenChange={setShowDialog}>
       <DialogTrigger asChild>
-        <Button variant="outline" className="flex items-center space-x-2">
-          <Download className="h-4 w-4" />
-          <span>Download My Data</span>
+        <Button 
+          variant="outline" 
+          className={`flex items-center space-x-2 ${!hasProfessionalAccess ? 'opacity-75' : ''}`}
+          disabled={!hasProfessionalAccess}
+        >
+          {hasProfessionalAccess ? (
+            <Download className="h-4 w-4" />
+          ) : (
+            <Lock className="h-4 w-4" />
+          )}
+          <span>{hasProfessionalAccess ? 'Download My Data' : 'Download My Data (Pro)'}</span>
+          {!hasProfessionalAccess && (
+            <Crown className="h-3 w-3 text-orange-500" />
+          )}
         </Button>
       </DialogTrigger>
       <DialogContent className="max-w-2xl bg-background dark:bg-gray-800">
@@ -96,12 +169,29 @@ const DataExportButton: React.FC = () => {
         </DialogHeader>
 
         <div className="space-y-4">
-          <Alert>
-            <Shield className="h-4 w-4" />
-            <AlertDescription>
-              This export complies with GDPR Article 15 (Right of Access) and includes all personal data we hold about you.
-            </AlertDescription>
-          </Alert>
+          {!hasProfessionalAccess ? (
+            <Alert className="border-orange-200 bg-orange-50 dark:bg-orange-900/20">
+              <Crown className="h-4 w-4 text-orange-500" />
+              <AlertDescription className="text-orange-800 dark:text-orange-200">
+                <div className="font-medium mb-1">Professional Tier Required</div>
+                Data export is available for Professional tier and above. 
+                <a 
+                  href="/subscription" 
+                  className="underline hover:no-underline ml-1"
+                  onClick={() => setShowDialog(false)}
+                >
+                  Upgrade your subscription
+                </a> to access this feature.
+              </AlertDescription>
+            </Alert>
+          ) : (
+            <Alert>
+              <Shield className="h-4 w-4" />
+              <AlertDescription>
+                This export complies with GDPR Article 15 (Right of Access) and includes all personal data we hold about you.
+              </AlertDescription>
+            </Alert>
+          )}
 
           <Card>
             <CardHeader>
@@ -168,13 +258,18 @@ const DataExportButton: React.FC = () => {
               </Button>
               <Button 
                 onClick={handleDownload}
-                disabled={isExporting}
-                className="flex items-center space-x-2"
+                disabled={isExporting || !hasProfessionalAccess}
+                className={`flex items-center space-x-2 ${!hasProfessionalAccess ? 'opacity-50' : ''}`}
               >
                 {isExporting ? (
                   <>
                     <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
                     <span>Exporting...</span>
+                  </>
+                ) : !hasProfessionalAccess ? (
+                  <>
+                    <Lock className="h-4 w-4" />
+                    <span>Upgrade Required</span>
                   </>
                 ) : (
                   <>

@@ -4,16 +4,17 @@ import {
   blogPosts, 
   blogTopics, 
   contentGeneration, 
+  contentSimilarity,
   seoMetrics,
   blogPostSchema,
   blogTopicSchema,
   BlogPost,
   BlogTopic
 } from '@shared/schema';
-import { eq, desc, asc, and, ilike, isNotNull, gte, or } from 'drizzle-orm';
+import { eq, desc, asc, and, ilike, isNotNull, gte, or, count, sql } from 'drizzle-orm';
 import { blogContentService } from './blog-content-service.js';
 import { blogScheduler } from './blog-scheduler.js';
-import { requireAdminAuth } from './auth.js';
+import { requireAdminAuth, requireAdminViaSubscription } from './auth.js';
 
 const router = Router();
 
@@ -69,7 +70,9 @@ router.get('/posts', async (req, res) => {
         publishedAt: blogPosts.publishedAt,
         readingTime: blogPosts.readingTime,
         viewCount: blogPosts.viewCount,
+        artificialViewCount: blogPosts.artificialViewCount,
         shareCount: blogPosts.shareCount,
+        artificialShareCount: blogPosts.artificialShareCount,
         isFeatured: blogPosts.isFeatured,
         metaDescription: blogPosts.metaDescription,
         keywords: blogPosts.keywords,
@@ -79,6 +82,13 @@ router.get('/posts', async (req, res) => {
       .orderBy(desc(blogPosts.publishedAt))
       .limit(limit)
       .offset(offset);
+
+    // Add displayViewCount and displayShareCount to each post
+    const postsWithDisplayCounts = posts.map(post => ({
+      ...post,
+      displayViewCount: (post.viewCount || 0) + (post.artificialViewCount || 0),
+      displayShareCount: (post.shareCount || 0) + (post.artificialShareCount || 0)
+    }));
 
     // Get total count for pagination
     const totalResult = await db
@@ -90,7 +100,7 @@ router.get('/posts', async (req, res) => {
     const totalPages = Math.ceil(total / limit);
     
     res.json({
-      posts,
+      posts: postsWithDisplayCounts,
       pagination: {
         page,
         limit,
@@ -165,6 +175,8 @@ router.get('/posts/:slug', async (req, res) => {
       post: {
         ...post,
         viewCount: (post.viewCount || 0) + 1,
+        displayViewCount: (post.viewCount || 0) + 1 + (post.artificialViewCount || 0),
+        displayShareCount: (post.shareCount || 0) + (post.artificialShareCount || 0),
       },
       relatedPosts: filteredRelated,
     });
@@ -184,7 +196,7 @@ router.get('/categories', async (req, res) => {
     const categories = await db
       .select({
         category: blogPosts.category,
-        count: blogPosts.id,
+        count: count(blogPosts.id),
       })
       .from(blogPosts)
       .where(
@@ -196,16 +208,10 @@ router.get('/categories', async (req, res) => {
       .groupBy(blogPosts.category)
       .orderBy(asc(blogPosts.category));
     
-    // Count posts per category
-    const categoryCounts = categories.reduce((acc: any, cat: any) => {
-      acc[cat.category] = (acc[cat.category] || 0) + 1;
-      return acc;
-    }, {} as Record<string, number>);
-    
-    const formattedCategories = Object.entries(categoryCounts).map(([name, count]) => ({
-      name,
-      count,
-      slug: name.toLowerCase().replace(/\s+/g, '-'),
+    const formattedCategories = categories.map(cat => ({
+      name: cat.category,
+      count: cat.count,
+      slug: cat.category.toLowerCase().replace(/\s+/g, '-'),
     }));
     
     res.json({ categories: formattedCategories });
@@ -218,29 +224,6 @@ router.get('/categories', async (req, res) => {
 // Get blog sitemap data
 router.get('/sitemap', async (req, res) => {
   try {
-    // In development mode, return mock sitemap
-    if (process.env.NODE_ENV === 'development' || process.env.REPLIT_DB_URL) {
-      console.log('🔄 Blog sitemap bypassed in mock mode');
-      const mockSitemapPosts = [
-        {
-          slug: 'understanding-nda-contracts',
-          updatedAt: new Date('2024-01-15'),
-          publishedAt: new Date('2024-01-15')
-        },
-        {
-          slug: 'employment-contract-red-flags',
-          updatedAt: new Date('2024-01-10'),
-          publishedAt: new Date('2024-01-10')
-        },
-        {
-          slug: 'real-estate-contract-basics',
-          updatedAt: new Date('2024-01-05'),
-          publishedAt: new Date('2024-01-05')
-        }
-      ];
-      return res.json({ posts: mockSitemapPosts });
-    }
-
     await db;
     
     const posts = await db
@@ -267,73 +250,8 @@ router.get('/sitemap', async (req, res) => {
 
 // Admin routes
 // Get all posts (including drafts) - Admin only
-router.get('/admin/posts', requireAdminAuth, async (req, res) => {
+router.get('/admin/posts', requireAdminViaSubscription, async (req, res) => {
   try {
-    // In development mode, return mock admin posts
-    if (process.env.NODE_ENV === 'development' || process.env.REPLIT_DB_URL) {
-      console.log('🔄 Admin blog posts bypassed in mock mode');
-      const page = parseInt(req.query.page as string) || 1;
-      const limit = parseInt(req.query.limit as string) || 20;
-      
-      const mockAdminPosts = [
-        {
-          id: 1,
-          slug: 'understanding-nda-contracts',
-          title: 'Understanding Non-Disclosure Agreements: A Complete Guide',
-          excerpt: 'Learn everything you need to know about NDAs, when to use them, and how to negotiate better terms.',
-          category: 'Contract Law',
-          status: 'published',
-          isActive: true,
-          createdAt: new Date('2024-01-15'),
-          updatedAt: new Date('2024-01-15'),
-          publishedAt: new Date('2024-01-15'),
-          wordCount: 1200,
-          readingTime: 8
-        },
-        {
-          id: 2,
-          slug: 'employment-contract-red-flags',
-          title: 'Employment Contract Red Flags Every Worker Should Know',
-          excerpt: 'Key warning signs in employment contracts that could harm your rights and how to spot them.',
-          category: 'Employment Law',
-          status: 'published',
-          isActive: true,
-          createdAt: new Date('2024-01-10'),
-          updatedAt: new Date('2024-01-10'),
-          publishedAt: new Date('2024-01-10'),
-          wordCount: 900,
-          readingTime: 6
-        },
-        {
-          id: 3,
-          slug: 'draft-post-example',
-          title: 'Draft Post Example',
-          excerpt: 'This is a draft post for testing purposes.',
-          category: 'Contract Law',
-          status: 'draft',
-          isActive: true,
-          createdAt: new Date('2024-01-20'),
-          updatedAt: new Date('2024-01-20'),
-          publishedAt: null,
-          wordCount: 500,
-          readingTime: 3
-        }
-      ];
-      
-      const total = mockAdminPosts.length;
-      const totalPages = Math.ceil(total / limit);
-      
-      return res.json({
-        posts: mockAdminPosts.slice((page - 1) * limit, page * limit),
-        pagination: {
-          page,
-          limit,
-          total,
-          totalPages,
-        },
-      });
-    }
-
     await db;
     
     const page = parseInt(req.query.page as string) || 1;
@@ -380,7 +298,7 @@ router.get('/admin/posts', requireAdminAuth, async (req, res) => {
 });
 
 // Create new blog post manually - Admin only
-router.post('/admin/posts', requireAdminAuth, async (req, res) => {
+router.post('/admin/posts', requireAdminViaSubscription, async (req, res) => {
   try {
     await db;
     
@@ -423,7 +341,7 @@ router.post('/admin/posts', requireAdminAuth, async (req, res) => {
 });
 
 // Update blog post - Admin only
-router.put('/admin/posts/:id', requireAdminAuth, async (req, res) => {
+router.put('/admin/posts/:id', requireAdminViaSubscription, async (req, res) => {
   try {
     await db;
     
@@ -462,32 +380,132 @@ router.put('/admin/posts/:id', requireAdminAuth, async (req, res) => {
   }
 });
 
-// Delete blog post - Admin only
-router.delete('/admin/posts/:id', requireAdminAuth, async (req, res) => {
+// Delete blog post - Admin only (soft delete by default)
+router.delete('/admin/posts/:id', requireAdminViaSubscription, async (req, res) => {
   try {
     await db;
     
     const { id } = req.params;
+    const { permanent } = req.query;
     
-    const [deletedPost] = await db
-      .update(blogPosts)
-      .set({ isActive: false })
-      .where(eq(blogPosts.id, id))
-      .returning();
-    
-    if (!deletedPost) {
-      return res.status(404).json({ error: 'Post not found' });
+    if (permanent === 'true') {
+      // Hard delete - permanently remove from database
+      console.log(`🗑️ Performing hard delete of blog post: ${id}`);
+      
+      // Delete related records first
+      await db.delete(contentSimilarity).where(
+        or(
+          eq(contentSimilarity.postId1, id),
+          eq(contentSimilarity.postId2, id)
+        )
+      );
+      
+      await db.delete(contentGeneration).where(eq(contentGeneration.postId, id));
+      
+      // Delete the post itself
+      const [deletedPost] = await db
+        .delete(blogPosts)
+        .where(eq(blogPosts.id, id))
+        .returning();
+      
+      if (!deletedPost) {
+        return res.status(404).json({ error: 'Post not found' });
+      }
+      
+      res.json({ 
+        message: 'Post permanently deleted',
+        deleted: deletedPost,
+        permanent: true
+      });
+    } else {
+      // Soft delete - mark as inactive
+      console.log(`🗃️ Performing soft delete of blog post: ${id}`);
+      
+      const [deletedPost] = await db
+        .update(blogPosts)
+        .set({ 
+          isActive: false,
+          status: 'deleted',
+          updatedAt: new Date()
+        })
+        .where(eq(blogPosts.id, id))
+        .returning();
+      
+      if (!deletedPost) {
+        return res.status(404).json({ error: 'Post not found' });
+      }
+      
+      res.json({ 
+        message: 'Post deleted successfully (soft delete)',
+        deleted: deletedPost,
+        permanent: false
+      });
     }
-    
-    res.json({ message: 'Post deleted successfully' });
   } catch (error) {
     console.error('Error deleting blog post:', error);
     res.status(500).json({ error: 'Failed to delete blog post' });
   }
 });
 
+// Restore soft-deleted blog post - Admin only
+router.patch('/admin/posts/:id/restore', requireAdminViaSubscription, async (req, res) => {
+  try {
+    await db;
+    
+    const { id } = req.params;
+    
+    const [restoredPost] = await db
+      .update(blogPosts)
+      .set({ 
+        isActive: true,
+        status: 'published',
+        updatedAt: new Date()
+      })
+      .where(and(
+        eq(blogPosts.id, id),
+        eq(blogPosts.isActive, false)
+      ))
+      .returning();
+    
+    if (!restoredPost) {
+      return res.status(404).json({ error: 'Deleted post not found' });
+    }
+    
+    console.log(`🔄 Restored blog post: ${restoredPost.title}`);
+    
+    res.json({ 
+      message: 'Post restored successfully',
+      restored: restoredPost
+    });
+  } catch (error) {
+    console.error('Error restoring blog post:', error);
+    res.status(500).json({ error: 'Failed to restore blog post' });
+  }
+});
+
+// Get deleted posts - Admin only
+router.get('/admin/posts/deleted', requireAdminViaSubscription, async (req, res) => {
+  try {
+    await db;
+    
+    const deletedPosts = await db
+      .select()
+      .from(blogPosts)
+      .where(eq(blogPosts.isActive, false))
+      .orderBy(desc(blogPosts.updatedAt));
+    
+    res.json({ 
+      posts: deletedPosts,
+      count: deletedPosts.length
+    });
+  } catch (error) {
+    console.error('Error fetching deleted posts:', error);
+    res.status(500).json({ error: 'Failed to fetch deleted posts' });
+  }
+});
+
 // Manage blog topics - Admin only
-router.get('/admin/topics', requireAdminAuth, async (req, res) => {
+router.get('/admin/topics', requireAdminViaSubscription, async (req, res) => {
   try {
     // In development mode, return mock topics
     if (process.env.NODE_ENV === 'development' || process.env.REPLIT_DB_URL) {
@@ -553,7 +571,7 @@ router.get('/admin/topics', requireAdminAuth, async (req, res) => {
   }
 });
 
-router.post('/admin/topics', requireAdminAuth, async (req, res) => {
+router.post('/admin/topics', requireAdminViaSubscription, async (req, res) => {
   try {
     await db;
     
@@ -571,8 +589,93 @@ router.post('/admin/topics', requireAdminAuth, async (req, res) => {
   }
 });
 
+// Update blog topic - Admin only
+router.put('/admin/topics/:id', requireAdminViaSubscription, async (req, res) => {
+  try {
+    await db;
+    
+    const { id } = req.params;
+    const validatedData = blogTopicSchema.partial().parse(req.body);
+    
+    const [updatedTopic] = await db
+      .update(blogTopics)
+      .set({
+        ...validatedData,
+        updatedAt: new Date()
+      })
+      .where(eq(blogTopics.id, id))
+      .returning();
+    
+    if (!updatedTopic) {
+      return res.status(404).json({ error: 'Topic not found' });
+    }
+    
+    console.log(`📝 Updated blog topic: ${updatedTopic.title}`);
+    
+    res.json({ topic: updatedTopic });
+  } catch (error) {
+    console.error('Error updating topic:', error);
+    res.status(500).json({ error: 'Failed to update topic' });
+  }
+});
+
+// Delete blog topic - Admin only
+router.delete('/admin/topics/:id', requireAdminViaSubscription, async (req, res) => {
+  try {
+    await db;
+    
+    const { id } = req.params;
+    
+    const [deletedTopic] = await db
+      .delete(blogTopics)
+      .where(eq(blogTopics.id, id))
+      .returning();
+    
+    if (!deletedTopic) {
+      return res.status(404).json({ error: 'Topic not found' });
+    }
+    
+    console.log(`🗑️ Deleted blog topic: ${deletedTopic.title}`);
+    
+    res.json({ message: 'Topic deleted successfully', deleted: deletedTopic });
+  } catch (error) {
+    console.error('Error deleting topic:', error);
+    res.status(500).json({ error: 'Failed to delete topic' });
+  }
+});
+
+// Reset topic usage - Admin only
+router.patch('/admin/topics/:id/reset', requireAdminViaSubscription, async (req, res) => {
+  try {
+    await db;
+    
+    const { id } = req.params;
+    
+    const [resetTopic] = await db
+      .update(blogTopics)
+      .set({
+        isUsed: false,
+        usedAt: null,
+        updatedAt: new Date()
+      })
+      .where(eq(blogTopics.id, id))
+      .returning();
+    
+    if (!resetTopic) {
+      return res.status(404).json({ error: 'Topic not found' });
+    }
+    
+    console.log(`🔄 Reset topic usage: ${resetTopic.title}`);
+    
+    res.json({ message: 'Topic reset successfully', topic: resetTopic });
+  } catch (error) {
+    console.error('Error resetting topic:', error);
+    res.status(500).json({ error: 'Failed to reset topic' });
+  }
+});
+
 // Blog scheduler controls - Admin only
-router.get('/admin/scheduler/status', requireAdminAuth, async (req, res) => {
+router.get('/admin/scheduler/status', requireAdminViaSubscription, async (req, res) => {
   try {
     const status = blogScheduler.getStatus();
     res.json(status);
@@ -582,7 +685,7 @@ router.get('/admin/scheduler/status', requireAdminAuth, async (req, res) => {
   }
 });
 
-router.post('/admin/scheduler/start', requireAdminAuth, async (req, res) => {
+router.post('/admin/scheduler/start', requireAdminViaSubscription, async (req, res) => {
   try {
     blogScheduler.start();
     res.json({ message: 'Scheduler started successfully' });
@@ -592,7 +695,7 @@ router.post('/admin/scheduler/start', requireAdminAuth, async (req, res) => {
   }
 });
 
-router.post('/admin/scheduler/stop', requireAdminAuth, async (req, res) => {
+router.post('/admin/scheduler/stop', requireAdminViaSubscription, async (req, res) => {
   try {
     blogScheduler.stop();
     res.json({ message: 'Scheduler stopped successfully' });
@@ -602,7 +705,7 @@ router.post('/admin/scheduler/stop', requireAdminAuth, async (req, res) => {
   }
 });
 
-router.post('/admin/scheduler/trigger', requireAdminAuth, async (req, res) => {
+router.post('/admin/scheduler/trigger', requireAdminViaSubscription, async (req, res) => {
   try {
     const result = await blogScheduler.triggerManualPost();
     res.json(result);
@@ -613,18 +716,152 @@ router.post('/admin/scheduler/trigger', requireAdminAuth, async (req, res) => {
 });
 
 // Seed topics endpoint - Admin only
-router.post('/admin/seed-topics', requireAdminAuth, async (req, res) => {
+router.post('/admin/seed-topics', requireAdminViaSubscription, async (req, res) => {
   try {
-    await blogContentService.seedTopics();
-    res.json({ message: 'Topics seeded successfully' });
+    const result = await blogContentService.seedTopics();
+    if (result.success) {
+      res.json({ 
+        message: 'Topics seeded successfully', 
+        count: result.topics?.length || 0,
+        topics: result.topics 
+      });
+    } else {
+      res.status(500).json({ error: result.error || 'Failed to seed topics' });
+    }
   } catch (error) {
     console.error('Error seeding topics:', error);
     res.status(500).json({ error: 'Failed to seed topics' });
   }
 });
 
+// Generate bulk topics using AI - Admin only
+router.post('/admin/generate-bulk-topics', requireAdminViaSubscription, async (req, res) => {
+  try {
+    const { count = 30 } = req.body;
+    
+    // Validate count
+    if (count < 1 || count > 100) {
+      return res.status(400).json({ error: 'Count must be between 1 and 100' });
+    }
+    
+    console.log(`📝 Starting bulk topic generation for ${count} topics...`);
+    
+    const result = await blogContentService.generateBulkTopics(count);
+    
+    if (result.success) {
+      res.json({
+        message: `Successfully generated ${result.topics?.length || 0} new topics`,
+        count: result.topics?.length || 0,
+        topics: result.topics,
+        requested: count
+      });
+    } else {
+      res.status(500).json({ 
+        error: result.error || 'Failed to generate topics',
+        requested: count
+      });
+    }
+  } catch (error) {
+    console.error('Error generating bulk topics:', error);
+    res.status(500).json({ error: 'Failed to generate bulk topics' });
+  }
+});
+
+// Generate monthly topics (30 days worth) - Admin only
+router.post('/admin/generate-monthly-topics', requireAdminViaSubscription, async (req, res) => {
+  try {
+    console.log('📅 Generating monthly topic batch (30 topics)...');
+    
+    const result = await blogContentService.generateBulkTopics(30);
+    
+    if (result.success) {
+      res.json({
+        message: `Monthly topic generation complete! Generated ${result.topics?.length || 0} topics for the next month`,
+        count: result.topics?.length || 0,
+        topics: result.topics,
+        period: '30 days'
+      });
+    } else {
+      res.status(500).json({ 
+        error: result.error || 'Failed to generate monthly topics'
+      });
+    }
+  } catch (error) {
+    console.error('Error generating monthly topics:', error);
+    res.status(500).json({ error: 'Failed to generate monthly topics' });
+  }
+});
+
+// Get blog statistics - Admin only
+router.get('/admin/stats', requireAdminViaSubscription, async (req, res) => {
+  try {
+    await db;
+    
+    // Get total statistics for all posts
+    const totalStatsResult = await db
+      .select({
+        totalPosts: sql`count(*)`,
+        publishedPosts: sql`count(case when status = 'published' then 1 end)`,
+        totalViews: sql`sum(coalesce(view_count, 0))`,
+        totalShares: sql`sum(coalesce(share_count, 0))`,
+        avgReadingTime: sql`avg(reading_time)`
+      })
+      .from(blogPosts)
+      .where(eq(blogPosts.isActive, true));
+
+    const stats = totalStatsResult[0];
+    
+    // Get topics statistics
+    const topicsStatsResult = await db
+      .select({
+        totalTopics: sql`count(*)`,
+        usedTopics: sql`count(case when is_used = true then 1 end)`,
+        availableTopics: sql`count(case when is_used = false then 1 end)`
+      })
+      .from(blogTopics);
+
+    const topicsStats = topicsStatsResult[0];
+
+    // Get recent activity (posts published in last 30 days)
+    const thirtyDaysAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000);
+    const recentActivityResult = await db
+      .select({
+        recentPosts: sql`count(*)`
+      })
+      .from(blogPosts)
+      .where(
+        and(
+          eq(blogPosts.status, 'published'),
+          eq(blogPosts.isActive, true),
+          gte(blogPosts.publishedAt, thirtyDaysAgo)
+        )
+      );
+
+    const recentActivity = recentActivityResult[0];
+
+    res.json({
+      posts: {
+        total: parseInt(stats.totalPosts as string) || 0,
+        published: parseInt(stats.publishedPosts as string) || 0,
+        totalViews: parseInt(stats.totalViews as string) || 0,
+        totalShares: parseInt(stats.totalShares as string) || 0,
+        avgReadingTime: Math.round(parseFloat(stats.avgReadingTime as string) || 0),
+        recentPosts: parseInt(recentActivity.recentPosts as string) || 0
+      },
+      topics: {
+        total: parseInt(topicsStats.totalTopics as string) || 0,
+        used: parseInt(topicsStats.usedTopics as string) || 0,
+        available: parseInt(topicsStats.availableTopics as string) || 0
+      }
+    });
+  } catch (error) {
+    console.error('Error fetching blog stats:', error);
+    res.status(500).json({ error: 'Failed to fetch blog stats' });
+  }
+});
+
 // Get SEO metrics - Admin only
-router.get('/admin/seo-metrics', requireAdminAuth, async (req, res) => {
+router.get('/admin/seo-metrics', requireAdminViaSubscription, async (req, res) => {
   try {
     // In development mode, return mock SEO metrics
     if (process.env.NODE_ENV === 'development' || process.env.REPLIT_DB_URL) {

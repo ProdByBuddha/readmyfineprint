@@ -3,14 +3,15 @@
  * Allows users to vote on the accuracy of PII detections to help improve the system
  */
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
-import { ThumbsUp, ThumbsDown, AlertTriangle, Eye, EyeOff } from 'lucide-react';
+import { Alert, AlertDescription } from '@/components/ui/alert';
+import { ThumbsUp, ThumbsDown, AlertTriangle, Eye, EyeOff, Crown } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
 export interface PIIDetection {
@@ -290,8 +291,50 @@ export function PiiDetectionFeedback({
   className = ''
 }: PiiDetectionFeedbackProps) {
   const [showFeedback, setShowFeedback] = useState(false);
+  const [hasProfessionalAccess, setHasProfessionalAccess] = useState(false);
+
+  // Check user's tier on component mount
+  useEffect(() => {
+    const checkUserTier = async () => {
+      try {
+        const subscriptionToken = localStorage.getItem('subscriptionToken');
+        if (!subscriptionToken) {
+          setHasProfessionalAccess(false);
+          return;
+        }
+
+        const response = await fetch('/api/user/subscription', {
+          headers: {
+            'x-subscription-token': subscriptionToken,
+          },
+          credentials: 'include'
+        });
+
+        if (response.ok) {
+          const data = await response.json();
+          const tier = data.subscription?.tierId || 'free';
+          
+          // Professional tier or higher (professional, business, enterprise, ultimate)
+          const professionalTiers = ['professional', 'business', 'enterprise', 'ultimate'];
+          setHasProfessionalAccess(professionalTiers.includes(tier));
+        } else {
+          setHasProfessionalAccess(false);
+        }
+      } catch (error) {
+        console.error('Error checking user tier:', error);
+        setHasProfessionalAccess(false);
+      }
+    };
+
+    checkUserTier();
+  }, []);
 
   if (detections.length === 0) {
+    return null;
+  }
+
+  // Hide feedback for non-Professional users - return null to not show anything
+  if (!hasProfessionalAccess) {
     return null;
   }
 

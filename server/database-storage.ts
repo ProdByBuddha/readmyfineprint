@@ -748,4 +748,98 @@ export class DatabaseStorage implements IStorage {
     const user = result[0];
     return { ...user, hashedPassword: undefined } as any;
   }
+
+  // Admin-specific functions
+  async deleteUser(userId: string, options: {
+    includeSubscriptions?: boolean;
+    includeDocuments?: boolean;
+    includeSecurityEvents?: boolean;
+    reason?: string;
+  } = {}): Promise<{
+    deletedUser: boolean;
+    deletedSubscriptions: number;
+    deletedDocuments: number;
+    deletedSecurityEvents: number;
+  }> {
+    let deletedSubscriptions = 0;
+    let deletedDocuments = 0;
+    let deletedSecurityEvents = 0;
+
+    // Delete user subscriptions if requested
+    if (options.includeSubscriptions) {
+      const subscriptionResults = await db
+        .delete(userSubscriptions)
+        .where(eq(userSubscriptions.userId, userId))
+        .returning();
+      deletedSubscriptions = subscriptionResults.length;
+    }
+
+    // Delete usage records
+    const usageResults = await db
+      .delete(usageRecords)
+      .where(eq(usageRecords.userId, userId))
+      .returning();
+
+    // Delete email change requests
+    const emailResults = await db
+      .delete(emailChangeRequests)
+      .where(eq(emailChangeRequests.userId, userId))
+      .returning();
+
+    // Delete user
+    const userResults = await db
+      .delete(users)
+      .where(eq(users.id, userId))
+      .returning();
+
+    return {
+      deletedUser: userResults.length > 0,
+      deletedSubscriptions,
+      deletedDocuments,
+      deletedSecurityEvents
+    };
+  }
+
+  async clearUserDocuments(userId: string): Promise<{ count: number }> {
+    // For session-based documents, we'd need to track user->session mapping
+    // For now, return mock result
+    return { count: 0 };
+  }
+
+  async clearUserUsageHistory(userId: string): Promise<{ count: number }> {
+    const results = await db
+      .delete(usageRecords)
+      .where(eq(usageRecords.userId, userId))
+      .returning();
+    
+    return { count: results.length };
+  }
+
+  async clearUserSecurityEvents(userId: string): Promise<{ count: number }> {
+    // Security events are handled by securityLogger, not database
+    return { count: 0 };
+  }
+
+  async clearUserSessions(userId: string): Promise<{ count: number }> {
+    // Sessions are in-memory, would need user->session mapping
+    return { count: 0 };
+  }
+
+  async hashPassword(password: string): Promise<string> {
+    const argon2 = await import('argon2');
+    return argon2.hash(password);
+  }
+
+  async getUserPendingEmailChangeRequests(userId: string): Promise<EmailChangeRequest[]> {
+    const results = await db
+      .select()
+      .from(emailChangeRequests)
+      .where(and(
+        eq(emailChangeRequests.userId, userId),
+        eq(emailChangeRequests.status, 'pending')
+      ))
+      .orderBy(desc(emailChangeRequests.createdAt));
+    
+    return results;
+  }
 }

@@ -681,6 +681,7 @@ export function registerUserRoutes(app: Express) {
   /**
    * Download user data (GDPR compliance)
    * Provides complete audit trail and personal data export
+   * Requires Professional tier or higher
    */
   app.get("/api/users/me/download-data", requireUserAuth, async (req: Request, res: Response) => {
     try {
@@ -692,7 +693,22 @@ export function registerUserRoutes(app: Express) {
         return res.status(401).json({ error: "User ID not found" });
       }
 
-      console.log(`📥 User data download requested for user: ${userId}`);
+      // Validate Professional tier access
+      const { validateProfessionalAccess } = await import('./tier-validation.js');
+      const tierValidation = await validateProfessionalAccess(userId);
+      
+      if (!tierValidation.hasAccess) {
+        console.log(`🚫 Data export blocked for user ${userId}: ${tierValidation.message}`);
+        return res.status(403).json({ 
+          error: "Professional tier required",
+          message: tierValidation.message,
+          currentTier: tierValidation.currentTier,
+          requiredTier: tierValidation.requiredTier,
+          upgradeUrl: "/subscription"
+        });
+      }
+
+      console.log(`📥 User data download requested for user: ${userId} (${tierValidation.currentTier} tier)`);
       
       // Get user basic information
       const user = await databaseStorage.getUser(userId);

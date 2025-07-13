@@ -6,8 +6,9 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { CheckCircle, Heart, ArrowLeft, CreditCard, Loader2, Wallet, Copy } from "lucide-react";
+import { CheckCircle, Heart, ArrowLeft, CreditCard, Loader2, Wallet, Copy, Target, ArrowRight } from "lucide-react";
 import { SocialShare } from "@/components/SocialShare";
+import { Link } from "wouter";
 
 interface DonateButtonProps {
   amount: number;
@@ -622,6 +623,28 @@ export default function DonatePage() {
                 </div>
               </div>
             </div>
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* Roadmap Link Section */}
+      <div className="mt-6 text-center">
+        <Card className="bg-gradient-to-r from-purple-50 to-blue-50 dark:from-purple-950 dark:to-blue-950 border-purple-200 dark:border-purple-800">
+          <CardContent className="p-6">
+            <div className="flex items-center justify-center gap-3 mb-3">
+              <Target className="w-6 h-6 text-purple-600 dark:text-purple-400" />
+              <h3 className="text-lg font-semibold text-gray-900 dark:text-white">See What's Coming Next</h3>
+            </div>
+            <p className="text-sm text-gray-600 dark:text-gray-300 mb-4">
+              Explore our development roadmap to see how your donations will fund exciting new features like team collaboration, API access, and enterprise integrations.
+            </p>
+            <Link to="/roadmap">
+              <Button variant="outline" className="inline-flex items-center gap-2">
+                <Target className="w-4 h-4" />
+                View Development Roadmap
+                <ArrowRight className="w-4 h-4" />
+              </Button>
+            </Link>
           </CardContent>
         </Card>
       </div>

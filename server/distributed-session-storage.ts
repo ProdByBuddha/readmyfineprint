@@ -638,37 +638,51 @@ class DistributedSessionStorage {
    * Initialize session storage (create tables if needed)
    */
   static async initialize(database: any, config?: Partial<SessionConfig>): Promise<DistributedSessionStorage> {
-    // Create sessions table if it doesn't exist
+    // Check if sessions table already exists to reduce startup noise
     try {
-      // Use the sql template from drizzle-orm for postgres-js compatibility
-      await database.execute(sql`
-        CREATE TABLE IF NOT EXISTS sessions (
-          id TEXT PRIMARY KEY,
-          data JSONB NOT NULL,
-          expires_at TIMESTAMP NOT NULL,
-          user_id TEXT,
-          ip_hash TEXT,
-          user_agent_hash TEXT,
-          is_active BOOLEAN DEFAULT true,
-          created_at TIMESTAMP DEFAULT now(),
-          updated_at TIMESTAMP DEFAULT now()
+      const tableExists = await database.execute(sql`
+        SELECT EXISTS (
+          SELECT FROM information_schema.tables 
+          WHERE table_schema = 'public' 
+          AND table_name = 'sessions'
         )
       `);
 
-      // Create indexes for performance
-      await database.execute(sql`
-        CREATE INDEX IF NOT EXISTS idx_sessions_user_id ON sessions(user_id) WHERE is_active = true
-      `);
-      
-      await database.execute(sql`
-        CREATE INDEX IF NOT EXISTS idx_sessions_expires_at ON sessions(expires_at) WHERE is_active = true
-      `);
+      if (!tableExists[0]?.exists) {
+        console.log('[SessionStorage] Creating sessions table and indexes...');
+        
+        // Create sessions table
+        await database.execute(sql`
+          CREATE TABLE sessions (
+            id TEXT PRIMARY KEY,
+            data JSONB NOT NULL,
+            expires_at TIMESTAMP NOT NULL,
+            user_id TEXT,
+            ip_hash TEXT,
+            user_agent_hash TEXT,
+            is_active BOOLEAN DEFAULT true,
+            created_at TIMESTAMP DEFAULT now(),
+            updated_at TIMESTAMP DEFAULT now()
+          )
+        `);
 
-      await database.execute(sql`
-        CREATE INDEX IF NOT EXISTS idx_sessions_active ON sessions(is_active, expires_at)
-      `);
+        // Create indexes for performance
+        await database.execute(sql`
+          CREATE INDEX idx_sessions_user_id ON sessions(user_id) WHERE is_active = true
+        `);
+        
+        await database.execute(sql`
+          CREATE INDEX idx_sessions_expires_at ON sessions(expires_at) WHERE is_active = true
+        `);
 
-      console.log('[SessionStorage] Session storage initialized successfully');
+        await database.execute(sql`
+          CREATE INDEX idx_sessions_active ON sessions(is_active, expires_at)
+        `);
+
+        console.log('[SessionStorage] Session storage tables created successfully');
+      } else {
+        console.log('[SessionStorage] Session storage tables already exist, skipping creation');
+      }
     } catch (error) {
       console.error('[SessionStorage] Failed to initialize session storage:', error);
       throw error;

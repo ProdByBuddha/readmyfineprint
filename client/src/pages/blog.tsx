@@ -19,7 +19,9 @@ interface BlogPost {
   publishedAt: string;
   readingTime: number;
   viewCount: number;
+  displayViewCount?: number;
   shareCount: number;
+  displayShareCount?: number;
   isFeatured: boolean;
   metaDescription?: string;
   keywords?: string;
@@ -255,11 +257,11 @@ export default function BlogPage() {
                     <div className="flex items-center gap-4">
                       <div className="flex items-center gap-1">
                         <Eye className="h-4 w-4" />
-                        {post.viewCount}
+                        {(post.displayViewCount || post.viewCount).toLocaleString()}
                       </div>
                       <div className="flex items-center gap-1">
                         <Share2 className="h-4 w-4" />
-                        {post.shareCount}
+                        {(post.displayShareCount || post.shareCount).toLocaleString()}
                       </div>
                     </div>
                   </div>

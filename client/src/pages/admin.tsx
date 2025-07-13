@@ -7,8 +7,12 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger, DropdownMenuSeparator } from "@/components/ui/dropdown-menu";
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
+import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
+import { Checkbox } from "@/components/ui/checkbox";
 import { useToast } from "@/hooks/use-toast";
 import { 
   Users, 
@@ -26,7 +30,16 @@ import {
   XCircle,
   FileText,
   Zap,
-  X
+  X,
+  Trash2,
+  UserX,
+  UserCheck,
+  RotateCcw,
+  Settings,
+  AlertTriangle,
+  MoreHorizontal,
+  UserPlus,
+  Loader2
 } from "lucide-react";
 import { apiRequest } from "@/lib/queryClient";
 import { adminApiRequest } from "@/lib/api";
@@ -281,7 +294,7 @@ function AdminLogin({ onLogin }: { onLogin: (token: string) => void }) {
   );
 }
 
-function DashboardOverview({ adminToken }: { adminToken: string }) {
+function DashboardOverview() {
   const [currentTime, setCurrentTime] = useState(new Date());
 
   // Update current time every second
@@ -297,9 +310,18 @@ function DashboardOverview({ adminToken }: { adminToken: string }) {
   const { data: metricsData, isLoading: metricsLoading, error: metricsError } = useQuery({
     queryKey: ["/api/admin/metrics"],
     queryFn: async () => {
-      return await adminApiRequest("/api/admin/metrics-subscription", {
-        method: 'GET'
+      const response = await fetch("/api/admin/metrics-subscription", {
+        method: 'GET',
+        credentials: 'include', // Include cookies
+        headers: { 
+          "Content-Type": "application/json",
+          "x-dashboard-auto-refresh": "true"
+        }
       });
+      if (!response.ok) {
+        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+      }
+      return await response.json();
     },
     refetchInterval: 30000, // Refresh every 30 seconds
     refetchIntervalInBackground: true
@@ -308,9 +330,18 @@ function DashboardOverview({ adminToken }: { adminToken: string }) {
   const { data: systemHealthData, isLoading: healthLoading, error: healthError } = useQuery({
     queryKey: ["/api/admin/system-health"],
     queryFn: async () => {
-      return await adminApiRequest("/api/admin/system-health-subscription", {
-        method: 'GET'
+      const response = await fetch("/api/admin/system-health-subscription", {
+        method: 'GET',
+        credentials: 'include', // Include cookies
+        headers: { 
+          "Content-Type": "application/json",
+          "x-dashboard-auto-refresh": "true"
+        }
       });
+      if (!response.ok) {
+        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+      }
+      return await response.json();
     },
     refetchInterval: 5000, // Refresh every 5 seconds for real-time health
     refetchIntervalInBackground: true
@@ -319,12 +350,17 @@ function DashboardOverview({ adminToken }: { adminToken: string }) {
   const { data: activityData, isLoading: activityLoading, error: activityError } = useQuery({
     queryKey: ["/api/admin/activity"],
     queryFn: async () => {
-      const response = await apiRequest("GET", "/api/admin/activity-subscription", {
+      const response = await fetch("/api/admin/activity-subscription", {
+        method: 'GET',
+        credentials: 'include', // Include cookies
         headers: { 
-          "x-subscription-token": adminToken || "",
+          "Content-Type": "application/json",
           "x-dashboard-auto-refresh": "true" // Prevent security events
         }
       });
+      if (!response.ok) {
+        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+      }
       return await response.json();
     },
     refetchInterval: 60000, // Refresh every 60 seconds
@@ -541,6 +577,171 @@ function DashboardOverview({ adminToken }: { adminToken: string }) {
   );
 }
 
+function CreateUserDialog({ adminToken, onUserCreated }: { adminToken: string; onUserCreated: () => void }) {
+  const [isOpen, setIsOpen] = useState(false);
+  const [isCreating, setIsCreating] = useState(false);
+  const [formData, setFormData] = useState({
+    email: '',
+    tierId: 'free',
+    emailVerified: false,
+    isActive: true
+  });
+  const { toast } = useToast();
+
+  const availableTiers = [
+    { id: 'free', name: 'Free' },
+    { id: 'starter', name: 'Starter' },
+    { id: 'professional', name: 'Professional' },
+    { id: 'business', name: 'Business' },
+    { id: 'enterprise', name: 'Enterprise' },
+    { id: 'ultimate', name: 'Ultimate' }
+  ];
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsCreating(true);
+
+    try {
+      const response = await fetch('/api/admin/users-subscription/create', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'x-subscription-token': adminToken,
+        },
+        credentials: 'include',
+        body: JSON.stringify(formData)
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Failed to create user');
+      }
+
+      const result = await response.json();
+      
+      toast({
+        title: "User Created Successfully",
+        description: `${formData.email} has been created with ${formData.tierId} tier. Welcome email sent.`,
+      });
+
+      // Reset form
+      setFormData({
+        email: '',
+        tierId: 'free',
+        emailVerified: false,
+        isActive: true
+      });
+      
+      setIsOpen(false);
+      onUserCreated();
+
+    } catch (error) {
+      console.error('Failed to create user:', error);
+      toast({
+        title: "Failed to Create User",
+        description: error instanceof Error ? error.message : "Unknown error occurred",
+        variant: "destructive"
+      });
+    } finally {
+      setIsCreating(false);
+    }
+  };
+
+  return (
+    <Dialog open={isOpen} onOpenChange={setIsOpen}>
+      <DialogTrigger asChild>
+        <Button variant="default" size="sm">
+          <UserPlus className="h-4 w-4 mr-2" />
+          Create User
+        </Button>
+      </DialogTrigger>
+      <DialogContent className="max-w-2xl">
+        <DialogHeader>
+          <DialogTitle>Create New User</DialogTitle>
+        </DialogHeader>
+        
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <div className="grid grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <Label htmlFor="email">Email *</Label>
+              <Input
+                id="email"
+                type="email"
+                required
+                value={formData.email}
+                onChange={(e) => setFormData(prev => ({ ...prev, email: e.target.value }))}
+                placeholder="user@example.com"
+              />
+            </div>
+              
+            <div className="space-y-2">
+              <Label htmlFor="tierId">Subscription Tier *</Label>
+              <Select value={formData.tierId} onValueChange={(value) => setFormData(prev => ({ ...prev, tierId: value }))}>
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  {availableTiers.map(tier => (
+                    <SelectItem key={tier.id} value={tier.id}>
+                      {tier.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+
+          <div className="flex items-center space-x-6">
+            <div className="flex items-center space-x-2">
+              <Checkbox
+                id="emailVerified"
+                checked={formData.emailVerified}
+                onCheckedChange={(checked) => setFormData(prev => ({ ...prev, emailVerified: checked as boolean }))}
+              />
+              <Label htmlFor="emailVerified">Email Verified</Label>
+            </div>
+            
+            <div className="flex items-center space-x-2">
+              <Checkbox
+                id="isActive"
+                checked={formData.isActive}
+                onCheckedChange={(checked) => setFormData(prev => ({ ...prev, isActive: checked as boolean }))}
+              />
+              <Label htmlFor="isActive">Active Account</Label>
+            </div>
+          </div>
+
+          <div className="bg-blue-50 dark:bg-blue-900/20 p-4 rounded-lg border border-blue-200 dark:border-blue-800">
+            <h4 className="font-medium text-blue-900 dark:text-blue-100 mb-2">What happens next:</h4>
+            <ul className="text-sm text-blue-700 dark:text-blue-200 space-y-1">
+              <li>• User account will be created with the specified tier</li>
+              <li>• Welcome email with account access instructions will be sent automatically</li>
+              <li>• User can access their account using email verification</li>
+              <li>• Subscription will be active for 1 year from creation</li>
+            </ul>
+          </div>
+
+          <div className="flex justify-end space-x-2 pt-4">
+            <Button type="button" variant="outline" onClick={() => setIsOpen(false)}>
+              Cancel
+            </Button>
+            <Button type="submit" disabled={isCreating || !formData.email}>
+              {isCreating ? (
+                <>
+                  <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                  Creating...
+                </>
+              ) : (
+                'Create User'
+              )}
+            </Button>
+          </div>
+        </form>
+      </DialogContent>
+    </Dialog>
+  );
+}
+
 function UserManagement({ adminToken }: { adminToken: string }) {
   const [search, setSearch] = useState("");
   const [page, setPage] = useState(1);
@@ -548,6 +749,15 @@ function UserManagement({ adminToken }: { adminToken: string }) {
   const [sortOrder, setSortOrder] = useState("desc");
   const [hasSubscription, setHasSubscription] = useState<boolean | undefined>(undefined);
   const [selectedUser, setSelectedUser] = useState<User | null>(null);
+  const [selectedUsers, setSelectedUsers] = useState<string[]>([]);
+  const [operationInProgress, setOperationInProgress] = useState(false);
+  const [bulkOperation, setBulkOperation] = useState<string>("");
+  const [confirmationDialog, setConfirmationDialog] = useState<{
+    isOpen: boolean;
+    title: string;
+    description: string;
+    action: () => void;
+  }>({ isOpen: false, title: "", description: "", action: () => {} });
   const { toast } = useToast();
 
   const { data: usersData, isLoading, refetch } = useQuery<UsersResponse>({
@@ -583,12 +793,202 @@ function UserManagement({ adminToken }: { adminToken: string }) {
     }
   };
 
+  const handleDeleteUser = async (userId: string, reason?: string) => {
+    try {
+      setOperationInProgress(true);
+      await fetch(`/api/admin/users-subscription/${userId}`, {
+        method: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        credentials: 'include',
+        body: JSON.stringify({
+          confirmDelete: true,
+          reason: reason || 'Admin deletion'
+        }),
+      });
+      
+      toast({
+        title: "User Deleted",
+        description: "User has been permanently deleted",
+      });
+      
+      refetch();
+      setSelectedUser(null);
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to delete user",
+        variant: "destructive"
+      });
+    } finally {
+      setOperationInProgress(false);
+    }
+  };
+
+  const handleSuspendUser = async (userId: string, reason?: string) => {
+    try {
+      setOperationInProgress(true);
+      await fetch(`/api/admin/users-subscription/${userId}/status`, {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        credentials: 'include',
+        body: JSON.stringify({
+          isActive: false,
+          reason: reason || 'Admin suspension'
+        }),
+      });
+      
+      toast({
+        title: "User Suspended",
+        description: "User account has been suspended",
+      });
+      
+      refetch();
+      setSelectedUser(null);
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to suspend user",
+        variant: "destructive"
+      });
+    } finally {
+      setOperationInProgress(false);
+    }
+  };
+
+  const handleActivateUser = async (userId: string) => {
+    try {
+      setOperationInProgress(true);
+      await fetch(`/api/admin/users-subscription/${userId}/status`, {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        credentials: 'include',
+        body: JSON.stringify({
+          isActive: true
+        }),
+      });
+      
+      toast({
+        title: "User Activated",
+        description: "User account has been activated",
+      });
+      
+      refetch();
+      setSelectedUser(null);
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to activate user",
+        variant: "destructive"
+      });
+    } finally {
+      setOperationInProgress(false);
+    }
+  };
+
+  const handleResetPassword = async (userId: string) => {
+    try {
+      setOperationInProgress(true);
+      const response = await fetch(`/api/admin/users-subscription/${userId}/reset-password`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        credentials: 'include',
+        body: JSON.stringify({
+          sendEmail: false
+        }),
+      });
+      
+      const result = await response.json();
+      
+      toast({
+        title: "Password Reset",
+        description: `Temporary password: ${result.temporaryPassword}`,
+      });
+      
+      refetch();
+      setSelectedUser(null);
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to reset password",
+        variant: "destructive"
+      });
+    } finally {
+      setOperationInProgress(false);
+    }
+  };
+
+  const handleBulkOperation = async (operation: string) => {
+    if (selectedUsers.length === 0) {
+      toast({
+        title: "No Users Selected",
+        description: "Please select users to perform bulk operations",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    try {
+      setOperationInProgress(true);
+      const response = await fetch('/api/admin/users-subscription/bulk', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        credentials: 'include',
+        body: JSON.stringify({
+          userIds: selectedUsers,
+          operation,
+          options: {
+            confirmDelete: operation === 'delete',
+            reason: `Bulk ${operation} operation`
+          }
+        }),
+      });
+      
+      const result = await response.json();
+      
+      toast({
+        title: "Bulk Operation Complete",
+        description: result.message,
+      });
+      
+      setSelectedUsers([]);
+      refetch();
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to perform bulk operation",
+        variant: "destructive"
+      });
+    } finally {
+      setOperationInProgress(false);
+    }
+  };
+
+  const confirmAction = (title: string, description: string, action: () => void) => {
+    setConfirmationDialog({
+      isOpen: true,
+      title,
+      description,
+      action
+    });
+  };
+
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <h2 className="text-3xl font-bold">User Management</h2>
         <div className="flex items-center space-x-2">
           <LawEnforcementRequest adminToken={adminToken} />
+          <CreateUserDialog adminToken={adminToken} onUserCreated={() => refetch()} />
           <Button onClick={() => refetch()} variant="outline" size="sm">
             <RefreshCw className="h-4 w-4 mr-2" />
             Refresh
@@ -692,6 +1092,56 @@ function UserManagement({ adminToken }: { adminToken: string }) {
                         >
                           <Eye className="h-4 w-4" />
                         </Button>
+                        
+                        <DropdownMenu>
+                          <DropdownMenuTrigger asChild>
+                            <Button variant="outline" size="sm" disabled={operationInProgress}>
+                              <MoreHorizontal className="h-4 w-4" />
+                            </Button>
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent align="end">
+                            {user.isActive ? (
+                              <DropdownMenuItem 
+                                onClick={() => confirmAction(
+                                  "Suspend User",
+                                  `Are you sure you want to suspend ${user.email}?`,
+                                  () => handleSuspendUser(user.id)
+                                )}
+                                className="text-orange-600"
+                              >
+                                <UserX className="h-4 w-4 mr-2" />
+                                Suspend
+                              </DropdownMenuItem>
+                            ) : (
+                              <DropdownMenuItem 
+                                onClick={() => handleActivateUser(user.id)}
+                                className="text-green-600"
+                              >
+                                <UserCheck className="h-4 w-4 mr-2" />
+                                Activate
+                              </DropdownMenuItem>
+                            )}
+                            
+                            <DropdownMenuItem onClick={() => handleResetPassword(user.id)}>
+                              <RotateCcw className="h-4 w-4 mr-2" />
+                              Reset Password
+                            </DropdownMenuItem>
+                            
+                            <DropdownMenuSeparator />
+                            
+                            <DropdownMenuItem 
+                              onClick={() => confirmAction(
+                                "Delete User",
+                                `Are you sure you want to permanently delete ${user.email}? This action cannot be undone.`,
+                                () => handleDeleteUser(user.id)
+                              )}
+                              className="text-red-600"
+                            >
+                              <Trash2 className="h-4 w-4 mr-2" />
+                              Delete User
+                            </DropdownMenuItem>
+                          </DropdownMenuContent>
+                        </DropdownMenu>
                       </div>
                     </TableCell>
                   </TableRow>
@@ -796,6 +1246,35 @@ function UserManagement({ adminToken }: { adminToken: string }) {
           </DialogContent>
         </Dialog>
       )}
+
+      {/* Confirmation Dialog */}
+      <AlertDialog open={confirmationDialog.isOpen} onOpenChange={(open) => 
+        setConfirmationDialog({ ...confirmationDialog, isOpen: open })
+      }>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle className="flex items-center gap-2">
+              <AlertTriangle className="h-5 w-5 text-orange-500" />
+              {confirmationDialog.title}
+            </AlertDialogTitle>
+            <AlertDialogDescription>
+              {confirmationDialog.description}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction 
+              onClick={() => {
+                confirmationDialog.action();
+                setConfirmationDialog({ ...confirmationDialog, isOpen: false });
+              }}
+              className="bg-red-600 hover:bg-red-700"
+            >
+              Confirm
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }
@@ -1330,14 +1809,13 @@ function Analytics({ adminToken }: { adminToken: string }) {
 }
 
 export default function AdminDashboard() {
-  const [adminToken, setAdminToken] = useState<string | null>(null);
   const [isCheckingAuth, setIsCheckingAuth] = useState(true);
   const [isAdmin, setIsAdmin] = useState(false);
 
-  // Check if user is admin using existing subscription token or development mode auto-login
+  // Check if user is admin using existing subscription token
   useEffect(() => {
     const checkAdminStatus = async () => {
-      // First, check if we're in development mode and try auto-login
+      // Check if we're in development mode and try auto-login
       if (import.meta.env.DEV || import.meta.env.MODE === 'development') {
         console.log('🔧 Development mode detected, attempting auto-admin login...');
         try {
@@ -1352,9 +1830,7 @@ export default function AdminDashboard() {
             const data = await response.json();
             console.log('✅ Development auto-login successful:', data.user.email);
             setIsAdmin(true);
-            setAdminToken(data.token);
-            // Store the token for other admin API calls
-            localStorage.setItem('devAdminToken', data.token);
+            // Token is stored in httpOnly cookie by the server
             setIsCheckingAuth(false);
             return;
           } else {
@@ -1365,20 +1841,13 @@ export default function AdminDashboard() {
         }
       }
 
-      // Fallback to subscription token validation
-      const token = localStorage.getItem('subscriptionToken');
-      
-      if (!token) {
-        setIsCheckingAuth(false);
-        return;
-      }
-
+      // Check if user is authenticated via session cookie
       try {
-        const response = await fetch('/api/users/validate-token', {
-          method: 'POST',
+        const response = await fetch('/api/auth/session', {
+          method: 'GET',
+          credentials: 'include', // Include cookies
           headers: {
             'Content-Type': 'application/json',
-            'x-subscription-token': token,
           },
         });
 
@@ -1386,10 +1855,9 @@ export default function AdminDashboard() {
           const data = await response.json();
           const adminEmails = ['admin@readmyfineprint.com', 'prodbybuddha@icloud.com'];
           
-          if (adminEmails.includes(data.email)) {
+          if (data.user && adminEmails.includes(data.user.email)) {
             setIsAdmin(true);
-            // For admin pages, we'll use the subscription token as admin token
-            setAdminToken(token);
+            // Session is managed by cookies, no token needed in state
           }
         }
       } catch (error) {
@@ -1401,11 +1869,6 @@ export default function AdminDashboard() {
 
     checkAdminStatus();
   }, []);
-
-  const handleLogin = (token: string) => {
-    setAdminToken(token);
-  };
-
 
   // Show loading while checking auth
   if (isCheckingAuth) {
@@ -1420,7 +1883,7 @@ export default function AdminDashboard() {
   }
 
   // Redirect if not admin
-  if (!isAdmin || !adminToken) {
+  if (!isAdmin) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <Card className="w-full max-w-md">
@@ -1453,19 +1916,19 @@ export default function AdminDashboard() {
           </TabsList>
 
           <TabsContent value="overview">
-            <DashboardOverview adminToken={adminToken} />
+            <DashboardOverview />
           </TabsContent>
 
           <TabsContent value="users">
-            <UserManagement adminToken={adminToken} />
+            <UserManagement adminToken="" />
           </TabsContent>
 
           <TabsContent value="email-requests">
-            <EmailChangeRequests adminToken={adminToken} />
+            <EmailChangeRequests adminToken="" />
           </TabsContent>
 
           <TabsContent value="security">
-            <SecurityEvents adminToken={adminToken} />
+            <SecurityEvents adminToken="" />
           </TabsContent>
 
           <TabsContent value="blog">
@@ -1473,7 +1936,7 @@ export default function AdminDashboard() {
           </TabsContent>
 
           <TabsContent value="analytics">
-            <Analytics adminToken={adminToken} />
+            <Analytics adminToken="" />
           </TabsContent>
         </Tabs>
       </div>

@@ -9,7 +9,7 @@
  * Usage: node scripts/init-subscriptions.js [--production]
  */
 
-const { subscriptionService } = require('../server/subscription-service.ts');
+import { subscriptionService } from '../server/subscription-service.ts';
 
 async function initializeSubscriptions() {
   console.log('🚀 Initializing Stripe products for subscription system...');

@@ -224,7 +224,7 @@ const DocumentHistoryComponent = ({ onSelectDocument, currentDocumentId }: Docum
 
         <div className="mt-4 pt-4 border-t border-gray-200 dark:border-gray-700">
           <p className="text-xs text-gray-500 dark:text-gray-400 text-center">
-            Documents are stored in your current session only. Refreshing will clear all data.
+            Documents are stored in your current session only. Opening a new browser will clear all data.
           </p>
         </div>
       </CardContent>

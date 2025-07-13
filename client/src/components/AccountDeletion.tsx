@@ -139,7 +139,7 @@ export default function AccountDeletion({ userEmail, onSuccess }: AccountDeletio
                       <p><strong>Immediately deleted:</strong></p>
                       <ul className="list-disc list-inside pl-4 text-sm">
                         <li>Your email address will be anonymized</li>
-                        <li>Your username and password will be permanently removed</li>
+                        <li>Your account credentials will be permanently removed</li>
                         <li>All active sessions will be terminated</li>
                         <li>All subscription tokens will be revoked</li>
                       </ul>

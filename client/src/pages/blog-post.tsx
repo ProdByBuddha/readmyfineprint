@@ -30,7 +30,9 @@ interface BlogPost {
   publishedAt: string;
   readingTime: number;
   viewCount: number;
+  displayViewCount?: number;
   shareCount: number;
+  displayShareCount?: number;
   isFeatured: boolean;
   metaTitle?: string;
   metaDescription?: string;
@@ -265,7 +267,7 @@ export default function BlogPostPage() {
               </div>
               <div className="flex items-center gap-2">
                 <Eye className="h-4 w-4" />
-                {post.viewCount.toLocaleString()} views
+                {(post.displayViewCount || post.viewCount).toLocaleString()} views
               </div>
             </div>
           </div>

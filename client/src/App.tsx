@@ -28,6 +28,7 @@ import { EmailRecoveryPage } from "@/pages/EmailRecovery";
 import TrustPage from "@/pages/trust";
 import BlogPage from "@/pages/blog";
 import BlogPostPage from "@/pages/blog-post";
+import UnsubscribePage from "@/pages/unsubscribe";
 import NotFound from "@/pages/not-found";
 import { setupAutoSubmission } from "./lib/indexnow";
 import React, { useEffect, useState } from 'react';
@@ -58,6 +59,7 @@ function Router() {
       <Route path="/trust" component={TrustPage} />
       <Route path="/blog" component={BlogPage} />
       <Route path="/blog/:slug" component={BlogPostPage} />
+      <Route path="/unsubscribe" component={UnsubscribePage} />
       <Route component={NotFound} />
     </Switch>
   );

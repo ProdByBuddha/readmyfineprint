@@ -22,11 +22,6 @@ interface UsageWindow {
 }
 
 interface CollectiveUsageLimits {
-  // Daily limits per user segment
-  dailyLimitPerNewUser: number;
-  dailyLimitPerEstablishedUser: number;
-  dailyLimitPerSuspiciousUser: number;
-  
   // Collective pool limits
   dailyCollectiveLimit: number;
   weeklyCollectiveLimit: number;
@@ -42,6 +37,9 @@ export class CollectiveUserService extends EventEmitter {
   private usageWindows: UsageWindow;
   private limits: CollectiveUsageLimits;
   private maintenanceInterval: NodeJS.Timeout | null = null;
+  
+  // Individual monthly usage tracking for anonymous users
+  private individualMonthlyUsage = new Map<string, Map<string, number>>(); // userId -> period -> count
 
   constructor() {
     super();
@@ -55,11 +53,6 @@ export class CollectiveUserService extends EventEmitter {
 
     // Configure abuse-proof limits
     this.limits = {
-      // Per-user daily limits based on trust level
-      dailyLimitPerNewUser: 3,         // New users: 3 docs/day
-      dailyLimitPerEstablishedUser: 8, // Established users: 8 docs/day  
-      dailyLimitPerSuspiciousUser: 1,  // Flagged users: 1 doc/day
-      
       // Collective pool limits (scales with legitimate usage)
       dailyCollectiveLimit: 1000,      // 1000 docs/day total free tier
       weeklyCollectiveLimit: 6000,     // 6000 docs/week total
@@ -185,42 +178,6 @@ export class CollectiveUserService extends EventEmitter {
         };
       }
       
-      // Determine user's daily limit based on trust level
-      let userDailyLimit: number;
-      const daysSinceFirstSeen = Math.floor((Date.now() - tracker.firstSeen.getTime()) / (24 * 60 * 60 * 1000));
-      
-      if (tracker.suspiciousActivity || tracker.riskScore > 70) {
-        userDailyLimit = this.limits.dailyLimitPerSuspiciousUser;
-      } else if (daysSinceFirstSeen >= 7 && tracker.riskScore < 30) {
-        userDailyLimit = this.limits.dailyLimitPerEstablishedUser;
-      } else {
-        userDailyLimit = this.limits.dailyLimitPerNewUser;
-      }
-      
-      // Check individual daily limit
-      const userTodayUsage = await this.getUserDailyUsage(tracker, today);
-      if (userTodayUsage >= userDailyLimit) {
-        return {
-          allowed: false,
-          reason: `Daily limit reached (${userDailyLimit} documents per day)`,
-          limit: userDailyLimit,
-          used: userTodayUsage,
-          resetTime: this.getNextDayReset()
-        };
-      }
-      
-      // Check fair distribution limits (prevent one user from consuming too much)
-      const maxUserDaily = Math.floor(availablePool * this.limits.maxUserPercentageOfDaily);
-      if (userTodayUsage >= maxUserDaily && userDailyLimit > maxUserDaily) {
-        return {
-          allowed: false,
-          reason: 'Fair usage limit reached. Try again in a few hours.',
-          limit: maxUserDaily,
-          used: userTodayUsage,
-          resetTime: this.getNextDayReset()
-        };
-      }
-      
       // Advanced abuse detection: rate limiting and pattern analysis
       const abuseCheck = await this.checkForAbuse(tracker, ipAddress);
       if (!abuseCheck.allowed) {
@@ -229,8 +186,8 @@ export class CollectiveUserService extends EventEmitter {
       
       return {
         allowed: true,
-        limit: userDailyLimit,
-        used: userTodayUsage
+        limit: this.limits.dailyCollectiveLimit,
+        used: collectiveUsage
       };
       
     } catch (error) {
@@ -238,7 +195,7 @@ export class CollectiveUserService extends EventEmitter {
       // Fail safe - allow with basic limit
       return {
         allowed: true,
-        limit: this.limits.dailyLimitPerNewUser,
+        limit: this.limits.dailyCollectiveLimit,
         used: 0
       };
     }
@@ -320,7 +277,7 @@ export class CollectiveUserService extends EventEmitter {
     }
     
     // IP-based checks: prevent IP rotation abuse
-    const ipUsageToday = await this.getIPUsageToday(ipAddress);
+    const ipUsageToday = await this.getIPFingerprintCount(ipAddress);
     if (ipUsageToday > 50) {
       return {
         allowed: false,
@@ -422,34 +379,10 @@ export class CollectiveUserService extends EventEmitter {
   /**
    * Data retrieval methods
    */
-  private async getUserDailyUsage(tracker: FreeUserTracker, dateKey: string): Promise<number> {
-    // For now, track in memory. In production, this should be persisted
-    const trackingKey = this.createTrackingKey(tracker.sessionId, tracker.deviceFingerprint, tracker.ipAddress);
-    return this.getUserUsageByDate(trackingKey, dateKey);
-  }
-
-  private getUserUsageByDate(trackingKey: string, dateKey: string): number {
-    // Simplified tracking - in production, use database
-    return 0; // TODO: Implement persistent storage
-  }
-
   private async getRequestsInTimeWindow(tracker: FreeUserTracker, windowMs: number): Promise<number> {
-    // Simplified - in production, track request timestamps
+    // This would need to be implemented with proper time-based tracking
+    // For now, return 0 as a placeholder
     return 0;
-  }
-
-  private async getIPUsageToday(ipAddress: string): Promise<number> {
-    // Count documents analyzed by this IP today across all users
-    let count = 0;
-    const today = this.getDateKey(new Date());
-    
-    for (const [_, userTracker] of this.freeUserTrackers) {
-      if (userTracker.ipAddress === ipAddress) {
-        count += await this.getUserDailyUsage(userTracker, today);
-      }
-    }
-    
-    return count;
   }
 
   private async getIPFingerprintCount(ipAddress: string): Promise<number> {
@@ -641,6 +574,81 @@ export class CollectiveUserService extends EventEmitter {
       endpoint: 'update-limits',
       details: newLimits
     });
+  }
+
+  /**
+   * Track individual monthly usage for anonymous users
+   */
+  async trackIndividualMonthlyUsage(userId: string, documentsCount: number = 1): Promise<void> {
+    try {
+      const currentPeriod = new Date().toISOString().slice(0, 7); // YYYY-MM format
+      
+      // Get or create user's monthly usage map
+      if (!this.individualMonthlyUsage.has(userId)) {
+        this.individualMonthlyUsage.set(userId, new Map());
+      }
+      
+      const userUsage = this.individualMonthlyUsage.get(userId)!;
+      const currentUsage = userUsage.get(currentPeriod) || 0;
+      userUsage.set(currentPeriod, currentUsage + documentsCount);
+      
+      console.log(`📊 Individual usage tracked for ${userId}: ${currentUsage + documentsCount} documents in ${currentPeriod}`);
+    } catch (error) {
+      console.error('Error tracking individual monthly usage:', error);
+      // Don't throw - tracking failures shouldn't break document analysis
+    }
+  }
+
+  /**
+   * Get individual monthly usage for an anonymous user
+   */
+  async getIndividualMonthlyUsage(userId: string, period: string): Promise<number> {
+    try {
+      const userUsage = this.individualMonthlyUsage.get(userId);
+      if (!userUsage) {
+        return 0;
+      }
+      
+      return userUsage.get(period) || 0;
+    } catch (error) {
+      console.error('Error getting individual monthly usage:', error);
+      return 0;
+    }
+  }
+
+  /**
+   * Check if individual user has reached monthly limit
+   */
+  async checkIndividualMonthlyLimit(userId: string, limit: number = 10): Promise<{
+    allowed: boolean;
+    used: number;
+    limit: number;
+    resetDate: Date;
+  }> {
+    try {
+      const currentPeriod = new Date().toISOString().slice(0, 7); // YYYY-MM format
+      const used = await this.getIndividualMonthlyUsage(userId, currentPeriod);
+      
+      // Calculate reset date (first day of next month)
+      const now = new Date();
+      const resetDate = new Date(now.getFullYear(), now.getMonth() + 1, 1);
+      
+      return {
+        allowed: used < limit,
+        used,
+        limit,
+        resetDate
+      };
+    } catch (error) {
+      console.error('Error checking individual monthly limit:', error);
+      // Fail safe - allow with basic info
+      return {
+        allowed: true,
+        used: 0,
+        limit,
+        resetDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000)
+      };
+    }
   }
 
   /**

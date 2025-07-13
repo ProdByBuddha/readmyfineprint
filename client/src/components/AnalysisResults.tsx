@@ -1,14 +1,14 @@
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Shield, ThumbsUp, AlertTriangle, XCircle, InfoIcon, FileText, Settings } from "lucide-react";
+import { Shield, ThumbsUp, AlertTriangle, XCircle, InfoIcon, FileText, Settings, Crown, Lock } from "lucide-react";
 import type { Document, DocumentAnalysis } from "@shared/schema";
 import { exportAnalysisToPDF } from "@/utils/pdfExport";
 import { PIIRedactionInfoComponent } from "@/components/PIIRedactionInfo";
 import { PiiDetectionFeedback, type PIIDetection, type FeedbackData } from "@/components/PiiDetectionFeedback";
 import { submitPiiDetectionFeedback } from "@/lib/api";
 import { useToast } from "@/hooks/use-toast";
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 
 interface AnalysisResultsProps {
   document: Document;
@@ -17,8 +17,50 @@ interface AnalysisResultsProps {
 export function AnalysisResults({ document }: AnalysisResultsProps) {
   const [isExporting, setIsExporting] = useState(false);
   const [exportQuality, setExportQuality] = useState<'standard' | 'high'>('high');
+  const [userTier, setUserTier] = useState<string>('free');
+  const [hasProfessionalAccess, setHasProfessionalAccess] = useState(false);
   const analysis = document.analysis as DocumentAnalysis;
   const { toast } = useToast();
+
+  // Check user's tier on component mount
+  useEffect(() => {
+    const checkUserTier = async () => {
+      try {
+        const subscriptionToken = localStorage.getItem('subscriptionToken');
+        if (!subscriptionToken) {
+          setUserTier('free');
+          setHasProfessionalAccess(false);
+          return;
+        }
+
+        const response = await fetch('/api/user/subscription', {
+          headers: {
+            'x-subscription-token': subscriptionToken,
+          },
+          credentials: 'include'
+        });
+
+        if (response.ok) {
+          const data = await response.json();
+          const tier = data.subscription?.tierId || 'free';
+          setUserTier(tier);
+          
+          // Professional tier or higher (professional, business, enterprise, ultimate)
+          const professionalTiers = ['professional', 'business', 'enterprise', 'ultimate'];
+          setHasProfessionalAccess(professionalTiers.includes(tier));
+        } else {
+          setUserTier('free');
+          setHasProfessionalAccess(false);
+        }
+      } catch (error) {
+        console.error('Error checking user tier:', error);
+        setUserTier('free');
+        setHasProfessionalAccess(false);
+      }
+    };
+
+    checkUserTier();
+  }, []);
 
   // Convert PII matches to feedback format with detection session ID
   const piiDetections: PIIDetection[] = useMemo(() => {
@@ -80,8 +122,17 @@ export function AnalysisResults({ document }: AnalysisResultsProps) {
   if (!analysis) {
     return (
       <Card className="p-8">
-        <CardContent className="text-center">
-          <p className="text-gray-600 dark:text-gray-300">No analysis available for this document.</p>
+        <CardContent className="text-center space-y-4">
+          <p className="text-gray-600 dark:text-gray-300">
+            Analysis is being processed or not yet available for this document.
+          </p>
+          <Button 
+            onClick={() => window.location.reload()} 
+            variant="outline" 
+            size="sm"
+          >
+            Refresh Page
+          </Button>
         </CardContent>
       </Card>
     );
@@ -114,6 +165,16 @@ export function AnalysisResults({ document }: AnalysisResultsProps) {
   };
 
   const handleExport = async (quality: 'standard' | 'high' = exportQuality) => {
+    // Check tier access before proceeding
+    if (!hasProfessionalAccess) {
+      toast({
+        title: "Professional Tier Required",
+        description: "PDF export is available for Professional tier and above. Please upgrade your subscription.",
+        variant: "destructive"
+      });
+      return;
+    }
+
     try {
       setIsExporting(true);
 
@@ -196,25 +257,13 @@ Support our mission: ${window.location.origin + '/donate'}
             </p>
           </div>
           <div className="flex items-center gap-2 flex-shrink-0">
-            {/* Quality selector */}
-            <div className="flex items-center gap-1 text-xs text-gray-600 dark:text-gray-400">
-              <Settings className="w-3 h-3" />
-              <select
-                value={exportQuality}
-                onChange={(e) => setExportQuality(e.target.value as 'standard' | 'high')}
-                className="bg-transparent border-none text-xs outline-none cursor-pointer"
-                disabled={isExporting}
-              >
-                <option value="standard">Standard</option>
-                <option value="high">High Quality</option>
-              </select>
-            </div>
 
             {/* Export button */}
             <Button
               onClick={() => handleExport()}
-              disabled={isExporting}
-              className="flex items-center space-x-2 bg-secondary text-white hover:bg-secondary/90 disabled:opacity-50 text-sm px-3 py-2 h-9"
+              disabled={isExporting || !hasProfessionalAccess}
+              className={`flex items-center space-x-2 bg-secondary text-white hover:bg-secondary/90 disabled:opacity-50 text-sm px-3 py-2 h-9 ${!hasProfessionalAccess ? 'cursor-not-allowed' : ''}`}
+              title={!hasProfessionalAccess ? "Professional tier required for PDF export" : ""}
             >
               {isExporting ? (
                 <>
@@ -223,6 +272,13 @@ Support our mission: ${window.location.origin + '/donate'}
                     {exportQuality === 'high' ? 'Generating HQ...' : 'Generating...'}
                   </span>
                   <span className="sm:hidden">PDF...</span>
+                </>
+              ) : !hasProfessionalAccess ? (
+                <>
+                  <Lock className="w-3 h-3" />
+                  <span className="hidden sm:inline">PDF Export (Pro)</span>
+                  <span className="sm:hidden">Pro</span>
+                  <Crown className="w-2 h-2 text-orange-400" />
                 </>
               ) : (
                 <>

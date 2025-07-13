@@ -27,10 +27,29 @@ const analyticsQuerySchema = z.object({
 /**
  * Submit feedback on PII detection accuracy
  * POST /api/rlhf/feedback
+ * Requires Professional tier or higher
  */
 export async function submitPiiDetectionFeedback(req: Request, res: Response) {
   try {
     console.log('📝 Received RLHF feedback submission');
+    
+    // Check if user has Professional tier access for PII feedback
+    const userId = (req as any).user?.id;
+    if (userId) {
+      const { validateProfessionalAccess } = await import('./tier-validation.js');
+      const tierValidation = await validateProfessionalAccess(userId);
+      
+      if (!tierValidation.hasAccess) {
+        console.log(`🚫 PII feedback blocked for user ${userId}: ${tierValidation.message}`);
+        return res.status(403).json({
+          error: "Professional tier required",
+          message: "PII detection feedback is available for Professional tier and above",
+          currentTier: tierValidation.currentTier,
+          requiredTier: tierValidation.requiredTier,
+          upgradeUrl: "/subscription"
+        });
+      }
+    }
     
     // Validate request body
     const validationResult = feedbackSubmissionSchema.safeParse(req.body);

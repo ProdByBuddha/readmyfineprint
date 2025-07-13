@@ -685,53 +685,19 @@ export async function getImprovementSuggestions() {
 }
 
 /**
- * Admin API helper function that includes the admin key
+ * Admin API helper function using session-based authentication
  */
 export async function adminApiRequest(url: string, options: RequestInit = {}) {
-  // Check if we're in development mode and have a development token
-  const devToken = localStorage.getItem('devAdminToken');
-  const isDevelopment = import.meta.env.DEV || import.meta.env.MODE === 'development';
-  
-  if (isDevelopment && devToken) {
-    console.log('🔧 Using development admin token for API request');
-    const headers = {
-      'Content-Type': 'application/json',
-      'Authorization': `Bearer ${devToken}`,
-      ...options.headers,
-    };
-
-    const response = await fetchWithCSRF(url, {
-      ...options,
-      headers,
-    });
-
-    if (!response.ok) {
-      const errorText = await response.text();
-      console.error('Admin API request failed:', response.status, errorText);
-      throw new Error(`Admin API request failed: ${response.status} ${errorText}`);
-    }
-
-    return response.json();
-  }
-  
-  // Fallback to traditional admin key authentication
-  const adminKey = import.meta.env.VITE_ADMIN_API_KEY;
-  
-  console.log('Admin key available:', !!adminKey);
-  
-  if (!adminKey) {
-    throw new Error('Admin API key not configured. Please set VITE_ADMIN_API_KEY environment variable.');
-  }
-
   const headers = {
     'Content-Type': 'application/json',
-    'x-admin-key': adminKey,
     ...options.headers,
   };
 
+  // Use cookie-based authentication
   const response = await fetchWithCSRF(url, {
     ...options,
     headers,
+    credentials: 'include', // Include cookies for authentication
   });
 
   if (!response.ok) {

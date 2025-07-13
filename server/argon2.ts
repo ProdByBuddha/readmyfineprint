@@ -365,12 +365,17 @@ export async function verifyHashedValue(originalValue: string, hashedValue: stri
  */
 export async function hashSSN(ssn: string): Promise<string> {
   try {
+    // Extract SSN from formatted strings like "Social Security Number: 394-52-1098"
+    // First try to find a 9-digit pattern with optional dashes/spaces
+    const ssnMatch = ssn.match(/\b\d{3}[-\s]?\d{2}[-\s]?\d{4}\b/);
+    const rawSSN = ssnMatch ? ssnMatch[0] : ssn;
+    
     // Normalize SSN (remove dashes, spaces, ensure 9 digits)
-    const normalizedSSN = ssn.replace(/[-\s]/g, '').trim();
+    const normalizedSSN = rawSSN.replace(/[-\s]/g, '').trim();
     
     // Validate SSN format
     if (!/^\d{9}$/.test(normalizedSSN)) {
-      throw new Error('Invalid SSN format');
+      throw new Error(`Invalid SSN format: expected 9 digits, got "${normalizedSSN}" from "${ssn}"`);
     }
     
     const ssnPepper = process.env.SSN_PEPPER || process.env.PASSWORD_PEPPER || '';

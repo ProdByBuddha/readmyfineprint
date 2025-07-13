@@ -293,7 +293,7 @@ export default function TrustPage() {
                   </p>
                   <div className="flex items-center gap-2 text-blue-600 dark:text-blue-400">
                     <Mail className="w-4 h-4" />
-                    <span>security@readmyfineprint.com</span>
+                    <a href="mailto:security@readmyfineprint.com">security@readmyfineprint.com</a>
                   </div>
                   <p className="text-gray-600 dark:text-gray-300 text-sm">
                     We aim to respond to all security inquiries within 24 hours.
@@ -328,8 +328,8 @@ export default function TrustPage() {
                 className="h-8"
               />
               <img
-                src="https://img.shields.io/badge/License-MIT-green?style=for-the-badge"
-                alt="MIT License"
+                src="https://img.shields.io/badge/License-Proprietary-orange?style=for-the-badge"
+                alt="Proprietary License"
                 className="h-8"
               />
             </div>

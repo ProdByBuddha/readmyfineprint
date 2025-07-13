@@ -19,8 +19,16 @@ import {
   Calendar,
   TrendingUp,
   Settings,
-  BookOpen
+  BookOpen,
+  RotateCcw,
+  AlertTriangle,
+  Save,
+  X,
+  Zap,
+  Clock,
+  CheckCircle
 } from 'lucide-react';
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 
 interface BlogPost {
   id: string;
@@ -33,7 +41,10 @@ interface BlogPost {
   readingTime: number;
   viewCount: number;
   shareCount: number;
+  displayShareCount?: number;
   createdAt: string;
+  updatedAt?: string;
+  isActive?: boolean;
 }
 
 interface BlogTopic {
@@ -68,10 +79,20 @@ interface SchedulerStatus {
 export function BlogAdmin() {
   const { toast } = useToast();
   const [posts, setPosts] = useState<BlogPost[]>([]);
+  const [deletedPosts, setDeletedPosts] = useState<BlogPost[]>([]);
   const [topics, setTopics] = useState<BlogTopic[]>([]);
   const [schedulerStatus, setSchedulerStatus] = useState<SchedulerStatus | null>(null);
+  const [blogStats, setBlogStats] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [generatingPost, setGeneratingPost] = useState(false);
+  
+  // Delete dialog states
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [restoreDialogOpen, setRestoreDialogOpen] = useState(false);
+  const [selectedPost, setSelectedPost] = useState<BlogPost | null>(null);
+  const [deleteType, setDeleteType] = useState<'soft' | 'hard'>('soft');
+  const [deleteLoading, setDeleteLoading] = useState(false);
+  const [restoreLoading, setRestoreLoading] = useState(false);
   
   // New topic form
   const [newTopic, setNewTopic] = useState({
@@ -82,6 +103,14 @@ export function BlogAdmin() {
     targetAudience: 'general',
     priority: 5,
   });
+
+  // Topic management states
+  const [editingTopic, setEditingTopic] = useState<string | null>(null);
+  const [editTopicData, setEditTopicData] = useState<Partial<BlogTopic>>({});
+  const [topicOperationLoading, setTopicOperationLoading] = useState<string | null>(null);
+  const [bulkGenerateCount, setBulkGenerateCount] = useState(10);
+  const [bulkGenerateLoading, setBulkGenerateLoading] = useState(false);
+  const [monthlyGenerateLoading, setMonthlyGenerateLoading] = useState(false);
 
   const loadData = async () => {
     try {
@@ -115,6 +144,26 @@ export function BlogAdmin() {
         setSchedulerStatus(schedulerData);
       } catch (error) {
         console.error('Failed to load scheduler status:', error);
+      }
+
+      // Load blog statistics
+      try {
+        const statsData = await adminApiRequest('/api/blog/admin/stats', {
+          method: 'GET'
+        });
+        setBlogStats(statsData);
+      } catch (error) {
+        console.error('Failed to load blog stats:', error);
+      }
+
+      // Load deleted posts
+      try {
+        const deletedData = await adminApiRequest('/api/blog/admin/posts/deleted', {
+          method: 'GET'
+        });
+        setDeletedPosts(deletedData.posts);
+      } catch (error) {
+        console.error('Failed to load deleted posts:', error);
       }
     } catch (error) {
       console.error('Error loading blog admin data:', error);
@@ -248,6 +297,282 @@ export function BlogAdmin() {
     }
   };
 
+  const handleEditTopic = (topic: BlogTopic) => {
+    setEditingTopic(topic.id);
+    setEditTopicData({
+      title: topic.title,
+      description: topic.description,
+      category: topic.category,
+      difficulty: topic.difficulty,
+      targetAudience: topic.targetAudience,
+      priority: topic.priority,
+    });
+  };
+
+  const handleSaveTopicEdit = async (topicId: string) => {
+    try {
+      setTopicOperationLoading(topicId);
+      await adminApiRequest(`/api/blog/admin/topics/${topicId}`, {
+        method: 'PUT',
+        body: JSON.stringify(editTopicData),
+      });
+      
+      toast({
+        title: 'Success',
+        description: 'Topic updated successfully',
+      });
+      setEditingTopic(null);
+      setEditTopicData({});
+      loadData();
+    } catch (error) {
+      toast({
+        title: 'Error',
+        description: 'Failed to update topic',
+        variant: 'destructive',
+      });
+    } finally {
+      setTopicOperationLoading(null);
+    }
+  };
+
+  const handleCancelTopicEdit = () => {
+    setEditingTopic(null);
+    setEditTopicData({});
+  };
+
+  const handleDeleteTopic = async (topicId: string) => {
+    try {
+      setTopicOperationLoading(topicId);
+      await adminApiRequest(`/api/blog/admin/topics/${topicId}`, {
+        method: 'DELETE',
+      });
+      
+      toast({
+        title: 'Success',
+        description: 'Topic deleted successfully',
+      });
+      loadData();
+    } catch (error) {
+      toast({
+        title: 'Error',
+        description: 'Failed to delete topic',
+        variant: 'destructive',
+      });
+    } finally {
+      setTopicOperationLoading(null);
+    }
+  };
+
+  const handleResetTopicUsage = async (topicId: string) => {
+    try {
+      setTopicOperationLoading(topicId);
+      await adminApiRequest(`/api/blog/admin/topics/${topicId}/reset`, {
+        method: 'PATCH',
+      });
+      
+      toast({
+        title: 'Success',
+        description: 'Topic usage reset successfully',
+      });
+      loadData();
+    } catch (error) {
+      toast({
+        title: 'Error',
+        description: 'Failed to reset topic usage',
+        variant: 'destructive',
+      });
+    } finally {
+      setTopicOperationLoading(null);
+    }
+  };
+
+  const handleMarkTopicAsUsed = async (topicId: string) => {
+    try {
+      setTopicOperationLoading(topicId);
+      await adminApiRequest(`/api/blog/admin/topics/${topicId}/mark-used`, {
+        method: 'PATCH',
+      });
+      
+      toast({
+        title: 'Success',
+        description: 'Topic marked as used successfully',
+      });
+      loadData();
+    } catch (error) {
+      toast({
+        title: 'Error',
+        description: 'Failed to mark topic as used',
+        variant: 'destructive',
+      });
+    } finally {
+      setTopicOperationLoading(null);
+    }
+  };
+
+  const handleGenerateMonthlyTopics = async () => {
+    try {
+      setMonthlyGenerateLoading(true);
+      const result = await adminApiRequest('/api/blog/admin/generate-monthly-topics', {
+        method: 'POST',
+      });
+      
+      toast({
+        title: 'Success',
+        description: `Generated ${result.generated || 0} monthly topics successfully`,
+      });
+      loadData();
+    } catch (error) {
+      toast({
+        title: 'Error',
+        description: 'Failed to generate monthly topics',
+        variant: 'destructive',
+      });
+    } finally {
+      setMonthlyGenerateLoading(false);
+    }
+  };
+
+  const handleGenerateBulkTopics = async () => {
+    try {
+      setBulkGenerateLoading(true);
+      const result = await adminApiRequest('/api/blog/admin/generate-bulk-topics', {
+        method: 'POST',
+        body: JSON.stringify({ count: bulkGenerateCount }),
+      });
+      
+      toast({
+        title: 'Success',
+        description: `Generated ${result.generated || 0} bulk topics successfully`,
+      });
+      loadData();
+    } catch (error) {
+      toast({
+        title: 'Error',
+        description: 'Failed to generate bulk topics',
+        variant: 'destructive',
+      });
+    } finally {
+      setBulkGenerateLoading(false);
+    }
+  };
+
+  const handleDeletePost = async (postId: string, permanent: boolean = false) => {
+    if (deleteLoading) return;
+    
+    try {
+      setDeleteLoading(true);
+      const endpoint = `/api/blog/admin/posts/${postId}${permanent ? '?permanent=true' : ''}`;
+      const result = await adminApiRequest(endpoint, {
+        method: 'DELETE'
+      });
+      
+      toast({
+        title: 'Success',
+        description: permanent 
+          ? 'Post permanently deleted'
+          : 'Post moved to trash',
+        variant: 'default',
+      });
+      
+      // Reload data to update both active and deleted posts
+      loadData();
+      
+      // Close dialogs
+      setDeleteDialogOpen(false);
+      setSelectedPost(null);
+    } catch (error: any) {
+      console.error('Delete post error:', error);
+      
+      let errorMessage = 'Failed to delete post';
+      if (error?.message) {
+        errorMessage = error.message;
+      } else if (error?.response?.data?.error) {
+        errorMessage = error.response.data.error;
+      } else if (permanent) {
+        errorMessage = 'Failed to permanently delete post. Please try again.';
+      } else {
+        errorMessage = 'Failed to move post to trash. Please try again.';
+      }
+      
+      toast({
+        title: 'Error',
+        description: errorMessage,
+        variant: 'destructive',
+      });
+    } finally {
+      setDeleteLoading(false);
+    }
+  };
+
+  const handleRestorePost = async (postId: string) => {
+    if (restoreLoading) return;
+    
+    try {
+      setRestoreLoading(true);
+      await adminApiRequest(`/api/blog/admin/posts/${postId}/restore`, {
+        method: 'PATCH'
+      });
+      
+      toast({
+        title: 'Success',
+        description: 'Post restored successfully',
+      });
+      
+      // Reload data to update both active and deleted posts
+      loadData();
+      
+      // Close dialogs
+      setRestoreDialogOpen(false);
+      setSelectedPost(null);
+    } catch (error: any) {
+      console.error('Restore post error:', error);
+      
+      let errorMessage = 'Failed to restore post';
+      if (error?.message) {
+        errorMessage = error.message;
+      } else if (error?.response?.data?.error) {
+        errorMessage = error.response.data.error;
+      } else {
+        errorMessage = 'Failed to restore post. The post may not exist or may already be active.';
+      }
+      
+      toast({
+        title: 'Error',
+        description: errorMessage,
+        variant: 'destructive',
+      });
+    } finally {
+      setRestoreLoading(false);
+    }
+  };
+
+  const openDeleteDialog = (post: BlogPost, type: 'soft' | 'hard' = 'soft') => {
+    if (!post || !post.id) {
+      toast({
+        title: 'Error',
+        description: 'Invalid post selected',
+        variant: 'destructive',
+      });
+      return;
+    }
+    setSelectedPost(post);
+    setDeleteType(type);
+    setDeleteDialogOpen(true);
+  };
+
+  const openRestoreDialog = (post: BlogPost) => {
+    if (!post || !post.id) {
+      toast({
+        title: 'Error',
+        description: 'Invalid post selected',
+        variant: 'destructive',
+      });
+      return;
+    }
+    setSelectedPost(post);
+    setRestoreDialogOpen(true);
+  };
+
   const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleDateString('en-US', {
       year: 'numeric',
@@ -295,6 +620,7 @@ export function BlogAdmin() {
         <TabsList>
           <TabsTrigger value="dashboard">Dashboard</TabsTrigger>
           <TabsTrigger value="posts">Posts</TabsTrigger>
+          <TabsTrigger value="deleted">Deleted Posts ({deletedPosts.length})</TabsTrigger>
           <TabsTrigger value="topics">Topics</TabsTrigger>
           <TabsTrigger value="scheduler">Scheduler</TabsTrigger>
         </TabsList>
@@ -307,9 +633,11 @@ export function BlogAdmin() {
                 <BookOpen className="h-4 w-4 text-muted-foreground" />
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold">{posts.length}</div>
+                <div className="text-2xl font-bold">
+                  {blogStats?.posts?.total || posts.length}
+                </div>
                 <p className="text-xs text-muted-foreground">
-                  {posts.filter(p => p.status === 'published').length} published
+                  {blogStats?.posts?.published || posts.filter(p => p.status === 'published').length} published
                 </p>
               </CardContent>
             </Card>
@@ -321,10 +649,10 @@ export function BlogAdmin() {
               </CardHeader>
               <CardContent>
                 <div className="text-2xl font-bold">
-                  {topics.filter(t => !t.isUsed).length}
+                  {blogStats?.topics?.available || topics.filter(t => !t.isUsed).length}
                 </div>
                 <p className="text-xs text-muted-foreground">
-                  {topics.length} total topics
+                  {blogStats?.topics?.total || topics.length} total topics
                 </p>
               </CardContent>
             </Card>
@@ -336,7 +664,7 @@ export function BlogAdmin() {
               </CardHeader>
               <CardContent>
                 <div className="text-2xl font-bold">
-                  {posts.reduce((sum, post) => sum + (post.viewCount || 0), 0).toLocaleString()}
+                  {blogStats?.posts?.totalViews?.toLocaleString() || posts.reduce((sum, post) => sum + (post.viewCount || 0), 0).toLocaleString()}
                 </div>
                 <p className="text-xs text-muted-foreground">
                   Across all posts
@@ -429,8 +757,27 @@ export function BlogAdmin() {
                         variant="outline"
                         size="sm"
                         onClick={() => window.open(`/blog/${post.slug}`, '_blank')}
+                        title="View post"
                       >
                         <Eye className="h-4 w-4" />
+                      </Button>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => openDeleteDialog(post, 'soft')}
+                        title="Move to trash"
+                        className="text-orange-600 hover:text-orange-700 hover:bg-orange-50"
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </Button>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => openDeleteDialog(post, 'hard')}
+                        title="Permanently delete"
+                        className="text-red-600 hover:text-red-700 hover:bg-red-50"
+                      >
+                        <AlertTriangle className="h-4 w-4" />
                       </Button>
                     </div>
                   </div>
@@ -445,7 +792,131 @@ export function BlogAdmin() {
           </Card>
         </TabsContent>
 
+        <TabsContent value="deleted" className="space-y-4">
+          <Card>
+            <CardHeader>
+              <CardTitle>Deleted Posts</CardTitle>
+              <CardDescription>
+                Manage posts that have been moved to trash. You can restore or permanently delete them.
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-4">
+                {deletedPosts.map((post) => (
+                  <div key={post.id} className="flex items-center justify-between p-4 border rounded-lg bg-red-50 border-red-200">
+                    <div className="flex-1">
+                      <h3 className="font-semibold text-lg text-gray-800">{post.title}</h3>
+                      <p className="text-gray-600 text-sm line-clamp-2">{post.excerpt}</p>
+                      <div className="flex items-center gap-4 mt-2 text-sm text-gray-500">
+                        <Badge variant="destructive">
+                          {post.status}
+                        </Badge>
+                        <span className="flex items-center gap-1">
+                          <Calendar className="h-3 w-3" />
+                          Deleted: {formatDate(post.updatedAt || post.createdAt)}
+                        </span>
+                        <span className="flex items-center gap-1">
+                          <Eye className="h-3 w-3" />
+                          {post.viewCount} views
+                        </span>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => openRestoreDialog(post)}
+                        title="Restore post"
+                        className="text-green-600 hover:text-green-700 hover:bg-green-50"
+                      >
+                        <RotateCcw className="h-4 w-4" />
+                      </Button>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => openDeleteDialog(post, 'hard')}
+                        title="Permanently delete"
+                        className="text-red-600 hover:text-red-700 hover:bg-red-50"
+                      >
+                        <AlertTriangle className="h-4 w-4" />
+                      </Button>
+                    </div>
+                  </div>
+                ))}
+                {deletedPosts.length === 0 && (
+                  <div className="text-center py-8 text-gray-500">
+                    No deleted posts found. Trash is empty.
+                  </div>
+                )}
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
         <TabsContent value="topics" className="space-y-4">
+          {/* Bulk Generation Actions */}
+          <Card>
+            <CardHeader>
+              <CardTitle>Bulk Topic Generation</CardTitle>
+              <CardDescription>
+                Generate multiple topics automatically using AI
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="flex flex-wrap gap-4">
+                <Button 
+                  onClick={handleGenerateMonthlyTopics}
+                  disabled={monthlyGenerateLoading}
+                  variant="outline"
+                  className="flex items-center gap-2"
+                >
+                  {monthlyGenerateLoading ? (
+                    <>
+                      <RefreshCw className="h-4 w-4 animate-spin" />
+                      Generating...
+                    </>
+                  ) : (
+                    <>
+                      <Calendar className="h-4 w-4" />
+                      Generate Monthly Topics
+                    </>
+                  )}
+                </Button>
+                
+                <div className="flex items-center gap-2">
+                  <Input
+                    type="number"
+                    min="1"
+                    max="50"
+                    value={bulkGenerateCount}
+                    onChange={(e) => setBulkGenerateCount(parseInt(e.target.value) || 10)}
+                    className="w-20"
+                    placeholder="10"
+                  />
+                  <Button 
+                    onClick={handleGenerateBulkTopics}
+                    disabled={bulkGenerateLoading}
+                    variant="outline"
+                    className="flex items-center gap-2"
+                  >
+                    {bulkGenerateLoading ? (
+                      <>
+                        <RefreshCw className="h-4 w-4 animate-spin" />
+                        Generating...
+                      </>
+                    ) : (
+                      <>
+                        <Zap className="h-4 w-4" />
+                        Generate Bulk Topics
+                      </>
+                    )}
+                  </Button>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Create New Topic */}
           <Card>
             <CardHeader>
               <CardTitle>Create New Topic</CardTitle>
@@ -540,33 +1011,230 @@ export function BlogAdmin() {
             </CardContent>
           </Card>
 
+          {/* Existing Topics with Enhanced Display */}
           <Card>
             <CardHeader>
               <CardTitle>Existing Topics</CardTitle>
               <CardDescription>
-                {topics.filter(t => !t.isUsed).length} unused topics available
+                {topics.filter(t => !t.isUsed).length} unused topics available • {topics.filter(t => t.isUsed).length} used topics
               </CardDescription>
             </CardHeader>
             <CardContent>
-              <div className="space-y-2">
+              <div className="space-y-4">
                 {topics.map((topic) => (
-                  <div key={topic.id} className="flex items-center justify-between p-3 border rounded">
-                    <div className="flex-1">
-                      <h4 className="font-medium">{topic.title}</h4>
-                      <div className="flex items-center gap-2 text-sm text-gray-500">
-                        <Badge variant="outline">{topic.category}</Badge>
-                        <Badge variant="outline">{topic.difficulty}</Badge>
-                        <span>Priority: {topic.priority}</span>
-                        {topic.isUsed && (
-                          <Badge variant="secondary">Used</Badge>
-                        )}
+                  <div key={topic.id} className={`border rounded-lg p-4 ${topic.isUsed ? 'bg-gray-50 border-gray-200' : 'bg-white border-gray-300'}`}>
+                    {editingTopic === topic.id ? (
+                      // Edit Mode
+                      <div className="space-y-4">
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                          <div className="space-y-2">
+                            <label className="text-sm font-medium">Title</label>
+                            <Input
+                              value={editTopicData.title || ''}
+                              onChange={(e) => setEditTopicData({...editTopicData, title: e.target.value})}
+                              placeholder="Topic title"
+                            />
+                          </div>
+                          <div className="space-y-2">
+                            <label className="text-sm font-medium">Category</label>
+                            <Select
+                              value={editTopicData.category || ''}
+                              onValueChange={(value) => setEditTopicData({...editTopicData, category: value})}
+                            >
+                              <SelectTrigger>
+                                <SelectValue />
+                              </SelectTrigger>
+                              <SelectContent>
+                                <SelectItem value="contract-law">Contract Law</SelectItem>
+                                <SelectItem value="employment-law">Employment Law</SelectItem>
+                                <SelectItem value="intellectual-property">Intellectual Property</SelectItem>
+                                <SelectItem value="business-law">Business Law</SelectItem>
+                              </SelectContent>
+                            </Select>
+                          </div>
+                        </div>
+                        <div className="space-y-2">
+                          <label className="text-sm font-medium">Description</label>
+                          <Textarea
+                            value={editTopicData.description || ''}
+                            onChange={(e) => setEditTopicData({...editTopicData, description: e.target.value})}
+                            placeholder="Topic description"
+                          />
+                        </div>
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                          <div className="space-y-2">
+                            <label className="text-sm font-medium">Difficulty</label>
+                            <Select
+                              value={editTopicData.difficulty || ''}
+                              onValueChange={(value) => setEditTopicData({...editTopicData, difficulty: value})}
+                            >
+                              <SelectTrigger>
+                                <SelectValue />
+                              </SelectTrigger>
+                              <SelectContent>
+                                <SelectItem value="beginner">Beginner</SelectItem>
+                                <SelectItem value="intermediate">Intermediate</SelectItem>
+                                <SelectItem value="advanced">Advanced</SelectItem>
+                              </SelectContent>
+                            </Select>
+                          </div>
+                          <div className="space-y-2">
+                            <label className="text-sm font-medium">Target Audience</label>
+                            <Select
+                              value={editTopicData.targetAudience || ''}
+                              onValueChange={(value) => setEditTopicData({...editTopicData, targetAudience: value})}
+                            >
+                              <SelectTrigger>
+                                <SelectValue />
+                              </SelectTrigger>
+                              <SelectContent>
+                                <SelectItem value="general">General</SelectItem>
+                                <SelectItem value="business-owners">Business Owners</SelectItem>
+                                <SelectItem value="legal-professionals">Legal Professionals</SelectItem>
+                              </SelectContent>
+                            </Select>
+                          </div>
+                          <div className="space-y-2">
+                            <label className="text-sm font-medium">Priority (1-10)</label>
+                            <Input
+                              type="number"
+                              min="1"
+                              max="10"
+                              value={editTopicData.priority || 5}
+                              onChange={(e) => setEditTopicData({...editTopicData, priority: parseInt(e.target.value) || 5})}
+                            />
+                          </div>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <Button
+                            onClick={() => handleSaveTopicEdit(topic.id)}
+                            disabled={topicOperationLoading === topic.id}
+                            size="sm"
+                            className="flex items-center gap-2"
+                          >
+                            {topicOperationLoading === topic.id ? (
+                              <>
+                                <RefreshCw className="h-4 w-4 animate-spin" />
+                                Saving...
+                              </>
+                            ) : (
+                              <>
+                                <Save className="h-4 w-4" />
+                                Save
+                              </>
+                            )}
+                          </Button>
+                          <Button
+                            onClick={handleCancelTopicEdit}
+                            variant="outline"
+                            size="sm"
+                            className="flex items-center gap-2"
+                          >
+                            <X className="h-4 w-4" />
+                            Cancel
+                          </Button>
+                        </div>
                       </div>
-                    </div>
+                    ) : (
+                      // View Mode
+                      <div className="flex items-start justify-between">
+                        <div className="flex-1">
+                          <div className="flex items-center gap-2 mb-2">
+                            <h4 className="font-semibold text-lg">{topic.title}</h4>
+                            {topic.isUsed && (
+                              <Badge variant="secondary" className="flex items-center gap-1">
+                                <Clock className="h-3 w-3" />
+                                Used
+                              </Badge>
+                            )}
+                          </div>
+                          {topic.description && (
+                            <p className="text-gray-600 text-sm mb-3 line-clamp-2">{topic.description}</p>
+                          )}
+                          <div className="flex items-center gap-3 text-sm">
+                            <Badge variant="outline" className="capitalize">
+                              {topic.category.replace('-', ' ')}
+                            </Badge>
+                            <Badge variant="outline" className="capitalize">
+                              {topic.difficulty}
+                            </Badge>
+                            <Badge variant="outline" className="capitalize">
+                              {topic.targetAudience.replace('-', ' ')}
+                            </Badge>
+                            <span className="text-gray-500">Priority: {topic.priority}</span>
+                          </div>
+                          {topic.isUsed && topic.usedAt && (
+                            <div className="mt-2 text-xs text-gray-500 flex items-center gap-1">
+                              <Calendar className="h-3 w-3" />
+                              Used on {formatDate(topic.usedAt)}
+                            </div>
+                          )}
+                        </div>
+                        <div className="flex items-center gap-2 ml-4">
+                          <Button
+                            onClick={() => handleEditTopic(topic)}
+                            variant="outline"
+                            size="sm"
+                            title="Edit topic"
+                            className="flex items-center gap-1"
+                          >
+                            <Edit className="h-4 w-4" />
+                          </Button>
+                          {topic.isUsed ? (
+                            <Button
+                              onClick={() => handleResetTopicUsage(topic.id)}
+                              disabled={topicOperationLoading === topic.id}
+                              variant="outline"
+                              size="sm"
+                              title="Reset usage - mark as unused"
+                              className="text-blue-600 hover:text-blue-700 hover:bg-blue-50 flex items-center gap-1"
+                            >
+                              {topicOperationLoading === topic.id ? (
+                                <RefreshCw className="h-4 w-4 animate-spin" />
+                              ) : (
+                                <RotateCcw className="h-4 w-4" />
+                              )}
+                            </Button>
+                          ) : (
+                            <Button
+                              onClick={() => handleMarkTopicAsUsed(topic.id)}
+                              disabled={topicOperationLoading === topic.id}
+                              variant="outline"
+                              size="sm"
+                              title="Mark as used"
+                              className="text-green-600 hover:text-green-700 hover:bg-green-50 flex items-center gap-1"
+                            >
+                              {topicOperationLoading === topic.id ? (
+                                <RefreshCw className="h-4 w-4 animate-spin" />
+                              ) : (
+                                <CheckCircle className="h-4 w-4" />
+                              )}
+                            </Button>
+                          )}
+                          <Button
+                            onClick={() => handleDeleteTopic(topic.id)}
+                            disabled={topicOperationLoading === topic.id}
+                            variant="outline"
+                            size="sm"
+                            title="Delete topic"
+                            className="text-red-600 hover:text-red-700 hover:bg-red-50 flex items-center gap-1"
+                          >
+                            {topicOperationLoading === topic.id ? (
+                              <RefreshCw className="h-4 w-4 animate-spin" />
+                            ) : (
+                              <Trash2 className="h-4 w-4" />
+                            )}
+                          </Button>
+                        </div>
+                      </div>
+                    )}
                   </div>
                 ))}
                 {topics.length === 0 && (
-                  <div className="text-center py-4 text-gray-500">
-                    No topics found. Create some topics or seed the database.
+                  <div className="text-center py-8 text-gray-500">
+                    <BookOpen className="h-12 w-12 mx-auto mb-4 text-gray-300" />
+                    <p className="text-lg font-medium mb-2">No topics found</p>
+                    <p className="text-sm">Create some topics manually or generate them automatically using the buttons above.</p>
                   </div>
                 )}
               </div>
@@ -636,6 +1304,101 @@ export function BlogAdmin() {
           </Card>
         </TabsContent>
       </Tabs>
+
+      {/* Delete Confirmation Dialog */}
+      <Dialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              {deleteType === 'hard' ? (
+                <>
+                  <AlertTriangle className="h-5 w-5 text-red-600" />
+                  Permanently Delete Post
+                </>
+              ) : (
+                <>
+                  <Trash2 className="h-5 w-5 text-orange-600" />
+                  Move Post to Trash
+                </>
+              )}
+            </DialogTitle>
+            <DialogDescription>
+              {deleteType === 'hard' ? (
+                <>
+                  This action cannot be undone. This will permanently delete the post "{selectedPost?.title}" 
+                  and remove all associated data from the server.
+                </>
+              ) : (
+                <>
+                  Are you sure you want to move "{selectedPost?.title}" to trash? 
+                  You can restore it later from the Deleted Posts tab.
+                </>
+              )}
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button
+              variant="outline"
+              onClick={() => setDeleteDialogOpen(false)}
+            >
+              Cancel
+            </Button>
+            <Button
+              variant={deleteType === 'hard' ? 'destructive' : 'default'}
+              onClick={() => selectedPost && handleDeletePost(selectedPost.id, deleteType === 'hard')}
+              className={deleteType === 'soft' ? 'bg-orange-600 hover:bg-orange-700' : ''}
+              disabled={deleteLoading}
+            >
+              {deleteLoading ? (
+                <>
+                  <RefreshCw className="h-4 w-4 mr-2 animate-spin" />
+                  {deleteType === 'hard' ? 'Deleting...' : 'Moving to Trash...'}
+                </>
+              ) : (
+                deleteType === 'hard' ? 'Permanently Delete' : 'Move to Trash'
+              )}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Restore Confirmation Dialog */}
+      <Dialog open={restoreDialogOpen} onOpenChange={setRestoreDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <RotateCcw className="h-5 w-5 text-green-600" />
+              Restore Post
+            </DialogTitle>
+            <DialogDescription>
+              Are you sure you want to restore "{selectedPost?.title}"? 
+              This will move it back to your active posts and make it publicly available again.
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button
+              variant="outline"
+              onClick={() => setRestoreDialogOpen(false)}
+            >
+              Cancel
+            </Button>
+            <Button
+              onClick={() => selectedPost && handleRestorePost(selectedPost.id)}
+              className="bg-green-600 hover:bg-green-700"
+              disabled={restoreLoading}
+            >
+              {restoreLoading ? (
+                <>
+                  <RefreshCw className="h-4 w-4 mr-2 animate-spin" />
+                  Restoring...
+                </>
+              ) : (
+                'Restore Post'
+              )}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

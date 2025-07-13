@@ -10,7 +10,7 @@ import {
   InsertContentGeneration,
   InsertContentSimilarity
 } from '@shared/schema';
-import { eq, desc, and, gte, isNull, asc } from 'drizzle-orm';
+import { eq, desc, and, gte, isNull, asc, sql } from 'drizzle-orm';
 
 interface ContentOutline {
   introduction: string;
@@ -112,13 +112,16 @@ export class BlogContentService {
         .select()
         .from(blogPosts)
         .where(
-          gte(blogPosts.createdAt, new Date(Date.now() - 7 * 24 * 60 * 60 * 1000))
+          and(
+            gte(blogPosts.createdAt, new Date(Date.now() - 14 * 24 * 60 * 60 * 1000)), // Extended to 14 days
+            eq(blogPosts.isActive, true)
+          )
         )
-        .limit(10);
+        .limit(20); // Check more posts
 
       if (recentPosts.length === 0) return true;
 
-      // Simple keyword overlap check
+      // Enhanced keyword overlap check
       const topicKeywords = topic.keywords?.toLowerCase().split(',').map(k => k.trim()) || [];
       const topicTitle = topic.title.toLowerCase();
 
@@ -126,19 +129,30 @@ export class BlogContentService {
         const postKeywords = post.keywords?.toLowerCase().split(',').map((k: string) => k.trim()) || [];
         const postTitle = post.title.toLowerCase();
 
-        // Check title similarity
+        // Check title similarity - more strict
         const titleWords = topicTitle.split(' ').filter(w => w.length > 3);
         const postTitleWords = postTitle.split(' ').filter((w: string) => w.length > 3);
         const titleOverlap = titleWords.filter(w => postTitleWords.includes(w)).length;
         
-        if (titleOverlap > titleWords.length * 0.5) {
+        if (titleOverlap > titleWords.length * 0.3) { // Reduced from 0.5 to 0.3 (more strict)
+          console.log(`Topic "${topic.title}" rejected: too similar to "${post.title}" (title overlap: ${titleOverlap}/${titleWords.length})`);
           return false; // Too similar
         }
 
-        // Check keyword overlap
+        // Check keyword overlap - more strict
         const keywordOverlap = topicKeywords.filter(k => postKeywords.includes(k)).length;
-        if (keywordOverlap > Math.min(topicKeywords.length, postKeywords.length) * 0.7) {
+        if (keywordOverlap > Math.min(topicKeywords.length, postKeywords.length) * 0.5) { // Reduced from 0.7 to 0.5
+          console.log(`Topic "${topic.title}" rejected: too similar keywords to "${post.title}" (keyword overlap: ${keywordOverlap})`);
           return false; // Too similar
+        }
+
+        // Check category overlap for same category posts
+        if (topic.category === post.category) {
+          // Be extra strict for same category
+          if (titleOverlap > titleWords.length * 0.2 || keywordOverlap > 2) {
+            console.log(`Topic "${topic.title}" rejected: same category "${topic.category}" with overlapping content`);
+            return false;
+          }
         }
       }
 
@@ -574,7 +588,31 @@ Return: {"title":"","excerpt":"","metaTitle":"","metaDescription":"","keywords":
         })
         .where(eq(blogTopics.id, topic.id));
 
-      // Check similarity with recent posts
+      // Check content similarity before confirming publication
+      const contentSimilarity = await this.checkContentSimilarity(generatedContent.content);
+      if (!contentSimilarity.isUnique) {
+        console.log(`Post "${generatedContent.title}" blocked: too similar to existing content (similarity: ${contentSimilarity.maxSimilarity})`);
+        
+        // Delete the post that was just created since it's too similar
+        await db.delete(blogPosts).where(eq(blogPosts.id, newPost.id));
+        
+        // Mark topic as unused so it can be retried later
+        await db
+          .update(blogTopics)
+          .set({ 
+            isUsed: false, 
+            usedAt: null 
+          })
+          .where(eq(blogTopics.id, topic.id));
+        
+        return { 
+          success: false, 
+          error: `Content too similar to existing posts (${Math.round(contentSimilarity.maxSimilarity * 100)}% similarity). Post blocked and topic marked for retry.`,
+          similarity: contentSimilarity.maxSimilarity
+        };
+      }
+
+      // Store similarity scores for future reference
       await this.updateSimilarityScores(newPost.id, generatedContent.content);
 
       console.log(`Successfully generated and published post: ${generatedContent.title}`);
@@ -583,6 +621,67 @@ Return: {"title":"","excerpt":"","metaTitle":"","metaDescription":"","keywords":
     } catch (error) {
       console.error('Error generating and publishing post:', error);
       return { success: false, error: error instanceof Error ? error.message : 'Unknown error' };
+    }
+  }
+
+  // Check content similarity before publication
+  private async checkContentSimilarity(content: string): Promise<{ isUnique: boolean; maxSimilarity: number; similarPost?: any }> {
+    try {
+      const recentPosts = await db
+        .select()
+        .from(blogPosts)
+        .where(
+          and(
+            gte(blogPosts.createdAt, new Date(Date.now() - 30 * 24 * 60 * 60 * 1000)),
+            eq(blogPosts.isActive, true)
+          )
+        )
+        .limit(15);
+
+      if (recentPosts.length === 0) {
+        return { isUnique: true, maxSimilarity: 0 };
+      }
+
+      let maxSimilarity = 0;
+      let similarPost = null;
+
+      // Check semantic similarity with each recent post
+      for (const post of recentPosts) {
+        const similarity = await this.calculateSimilarity(content, post.content);
+        
+        if (similarity > maxSimilarity) {
+          maxSimilarity = similarity;
+          similarPost = post;
+        }
+
+        // Early exit if we find high similarity
+        if (similarity > 0.85) {
+          console.log(`High similarity detected: ${similarity} with post "${post.title}"`);
+          return { 
+            isUnique: false, 
+            maxSimilarity: similarity, 
+            similarPost: post 
+          };
+        }
+      }
+
+      // Consider content too similar if > 75% similarity
+      const threshold = 0.75;
+      const isUnique = maxSimilarity < threshold;
+
+      if (!isUnique) {
+        console.log(`Content similarity check failed: ${maxSimilarity} > ${threshold} threshold`);
+      }
+
+      return { 
+        isUnique, 
+        maxSimilarity, 
+        similarPost: isUnique ? null : similarPost 
+      };
+    } catch (error) {
+      console.error('Error checking content similarity:', error);
+      // Default to allowing publication if similarity check fails
+      return { isUnique: true, maxSimilarity: 0 };
     }
   }
 
@@ -634,11 +733,159 @@ Return: {"title":"","excerpt":"","metaTitle":"","metaDescription":"","keywords":
     return text.trim().split(/\s+/).filter(word => word.length > 0).length;
   }
 
-  // Seed initial topics
+  // Generate bulk topics using AI for a month's worth of content
+  async generateBulkTopics(count: number = 30): Promise<{ success: boolean; topics?: any[]; error?: string }> {
+    try {
+      await db;
+      
+      // Get existing topics to avoid duplicates
+      const existingTopics = await db
+        .select({ title: blogTopics.title, keywords: blogTopics.keywords })
+        .from(blogTopics);
+      
+      const existingTitles = existingTopics.map(t => t.title.toLowerCase());
+      const existingKeywords = existingTopics.flatMap(t => 
+        t.keywords?.toLowerCase().split(',').map(k => k.trim()) || []
+      );
+
+      console.log(`🤖 Generating ${count} new blog topics using AI...`);
+
+      const prompt = `Generate ${count} unique, valuable blog post topics for a legal document analysis website called ReadMyFinePrint. The site helps people understand contracts, terms of service, and legal documents.
+
+AVOID these existing topics: ${existingTitles.slice(0, 10).join(', ')}
+AVOID these existing keywords: ${existingKeywords.slice(0, 20).join(', ')}
+
+Categories to use: contract-law, employment-law, intellectual-property, privacy-law, business-law, consumer-rights, real-estate-law, contract-negotiation, legal-tech
+
+Target audiences: general, business-owners, legal-professionals, consumers, entrepreneurs
+
+Difficulty levels: beginner, intermediate, advanced
+
+Create diverse, SEO-friendly topics that would genuinely help people understand legal documents. Focus on practical, actionable content.
+
+Return a JSON array with this exact structure:
+[
+  {
+    "title": "Clear, compelling title under 80 characters",
+    "description": "Brief description of what the post will cover (100-150 characters)", 
+    "category": "one of the categories above",
+    "difficulty": "beginner/intermediate/advanced",
+    "keywords": "3-5 relevant keywords, comma-separated",
+    "targetAudience": "one of the target audiences above",
+    "priority": number between 1-10 (higher = more important)
+  }
+]
+
+Make topics diverse across categories, difficulties, and audiences. Ensure titles are unique and compelling.`;
+
+      const response = await this.openai.chat.completions.create({
+        model: 'gpt-4o',
+        messages: [
+          {
+            role: 'system', 
+            content: 'You are an expert legal content strategist who creates valuable, unique blog topics. Always respond with valid JSON only.'
+          },
+          {
+            role: 'user',
+            content: prompt
+          }
+        ],
+        temperature: 0.8, // Higher creativity for topic generation
+        max_tokens: 4000,
+      });
+
+      const content = response.choices[0].message.content;
+      if (!content) throw new Error('No content generated');
+
+      // Parse JSON response
+      let generatedTopics;
+      try {
+        // Handle markdown-wrapped JSON
+        const cleanContent = content.replace(/```json\n?|\n?```/g, '').trim();
+        generatedTopics = JSON.parse(cleanContent);
+      } catch (parseError) {
+        console.error('Failed to parse AI response:', content);
+        throw new Error('Invalid JSON response from AI');
+      }
+
+      if (!Array.isArray(generatedTopics)) {
+        throw new Error('AI response is not an array');
+      }
+
+      // Filter out any topics that are too similar to existing ones
+      const filteredTopics = generatedTopics.filter(topic => {
+        const titleLower = topic.title.toLowerCase();
+        const topicKeywords = topic.keywords?.toLowerCase().split(',').map((k: string) => k.trim()) || [];
+        
+        // Check for title similarity
+        const isTitleSimilar = existingTitles.some(existing => {
+          const titleWords = titleLower.split(' ').filter((w: string) => w.length > 3);
+          const existingWords = existing.split(' ').filter((w: string) => w.length > 3);
+          const overlap = titleWords.filter((w: string) => existingWords.includes(w)).length;
+          return overlap > titleWords.length * 0.4;
+        });
+
+        // Check for keyword overlap
+        const keywordOverlap = topicKeywords.filter((k: string) => existingKeywords.includes(k)).length;
+        const isKeywordSimilar = keywordOverlap > topicKeywords.length * 0.6;
+
+        return !isTitleSimilar && !isKeywordSimilar;
+      });
+
+      console.log(`✅ Generated ${generatedTopics.length} topics, ${filteredTopics.length} unique after filtering`);
+
+      // Insert filtered topics into database
+      const insertedTopics = [];
+      for (const topic of filteredTopics) {
+        try {
+          const [insertedTopic] = await db.insert(blogTopics).values({
+            title: topic.title,
+            description: topic.description,
+            category: topic.category,
+            difficulty: topic.difficulty,
+            keywords: topic.keywords,
+            targetAudience: topic.targetAudience,
+            priority: topic.priority,
+            isUsed: false,
+          }).returning();
+          
+          insertedTopics.push(insertedTopic);
+        } catch (error) {
+          console.error(`Failed to insert topic "${topic.title}":`, error);
+        }
+      }
+
+      console.log(`📝 Successfully inserted ${insertedTopics.length} new topics`);
+
+      return { 
+        success: true, 
+        topics: insertedTopics 
+      };
+      
+    } catch (error) {
+      console.error('Error generating bulk topics:', error);
+      return { 
+        success: false, 
+        error: error instanceof Error ? error.message : 'Unknown error' 
+      };
+    }
+  }
+
+  // Enhanced seed topics with better diversity
   async seedTopics() {
     try {
       await db;
       
+      // Check if we already have topics
+      const existingCount = await db
+        .select({ count: sql`count(*)` })
+        .from(blogTopics);
+      
+      if (existingCount[0]?.count > 0) {
+        console.log('Topics already exist, using generateBulkTopics instead');
+        return await this.generateBulkTopics(15);
+      }
+
       const topics = [
         {
           title: "Understanding Non-Disclosure Agreements: A Complete Guide",
@@ -696,9 +943,11 @@ Return: {"title":"","excerpt":"","metaTitle":"","metaDescription":"","keywords":
         }
       }
 
-      console.log('Topics seeded successfully');
+      console.log('Initial topics seeded successfully');
+      return { success: true, topics };
     } catch (error) {
       console.error('Error seeding topics:', error);
+      return { success: false, error: error instanceof Error ? error.message : 'Unknown error' };
     }
   }
 }

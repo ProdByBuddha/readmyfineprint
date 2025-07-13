@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -16,7 +16,8 @@ import {
   Calendar,
   AlertTriangle,
   ChevronDown,
-  ChevronUp
+  ChevronUp,
+  Crown
 } from 'lucide-react';
 import type { PIIRedactionInfo, PIIMatch } from '@shared/schema';
 
@@ -28,6 +29,58 @@ interface PIIRedactionInfoProps {
 export function PIIRedactionInfoComponent({ redactionInfo, className = '' }: PIIRedactionInfoProps) {
   const [showDetails, setShowDetails] = useState(false);
   const [showRedactedValues, setShowRedactedValues] = useState(false);
+  const [hasProfessionalAccess, setHasProfessionalAccess] = useState(false);
+
+  // Check user's tier on component mount
+  useEffect(() => {
+    const checkUserTier = async () => {
+      try {
+        const subscriptionToken = localStorage.getItem('subscriptionToken');
+        if (!subscriptionToken) {
+          setHasProfessionalAccess(false);
+          return;
+        }
+
+        const response = await fetch('/api/user/subscription', {
+          headers: {
+            'x-subscription-token': subscriptionToken,
+          },
+          credentials: 'include'
+        });
+
+        if (response.ok) {
+          const data = await response.json();
+          const tier = data.subscription?.tierId || 'free';
+          
+          // Professional tier or higher (professional, business, enterprise, ultimate)
+          const professionalTiers = ['professional', 'business', 'enterprise', 'ultimate'];
+          setHasProfessionalAccess(professionalTiers.includes(tier));
+        } else {
+          setHasProfessionalAccess(false);
+        }
+      } catch (error) {
+        console.error('Error checking user tier:', error);
+        setHasProfessionalAccess(false);
+      }
+    };
+
+    checkUserTier();
+  }, []);
+
+  // For non-Professional users, show a simple message about analysis completion
+  if (!hasProfessionalAccess) {
+    return (
+      <Alert className={`bg-green-50 dark:bg-green-900/20 border-green-200 dark:border-green-800 ${className}`}>
+        <Shield className="h-4 w-4 text-green-600" />
+        <AlertDescription className="text-green-700 dark:text-green-300">
+          <span className="font-medium">Document analyzed successfully.</span> Your document has been processed safely.
+          {' '}<span className="text-xs">
+            (Enhanced PII protection details available with <a href="/subscription" className="underline hover:no-underline">Professional tier</a>)
+          </span>
+        </AlertDescription>
+      </Alert>
+    );
+  }
 
   if (!redactionInfo.hasRedactions) {
     return (

@@ -23,15 +23,13 @@ export const SUBSCRIPTION_TIERS: SubscriptionTier[] = [
     monthlyPrice: 0,
     yearlyPrice: 0,
     features: [
-      "Unlimited document analysis",
       "Analysis with GPT-4o-mini",
       "Standard rate limiting (lower priority)",
       "Email support",
-      "Enterprise-grade security",
       "Full document insights"
     ],
     limits: {
-      documentsPerMonth: -1, // -1 indicates unlimited
+      documentsPerMonth: 10, // Individual limit for free tier users
       tokensPerDocument: 16000,
       prioritySupport: false,
       advancedAnalysis: false,
@@ -51,17 +49,15 @@ export const SUBSCRIPTION_TIERS: SubscriptionTier[] = [
     name: "Starter",
     description: "For individuals and teams who need faster processing with advanced AI",
     model: "gpt-4.1-mini",
-    monthlyPrice: 15, // For unlimited GPT-4.1-mini with priority processing
+    monthlyPrice: 15, // For 50 documents/month with GPT-4.1-mini
     yearlyPrice: 150, // Save $30 per year
     features: [
-      "Unlimited document analysis",
       "Enhanced analysis with GPT-4.1-mini",
       "Priority rate limiting (faster processing)",
-      "Email support",
-      "Enterprise-grade security"
+      "Email support"
     ],
     limits: {
-      documentsPerMonth: -1, // unlimited
+      documentsPerMonth: 50, // 50 documents per month
       tokensPerDocument: 128000, // GPT-4.1-mini context limit
       prioritySupport: false,
       advancedAnalysis: true,
@@ -84,7 +80,6 @@ export const SUBSCRIPTION_TIERS: SubscriptionTier[] = [
     monthlyPrice: 75, // 5x profit: ($0.02 * 200 docs * 5) = $0.20, but higher for premium features
     yearlyPrice: 750, // 2 months free
     features: [
-      "200 document analyses per month",
       "Premium analysis with GPT-4o",
       "Priority processing",
       "Priority email & chat support",
@@ -117,7 +112,6 @@ export const SUBSCRIPTION_TIERS: SubscriptionTier[] = [
     monthlyPrice: 250, // 5x profit on model costs + premium for features
     yearlyPrice: 2500, // 2 months free
     features: [
-      "500 document analyses per month",
       "Advanced analysis with GPT-4-Turbo",
       "Fastest processing priority",
       "24/7 priority support",
@@ -152,7 +146,6 @@ export const SUBSCRIPTION_TIERS: SubscriptionTier[] = [
     monthlyPrice: 500, // 5x profit on model costs + premium enterprise features
     yearlyPrice: 5000, // 2 months free
     features: [
-      "1000+ document analyses per month",
       "Most advanced analysis with o1-preview",
       "Maximum reasoning capability",
       "Dedicated account manager",
@@ -213,7 +206,7 @@ export const SUBSCRIPTION_TIERS: SubscriptionTier[] = [
       costPerDocument: 0.00, // No cost for admin tier
     },
     popular: false,
-    adminOnly: true // Mark as admin-only tier
+    adminOnly: false // Mark as admin-only tier
   }
 ];
 

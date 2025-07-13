@@ -69,9 +69,17 @@ export class HybridTokenService {
 
     // Detect token type by format
     if (this.isJOSEToken(token)) {
-      return await this.validateJOSEToken(token);
+      const result = await this.validateJOSEToken(token);
+      if (result && !result.userId) {
+        console.warn('🔍 JOSE token validation returned result with undefined userId:', result);
+      }
+      return result;
     } else if (this.isPostgreSQLToken(token)) {
-      return await this.validatePostgreSQLToken(token);
+      const result = await this.validatePostgreSQLToken(token);
+      if (result && !result.userId) {
+        console.warn('🔍 PostgreSQL token validation returned result with undefined userId:', result);
+      }
+      return result;
     } else {
       console.warn('🔍 Unknown token format:', token.slice(0, 20) + '...');
       return null;

@@ -346,7 +346,7 @@ export class SubscriptionService {
     suggestedUpgrade?: SubscriptionTier;
   }> {
     try {
-      // Special handling for collective free user
+      // Special handling for collective free user (admin/system use only)
       if (userId === '00000000-0000-0000-0000-000000000001') {
         const tier = this.getFreeTier();
         return {
@@ -362,18 +362,38 @@ export class SubscriptionService {
         };
       }
 
-      // Check if this is a session ID (not a real user) - handle as free tier session user
-      if (userId.length === 32 || userId.includes('session_') || !userId.includes('-')) {
+      // Check if userId is invalid or this is a session ID (not a real user) - handle as free tier session user
+      if (!userId || userId.length === 32 || userId.includes('session_') || userId.startsWith('test-session-') || !userId.includes('-')) {
+        if (!userId) {
+          console.warn(`⚠️ getUserSubscriptionWithUsage called with undefined userId`);
+        }
         console.log(`📊 Session-based user detected (${userId}), providing free tier without subscription record`);
         const tier = this.getFreeTier();
+        
+        // For anonymous users, get individual usage from collective user service
+        const currentPeriod = new Date().toISOString().slice(0, 7); // YYYY-MM format
+        let individualUsage = 0;
+        
+        try {
+          // Get individual usage from collective user service
+          individualUsage = await collectiveUserService.getIndividualMonthlyUsage(userId, currentPeriod);
+        } catch (error) {
+          console.error('Error getting individual anonymous user usage:', error);
+          individualUsage = 0;
+        }
+        
+        const usage = {
+          documentsAnalyzed: individualUsage,
+          tokensUsed: 0, // Not tracked individually
+          cost: 0, // Not tracked individually  
+          resetDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
+        };
+        
+        console.log(`📊 Individual anonymous user (${userId}) usage: ${usage.documentsAnalyzed} documents analyzed this month`);
+        
         return {
           tier,
-          usage: {
-            documentsAnalyzed: 0,
-            tokensUsed: 0,
-            cost: 0,
-            resetDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
-          },
+          usage,
           canUpgrade: true,
           suggestedUpgrade: this.getStarterTier(),
         };
@@ -1044,13 +1064,13 @@ export class SubscriptionService {
     ipAddress: string;
   }): Promise<void> {
     try {
-      // Route anonymous/session users through collective free tier user with enhanced tracking
+      // Route anonymous/session users through collective free tier user with individual tracking
       let trackingUserId = userId;
       
-      if (userId === "anonymous" || userId.startsWith('session_')) {
+      if (userId === "anonymous" || userId.startsWith('session_') || userId.startsWith('test-session-') || userId.length === 32) {
         trackingUserId = '00000000-0000-0000-0000-000000000001';
         
-        // Track usage through collective user service if session data is available
+        // Track usage through collective user service with individual tracking
         if (sessionData) {
           await collectiveUserService.trackDocumentAnalysis(
             sessionData.sessionId,
@@ -1058,9 +1078,12 @@ export class SubscriptionService {
             sessionData.ipAddress,
             tokensUsed
           );
+          
+          // Also track individual usage for monthly limits
+          await collectiveUserService.trackIndividualMonthlyUsage(userId, 1);
         }
         
-        console.log(`📊 Routing anonymous usage tracking through collective free tier user`);
+        console.log(`📊 Routing anonymous usage tracking through collective free tier user with individual tracking`);
       } else {
         // Check if authenticated user exists in database
         const userExists = await databaseStorage.userExists(userId);
@@ -1076,6 +1099,9 @@ export class SubscriptionService {
               sessionData.ipAddress,
               tokensUsed
             );
+            
+            // Also track individual usage for monthly limits
+            await collectiveUserService.trackIndividualMonthlyUsage(userId, 1);
           }
         }
       }

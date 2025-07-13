@@ -157,7 +157,15 @@ export class SessionStorage {
 
     if (!session) return undefined;
     session.lastAccessed = new Date();
-    return session.documents.get(id);
+    const document = session.documents.get(id);
+    if (document) {
+      console.log(`📋 Retrieved document ${id}: hasAnalysis=${!!document.analysis}, analysisType=${typeof document.analysis}`);
+      if (document.analysis) {
+        const analysisKeys = Object.keys(document.analysis);
+        console.log(`📋 Analysis keys: ${analysisKeys.join(', ')}`);
+      }
+    }
+    return document;
   }
 
   async getAllDocuments(sessionId: string): Promise<Document[]> {
@@ -194,6 +202,7 @@ export class SessionStorage {
       session.documents.set(id, updatedDocument);
       session.lastAccessed = new Date();
       console.log(`✅ Document ${id} analysis updated in session ${actualSessionId}${redactionInfo?.hasRedactions ? ' (with PII redactions)' : ''}`);
+      console.log(`💾 Saved analysis type: ${typeof analysis}, keys: ${analysis ? Object.keys(analysis).join(', ') : 'none'}`);
       return updatedDocument;
     }
     return undefined;

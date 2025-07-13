@@ -1,5 +1,5 @@
 import { Link } from "wouter";
-import { Heart, Cookie, Share2 } from "lucide-react";
+import { Heart, Cookie, Share2, Target } from "lucide-react";
 import { CookieManagement } from "@/components/CookieManagement";
 import { useToast } from "@/hooks/use-toast";
 
@@ -99,6 +99,9 @@ export function Footer() {
             <Link to="/donate" className="text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 flex items-center flex-shrink-0 h-4">
               <Heart className="w-2 h-2 mr-0.5 text-red-500" />Donate
             </Link>
+            <Link to="/roadmap" className="text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 flex items-center flex-shrink-0 h-4">
+              <Target className="w-2 h-2 mr-0.5 text-purple-500" />Roadmap
+            </Link>
             <button
               onClick={handleShareClick}
               className="text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 flex items-center flex-shrink-0 h-4"
@@ -106,6 +109,7 @@ export function Footer() {
               <Share2 className="w-2 h-2 mr-0.5" />Share
             </button>
             <a href="mailto:admin@readmyfineprint.com" className="text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 flex-shrink-0 flex items-center h-4">Contact</a>
+            {/* <a href="/contact.vcf" className="text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 flex-shrink-0 flex items-center h-4" title="Download Contact Card">vCard</a> */}
           </div>
         </div>
       </div>
@@ -152,6 +156,13 @@ export function Footer() {
               <Heart className="w-3 h-3 mr-1 text-red-500" aria-hidden="true" />
               Donate
             </Link>
+            <Link
+              to="/roadmap"
+              className="text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white transition-all duration-300 ease-in-out inline-flex items-center"
+            >
+              <Target className="w-3 h-3 mr-1 text-purple-500" aria-hidden="true" />
+              Roadmap
+            </Link>
             <button
               onClick={handleShareClick}
               className="text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white transition-all duration-300 ease-in-out inline-flex items-center"
@@ -165,6 +176,13 @@ export function Footer() {
             >
               Contact
             </a>
+            {/* <a
+              href="/contact.vcf"
+              className="text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white transition-all duration-300 ease-in-out"
+              title="Download Contact Card with Logo"
+            >
+              vCard
+            </a> */}
           </div>
 
         </div>

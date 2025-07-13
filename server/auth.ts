@@ -191,18 +191,41 @@ export async function requireUserAuth(req: Request, res: Response, next: NextFun
 export async function requireAdminViaSubscription(req: Request, res: Response, next: NextFunction) {
   try {
     const { ip, userAgent } = getClientInfo(req);
-    const subscriptionToken = req.headers['x-subscription-token'] as string;
+    let subscriptionToken = req.headers['x-subscription-token'] as string;
+    let tokenData: any = null;
 
-    if (!subscriptionToken) {
-      return res.status(401).json({ error: 'Admin subscription token required' });
+    // First try to get token from header
+    if (subscriptionToken) {
+      const { hybridTokenService } = await import("./hybrid-token-service");
+      tokenData = await hybridTokenService.validateSubscriptionToken(subscriptionToken);
     }
 
-    // Validate the subscription token first
-    const { hybridTokenService } = await import("./hybrid-token-service");
-    const tokenData = await hybridTokenService.validateSubscriptionToken(subscriptionToken);
+    // If no header token or invalid, try cookie session
+    if (!tokenData) {
+      const sessionId = req.cookies?.sessionId;
+      if (sessionId) {
+        try {
+          const { postgresqlSessionStorage } = await import('./postgresql-session-storage');
+          const token = await postgresqlSessionStorage.getTokenBySession(sessionId);
+          
+          if (token) {
+            const { hybridTokenService } = await import("./hybrid-token-service");
+            tokenData = await hybridTokenService.validateSubscriptionToken(token);
+            subscriptionToken = token; // Use the token from session
+          }
+        } catch (sessionError) {
+          console.error('Session validation error:', sessionError);
+        }
+      }
+    }
 
     if (!tokenData) {
       return res.status(401).json({ error: 'Invalid subscription token' });
+    }
+
+    if (!tokenData.userId) {
+      console.error('Token validation successful but userId is undefined:', tokenData);
+      return res.status(401).json({ error: 'Invalid token: missing user ID' });
     }
 
     // Try to get user from database, but handle connection failures gracefully

@@ -48,7 +48,7 @@ export async function sessionFetch(url: string, options: RequestInit = {}): Prom
     // Merge session ID into headers to ensure consistency
     const headers = {
       ...options.headers as Record<string, string> || {},
-      'X-Session-ID': sessionId,
+      'x-session-id': sessionId,
     };
     
     const finalOptions: RequestInit = {
@@ -62,7 +62,7 @@ export async function sessionFetch(url: string, options: RequestInit = {}): Prom
   } else {
     // For safe methods, just add session ID
     const headers = new Headers(options.headers || {});
-    headers.set('X-Session-ID', sessionId);
+    headers.set('x-session-id', sessionId);
     
     const finalOptions: RequestInit = {
       ...options,

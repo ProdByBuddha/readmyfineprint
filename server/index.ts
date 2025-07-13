@@ -20,6 +20,7 @@ logEnvironmentStatus();
 import { subscriptionService } from './subscription-service';
 import { initializeDatabase } from './db-init';
 import { blogScheduler } from './blog-scheduler.js';
+import { viewDripService } from './view-drip-service.js';
 
 const app = express();
 
@@ -402,19 +403,11 @@ app.use(verifyCsrfToken);
 
   // Initialize sample documents for demo purposes in development mode
   if (process.env.NODE_ENV === 'development') {
-    console.log('🔧 Initializing sample documents for demo...');
-    try {
-      const { databaseStorage } = await import('./storage');
-      databaseStorage.initializeSampleDocuments();
-      console.log('✅ Sample documents initialized');
-    } catch (error) {
-      console.warn('⚠️ Warning: Failed to initialize sample documents:', error);
-      // Don't fail server startup for this
-    }
+    // Note: Sample documents initialization removed (not needed for production)
   }
 
   // Add health check endpoint
-  app.get('/health', async (req, res) => {
+  app.get('/health', async (_req, res) => {
     try {
       // Database health check with original setup
       let dbHealthy = true;
@@ -444,7 +437,7 @@ app.use(verifyCsrfToken);
       };
 
       // Overall health check
-      const isHealthy = dbStatus.circuitBreakers.neon.isHealthy || dbStatus.circuitBreakers.local.isHealthy;
+      const isHealthy = dbHealthy;
       
       res.status(isHealthy ? 200 : 503).json(healthStatus);
     } catch (error) {
@@ -595,6 +588,14 @@ app.use(verifyCsrfToken);
             console.log('✅ Blog scheduler initialized');
           } catch (error) {
             console.warn('⚠️ Blog scheduler failed to start:', error);
+          }
+
+          // Start view drip service
+          try {
+            viewDripService.start();
+            console.log('✅ View drip service initialized');
+          } catch (error) {
+            console.warn('⚠️ View drip service failed to start:', error);
           }
           
           // Auto-login as admin in development mode

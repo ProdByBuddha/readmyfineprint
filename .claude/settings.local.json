@@ -34,7 +34,11 @@
       "Bash(awk:*)",
       "Bash(mkdir:*)",
       "Bash(git commit:*)",
-      "Bash(timeout 30s npm run dev)"
+      "Bash(timeout 30s npm run dev)",
+      "Bash(npx drizzle-kit:*)",
+      "mcp__ide__getDiagnostics",
+      "Bash(ss:*)",
+      "Bash(timeout:*)"
     ],
     "deny": []
   }

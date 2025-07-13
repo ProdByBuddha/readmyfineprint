@@ -1,0 +1,5 @@
+# Lightweight LLM dependencies for Replit
+# These are optional - the server will fallback to regex if not available
+transformers>=4.21.0
+torch>=1.9.0
+numpy>=1.21.0
