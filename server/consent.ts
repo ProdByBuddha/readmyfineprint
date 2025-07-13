@@ -29,9 +29,11 @@ class ConsentLogger {
   constructor() {
     this.masterKey = process.env.CONSENT_MASTER_KEY || 'readmyfineprint-master-2024';
     
-    // Check if we're in development mode
-    if (process.env.NODE_ENV === 'development' || process.env.USE_DB_FALLBACK === 'true') {
+    // Check if we're in development mode (only NODE_ENV, not database fallback)
+    if (process.env.NODE_ENV === 'development') {
       console.log('⚠️ Consent logging initialized in development mode (database operations will be bypassed)');
+    } else if (process.env.USE_DB_FALLBACK === 'true') {
+      console.log('⚠️ Consent logging using database fallback mode');
     } else {
       console.log('✓ Consent logging enabled with PostgreSQL database');
     }

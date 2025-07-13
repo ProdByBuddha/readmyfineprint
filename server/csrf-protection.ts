@@ -32,8 +32,10 @@ class CSRFProtection {
     this.tokenStore = new Map();
 
     // Check if we're in development mode
-    if (process.env.NODE_ENV === 'development' || process.env.USE_DB_FALLBACK === 'true') {
+    if (process.env.NODE_ENV === 'development') {
       console.log('⚠️ CSRF Protection initialized in development mode (verification will be bypassed)');
+    } else if (process.env.USE_DB_FALLBACK === 'true') {
+      console.log('⚠️ CSRF Protection using database fallback mode');
     } else {
       console.log('🔒 CSRF Protection enabled');
     }
