@@ -26,7 +26,7 @@ export async function checkAndRunMigrations() {
     `;
     
     const existingColumns = await db.execute(checkColumnsQuery);
-    const existingColumnNames = new Set(existingColumns.rows.map(row => row.column_name));
+    const existingColumnNames = new Set(existingColumns.rows.map((row: any) => row.column_name));
     
     let migrationsRun = 0;
     

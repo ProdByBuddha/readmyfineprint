@@ -1621,6 +1621,74 @@ export function registerAdminRoutes(app: Express) {
     }
   });
 
+  /**
+   * Send Alert Email - For production monitoring alerts
+   * Admin-only endpoint for sending monitoring alerts
+   */
+  app.post("/api/admin/send-alert-email", requireAdminAuth, async (req: Request, res: Response) => {
+    try {
+      const { to, subject, text, html } = req.body;
+      
+      // Validate required fields
+      if (!to || !subject || !text) {
+        return res.status(400).json({ 
+          error: "Missing required fields: to, subject, text are required" 
+        });
+      }
+
+      // Validate email format
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!emailRegex.test(to)) {
+        return res.status(400).json({ 
+          error: "Invalid email format" 
+        });
+      }
+
+      // Log the alert email attempt
+      const { ip, userAgent } = getClientInfo(req);
+      securityLogger.logSecurityEvent({
+        eventType: SecurityEventType.ADMIN_ACTION,
+        severity: SecuritySeverity.LOW,
+        message: `Admin sending alert email to ${to}`,
+        ip,
+        userAgent,
+        endpoint: req.path,
+        details: { 
+          recipient: to,
+          subject: subject.substring(0, 100) // Log first 100 chars of subject
+        }
+      });
+
+      // Send the email using the existing email service
+      const result = await emailService.sendEmail({
+        to,
+        subject,
+        text,
+        html: html || text.replace(/\n/g, '<br>')
+      });
+
+      if (result) {
+        console.log(`📧 Alert email sent successfully to ${to}`);
+        res.json({ 
+          success: true, 
+          message: "Alert email sent successfully"
+        });
+      } else {
+        console.error(`❌ Failed to send alert email to ${to}`);
+        res.status(500).json({ 
+          error: "Failed to send alert email"
+        });
+      }
+
+    } catch (error) {
+      console.error("Send alert email error:", error);
+      res.status(500).json({ 
+        error: "Failed to send alert email",
+        details: error instanceof Error ? error.message : "Unknown error"
+      });
+    }
+  });
+
 }
 
 // Helper functions for system health checks
@@ -1748,75 +1816,5 @@ async function getAnalyticsData(timeframe: string) {
       error: error instanceof Error ? error.message : 'Unknown error'
     };
   }
-
-  /**
-   * Send Alert Email - For production monitoring alerts
-   * Admin-only endpoint for sending monitoring alerts
-   */
-  app.post("/api/admin/send-alert-email", requireAdminAuth, async (req: Request, res: Response) => {
-    try {
-      const { to, subject, text, html } = req.body;
-      
-      // Validate required fields
-      if (!to || !subject || !text) {
-        return res.status(400).json({ 
-          error: "Missing required fields: to, subject, text are required" 
-        });
-      }
-
-      // Validate email format
-      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-      if (!emailRegex.test(to)) {
-        return res.status(400).json({ 
-          error: "Invalid email format" 
-        });
-      }
-
-      // Log the alert email attempt
-      const { ip, userAgent } = getClientInfo(req);
-      securityLogger.logSecurityEvent({
-        eventType: SecurityEventType.ADMIN_ACTION,
-        severity: SecuritySeverity.LOW,
-        message: `Admin sending alert email to ${to}`,
-        ip,
-        userAgent,
-        endpoint: req.path,
-        details: { 
-          recipient: to,
-          subject: subject.substring(0, 100) // Log first 100 chars of subject
-        }
-      });
-
-      // Send the email using the existing email service
-      const result = await emailService.sendEmail({
-        to,
-        subject,
-        text,
-        html: html || text.replace(/\n/g, '<br>')
-      });
-
-      if (result.success) {
-        console.log(`📧 Alert email sent successfully to ${to}`);
-        res.json({ 
-          success: true, 
-          message: "Alert email sent successfully",
-          messageId: result.messageId
-        });
-      } else {
-        console.error(`❌ Failed to send alert email to ${to}:`, result.error);
-        res.status(500).json({ 
-          error: "Failed to send alert email",
-          details: result.error 
-        });
-      }
-
-    } catch (error) {
-      console.error("Send alert email error:", error);
-      res.status(500).json({ 
-        error: "Failed to send alert email",
-        details: error instanceof Error ? error.message : "Unknown error"
-      });
-    }
-  });
 
 }
