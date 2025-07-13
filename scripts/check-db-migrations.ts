@@ -26,7 +26,24 @@ export async function checkAndRunMigrations() {
     `;
     
     const existingColumns = await db.execute(checkColumnsQuery);
-    const existingColumnNames = new Set(existingColumns.rows.map((row: any) => row.column_name));
+    
+    // Handle different result structures (real DB vs mock DB)
+    let existingColumnNames: Set<string>;
+    
+    if (existingColumns && Array.isArray(existingColumns)) {
+      // Direct array result (some database drivers)
+      existingColumnNames = new Set(existingColumns.map((row: any) => row.column_name));
+    } else if (existingColumns && existingColumns.rows && Array.isArray(existingColumns.rows)) {
+      // Result with .rows property (postgres-js)
+      existingColumnNames = new Set(existingColumns.rows.map((row: any) => row.column_name));
+    } else if (existingColumns && existingColumns.length === 0) {
+      // Empty result (mock database or no columns)
+      existingColumnNames = new Set();
+    } else {
+      // Fallback: assume no existing columns
+      console.log('⚠️ Unable to determine existing columns, assuming none exist');
+      existingColumnNames = new Set();
+    }
     
     let migrationsRun = 0;
     
