@@ -417,7 +417,7 @@ body {
 
 @layer base {
   * {
-    @apply border;
+    border-color: var(--border);
   }
 
   body {
