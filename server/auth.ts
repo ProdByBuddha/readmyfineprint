@@ -140,6 +140,7 @@ export async function optionalUserAuth(req: Request, res: Response, next: NextFu
               email: user.email,
             };
             console.log(`🔑 User authenticated via secure JWT: ${user.email} (${user.id})`);
+            return next();
           }
         } else if (validation.expired) {
           // Token is expired, could suggest refresh
@@ -152,9 +153,40 @@ export async function optionalUserAuth(req: Request, res: Response, next: NextFu
       }
     }
 
-    // REMOVED: Insecure fallback authentication methods
-    // No longer supporting header-based auth or session fallbacks
+    // Fallback to session-based authentication (like /api/auth/session does)
+    const sessionId = req.cookies?.sessionId;
+    if (sessionId) {
+      try {
+        console.log('🔍 Checking session-based authentication...');
+        
+        // Get token from database using the same logic as /api/auth/session
+        const { postgresqlSessionStorage } = await import('./postgresql-session-storage');
+        const token = await postgresqlSessionStorage.getTokenBySession(sessionId);
+        
+        if (token) {
+          // Validate the token using hybrid token service
+          const { hybridTokenService } = await import('./hybrid-token-service');
+          const tokenData = await hybridTokenService.validateSubscriptionToken(token);
+          
+          if (tokenData && tokenData.userId) {
+            // Get user data from database
+            const user = await databaseStorage.getUser(tokenData.userId);
+            if (user) {
+              req.user = {
+                id: user.id,
+                email: user.email,
+              };
+              console.log(`🔑 User authenticated via session: ${user.email} (${user.id})`);
+              return next();
+            }
+          }
+        }
+      } catch (sessionError) {
+        console.log('Error validating session:', sessionError instanceof Error ? sessionError.message : 'Unknown error');
+      }
+    }
 
+    // No authentication found, continue without user
     next();
   } catch (error) {
     console.error('Error in user authentication middleware:', error);

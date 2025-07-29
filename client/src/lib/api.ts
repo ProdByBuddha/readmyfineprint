@@ -196,8 +196,7 @@ export async function analyzeDocument(id: number): Promise<Document> {
   }
 
   const response = await apiRequest('POST', `/api/documents/${id}/analyze`, {
-    headers,
-    credentials: 'include' // This sends httpOnly cookies automatically
+    headers
   });
 
   return response.json();

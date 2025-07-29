@@ -101,8 +101,8 @@ const ENV_VARIABLES: EnvConfig[] = [
   {
     name: 'NODE_ENV',
     required: false,
-    description: 'Node environment (development, production)',
-    validator: (value) => ['development', 'production', 'test'].includes(value)
+    description: 'Node environment (development, staging, production)',
+    validator: (value) => ['development', 'staging', 'production', 'test'].includes(value)
   },
   {
     name: 'SESSION_ENCRYPTION_KEY',
@@ -136,6 +136,7 @@ export function validateEnvironment(): ValidationResult {
   const warnings: string[] = [];
   const config: Record<string, string> = {};
   const isProduction = process.env.NODE_ENV === 'production';
+  const isStaging = process.env.NODE_ENV === 'staging';
 
   if (!isProduction) {
     console.log('🔍 Validating environment variables...');
@@ -175,10 +176,17 @@ export function validateEnvironment(): ValidationResult {
     }
   }
 
-  // Special validation for production environment
+  // Special validation for production and staging environments
   if (process.env.NODE_ENV === 'production') {
     if (process.env.ALLOWED_ORIGINS?.includes('localhost')) {
       warnings.push('⚠️  ALLOWED_ORIGINS includes localhost in production environment');
+    }
+  }
+  
+  if (isStaging) {
+    console.log('🚧 Running in staging environment');
+    if (process.env.ALLOWED_ORIGINS?.includes('localhost')) {
+      warnings.push('⚠️  ALLOWED_ORIGINS includes localhost in staging environment');
     }
   }
 

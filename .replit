@@ -18,7 +18,7 @@ MONITORING_EMAIL_RECIPIENT = "prodbybuddha@icloud.com"
 MONITORING_EMAIL_SUBJECT = "ReadMyFinePrint Production Alert"
 
 [workflows]
-runButton = "Start Dev + PII LLM"
+runButton = "Full CI/CD Test"
 
 [[workflows.workflow]]
 name = "Project"
@@ -55,6 +55,79 @@ author = 30822729
 [[workflows.workflow.tasks]]
 task = "shell.exec"
 args = "npm run blog:setup"
+
+[[workflows.workflow]]
+name = "Deploy Staging"
+mode = "sequential"
+author = 30822729
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "npm run deploy:staging"
+
+[[workflows.workflow]]
+name = "Full CI/CD Test"
+mode = "sequential"
+author = 30822729
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "echo '🔍 Running linting...'"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "npm run lint"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "echo '🔍 Running type check...'"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "npm run check"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "echo '🔍 Running security validation...'"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "npm run security:verify"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "echo '🏗️ Building application...'"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "npm run build"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "echo '🔍 Running health checks...'"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "npm run test:integration"
+
+[[workflows.workflow]]
+name = "Quick Health Check"
+mode = "sequential"
+author = 30822729
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "npm run monitor"
+
+[[workflows.workflow]]
+name = "Staging Test"
+mode = "sequential"
+author = 30822729
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "npm run dev:staging"
+waitForPort = 5000
 
 [[ports]]
 localPort = 3000

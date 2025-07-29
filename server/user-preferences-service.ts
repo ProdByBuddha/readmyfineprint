@@ -64,12 +64,14 @@ export class UserPreferencesService {
         return preference.preferenceValue;
       }
     } catch (error) {
-      securityLogger.logSecurityEvent(
-        SecurityEventType.PREFERENCE_ACCESS_ERROR,
-        SecuritySeverity.MEDIUM,
-        'Failed to get user preference',
-        { userId, preferenceKey, error: error instanceof Error ? error.message : 'Unknown error' }
-      );
+      securityLogger.logSecurityEvent({
+        eventType: SecurityEventType.PREFERENCE_ACCESS_ERROR,
+        severity: SecuritySeverity.MEDIUM,
+        message: 'Failed to get user preference',
+        ip: '',
+        userAgent: '',
+        details: { userId, preferenceKey, error: error instanceof Error ? error.message : 'Unknown error' }
+      });
       throw error;
     }
   }
@@ -109,19 +111,23 @@ export class UserPreferencesService {
           }
         });
 
-      securityLogger.logSecurityEvent(
-        SecurityEventType.PREFERENCE_UPDATED,
-        SecuritySeverity.LOW,
-        'User preference updated',
-        { userId, preferenceKey, preferenceType: preferenceData.preferenceType }
-      );
+      securityLogger.logSecurityEvent({
+        eventType: SecurityEventType.PREFERENCE_UPDATED,
+        severity: SecuritySeverity.LOW,
+        message: 'User preference updated',
+        ip: '',
+        userAgent: '',
+        details: { userId, preferenceKey, preferenceType: preferenceData.preferenceType }
+      });
     } catch (error) {
-      securityLogger.logSecurityEvent(
-        SecurityEventType.PREFERENCE_UPDATE_ERROR,
-        SecuritySeverity.MEDIUM,
-        'Failed to set user preference',
-        { userId, preferenceKey, error: error instanceof Error ? error.message : 'Unknown error' }
-      );
+      securityLogger.logSecurityEvent({
+        eventType: SecurityEventType.PREFERENCE_UPDATE_ERROR,
+        severity: SecuritySeverity.MEDIUM,
+        message: 'Failed to set user preference',
+        ip: '',
+        userAgent: '',
+        details: { userId, preferenceKey, error: error instanceof Error ? error.message : 'Unknown error' }
+      });
       throw error;
     }
   }
@@ -165,12 +171,14 @@ export class UserPreferencesService {
 
       return preferences;
     } catch (error) {
-      securityLogger.logSecurityEvent(
-        SecurityEventType.PREFERENCE_ACCESS_ERROR,
-        SecuritySeverity.MEDIUM,
-        'Failed to get all user preferences',
-        { userId, error: error instanceof Error ? error.message : 'Unknown error' }
-      );
+      securityLogger.logSecurityEvent({
+        eventType: SecurityEventType.PREFERENCE_ACCESS_ERROR,
+        severity: SecuritySeverity.MEDIUM,
+        message: 'Failed to get all user preferences',
+        ip: '',
+        userAgent: '',
+        details: { userId, error: error instanceof Error ? error.message : 'Unknown error' }
+      });
       throw error;
     }
   }
@@ -193,19 +201,23 @@ export class UserPreferencesService {
           )
         );
 
-      securityLogger.logSecurityEvent(
-        SecurityEventType.PREFERENCE_DELETED,
-        SecuritySeverity.LOW,
-        'User preference deleted',
-        { userId, preferenceKey }
-      );
+      securityLogger.logSecurityEvent({
+        eventType: SecurityEventType.PREFERENCE_DELETED,
+        severity: SecuritySeverity.LOW,
+        message: 'User preference deleted',
+        ip: '',
+        userAgent: '',
+        details: { userId, preferenceKey }
+      });
     } catch (error) {
-      securityLogger.logSecurityEvent(
-        SecurityEventType.PREFERENCE_DELETE_ERROR,
-        SecuritySeverity.MEDIUM,
-        'Failed to delete user preference',
-        { userId, preferenceKey, error: error instanceof Error ? error.message : 'Unknown error' }
-      );
+      securityLogger.logSecurityEvent({
+        eventType: SecurityEventType.PREFERENCE_DELETE_ERROR,
+        severity: SecuritySeverity.MEDIUM,
+        message: 'Failed to delete user preference',
+        ip: '',
+        userAgent: '',
+        details: { userId, preferenceKey, error: error instanceof Error ? error.message : 'Unknown error' }
+      });
       throw error;
     }
   }
@@ -228,19 +240,23 @@ export class UserPreferencesService {
           )
         );
 
-      securityLogger.logSecurityEvent(
-        SecurityEventType.PREFERENCE_DELETED,
-        SecuritySeverity.LOW,
-        'Multiple user preferences deleted',
-        { userId, preferenceKeys }
-      );
+      securityLogger.logSecurityEvent({
+        eventType: SecurityEventType.PREFERENCE_DELETED,
+        severity: SecuritySeverity.LOW,
+        message: 'Multiple user preferences deleted',
+        ip: '',
+        userAgent: '',
+        details: { userId, preferenceKeys }
+      });
     } catch (error) {
-      securityLogger.logSecurityEvent(
-        SecurityEventType.PREFERENCE_DELETE_ERROR,
-        SecuritySeverity.MEDIUM,
-        'Failed to delete multiple user preferences',
-        { userId, preferenceKeys, error: error instanceof Error ? error.message : 'Unknown error' }
-      );
+      securityLogger.logSecurityEvent({
+        eventType: SecurityEventType.PREFERENCE_DELETE_ERROR,
+        severity: SecuritySeverity.MEDIUM,
+        message: 'Failed to delete multiple user preferences',
+        ip: '',
+        userAgent: '',
+        details: { userId, preferenceKeys, error: error instanceof Error ? error.message : 'Unknown error' }
+      });
       throw error;
     }
   }
@@ -258,19 +274,23 @@ export class UserPreferencesService {
         .delete(userPreferences)
         .where(eq(userPreferences.userId, userId));
 
-      securityLogger.logSecurityEvent(
-        SecurityEventType.PREFERENCE_DELETED,
-        SecuritySeverity.MEDIUM,
-        'All user preferences deleted',
-        { userId }
-      );
+      securityLogger.logSecurityEvent({
+        eventType: SecurityEventType.PREFERENCE_DELETED,
+        severity: SecuritySeverity.MEDIUM,
+        message: 'All user preferences deleted',
+        ip: '',
+        userAgent: '',
+        details: { userId }
+      });
     } catch (error) {
-      securityLogger.logSecurityEvent(
-        SecurityEventType.PREFERENCE_DELETE_ERROR,
-        SecuritySeverity.HIGH,
-        'Failed to delete all user preferences',
-        { userId, error: error instanceof Error ? error.message : 'Unknown error' }
-      );
+      securityLogger.logSecurityEvent({
+        eventType: SecurityEventType.PREFERENCE_DELETE_ERROR,
+        severity: SecuritySeverity.HIGH,
+        message: 'Failed to delete all user preferences',
+        ip: '',
+        userAgent: '',
+        details: { userId, error: error instanceof Error ? error.message : 'Unknown error' }
+      });
       throw error;
     }
   }
@@ -291,21 +311,25 @@ export class UserPreferencesService {
 
       const deletedCount = result.rowCount || 0;
 
-      securityLogger.logSecurityEvent(
-        SecurityEventType.PREFERENCE_CLEANUP,
-        SecuritySeverity.LOW,
-        'Expired preferences cleaned up',
-        { deletedCount }
-      );
+      securityLogger.logSecurityEvent({
+        eventType: SecurityEventType.PREFERENCE_CLEANUP,
+        severity: SecuritySeverity.LOW,
+        message: 'Expired preferences cleaned up',
+        ip: '',
+        userAgent: '',
+        details: { deletedCount }
+      });
 
       return deletedCount;
     } catch (error) {
-      securityLogger.logSecurityEvent(
-        SecurityEventType.PREFERENCE_CLEANUP_ERROR,
-        SecuritySeverity.MEDIUM,
-        'Failed to cleanup expired preferences',
-        { error: error instanceof Error ? error.message : 'Unknown error' }
-      );
+      securityLogger.logSecurityEvent({
+        eventType: SecurityEventType.PREFERENCE_CLEANUP_ERROR,
+        severity: SecuritySeverity.MEDIUM,
+        message: 'Failed to cleanup expired preferences',
+        ip: '',
+        userAgent: '',
+        details: { error: error instanceof Error ? error.message : 'Unknown error' }
+      });
       throw error;
     }
   }
@@ -358,19 +382,23 @@ export class UserPreferencesService {
 
       await Promise.all(migrations);
 
-      securityLogger.logSecurityEvent(
-        SecurityEventType.PREFERENCE_MIGRATION,
-        SecuritySeverity.LOW,
-        'localStorage data migrated to database',
-        { userId, migratedKeys: Object.keys(localStorageData) }
-      );
+      securityLogger.logSecurityEvent({
+        eventType: SecurityEventType.PREFERENCE_MIGRATION,
+        severity: SecuritySeverity.LOW,
+        message: 'localStorage data migrated to database',
+        ip: '',
+        userAgent: '',
+        details: { userId, migratedKeys: Object.keys(localStorageData) }
+      });
     } catch (error) {
-      securityLogger.logSecurityEvent(
-        SecurityEventType.PREFERENCE_MIGRATION_ERROR,
-        SecuritySeverity.MEDIUM,
-        'Failed to migrate localStorage data',
-        { userId, error: error instanceof Error ? error.message : 'Unknown error' }
-      );
+      securityLogger.logSecurityEvent({
+        eventType: SecurityEventType.PREFERENCE_MIGRATION_ERROR,
+        severity: SecuritySeverity.MEDIUM,
+        message: 'Failed to migrate localStorage data',
+        ip: '',
+        userAgent: '',
+        details: { userId, error: error instanceof Error ? error.message : 'Unknown error' }
+      });
       throw error;
     }
   }
@@ -427,12 +455,14 @@ export class UserPreferencesService {
         preferencesByKey
       };
     } catch (error) {
-      securityLogger.logSecurityEvent(
-        SecurityEventType.PREFERENCE_STATS_ERROR,
-        SecuritySeverity.LOW,
-        'Failed to get preference statistics',
-        { error: error instanceof Error ? error.message : 'Unknown error' }
-      );
+      securityLogger.logSecurityEvent({
+        eventType: SecurityEventType.PREFERENCE_STATS_ERROR,
+        severity: SecuritySeverity.LOW,
+        message: 'Failed to get preference statistics',
+        ip: '',
+        userAgent: '',
+        details: { error: error instanceof Error ? error.message : 'Unknown error' }
+      });
       throw error;
     }
   }

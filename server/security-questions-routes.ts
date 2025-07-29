@@ -1,17 +1,17 @@
-import { Router, Request, Response } from 'express';
+import { Express, Request, Response } from 'express';
 import { z } from 'zod';
 import { requireUserAuth } from './auth';
 import { securityQuestionsService } from './security-questions-service';
 import { securityQuestionsSetupSchema, SECURITY_QUESTIONS } from '@shared/schema';
 import { securityLogger, getClientInfo, SecurityEventType, SecuritySeverity } from './security-logger';
 
-const router = Router();
+export function registerSecurityQuestionsRoutes(app: Express) {
 
 /**
  * GET /api/security-questions/available
  * Get available security questions for setup
  */
-router.get('/available', async (req: Request, res: Response) => {
+app.get('/api/security-questions/available', async (req: Request, res: Response) => {
   try {
     const questions = securityQuestionsService.getAvailableQuestions();
     res.json({ questions });
@@ -25,7 +25,7 @@ router.get('/available', async (req: Request, res: Response) => {
  * GET /api/security-questions/user
  * Get user's security questions (without answers)
  */
-router.get('/user', requireUserAuth, async (req: Request, res: Response) => {
+app.get('/api/security-questions/user', requireUserAuth, async (req: Request, res: Response) => {
   try {
     const userId = req.user!.id;
     const questions = await securityQuestionsService.getUserSecurityQuestions(userId);
@@ -46,7 +46,7 @@ router.get('/user', requireUserAuth, async (req: Request, res: Response) => {
  * POST /api/security-questions/setup
  * Set up security questions for a user
  */
-router.post('/setup', requireUserAuth, async (req: Request, res: Response) => {
+app.post('/api/security-questions/setup', requireUserAuth, async (req: Request, res: Response) => {
   try {
     const userId = req.user!.id;
     const { ip, userAgent } = getClientInfo(req);
@@ -117,7 +117,7 @@ router.post('/setup', requireUserAuth, async (req: Request, res: Response) => {
  * PUT /api/security-questions/update
  * Update existing security questions for a user
  */
-router.put('/update', requireUserAuth, async (req: Request, res: Response) => {
+app.put('/api/security-questions/update', requireUserAuth, async (req: Request, res: Response) => {
   try {
     const userId = req.user!.id;
     const { ip, userAgent } = getClientInfo(req);
@@ -177,7 +177,7 @@ router.put('/update', requireUserAuth, async (req: Request, res: Response) => {
  * POST /api/security-questions/verify
  * Verify security question answers
  */
-router.post('/verify', requireUserAuth, async (req: Request, res: Response) => {
+app.post('/api/security-questions/verify', requireUserAuth, async (req: Request, res: Response) => {
   try {
     const userId = req.user!.id;
     const { ip, userAgent } = getClientInfo(req);
@@ -230,7 +230,7 @@ router.post('/verify', requireUserAuth, async (req: Request, res: Response) => {
  * DELETE /api/security-questions
  * Delete all security questions for a user
  */
-router.delete('/', requireUserAuth, async (req: Request, res: Response) => {
+app.delete('/api/security-questions', requireUserAuth, async (req: Request, res: Response) => {
   try {
     const userId = req.user!.id;
     const { ip, userAgent } = getClientInfo(req);
@@ -265,4 +265,4 @@ router.delete('/', requireUserAuth, async (req: Request, res: Response) => {
   }
 });
 
-export default router;
+}

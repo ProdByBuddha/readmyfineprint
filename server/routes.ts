@@ -31,6 +31,7 @@ import { registerLegalProfessionalRoutes } from './legal-professional-routes';
 import { registerHybridRoutes } from './hybrid-routes';
 import { registerTierSecurityRoutes } from './tier-security-routes';
 import { registerUserPreferencesRoutes } from './user-preferences-routes';
+import { registerSecurityQuestionsRoutes } from './security-questions-routes';
 import { indexNowService } from './indexnow-service';
 import blogRoutes from './blog-routes.js';
 import { subscriptionService } from './subscription-service';
@@ -3140,6 +3141,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
   
   // Register user preferences routes
   registerUserPreferencesRoutes(app);
+  
+  // Register security questions routes
+  registerSecurityQuestionsRoutes(app);
   
   // Register blog routes
   app.use('/api/blog', blogRoutes);
