@@ -33,7 +33,8 @@ export class JOSETokenService {
       const { secret } = jwtSecretManager.getCurrentSecret();
       
       // Create a consistent 32-byte key from the versioned secret
-      this.secretKey = crypto.scryptSync(secret, 'subscription-salt-v2', 32);
+      // Use a consistent salt for all JOSE token operations
+      this.secretKey = crypto.scryptSync(secret, 'jose-subscription-v1', 32);
       this.initialized = true;
       
       securityLogger.logSecurityEvent({
@@ -97,7 +98,9 @@ export class JOSETokenService {
         .setJti(payload.jti!) // Add JTI for revocation tracking
         .sign(this.secretKey);
 
-      console.log(`Generated JOSE subscription token for user ${params.userId} (expires in 30 days)`);
+      console.log(`✅ Generated JOSE subscription token for user ${params.userId} (expires in 30 days)`);
+      console.log(`🔍 Token generation - using secret key length: ${this.secretKey.length} bytes`);
+      console.log(`🔍 Token generation - token prefix: ${token.slice(0, 30)}...`);
       return token;
     } catch (error) {
       console.error('Error generating JOSE subscription token:', error);
@@ -111,6 +114,13 @@ export class JOSETokenService {
   async validateSubscriptionToken(token: string): Promise<SubscriptionTokenPayload | null> {
     await this.ensureInitialized();
     try {
+      console.log(`🔍 JOSE token validation - token prefix: ${token.slice(0, 30)}...`);
+      console.log(`🔍 JOSE token validation - using secret key length: ${this.secretKey.length} bytes`);
+      
+      // Get current secret info for debugging
+      const currentSecret = jwtSecretManager.getCurrentSecret();
+      console.log(`🔍 Current JWT secret version: ${currentSecret.version}`);
+      
       const { payload } = await jwtVerify(token, this.secretKey, {
         issuer: 'readmyfineprint',
         audience: 'subscription',
@@ -125,10 +135,36 @@ export class JOSETokenService {
       }
 
       // Additional validation can go here
-      console.log(`Valid JOSE subscription token for user ${subscriptionPayload.userId}, tier: ${subscriptionPayload.tierId}`);
+      console.log(`✅ Valid JOSE subscription token for user ${subscriptionPayload.userId}, tier: ${subscriptionPayload.tierId}`);
       return subscriptionPayload;
     } catch (error) {
-      console.warn('JOSE token validation failed:', error instanceof Error ? error.message : 'Unknown error');
+      console.error('❌ JOSE token validation failed:', error instanceof Error ? error.message : 'Unknown error');
+      console.error('❌ Token being validated:', token.slice(0, 50) + '...');
+      console.error('❌ Secret key details:', {
+        length: this.secretKey.length,
+        keyPrefix: Buffer.from(this.secretKey.slice(0, 4)).toString('hex')
+      });
+      
+      // Try to re-initialize and validate again as a fallback
+      console.log('🔄 Attempting token validation with fresh initialization...');
+      try {
+        this.initialized = false;
+        await this.ensureInitialized();
+        
+        const { payload } = await jwtVerify(token, this.secretKey, {
+          issuer: 'readmyfineprint',
+          audience: 'subscription',
+        });
+        
+        const subscriptionPayload = payload as SubscriptionTokenPayload;
+        if (subscriptionPayload.tokenType === 'subscription') {
+          console.log(`✅ JOSE token validation successful after re-initialization for user ${subscriptionPayload.userId}`);
+          return subscriptionPayload;
+        }
+      } catch (retryError) {
+        console.error('❌ Token validation failed even after re-initialization:', retryError instanceof Error ? retryError.message : 'Unknown error');
+      }
+      
       return null;
     }
   }
