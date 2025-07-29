@@ -591,16 +591,18 @@ export function addSecurityHeaders(req: Request, res: Response, next: NextFuncti
   res.setHeader('Cross-Origin-Resource-Policy', 'same-origin');
 
   // Enhanced Content Security Policy with comprehensive security directives
-  // In development, allow Replit scripts; in production, restrict further
+  // In development/staging, allow Replit dev tools (including unsafe-inline for Eruda styling)
+  // In production, maintain strict CSP without unsafe directives
   const isDevelopment = process.env.NODE_ENV === 'development';
-  const replitSources = isDevelopment ? ' https://replit.com' : '';
+  const isStaging = process.env.NODE_ENV === 'staging';
+  const replitSources = (isDevelopment || isStaging) ? ' https://replit.com https://*.replit.com https://*.replit.dev https://cdn.jsdelivr.net' : '';
 
   res.setHeader('Content-Security-Policy',
     "default-src 'none'; " +
     `script-src 'self' https://js.stripe.com https://m.stripe.com${replitSources}; ` +
     `script-src-elem 'self' https://js.stripe.com https://m.stripe.com${replitSources}; ` +
-    "style-src 'self' https://js.stripe.com https://fonts.googleapis.com; " +
-    "style-src-elem 'self' https://fonts.googleapis.com; " +
+    `style-src 'self' data: https://js.stripe.com https://fonts.googleapis.com${replitSources}${(isDevelopment || isStaging) ? " 'unsafe-inline'" : ''}; ` +
+    `style-src-elem 'self' data: https://fonts.googleapis.com${replitSources}; ` +
     "font-src 'self' https://fonts.gstatic.com; " +
     "img-src 'self' data: https://img.shields.io https://js.stripe.com; " +
     `connect-src 'self' https://api.openai.com https://api.stripe.com https://js.stripe.com https://m.stripe.com${replitSources}; ` +

@@ -250,7 +250,7 @@ export function registerUserRoutes(app: Express) {
       res.cookie('sessionId', sessionId, {
         httpOnly: true,
         secure: process.env.NODE_ENV === 'production',
-        sameSite: process.env.NODE_ENV === 'production' ? 'lax' : 'strict',
+        sameSite: process.env.NODE_ENV === 'production' ? 'lax' : 'lax', // Use 'lax' for staging too
         maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
         path: '/'
       });

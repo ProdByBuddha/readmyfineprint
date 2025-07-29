@@ -689,7 +689,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         res.cookie('sessionId', sessionId, {
           httpOnly: true,
           secure: process.env.NODE_ENV === 'production',
-          sameSite: process.env.NODE_ENV === 'production' ? 'lax' : 'strict',
+          sameSite: process.env.NODE_ENV === 'production' ? 'lax' : 'lax', // Use 'lax' for staging too
           maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
           path: '/'
         });
@@ -1478,7 +1478,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Get user's subscription data
       const subscriptionData = await subscriptionService.getUserSubscriptionWithUsage(user.id);
       
-      // Only allow login if user has active subscription
+      // Allow login if user has any subscription (active, inactive, expired) for account management
       if (!subscriptionData.subscription) {
         return res.status(404).json({ 
           error: 'No subscription found for this email address. Please subscribe first.',
@@ -1486,10 +1486,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
         });
       }
       
-      if (subscriptionData.subscription.status !== 'active') {
+      // Allow inactive/expired subscriptions to login for account management
+      // Users with inactive subscriptions can login to renew or manage their account
+      const allowedStatuses = ['active', 'inactive', 'past_due', 'canceled'];
+      if (!allowedStatuses.includes(subscriptionData.subscription.status)) {
         return res.status(403).json({ 
-          error: 'Your subscription is not active. Please renew your subscription or contact support.',
-          code: 'SUBSCRIPTION_INACTIVE',
+          error: 'Your subscription status does not allow login. Please contact support.',
+          code: 'SUBSCRIPTION_INVALID_STATUS',
           status: subscriptionData.subscription.status
         });
       }
@@ -1671,13 +1674,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
       });
 
       // Set secure httpOnly cookie with session ID
-      res.cookie('sessionId', sessionId, {
+      const cookieOptions = {
         httpOnly: true,
         secure: process.env.NODE_ENV === 'production',
-        sameSite: process.env.NODE_ENV === 'production' ? 'lax' : 'strict',
+        sameSite: 'lax' as const,
         maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
-        path: '/'
-      });
+        path: '/',
+        // Don't set domain - let browser handle it for better compatibility
+      };
+      
+      res.cookie('sessionId', sessionId, cookieOptions);
 
       res.json({
         success: true,
@@ -1686,6 +1692,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
           id: user.id,
           email: user.email,
           isAdmin: user.isAdmin
+        },
+        // Include tokens for fallback authentication if cookies fail
+        tokens: {
+          access: accessToken,
+          refresh: refreshToken
         }
       });
     } catch (error) {
@@ -1700,8 +1711,22 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Session validation endpoint
   app.get("/api/auth/session", async (req, res) => {
     try {
-      const sessionId = req.cookies?.sessionId;
+      let sessionId = req.cookies?.sessionId;
       const clientSessionId = req.headers['x-session-id'] as string;
+      
+      // Manual cookie parsing fallback for Replit proxy environment
+      if (!sessionId && req.headers.cookie) {
+        console.log(`🍪 Cookie-parser failed, trying manual parsing...`);
+        console.log(`🍪 Raw cookie header:`, req.headers.cookie.substring(0, 100) + '...');
+        console.log(`🍪 Parsed cookies:`, JSON.stringify(req.cookies));
+        
+        // Try manual parsing as fallback
+        const cookieMatch = req.headers.cookie.match(/sessionId=([^;]+)/);
+        if (cookieMatch) {
+          sessionId = cookieMatch[1];
+          console.log(`🍪 Manual parse found sessionId:`, sessionId.substring(0, 8) + '...');
+        }
+      }
       
       console.log(`🔍 Session validation request:`, {
         sessionId: sessionId ? `${sessionId.slice(0, 8)}...` : 'none',

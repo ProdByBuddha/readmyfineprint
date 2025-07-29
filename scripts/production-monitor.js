@@ -22,6 +22,7 @@ const execAsync = promisify(exec);
 // Auto-detect environment and configure accordingly
 const isProduction = process.env.NODE_ENV === 'production';
 const isDevelopment = process.env.NODE_ENV === 'development';
+const isStaging = process.env.NODE_ENV === 'staging';
 const isCITest = process.env.CI === 'true' || process.argv.includes('--ci-test');
 
 const MONITORING_CONFIG = {
@@ -44,7 +45,7 @@ const MONITORING_CONFIG = {
   },
   alerts: {
     maxConsecutiveFailures: isProduction ? 5 : 3,
-    checkInterval: isProduction ? 300000 : 60000, // 5min in prod, 1min in dev
+    checkInterval: isProduction ? 300000 : (isStaging ? 120000 : 60000), // 5min in prod, 2min in staging, 1min in dev
     webhookUrl: process.env.MONITORING_WEBHOOK_URL || null,
     emailAlerts: {
       enabled: process.env.MONITORING_EMAIL_ALERTS === 'true' || true, // Enable by default
@@ -81,7 +82,7 @@ class ProductionMonitor {
       external: null
     };
     this.startTime = Date.now();
-    this.environment = isProduction ? 'production' : (isDevelopment ? 'development' : 'unknown');
+    this.environment = isProduction ? 'production' : (isDevelopment ? 'development' : (isStaging ? 'staging' : 'unknown'));
     this.emailCooldowns = new Map(); // Track email cooldowns by alert type
     
     console.log(`🚀 Production Monitor initialized for ${this.environment} environment`);
@@ -703,6 +704,12 @@ Generated: ${new Date().toISOString()}
       console.log(`🔔 Webhook alerts enabled`);
     }
     console.log('Press Ctrl+C to stop\n');
+
+    // Add startup delay for staging to wait for server to come online
+    if (isStaging) {
+      console.log('⏳ Waiting 15 seconds for staging server to start...');
+      await new Promise(resolve => setTimeout(resolve, 15000));
+    }
 
     const runCheck = async () => {
       try {

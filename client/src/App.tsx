@@ -18,6 +18,7 @@ import { useSEO } from "./lib/seo";
 import { useToast } from "./hooks/use-toast";
 import { setupAutoSubmission } from "./lib/indexnow";
 import React, { useEffect, useState, lazy, Suspense } from 'react';
+import { authFetch } from './lib/auth-fetch';
 import { DirectionProvider } from "@radix-ui/react-direction";
 
 // Lazy load route components for better code splitting
@@ -99,13 +100,11 @@ function App() {
     const autoLogin = async () => {
       if (import.meta.env.DEV) {
         try {
-          // Check if already logged in via session cookie
-          const sessionResponse = await fetch('/api/auth/session', {
+          // Check if already logged in via session cookie or JWT
+          const sessionResponse = await authFetch('/api/auth/session', {
             method: 'GET',
-            credentials: 'include',
             headers: {
               'Content-Type': 'application/json',
-              'x-session-id': sessionStorage.getItem('app-session-id') || 'anonymous',
             },
           });
           

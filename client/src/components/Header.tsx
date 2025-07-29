@@ -18,6 +18,7 @@ import { clearCSRFToken } from '@/lib/csrfManager';
 import { useTheme } from '@/components/ThemeProvider';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { SubscriptionLogin } from '@/components/SubscriptionLogin';
+import { authFetch } from '@/lib/auth-fetch';
 import ReactDOM from 'react-dom';
 
 export function Header() {
@@ -40,13 +41,11 @@ export function Header() {
       setIsCheckingAuth(true);
       
       try {
-        // Check session cookie authentication via the session endpoint
-        const response = await fetch('/api/auth/session', {
+        // Check session cookie or JWT authentication via the session endpoint
+        const response = await authFetch('/api/auth/session', {
           method: 'GET',
-          credentials: 'include',
           headers: {
             'Content-Type': 'application/json',
-            'x-session-id': sessionStorage.getItem('app-session-id') || 'anonymous',
           },
         });
 
@@ -143,6 +142,10 @@ export function Header() {
       localStorage.removeItem('token');
       localStorage.removeItem('refreshToken');
       localStorage.removeItem('user');
+      
+      // Clear JWT tokens used for fallback authentication
+      localStorage.removeItem('jwt_access_token');
+      localStorage.removeItem('jwt_refresh_token');
       
       // Clear session and CSRF tokens
       clearSession();

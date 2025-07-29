@@ -20,7 +20,7 @@ export class SecurityMiddleware {
 
   constructor(options: SecurityOptions = {}) {
     this.options = {
-      developmentMode: process.env.NODE_ENV === 'development',
+      developmentMode: process.env.NODE_ENV === 'development' || process.env.NODE_ENV === 'staging',
       allowedOrigins: options.allowedOrigins || [],
       maxRequestSize: options.maxRequestSize || 50 * 1024 * 1024, // 50MB
       ...options
@@ -155,9 +155,10 @@ export class SecurityMiddleware {
       const devPatterns = [
         /^https?:\/\/localhost(:\d+)?$/,
         /^https?:\/\/127\.0\.0\.1(:\d+)?$/,
-        /^https?:\/\/.*\.replit\.dev$/,
-        /^https?:\/\/.*\.repl\.co$/,
-        /^https?:\/\/.*\.replit\.app$/,
+        /^https?:\/\/.*\.replit\.dev(:\d+)?$/,
+        /^https?:\/\/.*\.repl\.co(:\d+)?$/,
+        /^https?:\/\/.*\.replit\.app(:\d+)?$/,
+        /^https?:\/\/.*\.repl\.run(:\d+)?$/,
       ];
       
       return devPatterns.some(pattern => pattern.test(origin));
@@ -182,7 +183,10 @@ export class SecurityMiddleware {
     const devPatterns = [
       /^https?:\/\/localhost/,
       /^https?:\/\/127\.0\.0\.1/,
-      /^https?:\/\/.*\.replit\.dev$/,
+      /^https?:\/\/.*\.replit\.dev(:\d+)?$/,
+      /^https?:\/\/.*\.repl\.co(:\d+)?$/,
+      /^https?:\/\/.*\.replit\.app(:\d+)?$/,
+      /^https?:\/\/.*\.repl\.run(:\d+)?$/,
     ];
     
     return devPatterns.some(pattern => pattern.test(origin));
@@ -191,7 +195,7 @@ export class SecurityMiddleware {
 
 // Create singleton instance
 export const securityMiddleware = new SecurityMiddleware({
-  allowedOrigins: (process.env.ALLOWED_ORIGINS || 'http://localhost:5173,http://localhost:3000,http://localhost:5000')
+  allowedOrigins: (process.env.ALLOWED_ORIGINS || 'http://localhost:5173,http://localhost:3000,http://localhost:5000,http://localhost:3001,https://localhost:3001')
     .split(',')
     .map(origin => origin.trim()),
 });

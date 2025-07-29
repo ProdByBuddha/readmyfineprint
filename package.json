@@ -1,6 +1,6 @@
 {
   "name": "readmyfineprint",
-  "version": "1.3.0",
+  "version": "1.4.0",
   "type": "module",
   "license": "PROPRIETARY",
   "private": true,
@@ -93,7 +93,9 @@
     "version:major": "node scripts/set-major-version.cjs",
     "version:major-preview": "node scripts/set-major-version.cjs --dry-run",
     "version:deploy": "node scripts/set-major-version.cjs 2.0.0 && git add package.json CHANGELOG.md && git commit -m 'chore: prepare v2.0.0 for production deployment' || true",
-    "postversion": "git push && git push --tags"
+    "postversion": "git push && git push --tags",
+    "staging:create-user": "tsx scripts/create-staging-user.ts",
+    "staging:add-subscription": "tsx scripts/add-staging-subscription.ts"
   },
   "dependencies": {
     "@axe-core/react": "^4.10.2",

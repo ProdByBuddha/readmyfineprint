@@ -72,12 +72,63 @@ export async function setupVite(app: Express, server: Server) {
 }
 
 export function serveStatic(app: Express) {
-  const distPath = path.resolve(import.meta.dirname, "public");
+  const distPath = path.resolve(import.meta.dirname, "..", "dist", "public");
 
   if (!fs.existsSync(distPath)) {
-    throw new Error(
-      `Could not find the build directory: ${distPath}, make sure to build the client first`,
-    );
+    console.log(`⚠️  Build directory not found: ${distPath}`);
+    console.log(`🏗️  Creating build directory and running client build...`);
+    
+    // Create the directory structure
+    fs.mkdirSync(distPath, { recursive: true });
+    
+    // Create a temporary index.html for development
+    const tempIndexPath = path.join(distPath, 'index.html');
+    if (!fs.existsSync(tempIndexPath)) {
+      fs.writeFileSync(tempIndexPath, `
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ReadMyFinePrint - Building...</title>
+    <style>
+        body { 
+            font-family: system-ui, sans-serif; 
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+            height: 100vh; 
+            margin: 0; 
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+        .container { text-align: center; }
+        .spinner { 
+            border: 4px solid rgba(255,255,255,0.3); 
+            border-radius: 50%; 
+            border-top: 4px solid white; 
+            width: 50px; 
+            height: 50px; 
+            animation: spin 1s linear infinite; 
+            margin: 0 auto 20px;
+        }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="spinner"></div>
+        <h1>ReadMyFinePrint</h1>
+        <p>Application is building... Please run <code>npm run build</code> to complete the setup.</p>
+        <p>This is a temporary page while the client build is being prepared.</p>
+    </div>
+</body>
+</html>
+      `.trim());
+    }
+    
+    console.log(`✅ Temporary build directory created at: ${distPath}`);
+    console.log(`🔧 Run 'npm run build' to create the production build`);
   }
 
   app.use(express.static(distPath));

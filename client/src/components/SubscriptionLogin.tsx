@@ -71,7 +71,7 @@ export function SubscriptionLogin({
           data.error?.includes("No active subscription")
         ) {
           setError(
-            "Your subscription appears to be inactive or expired. Please contact support or renew your subscription.",
+            "Your subscription is inactive or expired. You can still login to manage your account and renew your subscription.",
           );
         } else if (response.status === 429) {
           setError(
@@ -174,11 +174,18 @@ export function SubscriptionLogin({
       if (data.success) {
         console.log("Successfully logged into subscription");
         
+        // Store JWT tokens if provided (fallback for when cookies don't work)
+        if (data.tokens?.access) {
+          localStorage.setItem('jwt_access_token', data.tokens.access);
+          localStorage.setItem('jwt_refresh_token', data.tokens.refresh);
+          console.log("Stored JWT tokens for fallback authentication");
+        }
+        
         // Dispatch custom event for same-tab updates
         window.dispatchEvent(new CustomEvent('authStateChanged'));
 
-        // Call success callback without token (session is managed by cookies now)
-        onSuccess('', data.subscription);
+        // Call success callback with access token
+        onSuccess(data.tokens?.access || '', data.subscription);
       } else {
         throw new Error(data.error || "Login failed");
       }

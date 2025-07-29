@@ -83,7 +83,11 @@ args = "echo '🚀 Starting staging server...'"
 
 [[workflows.workflow.tasks]]
 task = "shell.exec"
-args = "npm run dev:staging"
+args = "lsof -ti:5000 | xargs -r kill -9 && sleep 2 || echo 'Port 5000 is free'"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "npm run start:staging"
 waitForPort = 5000
 
 [[workflows.workflow]]
@@ -201,14 +205,6 @@ task = "shell.exec"
 args = "npm run version:deploy"
 
 [[ports]]
-localPort = 3000
-externalPort = 3001
-
-[[ports]]
-localPort = 3001
-externalPort = 5000
-
-[[ports]]
 localPort = 5000
 externalPort = 80
 
@@ -217,45 +213,5 @@ localPort = 5173
 externalPort = 5173
 
 [[ports]]
-localPort = 5174
-externalPort = 3002
-
-[[ports]]
-localPort = 5175
-externalPort = 3003
-
-[[ports]]
-localPort = 5176
-externalPort = 4200
-
-[[ports]]
-localPort = 5177
-externalPort = 6000
-
-[[ports]]
-localPort = 8000
-externalPort = 8000
-
-[[ports]]
-localPort = 11401
-externalPort = 8081
-exposeLocalhost = true
-
-[[ports]]
 localPort = 11434
 externalPort = 3000
-
-[[ports]]
-localPort = 17056
-externalPort = 6800
-exposeLocalhost = true
-
-[[ports]]
-localPort = 18694
-externalPort = 8080
-exposeLocalhost = true
-
-[[ports]]
-localPort = 36940
-externalPort = 8008
-exposeLocalhost = true
