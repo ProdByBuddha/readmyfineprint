@@ -88,6 +88,9 @@
     "version:preview": "node scripts/auto-version.cjs --dry-run --verbose",
     "version:patch": "node scripts/auto-version.cjs --force-patch",
     "version:tag": "node scripts/auto-version.cjs && git add package.json CHANGELOG.md && git commit -m 'chore: bump version' || true",
+    "version:major": "node scripts/set-major-version.cjs",
+    "version:major-preview": "node scripts/set-major-version.cjs --dry-run",
+    "version:deploy": "node scripts/set-major-version.cjs 2.0.0 && git add package.json CHANGELOG.md && git commit -m 'chore: prepare v2.0.0 for production deployment' || true",
     "postversion": "git push && git push --tags"
   },
   "dependencies": {

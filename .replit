@@ -162,6 +162,27 @@ args = "echo '🏷️ Creating new version and tag...'"
 task = "shell.exec"
 args = "npm run version:tag"
 
+[[workflows.workflow]]
+name = "Prepare v2.0.0 Deploy"
+mode = "sequential"
+author = 30822729
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "echo '🚀 Preparing v2.0.0 for production deployment...'"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "npm run version:major-preview"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "echo '📋 Confirm deployment readiness...'"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "npm run version:deploy"
+
 [[ports]]
 localPort = 3000
 externalPort = 3001

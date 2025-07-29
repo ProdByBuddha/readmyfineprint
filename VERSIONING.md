@@ -47,6 +47,24 @@ git commit -m "chore: update dependencies to latest versions"
 
 ## Available Commands
 
+### Major Version Management
+```bash
+npm run version:major
+```
+Automatically increments to the next major version (e.g., 1.1.0 → 2.0.0).
+
+```bash
+npm run version:major-preview
+```
+Preview what a major version release would look like without making changes.
+
+```bash
+npm run version:deploy
+```
+Specifically sets version to v2.0.0 and prepares for production deployment.
+
+## Available Commands
+
 ### Preview Version Changes
 ```bash
 npm run version:preview
@@ -77,6 +95,11 @@ Runs auto-versioning, commits the version changes, and is ready for pushing tags
 1. Previews version changes
 2. Creates new version and git tag
 3. Updates package.json and CHANGELOG.md
+
+### "Prepare v2.0.0 Deploy" Workflow
+1. Previews v2.0.0 major version changes
+2. Confirms deployment readiness
+3. Sets version to v2.0.0 with production deployment notes
 
 ### "Full CI/CD Test" Workflow
 Includes automatic versioning as the final step after all tests pass.
@@ -133,7 +156,16 @@ npm run version:auto
 # The version is now updated (e.g., 1.2.1 -> 1.2.2)
 ```
 
-### Release Workflow Using Replit
+### Production Deployment Workflow
+1. Complete all feature/fix commits for v2.0.0
+2. Run **"Full CI/CD Test"** workflow to ensure everything passes
+3. Run **"Prepare v2.0.0 Deploy"** workflow to set major version
+4. Review the generated CHANGELOG.md for v2.0.0
+5. Deploy to staging for final testing
+6. Deploy to production
+7. Push tags: `git push && git push --tags`
+
+### Regular Release Workflow Using Replit
 1. Complete your feature/fix commits
 2. Run the **"Version Release"** workflow in Replit
 3. Review the generated CHANGELOG.md
