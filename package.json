@@ -1,6 +1,6 @@
 {
   "name": "readmyfineprint",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "type": "module",
   "license": "PROPRIETARY",
   "private": true,
@@ -83,7 +83,12 @@
     "llm:setup-ollama": "./scripts/setup-ollama-replit.sh",
     "llm:ollama": "./scripts/ollama-service.sh",
     "dev:with-llm": "unset NODE_ENV && NODE_ENV=development concurrently \"npm run llm:start\" \"npm run dev\"",
-    "crypto:test": "tsx scripts/test-hybrid-crypto.ts"
+    "crypto:test": "tsx scripts/test-hybrid-crypto.ts",
+    "version:auto": "node scripts/auto-version.cjs",
+    "version:preview": "node scripts/auto-version.cjs --dry-run --verbose",
+    "version:patch": "node scripts/auto-version.cjs --force-patch",
+    "version:tag": "node scripts/auto-version.cjs && git add package.json CHANGELOG.md && git commit -m 'chore: bump version' || true",
+    "postversion": "git push && git push --tags"
   },
   "dependencies": {
     "@axe-core/react": "^4.10.2",

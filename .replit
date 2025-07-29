@@ -63,6 +63,10 @@ author = 30822729
 
 [[workflows.workflow.tasks]]
 task = "shell.exec"
+args = "npm run version:preview"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
 args = "npm run deploy:staging"
 
 [[workflows.workflow]]
@@ -110,6 +114,14 @@ args = "echo '🔍 Running health checks...'"
 task = "shell.exec"
 args = "npm run test:integration"
 
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "echo '🏷️ Auto-versioning...'"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "npm run version:auto"
+
 [[workflows.workflow]]
 name = "Quick Health Check"
 mode = "sequential"
@@ -128,6 +140,27 @@ author = 30822729
 task = "shell.exec"
 args = "npm run dev:staging"
 waitForPort = 5000
+
+[[workflows.workflow]]
+name = "Version Release"
+mode = "sequential"
+author = 30822729
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "echo '📋 Previewing version changes...'"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "npm run version:preview"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "echo '🏷️ Creating new version and tag...'"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "npm run version:tag"
 
 [[ports]]
 localPort = 3000
