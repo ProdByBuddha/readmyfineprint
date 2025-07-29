@@ -38,9 +38,9 @@ export function cspMiddleware(req: Request, res: Response, next: NextFunction) {
   // Staging sources (only in staging)
   const stagingSources = isStaging ? ' https://*.staging.readmyfineprint.com' : '';
 
-  // Build secure CSP without unsafe-inline or unsafe-eval
+  // Build secure CSP with deny-by-default approach
   const cspDirectives = [
-    "default-src 'self'",
+    "default-src 'none'",
     
     // Scripts: Use nonce instead of unsafe-inline, remove unsafe-eval
     `script-src 'self' 'nonce-${nonce}' https://js.stripe.com https://m.stripe.com${replitSources}${devSources}${stagingSources}`,

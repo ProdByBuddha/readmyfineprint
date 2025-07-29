@@ -596,13 +596,19 @@ export function addSecurityHeaders(req: Request, res: Response, next: NextFuncti
   const replitSources = isDevelopment ? ' https://replit.com' : '';
 
   res.setHeader('Content-Security-Policy',
-    "default-src 'self'; " +
+    "default-src 'none'; " +
     `script-src 'self' https://js.stripe.com https://m.stripe.com${replitSources}; ` +
     `script-src-elem 'self' https://js.stripe.com https://m.stripe.com${replitSources}; ` +
-    "style-src 'self' https://js.stripe.com; " +
+    "style-src 'self' https://js.stripe.com https://fonts.googleapis.com; " +
+    "style-src-elem 'self' https://fonts.googleapis.com; " +
+    "font-src 'self' https://fonts.gstatic.com; " +
     "img-src 'self' data: https://img.shields.io https://js.stripe.com; " +
     `connect-src 'self' https://api.openai.com https://api.stripe.com https://js.stripe.com https://m.stripe.com${replitSources}; ` +
     "frame-src https://js.stripe.com https://hooks.stripe.com https://m.stripe.com; " +
+    "media-src 'self'; " +
+    "manifest-src 'self'; " +
+    "worker-src 'self'; " +
+    "child-src 'none'; " +
     "object-src 'none'; " +
     "base-uri 'self'; " +
     "form-action 'self' https://js.stripe.com https://api.stripe.com; " +

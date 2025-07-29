@@ -54,7 +54,7 @@ export const SECURITY_HEADERS = {
   'X-Frame-Options': 'DENY',
   'X-XSS-Protection': '1; mode=block',
   'Referrer-Policy': 'strict-origin-when-cross-origin',
-  'Content-Security-Policy': "default-src 'self'; script-src 'self' https://js.stripe.com; style-src 'self' https://js.stripe.com; img-src 'self' data: https://img.shields.io https://js.stripe.com; connect-src 'self' https://api.stripe.com https://api.openai.com; frame-src https://js.stripe.com https://hooks.stripe.com; object-src 'none'; base-uri 'self'; form-action 'self'",
+  'Content-Security-Policy': "default-src 'none'; script-src 'self' https://js.stripe.com; script-src-elem 'self' https://js.stripe.com; style-src 'self' https://js.stripe.com https://fonts.googleapis.com; style-src-elem 'self' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: https://img.shields.io https://js.stripe.com; connect-src 'self' https://api.stripe.com https://api.openai.com; frame-src https://js.stripe.com https://hooks.stripe.com; media-src 'self'; manifest-src 'self'; worker-src 'self'; child-src 'none'; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'",
   'Strict-Transport-Security': 'max-age=31536000; includeSubDomains',
   'Permissions-Policy': 'camera=(), microphone=(), geolocation=()'
 };
