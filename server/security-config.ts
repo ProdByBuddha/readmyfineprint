@@ -54,7 +54,7 @@ export const SECURITY_HEADERS = {
   'X-Frame-Options': 'DENY',
   'X-XSS-Protection': '1; mode=block',
   'Referrer-Policy': 'strict-origin-when-cross-origin',
-  'Content-Security-Policy': "default-src 'self'; script-src 'self' 'unsafe-inline' https://js.stripe.com; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; connect-src 'self' https://api.stripe.com; frame-src https://js.stripe.com https://hooks.stripe.com",
+  'Content-Security-Policy': "default-src 'self'; script-src 'self' https://js.stripe.com; style-src 'self' https://js.stripe.com; img-src 'self' data: https://img.shields.io https://js.stripe.com; connect-src 'self' https://api.stripe.com https://api.openai.com; frame-src https://js.stripe.com https://hooks.stripe.com; object-src 'none'; base-uri 'self'; form-action 'self'",
   'Strict-Transport-Security': 'max-age=31536000; includeSubDomains',
   'Permissions-Policy': 'camera=(), microphone=(), geolocation=()'
 };
