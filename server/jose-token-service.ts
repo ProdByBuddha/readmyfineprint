@@ -34,8 +34,10 @@ export class JOSETokenService {
       
       // Create a consistent 32-byte key from the versioned secret
       // Use a consistent salt for all JOSE token operations
-      this.secretKey = crypto.scryptSync(secret, 'jose-subscription-v1', 32);
+      this.secretKey = crypto.scryptSync(secret, 'subscription-salt-v2', 32);
       this.initialized = true;
+      
+      console.log(`✅ JOSE service initialized with secret version and key length: ${this.secretKey.length} bytes`);
       
       securityLogger.logSecurityEvent({
         eventType: SecurityEventType.SYSTEM,
