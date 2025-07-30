@@ -2,7 +2,7 @@ import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { storage, databaseStorage } from "./storage";
 import { consentLogger } from "./consent";
-import { requireAdminAuth, optionalUserAuth, requireUserAuth, requireConsent } from "./auth";
+import { requireAdminAuth, optionalUserAuth, requireUserAuth, requireConsent, requireSecurityQuestions, refreshAccessToken } from "./auth";
 import { insertDocumentSchema } from "@shared/schema";
 import { analyzeDocument } from "./openai";
 import { analyzeDocumentWithPII } from "./openai-with-pii";
@@ -19,7 +19,7 @@ import crypto from "crypto";
 import Stripe from "stripe";
 import { securityAlertManager } from './security-alert';
 import { emailService } from './email-service';
-import { emailVerificationService } from './email-verification';
+import { emailVerificationService, sendVerificationEmail } from './email-verification';
 import { registerUserRoutes } from './user-routes';
 import { registerAdminRoutes } from './admin-routes';
 import { registerEmailRecoveryRoutes } from './email-recovery-routes';
@@ -34,6 +34,8 @@ import { registerUserPreferencesRoutes } from './user-preferences-routes';
 import { registerSecurityQuestionsRoutes } from './security-questions-routes';
 import { indexNowService } from './indexnow-service';
 import blogRoutes from './blog-routes.js';
+import { errorReportingService } from './error-reporting-service';
+import type { UserError } from './error-reporting-service';
 import { subscriptionService } from './subscription-service';
 import { 
   submitPiiDetectionFeedback, 
@@ -48,24 +50,81 @@ import { createPseudonymizedEmail, verifyEmailMatch } from './argon2';
 import { mailingList, insertMailingListSchema, type InsertMailingList } from '@shared/schema';
 import { eq, and } from 'drizzle-orm';
 import { db } from './db';
+import { disasterRecoveryService } from './disaster-recovery-service';
 
 /**
  * Find user by email using deterministic hash entanglement
  * This handles the bidirectional relationship between real and pseudonymized emails
  */
 /**
+ * Detect if we're running in staging environment
+ * Staging environments typically use NODE_ENV=staging or production on Replit
+ */
+export function isStaging(req?: any): boolean {
+  // Explicit staging environment
+  if (process.env.NODE_ENV === 'staging') {
+    return true;
+  }
+  
+  // Production mode on Replit (legacy staging detection)
+  const isReplit = process.env.REPL_ID || req?.get('host')?.includes('replit.dev') || req?.get('host')?.includes('kirk.replit.dev');
+  const isProduction = process.env.NODE_ENV === 'production';
+  
+  return isProduction && isReplit;
+}
+
+/**
+ * Get secure cookie settings based on environment
+ * Development: secure=false (HTTP), staging: secure=false (for easier testing), production: secure=true (HTTPS)
+ */
+export function getCookieSettings(req?: any) {
+  const isDevelopment = process.env.NODE_ENV === 'development';
+  const isExplicitStaging = process.env.NODE_ENV === 'staging';
+  const stagingMode = isStaging(req);
+  
+  return {
+    httpOnly: true,
+    secure: !isDevelopment && !stagingMode, // false for dev and staging, true for production
+    sameSite: isDevelopment ? 'strict' as const : 'lax' as const,
+    path: '/'
+  };
+}
+
+/**
  * Get the correct client base URL based on environment
  * In development: points to Vite dev server (port 5173)
  * In production: uses the request host
  */
 function getClientBaseUrl(req: any): string {
-  if (process.env.NODE_ENV === 'development') {
-    // In development, always point to the Vite dev server
-    return 'http://localhost:5173';
+  // Check if we're in a Replit environment
+  const isReplit = process.env.REPL_ID || req.get('host')?.includes('replit.dev') || req.get('host')?.includes('kirk.replit.dev');
+  const host = req.get('host');
+  
+  let baseUrl;
+  if (process.env.NODE_ENV === 'development' && !isReplit) {
+    // In local development only, point to the Vite dev server
+    baseUrl = 'http://localhost:5173';
+  } else if (isReplit) {
+    // In Replit environments, extract the correct domain from ALLOWED_ORIGINS
+    const allowedOrigins = process.env.ALLOWED_ORIGINS || '';
+    const replitDomain = allowedOrigins
+      .split(',')
+      .find(origin => origin.includes('replit.dev') || origin.includes('kirk.replit.dev'))
+      ?.trim();
+    
+    if (replitDomain) {
+      baseUrl = replitDomain;
+    } else {
+      // Fallback to request protocol and host
+      baseUrl = `${req.protocol}://${host}`;
+    }
   } else {
-    // In production, use the same protocol and host as the request
-    return `${req.protocol}://${req.get('host')}`;
+    // In production, staging, or other environments, use the same protocol and host as the request
+    baseUrl = `${req.protocol}://${host}`;
   }
+  
+  console.log(`🔍 getClientBaseUrl() -> ${baseUrl} (isReplit: ${isReplit}, host: ${host}, NODE_ENV: ${process.env.NODE_ENV})`);
+  return baseUrl;
 }
 
 async function findUserByEmailWithEntanglement(email: string): Promise<any> {
@@ -120,13 +179,14 @@ async function findUserByEmailWithEntanglement(email: string): Promise<any> {
 // Initialize Stripe instances for both test and live modes
 const getStripeInstance = (useTestMode: boolean = false) => {
   const secretKey = useTestMode 
-    ? process.env.STRIPE_TEST_SECRET_KEY || process.env.STRIPE_SECRET_KEY
+    ? process.env.STRIPE_TEST_SECRET_KEY
     : process.env.STRIPE_SECRET_KEY;
 
   if (!secretKey) {
     throw new Error(`Missing required Stripe secret key for ${useTestMode ? 'test' : 'live'} mode`);
   }
 
+  console.log(`🔑 Using Stripe key: ${secretKey.substring(0, 15)}... (test mode: ${useTestMode})`);
   return new Stripe(secretKey);
 };
 
@@ -585,6 +645,38 @@ async function extractTextFromFile(buffer: Buffer, mimetype: string, filename: s
 
 export async function registerRoutes(app: Express): Promise<Server> {
   
+  // Error tracking middleware for disaster recovery
+  app.use((req, res, next) => {
+    const originalSend = res.send;
+    
+    res.send = function(body: any) {
+      // Track request completion
+      const isError = res.statusCode >= 400;
+      disasterRecoveryService.trackRequest(isError);
+      
+      return originalSend.call(this, body);
+    };
+    
+    next();
+  });
+
+  // Error handling middleware
+  app.use((err: any, req: any, res: any, next: any) => {
+    // Track error
+    disasterRecoveryService.trackRequest(true);
+    
+    console.error('Unhandled error:', err);
+    
+    if (!res.headersSent) {
+      res.status(500).json({ 
+        success: false, 
+        error: 'Internal server error' 
+      });
+    }
+    
+    next(err);
+  });
+  
   // CSP violation reporting endpoint
   app.post('/api/security/csp-report', (req, res) => {
     const { ip, userAgent } = getClientInfo(req);
@@ -633,6 +725,54 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Error reporting endpoints
+  app.post('/api/errors/report', async (req, res) => {
+    try {
+      const { ip, userAgent } = getClientInfo(req);
+      
+      const errorData = {
+        errorType: req.body.errorType || 'frontend',
+        severity: req.body.severity || 'medium',
+        message: req.body.message || 'Unknown error',
+        stack: req.body.stack,
+        url: req.body.url,
+        userAgent: userAgent,
+        ip: ip,
+        sessionId: req.sessionId,
+        userId: req.body.userId,
+        userEmail: req.body.userEmail,
+        additionalContext: req.body.additionalContext,
+        reproductionSteps: req.body.reproductionSteps,
+        errorId: '', // Will be generated by service
+        timestamp: new Date() // Will be overwritten by service
+      } as UserError;
+
+      await errorReportingService.reportError(errorData);
+      
+      res.json({ success: true, message: 'Error reported successfully' });
+    } catch (error) {
+      console.error('Failed to report error:', error);
+      res.status(500).json({ success: false, error: 'Failed to report error' });
+    }
+  });
+
+  // Get error reports (admin only)
+  app.get('/api/errors/stats', requireAdminAuth, async (req, res) => {
+    try {
+      // This would return aggregated error statistics
+      res.json({ 
+        success: true, 
+        stats: {
+          message: 'Error reporting is active',
+          reportingEnabled: true
+        }
+      });
+    } catch (error) {
+      console.error('Failed to get error stats:', error);
+      res.status(500).json({ success: false, error: 'Failed to get error stats' });
+    }
+  });
+
   // Development-only auto-admin login endpoint - NO authentication required
   if (process.env.NODE_ENV === 'development') {
     app.post("/api/dev/auto-admin-login", async (req, res) => {
@@ -658,13 +798,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
           throw new Error('Admin user not found or created');
         }
 
-        // Generate subscription token for admin access
-        const { hybridTokenService } = await import('./hybrid-token-service');
-        const token = await hybridTokenService.generateSubscriptionToken({
+        // Generate subscription token for admin session (for admin routes compatibility)
+        // Use JOSE token service directly for subscription tokens
+        const { joseTokenService } = await import('./jose-token-service');
+        const subscriptionToken = await joseTokenService.generateSubscriptionToken({
           userId: adminUser.id,
-          tierId: 'ultimate', // Admin gets ultimate tier
+          tierId: 'ultimate',
           deviceFingerprint: 'dev-admin'
         });
+        const token = subscriptionToken;
         
         // Store session in database
         const { postgresqlSessionStorage } = await import('./postgresql-session-storage');
@@ -677,21 +819,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
           sessionId: `${sessionId.slice(0, 8)}...`,
           tokenPrefix: `${token.slice(0, 16)}...`,
           cookieSettings: {
-            httpOnly: true,
-            secure: process.env.NODE_ENV === 'production',
-            sameSite: process.env.NODE_ENV === 'production' ? 'lax' : 'strict',
-            maxAge: 7 * 24 * 60 * 60 * 1000,
-            path: '/'
+            ...getCookieSettings(req),
+            maxAge: 7 * 24 * 60 * 60 * 1000
           }
         });
 
         // Set secure httpOnly cookie with session ID
         res.cookie('sessionId', sessionId, {
-          httpOnly: true,
-          secure: process.env.NODE_ENV === 'production',
-          sameSite: process.env.NODE_ENV === 'production' ? 'lax' : 'lax', // Use 'lax' for staging too
-          maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
-          path: '/'
+          ...getCookieSettings(req),
+          maxAge: 7 * 24 * 60 * 60 * 1000 // 7 days
         });
         
         console.log('🔐 Development auto-login successful for admin@readmyfineprint.com');
@@ -832,7 +968,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Create document from text input
-  app.post("/api/documents", async (req: any, res) => {
+  app.post("/api/documents", requireConsent, optionalUserAuth, requireSecurityQuestions, async (req: any, res) => {
     try {
       const { title, content, fileType } = insertDocumentSchema.parse(req.body);
 
@@ -840,12 +976,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(400).json({ error: "Document content is required" });
       }
 
+      // Generate client fingerprint for session tracking (consistent with other routes)
+      const { ip: createIp, userAgent: createUA } = getClientInfo(req);
+      const createClientFingerprint = crypto.createHash('md5').update(`${createIp}:${createUA}`).digest('hex').substring(0, 16);
+
       const document = await storage.createDocument(req.sessionId, {
         title: title || "Untitled Document",
         content,
         fileType: fileType || "text",
         analysis: null
-      });
+      }, createClientFingerprint);
 
       res.json(document);
     } catch (error) {
@@ -858,7 +998,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Upload document file
-  app.post("/api/documents/upload", requireConsent, upload.single('file'), async (req: any, res) => {
+  app.post("/api/documents/upload", requireConsent, optionalUserAuth, requireSecurityQuestions, upload.single('file'), async (req: any, res) => {
     try {
       if (!req.file) {
         securityLogger.logFileUploadRejected(req, 'unknown', 'unknown', 'No file provided');
@@ -910,7 +1050,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Analyze document
-  app.post("/api/documents/:id/analyze", async (req: any, res) => {
+  app.post("/api/documents/:id/analyze", requireConsent, optionalUserAuth, requireSecurityQuestions, async (req: any, res) => {
     try {
       const documentId = parseInt(req.params.id);
 
@@ -1019,8 +1159,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       if (adminSubscriptionToken) {
         try {
-          const { hybridTokenService } = await import('./hybrid-token-service');
-          const tokenData = await hybridTokenService.validateSubscriptionToken(adminSubscriptionToken);
+          const { joseTokenService } = await import('./jose-token-service');
+          const tokenData = await joseTokenService.validateSubscriptionToken(adminSubscriptionToken);
           if (tokenData) {
             if (!tokenData.userId) {
               console.warn('🔍 Admin token validation successful but userId is undefined:', tokenData);
@@ -1096,7 +1236,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const analysisUserAgent = req.get('User-Agent') || 'unknown';
 
       // Check for subscription token first (priority over session-based auth)
-      let userId = req.user?.id || req.sessionId || "anonymous";
+      let userId = req.user?.id;
+      let authenticatedUser = null;
       let subscriptionData;
       
       // Try to get subscription token from httpOnly cookie first (more secure)
@@ -1124,8 +1265,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
         
         if (subscriptionData) {
           // Extract actual user ID from token validation
-          const { hybridTokenService } = await import('./hybrid-token-service');
-          const tokenData = await hybridTokenService.validateSubscriptionToken(subscriptionToken);
+          const { joseTokenService } = await import('./jose-token-service');
+          const tokenData = await joseTokenService.validateSubscriptionToken(subscriptionToken);
           if (tokenData) {
             userId = tokenData.userId;
             console.log(`✅ Using subscription token user: ${userId} (${subscriptionData.tier.name} tier)`);
@@ -1135,10 +1276,46 @@ export async function registerRoutes(app: Express): Promise<Server> {
         }
       }
       
-      // If no valid subscription token, fall back to regular user/session lookup
+      // If no valid subscription token, try to resolve session to user
       if (!subscriptionData) {
-        console.log(`📊 No valid subscription token, using session/user-based lookup for: ${userId}`);
-        subscriptionData = await subscriptionService.getUserSubscriptionWithUsage(userId);
+        // Try to resolve session ID to user ID (same logic as /api/user/subscription)
+        let sessionId = req.cookies?.sessionId;
+        if (!sessionId && req.headers.cookie) {
+          const cookieMatch = req.headers.cookie.match(/sessionId=([^;]+)/);
+          if (cookieMatch) {
+            sessionId = cookieMatch[1];
+          }
+        }
+        
+        if (!userId && sessionId) {
+          try {
+            const { postgresqlSessionStorage } = await import('./postgresql-session-storage');
+            const token = await postgresqlSessionStorage.getTokenBySession(sessionId);
+            
+            if (token) {
+              const { joseTokenService } = await import('./jose-token-service');
+              const tokenData = await joseTokenService.validateSubscriptionToken(token);
+              
+              if (tokenData && tokenData.userId) {
+                const { databaseStorage } = await import('./storage');
+                authenticatedUser = await databaseStorage.getUser(tokenData.userId);
+                
+                if (authenticatedUser) {
+                  userId = authenticatedUser.id;
+                  console.log(`✅ Analysis session authenticated as: ${authenticatedUser.email}`);
+                }
+              }
+            }
+          } catch (sessionError) {
+            console.log('Error resolving session to user for analysis:', sessionError);
+          }
+        }
+        
+        // Fall back to session ID if no user found
+        const finalUserId: string = userId || req.sessionId || "anonymous";
+        console.log(`📊 No valid subscription token, using session/user-based lookup for: ${finalUserId}`);
+        subscriptionData = await subscriptionService.getUserSubscriptionWithUsage(finalUserId);
+        userId = finalUserId;
       }
 
       // Check if user can analyze another document
@@ -1319,10 +1496,19 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Get user subscription with usage data
+  // Get user subscription with usage data  
   app.get("/api/user/subscription", optionalUserAuth, async (req, res) => {
     try {
       let subscriptionData;
+      
+      // Manual cookie parsing fallback (same as /api/auth/session)
+      let sessionId = req.cookies?.sessionId;
+      if (!sessionId && req.headers.cookie) {
+        const cookieMatch = req.headers.cookie.match(/sessionId=([^;]+)/);
+        if (cookieMatch) {
+          sessionId = cookieMatch[1];
+        }
+      }
       
       // Check for subscription token first (for persistent subscription access)
       // Try httpOnly cookie first (more secure)
@@ -1350,27 +1536,56 @@ export async function registerRoutes(app: Express): Promise<Server> {
         if (subscriptionData) {
           // Token is valid - ensure it's stored as httpOnly cookie
           res.cookie('subscriptionToken', subscriptionToken, {
-            httpOnly: true,
-            secure: process.env.NODE_ENV === 'production',
-            sameSite: 'strict',
-            maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
-            path: '/'
+            ...getCookieSettings(req),
+            maxAge: 7 * 24 * 60 * 60 * 1000 // 7 days
           });
           return res.json(subscriptionData);
         } else {
           // Token was invalid or expired - clear the cookie
           res.clearCookie('subscriptionToken', {
-            httpOnly: true,
-            secure: process.env.NODE_ENV === 'production',
-            sameSite: 'strict',
-            path: '/'
+            ...getCookieSettings(req)
           });
         }
       }
       
-      // Fall back to user/session-based subscription
-      const userId = req.user?.id || req.sessionId || "anonymous";
-      subscriptionData = await subscriptionService.getUserSubscriptionWithUsage(userId);
+      // Enhanced user resolution logic (replicating /api/auth/session)
+      let userId = req.user?.id;
+      let authenticatedUser = null;
+      
+      // If we don't have req.user but have a sessionId, do the same lookup as /api/auth/session
+      if (!userId && sessionId) {
+        try {
+          const { postgresqlSessionStorage } = await import('./postgresql-session-storage');
+          const token = await postgresqlSessionStorage.getTokenBySession(sessionId);
+          
+          if (token) {
+            const { joseTokenService } = await import('./jose-token-service');
+            const tokenData = await joseTokenService.validateSubscriptionToken(token);
+            
+            if (tokenData && tokenData.userId) {
+              const { databaseStorage } = await import('./storage');
+              authenticatedUser = await databaseStorage.getUser(tokenData.userId);
+              
+              if (authenticatedUser) {
+                userId = authenticatedUser.id;
+                console.log(`✅ Session authenticated as: ${authenticatedUser.email}`);
+              }
+            }
+          }
+        } catch (sessionError) {
+          console.log('Error resolving session to user:', sessionError);
+        }
+      }
+      
+      // Fallback to sessionId or anonymous - ensure userId is never undefined
+      if (!userId) {
+        userId = sessionId || "anonymous";
+      }
+      
+      // TypeScript safety: ensure userId is always a string
+      const finalUserId: string = userId || "anonymous";
+      
+      subscriptionData = await subscriptionService.getUserSubscriptionWithUsage(finalUserId);
       
       res.json(subscriptionData);
     } catch (error) {
@@ -1444,8 +1659,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Token cleanup and statistics (admin only)
   app.post("/api/admin/cleanup-tokens", requireAdminAuth, async (req, res) => {
     try {
-      const { hybridTokenService } = await import('./hybrid-token-service');
-      const results = await hybridTokenService.cleanupExpired();
+      const { secureJWTService } = await import('./secure-jwt-service');
+      const results = await secureJWTService.cleanupExpiredTokens();
       
       res.json({
         success: true,
@@ -1513,31 +1728,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       // Send verification code via email
       try {
-        await emailService.sendEmail({
-          to: email,
-          subject: 'Your ReadMyFinePrint Verification Code',
-          html: `
-            <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-              <h2 style="color: #333;">Device Verification Required</h2>
-              <p>Someone is trying to access your ReadMyFinePrint subscription from a new device.</p>
-              
-              <div style="background: #f5f5f5; padding: 20px; border-radius: 8px; text-align: center; margin: 20px 0;">
-                <h3 style="margin: 0; color: #2563eb;">Your verification code:</h3>
-                <div style="font-size: 32px; font-weight: bold; color: #2563eb; margin: 10px 0; letter-spacing: 4px;">${codeResult.code}</div>
-                <p style="margin: 0; color: #666; font-size: 14px;">This code expires in 10 minutes</p>
-              </div>
-              
-              <p style="color: #666; font-size: 14px;">
-                If you didn't request this, you can safely ignore this email.
-              </p>
-              
-              <hr style="border: none; border-top: 1px solid #eee; margin: 20px 0;">
-              <p style="color: #999; font-size: 12px;">
-                ReadMyFinePrint - Secure Document Analysis
-              </p>
-            </div>
-          `
-        });
+        const emailSent = await sendVerificationEmail(email, codeResult.code!);
+        
+        if (!emailSent) {
+          console.error('Failed to send verification email to:', email);
+          return res.status(500).json({ error: 'Failed to send verification code' });
+        }
         
         console.log(`📧 Verification code sent to ${email}`);
       } catch (emailError) {
@@ -1646,12 +1842,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
         }
       }
 
-      // Generate JWT tokens using secure JWT service
-      const { secureJWTService } = await import('./secure-jwt-service');
-      const { accessToken, refreshToken } = await secureJWTService.generateTokenPair(
+      // Generate JWT tokens using JOSE auth service
+      const { joseAuthService } = await import('./jose-auth-service');
+      const { accessToken, refreshToken } = await joseAuthService.generateTokenPair(
         user.id,
         email,
-        user.username || undefined
+        { ip: getClientInfo(req).ip, userAgent: req.get('User-Agent') || 'unknown' }
       );
 
       // Store session in PostgreSQL
@@ -1665,21 +1861,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
         sessionId: `${sessionId.slice(0, 8)}...`,
         accessTokenPrefix: `${accessToken.slice(0, 16)}...`,
         cookieSettings: {
-          httpOnly: true,
-          secure: process.env.NODE_ENV === 'production',
-          sameSite: process.env.NODE_ENV === 'production' ? 'lax' : 'strict',
-          maxAge: 7 * 24 * 60 * 60 * 1000,
-          path: '/'
+          ...getCookieSettings(req),
+          maxAge: 7 * 24 * 60 * 60 * 1000
         }
       });
 
       // Set secure httpOnly cookie with session ID
       const cookieOptions = {
-        httpOnly: true,
-        secure: process.env.NODE_ENV === 'production',
-        sameSite: 'lax' as const,
+        ...getCookieSettings(req),
         maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
-        path: '/',
         // Don't set domain - let browser handle it for better compatibility
       };
       
@@ -1709,7 +1899,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Session validation endpoint
-  app.get("/api/auth/session", async (req, res) => {
+  app.get("/api/auth/session", optionalUserAuth, async (req, res) => {
     try {
       let sessionId = req.cookies?.sessionId;
       const clientSessionId = req.headers['x-session-id'] as string;
@@ -1739,6 +1929,19 @@ export async function registerRoutes(app: Express): Promise<Server> {
         }
       });
       
+      // Check for JWT authenticated user first (optionalUserAuth middleware sets req.user)
+      if (req.user) {
+        console.log(`✅ JWT authentication successful for user: ${req.user.email}`);
+        
+        return res.json({
+          authenticated: true,
+          user: {
+            id: req.user.id,
+            email: req.user.email
+          }
+        });
+      }
+      
       // Check for authenticated user session (sessionId cookie)
       if (sessionId) {
         console.log('🔍 Checking authenticated user session...');
@@ -1757,28 +1960,39 @@ export async function registerRoutes(app: Express): Promise<Server> {
           return res.status(401).json({ error: 'Invalid session', authenticated: false });
         }
 
-        // Validate the token
-        const { hybridTokenService } = await import('./hybrid-token-service');
-        const tokenData = await hybridTokenService.validateSubscriptionToken(token);
+        // Validate the subscription token (stored in session)
+        // Use JOSE token service directly for subscription tokens
+        const { joseTokenService } = await import('./jose-token-service');
+        const tokenData = await joseTokenService.validateSubscriptionToken(token);
+        const tokenValidation = { valid: !!tokenData, payload: tokenData };
         
         console.log(`🔍 Token validation result:`, {
-          valid: !!tokenData,
-          userId: tokenData?.userId || 'none',
-          tierId: tokenData?.tierId || 'none'
+          valid: tokenValidation.valid,
+          userId: tokenValidation.payload?.userId || 'none',
+          tierId: tokenValidation.payload?.tierId || 'none'
         });
         
-        if (!tokenData) {
+        if (!tokenValidation.valid) {
           console.log('❌ Token validation failed');
+          
+          // Clean up invalid token from database to prevent repeated validation attempts
+          try {
+            await postgresqlSessionStorage.removeSessionToken(sessionId);
+            console.log('🧹 Removed invalid token from database');
+          } catch (cleanupError) {
+            console.error('⚠️ Failed to clean up invalid token:', cleanupError);
+          }
+          
           return res.status(401).json({ error: 'Invalid token', authenticated: false });
         }
 
-        if (!tokenData.userId) {
-          console.error('Session token validation successful but userId is undefined:', tokenData);
+        if (!tokenValidation.payload?.userId) {
+          console.error('Session token validation successful but userId is undefined:', tokenValidation);
           return res.status(401).json({ error: 'Invalid session: missing user ID', authenticated: false });
         }
 
         // Get user data
-        const user = await databaseStorage.getUser(tokenData.userId);
+        const user = await databaseStorage.getUser(tokenValidation.payload.userId);
         
         console.log(`🔍 User lookup result:`, {
           found: !!user,
@@ -1831,6 +2045,34 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Refresh JWT access token
+  app.post("/api/auth/refresh", async (req, res) => {
+    try {
+      const { refreshToken } = req.body;
+      
+      if (!refreshToken) {
+        return res.status(400).json({ error: 'Refresh token is required' });
+      }
+      
+      const { ip, userAgent } = getClientInfo(req);
+      const result = await refreshAccessToken(refreshToken, { ip, userAgent });
+      
+      if (result) {
+        res.json({
+          tokens: {
+            access: result.accessToken,
+            refresh: refreshToken // Keep the same refresh token
+          }
+        });
+      } else {
+        res.status(401).json({ error: 'Invalid or expired refresh token' });
+      }
+    } catch (error) {
+      console.error('Token refresh error:', error);
+      res.status(500).json({ error: 'Token refresh failed' });
+    }
+  });
+
   // Get subscription token after successful checkout
   app.get("/api/subscription/token/:sessionId", async (req, res) => {
     try {
@@ -1849,11 +2091,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
           
           // Set the subscription token as an httpOnly cookie for security
           res.cookie('subscriptionToken', token, {
-            httpOnly: true,
-            secure: process.env.NODE_ENV === 'production',
-            sameSite: 'strict',
-            maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
-            path: '/'
+            ...getCookieSettings(req),
+            maxAge: 7 * 24 * 60 * 60 * 1000 // 7 days
           });
           
           res.json({ 
@@ -1916,7 +2155,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       // Calculate price based on billing cycle
       const price = billingCycle === 'yearly' ? tier.yearlyPrice : tier.monthlyPrice;
-      const userId = req.user?.id || req.sessionId || "anonymous";
+      
+      // For subscription checkout, we should NOT use an authenticated user's ID
+      // This allows creating new subscriptions for new users or switching accounts
+      // The webhook will handle creating/finding the user based on the email provided in Stripe
+      const userId = req.sessionId || "anonymous";
 
       // Auto-detect test mode based on development environment
       const useTestMode = process.env.NODE_ENV === 'development';
@@ -2325,11 +2568,76 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const { ip: getIp, userAgent: getUA } = getClientInfo(req);
       const getClientFingerprint = crypto.createHash('md5').update(`${getIp}:${getUA}`).digest('hex').substring(0, 16);
 
-      const document = await storage.getDocument(req.sessionId, documentId, getClientFingerprint);
+      let document = await storage.getDocument(req.sessionId, documentId, getClientFingerprint);
 
+      let originalSessionId = null;
+      let isSampleDocument = false;
+      
       if (!document) {
-        console.log(`❌ Document ${documentId} not found in session ${req.sessionId} (GET)`);
-        return res.status(404).json({ error: "Document not found" });
+        console.log(`🔍 Document ${documentId} not found in current session, searching across all sessions for client ${getClientFingerprint}`);
+        
+        // Try to find the document across all sessions - prioritize any document match first
+        const allSessions = storage.getAllSessions();
+        let foundDocument = null;
+        let foundSessionId = null;
+        
+        for (const [sessionId, sessionData] of allSessions) {
+          const sessionDoc = await storage.getDocument(sessionId, documentId);
+          if (sessionDoc) {
+            // Prioritize non-sample documents
+            if (!sessionDoc.title.startsWith('Sample:')) {
+              foundDocument = sessionDoc;
+              foundSessionId = sessionId;
+              console.log(`🔍 Found regular document ${documentId} in session ${sessionId}`);
+              break; // Prefer non-sample documents
+            } else if (!foundDocument) {
+              // Only use sample document as fallback if no regular document found
+              foundDocument = sessionDoc;
+              foundSessionId = sessionId;
+              isSampleDocument = true;
+              console.log(`🔍 Found sample document ${documentId} in session ${sessionId} (fallback)`);
+            }
+          }
+        }
+        
+        if (foundDocument) {
+          if (isSampleDocument) {
+            console.log(`📋 Found sample contract ${documentId} in session ${foundSessionId}, making accessible to current session`);
+            // Copy the sample document to the current session for retrieval
+            await storage.createDocument(req.sessionId, {
+              title: foundDocument.title,
+              content: foundDocument.content,
+              fileType: foundDocument.fileType || undefined,
+              analysis: foundDocument.analysis
+            }, getClientFingerprint, documentId);
+          } else {
+            console.log(`📋 Found regular document ${documentId} in session ${foundSessionId}, making accessible to current session`);
+            // Copy the regular document to the current session for retrieval
+            await storage.createDocument(req.sessionId, {
+              title: foundDocument.title,
+              content: foundDocument.content,
+              fileType: foundDocument.fileType || undefined,
+              analysis: foundDocument.analysis
+            }, getClientFingerprint, documentId);
+          }
+          document = foundDocument;
+          originalSessionId = foundSessionId;
+        }
+
+        if (!document) {
+          // Enhanced error logging for debugging
+          const allDocs = await storage.getAllDocuments(req.sessionId);
+          console.log(`❌ Document ${documentId} not found in session ${req.sessionId} (GET)`);
+          console.log(`📋 Available documents in session: ${allDocs.map(d => `ID:${d.id}`).join(', ') || 'none'}`);
+          return res.status(404).json({
+            error: "Document not found",
+            debug: {
+              requestedId: documentId,
+              sessionId: req.sessionId,
+              availableDocuments: allDocs.map(d => ({ id: d.id, title: d.title }))
+            }
+          });
+        }
       }
 
       console.log(`✅ Document ${documentId} found and returned (GET)`);
@@ -2425,23 +2733,24 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       // Clear the session cookie
       res.clearCookie('sessionId', {
-        httpOnly: true,
-        secure: process.env.NODE_ENV === 'production',
-        sameSite: 'strict',
-        path: '/'
+        ...getCookieSettings(req)
       });
       
-      // Clear the subscription token cookie
+      // Clear all possible cookies
       res.clearCookie('subscriptionToken', {
-        httpOnly: true,
-        secure: process.env.NODE_ENV === 'production',
-        sameSite: 'strict',
-        path: '/'
+        ...getCookieSettings(req)
+      });
+      res.clearCookie('sessionId', {
+        ...getCookieSettings(req)
+      });
+      res.clearCookie('refreshToken', {
+        ...getCookieSettings(req)
       });
 
       // Also clear session from PostgreSQL if present
-      const sessionId = req.cookies?.sessionId;
-      if (sessionId) {
+      // Use both req.sessionId and cookie sessionId to ensure complete cleanup
+      const sessionIds = [req.sessionId, req.cookies?.sessionId].filter(Boolean);
+      for (const sessionId of sessionIds) {
         try {
           const { postgresqlSessionStorage } = await import('./postgresql-session-storage');
           await postgresqlSessionStorage.removeSessionToken(sessionId);
@@ -2681,7 +2990,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
           console.log(`   Customer ID: ${checkoutSession.customer}`);
           console.log(`   Metadata:`, checkoutSession.metadata);
           
-          // Only handle subscription checkouts (not one-time payments)
+          // Handle both subscription and one-time payment checkouts
           if (checkoutSession.mode === 'subscription' && checkoutSession.subscription) {
             console.log(`🎉 Processing subscription checkout${isTestMode ? ' (TEST)' : ''}: ${checkoutSession.id}`);
             
@@ -2829,6 +3138,30 @@ export async function registerRoutes(app: Express): Promise<Server> {
                 stripeCustomerId: !stripeCustomerId,
                 stripeSubscriptionId: !stripeSubscriptionId
               });
+            }
+          } else if (checkoutSession.mode === 'payment' && checkoutSession.metadata?.type === 'donation') {
+            console.log(`💰 Processing donation checkout${isTestMode ? ' (TEST)' : ''}: ${checkoutSession.id}`);
+            
+            // Send donation thank you email
+            try {
+              const amount = (checkoutSession.amount_total || 0) / 100; // Convert from cents
+              const customerEmail = checkoutSession.customer_details?.email;
+              
+              if (customerEmail) {
+                await emailService.sendDonationThankYou({
+                  customerEmail: customerEmail,
+                  amount: amount,
+                  currency: 'usd', // Default to USD for donations
+                  paymentIntentId: checkoutSession.id,
+                  customerName: checkoutSession.customer_details?.name || 'Valued Supporter',
+                  timestamp: new Date()
+                });
+                console.log(`📧 Donation thank you email sent to ${customerEmail} for $${amount}`);
+              } else {
+                console.log(`⚠️ No customer email found for donation ${checkoutSession.id}`);
+              }
+            } catch (emailError) {
+              console.error(`❌ Failed to send donation thank you email:`, emailError);
             }
           } else {
             console.log(`ℹ️ Skipping non-subscription checkout session: ${checkoutSession.id} (mode: ${checkoutSession.mode})`);
@@ -3051,6 +3384,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
         }
       });
 
+      // Generate URLs for debugging
+      const baseUrl = getClientBaseUrl(req);
+      const successUrl = validatedData.success_url || `${baseUrl}/donate?success=true&amount=${amount}`;
+      const cancelUrl = validatedData.cancel_url || `${baseUrl}/donate?canceled=true`;
+      
+      console.log(`💰 Creating donation checkout session:`);
+      console.log(`   Base URL: ${baseUrl}`);
+      console.log(`   Success URL: ${successUrl}`);
+      console.log(`   Cancel URL: ${cancelUrl}`);
+
       // Create Stripe Checkout Session with secure configuration
       const session = await stripeInstance.checkout.sessions.create({
         payment_method_types: ['card'],
@@ -3066,8 +3409,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
           quantity: 1,
         }],
         mode: 'payment',
-        success_url: validatedData.success_url || `${getClientBaseUrl(req)}/donate?success=true&amount=${amount}`,
-        cancel_url: validatedData.cancel_url || `${getClientBaseUrl(req)}/donate?canceled=true`,
+        success_url: successUrl,
+        cancel_url: cancelUrl,
         metadata: {
           type: "donation",
           source: "readmyfineprint",
@@ -3247,17 +3590,20 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   // Handle Stripe checkout redirects to /subscription
   app.get('/subscription', (req, res) => {
-    // In development, redirect to the client dev server (Vite on port 5173)
-    // In production, this should redirect to the same domain
-    if (process.env.NODE_ENV === 'development') {
+    // Check if we're in a Replit environment (even during development)
+    const isReplit = process.env.REPL_ID || req.get('host')?.includes('replit.dev') || req.get('host')?.includes('kirk.replit.dev');
+    
+    if (process.env.NODE_ENV === 'development' && !isReplit) {
+      // In local development only, redirect to the client dev server (Vite on port 5173)
       const clientUrl = `http://localhost:5173/subscription${req.url.includes('?') ? req.url.substring(req.url.indexOf('?')) : ''}`;
       console.log(`🔀 Redirecting Stripe checkout to client dev server: ${clientUrl}`);
       res.redirect(302, clientUrl);
     } else {
-      // In production, just serve the client app (this would be handled by your reverse proxy/CDN)
-      // For now, redirect to root and let client routing handle it
+      // In production, staging, or Replit environments, redirect to the same domain
       const queryString = req.url.includes('?') ? req.url.substring(req.url.indexOf('?')) : '';
-      res.redirect(302, `/${queryString}`);
+      const clientUrl = `${req.protocol}://${req.get('host')}/subscription${queryString}`;
+      console.log(`🔀 Redirecting Stripe checkout to: ${clientUrl}`);
+      res.redirect(302, clientUrl);
     }
   });
 
@@ -3649,6 +3995,28 @@ ReadMyFinePrint | Privacy-First AI-Powered Contract Analysis
       res.status(500).json({ 
         success: false, 
         error: 'Failed to unsubscribe from mailing list' 
+      });
+    }
+  });
+
+  // Disaster recovery status endpoint
+  app.get('/api/system/recovery-status', requireAdminAuth, async (req, res) => {
+    try {
+      const systemHealth = await disasterRecoveryService.checkSystemHealth();
+      const currentErrorRate = disasterRecoveryService.getCurrentErrorRate();
+      
+      res.json({
+        success: true,
+        systemHealth,
+        errorRate: currentErrorRate,
+        status: currentErrorRate > 10 ? 'degraded' : 'healthy',
+        timestamp: new Date().toISOString()
+      });
+    } catch (error) {
+      console.error('Error checking recovery status:', error);
+      res.status(500).json({
+        success: false,
+        error: 'Failed to check recovery status'
       });
     }
   });
