@@ -63,10 +63,56 @@ export async function sessionFetch(url: string, options: RequestInit = {}): Prom
       console.log('⚠️ sessionFetch (CSRF): No JWT token found in localStorage for:', url);
     }
     
-    return fetchWithCSRF(url, {
+    const response = await fetchWithCSRF(url, {
       ...options,
       headers,
     });
+    
+    // Handle token refresh for CSRF requests too
+    if (response.status === 401 && accessToken && localStorage.getItem('jwt_refresh_token')) {
+      console.log('❌ sessionFetch (CSRF): 401 Unauthorized - attempting token refresh...');
+      
+      try {
+        const refreshResponse = await fetch('/api/auth/refresh', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            refreshToken: localStorage.getItem('jwt_refresh_token'),
+          }),
+          credentials: 'include',
+        });
+        
+        if (refreshResponse.ok) {
+          const contentType = refreshResponse.headers.get('content-type');
+          if (contentType && contentType.includes('application/json')) {
+            const { tokens } = await refreshResponse.json();
+            localStorage.setItem('jwt_access_token', tokens.access);
+            localStorage.setItem('jwt_refresh_token', tokens.refresh);
+            
+            console.log('✅ Token refresh successful, retrying CSRF request...');
+            
+            // Retry original CSRF request with new token
+            const newHeaders = {
+              ...headers,
+              'Authorization': `Bearer ${tokens.access}`
+            };
+            
+            return fetchWithCSRF(url, {
+              ...options,
+              headers: newHeaders,
+            });
+          }
+        }
+      } catch (refreshError) {
+        console.log('Token refresh failed for CSRF request:', refreshError instanceof Error ? refreshError.message : 'Unknown error');
+        localStorage.removeItem('jwt_access_token');
+        localStorage.removeItem('jwt_refresh_token');
+      }
+    }
+    
+    return response;
   }
   
   // For GET requests, add session ID and JWT token if available
@@ -94,14 +140,63 @@ export async function sessionFetch(url: string, options: RequestInit = {}): Prom
     credentials: 'include',
   });
   
-  // Debug logging for authentication issues
-  if (response.status === 401) {
+  // Debug logging and token refresh for authentication issues
+  if (response.status === 401 && accessToken && localStorage.getItem('jwt_refresh_token')) {
+    console.log('❌ sessionFetch: 401 Unauthorized - attempting token refresh...');
+    
+    try {
+      const refreshResponse = await fetch('/api/auth/refresh', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          refreshToken: localStorage.getItem('jwt_refresh_token'),
+        }),
+        credentials: 'include',
+      });
+      
+      if (refreshResponse.ok) {
+        const contentType = refreshResponse.headers.get('content-type');
+        if (contentType && contentType.includes('application/json')) {
+          const { tokens } = await refreshResponse.json();
+          localStorage.setItem('jwt_access_token', tokens.access);
+          localStorage.setItem('jwt_refresh_token', tokens.refresh);
+          
+          console.log('✅ Token refresh successful, retrying original request...');
+          
+          // Retry original request with new token
+          const newHeaders = {
+            ...headers,
+            'Authorization': `Bearer ${tokens.access}`
+          };
+          
+          return fetch(url, {
+            ...options,
+            headers: newHeaders,
+            credentials: 'include',
+          });
+        } else {
+          console.warn('Refresh endpoint returned non-JSON response');
+        }
+      } else {
+        console.log('Token refresh failed with status:', refreshResponse.status);
+      }
+    } catch (refreshError) {
+      console.log('Token refresh failed:', refreshError instanceof Error ? refreshError.message : 'Unknown error');
+      // Clear invalid tokens to prevent repeated failed refresh attempts
+      localStorage.removeItem('jwt_access_token');
+      localStorage.removeItem('jwt_refresh_token');
+    }
+  } else if (response.status === 401) {
     console.log('❌ sessionFetch: 401 Unauthorized response:', {
       url,
       status: response.status,
       statusText: response.statusText,
       headers: Object.fromEntries(response.headers.entries()),
-      sentHeaders: headers
+      sentHeaders: headers,
+      hasAccessToken: !!accessToken,
+      hasRefreshToken: !!localStorage.getItem('jwt_refresh_token')
     });
   }
   
