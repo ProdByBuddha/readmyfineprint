@@ -19,6 +19,9 @@ const CACHE_DURATION = 30000; // 30 seconds cache
 let recentlyAccepted = false;
 let acceptanceTimer: number | null = null;
 
+// Prevent concurrent consent checks
+let isCheckingGlobally = false;
+
 // Combined hook for managing both legal and cookie consent
 export function useCombinedConsent() {
   const [isAccepted, setIsAccepted] = useState(false);
@@ -66,12 +69,23 @@ export function useCombinedConsent() {
       return;
     }
     
+    // Prevent concurrent checks
+    if (isCheckingGlobally) {
+      if (import.meta.env.DEV) {
+        console.log('Consent check already in progress, skipping...');
+      }
+      return;
+    }
+    
     // Set checking state
+    isCheckingGlobally = true;
     setIsCheckingConsent(true);
     
     try {
       const sessionId = getGlobalSessionId();
-      console.log(`Checking consent with session: ${sessionId.substring(0, 16)}...`);
+      if (import.meta.env.DEV) {
+        console.log(`Checking consent with session: ${sessionId.substring(0, 16)}...`);
+      }
       
       const response = await sessionFetch('/api/consent/verify', {
         method: 'POST',
@@ -84,12 +98,14 @@ export function useCombinedConsent() {
         const result = await response.json();
         const hasConsented = result.hasConsented === true;
         
-        console.log('Consent check result:', { 
-          hasConsented, 
-          proof: !!result.proof, 
-          sessionId: getGlobalSessionId().substring(0, 16),
-          sessionResult: result 
-        });
+        if (import.meta.env.DEV) {
+          console.log('Consent check result:', { 
+            hasConsented, 
+            proof: !!result.proof, 
+            sessionId: getGlobalSessionId().substring(0, 16),
+            sessionResult: result 
+          });
+        }
         
         // Update global state and local state
         globalConsentState = { status: hasConsented, timestamp: now, sessionId: getGlobalSessionId() };
@@ -109,17 +125,31 @@ export function useCombinedConsent() {
       globalConsentState = null;
       setIsAccepted(false);
     } finally {
+      isCheckingGlobally = false;
       setIsCheckingConsent(false);
     }
   }, []);
 
   useEffect(() => {
-    // Check consent on initial mount and whenever the component mounts
+    // Check consent on initial mount only if we don't have a recent cache
     const initialCheck = async () => {
-      // Clear any stale global cache on fresh mount to ensure fresh state
-      globalConsentState = null;
       const sessionId = getGlobalSessionId();
-      console.log(`Initial consent check - session: ${sessionId.substring(0, 16)}... - clearing global cache and checking fresh state`);
+      
+      // If we have a recent cache entry for this session, use it
+      if (globalConsentState && 
+          globalConsentState.sessionId === sessionId && 
+          (Date.now() - globalConsentState.timestamp) < CACHE_DURATION) {
+        if (import.meta.env.DEV) {
+          console.log(`Using cached consent state for session: ${sessionId.substring(0, 16)}...`);
+        }
+        setIsAccepted(globalConsentState.status);
+        setIsCheckingConsent(false);
+        return;
+      }
+      
+      if (import.meta.env.DEV) {
+        console.log(`Initial consent check - session: ${sessionId.substring(0, 16)}...`);
+      }
       await checkConsent();
     };
     initialCheck();

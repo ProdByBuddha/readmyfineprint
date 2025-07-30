@@ -1790,8 +1790,8 @@ function Analytics({ adminToken }: { adminToken: string }) {
         </CardContent>
       </Card>
 
-      {/* Debug Info */}
-      {analyticsData && (
+      {/* Debug Info - Only in development */}
+      {import.meta.env.DEV && analyticsData && (
         <Card>
           <CardHeader>
             <CardTitle className="text-sm text-gray-500 dark:text-gray-400">Debug - Analytics Data Structure</CardTitle>
@@ -1814,7 +1814,9 @@ export default function AdminDashboard() {
   // Check if user is admin using existing subscription token
   useEffect(() => {
     const checkAdminStatus = async () => {
-      console.log('🔍 Starting admin authentication check...');
+      if (import.meta.env.DEV) {
+        console.log('🔍 Starting admin authentication check...');
+      }
       
       // Check if we're in development mode and try auto-login
       if (import.meta.env.DEV || import.meta.env.MODE === 'development') {
@@ -1904,15 +1906,17 @@ export default function AdminDashboard() {
     );
   }
 
-  // Show debug info if not admin
+  // Show appropriate message if not admin
   if (!isAdmin) {
-    return (
-      <div className="min-h-screen flex items-center justify-center p-4">
-        <Card className="w-full max-w-2xl">
-          <CardHeader>
-            <CardTitle className="text-center text-red-600">Admin Access Debug</CardTitle>
-          </CardHeader>
-          <CardContent>
+    // Only show debug panel in development
+    if (import.meta.env.DEV) {
+      return (
+        <div className="min-h-screen flex items-center justify-center p-4">
+          <Card className="w-full max-w-2xl">
+            <CardHeader>
+              <CardTitle className="text-center text-red-600">Admin Access Debug</CardTitle>
+            </CardHeader>
+            <CardContent>
             <div className="space-y-4">
               <div>
                 <h3 className="font-semibold mb-2">Session Cookie Test</h3>
@@ -2006,6 +2010,27 @@ export default function AdminDashboard() {
               Return to Home
             </Button>
             </div>
+          </CardContent>
+        </Card>
+      </div>
+    );
+    }
+    
+    // Production: Show proper access denied message
+    return (
+      <div className="min-h-screen flex items-center justify-center p-4">
+        <Card className="w-full max-w-md">
+          <CardHeader>
+            <CardTitle className="text-center">Admin Access Required</CardTitle>
+          </CardHeader>
+          <CardContent className="text-center space-y-4">
+            <Shield className="w-16 h-16 mx-auto text-gray-400" />
+            <p className="text-gray-600 dark:text-gray-400">
+              You don't have permission to access this area.
+            </p>
+            <Button onClick={() => window.location.href = '/'} variant="outline">
+              Return to Home
+            </Button>
           </CardContent>
         </Card>
       </div>

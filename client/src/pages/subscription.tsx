@@ -688,8 +688,8 @@ export default function SubscriptionPage() {
               </motion.div>
             )}
             
-            {/* Debug component to see what's happening with Stripe */}
-            <StripeDebug />
+            {/* Debug component to see what's happening with Stripe - only in development */}
+            {import.meta.env.DEV && <StripeDebug />}
             
             <StripeWrapper>
               <SubscriptionPlans

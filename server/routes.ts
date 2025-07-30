@@ -96,6 +96,11 @@ export function getCookieSettings(req?: any) {
  * In production: uses the request host
  */
 function getClientBaseUrl(req: any): string {
+  // In production, always use the production domain
+  if (process.env.NODE_ENV === 'production') {
+    return 'https://readmyfineprint.com';
+  }
+  
   // Check if we're in a Replit environment
   const isReplit = process.env.REPL_ID || req.get('host')?.includes('replit.dev') || req.get('host')?.includes('kirk.replit.dev');
   const host = req.get('host');
@@ -119,11 +124,13 @@ function getClientBaseUrl(req: any): string {
       baseUrl = `${req.protocol}://${host}`;
     }
   } else {
-    // In production, staging, or other environments, use the same protocol and host as the request
+    // In staging or other environments, use the same protocol and host as the request
     baseUrl = `${req.protocol}://${host}`;
   }
   
-  console.log(`🔍 getClientBaseUrl() -> ${baseUrl} (isReplit: ${isReplit}, host: ${host}, NODE_ENV: ${process.env.NODE_ENV})`);
+  if (process.env.NODE_ENV !== 'production') {
+    console.log(`🔍 getClientBaseUrl() -> ${baseUrl} (isReplit: ${isReplit}, host: ${host}, NODE_ENV: ${process.env.NODE_ENV})`);
+  }
   return baseUrl;
 }
 
