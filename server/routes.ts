@@ -975,7 +975,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Create document from text input
-  app.post("/api/documents", requireConsent, optionalUserAuth, requireSecurityQuestions, async (req: any, res) => {
+  app.post("/api/documents", requireConsent, optionalUserAuth, async (req: any, res) => {
     try {
       const { title, content, fileType } = insertDocumentSchema.parse(req.body);
 
@@ -1005,7 +1005,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Upload document file
-  app.post("/api/documents/upload", requireConsent, optionalUserAuth, requireSecurityQuestions, upload.single('file'), async (req: any, res) => {
+  app.post("/api/documents/upload", requireConsent, optionalUserAuth, upload.single('file'), async (req: any, res) => {
     try {
       if (!req.file) {
         securityLogger.logFileUploadRejected(req, 'unknown', 'unknown', 'No file provided');
@@ -1057,7 +1057,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Analyze document
-  app.post("/api/documents/:id/analyze", requireConsent, optionalUserAuth, requireSecurityQuestions, async (req: any, res) => {
+  app.post("/api/documents/:id/analyze", requireConsent, optionalUserAuth, async (req: any, res) => {
     try {
       const documentId = parseInt(req.params.id);
 

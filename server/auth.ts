@@ -639,7 +639,7 @@ export async function requireSecurityQuestions(req: Request, res: Response, next
       const subscriptionData = await subscriptionService.getUserSubscriptionWithUsage(userId);
       
       // Free tier users don't need security questions
-      if (!subscriptionData || subscriptionData.tier === 'free') {
+      if (!subscriptionData || subscriptionData.tier.id === 'free') {
         console.log(`Free tier user ${userId} bypassing security questions requirement`);
         return next();
       }

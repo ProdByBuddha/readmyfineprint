@@ -8,7 +8,7 @@ packages = ["imagemagick", "python311Packages.transformers", "python311Packages.
 
 [deployment]
 deploymentTarget = "autoscale"
-build = ["npm", "run", "build"]
+build = ["sh", "-c", "npm run deploy:replit"]
 run = ["npm", "run", "start"]
 
 [env]

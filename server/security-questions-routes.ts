@@ -28,13 +28,32 @@ app.get('/api/security-questions/available', async (req: Request, res: Response)
 app.get('/api/security-questions/user', requireUserAuth, async (req: Request, res: Response) => {
   try {
     const userId = req.user!.id;
+    
+    // Check user's subscription tier to determine if security questions are required
+    let requiresSecurityQuestions = false;
+    let userTier = 'free';
+    
+    try {
+      const { subscriptionService } = await import('./subscription-service');
+      const subscriptionData = await subscriptionService.getUserSubscriptionWithUsage(userId);
+      
+      if (subscriptionData && subscriptionData.tier.id !== 'free') {
+        requiresSecurityQuestions = true;
+        userTier = subscriptionData.tier.id;
+      }
+    } catch (tierError) {
+      console.log('Could not determine user tier, assuming free tier');
+    }
+    
     const questions = await securityQuestionsService.getUserSecurityQuestions(userId);
     const hasQuestions = await securityQuestionsService.hasSecurityQuestions(userId);
     
     res.json({ 
       questions,
       hasSecurityQuestions: hasQuestions,
-      count: questions.length
+      count: questions.length,
+      requiresSecurityQuestions,
+      userTier
     });
   } catch (error) {
     console.error('Error fetching user security questions:', error);

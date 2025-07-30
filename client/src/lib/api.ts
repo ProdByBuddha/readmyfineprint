@@ -135,7 +135,9 @@ export async function getSecurityQuestions(): Promise<{ questions: SecurityQuest
 export async function getUserSecurityQuestions(): Promise<{ 
   questions: SecurityQuestion[], 
   hasSecurityQuestions: boolean, 
-  count: number 
+  count: number,
+  requiresSecurityQuestions: boolean,
+  userTier: string
 }> {
   const response = await fetch('/api/security-questions/user', {
     method: 'GET',

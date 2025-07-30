@@ -33,43 +33,30 @@ export function SecurityQuestionsProvider({ children }: SecurityQuestionsProvide
       setIsLoading(true);
       console.log('🔍 Checking security questions status...');
       
-      // First check if user needs security questions based on their subscription
-      // Free tier users don't need security questions
-      try {
-        const subscriptionResponse = await fetch('/api/subscription/status', {
-          method: 'GET',
-          headers: { 'Content-Type': 'application/json' },
-          credentials: 'include'
-        });
-        
-        if (subscriptionResponse.ok) {
-          const subscriptionData = await subscriptionResponse.json();
-          console.log('🔍 User subscription tier:', subscriptionData.tier);
-          
-          // Free tier users don't need security questions
-          if (!subscriptionData.tier || subscriptionData.tier === 'free') {
-            console.log('✅ Free tier user - security questions not required');
-            setHasSecurityQuestions(null); // null means not applicable
-            setRequiresSetup(false);
-            return;
-          }
-        }
-      } catch (subscriptionError) {
-        console.log('Could not determine subscription tier, checking security questions anyway');
-      }
-      
       const response = await getUserSecurityQuestions();
       console.log('🔍 Security questions response:', {
         hasSecurityQuestions: response.hasSecurityQuestions,
-        count: response.count
+        count: response.count,
+        requiresSecurityQuestions: response.requiresSecurityQuestions,
+        userTier: response.userTier
       });
-      setHasSecurityQuestions(response.hasSecurityQuestions);
-      setRequiresSetup(!response.hasSecurityQuestions);
+      
+      // Use server response to determine if setup is required
+      if (!response.requiresSecurityQuestions) {
+        console.log(`✅ ${response.userTier} tier user - security questions not required`);
+        setHasSecurityQuestions(null); // null means not applicable
+        setRequiresSetup(false);
+      } else {
+        // Paid tier user - check if they have security questions set up
+        setHasSecurityQuestions(response.hasSecurityQuestions);
+        setRequiresSetup(!response.hasSecurityQuestions);
+      }
     } catch (error) {
       console.error('Failed to check security questions:', error);
-      // If we can't check, assume they don't have them set up
-      setHasSecurityQuestions(false);
-      setRequiresSetup(true);
+      // If we can't check, assume free tier (no setup required)
+      console.log('❌ Failed to check security questions, assuming free tier');
+      setHasSecurityQuestions(null);
+      setRequiresSetup(false);
     } finally {
       setIsLoading(false);
     }

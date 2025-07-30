@@ -61,7 +61,7 @@ export class SecurityQuestionsService {
       }
 
       // Use a transaction to ensure atomicity
-      await db.transaction(async (tx) => {
+      await db.transaction(async (tx: any) => {
         // Delete existing security questions for this user first
         const deleteResult = await tx.delete(securityQuestions).where(eq(securityQuestions.userId, userId));
         console.log(`🗑️ Deleted ${deleteResult.rowCount || 0} existing security questions for user ${userId}`);
