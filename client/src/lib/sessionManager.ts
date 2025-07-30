@@ -54,6 +54,13 @@ export async function sessionFetch(url: string, options: RequestInit = {}): Prom
     const accessToken = localStorage.getItem('jwt_access_token');
     if (accessToken) {
       headers['Authorization'] = `Bearer ${accessToken}`;
+      console.log('🔑 sessionFetch (CSRF): Adding JWT token to request:', {
+        url,
+        hasToken: !!accessToken,
+        tokenPrefix: accessToken.substring(0, 20) + '...'
+      });
+    } else {
+      console.log('⚠️ sessionFetch (CSRF): No JWT token found in localStorage for:', url);
     }
     
     return fetchWithCSRF(url, {
@@ -72,6 +79,13 @@ export async function sessionFetch(url: string, options: RequestInit = {}): Prom
   const accessToken = localStorage.getItem('jwt_access_token');
   if (accessToken) {
     headers['Authorization'] = `Bearer ${accessToken}`;
+    console.log('🔑 sessionFetch: Adding JWT token to request:', {
+      url,
+      hasToken: !!accessToken,
+      tokenPrefix: accessToken.substring(0, 20) + '...'
+    });
+  } else {
+    console.log('⚠️ sessionFetch: No JWT token found in localStorage for:', url);
   }
   
   const response = await fetch(url, {
@@ -79,6 +93,17 @@ export async function sessionFetch(url: string, options: RequestInit = {}): Prom
     headers,
     credentials: 'include',
   });
+  
+  // Debug logging for authentication issues
+  if (response.status === 401) {
+    console.log('❌ sessionFetch: 401 Unauthorized response:', {
+      url,
+      status: response.status,
+      statusText: response.statusText,
+      headers: Object.fromEntries(response.headers.entries()),
+      sentHeaders: headers
+    });
+  }
   
   // Update session ID if server provides one
   const serverSessionId = response.headers.get('x-session-id');
