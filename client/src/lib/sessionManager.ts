@@ -44,11 +44,17 @@ export async function sessionFetch(url: string, options: RequestInit = {}): Prom
   const needsCSRF = !['GET', 'HEAD', 'OPTIONS'].includes(method);
   
   if (needsCSRF) {
-    // Use fetchWithCSRF with session ID
+    // Use fetchWithCSRF with session ID and JWT token
     const headers = {
       ...options.headers as Record<string, string> || {},
       'x-session-id': sessionId,
     };
+    
+    // Add JWT authorization header if token exists
+    const accessToken = localStorage.getItem('jwt_access_token');
+    if (accessToken) {
+      headers['Authorization'] = `Bearer ${accessToken}`;
+    }
     
     return fetchWithCSRF(url, {
       ...options,
@@ -56,11 +62,17 @@ export async function sessionFetch(url: string, options: RequestInit = {}): Prom
     });
   }
   
-  // For GET requests, just add session ID
+  // For GET requests, add session ID and JWT token if available
   const headers = {
     ...options.headers as Record<string, string> || {},
     'x-session-id': sessionId,
   };
+  
+  // Add JWT authorization header if token exists
+  const accessToken = localStorage.getItem('jwt_access_token');
+  if (accessToken) {
+    headers['Authorization'] = `Bearer ${accessToken}`;
+  }
   
   const response = await fetch(url, {
     ...options,
