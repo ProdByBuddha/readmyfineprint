@@ -45,13 +45,19 @@ export async function sessionFetch(url: string, options: RequestInit = {}): Prom
   
   if (needsCSRF) {
     // Use fetchWithCSRF with session ID and JWT token
-    const headers = {
+    const headers: Record<string, string> = {
       ...options.headers as Record<string, string> || {},
       'x-session-id': sessionId,
     };
     
     // Add JWT authorization header if token exists
-    const accessToken = localStorage.getItem('jwt_access_token');
+    let accessToken = localStorage.getItem('jwt_access_token');
+    
+    // For mobile browsers, also try sessionStorage as fallback
+    if (!accessToken) {
+      accessToken = sessionStorage.getItem('jwt_access_token');
+    }
+    
     if (accessToken) {
       headers['Authorization'] = `Bearer ${accessToken}`;
       if (import.meta.env.DEV) {
@@ -63,7 +69,7 @@ export async function sessionFetch(url: string, options: RequestInit = {}): Prom
       }
     } else {
       if (import.meta.env.DEV) {
-        console.log('⚠️ sessionFetch (CSRF): No JWT token found in localStorage for:', url);
+        console.log('⚠️ sessionFetch (CSRF): No JWT token found in localStorage or sessionStorage for:', url);
       }
     }
     
@@ -94,8 +100,11 @@ export async function sessionFetch(url: string, options: RequestInit = {}): Prom
           const contentType = refreshResponse.headers.get('content-type');
           if (contentType && contentType.includes('application/json')) {
             const { tokens } = await refreshResponse.json();
+            // Store in both localStorage and sessionStorage for mobile compatibility
             localStorage.setItem('jwt_access_token', tokens.access);
             localStorage.setItem('jwt_refresh_token', tokens.refresh);
+            sessionStorage.setItem('jwt_access_token', tokens.access);
+            sessionStorage.setItem('jwt_refresh_token', tokens.refresh);
             
             if (import.meta.env.DEV) {
               console.log('✅ Token refresh successful, retrying CSRF request...');
@@ -124,7 +133,7 @@ export async function sessionFetch(url: string, options: RequestInit = {}): Prom
   }
   
   // For GET requests, add session ID and JWT token if available
-  const headers = {
+  const headers: Record<string, string> = {
     ...options.headers as Record<string, string> || {},
     'x-session-id': sessionId,
   };
@@ -230,6 +239,26 @@ export async function sessionFetch(url: string, options: RequestInit = {}): Prom
 export function clearSession(): void {
   globalSessionId = null;
   sessionStorage.removeItem('app-session-id');
+  
+  // Clear JWT tokens from both storages for mobile compatibility
+  localStorage.removeItem('jwt_access_token');
+  localStorage.removeItem('jwt_refresh_token');
+  sessionStorage.removeItem('jwt_access_token');
+  sessionStorage.removeItem('jwt_refresh_token');
+  
+  // Clear consent data that's tied to session
+  sessionStorage.removeItem('readmyfineprint-consent-id');
+  sessionStorage.removeItem('readmyfineprint-verification-token');
+  
+  // Clear all other session-specific data
+  sessionStorage.clear();
+  
+  // Clear sensitive data from localStorage
+  localStorage.removeItem('subscriptionToken');
+  localStorage.removeItem('subscription_token');
+  localStorage.removeItem('token');
+  localStorage.removeItem('refreshToken');
+  localStorage.removeItem('user');
   
   // Generate new session ID immediately
   generateNewSessionId();

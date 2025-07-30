@@ -85,7 +85,7 @@ export function getCookieSettings(req?: any) {
   return {
     httpOnly: true,
     secure: !isDevelopment && !stagingMode, // false for dev and staging, true for production
-    sameSite: isDevelopment ? 'strict' as const : 'lax' as const,
+    sameSite: 'lax' as const, // Use 'lax' for better mobile compatibility
     path: '/'
   };
 }

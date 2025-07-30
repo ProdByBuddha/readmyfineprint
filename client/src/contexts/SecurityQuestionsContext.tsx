@@ -31,7 +31,38 @@ export function SecurityQuestionsProvider({ children }: SecurityQuestionsProvide
   const checkSecurityQuestions = async () => {
     try {
       setIsLoading(true);
+      console.log('🔍 Checking security questions status...');
+      
+      // First check if user needs security questions based on their subscription
+      // Free tier users don't need security questions
+      try {
+        const subscriptionResponse = await fetch('/api/subscription/status', {
+          method: 'GET',
+          headers: { 'Content-Type': 'application/json' },
+          credentials: 'include'
+        });
+        
+        if (subscriptionResponse.ok) {
+          const subscriptionData = await subscriptionResponse.json();
+          console.log('🔍 User subscription tier:', subscriptionData.tier);
+          
+          // Free tier users don't need security questions
+          if (!subscriptionData.tier || subscriptionData.tier === 'free') {
+            console.log('✅ Free tier user - security questions not required');
+            setHasSecurityQuestions(null); // null means not applicable
+            setRequiresSetup(false);
+            return;
+          }
+        }
+      } catch (subscriptionError) {
+        console.log('Could not determine subscription tier, checking security questions anyway');
+      }
+      
       const response = await getUserSecurityQuestions();
+      console.log('🔍 Security questions response:', {
+        hasSecurityQuestions: response.hasSecurityQuestions,
+        count: response.count
+      });
       setHasSecurityQuestions(response.hasSecurityQuestions);
       setRequiresSetup(!response.hasSecurityQuestions);
     } catch (error) {
@@ -45,6 +76,7 @@ export function SecurityQuestionsProvider({ children }: SecurityQuestionsProvide
   };
 
   const markSetupComplete = () => {
+    console.log('✅ Marking security questions setup as complete');
     setHasSecurityQuestions(true);
     setRequiresSetup(false);
   };

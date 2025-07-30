@@ -15,6 +15,7 @@ import { logout } from '@/lib/api';
 import { useToast } from '@/hooks/use-toast';
 import { clearSession } from '@/lib/sessionManager';
 import { clearCSRFToken } from '@/lib/csrfManager';
+import { queryClient } from '@/lib/queryClient';
 import { useTheme } from '@/components/ThemeProvider';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { SubscriptionLogin } from '@/components/SubscriptionLogin';
@@ -202,6 +203,9 @@ export function Header() {
       clearSession();
       clearCSRFToken();
       
+      // Clear all cached query data
+      queryClient.clear();
+      
       // Show success message
       toast({
         title: "Logged out successfully",
@@ -209,8 +213,8 @@ export function Header() {
         duration: 3000,
       });
       
-      // Redirect to home
-      navigate('/');
+      // Force page reload to clear all cached state
+      window.location.href = '/';
       
     } catch (error) {
       console.error('Logout error:', error);
@@ -236,13 +240,17 @@ export function Header() {
       clearSession();
       clearCSRFToken();
       
+      // Clear all cached query data
+      queryClient.clear();
+      
       toast({
         title: "Logged out",
         description: "Session cleared locally",
         duration: 3000,
       });
       
-      navigate('/');
+      // Force page reload to clear all cached state
+      window.location.href = '/';
     }
   };
 

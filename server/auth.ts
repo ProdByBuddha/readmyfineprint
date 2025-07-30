@@ -621,27 +621,57 @@ export async function requireSecurityQuestions(req: Request, res: Response, next
       });
     }
 
-    // Check if user has security questions set up
-    const { securityQuestionsService } = await import('./security-questions-service');
-    const hasSecurityQuestions = await securityQuestionsService.hasSecurityQuestions(userId);
+    // Check if user is admin (admins are exempt from security questions requirement)
+    try {
+      const user = await databaseStorage.getUser(userId);
+      if (user && user.isAdmin) {
+        console.log(`Admin user ${user.email} bypassing security questions requirement`);
+        return next();
+      }
+    } catch (adminCheckError) {
+      console.error('Error checking admin status:', adminCheckError);
+      // Continue with security questions check if admin check fails
+    }
 
-    if (!hasSecurityQuestions) {
-      securityLogger.logSecurityEvent({
-        eventType: SecurityEventType.AUTHORIZATION,
-        severity: SecuritySeverity.MEDIUM,
-        message: `Access denied - security questions required for ${req.path}`,
-        ip,
-        userAgent,
-        endpoint: req.path,
-        details: { userId }
-      });
+    // Check user's subscription tier to determine if security questions are required
+    try {
+      const { subscriptionService } = await import('./subscription-service');
+      const subscriptionData = await subscriptionService.getUserSubscriptionWithUsage(userId);
+      
+      // Free tier users don't need security questions
+      if (!subscriptionData || subscriptionData.tier === 'free') {
+        console.log(`Free tier user ${userId} bypassing security questions requirement`);
+        return next();
+      }
+      
+      // Paid tier users need security questions
+      console.log(`Checking security questions for ${subscriptionData.tier} tier user ${userId}`);
+      const { securityQuestionsService } = await import('./security-questions-service');
+      const hasSecurityQuestions = await securityQuestionsService.hasSecurityQuestions(userId);
 
-      return res.status(403).json({
-        error: 'Security questions required',
-        message: 'You must set up security questions to access this feature',
-        code: 'SECURITY_QUESTIONS_REQUIRED',
-        requiresSecurityQuestions: true
-      });
+      if (!hasSecurityQuestions) {
+        securityLogger.logSecurityEvent({
+          eventType: SecurityEventType.AUTHORIZATION,
+          severity: SecuritySeverity.MEDIUM,
+          message: `Access denied - security questions required for ${subscriptionData.tier} tier user on ${req.path}`,
+          ip,
+          userAgent,
+          endpoint: req.path,
+          details: { userId, tier: subscriptionData.tier }
+        });
+
+        return res.status(403).json({
+          error: 'Security questions required',
+          message: 'You must set up security questions to access this feature as a subscribed user',
+          code: 'SECURITY_QUESTIONS_REQUIRED',
+          requiresSecurityQuestions: true
+        });
+      }
+    } catch (tierCheckError) {
+      console.error('Error checking user subscription tier for security questions:', tierCheckError);
+      // If we can't determine tier, default to allowing access (fail open for free tier)
+      console.log(`Unable to determine tier for user ${userId}, allowing access`);
+      return next();
     }
 
     next();

@@ -1,5 +1,5 @@
 import argon2 from 'argon2';
-import { eq, and } from 'drizzle-orm';
+import { eq, and, sql } from 'drizzle-orm';
 import { db } from './db';
 import { securityQuestions } from '@shared/schema';
 import type { SecurityQuestionRecord, InsertSecurityQuestion, SecurityQuestionsSetup, SecurityQuestion } from '@shared/schema';
@@ -55,16 +55,20 @@ export class SecurityQuestionsService {
         const hashedAnswer = await this.hashAnswer(q.answer);
         securityQuestionsData.push({
           userId,
-          questionId: q.questionId,
-          hashedAnswer
+          question: q.questionId,
+          answerHash: hashedAnswer
         });
       }
 
-      // Delete existing security questions for this user
-      await db.delete(securityQuestions).where(eq(securityQuestions.userId, userId));
+      // Use a transaction to ensure atomicity
+      await db.transaction(async (tx) => {
+        // Delete existing security questions for this user first
+        const deleteResult = await tx.delete(securityQuestions).where(eq(securityQuestions.userId, userId));
+        console.log(`🗑️ Deleted ${deleteResult.rowCount || 0} existing security questions for user ${userId}`);
 
-      // Insert new security questions
-      await db.insert(securityQuestions).values(securityQuestionsData);
+        // Insert new security questions
+        await tx.insert(securityQuestions).values(securityQuestionsData);
+      });
 
       console.log(`✅ Saved ${securityQuestionsData.length} security questions for user ${userId}`);
     } catch (error) {
@@ -79,13 +83,13 @@ export class SecurityQuestionsService {
   async getUserSecurityQuestions(userId: string): Promise<SecurityQuestion[]> {
     try {
       const userQuestions = await db.select({
-        questionId: securityQuestions.questionId
+        question: securityQuestions.question
       }).from(securityQuestions).where(eq(securityQuestions.userId, userId));
 
       return userQuestions.map((uq: any) => {
-        const question = SECURITY_QUESTIONS.find(q => q.id === uq.questionId);
+        const question = SECURITY_QUESTIONS.find(q => q.id === uq.question);
         if (!question) {
-          throw new Error(`Invalid question ID in database: ${uq.questionId}`);
+          throw new Error(`Invalid question ID in database: ${uq.question}`);
         }
         return question;
       });
@@ -108,12 +112,12 @@ export class SecurityQuestionsService {
 
       // Check if all provided answers match
       for (const userQuestion of userQuestions) {
-        const providedAnswer = answers[userQuestion.questionId];
+        const providedAnswer = answers[userQuestion.question];
         if (!providedAnswer) {
           return false; // Missing answer for a question
         }
 
-        const isValid = await this.verifyAnswer(userQuestion.hashedAnswer, providedAnswer);
+        const isValid = await this.verifyAnswer(userQuestion.answerHash, providedAnswer);
         if (!isValid) {
           return false; // Invalid answer
         }

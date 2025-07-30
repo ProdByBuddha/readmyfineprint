@@ -1,4 +1,4 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect } from 'react';
 import { useSecurityQuestions } from '@/contexts/SecurityQuestionsContext';
 
 interface ApiError {
@@ -10,6 +10,19 @@ interface ApiError {
 export function useSecurityQuestionsHandler() {
   const [showSecurityQuestionsModal, setShowSecurityQuestionsModal] = useState(false);
   const { checkSecurityQuestions, markSetupComplete } = useSecurityQuestions();
+
+  // Listen for security questions required event
+  useEffect(() => {
+    const handleSecurityQuestionsRequired = () => {
+      setShowSecurityQuestionsModal(true);
+    };
+
+    window.addEventListener('securityQuestionsRequired', handleSecurityQuestionsRequired);
+    
+    return () => {
+      window.removeEventListener('securityQuestionsRequired', handleSecurityQuestionsRequired);
+    };
+  }, []);
 
   const handleApiError = useCallback((error: any) => {
     // Check if the error indicates security questions are required
@@ -24,10 +37,18 @@ export function useSecurityQuestionsHandler() {
   }, []);
 
   const handleSecurityQuestionsComplete = useCallback(async () => {
-    setShowSecurityQuestionsModal(false);
+    console.log('🔐 Security questions setup completed');
+    // First mark as complete to update local state immediately
     markSetupComplete();
-    // Refresh security questions status
-    await checkSecurityQuestions();
+    // Then hide modal
+    setShowSecurityQuestionsModal(false);
+    // Finally refresh from server to confirm
+    try {
+      await checkSecurityQuestions();
+      console.log('✅ Security questions status refreshed from server');
+    } catch (error) {
+      console.error('❌ Failed to refresh security questions status:', error);
+    }
   }, [checkSecurityQuestions, markSetupComplete]);
 
   const closeSecurityQuestionsModal = useCallback(() => {

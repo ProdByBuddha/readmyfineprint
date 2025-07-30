@@ -26,19 +26,28 @@ export async function createDocument(data: { title: string; content: string; fil
   });
 
   if (!response.ok) {
-    // Try to get error message from response
+    // Read response body once and handle different content types
     let errorMessage = `Failed to create document: ${response.statusText}`;
     try {
-      const errorData = await response.json();
-      if (errorData.error) {
-        errorMessage = errorData.error;
-      }
-    } catch (parseError) {
-      // If we can't parse the response, it might be HTML (server error)
       const responseText = await response.text();
-      if (responseText.includes('<!DOCTYPE')) {
-        errorMessage = 'Server error occurred. Please refresh the page and try again.';
+      
+      // Try to parse as JSON first
+      try {
+        const errorData = JSON.parse(responseText);
+        if (errorData.error) {
+          errorMessage = errorData.error;
+        }
+      } catch (jsonParseError) {
+        // If not JSON, check if it's HTML (server error)
+        if (responseText.includes('<!DOCTYPE')) {
+          errorMessage = 'Server error occurred. Please refresh the page and try again.';
+        } else if (responseText) {
+          errorMessage = responseText;
+        }
       }
+    } catch (readError) {
+      // If we can't read the response at all, use default message
+      console.error('Failed to read error response:', readError);
     }
     
     // Report API error to admin
@@ -47,11 +56,12 @@ export async function createDocument(data: { title: string; content: string; fil
     throw new Error(errorMessage);
   }
 
-  const responseText = await response.text();
+  // Success case - read response body once
   try {
+    const responseText = await response.text();
     return JSON.parse(responseText);
   } catch (parseError) {
-    console.error('Failed to parse JSON response:', responseText);
+    console.error('Failed to parse JSON response:', parseError);
     throw new Error('Server returned invalid response. Please refresh the page and try again.');
   }
 }
@@ -66,11 +76,27 @@ export async function uploadDocument(file: File): Promise<Document> {
   });
 
   if (!response.ok) {
-    const error = await response.text();
-    throw new Error(error);
+    try {
+      const responseText = await response.text();
+      // Try to parse as JSON first for structured error messages
+      try {
+        const errorData = JSON.parse(responseText);
+        throw new Error(errorData.error || responseText);
+      } catch (jsonParseError) {
+        // If not JSON, use the raw text
+        throw new Error(responseText || `Upload failed: ${response.statusText}`);
+      }
+    } catch (readError) {
+      throw new Error(`Upload failed: ${response.statusText}`);
+    }
   }
 
-  return response.json();
+  try {
+    return await response.json();
+  } catch (parseError) {
+    console.error('Failed to parse upload response:', parseError);
+    throw new Error('Server returned invalid response. Please try again.');
+  }
 }
 
 // Security Questions API Functions
@@ -85,11 +111,25 @@ export async function getSecurityQuestions(): Promise<{ questions: SecurityQuest
   });
 
   if (!response.ok) {
-    const errorData = await response.json().catch(() => ({ error: 'Unknown server error' }));
-    throw new Error(errorData.error || `HTTP error! status: ${response.status}`);
+    try {
+      const responseText = await response.text();
+      try {
+        const errorData = JSON.parse(responseText);
+        throw new Error(errorData.error || `HTTP error! status: ${response.status}`);
+      } catch (jsonParseError) {
+        throw new Error(responseText || `HTTP error! status: ${response.status}`);
+      }
+    } catch (readError) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
   }
 
-  return response.json();
+  try {
+    return await response.json();
+  } catch (parseError) {
+    console.error('Failed to parse security questions response:', parseError);
+    throw new Error('Server returned invalid response. Please try again.');
+  }
 }
 
 export async function getUserSecurityQuestions(): Promise<{ 
@@ -106,11 +146,25 @@ export async function getUserSecurityQuestions(): Promise<{
   });
 
   if (!response.ok) {
-    const errorData = await response.json().catch(() => ({ error: 'Unknown server error' }));
-    throw new Error(errorData.error || `HTTP error! status: ${response.status}`);
+    try {
+      const responseText = await response.text();
+      try {
+        const errorData = JSON.parse(responseText);
+        throw new Error(errorData.error || `HTTP error! status: ${response.status}`);
+      } catch (jsonParseError) {
+        throw new Error(responseText || `HTTP error! status: ${response.status}`);
+      }
+    } catch (readError) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
   }
 
-  return response.json();
+  try {
+    return await response.json();
+  } catch (parseError) {
+    console.error('Failed to parse getUserSecurityQuestions response:', parseError);
+    throw new Error('Server returned invalid response. Please try again.');
+  }
 }
 
 export async function setupSecurityQuestions(data: SecurityQuestionsSetup): Promise<{ 
@@ -127,11 +181,25 @@ export async function setupSecurityQuestions(data: SecurityQuestionsSetup): Prom
   });
 
   if (!response.ok) {
-    const errorData = await response.json().catch(() => ({ error: 'Unknown server error' }));
-    throw new Error(errorData.error || `HTTP error! status: ${response.status}`);
+    try {
+      const responseText = await response.text();
+      try {
+        const errorData = JSON.parse(responseText);
+        throw new Error(errorData.error || `HTTP error! status: ${response.status}`);
+      } catch (jsonParseError) {
+        throw new Error(responseText || `HTTP error! status: ${response.status}`);
+      }
+    } catch (readError) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
   }
 
-  return response.json();
+  try {
+    return await response.json();
+  } catch (parseError) {
+    console.error('Failed to parse setupSecurityQuestions response:', parseError);
+    throw new Error('Server returned invalid response. Please try again.');
+  }
 }
 
 export async function updateSecurityQuestions(data: SecurityQuestionsSetup): Promise<{ 
@@ -148,11 +216,25 @@ export async function updateSecurityQuestions(data: SecurityQuestionsSetup): Pro
   });
 
   if (!response.ok) {
-    const errorData = await response.json().catch(() => ({ error: 'Unknown server error' }));
-    throw new Error(errorData.error || `HTTP error! status: ${response.status}`);
+    try {
+      const responseText = await response.text();
+      try {
+        const errorData = JSON.parse(responseText);
+        throw new Error(errorData.error || `HTTP error! status: ${response.status}`);
+      } catch (jsonParseError) {
+        throw new Error(responseText || `HTTP error! status: ${response.status}`);
+      }
+    } catch (readError) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
   }
 
-  return response.json();
+  try {
+    return await response.json();
+  } catch (parseError) {
+    console.error('Failed to parse updateSecurityQuestions response:', parseError);
+    throw new Error('Server returned invalid response. Please try again.');
+  }
 }
 
 export async function verifySecurityQuestions(answers: { [questionId: string]: string }): Promise<{ 
@@ -168,11 +250,25 @@ export async function verifySecurityQuestions(answers: { [questionId: string]: s
   });
 
   if (!response.ok) {
-    const errorData = await response.json().catch(() => ({ error: 'Unknown server error' }));
-    throw new Error(errorData.error || `HTTP error! status: ${response.status}`);
+    try {
+      const responseText = await response.text();
+      try {
+        const errorData = JSON.parse(responseText);
+        throw new Error(errorData.error || `HTTP error! status: ${response.status}`);
+      } catch (jsonParseError) {
+        throw new Error(responseText || `HTTP error! status: ${response.status}`);
+      }
+    } catch (readError) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
   }
 
-  return response.json();
+  try {
+    return await response.json();
+  } catch (parseError) {
+    console.error('Failed to parse verifySecurityQuestions response:', parseError);
+    throw new Error('Server returned invalid response. Please try again.');
+  }
 }
 
 export async function deleteSecurityQuestions(): Promise<{ success: boolean, message: string }> {
@@ -184,11 +280,25 @@ export async function deleteSecurityQuestions(): Promise<{ success: boolean, mes
   });
 
   if (!response.ok) {
-    const errorData = await response.json().catch(() => ({ error: 'Unknown server error' }));
-    throw new Error(errorData.error || `HTTP error! status: ${response.status}`);
+    try {
+      const responseText = await response.text();
+      try {
+        const errorData = JSON.parse(responseText);
+        throw new Error(errorData.error || `HTTP error! status: ${response.status}`);
+      } catch (jsonParseError) {
+        throw new Error(responseText || `HTTP error! status: ${response.status}`);
+      }
+    } catch (readError) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
   }
 
-  return response.json();
+  try {
+    return await response.json();
+  } catch (parseError) {
+    console.error('Failed to parse deleteSecurityQuestions response:', parseError);
+    throw new Error('Server returned invalid response. Please try again.');
+  }
 }
 
 export async function analyzeDocument(id: number): Promise<Document> {
@@ -204,7 +314,26 @@ export async function analyzeDocument(id: number): Promise<Document> {
     headers
   });
 
-  return response.json();
+  if (!response.ok) {
+    try {
+      const responseText = await response.text();
+      try {
+        const errorData = JSON.parse(responseText);
+        throw new Error(errorData.error || 'Failed to analyze document');
+      } catch (jsonParseError) {
+        throw new Error(responseText || 'Failed to analyze document');
+      }
+    } catch (readError) {
+      throw new Error('Failed to analyze document');
+    }
+  }
+
+  try {
+    return await response.json();
+  } catch (parseError) {
+    console.error('Failed to parse analyzeDocument response:', parseError);
+    throw new Error('Server returned invalid response. Please try again.');
+  }
 }
 
 
@@ -255,11 +384,20 @@ export async function getQueueStatus(): Promise<{
   });
 
   if (!response.ok) {
-    const text = await response.text();
-    throw new Error(`HTTP ${response.status}: ${text}`);
+    try {
+      const responseText = await response.text();
+      throw new Error(`HTTP ${response.status}: ${responseText}`);
+    } catch (readError) {
+      throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+    }
   }
 
-  return response.json();
+  try {
+    return await response.json();
+  } catch (parseError) {
+    console.error('Failed to parse getQueueStatus response:', parseError);
+    throw new Error('Server returned invalid response. Please try again.');
+  }
 }
 
 
@@ -270,10 +408,25 @@ export async function getDocument(documentId: number): Promise<Document> {
   });
 
   if (!response.ok) {
-    throw new Error('Failed to fetch document');
+    try {
+      const responseText = await response.text();
+      try {
+        const errorData = JSON.parse(responseText);
+        throw new Error(errorData.error || 'Failed to fetch document');
+      } catch (jsonParseError) {
+        throw new Error(responseText || 'Failed to fetch document');
+      }
+    } catch (readError) {
+      throw new Error('Failed to fetch document');
+    }
   }
 
-  return response.json();
+  try {
+    return await response.json();
+  } catch (parseError) {
+    console.error('Failed to parse getDocument response:', parseError);
+    throw new Error('Server returned invalid response. Please try again.');
+  }
 }
 
 
@@ -284,10 +437,25 @@ export async function getAllDocuments(): Promise<Document[]> {
   });
 
   if (!response.ok) {
-    throw new Error('Failed to fetch documents');
+    try {
+      const responseText = await response.text();
+      try {
+        const errorData = JSON.parse(responseText);
+        throw new Error(errorData.error || 'Failed to fetch documents');
+      } catch (jsonParseError) {
+        throw new Error(responseText || 'Failed to fetch documents');
+      }
+    } catch (readError) {
+      throw new Error('Failed to fetch documents');
+    }
   }
 
-  return response.json();
+  try {
+    return await response.json();
+  } catch (parseError) {
+    console.error('Failed to parse getAllDocuments response:', parseError);
+    throw new Error('Server returned invalid response. Please try again.');
+  }
 }
 
 
@@ -298,10 +466,25 @@ export async function clearAllDocuments(): Promise<{ message: string }> {
   });
 
   if (!response.ok) {
-    throw new Error('Failed to clear documents');
+    try {
+      const responseText = await response.text();
+      try {
+        const errorData = JSON.parse(responseText);
+        throw new Error(errorData.error || 'Failed to clear documents');
+      } catch (jsonParseError) {
+        throw new Error(responseText || 'Failed to clear documents');
+      }
+    } catch (readError) {
+      throw new Error('Failed to clear documents');
+    }
   }
 
-  return response.json();
+  try {
+    return await response.json();
+  } catch (parseError) {
+    console.error('Failed to parse clearAllDocuments response:', parseError);
+    throw new Error('Server returned invalid response. Please try again.');
+  }
 }
 
 
@@ -324,10 +507,25 @@ export async function logConsent(): Promise<{
     });
 
     if (!response.ok) {
-      throw new Error('Failed to log consent');
+      try {
+        const responseText = await response.text();
+        try {
+          const errorData = JSON.parse(responseText);
+          throw new Error(errorData.error || 'Failed to log consent');
+        } catch (jsonParseError) {
+          throw new Error(responseText || 'Failed to log consent');
+        }
+      } catch (readError) {
+        throw new Error('Failed to log consent');
+      }
     }
 
-    return response.json();
+    try {
+      return await response.json();
+    } catch (parseError) {
+      console.error('Failed to parse logConsent response:', parseError);
+      throw new Error('Server returned invalid response. Please try again.');
+    }
   } catch (error) {
     console.warn('Consent logging failed:', error);
     // Return a fallback response to not block the user
@@ -354,7 +552,12 @@ export async function verifyUserConsent(): Promise<{
       return null;
     }
 
-    return response.json();
+    try {
+      return await response.json();
+    } catch (parseError) {
+      console.error('Failed to parse verifyUserConsent response:', parseError);
+      return null;
+    }
   } catch (error) {
     console.error('Failed to verify consent:', error);
     return null;
@@ -378,7 +581,12 @@ export async function verifyConsentByToken(consentId: string, verificationToken:
       return null;
     }
 
-    return response.json();
+    try {
+      return await response.json();
+    } catch (parseError) {
+      console.error('Failed to parse verifyConsentByToken response:', parseError);
+      return null;
+    }
   } catch (error) {
     console.error('Failed to verify consent by token:', error);
     return null;
@@ -404,10 +612,34 @@ export async function logout(): Promise<{
     });
 
     if (!response.ok) {
-      throw new Error('Logout request failed');
+      try {
+        const responseText = await response.text();
+        try {
+          const errorData = JSON.parse(responseText);
+          throw new Error(errorData.error || 'Logout request failed');
+        } catch (jsonParseError) {
+          throw new Error(responseText || 'Logout request failed');
+        }
+      } catch (readError) {
+        throw new Error('Logout request failed');
+      }
     }
 
-    const result = await response.json();
+    let result;
+    try {
+      result = await response.json();
+    } catch (parseError) {
+      console.error('Failed to parse logout response:', parseError);
+      result = {
+        success: true,
+        message: 'Logout successful (response parse failed)',
+        details: {
+          tokensRevoked: 0,
+          documentsCleared: true,
+          sessionCleared: true
+        }
+      };
+    }
     
     // Clear any remaining local storage (for backward compatibility)
     localStorage.removeItem('subscriptionToken');
@@ -451,7 +683,12 @@ export async function getConsentStats(): Promise<{
       return null;
     }
 
-    return response.json();
+    try {
+      return await response.json();
+    } catch (parseError) {
+      console.error('Failed to parse getConsentStats response:', parseError);
+      return null;
+    }
   } catch (error) {
     console.error('Failed to get consent stats:', error);
     return null;
@@ -481,10 +718,25 @@ export async function getUserSubscription(): Promise<{
   });
 
   if (!response.ok) {
-    throw new Error('Failed to fetch subscription data');
+    try {
+      const responseText = await response.text();
+      try {
+        const errorData = JSON.parse(responseText);
+        throw new Error(errorData.error || 'Failed to fetch subscription data');
+      } catch (jsonParseError) {
+        throw new Error(responseText || 'Failed to fetch subscription data');
+      }
+    } catch (readError) {
+      throw new Error('Failed to fetch subscription data');
+    }
   }
 
-  return response.json();
+  try {
+    return await response.json();
+  } catch (parseError) {
+    console.error('Failed to parse getUserSubscription response:', parseError);
+    throw new Error('Server returned invalid response. Please try again.');
+  }
 }
 
 
@@ -506,11 +758,25 @@ export async function createCustomerPortalSession(): Promise<{ url: string }> {
   });
 
   if (!response.ok) {
-    const errorData = await response.json().catch(() => ({ error: 'Unknown server error' }));
-    throw new Error(errorData.error || `HTTP error! status: ${response.status}`);
+    try {
+      const responseText = await response.text();
+      try {
+        const errorData = JSON.parse(responseText);
+        throw new Error(errorData.error || `HTTP error! status: ${response.status}`);
+      } catch (jsonParseError) {
+        throw new Error(responseText || `HTTP error! status: ${response.status}`);
+      }
+    } catch (readError) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
   }
 
-  return response.json();
+  try {
+    return await response.json();
+  } catch (parseError) {
+    console.error('Failed to parse createCustomerPortalSession response:', parseError);
+    throw new Error('Server returned invalid response. Please try again.');
+  }
 }
 
 
@@ -532,11 +798,25 @@ export async function reactivateSubscription(): Promise<{ success: boolean; mess
   });
 
   if (!response.ok) {
-    const errorData = await response.json().catch(() => ({ error: 'Unknown server error' }));
-    throw new Error(errorData.error || `HTTP error! status: ${response.status}`);
+    try {
+      const responseText = await response.text();
+      try {
+        const errorData = JSON.parse(responseText);
+        throw new Error(errorData.error || `HTTP error! status: ${response.status}`);
+      } catch (jsonParseError) {
+        throw new Error(responseText || `HTTP error! status: ${response.status}`);
+      }
+    } catch (readError) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
   }
 
-  return response.json();
+  try {
+    return await response.json();
+  } catch (parseError) {
+    console.error('Failed to parse reactivateSubscription response:', parseError);
+    throw new Error('Server returned invalid response. Please try again.');
+  }
 }
 
 // RLHF Feedback API - for improving PII detection accuracy
@@ -575,17 +855,29 @@ export async function submitPiiDetectionFeedback(feedbackData: PiiDetectionFeedb
   if (!response.ok) {
     let errorMessage = `Failed to submit feedback: ${response.statusText}`;
     try {
-      const errorData = await response.json();
-      if (errorData.error) {
-        errorMessage = errorData.error;
+      const responseText = await response.text();
+      try {
+        const errorData = JSON.parse(responseText);
+        if (errorData.error) {
+          errorMessage = errorData.error;
+        }
+      } catch (jsonParseError) {
+        if (responseText) {
+          errorMessage = responseText;
+        }
       }
-    } catch (parseError) {
-      // If we can't parse the response, use the status text
+    } catch (readError) {
+      // If we can't read the response, use the status text
     }
     throw new Error(errorMessage);
   }
 
-  return response.json();
+  try {
+    return await response.json();
+  } catch (parseError) {
+    console.error('Failed to parse submitPiiDetectionFeedback response:', parseError);
+    throw new Error('Server returned invalid response. Please try again.');
+  }
 }
 
 /**
@@ -600,10 +892,25 @@ export async function getFeedbackSummary() {
   });
 
   if (!response.ok) {
-    throw new Error(`Failed to fetch feedback summary: ${response.statusText}`);
+    try {
+      const responseText = await response.text();
+      try {
+        const errorData = JSON.parse(responseText);
+        throw new Error(errorData.error || `Failed to fetch feedback summary: ${response.statusText}`);
+      } catch (jsonParseError) {
+        throw new Error(responseText || `Failed to fetch feedback summary: ${response.statusText}`);
+      }
+    } catch (readError) {
+      throw new Error(`Failed to fetch feedback summary: ${response.statusText}`);
+    }
   }
 
-  return response.json();
+  try {
+    return await response.json();
+  } catch (parseError) {
+    console.error('Failed to parse getFeedbackSummary response:', parseError);
+    throw new Error('Server returned invalid response. Please try again.');
+  }
 }
 
 /**
@@ -629,10 +936,25 @@ export async function getFeedbackAnalytics(params?: {
   });
 
   if (!response.ok) {
-    throw new Error(`Failed to fetch feedback analytics: ${response.statusText}`);
+    try {
+      const responseText = await response.text();
+      try {
+        const errorData = JSON.parse(responseText);
+        throw new Error(errorData.error || `Failed to fetch feedback analytics: ${response.statusText}`);
+      } catch (jsonParseError) {
+        throw new Error(responseText || `Failed to fetch feedback analytics: ${response.statusText}`);
+      }
+    } catch (readError) {
+      throw new Error(`Failed to fetch feedback analytics: ${response.statusText}`);
+    }
   }
 
-  return response.json();
+  try {
+    return await response.json();
+  } catch (parseError) {
+    console.error('Failed to parse getFeedbackAnalytics response:', parseError);
+    throw new Error('Server returned invalid response. Please try again.');
+  }
 }
 
 /**
@@ -647,10 +969,25 @@ export async function getImprovementSuggestions() {
   });
 
   if (!response.ok) {
-    throw new Error(`Failed to fetch improvement suggestions: ${response.statusText}`);
+    try {
+      const responseText = await response.text();
+      try {
+        const errorData = JSON.parse(responseText);
+        throw new Error(errorData.error || `Failed to fetch improvement suggestions: ${response.statusText}`);
+      } catch (jsonParseError) {
+        throw new Error(responseText || `Failed to fetch improvement suggestions: ${response.statusText}`);
+      }
+    } catch (readError) {
+      throw new Error(`Failed to fetch improvement suggestions: ${response.statusText}`);
+    }
   }
 
-  return response.json();
+  try {
+    return await response.json();
+  } catch (parseError) {
+    console.error('Failed to parse getImprovementSuggestions response:', parseError);
+    throw new Error('Server returned invalid response. Please try again.');
+  }
 }
 
 /**
@@ -670,10 +1007,20 @@ export async function adminApiRequest(url: string, options: RequestInit = {}) {
   });
 
   if (!response.ok) {
-    const errorText = await response.text();
-    console.error('Admin API request failed:', response.status, errorText);
-    throw new Error(`Admin API request failed: ${response.status} ${errorText}`);
+    try {
+      const responseText = await response.text();
+      console.error('Admin API request failed:', response.status, responseText);
+      throw new Error(`Admin API request failed: ${response.status} ${responseText}`);
+    } catch (readError) {
+      console.error('Admin API request failed:', response.status, response.statusText);
+      throw new Error(`Admin API request failed: ${response.status} ${response.statusText}`);
+    }
   }
 
-  return response.json();
+  try {
+    return await response.json();
+  } catch (parseError) {
+    console.error('Failed to parse adminApiRequest response:', parseError);
+    throw new Error('Server returned invalid response. Please try again.');
+  }
 }

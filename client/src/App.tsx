@@ -21,7 +21,9 @@ import { errorReporter } from "./lib/error-reporter";
 import React, { useEffect, useState, lazy, Suspense } from 'react';
 import { authFetch } from './lib/auth-fetch';
 import { DirectionProvider } from "@radix-ui/react-direction";
-import { SecurityQuestionsProvider } from "./contexts/SecurityQuestionsContext";
+import { SecurityQuestionsProvider, useSecurityQuestions } from "./contexts/SecurityQuestionsContext";
+import { SecurityQuestionsModal } from "./components/SecurityQuestionsModal";
+import { useSecurityQuestionsHandler } from "./hooks/useSecurityQuestionsHandler";
 
 // Lazy load route components for better code splitting
 const Home = lazy(() => import("./pages/home"));
@@ -38,6 +40,7 @@ const TrustPage = lazy(() => import("./pages/trust"));
 const BlogPage = lazy(() => import("./pages/blog"));
 const BlogPostPage = lazy(() => import("./pages/blog-post"));
 const UnsubscribePage = lazy(() => import("./pages/unsubscribe"));
+const SettingsPage = lazy(() => import("./pages/settings"));
 const NotFound = lazy(() => import("./pages/not-found"));
 
 // Loading component for suspense
@@ -68,16 +71,24 @@ function Router() {
         <Route path="/blog" component={BlogPage} />
         <Route path="/blog/:slug" component={BlogPostPage} />
         <Route path="/unsubscribe" component={UnsubscribePage} />
+        <Route path="/settings" component={SettingsPage} />
         <Route component={NotFound} />
       </Switch>
     </Suspense>
   );
 }
 
-function App() {
+// Inner component that has access to SecurityQuestionsProvider context
+function AppContent() {
   const [location] = useLocation();
   const [showConsentModal, setShowConsentModal] = useState(false);
   const { toast } = useToast();
+  const { requiresSetup, isLoading } = useSecurityQuestions();
+  const { 
+    showSecurityQuestionsModal, 
+    handleSecurityQuestionsComplete,
+    closeSecurityQuestionsModal 
+  } = useSecurityQuestionsHandler();
   
   useScrollToTop();
   useSEO(location);
@@ -186,6 +197,22 @@ function App() {
     };
   }, []);
 
+  // Show security questions modal when required and not loading
+  useEffect(() => {
+    if (!isLoading && requiresSetup && !showSecurityQuestionsModal) {
+      // Give a small delay to ensure the UI is ready
+      const timer = setTimeout(() => {
+        if (requiresSetup) { // Double check in case it changed
+          console.log('Security questions required - showing modal');
+          // We need to manually trigger the modal since the useSecurityQuestionsHandler
+          // expects an API error, but we're checking proactively
+          window.dispatchEvent(new CustomEvent('securityQuestionsRequired'));
+        }
+      }, 1000);
+      return () => clearTimeout(timer);
+    }
+  }, [isLoading, requiresSetup, showSecurityQuestionsModal]);
+
   // Handle consent acceptance
   const handleConsentAccepted = () => {
     // Consent accepted - hiding modal
@@ -195,6 +222,58 @@ function App() {
   };
 
   return (
+    <>
+      <div className="h-screen flex flex-col app-container bg-gray-50 dark:bg-gray-900">
+        {/* Fixed Header */}
+        <Header />
+
+        {/* Scrollable Main Content Area */}
+        <SEOBreadcrumbs />
+
+        <main
+          id="main-content"
+          role="main"
+          tabIndex={-1}
+          className="flex-1 overflow-y-auto bg-gray-50 dark:bg-gray-900 scroll-smooth custom-scrollbar"
+          aria-label="Main content"
+        >
+          <PageTransition>
+            <Router />
+          </PageTransition>
+        </main>
+
+        {/* Fixed Footer */}
+        <Footer />
+      </div>
+      <Toaster />
+      <CookieConsent />
+      {showConsentModal && (
+        <CombinedConsent onAccept={handleConsentAccepted} />
+      )}
+      
+      {/* Security Questions Modal */}
+      <SecurityQuestionsModal
+        isOpen={showSecurityQuestionsModal || (!isLoading && requiresSetup)}
+        onComplete={handleSecurityQuestionsComplete}
+        onClose={closeSecurityQuestionsModal}
+        allowClose={false}
+      />
+      
+      <ScrollToTop />
+      {/* Live region for announcements */}
+      <div
+        id="announcements"
+        aria-live="polite"
+        aria-atomic="true"
+        className="sr-only"
+      ></div>
+    </>
+  );
+}
+
+// Main App component with providers
+function App() {
+  return (
     <QueryClientProvider client={queryClient}>
       <ThemeProvider>
         <TooltipProvider>
@@ -202,41 +281,7 @@ function App() {
             <SkipLinks />
             <DirectionProvider dir="ltr">
               <SecurityQuestionsProvider>
-                <div className="h-screen flex flex-col app-container bg-gray-50 dark:bg-gray-900">
-                {/* Fixed Header */}
-                <Header />
-
-                {/* Scrollable Main Content Area */}
-                <SEOBreadcrumbs />
-
-                <main
-                  id="main-content"
-                  role="main"
-                  tabIndex={-1}
-                  className="flex-1 overflow-y-auto bg-gray-50 dark:bg-gray-900 scroll-smooth custom-scrollbar"
-                  aria-label="Main content"
-                >
-                  <PageTransition>
-                    <Router />
-                  </PageTransition>
-                </main>
-
-                {/* Fixed Footer */}
-                <Footer />
-                </div>
-                <Toaster />
-                <CookieConsent />
-                {showConsentModal && (
-                  <CombinedConsent onAccept={handleConsentAccepted} />
-                )}
-                <ScrollToTop />
-              {/* Live region for announcements */}
-              <div
-                id="announcements"
-                aria-live="polite"
-                aria-atomic="true"
-                className="sr-only"
-              ></div>
+                <AppContent />
               </SecurityQuestionsProvider>
             </DirectionProvider>
           </ErrorBoundary>

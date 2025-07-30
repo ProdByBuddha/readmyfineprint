@@ -152,8 +152,8 @@ export const userPreferences = pgTable('user_preferences', {
 export const securityQuestions = pgTable('security_questions', {
   id: uuid('id').primaryKey().defaultRandom(),
   userId: uuid('user_id').references(() => users.id, { onDelete: 'cascade' }).notNull(),
-  questionId: text('question_id').notNull(), // Predefined question ID
-  hashedAnswer: text('hashed_answer').notNull(), // Argon2 hashed answer
+  question: text('question').notNull(), // Predefined question ID
+  answerHash: text('answer_hash').notNull(), // Argon2 hashed answer
   createdAt: timestamp('created_at').defaultNow().notNull(),
   updatedAt: timestamp('updated_at').defaultNow().notNull(),
 });
@@ -587,8 +587,8 @@ export type InsertEmailChangeRequest = {
 export type SecurityQuestionRecord = typeof securityQuestions.$inferSelect;
 export type InsertSecurityQuestion = {
   userId: string;
-  questionId: string;
-  hashedAnswer: string;
+  question: string;
+  answerHash: string;
 };
 
 export type RefreshToken = typeof refreshTokens.$inferSelect;

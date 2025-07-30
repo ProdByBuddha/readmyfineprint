@@ -60,10 +60,10 @@ export function CookieConsentBanner({ onAccept }: CookieConsentBannerProps) {
   return (
     <div className="fixed bottom-0 left-0 right-0 z-50 bg-white dark:bg-gray-900 border-t border-gray-200 dark:border-gray-700 shadow-lg">
       <div className="max-w-6xl mx-auto p-4">
-        <div className="flex items-start gap-4">
-          <div className="flex items-center gap-2 mt-1">
-            <Cookie className="w-5 h-5 text-blue-600 dark:text-blue-400" />
-            <Shield className="w-5 h-5 text-green-600 dark:text-green-400" />
+        <div className="flex flex-col sm:flex-row items-start gap-4">
+          <div className="flex items-center gap-2 sm:mt-1">
+            <Cookie className="w-5 h-5 text-blue-600 dark:text-blue-400 flex-shrink-0" />
+            <Shield className="w-5 h-5 text-green-600 dark:text-green-400 flex-shrink-0" />
           </div>
           
           <div className="flex-1 space-y-2">
@@ -75,12 +75,12 @@ export function CookieConsentBanner({ onAccept }: CookieConsentBannerProps) {
             </p>
           </div>
 
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 w-full sm:w-auto">
             <Button
               onClick={handleAccept}
               disabled={isLogging}
               size="sm"
-              className="text-xs"
+              className="text-xs flex-1 sm:flex-initial"
             >
               {isLogging ? (
                 <div className="flex items-center gap-2">
@@ -96,7 +96,7 @@ export function CookieConsentBanner({ onAccept }: CookieConsentBannerProps) {
               onClick={handleDismiss}
               variant="ghost"
               size="sm"
-              className="text-xs text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100"
+              className="text-xs text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 px-2"
             >
               <X className="w-4 h-4" />
             </Button>

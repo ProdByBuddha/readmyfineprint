@@ -25,6 +25,7 @@ interface SecurityQuestionsSetupProps {
   showSkipOption?: boolean;
   title?: string;
   description?: string;
+  transparent?: boolean; // Don't apply background when true
 }
 
 export function SecurityQuestionsSetup({
@@ -32,7 +33,8 @@ export function SecurityQuestionsSetup({
   onSkip,
   showSkipOption = false,
   title = "Set Up Security Questions",
-  description = "Security questions help protect your account and can be used for account recovery."
+  description = "Security questions help protect your account and can be used for account recovery.",
+  transparent = false
 }: SecurityQuestionsSetupProps) {
   const [availableQuestions, setAvailableQuestions] = useState<SecurityQuestion[]>([]);
   const [selectedQuestions, setSelectedQuestions] = useState<SecurityQuestionAnswer[]>([
@@ -166,8 +168,8 @@ export function SecurityQuestionsSetup({
 
   if (fetching) {
     return (
-      <Card className="w-full max-w-2xl mx-auto">
-        <CardContent className="flex items-center justify-center py-8">
+      <Card className={`w-full max-w-2xl mx-auto ${!transparent ? 'bg-white dark:bg-gray-800' : 'bg-transparent border-transparent shadow-none'}`}>
+        <CardContent className={`flex items-center justify-center py-8 ${!transparent ? 'bg-white dark:bg-gray-800' : 'bg-transparent'}`}>
           <Loader2 className="h-6 w-6 animate-spin mr-2" />
           <span>Loading security questions...</span>
         </CardContent>
@@ -177,29 +179,29 @@ export function SecurityQuestionsSetup({
 
   if (success) {
     return (
-      <Card className="w-full max-w-2xl mx-auto">
-        <CardContent className="flex flex-col items-center justify-center py-8 text-center">
+      <Card className={`w-full max-w-2xl mx-auto ${!transparent ? 'bg-white dark:bg-gray-800' : 'bg-transparent border-transparent shadow-none'}`}>
+        <CardContent className={`flex flex-col items-center justify-center py-8 text-center ${!transparent ? 'bg-white dark:bg-gray-800' : 'bg-transparent'}`}>
           <CheckCircle2 className="h-12 w-12 text-green-500 mb-4" />
           <h3 className="text-lg font-semibold mb-2">Security Questions Saved!</h3>
-          <p className="text-gray-600">Your security questions have been set up successfully.</p>
+          <p className="text-gray-600 dark:text-gray-300">Your security questions have been set up successfully.</p>
         </CardContent>
       </Card>
     );
   }
 
   return (
-    <Card className="w-full max-w-2xl mx-auto">
-      <CardHeader>
+    <Card className={`w-full max-w-2xl mx-auto ${!transparent ? 'bg-white dark:bg-gray-800' : 'bg-transparent border-transparent shadow-none'}`}>
+      <CardHeader className={`${!transparent ? 'bg-white dark:bg-gray-800' : 'bg-transparent'}`}>
         <div className="flex items-center space-x-2">
-          <Shield className="h-5 w-5 text-blue-500" />
+          <Shield className="h-5 w-5 text-blue-500 dark:text-blue-400" />
           <CardTitle>{title}</CardTitle>
         </div>
         <CardDescription>{description}</CardDescription>
       </CardHeader>
-      <CardContent>
+      <CardContent className={`${!transparent ? 'bg-white dark:bg-gray-800' : 'bg-transparent'}`}>
         <form onSubmit={handleSubmit} className="space-y-6">
           {error && (
-            <Alert variant="destructive">
+            <Alert variant="destructive" className="bg-red-50 dark:bg-red-950/20">
               <AlertCircle className="h-4 w-4" />
               <AlertDescription>{error}</AlertDescription>
             </Alert>
@@ -207,7 +209,7 @@ export function SecurityQuestionsSetup({
 
           <div className="space-y-4">
             {selectedQuestions.map((selectedQuestion, index) => (
-              <div key={index} className="p-4 border rounded-lg space-y-3">
+              <div key={index} className="p-4 border rounded-lg space-y-3 bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700">
                 <div className="flex items-center justify-between">
                   <Label className="text-sm font-medium">
                     Security Question {index + 1}
@@ -219,7 +221,7 @@ export function SecurityQuestionsSetup({
                       variant="ghost"
                       size="sm"
                       onClick={() => removeQuestion(index)}
-                      className="text-red-500 hover:text-red-700"
+                      className="text-red-500 hover:text-red-700 dark:text-red-400 dark:hover:text-red-300"
                     >
                       <Trash2 className="h-4 w-4" />
                     </Button>
@@ -230,12 +232,12 @@ export function SecurityQuestionsSetup({
                   value={selectedQuestion.questionId}
                   onValueChange={(value) => updateQuestion(index, 'questionId', value)}
                 >
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select a security question" />
+                  <SelectTrigger className="bg-white dark:bg-gray-700 text-gray-900 dark:text-white border-gray-300 dark:border-gray-600">
+                    <SelectValue placeholder="Select a security question" className="text-gray-900 dark:text-white" />
                   </SelectTrigger>
-                  <SelectContent>
+                  <SelectContent className="bg-white dark:bg-gray-800 border-gray-300 dark:border-gray-600">
                     {getAvailableOptionsForIndex(index).map((question) => (
-                      <SelectItem key={question.id} value={question.id}>
+                      <SelectItem key={question.id} value={question.id} className="text-gray-900 dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700">
                         {question.question}
                       </SelectItem>
                     ))}
@@ -257,7 +259,7 @@ export function SecurityQuestionsSetup({
                       className="mt-1"
                       required={selectedQuestion.questionId !== ''}
                     />
-                    <p className="text-xs text-gray-500 mt-1">
+                    <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
                       Answers are not case-sensitive. {selectedQuestion.answer.length}/100 characters
                     </p>
                   </div>
@@ -306,7 +308,7 @@ export function SecurityQuestionsSetup({
             )}
           </div>
 
-          <div className="text-xs text-gray-500 space-y-1">
+          <div className="text-xs text-gray-500 dark:text-gray-400 space-y-1">
             <p>• Answer at least 2 questions (up to 4 maximum)</p>
             <p>• Answers are stored securely using strong encryption</p>
             <p>• These questions can be used for account recovery</p>
