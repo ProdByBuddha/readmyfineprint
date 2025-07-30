@@ -58,14 +58,7 @@ function Router() {
         <Route path="/cookies" component={Cookies} />
         <Route path="/donate" component={Donate} />
         <Route path="/roadmap" component={Roadmap} />
-        <Route 
-              path="/subscription" 
-              component={() => 
-                import.meta.env.PROD ? 
-                  <Redirect to="/" replace /> : 
-                  <Subscription />
-              } 
-            />
+        <Route path="/subscription" component={Subscription} />
         <Route 
               path="/admin" 
               component={AdminDashboard} 
