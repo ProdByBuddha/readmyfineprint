@@ -1,7 +1,8 @@
 import path from "path";
+import react from "@vitejs/plugin-react";
 
 export default {
-  plugins: [],
+  plugins: [react()],
   resolve: {
     alias: {
       "@": path.resolve(process.cwd(), "client", "src"),
@@ -18,6 +19,14 @@ export default {
     port: 5173,
     strictPort: true,
     host: true,
+    allowedHosts: [
+      'localhost',
+      '.replit.dev',
+      '.repl.co',
+      '.replit.app',
+      '.repl.run',
+      'edcf3ef7-a826-4eed-8e04-7a485b2e183a-00-1wytaob2mj6u8.kirk.replit.dev'
+    ],
     cors: {
       origin: [
         'http://localhost:5000',
