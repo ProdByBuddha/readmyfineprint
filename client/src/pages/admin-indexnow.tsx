@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Loader2, Send, CheckCircle, XCircle, Info } from 'lucide-react';
+import { sessionFetch } from '@/lib/sessionManager';
 
 interface IndexNowResult {
   success: boolean;
@@ -23,7 +24,7 @@ export default function AdminIndexNow() {
     setResults([]);
 
     try {
-      const response = await fetch('/api/indexnow/submit-all', {
+      const response = await sessionFetch('/api/indexnow/submit-all', {
         method: 'POST',
         credentials: 'include',
         headers: {
@@ -48,7 +49,7 @@ export default function AdminIndexNow() {
 
   const handleGetStats = async () => {
     try {
-      const response = await fetch('/api/indexnow/stats', {
+      const response = await sessionFetch('/api/indexnow/stats', {
         credentials: 'include',
       });
 

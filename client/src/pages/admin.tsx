@@ -115,7 +115,7 @@ function AdminLogin({ onLogin }: { onLogin: (token: string) => void }) {
         // Use the admin API key for verification request
         const adminKey = import.meta.env.VITE_ADMIN_API_KEY || process.env.ADMIN_API_KEY;
         
-        const response = await fetch("/api/admin/request-verification", {
+        const response = await sessionFetch("/api/admin/request-verification", {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -157,7 +157,7 @@ function AdminLogin({ onLogin }: { onLogin: (token: string) => void }) {
     try {
       const adminKey = import.meta.env.VITE_ADMIN_API_KEY || process.env.ADMIN_API_KEY;
       
-      const response = await fetch("/api/admin/request-verification", {
+      const response = await sessionFetch("/api/admin/request-verification", {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -195,7 +195,7 @@ function AdminLogin({ onLogin }: { onLogin: (token: string) => void }) {
     setIsLoading(true);
 
     try {
-      const response = await fetch("/api/admin/verify-code", {
+      const response = await sessionFetch("/api/admin/verify-code", {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
@@ -311,9 +311,8 @@ function DashboardOverview() {
   const { data: metricsData, isLoading: metricsLoading, error: metricsError } = useQuery({
     queryKey: ["/api/admin/metrics"],
     queryFn: async () => {
-      const response = await fetch("/api/admin/metrics-subscription", {
+      const response = await sessionFetch("/api/admin/metrics-subscription", {
         method: 'GET',
-        credentials: 'include', // Include cookies
         headers: { 
           "Content-Type": "application/json",
           "x-dashboard-auto-refresh": "true"
@@ -331,9 +330,8 @@ function DashboardOverview() {
   const { data: systemHealthData, isLoading: healthLoading, error: healthError } = useQuery({
     queryKey: ["/api/admin/system-health"],
     queryFn: async () => {
-      const response = await fetch("/api/admin/system-health-subscription", {
+      const response = await sessionFetch("/api/admin/system-health-subscription", {
         method: 'GET',
-        credentials: 'include', // Include cookies
         headers: { 
           "Content-Type": "application/json",
           "x-dashboard-auto-refresh": "true"
@@ -351,7 +349,7 @@ function DashboardOverview() {
   const { data: activityData, isLoading: activityLoading, error: activityError } = useQuery({
     queryKey: ["/api/admin/activity"],
     queryFn: async () => {
-      const response = await fetch("/api/admin/activity-subscription", {
+      const response = await sessionFetch("/api/admin/activity-subscription", {
         method: 'GET',
         credentials: 'include', // Include cookies
         headers: { 
@@ -603,7 +601,7 @@ function CreateUserDialog({ adminToken, onUserCreated }: { adminToken: string; o
     setIsCreating(true);
 
     try {
-      const response = await fetch('/api/admin/users-subscription/create', {
+      const response = await sessionFetch('/api/admin/users-subscription/create', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -797,7 +795,7 @@ function UserManagement({ adminToken }: { adminToken: string }) {
   const handleDeleteUser = async (userId: string, reason?: string) => {
     try {
       setOperationInProgress(true);
-      await fetch(`/api/admin/users-subscription/${userId}`, {
+      await sessionFetch(`/api/admin/users-subscription/${userId}`, {
         method: 'DELETE',
         headers: {
           'Content-Type': 'application/json',
@@ -830,7 +828,7 @@ function UserManagement({ adminToken }: { adminToken: string }) {
   const handleSuspendUser = async (userId: string, reason?: string) => {
     try {
       setOperationInProgress(true);
-      await fetch(`/api/admin/users-subscription/${userId}/status`, {
+      await sessionFetch(`/api/admin/users-subscription/${userId}/status`, {
         method: 'PATCH',
         headers: {
           'Content-Type': 'application/json',
@@ -863,7 +861,7 @@ function UserManagement({ adminToken }: { adminToken: string }) {
   const handleActivateUser = async (userId: string) => {
     try {
       setOperationInProgress(true);
-      await fetch(`/api/admin/users-subscription/${userId}/status`, {
+      await sessionFetch(`/api/admin/users-subscription/${userId}/status`, {
         method: 'PATCH',
         headers: {
           'Content-Type': 'application/json',
@@ -895,7 +893,7 @@ function UserManagement({ adminToken }: { adminToken: string }) {
   const handleResetPassword = async (userId: string) => {
     try {
       setOperationInProgress(true);
-      const response = await fetch(`/api/admin/users-subscription/${userId}/reset-password`, {
+      const response = await sessionFetch(`/api/admin/users-subscription/${userId}/reset-password`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -938,7 +936,7 @@ function UserManagement({ adminToken }: { adminToken: string }) {
 
     try {
       setOperationInProgress(true);
-      const response = await fetch('/api/admin/users-subscription/bulk', {
+      const response = await sessionFetch('/api/admin/users-subscription/bulk', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -1822,7 +1820,7 @@ export default function AdminDashboard() {
       if (import.meta.env.DEV || import.meta.env.MODE === 'development') {
         console.log('🔧 Development mode detected, attempting auto-admin login...');
         try {
-          const response = await fetch('/api/dev/auto-admin-login', {
+          const response = await sessionFetch('/api/dev/auto-admin-login', {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json',
@@ -1921,7 +1919,7 @@ export default function AdminDashboard() {
                 <Button 
                   onClick={async () => {
                     try {
-                      const response = await fetch('/api/auth/session', {
+                      const response = await sessionFetch('/api/auth/session', {
                         method: 'GET',
                         credentials: 'include',
                         headers: {
@@ -1976,7 +1974,7 @@ export default function AdminDashboard() {
                 <Button 
                   onClick={async () => {
                     try {
-                      const response = await fetch('/api/dev/auto-admin-login', {
+                      const response = await sessionFetch('/api/dev/auto-admin-login', {
                         method: 'POST',
                         headers: {
                           'Content-Type': 'application/json',
