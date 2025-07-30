@@ -93,7 +93,9 @@ function App() {
   // Initialize error reporter
   useEffect(() => {
     // Error reporter is automatically initialized when imported
-    console.log('Error reporting system initialized');
+    if (import.meta.env.DEV) {
+      console.log('Error reporting system initialized');
+    }
   }, []);
 
   // Auto-login as admin in development mode

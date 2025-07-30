@@ -54,13 +54,17 @@ export async function sessionFetch(url: string, options: RequestInit = {}): Prom
     const accessToken = localStorage.getItem('jwt_access_token');
     if (accessToken) {
       headers['Authorization'] = `Bearer ${accessToken}`;
-      console.log('🔑 sessionFetch (CSRF): Adding JWT token to request:', {
-        url,
-        hasToken: !!accessToken,
-        tokenPrefix: accessToken.substring(0, 20) + '...'
-      });
+      if (import.meta.env.DEV) {
+        console.log('🔑 sessionFetch (CSRF): Adding JWT token to request:', {
+          url,
+          hasToken: !!accessToken,
+          tokenPrefix: accessToken.substring(0, 20) + '...'
+        });
+      }
     } else {
-      console.log('⚠️ sessionFetch (CSRF): No JWT token found in localStorage for:', url);
+      if (import.meta.env.DEV) {
+        console.log('⚠️ sessionFetch (CSRF): No JWT token found in localStorage for:', url);
+      }
     }
     
     const response = await fetchWithCSRF(url, {
@@ -70,7 +74,9 @@ export async function sessionFetch(url: string, options: RequestInit = {}): Prom
     
     // Handle token refresh for CSRF requests too
     if (response.status === 401 && accessToken && localStorage.getItem('jwt_refresh_token')) {
-      console.log('❌ sessionFetch (CSRF): 401 Unauthorized - attempting token refresh...');
+      if (import.meta.env.DEV) {
+        console.log('❌ sessionFetch (CSRF): 401 Unauthorized - attempting token refresh...');
+      }
       
       try {
         const refreshResponse = await fetch('/api/auth/refresh', {
@@ -91,7 +97,9 @@ export async function sessionFetch(url: string, options: RequestInit = {}): Prom
             localStorage.setItem('jwt_access_token', tokens.access);
             localStorage.setItem('jwt_refresh_token', tokens.refresh);
             
-            console.log('✅ Token refresh successful, retrying CSRF request...');
+            if (import.meta.env.DEV) {
+              console.log('✅ Token refresh successful, retrying CSRF request...');
+            }
             
             // Retry original CSRF request with new token
             const newHeaders = {
@@ -125,13 +133,17 @@ export async function sessionFetch(url: string, options: RequestInit = {}): Prom
   const accessToken = localStorage.getItem('jwt_access_token');
   if (accessToken) {
     headers['Authorization'] = `Bearer ${accessToken}`;
-    console.log('🔑 sessionFetch: Adding JWT token to request:', {
-      url,
-      hasToken: !!accessToken,
-      tokenPrefix: accessToken.substring(0, 20) + '...'
-    });
+    if (import.meta.env.DEV) {
+      console.log('🔑 sessionFetch: Adding JWT token to request:', {
+        url,
+        hasToken: !!accessToken,
+        tokenPrefix: accessToken.substring(0, 20) + '...'
+      });
+    }
   } else {
-    console.log('⚠️ sessionFetch: No JWT token found in localStorage for:', url);
+    if (import.meta.env.DEV) {
+      console.log('⚠️ sessionFetch: No JWT token found in localStorage for:', url);
+    }
   }
   
   const response = await fetch(url, {
@@ -142,7 +154,9 @@ export async function sessionFetch(url: string, options: RequestInit = {}): Prom
   
   // Debug logging and token refresh for authentication issues
   if (response.status === 401 && accessToken && localStorage.getItem('jwt_refresh_token')) {
-    console.log('❌ sessionFetch: 401 Unauthorized - attempting token refresh...');
+    if (import.meta.env.DEV) {
+      console.log('❌ sessionFetch: 401 Unauthorized - attempting token refresh...');
+    }
     
     try {
       const refreshResponse = await fetch('/api/auth/refresh', {
@@ -163,7 +177,9 @@ export async function sessionFetch(url: string, options: RequestInit = {}): Prom
           localStorage.setItem('jwt_access_token', tokens.access);
           localStorage.setItem('jwt_refresh_token', tokens.refresh);
           
-          console.log('✅ Token refresh successful, retrying original request...');
+          if (import.meta.env.DEV) {
+            console.log('✅ Token refresh successful, retrying original request...');
+          }
           
           // Retry original request with new token
           const newHeaders = {
@@ -189,15 +205,17 @@ export async function sessionFetch(url: string, options: RequestInit = {}): Prom
       localStorage.removeItem('jwt_refresh_token');
     }
   } else if (response.status === 401) {
-    console.log('❌ sessionFetch: 401 Unauthorized response:', {
-      url,
-      status: response.status,
-      statusText: response.statusText,
-      headers: Object.fromEntries(response.headers.entries()),
-      sentHeaders: headers,
-      hasAccessToken: !!accessToken,
-      hasRefreshToken: !!localStorage.getItem('jwt_refresh_token')
-    });
+    if (import.meta.env.DEV) {
+      console.log('❌ sessionFetch: 401 Unauthorized response:', {
+        url,
+        status: response.status,
+        statusText: response.statusText,
+        headers: Object.fromEntries(response.headers.entries()),
+        sentHeaders: headers,
+        hasAccessToken: !!accessToken,
+        hasRefreshToken: !!localStorage.getItem('jwt_refresh_token')
+      });
+    }
   }
   
   // Update session ID if server provides one

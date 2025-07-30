@@ -72,7 +72,9 @@ class CSRFManager {
       
       return data.csrfToken;
     } catch (error) {
-      console.error('Error fetching CSRF token:', error);
+      if (import.meta.env.DEV) {
+        console.error('Error fetching CSRF token:', error);
+      }
       throw error;
     }
   }
@@ -89,7 +91,9 @@ class CSRFManager {
         'x-csrf-token': token,
       };
     } catch (error) {
-      console.error('Failed to add CSRF token to headers:', error);
+      if (import.meta.env.DEV) {
+        console.error('Failed to add CSRF token to headers:', error);
+      }
       // Return headers without CSRF token rather than failing the request
       return headers;
     }
@@ -123,7 +127,9 @@ class CSRFManager {
       if (response.status === 403) {
         const errorText = await response.text();
         if (errorText.includes('CSRF') || errorText.includes('csrf')) {
-          console.log('CSRF token invalid, clearing and retrying...');
+          if (import.meta.env.DEV) {
+            console.log('CSRF token invalid, clearing and retrying...');
+          }
           this.clearToken();
           
           // Retry once with fresh token
@@ -138,7 +144,9 @@ class CSRFManager {
 
       return response;
     } catch (error) {
-      console.error('CSRF fetch error:', error);
+      if (import.meta.env.DEV) {
+        console.error('CSRF fetch error:', error);
+      }
       throw error;
     }
   }

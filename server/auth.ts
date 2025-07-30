@@ -308,6 +308,29 @@ export async function requireAdminViaSubscription(req: Request, res: Response, n
       tokenData = await joseTokenService.validateSubscriptionToken(subscriptionToken);
     }
 
+    // If no subscription token, try JWT Authorization header
+    if (!tokenData) {
+      const authHeader = req.headers.authorization;
+      if (authHeader && authHeader.startsWith('Bearer ')) {
+        const jwtToken = authHeader.substring(7); // Remove 'Bearer ' prefix
+        console.log(`🔍 Admin auth: Trying JWT token validation`);
+        
+        try {
+          const { joseTokenService } = await import('./jose-token-service');
+          tokenData = await joseTokenService.validateSubscriptionToken(jwtToken);
+          
+          if (tokenData) {
+            console.log(`✅ Admin auth: JWT validation successful for user ${tokenData.userId}`);
+            subscriptionToken = jwtToken; // Use JWT as subscription token for downstream logic
+          } else {
+            console.log(`❌ Admin auth: JWT validation failed`);
+          }
+        } catch (jwtError) {
+          console.log(`❌ Admin auth: JWT validation error:`, jwtError);
+        }
+      }
+    }
+
     // If no header token or invalid, try cookie session
     if (!tokenData) {
       // Manual cookie parsing fallback (same as other endpoints)
@@ -779,7 +802,7 @@ export function addSecurityHeaders(req: Request, res: Response, next: NextFuncti
       res.setHeader('Strict-Transport-Security', 'max-age=31536000; includeSubDomains; preload');
 
       // Additional security headers
-      res.setHeader('Permissions-Policy', 'geolocation=(), microphone=(), camera=(), payment=()');
+      res.setHeader('Permissions-Policy', 'geolocation=(), microphone=(), camera=(), payment=(self https://js.stripe.com https://m.stripe.com)');
       res.setHeader('Cross-Origin-Embedder-Policy', 'unsafe-none');
       res.setHeader('Cross-Origin-Opener-Policy', 'same-origin');
       res.setHeader('Cross-Origin-Resource-Policy', 'cross-origin');
