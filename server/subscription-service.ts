@@ -4,10 +4,11 @@ import type { UserSubscription, SubscriptionTier, User, InsertUserSubscription, 
 import { SUBSCRIPTION_TIERS, getTierById } from './subscription-tiers';
 import { securityLogger } from './security-logger';
 import { databaseStorage } from './storage';
-import { hybridTokenService } from './hybrid-token-service';
+import { secureJWTService } from './secure-jwt-service';
 import { securityQuestionsService } from './security-questions-service';
 import { collectiveUserService } from './collective-user-service';
 import { postgresqlSessionStorage } from './postgresql-session-storage';
+import { emailService } from './email-service';
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
   apiVersion: '2025-06-30.basil',
@@ -45,7 +46,7 @@ export class SubscriptionService {
     setInterval(async () => {
       try {
         console.log('🧹 Starting periodic token cleanup...');
-        const tokenResults = await hybridTokenService.cleanupExpired();
+        const tokenResults = await secureJWTService.cleanupExpiredTokens();
         const sessionResults = await postgresqlSessionStorage.cleanupExpired();
         console.log(`🧹 Cleanup completed: ${tokenResults.tokensRemoved} expired tokens removed, ${sessionResults.sessionsRemoved} expired sessions removed`);
       } catch (error) {
@@ -56,7 +57,7 @@ export class SubscriptionService {
     // Also run cleanup on startup
     setTimeout(async () => {
       try {
-        const tokenResults = await hybridTokenService.cleanupExpired();
+        const tokenResults = await secureJWTService.cleanupExpiredTokens();
         const sessionResults = await postgresqlSessionStorage.cleanupExpired();
         console.log(`🧹 Startup cleanup: ${tokenResults.tokensRemoved} expired tokens removed, ${sessionResults.sessionsRemoved} expired sessions removed`);
       } catch (error) {
@@ -1340,10 +1341,283 @@ export class SubscriptionService {
         },
       });
 
-      // TODO: Send notification email to user about failed payment
-      // TODO: Consider restricting usage if payment fails repeatedly
+      // Send notification email to user about failed payment
+      try {
+        const user = await databaseStorage.getUser(userId);
+        if (user?.email) {
+          const emailSent = await emailService.sendEmail({
+            to: user.email,
+            subject: '⚠️ Payment Failed - ReadMyFinePrint Subscription',
+            html: `
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Payment Failed - ReadMyFinePrint</title>
+    <style>
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; line-height: 1.6; color: #333; margin: 0; padding: 0; background-color: #f8fafc; }
+        .container { max-width: 600px; margin: 0 auto; background: white; border-radius: 8px; overflow: hidden; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); }
+        .header { background: linear-gradient(135deg, #dc2626 0%, #ef4444 100%); color: white; padding: 40px 30px; text-align: center; }
+        .header h1 { margin: 0; font-size: 28px; font-weight: 600; }
+        .content { padding: 40px 30px; }
+        .message { font-size: 16px; line-height: 1.7; margin: 20px 0; }
+        .warning { background: #fef3c7; border-left: 4px solid #f59e0b; padding: 15px; margin: 20px 0; border-radius: 0 8px 8px 0; }
+        .cta { text-align: center; margin: 30px 0; }
+        .button { display: inline-block; background: #dc2626; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; font-weight: 600; }
+        .footer { background: #f8fafc; padding: 20px 30px; text-align: center; color: #64748b; font-size: 14px; border-top: 1px solid #e2e8f0; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>⚠️ Payment Failed</h1>
+            <p>Action needed for your ReadMyFinePrint subscription</p>
+        </div>
+        
+        <div class="content">
+            <div class="message">
+                <p>Hello,</p>
+                <p>We were unable to process your payment for your ReadMyFinePrint subscription.</p>
+                
+                <p><strong>Payment Details:</strong></p>
+                <ul>
+                  <li>Amount: ${(invoice.amount_due / 100).toFixed(2)} ${invoice.currency.toUpperCase()}</li>
+                  <li>Attempt: ${invoice.attempt_count}</li>
+                  <li>Date: ${new Date().toLocaleDateString()}</li>
+                </ul>
+            </div>
+            
+            <div class="warning">
+                <p><strong>What happens next:</strong></p>
+                <ul>
+                  <li>We'll automatically retry the payment in a few days</li>
+                  <li>Your subscription remains active during this time</li>
+                  <li>You can update your payment method to resolve this immediately</li>
+                </ul>
+            </div>
+            
+            <div class="cta">
+                <a href="https://readmyfineprint.com/subscription" class="button">Update Payment Method</a>
+            </div>
+            
+            <div class="message">
+                <p>If you have any questions or need assistance, please don't hesitate to contact our support team.</p>
+            </div>
+        </div>
+        
+        <div class="footer">
+            <p>ReadMyFinePrint - Legal Document Analysis</p>
+            <p>This is an automated billing notification.</p>
+        </div>
+    </div>
+</body>
+</html>
+            `,
+            text: `
+ReadMyFinePrint - Payment Failed
+
+We were unable to process your payment for your ReadMyFinePrint subscription.
+
+Payment Details:
+- Amount: ${(invoice.amount_due / 100).toFixed(2)} ${invoice.currency.toUpperCase()}
+- Attempt: ${invoice.attempt_count}
+- Date: ${new Date().toLocaleDateString()}
+
+What happens next:
+- We'll automatically retry the payment in a few days
+- Your subscription remains active during this time
+- You can update your payment method to resolve this immediately
+
+Update your payment method: https://readmyfineprint.com/subscription
+
+If you have any questions or need assistance, please contact our support team.
+
+---
+ReadMyFinePrint - Legal Document Analysis
+This is an automated billing notification.
+            `
+          });
+
+          if (emailSent) {
+            console.log(`📧 Payment failure notification sent to ${user.email}`);
+          }
+        }
+      } catch (emailError) {
+        console.error('❌ Failed to send payment failure notification:', emailError);
+      }
+      
+      // Restrict usage if payment fails repeatedly
+      await this.handleRepeatedPaymentFailures(userId, invoice.attempt_count);
     } catch (error) {
       console.error('❌ Error handling payment failure:', invoice.id, error);
+    }
+  }
+
+  /**
+   * Handle repeated payment failures by restricting usage
+   */
+  private async handleRepeatedPaymentFailures(userId: string, attemptCount: number): Promise<void> {
+    try {
+      // Get user's current subscription
+      const subscription = await databaseStorage.getUserSubscription(userId);
+      if (!subscription) {
+        console.log('No subscription found for user during payment failure handling:', userId);
+        return;
+      }
+
+      // Implement progressive restrictions based on failure count
+      if (attemptCount >= 3) {
+        // After 3 failures, downgrade to free tier
+        console.log(`⚠️ Downgrading user ${userId} to free tier after ${attemptCount} payment failures`);
+        
+        await databaseStorage.updateUserSubscription(subscription.id, {
+          tierId: 'free',
+          status: 'payment_failed'
+        });
+
+        // Log the restriction
+        securityLogger.logSecurityEvent({
+          eventType: 'SUBSCRIPTION_RESTRICTED' as any,
+          severity: 'HIGH' as any,
+          message: `User subscription restricted due to repeated payment failures`,
+          ip: 'system',
+          userAgent: 'subscription-service',
+          endpoint: 'handleRepeatedPaymentFailures',
+          details: {
+            userId,
+            attemptCount,
+            action: 'downgraded_to_free',
+            reason: 'repeated_payment_failures'
+          },
+        });
+
+        // Send restriction notification email
+        try {
+          const user = await databaseStorage.getUser(userId);
+          if (user?.email) {
+            await emailService.sendEmail({
+              to: user.email,
+              subject: '🚨 ReadMyFinePrint - Account Temporarily Restricted',
+              html: `
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Account Restricted - ReadMyFinePrint</title>
+    <style>
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; line-height: 1.6; color: #333; margin: 0; padding: 0; background-color: #f8fafc; }
+        .container { max-width: 600px; margin: 0 auto; background: white; border-radius: 8px; overflow: hidden; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); }
+        .header { background: linear-gradient(135deg, #dc2626 0%, #ef4444 100%); color: white; padding: 40px 30px; text-align: center; }
+        .header h1 { margin: 0; font-size: 28px; font-weight: 600; }
+        .content { padding: 40px 30px; }
+        .message { font-size: 16px; line-height: 1.7; margin: 20px 0; }
+        .warning { background: #fef3c7; border-left: 4px solid #f59e0b; padding: 15px; margin: 20px 0; border-radius: 0 8px 8px 0; }
+        .cta { text-align: center; margin: 30px 0; }
+        .button { display: inline-block; background: #dc2626; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; font-weight: 600; }
+        .footer { background: #f8fafc; padding: 20px 30px; text-align: center; color: #64748b; font-size: 14px; border-top: 1px solid #e2e8f0; }
+      </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🚨 Account Temporarily Restricted</h1>
+            <p>Your ReadMyFinePrint subscription requires attention</p>
+        </div>
+        
+        <div class="content">
+            <div class="message">
+                <p>Hello,</p>
+                <p>Due to repeated payment failures, your ReadMyFinePrint account has been temporarily restricted to free tier access.</p>
+            </div>
+            
+            <div class="warning">
+                <p><strong>What this means:</strong></p>
+                <ul>
+                  <li>Your account is now limited to free tier features</li>
+                  <li>You can still use basic document analysis</li>
+                  <li>Premium features are temporarily unavailable</li>
+                  <li>No data has been lost</li>
+                </ul>
+            </div>
+            
+            <div class="message">
+                <p><strong>To restore full access:</strong></p>
+                <ol>
+                  <li>Update your payment method</li>
+                  <li>Contact our billing team if you need assistance</li>
+                  <li>Your premium features will be restored immediately upon successful payment</li>
+                </ol>
+            </div>
+            
+            <div class="cta">
+                <a href="https://readmyfineprint.com/subscription" class="button">Update Payment Method</a>
+            </div>
+            
+            <div class="message">
+                <p>We understand payment issues happen. If you're experiencing financial difficulties, please contact our support team to discuss options.</p>
+            </div>
+        </div>
+        
+        <div class="footer">
+            <p>ReadMyFinePrint - Legal Document Analysis</p>
+            <p>Contact: admin@readmyfineprint.com</p>
+        </div>
+    </div>
+</body>
+</html>
+              `,
+              text: `
+ReadMyFinePrint - Account Temporarily Restricted
+
+Due to repeated payment failures, your ReadMyFinePrint account has been temporarily restricted to free tier access.
+
+What this means:
+- Your account is now limited to free tier features
+- You can still use basic document analysis
+- Premium features are temporarily unavailable
+- No data has been lost
+
+To restore full access:
+1. Update your payment method
+2. Contact our billing team if you need assistance
+3. Your premium features will be restored immediately upon successful payment
+
+Update payment method: https://readmyfineprint.com/subscription
+
+We understand payment issues happen. If you're experiencing financial difficulties, please contact our support team to discuss options.
+
+Contact: admin@readmyfineprint.com
+              `
+            });
+            
+            console.log(`📧 Account restriction notification sent to ${user.email}`);
+          }
+        } catch (emailError) {
+          console.error('❌ Failed to send restriction notification:', emailError);
+        }
+      } else if (attemptCount >= 2) {
+        // After 2 failures, log warning but maintain access
+        console.log(`⚠️ Warning: User ${userId} has ${attemptCount} payment failures`);
+        
+        securityLogger.logSecurityEvent({
+          eventType: 'PAYMENT_WARNING' as any,
+          severity: 'MEDIUM' as any,
+          message: `User approaching payment failure limit`,
+          ip: 'system',
+          userAgent: 'subscription-service',
+          endpoint: 'handleRepeatedPaymentFailures',
+          details: {
+            userId,
+            attemptCount,
+            action: 'warning_logged',
+            reason: 'approaching_failure_limit'
+          },
+        });
+      }
+    } catch (error) {
+      console.error('❌ Error handling repeated payment failures:', error);
     }
   }
 
@@ -1654,7 +1928,7 @@ export class SubscriptionService {
       const tier = await this.validateAndAssignTier(subscription);
       
       // Use hybrid token service (prefers JOSE, falls back to PostgreSQL)
-      const token = await hybridTokenService.generateSubscriptionToken({
+      const token = await secureJWTService.generateSubscriptionToken({
         userId,
         subscriptionId,
         tierId: tier.id,
@@ -1687,7 +1961,7 @@ export class SubscriptionService {
       }
       
       // Get token data from hybrid service (supports both JOSE and PostgreSQL)
-      const tokenData = await hybridTokenService.validateSubscriptionToken(token);
+      const tokenData = await secureJWTService.validateSubscriptionToken(token);
       if (!tokenData) {
         console.warn('Token not found in storage');
         return null;
@@ -1698,33 +1972,11 @@ export class SubscriptionService {
         console.log(`Token used from device: ${deviceFingerprint.slice(0, 16)}... for user ${tokenData.userId}`);
       }
       
-      // Rate limiting: Check usage frequency (PostgreSQL tokens only)
-      if (token.startsWith('sub_') && tokenData.lastUsed && tokenData.usageCount) {
-        const now = new Date();
-        const lastUsed = new Date(tokenData.lastUsed);
-        const timeSinceLastUse = now.getTime() - lastUsed.getTime();
-        
-        // If used more than 100 times in last hour, it might be automated/shared
-        if (tokenData.usageCount > 100 && timeSinceLastUse < 60 * 60 * 1000) {
-          console.warn('Potential token abuse detected - high usage frequency');
-          securityLogger.logSecurityEvent({
-            eventType: 'SECURITY_VIOLATION' as any,
-            severity: 'MEDIUM' as any,
-            message: 'Subscription token showing unusual usage patterns',
-            ip: clientIp || 'unknown',
-            userAgent: 'subscription-service',
-            endpoint: 'token-validation',
-            details: {
-              tokenId: token.slice(0, 16) + '...',
-              usageCount: tokenData.usageCount,
-              lastUsed: tokenData.lastUsed
-            }
-          });
-        }
-      }
+      // JOSE tokens are stateless - no usage tracking needed
+      // Rate limiting would be handled at the API gateway level or through other means
       
       // Update usage tracking in hybrid service (PostgreSQL tokens only)
-      await hybridTokenService.updateTokenUsage(token);
+      // Token usage tracking not needed for JWT tokens
       
       // Get current subscription data and verify it's still active
       const subscriptionData = await this.getUserSubscriptionWithUsage(tokenData.userId);
@@ -1733,7 +1985,7 @@ export class SubscriptionService {
       if (subscriptionData.subscription && subscriptionData.subscription.status !== 'active') {
         console.warn('Token valid but subscription no longer active');
         // Invalidate the token
-        await hybridTokenService.revokeToken(token, 'subscription no longer active');
+        await secureJWTService.revokeToken(token, 'subscription no longer active');
         return null;
       }
       
@@ -1769,9 +2021,12 @@ export class SubscriptionService {
         return false;
       }
       
-      // Get token data before removal
-      const tokenInfo = await hybridTokenService.getTokenInfo(token);
-      if (!tokenInfo) {
+      // Get token data before removal (extract from JOSE token)
+      const { joseTokenService } = await import('./jose-token-service');
+      const tokenInfo = await joseTokenService.extractTokenInfo(token);
+      
+      if (!tokenInfo || !tokenInfo.userId) {
+        console.warn('Cannot revoke token - unable to extract token info');
         return false;
       }
       
@@ -1790,8 +2045,8 @@ export class SubscriptionService {
         }
       });
       
-      // Remove from hybrid service
-      const success = await hybridTokenService.revokeToken(token, reason);
+      // Remove from secure JWT service (handles revocation list)
+      const success = await secureJWTService.revokeToken(token, reason);
       if (success) {
         console.log(`Revoked subscription token for user ${tokenInfo.userId}: ${reason}`);
       }
@@ -1809,7 +2064,7 @@ export class SubscriptionService {
   async revokeAllUserTokens(userId: string, reason: string): Promise<number> {
     try {
       // Remove all tokens for the user from hybrid service
-      const revokedCount = await hybridTokenService.revokeAllUserTokens(userId, reason);
+      const revokedCount = await secureJWTService.revokeAllUserTokens(userId, reason);
       
       if (revokedCount > 0) {
         securityLogger.logSecurityEvent({

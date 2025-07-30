@@ -2,6 +2,7 @@ import { apiRequest } from "./queryClient";
 import type { Document, UserSubscription, SubscriptionTier, SubscriptionUsage, SecurityQuestion, SecurityQuestionsSetup } from "@shared/schema";
 import { getGlobalSessionId, sessionFetch, clearSession } from "./sessionManager";
 import { fetchWithCSRF } from "./csrfManager";
+import { reportApiError, reportNetworkError } from "./error-reporter";
 
 // Export sessionFetch for use in hooks
 export { sessionFetch };
@@ -16,7 +17,7 @@ interface ConsentProof {
 }
 
 export async function createDocument(data: { title: string; content: string; fileType?: string }) {
-  const response = await fetchWithCSRF('/api/documents', {
+  const response = await sessionFetch('/api/documents', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -39,6 +40,10 @@ export async function createDocument(data: { title: string; content: string; fil
         errorMessage = 'Server error occurred. Please refresh the page and try again.';
       }
     }
+    
+    // Report API error to admin
+    reportApiError(new Error(errorMessage), '/api/documents', 'POST');
+    
     throw new Error(errorMessage);
   }
 
@@ -55,7 +60,7 @@ export async function uploadDocument(file: File): Promise<Document> {
   const formData = new FormData();
   formData.append('file', file);
 
-  const response = await fetchWithCSRF('/api/documents/upload', {
+  const response = await sessionFetch('/api/documents/upload', {
     method: 'POST',
     body: formData,
   });
@@ -245,10 +250,8 @@ export async function getQueueStatus(): Promise<{
   userHasRequestInQueue: boolean;
   timestamp: number;
 }> {
-  const response = await fetch('/api/queue/status', {
-    headers: {
-      'x-session-id': getGlobalSessionId(),
-    },
+  const response = await sessionFetch('/api/queue/status', {
+    method: 'GET',
   });
 
   if (!response.ok) {
@@ -261,10 +264,8 @@ export async function getQueueStatus(): Promise<{
 
 
 export async function getDocument(documentId: number): Promise<Document> {
-  const response = await fetch(`/api/documents/${documentId}`, {
-    headers: {
-      'x-session-id': getGlobalSessionId(),
-    },
+  const response = await sessionFetch(`/api/documents/${documentId}`, {
+    method: 'GET',
     credentials: 'include',
   });
 
@@ -277,10 +278,8 @@ export async function getDocument(documentId: number): Promise<Document> {
 
 
 export async function getAllDocuments(): Promise<Document[]> {
-  const response = await fetch('/api/documents', {
-    headers: {
-      'x-session-id': getGlobalSessionId(),
-    },
+  const response = await sessionFetch('/api/documents', {
+    method: 'GET',
     credentials: 'include',
   });
 
@@ -293,7 +292,7 @@ export async function getAllDocuments(): Promise<Document[]> {
 
 
 export async function clearAllDocuments(): Promise<{ message: string }> {
-  const response = await fetchWithCSRF('/api/documents', {
+  const response = await sessionFetch('/api/documents', {
     method: 'DELETE',
     headers: {},
   });

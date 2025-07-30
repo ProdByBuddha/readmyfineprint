@@ -22,6 +22,8 @@ import { useToast } from "@/hooks/use-toast";
 import { queryClient } from "@/lib/queryClient";
 import { useLocation } from "wouter";
 import type { Document } from "@shared/schema";
+import { useSecurityQuestionsHandler } from "@/hooks/useSecurityQuestionsHandler";
+import { SecurityQuestionsModal } from "@/components/SecurityQuestionsModal";
 
 export default function Upload() {
   const [currentDocumentId, setCurrentDocumentId] = useState<number | null>(null);
@@ -32,6 +34,12 @@ export default function Upload() {
   const { isAccepted: consentAccepted } = useCombinedConsent();
   const { announce } = useAccessibility();
   const containerRef = usePreventFlicker();
+  const { 
+    showSecurityQuestionsModal, 
+    handleApiError, 
+    handleSecurityQuestionsComplete, 
+    closeSecurityQuestionsModal 
+  } = useSecurityQuestionsHandler();
 
   // Listen for consent revocation events
   useEffect(() => {
@@ -67,6 +75,16 @@ export default function Upload() {
     refetchOnReconnect: false,
     notifyOnChangeProps: ['data', 'error'],
     structuralSharing: false,
+    retry: (failureCount, error) => {
+      // Don't retry on 404 - document was likely deleted
+      if (error instanceof Error && error.message.includes('404')) {
+        // Clear the current document ID since it no longer exists
+        setCurrentDocumentId(null);
+        return false;
+      }
+      // Retry other errors up to 3 times
+      return failureCount < 3;
+    },
   });
 
   const analyzeDocumentMutation = useMutation({
@@ -99,13 +117,18 @@ export default function Upload() {
     },
     onError: (error) => {
       setIsAnalyzing(false);
-      const errorMessage = error instanceof Error ? error.message : "Failed to analyze document";
-      announce(`Analysis failed: ${errorMessage}`, 'assertive');
-      toast({
-        title: "Analysis failed",
-        description: errorMessage,
-        variant: "destructive",
-      });
+      
+      // Check if this is a security questions requirement error
+      if (!handleApiError(error)) {
+        // If not a security questions error, show the regular error message
+        const errorMessage = error instanceof Error ? error.message : "Failed to analyze document";
+        announce(`Analysis failed: ${errorMessage}`, 'assertive');
+        toast({
+          title: "Analysis failed",
+          description: errorMessage,
+          variant: "destructive",
+        });
+      }
     },
   });
 
@@ -200,6 +223,11 @@ export default function Upload() {
       await handleDocumentCreated(document.id);
     } catch (error) {
       console.error("Error with sample contract:", error);
+      
+      // Check if this is a security questions requirement error
+      if (handleApiError(error)) {
+        return; // Error handled by security questions modal
+      }
       
       // Handle different types of errors
       let errorMessage = "Failed to process sample contract";
@@ -322,6 +350,16 @@ export default function Upload() {
           )}
         </div>
       </MobileAppWrapper>
+      
+      {/* Security Questions Modal */}
+      <SecurityQuestionsModal
+        isOpen={showSecurityQuestionsModal}
+        onComplete={handleSecurityQuestionsComplete}
+        onClose={closeSecurityQuestionsModal}
+        allowClose={false}
+        title="Security Questions Required"
+        description="To continue using document analysis features, please set up security questions to help protect your account."
+      />
     </div>
   );
 }

@@ -177,23 +177,22 @@ class SecurityValidator {
     console.log('🔑 Validating Token Security...');
 
     try {
-      // Test JOSE token service initialization
-      const { JOSETokenService } = await import('../server/jose-token-service');
-      const tokenService = new JOSETokenService();
+      // Test JOSE token service initialization (more secure)
+      const { joseTokenService } = await import('../server/jose-token-service');
       
       this.addCheck(
         'JOSE Token Service',
         'PASS',
-        'JOSE token service initializes without fallback secrets'
+        'JOSE token service initializes with versioned encryption keys'
       );
 
       // Test token generation and validation
-      const testToken = await tokenService.generateSubscriptionToken({
+      const testToken = await joseTokenService.generateSubscriptionToken({
         userId: 'test-user',
         tierId: 'free'
       });
 
-      const validatedToken = await tokenService.validateSubscriptionToken(testToken);
+      const validatedToken = await joseTokenService.validateSubscriptionToken(testToken);
       
       if (validatedToken && validatedToken.userId === 'test-user') {
         this.addCheck(

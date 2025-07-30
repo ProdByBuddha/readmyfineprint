@@ -792,8 +792,102 @@ export function registerAdminRoutes(app: Express) {
       // Optionally send email with temporary password
       if (sendEmail) {
         try {
-          // TODO: Implement email service integration
-          console.log(`Would send temporary password ${temporaryPassword} to ${user.email}`);
+          const emailSent = await emailService.sendEmail({
+            to: user.email,
+            subject: '🔐 ReadMyFinePrint - Password Reset',
+            html: `
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Password Reset - ReadMyFinePrint</title>
+    <style>
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; line-height: 1.6; color: #333; margin: 0; padding: 0; background-color: #f8fafc; }
+        .container { max-width: 600px; margin: 0 auto; background: white; border-radius: 8px; overflow: hidden; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); }
+        .header { background: linear-gradient(135deg, #dc2626 0%, #ef4444 100%); color: white; padding: 40px 30px; text-align: center; }
+        .header h1 { margin: 0; font-size: 28px; font-weight: 600; }
+        .content { padding: 40px 30px; }
+        .password { background: #f1f5f9; border: 2px solid #dc2626; border-radius: 8px; padding: 20px; margin: 20px 0; font-size: 18px; font-weight: 700; text-align: center; color: #dc2626; font-family: 'Courier New', monospace; }
+        .message { font-size: 16px; line-height: 1.7; margin: 20px 0; }
+        .warning { background: #fef3c7; border-left: 4px solid #f59e0b; padding: 15px; margin: 20px 0; border-radius: 0 8px 8px 0; }
+        .footer { background: #f8fafc; padding: 20px 30px; text-align: center; color: #64748b; font-size: 14px; border-top: 1px solid #e2e8f0; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🔐 Password Reset</h1>
+            <p>Your ReadMyFinePrint password has been reset</p>
+        </div>
+        
+        <div class="content">
+            <div class="message">
+                <p>Hello,</p>
+                <p>An administrator has reset your ReadMyFinePrint account password. Your new temporary password is:</p>
+            </div>
+            
+            <div class="password">${temporaryPassword}</div>
+            
+            <div class="warning">
+                <p><strong>⚠️ Important Security Notice:</strong></p>
+                <ul>
+                  <li>You must change this password immediately after logging in</li>
+                  <li>This temporary password expires in 24 hours</li>
+                  <li>For your security, do not share this password with anyone</li>
+                </ul>
+            </div>
+            
+            <div class="message">
+                <p><strong>Next Steps:</strong></p>
+                <ol>
+                  <li>Sign in to ReadMyFinePrint using the temporary password above</li>
+                  <li>You will be prompted to create a new secure password</li>
+                  <li>Choose a strong, unique password for your account</li>
+                </ol>
+                
+                <p>If you did not request this password reset, please contact our support team immediately.</p>
+            </div>
+        </div>
+        
+        <div class="footer">
+            <p>ReadMyFinePrint - Secure Legal Document Analysis</p>
+            <p>This is an automated security email. Please do not reply.</p>
+        </div>
+    </div>
+</body>
+</html>
+            `,
+            text: `
+ReadMyFinePrint - Password Reset
+
+Your account password has been reset by an administrator.
+
+Your new temporary password is: ${temporaryPassword}
+
+IMPORTANT SECURITY NOTICE:
+- You must change this password immediately after logging in
+- This temporary password expires in 24 hours
+- For your security, do not share this password with anyone
+
+Next Steps:
+1. Sign in to ReadMyFinePrint using the temporary password above
+2. You will be prompted to create a new secure password
+3. Choose a strong, unique password for your account
+
+If you did not request this password reset, please contact our support team immediately.
+
+---
+ReadMyFinePrint - Secure Legal Document Analysis
+This is an automated security email. Please do not reply.
+            `
+          });
+
+          if (emailSent) {
+            console.log(`📧 Password reset email sent successfully to ${user.email}`);
+          } else {
+            console.error(`❌ Failed to send password reset email to ${user.email}`);
+          }
         } catch (emailError) {
           console.error("Failed to send password reset email:", emailError);
         }

@@ -19,10 +19,17 @@ export interface TierValidationResult {
 }
 
 /**
- * Check if user has Professional tier or higher
+ * Check if user has Professional tier or higher (for PII protection)
  */
 export async function validateProfessionalAccess(userId: string): Promise<TierValidationResult> {
   return validateTierAccess(userId, 'professional');
+}
+
+/**
+ * Check if user has Starter tier or higher (for PDF export)
+ */
+export async function validateStarterAccess(userId: string): Promise<TierValidationResult> {
+  return validateTierAccess(userId, 'starter');
 }
 
 /**
@@ -79,11 +86,22 @@ export async function validateTierAccess(userId: string, requiredTier: string): 
  */
 export function getProfessionalFeatures(): string[] {
   return [
-    'PDF Export',
     'Advanced Data Export',
     'PII Redaction & Hashing',
     'PII Detection Feedback',
     'Enhanced Privacy Protection',
+    'Priority Processing',
+    'Enhanced Analysis',
+    'Higher Document Limits'
+  ];
+}
+
+/**
+ * Get feature list for Starter tier and above
+ */
+export function getStarterFeatures(): string[] {
+  return [
+    'PDF Export',
     'Priority Processing',
     'Enhanced Analysis',
     'Higher Document Limits'

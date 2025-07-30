@@ -36,8 +36,23 @@ app.use(enhancedCorsProtection);
 app.use(requestSizeProtection);
 app.use(developmentServerProtection);
 
-// Add cookie parser middleware
-app.use(cookieParser());
+// Add cookie parser middleware with configuration
+app.use(cookieParser(process.env.COOKIE_SECRET || undefined));
+
+// Additional middleware to ensure cookies are parsed in Replit/staging environments
+app.use((req, res, next) => {
+  // If cookie-parser didn't work and we have a cookie header, parse manually
+  if (!req.cookies && req.headers.cookie) {
+    req.cookies = {};
+    req.headers.cookie.split(';').forEach(cookie => {
+      const parts = cookie.trim().split('=');
+      if (parts.length === 2) {
+        req.cookies[parts[0]] = decodeURIComponent(parts[1]);
+      }
+    });
+  }
+  next();
+});
 
 // Enhanced security middleware - block only critical sensitive files
 app.use((req, res, next) => {
@@ -335,6 +350,27 @@ app.use(async (req: any, res, next) => {
   next();
 });
 
+// Explicit CSRF token endpoint to ensure it's handled before other routes
+app.get('/api/csrf-token', (req: any, res) => {
+  const sessionId = req.sessionId || req.headers['x-session-id'];
+  console.log(`🔍 Direct CSRF token request - sessionId: ${sessionId}, path: ${req.path}, method: ${req.method}`);
+  console.log(`🔍 Headers:`, req.headers);
+  
+  if (process.env.NODE_ENV === 'staging') {
+    // In staging, return a proper token
+    if (sessionId) {
+      const { csrfProtection } = require('./csrf-protection');
+      const token = csrfProtection.getToken(sessionId);
+      console.log(`🔍 Generated CSRF token for session ${sessionId}`);
+      return res.json({ csrfToken: token });
+    }
+  }
+  
+  // Fallback for development or when no session
+  console.log(`🔍 Returning dev-disabled token`);
+  return res.json({ csrfToken: 'dev-disabled' });
+});
+
 // Add CSRF protection middleware
 app.use(provideCsrfToken);
 app.use(verifyCsrfToken);
@@ -368,10 +404,6 @@ app.use((req, res, next) => {
 
   next();
 });
-
-// CSRF Protection - provide tokens to clients and verify on state-changing requests
-app.use(provideCsrfToken);
-app.use(verifyCsrfToken);
 
 (async () => {
   // Initialize database connection
@@ -457,99 +489,18 @@ app.use(verifyCsrfToken);
 
   const server = await registerRoutes(app);
 
-  // Development-only landing page for Replit webview
+  // Development-only redirect to frontend
   if (process.env.NODE_ENV === 'development') {
     app.get('/', (req, res) => {
-      // Get the correct Replit dev URL
-      const replitHost = req.get('host');
-      const baseUrl = replitHost ? `https://${replitHost}` : 'http://localhost:5000';
-      const frontendUrl = replitHost 
-        ? baseUrl.replace('.replit.dev', '.replit.dev:5173').replace(':80', ':5173')
+      // In Replit, both frontend and backend run on the same domain
+      // Just redirect to root path and let the client router handle it
+      const isReplit = process.env.REPL_ID || req.get('host')?.includes('replit.dev');
+      const frontendUrl = isReplit 
+        ? `${req.protocol}://${req.get('host')}/`
         : 'http://localhost:5173';
       
-      res.send(`
-        <!DOCTYPE html>
-        <html>
-        <head>
-          <title>ReadMyFinePrint - Dev Mode</title>
-          <style>
-            body {
-              font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-              background: #0f0f0f;
-              color: #fff;
-              display: flex;
-              align-items: center;
-              justify-content: center;
-              height: 100vh;
-              margin: 0;
-            }
-            .container {
-              text-align: center;
-              padding: 2rem;
-              background: #1a1a1a;
-              border-radius: 12px;
-              box-shadow: 0 4px 6px rgba(0,0,0,0.3);
-            }
-            .logo {
-              font-size: 3rem;
-              margin-bottom: 1rem;
-            }
-            h1 {
-              margin: 0.5rem 0;
-              font-size: 2rem;
-            }
-            .status {
-              color: #22c55e;
-              margin: 1rem 0;
-            }
-            .links {
-              margin-top: 2rem;
-            }
-            a {
-              display: inline-block;
-              padding: 0.75rem 2rem;
-              margin: 0.5rem;
-              background: #3b82f6;
-              color: white;
-              text-decoration: none;
-              border-radius: 8px;
-              transition: background 0.2s;
-            }
-            a:hover {
-              background: #2563eb;
-            }
-            .admin {
-              background: #8b5cf6;
-            }
-            .admin:hover {
-              background: #7c3aed;
-            }
-            .info {
-              margin-top: 2rem;
-              font-size: 0.875rem;
-              color: #999;
-            }
-          </style>
-        </head>
-        <body>
-          <div class="container">
-            <div class="logo">📄</div>
-            <h1>ReadMyFinePrint</h1>
-            <p class="status">✅ Development Server Running</p>
-            <p>Auto-Admin Login Enabled</p>
-            <div class="links">
-              <a href="${frontendUrl}" target="_blank">Open Frontend →</a>
-              <a href="${frontendUrl}/admin" target="_blank" class="admin">Admin Dashboard →</a>
-            </div>
-            <div class="info">
-              <p>Frontend: ${frontendUrl}</p>
-              <p>Backend API: /api</p>
-              <p>You are automatically logged in as admin@readmyfineprint.com</p>
-            </div>
-          </div>
-        </body>
-        </html>
-      `);
+      // Redirect directly to frontend instead of showing splash page
+      res.redirect(frontendUrl);
     });
   }
 
@@ -568,10 +519,10 @@ app.use(verifyCsrfToken);
     // In Replit environment, skip vite middleware and let vite run separately
     if (process.env.REPL_ID) {
       console.log("🔧 Running in Replit - Vite will run as a separate process");
-      // Simple proxy to vite dev server
-      app.use("*", (req, res) => {
-        res.redirect(`http://localhost:5173${req.originalUrl}`);
-      });
+      // In Replit, the frontend and backend run on the same domain
+      // The Vite dev server should be handling the frontend routes
+      // This catch-all should only serve static assets or forward to API routes
+      serveStatic(app);
     } else {
       await setupVite(app, server);
     }

@@ -17,6 +17,40 @@ export function StripeWrapper({ children }: StripeWrapperProps) {
   const [error, setError] = useState<string | null>(null);
   const [retryCount, setRetryCount] = useState(0);
 
+  // Fallback method to load Stripe.js directly via script tag
+  const loadStripeDirectly = (publicKey: string): Promise<Stripe | null> => {
+    return new Promise((resolve, reject) => {
+      // Check if Stripe is already loaded
+      if ((window as any).Stripe) {
+        console.log("✅ Stripe already available on window");
+        resolve((window as any).Stripe(publicKey));
+        return;
+      }
+
+      // Create script element
+      const script = document.createElement('script');
+      script.src = 'https://js.stripe.com/v3/';
+      script.async = true;
+
+      script.onload = () => {
+        console.log("✅ Stripe.js script loaded directly");
+        if ((window as any).Stripe) {
+          const stripe = (window as any).Stripe(publicKey);
+          resolve(stripe);
+        } else {
+          reject(new Error("Stripe object not found after script load"));
+        }
+      };
+
+      script.onerror = (error) => {
+        console.error("❌ Direct script loading failed:", error);
+        reject(new Error("Failed to load Stripe.js script"));
+      };
+
+      document.head.appendChild(script);
+    });
+  };
+
   const initializeStripe = async (attempt: number = 1) => {
     try {
       setLoading(true);
@@ -24,35 +58,98 @@ export function StripeWrapper({ children }: StripeWrapperProps) {
 
       const stripePublicKey = import.meta.env.VITE_STRIPE_PUBLIC_KEY;
 
+      console.log(`🔄 Loading Stripe.js (attempt ${attempt})`);
+      console.log(`🔑 Stripe public key: ${stripePublicKey ? stripePublicKey.slice(0, 10) + '...' : 'NOT SET'}`);
+      console.log(`🌍 Current URL: ${window.location.href}`);
+      console.log(`🌍 User agent: ${navigator.userAgent}`);
+
       if (!stripePublicKey) {
-        throw new Error("Stripe public key not configured");
+        console.error("❌ VITE_STRIPE_PUBLIC_KEY not found in environment variables");
+        console.log("Available env vars:", Object.keys(import.meta.env));
+        throw new Error("Stripe public key not configured - check VITE_STRIPE_PUBLIC_KEY environment variable");
       }
 
       if (!stripePublicKey.startsWith("pk_")) {
-        throw new Error("Invalid Stripe public key format");
+        console.error(`❌ Invalid key format: ${stripePublicKey}`);
+        throw new Error(`Invalid Stripe public key format: expected pk_* but got ${stripePublicKey.slice(0, 10)}...`);
       }
 
-      console.log(`🔄 Loading Stripe.js (attempt ${attempt})`);
+      // Check network connectivity to Stripe
+      console.log("🌐 Testing network connectivity to Stripe...");
+      try {
+        const response = await fetch('https://js.stripe.com/v3/', { method: 'HEAD' });
+        console.log(`📡 Stripe connectivity test: ${response.status} ${response.statusText}`);
+      } catch (networkErr) {
+        console.warn("⚠️ Network connectivity test failed:", networkErr);
+      }
 
-      // Use a longer timeout for network environments like Replit
-      const timeoutPromise = new Promise<never>((_, reject) =>
-        setTimeout(() => reject(new Error("Network timeout - Stripe.js failed to load")), 15000)
-      );
+      console.log("🌍 Environment check:", {
+        userAgent: navigator.userAgent,
+        isClient: typeof window !== 'undefined',
+        hasDocument: typeof document !== 'undefined',
+        location: window.location.href
+      });
 
-      // Load Stripe.js with proper error handling
-      const stripePromise = loadStripe(stripePublicKey);
+      let stripeInstance: Stripe | null = null;
 
-      const stripeInstance = await Promise.race([stripePromise, timeoutPromise]);
+      // Try the npm package method first
+      try {
+        console.log("📦 Method 1: Trying @stripe/stripe-js loadStripe()...");
+        const timeoutPromise = new Promise<never>((_, reject) =>
+          setTimeout(() => reject(new Error("loadStripe timeout")), 10000)
+        );
+        
+        const stripePromise = loadStripe(stripePublicKey);
+        stripeInstance = await Promise.race([stripePromise, timeoutPromise]);
+        console.log("📦 loadStripe result:", stripeInstance);
+        
+        if (stripeInstance) {
+          console.log("✅ Method 1 success: loadStripe worked");
+        }
+      } catch (loadStripeError) {
+        console.warn("⚠️ Method 1 failed:", loadStripeError);
+        stripeInstance = null;
+      }
+
+      // If npm package failed, try direct script loading
+      if (!stripeInstance) {
+        console.log("📦 Method 2: Trying direct script loading...");
+        try {
+          const timeoutPromise = new Promise<never>((_, reject) =>
+            setTimeout(() => reject(new Error("Direct script timeout")), 10000)
+          );
+          
+          stripeInstance = await Promise.race([
+            loadStripeDirectly(stripePublicKey),
+            timeoutPromise
+          ]);
+          
+          if (stripeInstance) {
+            console.log("✅ Method 2 success: Direct script loading worked");
+          }
+        } catch (directError) {
+          console.error("❌ Method 2 failed:", directError);
+        }
+      }
 
       if (!stripeInstance) {
-        throw new Error("Stripe.js loaded but returned null");
+        throw new Error("Both loading methods failed - Stripe.js could not be initialized");
       }
 
-      console.log("✅ Stripe.js loaded successfully");
+      console.log("✅ Stripe.js loaded successfully using fallback method");
       setStripe(stripeInstance);
       setRetryCount(0);
     } catch (err: unknown) {
       console.error(`❌ Stripe loading attempt ${attempt} failed:`, err);
+      
+      // Enhanced error details
+      if (err instanceof Error) {
+        console.error("Error details:", {
+          name: err.name,
+          message: err.message,
+          stack: err.stack?.slice(0, 200)
+        });
+      }
       
       const errorMessage = err instanceof Error ? err.message : "Failed to load payment processor";
       
@@ -61,7 +158,10 @@ export function StripeWrapper({ children }: StripeWrapperProps) {
         errorMessage.includes("timeout") || 
         errorMessage.includes("Failed to load") ||
         errorMessage.includes("Network error") ||
-        errorMessage.includes("Script error")
+        errorMessage.includes("Script error") ||
+        errorMessage.includes("CSP") ||
+        errorMessage.includes("Content Security Policy") ||
+        errorMessage.includes("Both loading methods failed")
       )) {
         console.log(`⏳ Retrying Stripe.js load in ${attempt * 2} seconds...`);
         setTimeout(() => {

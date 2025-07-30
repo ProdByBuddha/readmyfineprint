@@ -1,6 +1,6 @@
 import type { Express } from 'express';
 import { z } from 'zod';
-import { requireUserAuth } from './auth';
+import { requireUserAuth, requireSecurityQuestions } from './auth';
 import { getClientInfo, securityLogger } from './security-logger';
 import { db } from './db';
 import { users, userSubscriptions, usageRecords } from '@shared/schema';
@@ -54,7 +54,7 @@ export function registerCcpaRoutes(app: Express) {
   /**
    * Handle CCPA data requests (access, delete, portability)
    */
-  app.post('/api/ccpa/data-request', requireUserAuth, async (req: any, res) => {
+  app.post('/api/ccpa/data-request', requireUserAuth, requireSecurityQuestions, async (req: any, res) => {
     try {
       const { requestType, email } = ccpaRequestSchema.parse(req.body);
       const userId = req.user.id;

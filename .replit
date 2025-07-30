@@ -18,7 +18,7 @@ MONITORING_EMAIL_RECIPIENT = "prodbybuddha@icloud.com"
 MONITORING_EMAIL_SUBJECT = "ReadMyFinePrint Production Alert"
 
 [workflows]
-runButton = "Deploy Staging"
+runButton = "Version Release"
 
 [[workflows.workflow]]
 name = "Project"
@@ -36,7 +36,7 @@ author = "agent"
 [[workflows.workflow.tasks]]
 task = "shell.exec"
 args = "npm run dev"
-waitForPort = 5000
+waitForPort = 5173
 
 [[workflows.workflow]]
 name = "Start Dev + PII LLM"
@@ -64,10 +64,6 @@ author = 30822729
 [[workflows.workflow.tasks]]
 task = "shell.exec"
 args = "echo '🚧 Preparing staging deployment...'"
-
-[[workflows.workflow.tasks]]
-task = "shell.exec"
-args = "npm run version:preview"
 
 [[workflows.workflow.tasks]]
 task = "shell.exec"
@@ -206,12 +202,12 @@ args = "npm run version:deploy"
 
 [[ports]]
 localPort = 5000
-externalPort = 80
+externalPort = 5000
 
 [[ports]]
 localPort = 5173
-externalPort = 5173
+externalPort = 80
 
 [[ports]]
 localPort = 11434
-externalPort = 3000
+externalPort = 11434

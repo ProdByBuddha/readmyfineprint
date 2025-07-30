@@ -33,8 +33,8 @@ export class JOSETokenService {
       const { secret } = jwtSecretManager.getCurrentSecret();
       
       // Create a consistent 32-byte key from the versioned secret
-      // Use a consistent salt for all JOSE token operations
-      this.secretKey = crypto.scryptSync(secret, 'subscription-salt-v2', 32);
+      // Use the same salt as auth tokens for consistency
+      this.secretKey = crypto.scryptSync(secret, 'auth-salt-v2', 32);
       this.initialized = true;
       
       console.log(`✅ JOSE service initialized with secret version and key length: ${this.secretKey.length} bytes`);

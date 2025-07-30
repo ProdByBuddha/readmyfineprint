@@ -66,7 +66,9 @@ const TradeSecretProtection: React.FC = () => {
     disableSelection();
 
     // Console warning for developers
-    console.clear();
+    if (!import.meta.env.DEV) {
+      console.clear();
+    }
     console.log('%c🔒 PRIVACY-FIRST DOCUMENT ANALYSIS', 'color: blue; font-size: 24px; font-weight: bold;');
     console.log('%cThis application uses proprietary privacy-preserving technology protected by trade secret laws.', 'color: orange; font-size: 14px;');
     console.log('%cOur enterprise-grade security ensures your sensitive information never leaves your control.', 'color: green; font-size: 14px;');
@@ -85,7 +87,9 @@ const TradeSecretProtection: React.FC = () => {
           window.outerWidth - window.innerWidth > threshold) {
         if (!devtools.open) {
           devtools.open = true;
-          console.clear();
+          if (!import.meta.env.DEV) {
+            console.clear();
+          }
           console.log('%c🛡️ PRIVACY PROTECTION ACTIVE', 'color: green; font-size: 18px; font-weight: bold;');
           console.log('%cYour documents are protected by military-grade security protocols.', 'color: blue; font-size: 12px;');
           console.log('%cAdvanced privacy technology ensures complete confidentiality.', 'color: blue; font-size: 12px;');

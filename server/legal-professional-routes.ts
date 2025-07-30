@@ -1,6 +1,6 @@
 import type { Express } from 'express';
 import { z } from 'zod';
-import { requireUserAuth, optionalUserAuth } from './auth';
+import { requireUserAuth, optionalUserAuth, requireSecurityQuestions } from './auth';
 import { getClientInfo, securityLogger } from './security-logger';
 import { legalProfessionalService } from './legal-professional-service';
 
@@ -43,7 +43,7 @@ export function registerLegalProfessionalRoutes(app: Express) {
   /**
    * Submit legal professional verification
    */
-  app.post('/api/legal/verify-professional', requireUserAuth, async (req: any, res) => {
+  app.post('/api/legal/verify-professional', requireUserAuth, requireSecurityQuestions, async (req: any, res) => {
     try {
       const profile = legalProfessionalProfileSchema.parse(req.body);
       const userId = req.user.id;

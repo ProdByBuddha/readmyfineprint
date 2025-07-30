@@ -124,6 +124,7 @@ class CSRFProtection {
     // Skip CSRF entirely in development mode
     if (process.env.NODE_ENV === 'development' || process.env.USE_DB_FALLBACK === 'true') {
       if (req.path === '/api/csrf-token' && req.method === 'GET') {
+        console.log(`🔍 CSRF token requested (dev mode) for path: ${req.path}`);
         return res.json({ csrfToken: 'dev-disabled' });
       }
       return next();
@@ -142,6 +143,7 @@ class CSRFProtection {
     
     // Also provide an endpoint to get the token via API
     if (req.path === '/api/csrf-token' && req.method === 'GET') {
+      console.log(`🔍 CSRF token requested for session: ${req.sessionId}`);
       return res.json({ csrfToken: token });
     }
 

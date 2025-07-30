@@ -30,7 +30,7 @@ export const userSubscriptions = pgTable('user_subscriptions', {
   id: uuid('id').primaryKey().defaultRandom(),
   userId: uuid('user_id').references(() => users.id, { onDelete: 'cascade' }).notNull(),
   tierId: text('tier_id').notNull(),
-  status: text('status').notNull(), // 'active', 'canceled', 'past_due', 'incomplete', 'inactive'
+  status: text('status').notNull(), // 'active', 'canceled', 'past_due', 'incomplete', 'inactive', 'payment_failed'
   stripeCustomerId: text('stripe_customer_id'),
   stripeSubscriptionId: text('stripe_subscription_id').unique(),
   currentPeriodStart: timestamp('current_period_start').notNull(),

@@ -58,6 +58,7 @@ export function TermsOfService() {
               <li>Risk assessment and key findings identification</li>
               <li>User accounts and subscription management</li>
               <li>Multi-device access with secure authentication</li>
+              <li>Security questions setup for enhanced account protection</li>
               <li>Email recovery and account management services</li>
               <li>
                 Session-based document processing with automatic PII protection (documents not permanently
@@ -97,7 +98,8 @@ export function TermsOfService() {
                 Account Security
               </h4>
               <p className="text-sm text-gray-600 dark:text-gray-400">
-                Keep your account credentials secure. Report any unauthorized
+                Keep your account credentials secure. Set up security questions when 
+                prompted for enhanced account protection. Report any unauthorized 
                 access immediately.
               </p>
             </div>

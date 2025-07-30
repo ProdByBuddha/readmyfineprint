@@ -35,17 +35,9 @@ export function PIIRedactionInfoComponent({ redactionInfo, className = '' }: PII
   useEffect(() => {
     const checkUserTier = async () => {
       try {
-        const subscriptionToken = localStorage.getItem('subscriptionToken');
-        if (!subscriptionToken) {
-          setHasProfessionalAccess(false);
-          return;
-        }
-
+        // Use session-based authentication instead of localStorage token
         const response = await fetch('/api/user/subscription', {
-          headers: {
-            'x-subscription-token': subscriptionToken,
-          },
-          credentials: 'include'
+          credentials: 'include' // This sends the httpOnly sessionId cookie
         });
 
         if (response.ok) {
@@ -55,8 +47,10 @@ export function PIIRedactionInfoComponent({ redactionInfo, className = '' }: PII
           // Professional tier or higher (professional, business, enterprise, ultimate)
           const professionalTiers = ['professional', 'business', 'enterprise', 'ultimate'];
           setHasProfessionalAccess(professionalTiers.includes(tier));
+          console.log(`🔍 PII Component: User tier: ${tier}, Professional access (PII): ${professionalTiers.includes(tier)}`);
         } else {
           setHasProfessionalAccess(false);
+          console.log(`🔍 PII Component: No subscription found, defaulting to free tier`);
         }
       } catch (error) {
         console.error('Error checking user tier:', error);

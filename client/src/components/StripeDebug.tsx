@@ -13,20 +13,71 @@ export function StripeDebug() {
         return;
       }
 
+      console.log('🔄 StripeDebug: Attempting to load Stripe.js with key:', stripePublicKey.substring(0, 20) + '...');
+
+      let stripe: any = null;
+
+      // Try the npm package method first
       try {
-        console.log('🔄 Attempting to load Stripe.js with key:', stripePublicKey.substring(0, 20) + '...');
-        const stripe = await loadStripe(stripePublicKey);
+        console.log("📦 StripeDebug: Trying @stripe/stripe-js loadStripe()...");
+        stripe = await loadStripe(stripePublicKey);
         if (stripe) {
+          console.log('✅ StripeDebug: loadStripe worked');
           setStripeLoaded(true);
-          console.log('✅ Stripe.js loaded successfully');
-        } else {
-          setStripeLoaded(false);
-          setStripeError('loadStripe returned null');
+          return;
         }
       } catch (error) {
-        console.error('❌ Stripe.js loading failed:', error);
-        setStripeLoaded(false);
-        setStripeError(error instanceof Error ? error.message : 'Unknown error');
+        console.warn("⚠️ StripeDebug: loadStripe failed:", error);
+      }
+
+      // Fallback to direct script loading
+      try {
+        console.log("📦 StripeDebug: Trying direct script loading...");
+        
+        stripe = await new Promise((resolve, reject) => {
+          // Check if Stripe is already loaded
+          if ((window as any).Stripe) {
+            console.log("✅ StripeDebug: Stripe already available");
+            resolve((window as any).Stripe(stripePublicKey));
+            return;
+          }
+
+          // Create script element
+          const script = document.createElement('script');
+          script.src = 'https://js.stripe.com/v3/';
+          script.async = true;
+
+          script.onload = () => {
+            console.log("✅ StripeDebug: Direct script loading worked");
+            if ((window as any).Stripe) {
+              resolve((window as any).Stripe(stripePublicKey));
+            } else {
+              reject(new Error("Stripe object not found after script load"));
+            }
+          };
+
+          script.onerror = (error) => {
+            console.error("❌ StripeDebug: Direct script loading failed:", error);
+            reject(new Error("Failed to load Stripe.js script"));
+          };
+
+          document.head.appendChild(script);
+        });
+
+        if (stripe) {
+          console.log('✅ StripeDebug: Direct script loading successful');
+          setStripeLoaded(true);
+          return;
+        }
+      } catch (fallbackError) {
+        console.error('❌ StripeDebug: Both methods failed:', fallbackError);
+        setStripeError(fallbackError instanceof Error ? fallbackError.message : 'Both loading methods failed');
+      }
+
+      // If we get here, both methods failed
+      setStripeLoaded(false);
+      if (!stripe) {
+        setStripeError('Both npm package and direct script loading failed');
       }
     };
 

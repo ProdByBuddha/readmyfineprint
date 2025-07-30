@@ -2,6 +2,7 @@ import crypto from 'crypto';
 import { db } from './db';
 import { emailVerificationCodes, emailVerificationRateLimit } from '@shared/schema';
 import { eq, and, lt } from 'drizzle-orm';
+import { emailService } from './email-service';
 
 export class EmailVerificationService {
   private readonly CODE_LENGTH = 6;
@@ -288,21 +289,90 @@ export class EmailVerificationService {
 
 export const emailVerificationService = new EmailVerificationService();
 
-// Simulate sending email using console.log to avoid actual email sending during code generation.
-export async function sendVerificationEmail(email: string, code: string) {
+// Send actual verification email using the email service
+export async function sendVerificationEmail(email: string, code: string): Promise<boolean> {
   const emailHTML = `
-    <p>Your ReadMyFinePrint verification code is: <b>${code}</b></p>
-    <p>This code will expire in 10 minutes.</p>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ReadMyFinePrint Verification Code</title>
+    <style>
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; line-height: 1.6; color: #333; margin: 0; padding: 0; background-color: #f8fafc; }
+        .container { max-width: 600px; margin: 0 auto; background: white; border-radius: 8px; overflow: hidden; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); }
+        .header { background: linear-gradient(135deg, #0891b2 0%, #06b6d4 100%); color: white; padding: 40px 30px; text-align: center; }
+        .header h1 { margin: 0; font-size: 28px; font-weight: 600; }
+        .content { padding: 40px 30px; text-align: center; }
+        .code { background: #f1f5f9; border: 2px solid #0891b2; border-radius: 8px; padding: 20px; margin: 20px 0; font-size: 32px; font-weight: 700; letter-spacing: 8px; color: #0891b2; font-family: 'Courier New', monospace; }
+        .message { font-size: 16px; line-height: 1.7; margin: 20px 0; }
+        .warning { background: #fef3c7; border-left: 4px solid #f59e0b; padding: 15px; margin: 20px 0; border-radius: 0 8px 8px 0; }
+        .footer { background: #f8fafc; padding: 20px 30px; text-align: center; color: #64748b; font-size: 14px; border-top: 1px solid #e2e8f0; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🔐 Verification Code</h1>
+            <p>Secure sign-in to ReadMyFinePrint</p>
+        </div>
+        
+        <div class="content">
+            <div class="message">
+                <p>Your ReadMyFinePrint verification code is:</p>
+            </div>
+            
+            <div class="code">${code}</div>
+            
+            <div class="warning">
+                <p><strong>⏰ Important:</strong> This code will expire in 10 minutes for your security.</p>
+            </div>
+            
+            <div class="message">
+                <p>If you didn't request this code, please ignore this email. Your account remains secure.</p>
+            </div>
+        </div>
+        
+        <div class="footer">
+            <p>ReadMyFinePrint - Secure Legal Document Analysis</p>
+            <p>This is an automated security email. Please do not reply.</p>
+        </div>
+    </div>
+</body>
+</html>
   `;
-  const emailText = `Your ReadMyFinePrint verification code is: ${code}. This code will expire in 10 minutes.`;
+  
+  const emailText = `
+ReadMyFinePrint - Verification Code
 
-  const mailOptions = {
-        from: process.env.SECURITY_EMAIL_FROM,
-        to: email,
-        subject: 'Your ReadMyFinePrint Verification Code',
-        html: emailHTML,
-        text: emailText
-      };
+Your verification code is: ${code}
 
-  console.log('Simulating sending email:', mailOptions);
+This code will expire in 10 minutes for your security.
+
+If you didn't request this code, please ignore this email. Your account remains secure.
+
+---
+ReadMyFinePrint - Secure Legal Document Analysis
+This is an automated security email. Please do not reply.
+  `;
+
+  try {
+    const success = await emailService.sendEmail({
+      to: email,
+      subject: '🔐 Your ReadMyFinePrint Verification Code',
+      html: emailHTML,
+      text: emailText
+    });
+
+    if (success) {
+      console.log(`✅ Verification email sent successfully to ${email}`);
+    } else {
+      console.error(`❌ Failed to send verification email to ${email}`);
+    }
+
+    return success;
+  } catch (error) {
+    console.error('❌ Error sending verification email:', error);
+    return false;
+  }
 }

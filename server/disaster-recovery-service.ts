@@ -86,10 +86,50 @@ export class DisasterRecoveryService {
   private recoveryPlans: Map<string, RecoveryPlan> = new Map();
   private disasterScenarios: DisasterScenario[] = [];
   private healthCheckInterval: NodeJS.Timeout | null = null;
+  private errorCount: number = 0;
+  private totalRequests: number = 0;
+  private errorTrackingWindow: number = 300000; // 5 minutes in milliseconds
+  private errorHistory: { timestamp: number; error: boolean }[] = [];
 
   constructor() {
     this.initializeDisasterScenarios();
     this.startHealthMonitoring();
+  }
+
+  /**
+   * Track request and error for error rate calculation
+   */
+  public trackRequest(isError: boolean = false): void {
+    const now = Date.now();
+    this.totalRequests++;
+    
+    // Add to history
+    this.errorHistory.push({ timestamp: now, error: isError });
+    
+    // Clean old entries outside the tracking window
+    this.errorHistory = this.errorHistory.filter(
+      entry => now - entry.timestamp <= this.errorTrackingWindow
+    );
+    
+    if (isError) {
+      this.errorCount++;
+    }
+  }
+
+  /**
+   * Calculate current error rate
+   */
+  public getCurrentErrorRate(): number {
+    const now = Date.now();
+    const recentErrors = this.errorHistory.filter(
+      entry => entry.error && (now - entry.timestamp <= this.errorTrackingWindow)
+    );
+    const recentRequests = this.errorHistory.filter(
+      entry => now - entry.timestamp <= this.errorTrackingWindow
+    );
+    
+    if (recentRequests.length === 0) return 0;
+    return (recentErrors.length / recentRequests.length) * 100;
   }
 
   /**
@@ -388,11 +428,13 @@ export class DisasterRecoveryService {
     const memoryUsage = process.memoryUsage();
     const memoryUsagePercent = (memoryUsage.heapUsed / memoryUsage.heapTotal) * 100;
 
+    const currentErrorRate = this.getCurrentErrorRate();
+    
     return {
-      status: memoryUsagePercent > 90 ? 'degraded' : 'healthy',
+      status: memoryUsagePercent > 90 || currentErrorRate > 10 ? 'degraded' : 'healthy',
       uptime: process.uptime(),
       memoryUsage: memoryUsagePercent,
-      errorRate: 0 // TODO: Implement error rate tracking
+      errorRate: currentErrorRate
     };
   }
 

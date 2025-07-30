@@ -7,6 +7,7 @@ import { securityLogger, SecurityEventType, SecuritySeverity } from "./security-
 import { hashPassword, verifyPassword, createPseudonymizedEmail, verifyEmailMatch } from "./argon2";
 import { accountDeletionService } from "./account-deletion-service";
 import { twoFactorService } from "./two-factor-service";
+import { getCookieSettings } from "./routes";
 import crypto from "crypto";
 
 /**
@@ -91,11 +92,17 @@ export function registerUserRoutes(app: Express) {
       // Generate JWT token for new user
       const token = generateJWT(user.id);
 
+      // Check if user has security questions set up (will be false for new users)
+      const { securityQuestionsService } = await import('./security-questions-service');
+      const hasSecurityQuestions = await securityQuestionsService.hasSecurityQuestions(user.id);
+
       // Remove password from response
       const { hashedPassword: _, ...userResponse } = user;
       res.status(201).json({
         user: userResponse,
-        token
+        token,
+        hasSecurityQuestions,
+        requiresSecurityQuestions: !hasSecurityQuestions
       });
     } catch (error) {
       console.error("Registration error:", error);
@@ -220,18 +227,22 @@ export function registerUserRoutes(app: Express) {
         // Don't fail login if this fails
       }
 
-      // Generate JWT tokens using secure JWT service
-      const { secureJWTService } = await import('./secure-jwt-service');
-      const { accessToken, refreshToken } = await secureJWTService.generateTokenPair(
+      // Generate JWT tokens using JOSE auth service
+      const { joseAuthService } = await import('./jose-auth-service');
+      const { accessToken, refreshToken } = await joseAuthService.generateTokenPair(
         user.id,
         email,
-        user.username || undefined
+        { ip: req.ip || req.socket.remoteAddress as string, userAgent: req.get('User-Agent') || 'unknown' }
       );
 
       // Store session in PostgreSQL
       const { postgresqlSessionStorage } = await import('./postgresql-session-storage');
       const sessionId = crypto.randomUUID();
       await postgresqlSessionStorage.storeSessionToken(sessionId, accessToken, user.id);
+
+      // Check if user has security questions set up
+      const { securityQuestionsService } = await import('./security-questions-service');
+      const hasSecurityQuestions = await securityQuestionsService.hasSecurityQuestions(user.id);
 
       // Remove password from response
       const { hashedPassword: _, ...userResponse } = user;
@@ -243,21 +254,19 @@ export function registerUserRoutes(app: Express) {
         ip,
         userAgent,
         endpoint: '/api/users/login',
-        details: { userId: user.id, email, twoFactorUsed: hasTwoFactorEnabled }
+        details: { userId: user.id, email, twoFactorUsed: hasTwoFactorEnabled, hasSecurityQuestions }
       });
 
       // Set secure httpOnly cookie with session ID
       res.cookie('sessionId', sessionId, {
-        httpOnly: true,
-        secure: process.env.NODE_ENV === 'production',
-        sameSite: process.env.NODE_ENV === 'production' ? 'lax' : 'lax', // Use 'lax' for staging too
-        maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
-        path: '/'
+        ...getCookieSettings(req),
+        maxAge: 7 * 24 * 60 * 60 * 1000 // 7 days
       });
 
       res.json({
         user: userResponse,
-        // Don't send token in response body anymore
+        hasSecurityQuestions,
+        requiresSecurityQuestions: !hasSecurityQuestions,
         message: 'Login successful'
       });
     } catch (error) {
@@ -286,9 +295,9 @@ export function registerUserRoutes(app: Express) {
         return res.status(401).json({ error: "Session expired or invalid" });
       }
 
-      // Validate the JWT token
-      const { secureJWTService } = await import('./secure-jwt-service');
-      const validation = await secureJWTService.validateAccessToken(token);
+      // Validate the JWT token using JOSE
+      const { joseAuthService } = await import('./jose-auth-service');
+      const validation = await joseAuthService.validateAccessToken(token);
       
       if (!validation.valid || !validation.payload) {
         return res.status(401).json({ error: "Invalid session token" });
@@ -300,11 +309,17 @@ export function registerUserRoutes(app: Express) {
         return res.status(401).json({ error: "User not found" });
       }
 
+      // Check if user has security questions set up
+      const { securityQuestionsService } = await import('./security-questions-service');
+      const hasSecurityQuestions = await securityQuestionsService.hasSecurityQuestions(user.id);
+
       // Session is valid
       res.json({ 
         valid: true, 
         userId: user.id,
-        email: user.email
+        email: user.email,
+        hasSecurityQuestions,
+        requiresSecurityQuestions: !hasSecurityQuestions
       });
     } catch (error) {
       console.error("Session validation error:", error);
@@ -322,14 +337,15 @@ export function registerUserRoutes(app: Express) {
       }
 
       // Use hybrid token service for validation (supports both JOSE and PostgreSQL)
-      const { hybridTokenService } = await import("./hybrid-token-service");
+      const { secureJWTService } = await import("./secure-jwt-service");
       
       try {
         // Debug: Log the incoming token for troubleshooting
         console.log(`🔍 Validating token: ${token.slice(0, 50)}... (length: ${token.length})`);
         
-        // Try to get token info from hybrid service (supports both JOSE and PostgreSQL)
-        const tokenData = await hybridTokenService.validateSubscriptionToken(token);
+        // Try to get token info from JOSE service for subscription tokens
+        const { joseTokenService } = await import('./jose-token-service');
+        const tokenData = await joseTokenService.validateSubscriptionToken(token);
         
         console.log(`🔍 Token validation result:`, tokenData ? 'SUCCESS' : 'FAILED');
         if (tokenData) {
@@ -341,13 +357,10 @@ export function registerUserRoutes(app: Express) {
           return res.status(401).json({ error: "Invalid token" });
         }
 
-        // Check if token is expired (this is already handled in validateSubscriptionToken method)
-        if (tokenData.expiresAt && new Date() > new Date(tokenData.expiresAt)) {
-          return res.status(401).json({ error: "Token expired" });
-        }
+        // Token expiration is handled by JOSE validation - no need for manual check
 
         // Update token usage (only for PostgreSQL tokens)
-        await hybridTokenService.updateTokenUsage(token);
+        // Token usage tracking not needed for JWT tokens
 
         // Get user details to include email in response
         const user = await databaseStorage.getUser(tokenData.userId);

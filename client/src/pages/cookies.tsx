@@ -91,6 +91,7 @@ export default function Cookies() {
               </p>
               <ul className="text-sm text-muted-foreground space-y-1">
                 <li>• <code>cookie-consent-accepted</code> - Remembers your cookie preference</li>
+                <li>• <code>sessionId</code> - Secure session management for authenticated users</li>
                 <li>• Session data - Temporarily stores your uploaded documents during analysis</li>
                 <li>• Authentication tokens - Secures API communications</li>
               </ul>

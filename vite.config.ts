@@ -62,7 +62,7 @@ export default defineConfig({
   },
   server: {
     port: 5173,
-    strictPort: false, // Will find next available port if 5173 is taken
+    strictPort: true, // Use exact port 5173
     host: true, // Listen on all addresses
     allowedHosts: [
       'localhost',

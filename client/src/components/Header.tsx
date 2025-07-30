@@ -64,13 +64,60 @@ export function Header() {
             setIsAdmin(false);
           }
         } else {
-          // Session validation failed
+          // Session validation failed - try development auto-login if in dev mode
+          if (import.meta.env.DEV && response.status === 401) {
+            console.log('Authentication failed, attempting development auto-login...');
+            try {
+              const autoLoginResponse = await authFetch('/api/dev/auto-admin-login', {
+                method: 'POST',
+                headers: {
+                  'Content-Type': 'application/json',
+                },
+                credentials: 'include',
+              });
+              
+              if (autoLoginResponse.ok) {
+                // Wait a moment for cookies to be set, then check auth again
+                await new Promise(resolve => setTimeout(resolve, 300));
+                
+                const retryResponse = await authFetch('/api/auth/session', {
+                  method: 'GET',
+                  headers: {
+                    'Content-Type': 'application/json',
+                  },
+                });
+                
+                if (retryResponse.ok) {
+                  const retryData = await retryResponse.json();
+                  if (retryData.authenticated && retryData.user) {
+                    setUser(retryData.user);
+                    setIsLoggedIn(true);
+                    setIsAdmin(retryData.user.email === 'admin@readmyfineprint.com' || retryData.user.email === 'prodbybuddha@icloud.com');
+                    
+                    toast({
+                      title: "Development Mode",
+                      description: "You've been automatically logged in as admin",
+                      duration: 3000,
+                    });
+                    return;
+                  }
+                }
+              }
+            } catch (autoLoginError) {
+              console.error('Auto-login failed:', autoLoginError);
+            }
+          }
+          
+          // Set as not authenticated
           setIsLoggedIn(false);
           setUser(null);
           setIsAdmin(false);
         }
       } catch (error) {
-        console.error('Error checking authentication:', error);
+        // Only log unexpected errors, not normal authentication failures
+        if (error instanceof Error && !error.message.includes('401') && !error.message.includes('Unauthorized')) {
+          console.error('Error checking authentication:', error);
+        }
         setIsLoggedIn(false);
         setUser(null);
         setIsAdmin(false);
@@ -83,7 +130,7 @@ export function Header() {
     
     // Listen for auth updates
     const handleAuthUpdate = () => {
-      checkAuth();
+      setTimeout(checkAuth, 100); // Small delay to ensure changes are propagated
     };
 
     window.addEventListener('authUpdate', handleAuthUpdate);
@@ -93,7 +140,7 @@ export function Header() {
       window.removeEventListener('authUpdate', handleAuthUpdate);
       window.removeEventListener('authStateChanged', handleAuthUpdate);
     };
-  }, [location]);
+  }, [location, toast]);
 
   // Close mobile menu when clicking outside
   useEffect(() => {
@@ -147,6 +194,10 @@ export function Header() {
       localStorage.removeItem('jwt_access_token');
       localStorage.removeItem('jwt_refresh_token');
       
+      // Clear subscription tokens
+      localStorage.removeItem('subscriptionToken');
+      localStorage.removeItem('subscription_token');
+      
       // Clear session and CSRF tokens
       clearSession();
       clearCSRFToken();
@@ -173,6 +224,15 @@ export function Header() {
       localStorage.removeItem('token');
       localStorage.removeItem('refreshToken');
       localStorage.removeItem('user');
+      
+      // Clear JWT tokens used for fallback authentication
+      localStorage.removeItem('jwt_access_token');
+      localStorage.removeItem('jwt_refresh_token');
+      
+      // Clear subscription tokens
+      localStorage.removeItem('subscriptionToken');
+      localStorage.removeItem('subscription_token');
+      
       clearSession();
       clearCSRFToken();
       

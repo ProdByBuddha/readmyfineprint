@@ -13,30 +13,40 @@ export default function TrustPage() {
         {
           subtitle: 'Infrastructure Security',
           items: [
-            'TLS 1.3 for all data in transit',
-            'PostgreSQL database with connection encryption',
-            'Session-based storage with automatic cleanup',
-            'Rate limiting with IP-based throttling',
-            'Comprehensive security headers (CSP, HSTS, XSS protection)'
+            'TLS 1.3 for all data in transit with modern cipher suites',
+            'PostgreSQL database with connection encryption and SSL',
+            'Session-based storage with automatic cleanup and expiration',
+            'Rate limiting with IP-based throttling and progressive delays',
+            'Content Security Policy (CSP) with deny-by-default approach',
+            'HTTP Strict Transport Security (HSTS) with preload',
+            'X-Frame-Options and X-Content-Type-Options headers',
+            'Referrer-Policy and Permissions-Policy headers'
           ]
         },
         {
           subtitle: 'Application Security',
           items: [
-            'OWASP Top 10 vulnerability protection',
-            'Content Security Policy (CSP) headers',
-            'Cross-Site Request Forgery (CSRF) protection',
-            'SQL injection prevention via parameterized queries',
-            'XSS protection through input sanitization'
+            'OWASP Top 10 vulnerability protection with regular audits',
+            'Content Security Policy (CSP) with strict nonce-based script execution',
+            'Cross-Site Request Forgery (CSRF) protection with SameSite cookies',
+            'SQL injection prevention via parameterized queries and ORM',
+            'XSS protection through comprehensive input sanitization',
+            'File upload validation with type checking and size limits',
+            'Security event logging with anomaly detection',
+            'Regular security updates and dependency scanning'
           ]
         },
         {
           subtitle: 'Authentication & Access Control',
           items: [
             'Multi-factor authentication (TOTP) available',
-            'Argon2 password hashing with salt',
-            'JWT tokens with versioned secrets',
-            'Session-based document access control',
+            'Mandatory security questions for enhanced account protection',
+            'Argon2 password hashing with salt and pepper',
+            'JOSE (JSON Web Signature) tokens for enhanced security',
+            'JWT tokens with versioned secrets and automatic rotation',
+            'Session-based document access control with PostgreSQL storage',
+            'Token revocation system with persistent blocklist',
+            'Device fingerprinting for enhanced security',
             'Admin-only access controls and verification'
           ]
         }
@@ -50,11 +60,14 @@ export default function TrustPage() {
         {
           subtitle: 'Data Collection & Usage',
           items: [
-            'Minimal data collection principle',
-            'No persistent storage of uploaded documents',
-            'Session-based temporary document processing',
-            'Automatic data deletion after processing',
-            'No third-party data sharing'
+            'Minimal data collection principle with purpose limitation',
+            'No persistent storage of uploaded documents after analysis',
+            'Session-based temporary document processing with time limits',
+            'Automatic data deletion after processing completion',
+            'No third-party data sharing without explicit consent',
+            'Document content never stored beyond session duration',
+            'Analytics data aggregated and anonymized',
+            'User preferences stored with minimal identifying information'
           ]
         },
         {
@@ -70,11 +83,13 @@ export default function TrustPage() {
         {
           subtitle: 'PII Protection',
           items: [
-            'PII detection with pattern matching',
-            'Automatic PII hashing with Argon2',
-            'Security logs with hashed IP addresses',
-            'Pseudonymized email addresses for privacy',
-            'Audit trails without sensitive data exposure'
+            'Advanced PII detection with pattern matching and AI analysis',
+            'Automatic PII hashing with Argon2 and configurable salt',
+            'Security logs with hashed IP addresses and anonymization',
+            'Pseudonymized email addresses using deterministic hashing',
+            'Audit trails without sensitive data exposure or retention',
+            'Document analysis with automatic PII redaction options',
+            'User feedback system for PII detection accuracy improvements'
           ]
         }
       ]
@@ -124,11 +139,14 @@ export default function TrustPage() {
         {
           subtitle: 'Monitoring & Detection',
           items: [
-            'Security event logging and monitoring',
-            'Rate limiting with automatic blocking',
-            'Suspicious activity detection',
-            'Failed authentication tracking',
-            'Comprehensive audit trail'
+            'Real-time security event logging with categorization',
+            'Rate limiting with progressive delays and automatic blocking',
+            'Suspicious activity detection with pattern analysis',
+            'Failed authentication tracking with lockout mechanisms',
+            'JWT token validation monitoring and revocation tracking',
+            'Device fingerprint anomaly detection',
+            'Comprehensive audit trail with hashed IP addresses',
+            'Security alert system with automatic notifications'
           ]
         },
         {
@@ -190,8 +208,8 @@ export default function TrustPage() {
               <div className="text-sm text-gray-600 dark:text-gray-400">In Transit</div>
             </div>
             <div className="bg-orange-50 dark:bg-orange-900/20 rounded-lg p-4 text-center">
-              <div className="text-2xl font-bold text-orange-600 dark:text-orange-400">JWT</div>
-              <div className="text-sm text-gray-600 dark:text-gray-400">Auth Tokens</div>
+              <div className="text-2xl font-bold text-orange-600 dark:text-orange-400">JOSE</div>
+              <div className="text-sm text-gray-600 dark:text-gray-400">Secure Tokens</div>
             </div>
           </div>
 
@@ -313,8 +331,13 @@ export default function TrustPage() {
                 className="h-8"
               />
               <img
-                src="https://img.shields.io/badge/Authentication-Argon2-brightgreen?style=for-the-badge"
-                alt="Argon2 Authentication"
+                src="https://img.shields.io/badge/Authentication-Argon2%2BJOSE-brightgreen?style=for-the-badge"
+                alt="Argon2 + JOSE Authentication"
+                className="h-8"
+              />
+              <img
+                src="https://img.shields.io/badge/CSP-Deny%20By%20Default-brightgreen?style=for-the-badge"
+                alt="CSP Deny By Default"
                 className="h-8"
               />
               <img

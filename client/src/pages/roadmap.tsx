@@ -32,6 +32,13 @@ const roadmapItems = [
         icon: Brain,
         status: "completed",
         details: ["Risk assessment", "Compliance checking", "Key findings", "Smart recommendations"]
+      },
+      {
+        title: "Security Questions Requirement",
+        description: "Enhanced account security with mandatory security questions for document processing operations",
+        icon: Shield,
+        status: "completed",
+        details: ["Mandatory setup for new users", "Account recovery options", "Document operation protection", "Argon2 encrypted storage"]
       }
     ]
   },
@@ -201,7 +208,7 @@ export default function Roadmap() {
           {/* Key Stats */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4 max-w-2xl mx-auto">
             <div className="bg-white dark:bg-gray-800 rounded-lg p-4 border border-gray-200 dark:border-gray-700">
-              <div className="text-2xl font-bold text-green-600 dark:text-green-400">3</div>
+              <div className="text-2xl font-bold text-green-600 dark:text-green-400">4</div>
               <div className="text-sm text-gray-600 dark:text-gray-400">Features Completed</div>
             </div>
             <div className="bg-white dark:bg-gray-800 rounded-lg p-4 border border-gray-200 dark:border-gray-700">

@@ -103,154 +103,22 @@ export class SecureJWTService {
     userAgent?: string;
     deviceFingerprint?: string;
   } = {}): Promise<TokenPair> {
-    await this.ensureInitialized();
-
-    try {
-      const { secret, version, algorithm } = jwtSecretManager.getCurrentSecret();
-      const now = Math.floor(Date.now() / 1000);
-      
-      // Generate unique JTIs
-      const accessJti = crypto.randomUUID();
-      const refreshJti = crypto.randomUUID();
-
-      // Calculate expiration times
-      const accessExp = now + (15 * 60); // 15 minutes
-      const refreshExp = now + (7 * 24 * 60 * 60); // 7 days
-
-      // Access token payload
-      const accessPayload: AccessTokenPayload = {
-        userId,
-        email,
-        tokenType: 'access',
-        version,
-        jti: accessJti,
-        iat: now,
-        exp: accessExp
-      };
-
-      // Refresh token payload
-      const refreshPayload: RefreshTokenPayload = {
-        userId,
-        tokenType: 'refresh',
-        version,
-        jti: refreshJti,
-        iat: now,
-        exp: refreshExp
-      };
-
-      // Sign tokens (don't use expiresIn since we set exp manually)
-      const accessToken = jwt.sign(accessPayload, secret, {
-        algorithm: algorithm as jwt.Algorithm
-      });
-
-      const refreshToken = jwt.sign(refreshPayload, secret, {
-        algorithm: algorithm as jwt.Algorithm
-      });
-
-      // Store refresh token in database (skip only in true mock mode)
-      const refreshExpiry = new Date(refreshExp * 1000);
-      if (process.env.DATABASE_URL) {
-        const refreshTokenHash = this.hashToken(refreshToken);
-
-        await db.insert(refreshTokens).values({
-          tokenHash: refreshTokenHash,
-          userId,
-          deviceFingerprint: clientInfo.deviceFingerprint,
-          ipAddress: clientInfo.ip,
-          userAgent: clientInfo.userAgent,
-          expiresAt: refreshExpiry
-        });
-      }
-
-      // Clean up old refresh tokens for this user
-      await this.cleanupUserRefreshTokens(userId);
-
-      const accessExpiry = new Date(accessExp * 1000);
-
-      securityLogger.logSecurityEvent({
-        eventType: SecurityEventType.AUTHENTICATION,
-        severity: SecuritySeverity.LOW,
-        message: 'JWT token pair generated',
-        ip: clientInfo.ip || 'unknown',
-        userAgent: clientInfo.userAgent || 'unknown',
-        endpoint: 'token-generation',
-        details: {
-          userId,
-          secretVersion: version,
-          accessExpiry: accessExpiry.toISOString(),
-          refreshExpiry: refreshExpiry.toISOString()
-        }
-      });
-
-      return {
-        accessToken,
-        refreshToken,
-        accessTokenExpiry: accessExpiry,
-        refreshTokenExpiry: refreshExpiry
-      };
-
-    } catch (error) {
-      securityLogger.logSecurityEvent({
-        eventType: SecurityEventType.ERROR,
-        severity: SecuritySeverity.HIGH,
-        message: 'Failed to generate JWT token pair',
-        ip: clientInfo.ip || 'unknown',
-        userAgent: clientInfo.userAgent || 'unknown',
-        endpoint: 'token-generation',
-        details: { error: error instanceof Error ? error.message : 'Unknown error' }
-      });
-      throw error;
-    }
+    console.warn('⚠️  secureJWTService.generateTokenPair is being replaced with JOSE. Use joseAuthService.generateTokenPair() directly.');
+    
+    // Delegate to JOSE auth service
+    const { joseAuthService } = await import('./jose-auth-service');
+    return await joseAuthService.generateTokenPair(userId, email, clientInfo);
   }
 
   /**
    * Validate access token
    */
   async validateAccessToken(token: string): Promise<TokenValidationResult> {
-    await this.ensureInitialized();
-
-    try {
-      // First decode without verification to get version
-      const decoded = jwt.decode(token, { complete: true });
-      if (!decoded || typeof decoded === 'string') {
-        return { valid: false, error: 'Invalid token format' };
-      }
-
-      const payload = decoded.payload as any;
-      const version = payload.version || 1;
-
-      // Check if token is revoked
-      if (await this.isTokenRevoked(payload.jti)) {
-        return { valid: false, revoked: true, error: 'Token has been revoked' };
-      }
-
-      // Get secret for this version
-      const secretInfo = jwtSecretManager.getSecretByVersion(version);
-      if (!secretInfo) {
-        return { valid: false, error: 'Secret version not found' };
-      }
-
-      // Verify token
-      const verifiedPayload = jwt.verify(token, secretInfo.secret, {
-        algorithms: [secretInfo.algorithm as jwt.Algorithm]
-      }) as AccessTokenPayload;
-
-      // Validate token type
-      if (verifiedPayload.tokenType !== 'access') {
-        return { valid: false, error: 'Invalid token type' };
-      }
-
-      return { valid: true, payload: verifiedPayload };
-
-    } catch (error) {
-      if (error instanceof jwt.TokenExpiredError) {
-        return { valid: false, expired: true, error: 'Token expired' };
-      }
-      if (error instanceof jwt.JsonWebTokenError) {
-        return { valid: false, error: 'Invalid token signature' };
-      }
-      return { valid: false, error: error instanceof Error ? error.message : 'Unknown error' };
-    }
+    console.warn('⚠️  secureJWTService.validateAccessToken is being replaced with JOSE. Use joseAuthService.validateAccessToken() directly.');
+    
+    // Delegate to JOSE auth service
+    const { joseAuthService } = await import('./jose-auth-service');
+    return await joseAuthService.validateAccessToken(token);
   }
 
   /**
@@ -261,88 +129,11 @@ export class SecureJWTService {
     userAgent?: string;
     deviceFingerprint?: string;
   } = {}): Promise<{ accessToken: string; accessTokenExpiry: Date } | null> {
-    await this.ensureInitialized();
-
-    try {
-      // Validate refresh token
-      const refreshValidation = await this.validateRefreshToken(refreshToken);
-      if (!refreshValidation.valid || !refreshValidation.payload) {
-        return null;
-      }
-
-      const { userId } = refreshValidation.payload;
-
-      // Update refresh token usage
-      await this.updateRefreshTokenUsage(refreshToken);
-
-      // Generate new access token
-      const { secret, version, algorithm } = jwtSecretManager.getCurrentSecret();
-      const now = Math.floor(Date.now() / 1000);
-      const accessJti = crypto.randomUUID();
-
-      // Get user email from database (skip only in true mock mode)
-      let userEmail = 'admin@readmyfineprint.com'; // Default for mock mode
-      if (process.env.DATABASE_URL) {
-        const userResult = await db.query.users.findFirst({
-          where: (users: any, { eq }: any) => eq(users.id, userId),
-          columns: { email: true }
-        });
-
-        if (!userResult) {
-          throw new Error('User not found');
-        }
-        userEmail = userResult.email;
-      }
-
-      const accessExp = now + (15 * 60); // 15 minutes
-
-      const accessPayload: AccessTokenPayload = {
-        userId,
-        email: userEmail,
-        tokenType: 'access',
-        version,
-        jti: accessJti,
-        iat: now,
-        exp: accessExp
-      };
-
-      const accessToken = jwt.sign(accessPayload, secret, {
-        algorithm: algorithm as jwt.Algorithm
-      });
-
-      const accessExpiry = new Date(accessExp * 1000);
-
-      securityLogger.logSecurityEvent({
-        eventType: SecurityEventType.AUTHENTICATION,
-        severity: SecuritySeverity.LOW,
-        message: 'Access token refreshed',
-        ip: clientInfo.ip || 'unknown',
-        userAgent: clientInfo.userAgent || 'unknown',
-        endpoint: 'token-refresh',
-        details: {
-          userId,
-          secretVersion: version,
-          accessExpiry: accessExpiry.toISOString()
-        }
-      });
-
-      return {
-        accessToken,
-        accessTokenExpiry: accessExpiry
-      };
-
-    } catch (error) {
-      securityLogger.logSecurityEvent({
-        eventType: SecurityEventType.ERROR,
-        severity: SecuritySeverity.MEDIUM,
-        message: 'Failed to refresh access token',
-        ip: clientInfo.ip || 'unknown',
-        userAgent: clientInfo.userAgent || 'unknown',
-        endpoint: 'token-refresh',
-        details: { error: error instanceof Error ? error.message : 'Unknown error' }
-      });
-      return null;
-    }
+    console.warn('⚠️  secureJWTService.refreshAccessToken is being replaced with JOSE. Use joseAuthService.refreshAccessToken() directly.');
+    
+    // Delegate to JOSE auth service
+    const { joseAuthService } = await import('./jose-auth-service');
+    return await joseAuthService.refreshAccessToken(refreshToken, clientInfo);
   }
 
   /**
@@ -370,7 +161,7 @@ export class SecureJWTService {
           reason,
           revokedBy,
           expiresAt: new Date(payload.exp * 1000)
-        });
+        }).onConflictDoNothing();
 
         // If it's a refresh token, also mark it as inactive in refresh tokens table
         if (payload.tokenType === 'refresh') {
@@ -445,7 +236,8 @@ export class SecureJWTService {
       }));
 
       if (revocations.length > 0) {
-        await db.insert(jwtTokenRevocations).values(revocations);
+        // Use onConflictDoNothing to handle duplicate token revocations gracefully
+        await db.insert(jwtTokenRevocations).values(revocations).onConflictDoNothing();
       }
 
       securityLogger.logSecurityEvent({
@@ -643,6 +435,48 @@ export class SecureJWTService {
 
   private hashToken(token: string): string {
     return crypto.createHash('sha256').update(token).digest('hex');
+  }
+
+  /**
+   * @deprecated Use joseTokenService for subscription tokens - more secure JOSE implementation
+   */
+  async generateSubscriptionToken(params: {
+    userId: string;
+    subscriptionId?: string;
+    tierId: string;
+    deviceFingerprint?: string;
+  }): Promise<string> {
+    console.warn('⚠️  secureJWTService.generateSubscriptionToken is deprecated. Use joseTokenService.generateSubscriptionToken() for enhanced security.');
+    
+    // Delegate to JOSE service
+    const { joseTokenService } = await import('./jose-token-service');
+    return await joseTokenService.generateSubscriptionToken(params);
+  }
+
+  /**
+   * @deprecated Use joseTokenService for subscription tokens - more secure JOSE implementation
+   */
+  async validateSubscriptionToken(token: string): Promise<{
+    userId: string;
+    subscriptionId?: string;
+    tierId: string;
+    deviceFingerprint?: string;
+  } | null> {
+    console.warn('⚠️  secureJWTService.validateSubscriptionToken is deprecated. Use joseTokenService.validateSubscriptionToken() for enhanced security.');
+    
+    // Delegate to JOSE service
+    const { joseTokenService } = await import('./jose-token-service');
+    const result = await joseTokenService.validateSubscriptionToken(token);
+    
+    // Convert JOSE result to expected format
+    if (!result) return null;
+    
+    return {
+      userId: result.userId,
+      subscriptionId: result.subscriptionId,
+      tierId: result.tierId,
+      deviceFingerprint: result.deviceFingerprint
+    };
   }
 }
 

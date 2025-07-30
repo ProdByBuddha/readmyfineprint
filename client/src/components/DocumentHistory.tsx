@@ -35,8 +35,12 @@ const DocumentHistoryComponent = ({ onSelectDocument, currentDocumentId }: Docum
   const clearDocumentsMutation = useMutation({
     mutationFn: clearAllDocuments,
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['/api/documents'] });
+      // Clear the current document selection first
       onSelectDocument(null);
+      
+      // Remove all document-related queries from cache since they're all invalid now
+      queryClient.removeQueries({ queryKey: ['/api/documents'] });
+      
       toast({
         title: "Documents cleared",
         description: "All documents have been cleared. You can start fresh!",

@@ -11,43 +11,39 @@ const DataExportButton: React.FC = () => {
   const [isExporting, setIsExporting] = useState(false);
   const [showDialog, setShowDialog] = useState(false);
   const [userTier, setUserTier] = useState<string>('free');
-  const [hasProfessionalAccess, setHasProfessionalAccess] = useState(false);
+  const [hasDataExportAccess, setHasDataExportAccess] = useState(false);
   const { toast } = useToast();
 
   // Check user's tier on component mount
   useEffect(() => {
     const checkUserTier = async () => {
       try {
-        const subscriptionToken = localStorage.getItem('subscriptionToken');
-        if (!subscriptionToken) {
-          setUserTier('free');
-          setHasProfessionalAccess(false);
-          return;
-        }
-
+        // Use httpOnly cookies for authentication (no need for manual token handling)
         const response = await fetch('/api/user/subscription', {
+          method: 'GET',
+          credentials: 'include',
           headers: {
-            'x-subscription-token': subscriptionToken,
+            'Content-Type': 'application/json',
+            'x-session-id': sessionStorage.getItem('app-session-id') || 'anonymous',
           },
-          credentials: 'include'
         });
 
         if (response.ok) {
           const data = await response.json();
-          const tier = data.subscription?.tierId || 'free';
+          const tier = data.tier?.id || 'free';
           setUserTier(tier);
           
-          // Professional tier or higher (professional, business, enterprise, ultimate)
-          const professionalTiers = ['professional', 'business', 'enterprise', 'ultimate'];
-          setHasProfessionalAccess(professionalTiers.includes(tier));
+          // Professional tier and higher (professional, business, enterprise, ultimate) get data export access
+          const dataExportTiers = ['professional', 'business', 'enterprise', 'ultimate'];
+          setHasDataExportAccess(dataExportTiers.includes(tier));
         } else {
           setUserTier('free');
-          setHasProfessionalAccess(false);
+          setHasDataExportAccess(false);
         }
       } catch (error) {
         console.error('Error checking user tier:', error);
         setUserTier('free');
-        setHasProfessionalAccess(false);
+        setHasDataExportAccess(false);
       }
     };
 
@@ -56,7 +52,7 @@ const DataExportButton: React.FC = () => {
 
   const handleDownload = async () => {
     // Check tier access before proceeding
-    if (!hasProfessionalAccess) {
+    if (!hasDataExportAccess) {
       toast({
         title: "Professional Tier Required",
         description: "Data export is available for Professional tier and above. Please upgrade your subscription.",
@@ -68,22 +64,11 @@ const DataExportButton: React.FC = () => {
     setIsExporting(true);
     
     try {
-      const subscriptionToken = localStorage.getItem('subscriptionToken');
-      
-      if (!subscriptionToken) {
-        toast({
-          title: "Authentication Required",
-          description: "Please log in to download your data",
-          variant: "destructive"
-        });
-        return;
-      }
-
       const response = await fetch('/api/users/me/download-data', {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json',
-          'x-subscription-token': subscriptionToken,
+          'x-session-id': sessionStorage.getItem('app-session-id') || 'anonymous',
           'x-device-fingerprint': localStorage.getItem('deviceFingerprint') || ''
         },
         credentials: 'include'
@@ -143,16 +128,16 @@ const DataExportButton: React.FC = () => {
       <DialogTrigger asChild>
         <Button 
           variant="outline" 
-          className={`flex items-center space-x-2 ${!hasProfessionalAccess ? 'opacity-75' : ''}`}
-          disabled={!hasProfessionalAccess}
+          className={`flex items-center space-x-2 ${!hasDataExportAccess ? 'opacity-75' : ''}`}
+          disabled={!hasDataExportAccess}
         >
-          {hasProfessionalAccess ? (
+          {hasDataExportAccess ? (
             <Download className="h-4 w-4" />
           ) : (
             <Lock className="h-4 w-4" />
           )}
-          <span>{hasProfessionalAccess ? 'Download My Data' : 'Download My Data (Pro)'}</span>
-          {!hasProfessionalAccess && (
+          <span>{hasDataExportAccess ? 'Download My Data' : 'Download My Data (Pro)'}</span>
+          {!hasDataExportAccess && (
             <Crown className="h-3 w-3 text-orange-500" />
           )}
         </Button>
@@ -169,7 +154,7 @@ const DataExportButton: React.FC = () => {
         </DialogHeader>
 
         <div className="space-y-4">
-          {!hasProfessionalAccess ? (
+          {!hasDataExportAccess ? (
             <Alert className="border-orange-200 bg-orange-50 dark:bg-orange-900/20">
               <Crown className="h-4 w-4 text-orange-500" />
               <AlertDescription className="text-orange-800 dark:text-orange-200">
@@ -258,15 +243,15 @@ const DataExportButton: React.FC = () => {
               </Button>
               <Button 
                 onClick={handleDownload}
-                disabled={isExporting || !hasProfessionalAccess}
-                className={`flex items-center space-x-2 ${!hasProfessionalAccess ? 'opacity-50' : ''}`}
+                disabled={isExporting || !hasDataExportAccess}
+                className={`flex items-center space-x-2 ${!hasDataExportAccess ? 'opacity-50' : ''}`}
               >
                 {isExporting ? (
                   <>
                     <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
                     <span>Exporting...</span>
                   </>
-                ) : !hasProfessionalAccess ? (
+                ) : !hasDataExportAccess ? (
                   <>
                     <Lock className="h-4 w-4" />
                     <span>Upgrade Required</span>

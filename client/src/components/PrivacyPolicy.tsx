@@ -56,8 +56,9 @@ export function PrivacyPolicy() {
                 Account Information
               </h4>
               <p className="text-sm text-gray-600 dark:text-gray-400">
-                Email addresses and usernames for registered users. Required for
-                subscription management and account recovery.
+                Email addresses and usernames for registered users. Security question 
+                answers (Argon2 hashed) for account recovery. Required for subscription 
+                management and enhanced account security.
               </p>
             </div>
             <div>
@@ -286,6 +287,7 @@ export function PrivacyPolicy() {
               </h4>
               <ul className="list-disc list-inside space-y-1 text-sm text-gray-600 dark:text-gray-400">
                 <li>View and update your account information</li>
+                <li>Set up and manage security questions for account recovery</li>
                 <li>Cancel subscriptions at any time</li>
                 <li>Request account deletion via email recovery</li>
                 <li>Download your usage data</li>

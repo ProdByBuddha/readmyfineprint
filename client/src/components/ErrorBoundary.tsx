@@ -25,7 +25,45 @@ export class ErrorBoundary extends React.Component<ErrorBoundaryProps, ErrorBoun
 
   componentDidCatch(error: Error, errorInfo: React.ErrorInfo) {
     console.error('Error boundary caught an error:', error, errorInfo);
+    
+    // Report error to backend for admin notification
+    this.reportError(error, errorInfo);
   }
+
+  private reportError = async (error: Error, errorInfo: React.ErrorInfo) => {
+    try {
+      const errorData = {
+        errorType: 'frontend',
+        severity: 'high', // React errors are usually high severity
+        message: error.message,
+        stack: error.stack,
+        url: window.location.href,
+        additionalContext: {
+          componentStack: errorInfo.componentStack,
+          errorBoundary: true,
+          userAgent: navigator.userAgent,
+          timestamp: new Date().toISOString()
+        }
+      };
+
+      const response = await fetch('/api/errors/report', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(errorData),
+        credentials: 'include'
+      });
+
+      if (response.ok) {
+        console.log('Error reported successfully to admin');
+      } else {
+        console.warn('Failed to report error to admin');
+      }
+    } catch (reportingError) {
+      console.error('Failed to report error:', reportingError);
+    }
+  };
 
   resetError = () => {
     this.setState({ hasError: false, error: undefined });

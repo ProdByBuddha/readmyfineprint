@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { Crown, TrendingUp, Calendar, CreditCard, Settings, AlertCircle, CheckCircle, LogIn } from 'lucide-react';
+import { Crown, TrendingUp, Calendar, CreditCard, Settings, AlertCircle, CheckCircle, LogIn, Download } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -10,6 +10,7 @@ import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import SubscriptionPlans from '@/components/SubscriptionPlans';
 import { StripeWrapper } from '@/components/StripeWrapper';
+import { StripeDebug } from '@/components/StripeDebug';
 import { SubscriptionLogin } from '@/components/SubscriptionLogin';
 import AccountDeletion from '@/components/AccountDeletion';
 import DataExportButton from '@/components/DataExportButton';
@@ -529,6 +530,37 @@ export default function SubscriptionPage() {
               </Card>
             </motion.div>
 
+            {/* Data Export Section for Professional+ Tiers */}
+            {['professional', 'business', 'enterprise', 'ultimate'].includes(subscriptionData.tier.id) && (
+              <motion.div
+                initial={{ opacity: 0, x: 20 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ delay: 0.3 }}
+              >
+                <Card className="border-green-200 bg-green-50 dark:bg-green-900/20">
+                  <CardHeader>
+                    <CardTitle className="flex items-center space-x-2 text-green-800 dark:text-green-200">
+                      <Download className="h-5 w-5" />
+                      <span>Data Export Available</span>
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <p className="text-green-700 dark:text-green-300 mb-2">
+                          As a {subscriptionData.tier.name} tier member, you can download all your personal data including usage history and audit trails.
+                        </p>
+                        <p className="text-sm text-green-600 dark:text-green-400">
+                          This export is GDPR compliant and includes all data we hold about you.
+                        </p>
+                      </div>
+                      <DataExportButton />
+                    </div>
+                  </CardContent>
+                </Card>
+              </motion.div>
+            )}
+
             {/* Usage Statistics - HIDDEN FOR DEVELOPMENT */}
             {/* 
             <motion.div
@@ -655,6 +687,9 @@ export default function SubscriptionPage() {
                 </Alert>
               </motion.div>
             )}
+            
+            {/* Debug component to see what's happening with Stripe */}
+            <StripeDebug />
             
             <StripeWrapper>
               <SubscriptionPlans

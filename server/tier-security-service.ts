@@ -143,9 +143,9 @@ export async function getUserSecurityStatus(userId: string): Promise<UserSecurit
     const securityQuestions = await securityQuestionsService.getUserSecurityQuestions(userId);
     const twoFactorEnabled = await twoFactorService.isEnabled(userId);
     
-    // Check if user has backup email (implement if needed)
+    // Check if user has backup email
     const user = await databaseStorage.getUser(userId);
-    const backupEmailSet = false; // TODO: Implement backup email check
+    const backupEmailSet = !!(user && user.backupEmail && user.backupEmail.trim() !== '');
 
     // Calculate compliance
     const hasMinSecurityQuestions = securityQuestions.length >= requirements.minSecurityQuestions;

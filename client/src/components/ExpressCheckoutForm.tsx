@@ -13,7 +13,55 @@ import { loadStripe, Stripe } from "@stripe/stripe-js";
 // Get Stripe public key from environment variables
 const stripePublicKey = import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY;
 
-const stripePromise = loadStripe(stripePublicKey);
+// Fallback method to load Stripe.js directly via script tag
+const loadStripeWithFallback = async (publicKey: string): Promise<Stripe | null> => {
+  // Try the npm package method first
+  try {
+    console.log("📦 ExpressCheckoutForm: Trying @stripe/stripe-js loadStripe()...");
+    const stripeInstance = await loadStripe(publicKey);
+    if (stripeInstance) {
+      console.log("✅ ExpressCheckoutForm: loadStripe worked");
+      return stripeInstance;
+    }
+  } catch (error) {
+    console.warn("⚠️ ExpressCheckoutForm: loadStripe failed:", error);
+  }
+
+  // Fallback to direct script loading
+  return new Promise((resolve, reject) => {
+    console.log("📦 ExpressCheckoutForm: Trying direct script loading...");
+    
+    // Check if Stripe is already loaded
+    if ((window as any).Stripe) {
+      console.log("✅ ExpressCheckoutForm: Stripe already available");
+      resolve((window as any).Stripe(publicKey));
+      return;
+    }
+
+    // Create script element
+    const script = document.createElement('script');
+    script.src = 'https://js.stripe.com/v3/';
+    script.async = true;
+
+    script.onload = () => {
+      console.log("✅ ExpressCheckoutForm: Direct script loading worked");
+      if ((window as any).Stripe) {
+        resolve((window as any).Stripe(publicKey));
+      } else {
+        reject(new Error("Stripe object not found after script load"));
+      }
+    };
+
+    script.onerror = (error) => {
+      console.error("❌ ExpressCheckoutForm: Direct script loading failed:", error);
+      reject(new Error("Failed to load Stripe.js script"));
+    };
+
+    document.head.appendChild(script);
+  });
+};
+
+const stripePromise = stripePublicKey ? loadStripeWithFallback(stripePublicKey) : null;
 
 // Stripe-specific interfaces
 interface PaymentIntent {

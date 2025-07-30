@@ -26,18 +26,9 @@ export function AnalysisResults({ document }: AnalysisResultsProps) {
   useEffect(() => {
     const checkUserTier = async () => {
       try {
-        const subscriptionToken = localStorage.getItem('subscriptionToken');
-        if (!subscriptionToken) {
-          setUserTier('free');
-          setHasProfessionalAccess(false);
-          return;
-        }
-
+        // Use session-based authentication instead of localStorage token
         const response = await fetch('/api/user/subscription', {
-          headers: {
-            'x-subscription-token': subscriptionToken,
-          },
-          credentials: 'include'
+          credentials: 'include' // This sends the httpOnly sessionId cookie
         });
 
         if (response.ok) {
@@ -45,12 +36,14 @@ export function AnalysisResults({ document }: AnalysisResultsProps) {
           const tier = data.subscription?.tierId || 'free';
           setUserTier(tier);
           
-          // Professional tier or higher (professional, business, enterprise, ultimate)
-          const professionalTiers = ['professional', 'business', 'enterprise', 'ultimate'];
-          setHasProfessionalAccess(professionalTiers.includes(tier));
+          // Starter tier or higher (starter, professional, business, enterprise, ultimate)
+          const pdfExportTiers = ['starter', 'professional', 'business', 'enterprise', 'ultimate'];
+          setHasProfessionalAccess(pdfExportTiers.includes(tier));
+          console.log(`🔍 Analysis Component: User tier: ${tier}, PDF Export access: ${pdfExportTiers.includes(tier)}`);
         } else {
           setUserTier('free');
           setHasProfessionalAccess(false);
+          console.log(`🔍 Analysis Component: No subscription found, defaulting to free tier`);
         }
       } catch (error) {
         console.error('Error checking user tier:', error);
@@ -168,8 +161,8 @@ export function AnalysisResults({ document }: AnalysisResultsProps) {
     // Check tier access before proceeding
     if (!hasProfessionalAccess) {
       toast({
-        title: "Professional Tier Required",
-        description: "PDF export is available for Professional tier and above. Please upgrade your subscription.",
+        title: "Starter Tier Required",
+        description: "PDF export is available for Starter tier and above. Please upgrade your subscription.",
         variant: "destructive"
       });
       return;
@@ -263,7 +256,7 @@ Support our mission: ${window.location.origin + '/donate'}
               onClick={() => handleExport()}
               disabled={isExporting || !hasProfessionalAccess}
               className={`flex items-center space-x-2 bg-secondary text-white hover:bg-secondary/90 disabled:opacity-50 text-sm px-3 py-2 h-9 ${!hasProfessionalAccess ? 'cursor-not-allowed' : ''}`}
-              title={!hasProfessionalAccess ? "Professional tier required for PDF export" : ""}
+              title={!hasProfessionalAccess ? "Starter tier or higher required for PDF export" : ""}
             >
               {isExporting ? (
                 <>
@@ -276,8 +269,8 @@ Support our mission: ${window.location.origin + '/donate'}
               ) : !hasProfessionalAccess ? (
                 <>
                   <Lock className="w-3 h-3" />
-                  <span className="hidden sm:inline">PDF Export (Pro)</span>
-                  <span className="sm:hidden">Pro</span>
+                  <span className="hidden sm:inline">PDF Export (Starter+)</span>
+                  <span className="sm:hidden">Starter+</span>
                   <Crown className="w-2 h-2 text-orange-400" />
                 </>
               ) : (

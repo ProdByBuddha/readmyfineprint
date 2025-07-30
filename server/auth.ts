@@ -49,8 +49,8 @@ export async function requireAdminAuth(req: Request, res: Response, next: NextFu
     if (authHeader && authHeader.startsWith('Bearer ')) {
       const jwtToken = authHeader.substring(7);
       try {
-        const { secureJWTService } = await import('./secure-jwt-service');
-        const validation = await secureJWTService.validateAccessToken(jwtToken);
+        const { joseAuthService } = await import('./jose-auth-service');
+        const validation = await joseAuthService.validateAccessToken(jwtToken);
         if (validation.valid && validation.payload) {
           console.log('🔓 Development mode: Admin access granted with JWT token');
           securityLogger.logAdminAuth(ip, userAgent, req.path + ' (dev JWT)');
@@ -77,11 +77,65 @@ export async function requireAdminAuth(req: Request, res: Response, next: NextFu
     }
   }
 
-  // Require both admin key AND valid admin token for security
+  // Try session-based authentication first (for staging/production)
+  let sessionAuthenticated = false;
+  
+  // Manual cookie parsing fallback (same as other endpoints)
+  let sessionId = req.cookies?.sessionId;
+  if (!sessionId && req.headers.cookie) {
+    const cookieMatch = req.headers.cookie.match(/sessionId=([^;]+)/);
+    if (cookieMatch) {
+      sessionId = cookieMatch[1];
+      console.log(`🔍 Legacy admin auth: Manual parse found sessionId: ${sessionId.slice(0, 8)}...`);
+    }
+  }
+  
+  if (sessionId) {
+    try {
+      const { postgresqlSessionStorage } = await import('./postgresql-session-storage');
+      const token = await postgresqlSessionStorage.getTokenBySession(sessionId);
+      
+      if (token) {
+        const { joseTokenService } = await import('./jose-token-service');
+        const tokenData = await joseTokenService.validateSubscriptionToken(token);
+        
+        if (tokenData && tokenData.userId) {
+          const { databaseStorage } = await import('./storage');
+          const authenticatedUser = await databaseStorage.getUser(tokenData.userId);
+          
+          if (authenticatedUser) {
+            // Check if user is admin by email
+            const adminEmails = ['admin@readmyfineprint.com', 'prodbybuddha@icloud.com', 'beatsbybuddha@gmail.com'];
+            if (adminEmails.includes(authenticatedUser.email)) {
+              console.log(`✅ Legacy admin auth: Session authenticated as: ${authenticatedUser.email}`);
+              securityLogger.logAdminAuth(ip, userAgent, req.path + ' (session)');
+              req.user = {
+                id: authenticatedUser.id,
+                email: authenticatedUser.email
+              };
+              sessionAuthenticated = true;
+            } else {
+              console.log(`❌ Legacy admin auth: User ${authenticatedUser.email} is not an admin`);
+            }
+          }
+        }
+      }
+    } catch (sessionError) {
+      console.log('Legacy admin auth session validation error:', sessionError);
+    }
+  }
+  
+  if (sessionAuthenticated) {
+    return next();
+  }
+
+  // Fall back to traditional admin key + token authentication
+  console.log(`🔍 Session auth failed, trying traditional admin auth for ${req.path}`);
+  
   if (!providedKey || !adminToken) {
-    securityLogger.logFailedAuth(ip, userAgent, 'Missing admin credentials', req.path);
+    securityLogger.logFailedAuth(ip, userAgent, 'Missing admin credentials and no valid session', req.path);
     return res.status(401).json({ 
-      error: 'Admin authentication required. Both admin key and verification token are needed.',
+      error: 'Admin authentication required. Session-based auth failed and admin key/token missing.',
       code: 'MISSING_ADMIN_CREDENTIALS'
     });
   }
@@ -106,7 +160,7 @@ export async function requireAdminAuth(req: Request, res: Response, next: NextFu
   }
 
   // Log successful authentication
-  securityLogger.logAdminAuth(ip, userAgent, req.path);
+  securityLogger.logAdminAuth(ip, userAgent, req.path + ' (traditional)');
 
   // Set user context for admin user
   req.user = {
@@ -131,7 +185,8 @@ export async function optionalUserAuth(req: Request, res: Response, next: NextFu
       const token = authHeader.substring(7);
 
       try {
-        const validation = await secureJWTService.validateAccessToken(token);
+        const { joseAuthService } = await import('./jose-auth-service');
+        const validation = await joseAuthService.validateAccessToken(token);
         if (validation.valid && validation.payload) {
           const user = await databaseStorage.getUser(validation.payload.userId);
           if (user) {
@@ -164,9 +219,9 @@ export async function optionalUserAuth(req: Request, res: Response, next: NextFu
         const token = await postgresqlSessionStorage.getTokenBySession(sessionId);
         
         if (token) {
-          // Validate the token using hybrid token service
-          const { hybridTokenService } = await import('./hybrid-token-service');
-          const tokenData = await hybridTokenService.validateSubscriptionToken(token);
+          // Validate the subscription token (used for admin sessions)
+          const { joseTokenService } = await import('./jose-token-service');
+          const tokenData = await joseTokenService.validateSubscriptionToken(token);
           
           if (tokenData && tokenData.userId) {
             // Get user data from database
@@ -178,6 +233,15 @@ export async function optionalUserAuth(req: Request, res: Response, next: NextFu
               };
               console.log(`🔑 User authenticated via session: ${user.email} (${user.id})`);
               return next();
+            }
+          } else if (token && !tokenData) {
+            // Token exists but is invalid - clean it up
+            try {
+              const { postgresqlSessionStorage } = await import('./postgresql-session-storage');
+              await postgresqlSessionStorage.removeSessionToken(sessionId);
+              console.log('🧹 Cleaned up invalid session token in auth middleware');
+            } catch (cleanupError) {
+              console.error('⚠️ Failed to clean up invalid session token:', cleanupError);
             }
           }
         }
@@ -221,6 +285,12 @@ export async function requireAdminViaSubscription(req: Request, res: Response, n
     const { ip, userAgent } = getClientInfo(req);
     let subscriptionToken = req.headers['x-subscription-token'] as string;
     let tokenData: any = null;
+    
+    // Debug logging for admin authentication
+    console.log(`🔍 Admin auth via subscription for ${req.path}`);
+    console.log(`🔍 Headers: subscription-token=${subscriptionToken ? 'present' : 'missing'}, cookie=${req.headers.cookie ? 'present' : 'missing'}`);
+    console.log(`🔍 Cookies: sessionId=${req.cookies?.sessionId ? 'present' : 'missing'}, subscriptionToken=${req.cookies?.subscriptionToken ? 'present' : 'missing'}`);
+    
 
     // First try to get token from httpOnly cookie (more secure)
     subscriptionToken = req.cookies?.subscriptionToken;
@@ -234,26 +304,52 @@ export async function requireAdminViaSubscription(req: Request, res: Response, n
     }
     
     if (subscriptionToken) {
-      const { hybridTokenService } = await import("./hybrid-token-service");
-      tokenData = await hybridTokenService.validateSubscriptionToken(subscriptionToken);
+      const { joseTokenService } = await import('./jose-token-service');
+      tokenData = await joseTokenService.validateSubscriptionToken(subscriptionToken);
     }
 
     // If no header token or invalid, try cookie session
     if (!tokenData) {
-      const sessionId = req.cookies?.sessionId;
+      // Manual cookie parsing fallback (same as other endpoints)
+      let sessionId = req.cookies?.sessionId;
+      if (!sessionId && req.headers.cookie) {
+        const cookieMatch = req.headers.cookie.match(/sessionId=([^;]+)/);
+        if (cookieMatch) {
+          sessionId = cookieMatch[1];
+          console.log(`🔍 Admin auth: Manual parse found sessionId: ${sessionId.slice(0, 8)}...`);
+        }
+      }
+      
       if (sessionId) {
         try {
           const { postgresqlSessionStorage } = await import('./postgresql-session-storage');
           const token = await postgresqlSessionStorage.getTokenBySession(sessionId);
           
           if (token) {
-            const { hybridTokenService } = await import("./hybrid-token-service");
-            tokenData = await hybridTokenService.validateSubscriptionToken(token);
-            subscriptionToken = token; // Use the token from session
+            const { joseTokenService } = await import('./jose-token-service');
+            tokenData = await joseTokenService.validateSubscriptionToken(token);
+            
+            if (tokenData) {
+              subscriptionToken = token; // Use the token from session
+              console.log(`✅ Admin auth: Session resolved to user ${tokenData.userId}, tier: ${tokenData.tierId}`);
+            } else {
+              console.log(`❌ Admin auth: Token validation failed for session ${sessionId.slice(0, 8)}...`);
+              // Token is invalid - clean it up
+              try {
+                await postgresqlSessionStorage.removeSessionToken(sessionId);
+                console.log('🧹 Cleaned up invalid admin session token');
+              } catch (cleanupError) {
+                console.error('⚠️ Failed to clean up invalid admin session token:', cleanupError);
+              }
+            }
+          } else {
+            console.log(`❌ Admin auth: No token found for session ${sessionId.slice(0, 8)}...`);
           }
         } catch (sessionError) {
-          console.error('Session validation error:', sessionError);
+          console.error('Admin auth session validation error:', sessionError);
         }
+      } else {
+        console.log('❌ Admin auth: No session ID found in cookies or headers');
       }
     }
 
@@ -406,8 +502,9 @@ export async function generateJWT(userId: string, email?: string): Promise<strin
     email = user.email;
   }
 
-  // Use secure JWT service for token generation
-  const tokenPair = await secureJWTService.generateTokenPair(userId, email);
+  // Use JOSE auth service for token generation
+  const { joseAuthService } = await import('./jose-auth-service');
+  const tokenPair = await joseAuthService.generateTokenPair(userId, email);
   return tokenPair.accessToken;
 }
 
@@ -419,7 +516,8 @@ export async function generateSecureTokenPair(userId: string, email: string, cli
   userAgent?: string;
   deviceFingerprint?: string;
 } = {}) {
-  return await secureJWTService.generateTokenPair(userId, email, clientInfo);
+  const { joseAuthService } = await import('./jose-auth-service');
+  return await joseAuthService.generateTokenPair(userId, email, clientInfo);
 }
 
 /**
@@ -430,21 +528,108 @@ export async function refreshAccessToken(refreshToken: string, clientInfo: {
   userAgent?: string;
   deviceFingerprint?: string;
 } = {}) {
-  return await secureJWTService.refreshAccessToken(refreshToken, clientInfo);
+  const { joseAuthService } = await import('./jose-auth-service');
+  return await joseAuthService.refreshAccessToken(refreshToken, clientInfo);
 }
 
 /**
  * Revoke JWT token
  */
 export async function revokeJWTToken(token: string, reason: string, revokedBy: string = 'user') {
-  return await secureJWTService.revokeToken(token, reason, revokedBy);
+  const { joseAuthService } = await import('./jose-auth-service');
+  return await joseAuthService.revokeToken(token, reason, revokedBy);
 }
 
 /**
  * Revoke all tokens for a user
  */
 export async function revokeAllUserTokens(userId: string, reason: string, revokedBy: string = 'user') {
+  // For now, still use secureJWTService for bulk revocation since it handles database operations
   return await secureJWTService.revokeAllUserTokens(userId, reason, revokedBy);
+}
+
+/**
+ * Require security questions middleware
+ * Ensures that users have set up security questions before accessing protected endpoints
+ * New users and users without security questions are redirected to setup
+ */
+export async function requireSecurityQuestions(req: Request, res: Response, next: NextFunction) {
+  try {
+    const { ip, userAgent } = getClientInfo(req);
+
+    // Skip for admin users
+    const adminKey = process.env.ADMIN_API_KEY;
+    const providedKey = req.headers['x-admin-key'] as string;
+    const adminToken = req.headers['x-admin-token'] as string;
+    
+    if (adminKey && (providedKey === adminKey || adminToken)) {
+      return next();
+    }
+
+    // Check if this is an admin user via subscription token
+    let subscriptionToken = req.cookies?.subscriptionToken;
+    if (!subscriptionToken) {
+      subscriptionToken = req.headers['x-subscription-token'] as string;
+    }
+    
+    if (subscriptionToken) {
+      try {
+        const { joseTokenService } = await import('./jose-token-service');
+        const tokenData = await joseTokenService.validateSubscriptionToken(subscriptionToken);
+
+        if (tokenData) {
+          const user = await databaseStorage.getUser(tokenData.userId);
+          const adminEmails = ['admin@readmyfineprint.com', 'prodbybuddha@icloud.com', 'beatsbybuddha@gmail.com'];
+          if (user && adminEmails.includes(user.email)) {
+            return next();
+          }
+        }
+      } catch (tokenError) {
+        console.error('Error validating admin subscription token in security questions check:', tokenError);
+      }
+    }
+
+    // Get user ID from request (should be set by requireUserAuth middleware)
+    const userId = (req as any).user?.id;
+    if (!userId) {
+      return res.status(401).json({
+        error: 'Authentication required',
+        code: 'AUTHENTICATION_REQUIRED'
+      });
+    }
+
+    // Check if user has security questions set up
+    const { securityQuestionsService } = await import('./security-questions-service');
+    const hasSecurityQuestions = await securityQuestionsService.hasSecurityQuestions(userId);
+
+    if (!hasSecurityQuestions) {
+      securityLogger.logSecurityEvent({
+        eventType: SecurityEventType.AUTHORIZATION,
+        severity: SecuritySeverity.MEDIUM,
+        message: `Access denied - security questions required for ${req.path}`,
+        ip,
+        userAgent,
+        endpoint: req.path,
+        details: { userId }
+      });
+
+      return res.status(403).json({
+        error: 'Security questions required',
+        message: 'You must set up security questions to access this feature',
+        code: 'SECURITY_QUESTIONS_REQUIRED',
+        requiresSecurityQuestions: true
+      });
+    }
+
+    next();
+  } catch (error) {
+    console.error('Error checking security questions requirement:', error);
+    return res.status(500).json({
+      error: 'Unable to verify security questions',
+      message: 'Please try again or contact support',
+      code: 'SECURITY_QUESTIONS_VERIFICATION_ERROR'
+    });
+  }
 }
 
 /**
@@ -474,8 +659,8 @@ export async function requireConsent(req: Request, res: Response, next: NextFunc
     
     if (subscriptionToken) {
       try {
-        const { hybridTokenService } = await import("./hybrid-token-service");
-        const tokenData = await hybridTokenService.validateSubscriptionToken(subscriptionToken);
+        const { joseTokenService } = await import('./jose-token-service');
+        const tokenData = await joseTokenService.validateSubscriptionToken(subscriptionToken);
 
         if (tokenData) {
           const user = await databaseStorage.getUser(tokenData.userId);
@@ -586,16 +771,19 @@ export function addSecurityHeaders(req: Request, res: Response, next: NextFuncti
 
   // Additional security headers
   res.setHeader('Permissions-Policy', 'geolocation=(), microphone=(), camera=(), payment=()');
-  res.setHeader('Cross-Origin-Embedder-Policy', 'require-corp');
+  // Allow cross-origin resources like Stripe.js - 'unsafe-none' allows loading without CORP headers
+  res.setHeader('Cross-Origin-Embedder-Policy', 'unsafe-none');
   res.setHeader('Cross-Origin-Opener-Policy', 'same-origin');
-  res.setHeader('Cross-Origin-Resource-Policy', 'same-origin');
+  res.setHeader('Cross-Origin-Resource-Policy', 'cross-origin');
 
   // Enhanced Content Security Policy with comprehensive security directives
   // In development/staging, allow Replit dev tools (including unsafe-inline for Eruda styling)
   // In production, maintain strict CSP without unsafe directives
   const isDevelopment = process.env.NODE_ENV === 'development';
   const isStaging = process.env.NODE_ENV === 'staging';
-  const replitSources = (isDevelopment || isStaging) ? ' https://replit.com https://*.replit.com https://*.replit.dev https://cdn.jsdelivr.net' : '';
+  const replitSources = (isDevelopment || isStaging) ? ' https://replit.com https://*.replit.com https://*.replit.dev https://*.kirk.replit.dev https://cdn.jsdelivr.net' : '';
+  const localhostSources = isDevelopment ? ' http://localhost:5173 http://localhost:5000 http://127.0.0.1:5173 http://127.0.0.1:5000 https://*.kirk.replit.dev:5173' : '';
+  const websocketSources = (isDevelopment || isStaging) ? ' ws://localhost:5173 wss://localhost:5173 wss://*.replit.dev wss://*.kirk.replit.dev' : '';
 
   res.setHeader('Content-Security-Policy',
     "default-src 'none'; " +
@@ -605,7 +793,7 @@ export function addSecurityHeaders(req: Request, res: Response, next: NextFuncti
     `style-src-elem 'self' data: https://fonts.googleapis.com${replitSources}; ` +
     "font-src 'self' https://fonts.gstatic.com; " +
     "img-src 'self' data: https://img.shields.io https://js.stripe.com; " +
-    `connect-src 'self' https://api.openai.com https://api.stripe.com https://js.stripe.com https://m.stripe.com${replitSources}; ` +
+    `connect-src 'self' https://api.openai.com https://api.stripe.com https://js.stripe.com https://m.stripe.com${replitSources}${localhostSources}${websocketSources}; ` +
     "frame-src https://js.stripe.com https://hooks.stripe.com https://m.stripe.com; " +
     "media-src 'self'; " +
     "manifest-src 'self'; " +

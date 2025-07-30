@@ -17,9 +17,11 @@ import { useFocusVisible, useReducedMotion, useHighContrast } from "./hooks/useA
 import { useSEO } from "./lib/seo";
 import { useToast } from "./hooks/use-toast";
 import { setupAutoSubmission } from "./lib/indexnow";
+import { errorReporter } from "./lib/error-reporter";
 import React, { useEffect, useState, lazy, Suspense } from 'react';
 import { authFetch } from './lib/auth-fetch';
 import { DirectionProvider } from "@radix-ui/react-direction";
+import { SecurityQuestionsProvider } from "./contexts/SecurityQuestionsContext";
 
 // Lazy load route components for better code splitting
 const Home = lazy(() => import("./pages/home"));
@@ -95,23 +97,34 @@ function App() {
     setupAutoSubmission();
   }, []);
 
+  // Initialize error reporter
+  useEffect(() => {
+    // Error reporter is automatically initialized when imported
+    console.log('Error reporting system initialized');
+  }, []);
+
   // Auto-login as admin in development mode
   useEffect(() => {
     const autoLogin = async () => {
       if (import.meta.env.DEV) {
+        // Set global flag to prevent other hooks from making auth requests during auto-login
+        (window as any).isAutoLoginInProgress = true;
+        
         try {
           // Check if already logged in via session cookie or JWT
-          const sessionResponse = await authFetch('/api/auth/session', {
+          const sessionResponse = await fetch('/api/auth/session', {
             method: 'GET',
             headers: {
               'Content-Type': 'application/json',
             },
+            credentials: 'include',
           });
           
           if (sessionResponse.ok) {
             const sessionData = await sessionResponse.json();
             if (sessionData.authenticated && sessionData.user) {
               // Already logged in, no need to auto-login
+              (window as any).isAutoLoginInProgress = false;
               return;
             }
           }
@@ -127,20 +140,36 @@ function App() {
           
           if (response.ok) {
             const data = await response.json();
+            console.log('✅ Development auto-login successful:', data);
             
-            // Trigger auth update event for other components
-            window.dispatchEvent(new Event('authUpdate'));
-            window.dispatchEvent(new CustomEvent('authStateChanged'));
+            // Force a longer delay to ensure session cookies are fully set and processed
+            await new Promise(resolve => setTimeout(resolve, 2000));
             
-            // Show notification
-            toast({
-              title: "Development Mode",
-              description: "You've been automatically logged in as admin",
-              duration: 5000,
+            // Verify session is working before triggering events
+            const verifyResponse = await fetch('/api/auth/session', {
+              method: 'GET',
+              credentials: 'include',
             });
+            
+            if (verifyResponse.ok) {
+              console.log('✅ Session verified, triggering auth events');
+              // Only trigger events if session is actually working
+              window.dispatchEvent(new Event('authUpdate'));
+              window.dispatchEvent(new CustomEvent('authStateChanged'));
+            } else {
+              console.warn('⚠️ Auto-login succeeded but session verification failed');
+            }
+          } else {
+            console.error('❌ Development auto-login failed:', response.status, response.statusText);
           }
         } catch (error) {
-          // Auto-login failed
+          // Auto-login failed, continue normally - don't log 401s as they're expected
+          if (error instanceof Error && !error.message.includes('401') && !error.message.includes('Unauthorized')) {
+            console.log('Development auto-login failed:', error.message);
+          }
+        } finally {
+          // Clear the flag regardless of success/failure
+          (window as any).isAutoLoginInProgress = false;
         }
       }
     };
@@ -177,7 +206,8 @@ function App() {
           <ErrorBoundary>
             <SkipLinks />
             <DirectionProvider dir="ltr">
-              <div className="h-screen flex flex-col app-container bg-gray-50 dark:bg-gray-900">
+              <SecurityQuestionsProvider>
+                <div className="h-screen flex flex-col app-container bg-gray-50 dark:bg-gray-900">
                 {/* Fixed Header */}
                 <Header />
 
@@ -198,13 +228,13 @@ function App() {
 
                 {/* Fixed Footer */}
                 <Footer />
-              </div>
-              <Toaster />
-              <CookieConsent />
-              {showConsentModal && (
-                <CombinedConsent onAccept={handleConsentAccepted} />
-              )}
-              <ScrollToTop />
+                </div>
+                <Toaster />
+                <CookieConsent />
+                {showConsentModal && (
+                  <CombinedConsent onAccept={handleConsentAccepted} />
+                )}
+                <ScrollToTop />
               {/* Live region for announcements */}
               <div
                 id="announcements"
@@ -212,6 +242,7 @@ function App() {
                 aria-atomic="true"
                 className="sr-only"
               ></div>
+              </SecurityQuestionsProvider>
             </DirectionProvider>
           </ErrorBoundary>
         </TooltipProvider>

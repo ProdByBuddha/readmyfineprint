@@ -16,21 +16,45 @@ export function useThemePreference() {
     error: null
   });
 
-  // Check if user is authenticated
+  // Check if user is authenticated (either regular user or subscription session)
   const isAuthenticated = useCallback(async () => {
     try {
-      const response = await sessionFetch('/api/auth/session', {
-        method: 'GET',
-        credentials: 'include'
-      });
+      // First check for subscription token (subscription-only sessions)
+      const hasSubscriptionToken = document.cookie.includes('subscriptionToken') || 
+                                   document.cookie.includes('subscription_token') ||
+                                   localStorage.getItem('jwt_access_token') || 
+                                   localStorage.getItem('jwt_refresh_token') ||
+                                   localStorage.getItem('jwt_token');
       
-      if (response.ok) {
-        const data = await response.json();
-        return data.authenticated && data.user;
+      // If no subscription token, check for regular user session
+      if (!hasSubscriptionToken) {
+        try {
+          const response = await sessionFetch('/api/auth/session', {
+            method: 'GET',
+            credentials: 'include'
+          });
+          
+          if (response.ok) {
+            const data = await response.json();
+            return data.authenticated && data.user;
+          } else if (response.status === 401) {
+            // 401 means no authentication - this is normal for anonymous users
+            return false;
+          }
+        } catch (error) {
+          console.log('Session check failed, assuming unauthenticated:', error);
+          return false;
+        }
       }
+      
+      // For subscription-only sessions, we can't fetch user preferences
+      // Return false to use localStorage instead
       return false;
     } catch (error) {
-      console.warn('Failed to check authentication status:', error);
+      // Don't log 401 errors as warnings - they're expected for subscription-only sessions
+      if (error instanceof Error && !error.message.includes('401')) {
+        console.warn('Failed to check authentication status:', error);
+      }
       return false;
     }
   }, []);
@@ -46,10 +70,20 @@ export function useThemePreference() {
       if (response.ok) {
         const data = await response.json();
         return data.theme as Theme;
+      } else if (response.status === 401) {
+        // 401 is expected for subscription-only sessions - don't log as error
+        return null;
+      } else if (response.status === 429) {
+        // Rate limited - fall back to localStorage
+        console.log('Rate limited loading theme from database, using localStorage');
+        return null;
       }
       return null;
     } catch (error) {
-      console.warn('Failed to load theme from database:', error);
+      // Don't log 401 errors as warnings - they're expected for subscription-only sessions
+      if (error instanceof Error && !error.message.includes('401')) {
+        console.warn('Failed to load theme from database:', error);
+      }
       return null;
     }
   }, []);
@@ -67,6 +101,14 @@ export function useThemePreference() {
       });
 
       if (!response.ok) {
+        if (response.status === 429) {
+          // Rate limited - this is not critical, just log and continue
+          console.log('Rate limited saving theme to database, saved to localStorage only');
+          return true; // Return true so we don't show an error to the user
+        } else if (response.status === 401) {
+          // Unauthorized - expected for subscription-only sessions
+          return true; // Return true so we don't show an error to the user
+        }
         throw new Error('Failed to save theme to database');
       }
       
@@ -161,7 +203,23 @@ export function useThemePreference() {
 
   // Initialize on mount
   useEffect(() => {
-    initializeTheme();
+    const initialize = async () => {
+      // In development, wait for auto-login to complete before initializing
+      if (import.meta.env.DEV) {
+        // Wait for auto-login to finish
+        let attempts = 0;
+        while ((window as any).isAutoLoginInProgress && attempts < 50) {
+          await new Promise(resolve => setTimeout(resolve, 100));
+          attempts++;
+        }
+        // Give additional time for session to be established
+        await new Promise(resolve => setTimeout(resolve, 300));
+      }
+      
+      initializeTheme();
+    };
+    
+    initialize();
   }, [initializeTheme]);
 
   // Listen for authentication changes
