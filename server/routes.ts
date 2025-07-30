@@ -1942,6 +1942,37 @@ export async function registerRoutes(app: Express): Promise<Server> {
         });
       }
       
+      // Check for JWT token in authorization header as fallback
+      const authHeader = req.headers.authorization;
+      if (authHeader && authHeader.startsWith('Bearer ')) {
+        console.log('🔍 Attempting direct JWT validation as fallback...');
+        try {
+          const token = authHeader.substring(7);
+          const { joseAuthService } = await import('./jose-auth-service');
+          const validation = await joseAuthService.validateAccessToken(token);
+          
+          if (validation.valid && validation.payload) {
+            const user = await databaseStorage.getUser(validation.payload.userId);
+            
+            if (user) {
+              console.log(`✅ Direct JWT authentication successful for user: ${user.email}`);
+              
+              return res.json({
+                authenticated: true,
+                user: {
+                  id: user.id,
+                  email: user.email
+                }
+              });
+            }
+          }
+          
+          console.log('❌ Direct JWT validation failed:', validation.error);
+        } catch (jwtError) {
+          console.log('❌ Direct JWT validation error:', jwtError instanceof Error ? jwtError.message : 'Unknown error');
+        }
+      }
+      
       // Check for authenticated user session (sessionId cookie)
       if (sessionId) {
         console.log('🔍 Checking authenticated user session...');
