@@ -46,6 +46,7 @@ import { adminApiRequest } from "@/lib/api";
 import TradeSecretProtection from "@/components/TradeSecretProtection";
 import LawEnforcementRequest from '@/components/LawEnforcementRequest';
 import { BlogAdmin } from '@/components/BlogAdmin';
+import { sessionFetch } from "@/lib/sessionManager";
 
 interface AdminDashboardData {
   metrics: {
@@ -1848,12 +1849,10 @@ export default function AdminDashboard() {
       // Check if user is authenticated via session cookie
       console.log('🔍 Checking session cookie authentication...');
       try {
-        const response = await fetch('/api/auth/session', {
+        const response = await sessionFetch('/api/auth/session', {
           method: 'GET',
-          credentials: 'include',
           headers: {
             'Content-Type': 'application/json',
-            'x-session-id': sessionStorage.getItem('app-session-id') || 'anonymous',
           },
         });
 
