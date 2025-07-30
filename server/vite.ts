@@ -3,6 +3,49 @@ import fs from "fs";
 import path from "path";
 import { type Server } from "http";
 
+// Helper function to apply all security headers consistently
+function applySecurityHeaders(res: express.Response) {
+  res.setHeader('X-Frame-Options', 'DENY');
+  res.setHeader('X-Content-Type-Options', 'nosniff');
+  res.setHeader('X-XSS-Protection', '1; mode=block');
+  res.setHeader('Referrer-Policy', 'strict-origin-when-cross-origin');
+  res.setHeader('Strict-Transport-Security', 'max-age=31536000; includeSubDomains; preload');
+  res.setHeader('Permissions-Policy', 'geolocation=(), microphone=(), camera=(), payment=()');
+  res.setHeader('Cross-Origin-Embedder-Policy', 'unsafe-none');
+  res.setHeader('Cross-Origin-Opener-Policy', 'same-origin');
+  res.setHeader('Cross-Origin-Resource-Policy', 'cross-origin');
+
+  // Enhanced Content Security Policy
+  const isDevelopment = process.env.NODE_ENV === 'development';
+  const isStaging = process.env.NODE_ENV === 'staging';
+  const replitSources = (isDevelopment || isStaging) ? ' https://replit.com https://*.replit.com https://*.replit.dev https://*.kirk.replit.dev https://cdn.jsdelivr.net' : '';
+  const localhostSources = isDevelopment ? ' http://localhost:5173 http://localhost:5000 http://127.0.0.1:5173 http://127.0.0.1:5000 https://*.kirk.replit.dev:5173' : '';
+  const websocketSources = (isDevelopment || isStaging) ? ' ws://localhost:5173 wss://localhost:5173 wss://*.replit.dev wss://*.kirk.replit.dev' : '';
+
+  const cspValue = "default-src 'none'; " +
+    `script-src 'self' https://js.stripe.com https://m.stripe.com${replitSources}; ` +
+    `script-src-elem 'self' https://js.stripe.com https://m.stripe.com${replitSources}; ` +
+    `style-src 'self' data: https://js.stripe.com https://fonts.googleapis.com${replitSources}${(isDevelopment || isStaging) ? " 'unsafe-inline'" : ''}; ` +
+    `style-src-elem 'self' data: https://fonts.googleapis.com${replitSources}; ` +
+    "font-src 'self' https://fonts.gstatic.com; " +
+    "img-src 'self' data: https://img.shields.io https://js.stripe.com; " +
+    `connect-src 'self' https://api.openai.com https://api.stripe.com https://js.stripe.com https://m.stripe.com${replitSources}${localhostSources}${websocketSources}; ` +
+    "frame-src https://js.stripe.com https://hooks.stripe.com https://m.stripe.com; " +
+    "media-src 'self'; " +
+    "manifest-src 'self'; " +
+    "worker-src 'self'; " +
+    "child-src 'none'; " +
+    "object-src 'none'; " +
+    "base-uri 'self'; " +
+    "form-action 'self' https://js.stripe.com https://api.stripe.com; " +
+    "frame-ancestors 'none'; " +
+    "upgrade-insecure-requests; " +
+    "report-uri /api/security/csp-report; " +
+    "report-to csp-endpoint;";
+
+  res.setHeader('Content-Security-Policy', cspValue);
+}
+
 export function log(message: string, source = "express") {
   const formattedTime = new Date().toLocaleTimeString("en-US", {
     hour: "numeric",
@@ -131,10 +174,16 @@ export function serveStatic(app: Express) {
     console.log(`🔧 Run 'npm run build' to create the production build`);
   }
 
-  app.use(express.static(distPath));
+  // Apply security headers to static files
+  app.use(express.static(distPath, {
+    setHeaders: (res, path) => {
+      applySecurityHeaders(res);
+    }
+  }));
 
-  // fall through to index.html if the file doesn't exist
+  // fall through to index.html if the file doesn't exist - with security headers
   app.use("*", (_req, res) => {
+    applySecurityHeaders(res);
     res.sendFile(path.resolve(distPath, "index.html"));
   });
 }

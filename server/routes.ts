@@ -4021,6 +4021,23 @@ ReadMyFinePrint | Privacy-First AI-Powered Contract Analysis
     }
   });
 
+  // Security headers test endpoint
+  app.get("/api/security/headers-test", (req, res) => {
+    // This endpoint specifically tests that security headers are being sent
+    res.json({ 
+      message: "Security headers test", 
+      timestamp: new Date().toISOString(),
+      headers_sent: {
+        "X-Frame-Options": res.getHeader('X-Frame-Options'),
+        "X-Content-Type-Options": res.getHeader('X-Content-Type-Options'),
+        "Strict-Transport-Security": res.getHeader('Strict-Transport-Security'),
+        "Referrer-Policy": res.getHeader('Referrer-Policy'),
+        "Content-Security-Policy": res.getHeader('Content-Security-Policy'),
+        "Permissions-Policy": res.getHeader('Permissions-Policy')
+      }
+    });
+  });
+
   const httpServer = createServer(app);
 
   return httpServer;

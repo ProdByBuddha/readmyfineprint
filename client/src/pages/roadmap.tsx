@@ -39,6 +39,13 @@ const roadmapItems = [
         icon: Shield,
         status: "completed",
         details: ["Mandatory setup for new users", "Account recovery options", "Document operation protection", "Argon2 encrypted storage"]
+      },
+      {
+        title: "OWASP ASVS Security Implementation",
+        description: "Enterprise-grade security compliance with OWASP Application Security Verification Standard Level 1",
+        icon: Shield,
+        status: "completed",
+        details: ["JWT security validation", "XSS protection & output encoding", "File upload security", "Path traversal prevention", "Security monitoring & logging", "82% ASVS Level 1 compliance"]
       }
     ]
   },

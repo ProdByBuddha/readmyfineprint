@@ -42,6 +42,9 @@ const loadStripeWithFallback = async (publicKey: string): Promise<Stripe | null>
     const script = document.createElement('script');
     script.src = 'https://js.stripe.com/v3/';
     script.async = true;
+    script.crossOrigin = 'anonymous';
+    // Note: Stripe.js doesn't provide SRI hashes as it's a dynamic service that updates frequently
+    // This is acceptable as Stripe is a trusted payment processor and the script loads over HTTPS
 
     script.onload = () => {
       console.log("✅ BasicStripeProvider: Direct script loading worked");

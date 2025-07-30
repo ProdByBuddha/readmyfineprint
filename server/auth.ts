@@ -754,59 +754,99 @@ function isSampleContractRequest(req: Request): boolean {
 
 // Middleware to add security headers
 export function addSecurityHeaders(req: Request, res: Response, next: NextFunction) {
-  // Prevent clickjacking
-  res.setHeader('X-Frame-Options', 'DENY');
+  // Override multiple response methods to ensure headers are ALWAYS set
+  const originalSend = res.send;
+  const originalJson = res.json;
+  const originalEnd = res.end;
+  const originalWrite = res.write;
 
-  // Prevent MIME type sniffing
-  res.setHeader('X-Content-Type-Options', 'nosniff');
+  // Function to set all security headers
+  const setSecurityHeaders = () => {
+    if (!res.headersSent) {
+      // Prevent clickjacking - CRITICAL for security scans
+      res.setHeader('X-Frame-Options', 'DENY');
 
-  // Enable XSS protection
-  res.setHeader('X-XSS-Protection', '1; mode=block');
+      // Prevent MIME type sniffing - CRITICAL for security scans  
+      res.setHeader('X-Content-Type-Options', 'nosniff');
 
-  // Referrer policy
-  res.setHeader('Referrer-Policy', 'strict-origin-when-cross-origin');
+      // Enable XSS protection
+      res.setHeader('X-XSS-Protection', '1; mode=block');
 
-  // HSTS (HTTP Strict Transport Security) - tells browsers/crawlers to only use HTTPS
-  res.setHeader('Strict-Transport-Security', 'max-age=31536000; includeSubDomains; preload');
+      // Referrer policy - use the most secure setting
+      res.setHeader('Referrer-Policy', 'strict-origin-when-cross-origin');
 
-  // Additional security headers
-  res.setHeader('Permissions-Policy', 'geolocation=(), microphone=(), camera=(), payment=()');
-  // Allow cross-origin resources like Stripe.js - 'unsafe-none' allows loading without CORP headers
-  res.setHeader('Cross-Origin-Embedder-Policy', 'unsafe-none');
-  res.setHeader('Cross-Origin-Opener-Policy', 'same-origin');
-  res.setHeader('Cross-Origin-Resource-Policy', 'cross-origin');
+      // HSTS (HTTP Strict Transport Security)
+      res.setHeader('Strict-Transport-Security', 'max-age=31536000; includeSubDomains; preload');
 
-  // Enhanced Content Security Policy with comprehensive security directives
-  // In development/staging, allow Replit dev tools (including unsafe-inline for Eruda styling)
-  // In production, maintain strict CSP without unsafe directives
-  const isDevelopment = process.env.NODE_ENV === 'development';
-  const isStaging = process.env.NODE_ENV === 'staging';
-  const replitSources = (isDevelopment || isStaging) ? ' https://replit.com https://*.replit.com https://*.replit.dev https://*.kirk.replit.dev https://cdn.jsdelivr.net' : '';
-  const localhostSources = isDevelopment ? ' http://localhost:5173 http://localhost:5000 http://127.0.0.1:5173 http://127.0.0.1:5000 https://*.kirk.replit.dev:5173' : '';
-  const websocketSources = (isDevelopment || isStaging) ? ' ws://localhost:5173 wss://localhost:5173 wss://*.replit.dev wss://*.kirk.replit.dev' : '';
+      // Additional security headers
+      res.setHeader('Permissions-Policy', 'geolocation=(), microphone=(), camera=(), payment=()');
+      res.setHeader('Cross-Origin-Embedder-Policy', 'unsafe-none');
+      res.setHeader('Cross-Origin-Opener-Policy', 'same-origin');
+      res.setHeader('Cross-Origin-Resource-Policy', 'cross-origin');
 
-  res.setHeader('Content-Security-Policy',
-    "default-src 'none'; " +
-    `script-src 'self' https://js.stripe.com https://m.stripe.com${replitSources}; ` +
-    `script-src-elem 'self' https://js.stripe.com https://m.stripe.com${replitSources}; ` +
-    `style-src 'self' data: https://js.stripe.com https://fonts.googleapis.com${replitSources}${(isDevelopment || isStaging) ? " 'unsafe-inline'" : ''}; ` +
-    `style-src-elem 'self' data: https://fonts.googleapis.com${replitSources}; ` +
-    "font-src 'self' https://fonts.gstatic.com; " +
-    "img-src 'self' data: https://img.shields.io https://js.stripe.com; " +
-    `connect-src 'self' https://api.openai.com https://api.stripe.com https://js.stripe.com https://m.stripe.com${replitSources}${localhostSources}${websocketSources}; ` +
-    "frame-src https://js.stripe.com https://hooks.stripe.com https://m.stripe.com; " +
-    "media-src 'self'; " +
-    "manifest-src 'self'; " +
-    "worker-src 'self'; " +
-    "child-src 'none'; " +
-    "object-src 'none'; " +
-    "base-uri 'self'; " +
-    "form-action 'self' https://js.stripe.com https://api.stripe.com; " +
-    "frame-ancestors 'none'; " +
-    "upgrade-insecure-requests; " +
-    "report-uri /api/security/csp-report; " +
-    "report-to csp-endpoint;"
-  );
+      // Enhanced Content Security Policy - CRITICAL for security scans
+      const isDevelopment = process.env.NODE_ENV === 'development';
+      const isStaging = process.env.NODE_ENV === 'staging';
+      const replitSources = (isDevelopment || isStaging) ? ' https://replit.com https://*.replit.com https://*.replit.dev https://*.kirk.replit.dev https://cdn.jsdelivr.net' : '';
+      const localhostSources = isDevelopment ? ' http://localhost:5173 http://localhost:5000 http://127.0.0.1:5173 http://127.0.0.1:5000 https://*.kirk.replit.dev:5173' : '';
+      const websocketSources = (isDevelopment || isStaging) ? ' ws://localhost:5173 wss://localhost:5173 wss://*.replit.dev wss://*.kirk.replit.dev' : '';
+
+      const cspValue = "default-src 'none'; " +
+        `script-src 'self' https://js.stripe.com https://m.stripe.com${replitSources}; ` +
+        `script-src-elem 'self' https://js.stripe.com https://m.stripe.com${replitSources}; ` +
+        `style-src 'self' data: https://js.stripe.com https://fonts.googleapis.com${replitSources}${(isDevelopment || isStaging) ? " 'unsafe-inline'" : ''}; ` +
+        `style-src-elem 'self' data: https://fonts.googleapis.com${replitSources}; ` +
+        "font-src 'self' https://fonts.gstatic.com; " +
+        "img-src 'self' data: https://img.shields.io https://js.stripe.com; " +
+        `connect-src 'self' https://api.openai.com https://api.stripe.com https://js.stripe.com https://m.stripe.com${replitSources}${localhostSources}${websocketSources}; ` +
+        "frame-src https://js.stripe.com https://hooks.stripe.com https://m.stripe.com; " +
+        "media-src 'self'; " +
+        "manifest-src 'self'; " +
+        "worker-src 'self'; " +
+        "child-src 'none'; " +
+        "object-src 'none'; " +
+        "base-uri 'self'; " +
+        "form-action 'self' https://js.stripe.com https://api.stripe.com; " +
+        "frame-ancestors 'none'; " +
+        "upgrade-insecure-requests; " +
+        "report-uri /api/security/csp-report; " +
+        "report-to csp-endpoint;";
+
+      res.setHeader('Content-Security-Policy', cspValue);
+
+      // Log header setting for debugging (only in development)
+      if (process.env.NODE_ENV === 'development') {
+        console.log(`🔒 Security headers set for ${req.method} ${req.path}`);
+      }
+    }
+  };
+
+  // Override res.send
+  res.send = function(body?: any) {
+    setSecurityHeaders();
+    return originalSend.call(this, body);
+  };
+
+  // Override res.json
+  res.json = function(body?: any) {
+    setSecurityHeaders();
+    return originalJson.call(this, body);
+  };
+
+  // Override res.end
+  res.end = function(chunk?: any, encoding?: any) {
+    setSecurityHeaders();
+    return originalEnd.call(this, chunk, encoding);
+  };
+
+  // Override res.write
+  res.write = function(chunk: any, encoding?: any) {
+    setSecurityHeaders();
+    return originalWrite.call(this, chunk, encoding);
+  };
+
+  // Set headers immediately as well
+  setSecurityHeaders();
 
   next();
 }

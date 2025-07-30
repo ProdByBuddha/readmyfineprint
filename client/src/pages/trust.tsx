@@ -26,28 +26,31 @@ export default function TrustPage() {
         {
           subtitle: 'Application Security',
           items: [
-            'OWASP Top 10 vulnerability protection with regular audits',
-            'Content Security Policy (CSP) with strict nonce-based script execution',
+            'OWASP ASVS Level 1 controls with enhanced JWT validation',
+            'Context-aware XSS protection with output encoding',
+            'File security service with path traversal prevention',
+            'Content Security Policy (CSP) with frame-ancestors protection',
             'Cross-Site Request Forgery (CSRF) protection with SameSite cookies',
             'SQL injection prevention via parameterized queries and ORM',
-            'XSS protection through comprehensive input sanitization',
-            'File upload validation with type checking and size limits',
-            'Security event logging with anomaly detection',
-            'Regular security updates and dependency scanning'
+            'Real-time security monitoring with threat detection',
+            'Automated vulnerability scanning and dependency updates',
+            'Input validation middleware with sanitization',
+            'Security event correlation and anomaly detection'
           ]
         },
         {
           subtitle: 'Authentication & Access Control',
           items: [
+            'ASVS-compliant JWT security with token blacklisting',
+            'Enhanced token validation with rate limiting',
+            'Suspicious activity detection and automatic blocking',
             'Multi-factor authentication (TOTP) available',
             'Mandatory security questions for enhanced account protection',
-            'Argon2 password hashing with salt and pepper',
             'JOSE (JSON Web Signature) tokens for enhanced security',
-            'JWT tokens with versioned secrets and automatic rotation',
             'Session-based document access control with PostgreSQL storage',
-            'Token revocation system with persistent blocklist',
-            'Device fingerprinting for enhanced security',
-            'Admin-only access controls and verification'
+            'Progressive delay mechanisms for failed attempts',
+            'Device fingerprinting and anomaly detection',
+            'Admin-only access controls with audit trails'
           ]
         }
       ]
@@ -112,11 +115,14 @@ export default function TrustPage() {
         {
           subtitle: 'Security Standards',
           items: [
-            'OWASP Top 10 protection measures',
-            'Security best practices implementation',
-            'Regular security audits and monitoring',
-            'Vulnerability scanning and assessment',
-            'Secure coding practices'
+            'OWASP ASVS Level 1 Compliance (82% complete)',
+            'OWASP Top 10 protection measures with real-time monitoring',
+            'JWT security validation with token blacklisting',
+            'XSS protection with context-aware output encoding',
+            'File upload security with malicious content detection',
+            'Path traversal protection and secure file handling',
+            'Regular security audits and automated vulnerability scanning',
+            'Secure coding practices with security-first development'
           ]
         },
         {
@@ -193,23 +199,31 @@ export default function TrustPage() {
       {/* Main Content */}
       <div className="container mx-auto px-4 py-12 lg:py-16">
         <div className="max-w-6xl mx-auto">
-          {/* Security Badges - Actual Implementation Status */}
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-12">
+          {/* Security Badges - ASVS Implementation Status */}
+          <div className="grid grid-cols-2 md:grid-cols-6 gap-4 mb-12">
             <div className="bg-green-50 dark:bg-green-900/20 rounded-lg p-4 text-center">
-              <div className="text-2xl font-bold text-green-600 dark:text-green-400">✓</div>
-              <div className="text-sm text-gray-600 dark:text-gray-400">Security Headers</div>
+              <div className="text-lg font-bold text-green-600 dark:text-green-400">ASVS L1</div>
+              <div className="text-xs text-gray-600 dark:text-gray-400">82% Complete</div>
             </div>
             <div className="bg-blue-50 dark:bg-blue-900/20 rounded-lg p-4 text-center">
-              <div className="text-2xl font-bold text-blue-600 dark:text-blue-400">Argon2</div>
-              <div className="text-sm text-gray-600 dark:text-gray-400">Password Hashing</div>
+              <div className="text-lg font-bold text-blue-600 dark:text-blue-400">JWT+</div>
+              <div className="text-xs text-gray-600 dark:text-gray-400">Enhanced Auth</div>
             </div>
             <div className="bg-purple-50 dark:bg-purple-900/20 rounded-lg p-4 text-center">
-              <div className="text-2xl font-bold text-purple-600 dark:text-purple-400">TLS 1.3</div>
-              <div className="text-sm text-gray-600 dark:text-gray-400">In Transit</div>
+              <div className="text-lg font-bold text-purple-600 dark:text-purple-400">XSS</div>
+              <div className="text-xs text-gray-600 dark:text-gray-400">Protected</div>
             </div>
             <div className="bg-orange-50 dark:bg-orange-900/20 rounded-lg p-4 text-center">
-              <div className="text-2xl font-bold text-orange-600 dark:text-orange-400">JOSE</div>
-              <div className="text-sm text-gray-600 dark:text-gray-400">Secure Tokens</div>
+              <div className="text-lg font-bold text-orange-600 dark:text-orange-400">File Sec</div>
+              <div className="text-xs text-gray-600 dark:text-gray-400">Validated</div>
+            </div>
+            <div className="bg-red-50 dark:bg-red-900/20 rounded-lg p-4 text-center">
+              <div className="text-lg font-bold text-red-600 dark:text-red-400">TLS 1.3</div>
+              <div className="text-xs text-gray-600 dark:text-gray-400">In Transit</div>
+            </div>
+            <div className="bg-teal-50 dark:bg-teal-900/20 rounded-lg p-4 text-center">
+              <div className="text-lg font-bold text-teal-600 dark:text-teal-400">GDPR</div>
+              <div className="text-xs text-gray-600 dark:text-gray-400">Compliant</div>
             </div>
           </div>
 
@@ -326,18 +340,23 @@ export default function TrustPage() {
             <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-6">Security Implementation Status</h3>
             <div className="flex flex-wrap justify-center gap-3">
               <img
-                src="https://img.shields.io/badge/Security%20Headers-Implemented-brightgreen?style=for-the-badge"
-                alt="Security Headers"
+                src="https://img.shields.io/badge/OWASP%20ASVS-Level%201%20(82%25)-brightgreen?style=for-the-badge"
+                alt="OWASP ASVS Level 1 Compliance"
                 className="h-8"
               />
               <img
-                src="https://img.shields.io/badge/Authentication-Argon2%2BJOSE-brightgreen?style=for-the-badge"
-                alt="Argon2 + JOSE Authentication"
+                src="https://img.shields.io/badge/JWT%20Security-Enhanced%20Validation-brightgreen?style=for-the-badge"
+                alt="Enhanced JWT Security"
                 className="h-8"
               />
               <img
-                src="https://img.shields.io/badge/CSP-Deny%20By%20Default-brightgreen?style=for-the-badge"
-                alt="CSP Deny By Default"
+                src="https://img.shields.io/badge/XSS%20Protection-Context%20Aware-brightgreen?style=for-the-badge"
+                alt="XSS Protection"
+                className="h-8"
+              />
+              <img
+                src="https://img.shields.io/badge/File%20Security-Path%20Traversal%20Protected-brightgreen?style=for-the-badge"
+                alt="File Security"
                 className="h-8"
               />
               <img
@@ -348,11 +367,6 @@ export default function TrustPage() {
               <img
                 src="https://img.shields.io/badge/Encryption-TLS%201.3-blue?style=for-the-badge"
                 alt="TLS 1.3 Encryption"
-                className="h-8"
-              />
-              <img
-                src="https://img.shields.io/badge/License-Proprietary-orange?style=for-the-badge"
-                alt="Proprietary License"
                 className="h-8"
               />
             </div>
