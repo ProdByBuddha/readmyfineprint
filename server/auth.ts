@@ -659,7 +659,7 @@ export function addSecurityHeaders(req: Request, res: Response, next: NextFuncti
       res.setHeader('Strict-Transport-Security', 'max-age=31536000; includeSubDomains; preload');
 
       // Additional security headers
-      res.setHeader('Permissions-Policy', 'geolocation=(), microphone=(), camera=(), payment=(self https://js.stripe.com https://m.stripe.com)');
+      res.setHeader('Permissions-Policy', 'geolocation=(), microphone=(), camera=(), payment=(self "https://js.stripe.com" "https://m.stripe.com")');
       res.setHeader('Cross-Origin-Embedder-Policy', 'unsafe-none');
       res.setHeader('Cross-Origin-Opener-Policy', 'same-origin');
       res.setHeader('Cross-Origin-Resource-Policy', 'cross-origin');
