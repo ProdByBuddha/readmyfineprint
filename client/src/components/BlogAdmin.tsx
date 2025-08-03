@@ -181,10 +181,33 @@ export function BlogAdmin() {
   useEffect(() => {
     const loadData = async () => {
       try {
-        // Check if user has admin access first
-        const authCheck = await adminApiRequest('/api/blog/admin/stats', {
-          method: 'GET'
-        });
+        // First try to get user subscription to check admin status
+        try {
+          const subscriptionData = await fetch('/api/user/subscription', {
+            credentials: 'include',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+          });
+          
+          if (!subscriptionData.ok) {
+            setError('Please log in to access admin features.');
+            setLoading(false);
+            return;
+          }
+
+          const subData = await subscriptionData.json();
+          if (subData.tier?.id !== 'ultimate') {
+            setError('Admin access required. You need ultimate tier access to manage the blog.');
+            setLoading(false);
+            return;
+          }
+        } catch (authError) {
+          console.error('Authentication check failed:', authError);
+          setError('Authentication failed. Please log in with an admin account.');
+          setLoading(false);
+          return;
+        }
 
         // If we get here, user has admin access, load all data
         const [postsResponse, topicsResponse, schedulerResponse, statsResponse, deletedResponse] = await Promise.allSettled([
