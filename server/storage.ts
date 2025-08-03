@@ -12,11 +12,11 @@ export interface IStorage {
 
   // User management
   getUser(id: string): Promise<User | undefined>;
-  getUserByEmail(email: string): Promise<User | undefined>;
+  getUserByEmail(email: string): Promise<User | null>;
   createUser(insertUser: InsertUser): Promise<User>;
   createUserWithId(id: string, insertUser: InsertUser): Promise<User>;
   updateUser(id: string, updates: Partial<InsertUser>): Promise<User | undefined>;
-  
+
   // Sample document management
   initializeSampleDocuments?(): void;
 
