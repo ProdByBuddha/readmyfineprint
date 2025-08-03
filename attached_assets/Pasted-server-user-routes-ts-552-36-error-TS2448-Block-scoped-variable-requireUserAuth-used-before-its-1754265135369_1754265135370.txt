@@ -1,0 +1,62 @@
+server/user-routes.ts:552:36 - error TS2448: Block-scoped variable 'requireUserAuth' used before its declaration.
+
+552   app.delete("/api/users/account", requireUserAuth, async (req: Request, res: Response) => {
+                                       ~~~~~~~~~~~~~~~
+
+  server/user-routes.ts:858:11
+    858   const { requireUserAuth } = await import('./auth');
+                  ~~~~~~~~~~~~~~~
+    'requireUserAuth' is declared here.
+
+server/user-routes.ts:552:36 - error TS2454: Variable 'requireUserAuth' is used before being assigned.
+
+552   app.delete("/api/users/account", requireUserAuth, async (req: Request, res: Response) => {
+                                       ~~~~~~~~~~~~~~~
+
+server/user-routes.ts:645:49 - error TS2448: Block-scoped variable 'requireUserAuth' used before its declaration.
+
+645   app.get("/api/users/account/deletion-status", requireUserAuth, async (req: Request, res: Response) => {
+                                                    ~~~~~~~~~~~~~~~
+
+  server/user-routes.ts:858:11
+    858   const { requireUserAuth } = await import('./auth');
+                  ~~~~~~~~~~~~~~~
+    'requireUserAuth' is declared here.
+
+server/user-routes.ts:645:49 - error TS2454: Variable 'requireUserAuth' is used before being assigned.
+
+645   app.get("/api/users/account/deletion-status", requireUserAuth, async (req: Request, res: Response) => {
+                                                    ~~~~~~~~~~~~~~~
+
+server/user-routes.ts:657:44 - error TS2448: Block-scoped variable 'requireUserAuth' used before its declaration.
+
+657   app.post("/api/admin/users/:id/restore", requireUserAuth, async (req: Request, res: Response) => {
+                                               ~~~~~~~~~~~~~~~
+
+  server/user-routes.ts:858:11
+    858   const { requireUserAuth } = await import('./auth');
+                  ~~~~~~~~~~~~~~~
+    'requireUserAuth' is declared here.
+
+server/user-routes.ts:657:44 - error TS2454: Variable 'requireUserAuth' is used before being assigned.
+
+657   app.post("/api/admin/users/:id/restore", requireUserAuth, async (req: Request, res: Response) => {
+                                               ~~~~~~~~~~~~~~~
+
+server/user-routes.ts:698:42 - error TS2448: Block-scoped variable 'requireUserAuth' used before its declaration.
+
+698   app.get("/api/users/me/download-data", requireUserAuth, async (req: Request, res: Response) => {
+                                             ~~~~~~~~~~~~~~~
+
+  server/user-routes.ts:858:11
+    858   const { requireUserAuth } = await import('./auth');
+                  ~~~~~~~~~~~~~~~
+    'requireUserAuth' is declared here.
+
+server/user-routes.ts:698:42 - error TS2454: Variable 'requireUserAuth' is used before being assigned.
+
+698   app.get("/api/users/me/download-data", requireUserAuth, async (req: Request, res: Response) => {
+                                             ~~~~~~~~~~~~~~~
+
+
+Found 8 errors in the same file, starting at: server/user-routes.ts:552
