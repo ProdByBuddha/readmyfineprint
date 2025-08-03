@@ -1,4 +1,3 @@
-
 import fs from 'fs';
 import path from 'path';
 import { execSync } from 'child_process';
@@ -12,20 +11,20 @@ try {
   console.log('✅ esbuild imported successfully');
 } catch (error) {
   console.error('❌ Failed to import esbuild:', error.message);
-  
+
   // Try to reinstall esbuild with specific version
   console.log('📦 Reinstalling esbuild...');
   try {
     execSync('npm uninstall esbuild', { stdio: 'inherit' });
     execSync('npm install esbuild@^0.25.8', { stdio: 'inherit' });
-    
+
     // Try import again after reinstall
     const esbuildModule = await import('esbuild');
     build = esbuildModule.build;
     console.log('✅ esbuild imported after reinstall');
   } catch (reinstallError) {
     console.error('❌ Failed to reinstall and import esbuild:', reinstallError.message);
-    
+
     // Final fallback: try using require syntax for CJS compatibility
     try {
       const { createRequire } = await import('module');
@@ -104,7 +103,8 @@ try {
     },
     define: {
       'process.env.NODE_ENV': '"production"',
-      'global': 'globalThis'
+      'global': 'globalThis',
+      'React': 'window.React'
     },
     external: [],
     splitting: true,
@@ -114,8 +114,8 @@ try {
   } else {
     // Fallback to npx esbuild command
     console.log('📦 Using npx esbuild fallback...');
-    const esbuildCmd = `npx esbuild client/src/main.tsx --bundle --minify --sourcemap --target=es2020 --format=esm --outdir=${distDir} --loader:.tsx=tsx --loader:.ts=ts --loader:.jsx=jsx --loader:.js=js --loader:.css=css --loader:.png=file --loader:.jpg=file --loader:.jpeg=file --loader:.gif=file --loader:.svg=file --loader:.woff=file --loader:.woff2=file --loader:.ttf=file --loader:.eot=file --define:process.env.NODE_ENV='"production"' --define:global=globalThis --splitting --metafile`;
-    
+    const esbuildCmd = `npx esbuild client/src/main.tsx --bundle --minify --sourcemap --target=es2020 --format=esm --outdir=${distDir} --loader:.tsx=tsx --loader:.jsx=jsx --loader:.js=js --loader:.css=css --loader:.png=file --loader:.jpg=file --loader:.jpeg=file --loader:.gif=file --loader:.svg=file --loader:.woff=file --loader:.woff2=file --loader:.ttf=file --loader:.eot=file --define:process.env.NODE_ENV='"production"' --define:global=globalThis --splitting --metafile`;
+
     execSync(esbuildCmd, { stdio: 'inherit' });
   }
 
@@ -148,7 +148,7 @@ try {
   fs.writeFileSync(path.join(distDir, 'index.html'), indexHtml);
 
   console.log('✅ Build completed successfully with esbuild');
-  
+
 } catch (error) {
   console.error('❌ Build failed:', error);
   process.exit(1);
