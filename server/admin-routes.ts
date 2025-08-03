@@ -37,7 +37,7 @@ async function translateEmailsForAdmin(users: any[]): Promise<any[]> {
             };
           }
         }
-        
+
         // If no Stripe customer or failed lookup, mark as pseudonymized
         return {
           ...user,
@@ -53,11 +53,11 @@ async function translateEmailsForAdmin(users: any[]): Promise<any[]> {
         };
       }
     }
-    
+
     // Return user as-is if not pseudonymized
     return user;
   }));
-  
+
   return translatedUsers;
 }
 
@@ -128,7 +128,7 @@ export function registerAdminRoutes(app: Express) {
       }
 
       const revoked = adminVerificationService.revokeAdminToken(adminToken);
-      
+
       if (revoked) {
         securityLogger.logSecurityEvent({
           eventType: SecurityEventType.AUTHENTICATION,
@@ -158,7 +158,8 @@ export function registerAdminRoutes(app: Express) {
   /**
    * Admin Metrics - Basic metrics only (subscription-based auth)
    */
-  app.get("/api/admin/metrics-subscription", requireAdminViaSubscription, async (req: Request, res: Response) => {
+  // Admin subscription management endpoints - use JWT admin auth for simplicity
+  app.get("/api/admin/metrics-subscription", requireAdminAuth, async (req: Request, res: Response) => {
     try {
       // Get basic metrics with individual error handling and fallbacks
       let totalUsers = 0;
@@ -226,7 +227,7 @@ export function registerAdminRoutes(app: Express) {
 
     } catch (error) {
       console.error("Admin metrics error:", error);
-      
+
       // Even if everything fails, provide a basic response
       res.json({
         totalUsers: 0,
@@ -242,7 +243,7 @@ export function registerAdminRoutes(app: Express) {
   /**
    * Admin System Health - System status only (subscription-based auth)
    */
-  app.get("/api/admin/system-health-subscription", requireAdminViaSubscription, async (req: Request, res: Response) => {
+  app.get("/api/admin/system-health-subscription", requireAdminAuth, async (req: Request, res: Response) => {
     try {
       // System health checks
       const memoryUsage = process.memoryUsage();
@@ -271,7 +272,7 @@ export function registerAdminRoutes(app: Express) {
   /**
    * Admin Activity - Recent activity metrics only (subscription-based auth)
    */
-  app.get("/api/admin/activity-subscription", requireAdminViaSubscription, async (req: Request, res: Response) => {
+  app.get("/api/admin/activity-subscription", requireAdminAuth, async (req: Request, res: Response) => {
     try {
       const now = new Date();
       const last24h = new Date(now.getTime() - 24 * 60 * 60 * 1000);
@@ -411,7 +412,7 @@ export function registerAdminRoutes(app: Express) {
   /**
    * User Management - Get users with search and filtering (subscription-based auth)
    */
-  app.get("/api/admin/users-subscription", requireAdminViaSubscription, async (req: Request, res: Response) => {
+  app.get("/api/admin/users-subscription", requireAdminAuth, async (req: Request, res: Response) => {
     try {
       const page = parseInt(req.query.page as string) || 1;
       const limit = Math.min(parseInt(req.query.limit as string) || 50, 100);
@@ -431,7 +432,7 @@ export function registerAdminRoutes(app: Express) {
 
       // Translate pseudonymized emails to real emails for admin access
       const translatedUsers = await translateEmailsForAdmin(users.users);
-      
+
       const result = {
         ...users,
         users: translatedUsers
@@ -468,7 +469,7 @@ export function registerAdminRoutes(app: Express) {
 
       // Translate pseudonymized emails to real emails for admin access
       const translatedUsers = await translateEmailsForAdmin(users.users);
-      
+
       const result = {
         ...users,
         users: translatedUsers
@@ -538,7 +539,7 @@ export function registerAdminRoutes(app: Express) {
       });
 
       const updates = updateSchema.parse(req.body);
-      
+
       const updatedUser = await databaseStorage.updateUser(userId, updates);
       if (!updatedUser) {
         return res.status(404).json({ error: "User not found" });
@@ -581,7 +582,7 @@ export function registerAdminRoutes(app: Express) {
       });
 
       const updates = updateSchema.parse(req.body);
-      
+
       const updatedUser = await databaseStorage.updateUser(userId, updates);
       if (!updatedUser) {
         return res.status(404).json({ error: "User not found" });
@@ -761,10 +762,10 @@ export function registerAdminRoutes(app: Express) {
 
       // Generate a secure temporary password
       const temporaryPassword = crypto.randomBytes(12).toString('base64').slice(0, 16);
-      
+
       // Hash the temporary password
       const hashedPassword = await databaseStorage.hashPassword(temporaryPassword);
-      
+
       // Update user with temporary password and force password change
       await databaseStorage.updateUser(userId, {
         hashedPassword,
@@ -820,15 +821,15 @@ export function registerAdminRoutes(app: Express) {
             <h1>🔐 Password Reset</h1>
             <p>Your ReadMyFinePrint password has been reset</p>
         </div>
-        
+
         <div class="content">
             <div class="message">
                 <p>Hello,</p>
                 <p>An administrator has reset your ReadMyFinePrint account password. Your new temporary password is:</p>
             </div>
-            
+
             <div class="password">${temporaryPassword}</div>
-            
+
             <div class="warning">
                 <p><strong>⚠️ Important Security Notice:</strong></p>
                 <ul>
@@ -837,7 +838,7 @@ export function registerAdminRoutes(app: Express) {
                   <li>For your security, do not share this password with anyone</li>
                 </ul>
             </div>
-            
+
             <div class="message">
                 <p><strong>Next Steps:</strong></p>
                 <ol>
@@ -845,11 +846,11 @@ export function registerAdminRoutes(app: Express) {
                   <li>You will be prompted to create a new secure password</li>
                   <li>Choose a strong, unique password for your account</li>
                 </ol>
-                
+
                 <p>If you did not request this password reset, please contact our support team immediately.</p>
             </div>
         </div>
-        
+
         <div class="footer">
             <p>ReadMyFinePrint - Secure Legal Document Analysis</p>
             <p>This is an automated security email. Please do not reply.</p>
@@ -884,8 +885,7 @@ This is an automated security email. Please do not reply.
           });
 
           if (emailSent) {
-            console.log(`📧 Password reset email sent successfully to ${user.email}`);
-          } else {
+            console.log(`📧 Password reset email sent successfully to ${user.email}`);Updated the admin subscription routes to use consistent authentication.          } else {
             console.error(`❌ Failed to send password reset email to ${user.email}`);
           }
         } catch (emailError) {
@@ -1212,7 +1212,7 @@ This is an automated security email. Please do not reply.
   app.post("/api/admin/users-subscription/create", requireAdminViaSubscription, async (req: Request, res: Response) => {
     try {
       const { email, username, password, tierId, emailVerified = false, isActive = true } = req.body;
-      
+
       // Validate required fields
       if (!email || !tierId) {
         return res.status(400).json({ 
@@ -1262,29 +1262,29 @@ This is an automated security email. Please do not reply.
         html: `
           <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
             <h2 style="color: #333;">Welcome to ReadMyFinePrint!</h2>
-            
+
             <p>An administrator has created an account for you on ReadMyFinePrint.</p>
-            
+
             <div style="background: #f5f5f5; padding: 20px; border-radius: 8px; margin: 20px 0;">
               <h3 style="margin-top: 0;">Your Account Details:</h3>
               <p><strong>Email:</strong> ${email}</p>
               <p><strong>Subscription Tier:</strong> ${tier.name}</p>
             </div>
-            
+
             <div style="background: #e8f5e8; border: 1px solid #4caf50; padding: 15px; border-radius: 5px; margin: 20px 0;">
               <h4 style="margin-top: 0; color: #2e7d32;">🔐 How to Access Your Account</h4>
               <p style="margin: 0;">Your account uses secure email verification for login. Simply visit the login page and enter your email address to receive a verification code.</p>
             </div>
-            
+
             <p>You can access your account at: <a href="${process.env.CLIENT_URL || 'https://readmyfineprint.com'}/login">ReadMyFinePrint Login</a></p>
-            
+
             <h3>Your Subscription Includes:</h3>
             <ul>
               ${tier.features.map(feature => `<li>${feature}</li>`).join('')}
             </ul>
-            
+
             <p>If you have any questions, please contact our support team.</p>
-            
+
             <p>Best regards,<br>The ReadMyFinePrint Team</p>
           </div>
         `
@@ -1400,9 +1400,9 @@ This is an automated security email. Please do not reply.
   app.get("/api/admin/analytics-subscription", requireAdminViaSubscription, async (req: Request, res: Response) => {
     try {
       const timeframe = req.query.timeframe as string || '30d';
-      
+
       const analytics = await getAnalyticsData(timeframe);
-      
+
       res.json(analytics);
 
     } catch (error) {
@@ -1526,7 +1526,7 @@ This is an automated security email. Please do not reply.
       const adminUserId = (req as any).user?.id;
       const ip = req.ip || req.socket.remoteAddress || 'unknown';
       const userAgent = req.get('User-Agent') || 'unknown';
-      
+
       if (!adminUserId) {
         return res.status(401).json({ error: "Admin user ID not found" });
       }
@@ -1549,19 +1549,19 @@ This is an automated security email. Please do not reply.
       });
 
       const requestData = requestSchema.parse(req.body);
-      
+
       // Generate unique request ID for tracking
       const requestId = crypto.randomUUID();
-      
+
       console.log(`🏦 Law enforcement data request initiated: ${requestId}`);
       console.log(`   - Type: ${requestData.requestType}`);
       console.log(`   - Target: ${requestData.targetIdentifier}`);
       console.log(`   - Agency: ${requestData.requestingAgency}`);
-      
+
       // Find target user
       const targetUser = await translateEmailsForAdmin([{ email: requestData.targetIdentifier }]).then(users => users[0]) || 
                          await databaseStorage.getUser(requestData.targetIdentifier);
-      
+
       if (!targetUser) {
         return res.status(404).json({ 
           error: "Target user not found",
@@ -1570,7 +1570,7 @@ This is an automated security email. Please do not reply.
       }
 
       console.log(`   - Target User ID: ${targetUser.id}`);
-      
+
       // Security log for law enforcement request
       await securityLogger.logSecurityEvent({
         eventType: SecurityEventType.ADMIN_ACTION,
@@ -1613,7 +1613,7 @@ This is an automated security email. Please do not reply.
             // Include subscription and usage data
             const subscription = await databaseStorage.getUserSubscription(targetUser.id);
             const usageRecords = subscription ? [subscription] : [];
-            
+
             exportData.subscriptions = subscription;
             exportData.usageRecords = usageRecords;
             break;
@@ -1624,7 +1624,7 @@ This is an automated security email. Please do not reply.
               limit: 1000,
               timeframe: 'all'
             });
-            
+
             // Filter events related to target user
             const userRelatedEvents = securityEvents.events.filter(event => 
               event.userId === targetUser.id
@@ -1649,7 +1649,7 @@ This is an automated security email. Please do not reply.
                 const stripeCustomer = await stripe.customers.retrieve(targetUser.stripeCustomerId);
                 const charges = await stripe.charges.list({ customer: targetUser.stripeCustomerId });
                 const invoices = await stripe.invoices.list({ customer: targetUser.stripeCustomerId });
-                
+
                 exportData.stripeData = {
                   customer: stripeCustomer,
                   charges: charges.data,
@@ -1664,7 +1664,7 @@ This is an automated security email. Please do not reply.
         }
 
         console.log(`✅ Law enforcement data export generated: ${requestId}`);
-        
+
         res.json({
           success: true,
           requestId,
@@ -1674,7 +1674,7 @@ This is an automated security email. Please do not reply.
 
       } catch (dataError) {
         console.error(`❌ Failed to generate law enforcement data export: ${requestId}`, dataError);
-        
+
         await securityLogger.logSecurityEvent({
           eventType: SecurityEventType.ERROR,
           severity: SecuritySeverity.HIGH,
@@ -1699,7 +1699,7 @@ This is an automated security email. Please do not reply.
 
     } catch (error) {
       console.error('❌ Law enforcement request validation failed:', error);
-      
+
       if (error instanceof z.ZodError) {
         return res.status(400).json({ 
           error: "Invalid request data",
@@ -1710,7 +1710,7 @@ This is an automated security email. Please do not reply.
           ]
         });
       }
-      
+
       res.status(500).json({ error: "Failed to process law enforcement request" });
     }
   });
@@ -1722,7 +1722,7 @@ This is an automated security email. Please do not reply.
   app.post("/api/admin/send-alert-email", requireAdminAuth, async (req: Request, res: Response) => {
     try {
       const { to, subject, text, html } = req.body;
-      
+
       // Validate required fields
       if (!to || !subject || !text) {
         return res.status(400).json({ 
@@ -1802,7 +1802,7 @@ async function checkDatabaseHealth(): Promise<{ status: string; latency?: number
         error: 'Database connection was terminated (likely due to connection limits or maintenance)' 
       };
     }
-    
+
     // Check for other connection issues
     if (error.code === 'ECONNREFUSED' || error.code === 'ENOTFOUND') {
       return { 
@@ -1810,7 +1810,7 @@ async function checkDatabaseHealth(): Promise<{ status: string; latency?: number
         error: 'Cannot connect to database server' 
       };
     }
-    
+
     return { 
       status: 'unhealthy', 
       error: error instanceof Error ? error.message : 'Unknown database error' 

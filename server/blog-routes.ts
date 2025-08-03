@@ -1,3 +1,6 @@
+The change updates the description of the admin endpoints for blog posts to indicate a JWT fallback for authentication.
+```
+```replit_final_file
 import { Router } from 'express';
 import { db } from './db.js';
 import { 
@@ -25,29 +28,29 @@ router.get('/posts', async (req, res) => {
     // Use real database for blog posts
 
     await db;
-    
+
     const page = parseInt(req.query.page as string) || 1;
     const limit = parseInt(req.query.limit as string) || 10;
     const category = req.query.category as string;
     const search = req.query.search as string;
     const featured = req.query.featured === 'true';
-    
+
     const offset = (page - 1) * limit;
-    
+
     let whereConditions = and(
       eq(blogPosts.status, 'published'),
       eq(blogPosts.isActive, true),
       isNotNull(blogPosts.publishedAt)
     );
-    
+
     if (category) {
       whereConditions = and(whereConditions, eq(blogPosts.category, category));
     }
-    
+
     if (featured) {
       whereConditions = and(whereConditions, eq(blogPosts.isFeatured, true));
     }
-    
+
     if (search) {
       whereConditions = and(
         whereConditions,
@@ -58,7 +61,7 @@ router.get('/posts', async (req, res) => {
         )
       );
     }
-    
+
     const posts = await db
       .select({
         id: blogPosts.id,
@@ -95,10 +98,10 @@ router.get('/posts', async (req, res) => {
       .select({ count: blogPosts.id })
       .from(blogPosts)
       .where(whereConditions);
-    
+
     const total = totalResult.length;
     const totalPages = Math.ceil(total / limit);
-    
+
     res.json({
       posts: postsWithDisplayCounts,
       pagination: {
@@ -122,9 +125,9 @@ router.get('/posts/:slug', async (req, res) => {
     // Use real database for blog posts
 
     await db;
-    
+
     const { slug } = req.params;
-    
+
     const [post] = await db
       .select()
       .from(blogPosts)
@@ -136,17 +139,17 @@ router.get('/posts/:slug', async (req, res) => {
         )
       )
       .limit(1);
-    
+
     if (!post) {
       return res.status(404).json({ error: 'Blog post not found' });
     }
-    
+
     // Increment view count
     await db
       .update(blogPosts)
       .set({ viewCount: (post.viewCount || 0) + 1 })
       .where(eq(blogPosts.id, post.id));
-    
+
     // Get related posts
     const relatedPosts = await db
       .select({
@@ -168,9 +171,9 @@ router.get('/posts/:slug', async (req, res) => {
       )
       .orderBy(desc(blogPosts.publishedAt))
       .limit(3);
-    
+
     const filteredRelated = relatedPosts.filter((p: any) => p.id !== post.id);
-    
+
     res.json({
       post: {
         ...post,
@@ -192,7 +195,7 @@ router.get('/categories', async (req, res) => {
     // Use real database for categories
 
     await db;
-    
+
     const categories = await db
       .select({
         category: blogPosts.category,
@@ -207,13 +210,13 @@ router.get('/categories', async (req, res) => {
       )
       .groupBy(blogPosts.category)
       .orderBy(asc(blogPosts.category));
-    
+
     const formattedCategories = categories.map((cat: any) => ({
       name: cat.category,
       count: cat.count,
       slug: cat.category.toLowerCase().replace(/\s+/g, '-'),
     }));
-    
+
     res.json({ categories: formattedCategories });
   } catch (error) {
     console.error('Error fetching categories:', error);
@@ -225,7 +228,7 @@ router.get('/categories', async (req, res) => {
 router.get('/sitemap', async (req, res) => {
   try {
     await db;
-    
+
     const posts = await db
       .select({
         slug: blogPosts.slug,
@@ -240,7 +243,7 @@ router.get('/sitemap', async (req, res) => {
         )
       )
       .orderBy(desc(blogPosts.publishedAt));
-    
+
     res.json({ posts });
   } catch (error) {
     console.error('Error fetching sitemap:', error);
@@ -253,19 +256,19 @@ router.get('/sitemap', async (req, res) => {
 router.get('/admin/posts', requireAdminViaSubscription, async (req, res) => {
   try {
     await db;
-    
+
     const page = parseInt(req.query.page as string) || 1;
     const limit = parseInt(req.query.limit as string) || 20;
     const status = req.query.status as string;
-    
+
     const offset = (page - 1) * limit;
-    
+
     let whereConditions: any = eq(blogPosts.isActive, true);
-    
+
     if (status) {
       whereConditions = and(whereConditions, eq(blogPosts.status, status));
     }
-    
+
     const posts = await db
       .select()
       .from(blogPosts)
@@ -273,15 +276,15 @@ router.get('/admin/posts', requireAdminViaSubscription, async (req, res) => {
       .orderBy(desc(blogPosts.createdAt))
       .limit(limit)
       .offset(offset);
-    
+
     const totalResult = await db
       .select({ count: blogPosts.id })
       .from(blogPosts)
       .where(whereConditions);
-    
+
     const total = totalResult.length;
     const totalPages = Math.ceil(total / limit);
-    
+
     res.json({
       posts,
       pagination: {
@@ -301,27 +304,27 @@ router.get('/admin/posts', requireAdminViaSubscription, async (req, res) => {
 router.post('/admin/posts', requireAdminViaSubscription, async (req, res) => {
   try {
     await db;
-    
+
     const validatedData = blogPostSchema.parse(req.body);
-    
+
     const slug = validatedData.title
       .toLowerCase()
       .replace(/[^a-z0-9]+/g, '-')
       .replace(/^-|-$/g, '')
       .substring(0, 100);
-    
+
     // Check if slug exists
     const existingPost = await db
       .select()
       .from(blogPosts)
       .where(eq(blogPosts.slug, slug))
       .limit(1);
-    
+
     const finalSlug = existingPost.length > 0 ? `${slug}-${Date.now()}` : slug;
-    
+
     const wordCount = validatedData.content.replace(/<[^>]*>/g, ' ').trim().split(/\s+/).length;
     const readingTime = Math.ceil(wordCount / 200);
-    
+
     const [newPost] = await db
       .insert(blogPosts)
       .values({
@@ -332,7 +335,7 @@ router.post('/admin/posts', requireAdminViaSubscription, async (req, res) => {
         publishedAt: validatedData.status === 'published' ? new Date() : null,
       })
       .returning();
-    
+
     res.status(201).json({ post: newPost });
   } catch (error) {
     console.error('Error creating blog post:', error);
@@ -344,35 +347,35 @@ router.post('/admin/posts', requireAdminViaSubscription, async (req, res) => {
 router.put('/admin/posts/:id', requireAdminViaSubscription, async (req, res) => {
   try {
     await db;
-    
+
     const { id } = req.params;
     const validatedData = blogPostSchema.partial().parse(req.body);
-    
+
     const updateData: any = {
       ...validatedData,
       updatedAt: new Date(),
     };
-    
+
     if (validatedData.content) {
       const wordCount = validatedData.content.replace(/<[^>]*>/g, ' ').trim().split(/\s+/).length;
       updateData.wordCount = wordCount;
       updateData.readingTime = Math.ceil(wordCount / 200);
     }
-    
+
     if (validatedData.status === 'published' && !updateData.publishedAt) {
       updateData.publishedAt = new Date();
     }
-    
+
     const [updatedPost] = await db
       .update(blogPosts)
       .set(updateData)
       .where(eq(blogPosts.id, id))
       .returning();
-    
+
     if (!updatedPost) {
       return res.status(404).json({ error: 'Post not found' });
     }
-    
+
     res.json({ post: updatedPost });
   } catch (error) {
     console.error('Error updating blog post:', error);
@@ -384,14 +387,14 @@ router.put('/admin/posts/:id', requireAdminViaSubscription, async (req, res) => 
 router.delete('/admin/posts/:id', requireAdminViaSubscription, async (req, res) => {
   try {
     await db;
-    
+
     const { id } = req.params;
     const { permanent } = req.query;
-    
+
     if (permanent === 'true') {
       // Hard delete - permanently remove from database
       console.log(`🗑️ Performing hard delete of blog post: ${id}`);
-      
+
       // Delete related records first
       await db.delete(contentSimilarity).where(
         or(
@@ -399,19 +402,19 @@ router.delete('/admin/posts/:id', requireAdminViaSubscription, async (req, res) 
           eq(contentSimilarity.postId2, id)
         )
       );
-      
+
       await db.delete(contentGeneration).where(eq(contentGeneration.postId, id));
-      
+
       // Delete the post itself
       const [deletedPost] = await db
         .delete(blogPosts)
         .where(eq(blogPosts.id, id))
         .returning();
-      
+
       if (!deletedPost) {
         return res.status(404).json({ error: 'Post not found' });
       }
-      
+
       res.json({ 
         message: 'Post permanently deleted',
         deleted: deletedPost,
@@ -420,7 +423,7 @@ router.delete('/admin/posts/:id', requireAdminViaSubscription, async (req, res) 
     } else {
       // Soft delete - mark as inactive
       console.log(`🗃️ Performing soft delete of blog post: ${id}`);
-      
+
       const [deletedPost] = await db
         .update(blogPosts)
         .set({ 
@@ -430,11 +433,11 @@ router.delete('/admin/posts/:id', requireAdminViaSubscription, async (req, res) 
         })
         .where(eq(blogPosts.id, id))
         .returning();
-      
+
       if (!deletedPost) {
         return res.status(404).json({ error: 'Post not found' });
       }
-      
+
       res.json({ 
         message: 'Post deleted successfully (soft delete)',
         deleted: deletedPost,
@@ -451,9 +454,9 @@ router.delete('/admin/posts/:id', requireAdminViaSubscription, async (req, res) 
 router.patch('/admin/posts/:id/restore', requireAdminViaSubscription, async (req, res) => {
   try {
     await db;
-    
+
     const { id } = req.params;
-    
+
     const [restoredPost] = await db
       .update(blogPosts)
       .set({ 
@@ -466,13 +469,13 @@ router.patch('/admin/posts/:id/restore', requireAdminViaSubscription, async (req
         eq(blogPosts.isActive, false)
       ))
       .returning();
-    
+
     if (!restoredPost) {
       return res.status(404).json({ error: 'Deleted post not found' });
     }
-    
+
     console.log(`🔄 Restored blog post: ${restoredPost.title}`);
-    
+
     res.json({ 
       message: 'Post restored successfully',
       restored: restoredPost
@@ -487,13 +490,13 @@ router.patch('/admin/posts/:id/restore', requireAdminViaSubscription, async (req
 router.get('/admin/posts/deleted', requireAdminViaSubscription, async (req, res) => {
   try {
     await db;
-    
+
     const deletedPosts = await db
       .select()
       .from(blogPosts)
       .where(eq(blogPosts.isActive, false))
       .orderBy(desc(blogPosts.updatedAt));
-    
+
     res.json({ 
       posts: deletedPosts,
       count: deletedPosts.length
@@ -558,12 +561,12 @@ router.get('/admin/topics', requireAdminViaSubscription, async (req, res) => {
     }
 
     await db;
-    
+
     const topics = await db
       .select()
       .from(blogTopics)
       .orderBy(desc(blogTopics.priority), asc(blogTopics.createdAt));
-    
+
     res.json({ topics });
   } catch (error) {
     console.error('Error fetching topics:', error);
@@ -574,14 +577,14 @@ router.get('/admin/topics', requireAdminViaSubscription, async (req, res) => {
 router.post('/admin/topics', requireAdminViaSubscription, async (req, res) => {
   try {
     await db;
-    
+
     const validatedData = blogTopicSchema.parse(req.body);
-    
+
     const [newTopic] = await db
       .insert(blogTopics)
       .values(validatedData)
       .returning();
-    
+
     res.status(201).json({ topic: newTopic });
   } catch (error) {
     console.error('Error creating topic:', error);
@@ -593,10 +596,10 @@ router.post('/admin/topics', requireAdminViaSubscription, async (req, res) => {
 router.put('/admin/topics/:id', requireAdminViaSubscription, async (req, res) => {
   try {
     await db;
-    
+
     const { id } = req.params;
     const validatedData = blogTopicSchema.partial().parse(req.body);
-    
+
     const [updatedTopic] = await db
       .update(blogTopics)
       .set({
@@ -605,13 +608,13 @@ router.put('/admin/topics/:id', requireAdminViaSubscription, async (req, res) =>
       })
       .where(eq(blogTopics.id, id))
       .returning();
-    
+
     if (!updatedTopic) {
       return res.status(404).json({ error: 'Topic not found' });
     }
-    
+
     console.log(`📝 Updated blog topic: ${updatedTopic.title}`);
-    
+
     res.json({ topic: updatedTopic });
   } catch (error) {
     console.error('Error updating topic:', error);
@@ -623,20 +626,20 @@ router.put('/admin/topics/:id', requireAdminViaSubscription, async (req, res) =>
 router.delete('/admin/topics/:id', requireAdminViaSubscription, async (req, res) => {
   try {
     await db;
-    
+
     const { id } = req.params;
-    
+
     const [deletedTopic] = await db
       .delete(blogTopics)
       .where(eq(blogTopics.id, id))
       .returning();
-    
+
     if (!deletedTopic) {
       return res.status(404).json({ error: 'Topic not found' });
     }
-    
+
     console.log(`🗑️ Deleted blog topic: ${deletedTopic.title}`);
-    
+
     res.json({ message: 'Topic deleted successfully', deleted: deletedTopic });
   } catch (error) {
     console.error('Error deleting topic:', error);
@@ -648,9 +651,9 @@ router.delete('/admin/topics/:id', requireAdminViaSubscription, async (req, res)
 router.patch('/admin/topics/:id/reset', requireAdminViaSubscription, async (req, res) => {
   try {
     await db;
-    
+
     const { id } = req.params;
-    
+
     const [resetTopic] = await db
       .update(blogTopics)
       .set({
@@ -660,13 +663,13 @@ router.patch('/admin/topics/:id/reset', requireAdminViaSubscription, async (req,
       })
       .where(eq(blogTopics.id, id))
       .returning();
-    
+
     if (!resetTopic) {
       return res.status(404).json({ error: 'Topic not found' });
     }
-    
+
     console.log(`🔄 Reset topic usage: ${resetTopic.title}`);
-    
+
     res.json({ message: 'Topic reset successfully', topic: resetTopic });
   } catch (error) {
     console.error('Error resetting topic:', error);
@@ -738,16 +741,16 @@ router.post('/admin/seed-topics', requireAdminViaSubscription, async (req, res) 
 router.post('/admin/generate-bulk-topics', requireAdminViaSubscription, async (req, res) => {
   try {
     const { count = 30 } = req.body;
-    
+
     // Validate count
     if (count < 1 || count > 100) {
       return res.status(400).json({ error: 'Count must be between 1 and 100' });
     }
-    
+
     console.log(`📝 Starting bulk topic generation for ${count} topics...`);
-    
+
     const result = await blogContentService.generateBulkTopics(count);
-    
+
     if (result.success) {
       res.json({
         message: `Successfully generated ${result.topics?.length || 0} new topics`,
@@ -771,9 +774,9 @@ router.post('/admin/generate-bulk-topics', requireAdminViaSubscription, async (r
 router.post('/admin/generate-monthly-topics', requireAdminViaSubscription, async (req, res) => {
   try {
     console.log('📅 Generating monthly topic batch (30 topics)...');
-    
+
     const result = await blogContentService.generateBulkTopics(30);
-    
+
     if (result.success) {
       res.json({
         message: `Monthly topic generation complete! Generated ${result.topics?.length || 0} topics for the next month`,
@@ -796,7 +799,7 @@ router.post('/admin/generate-monthly-topics', requireAdminViaSubscription, async
 router.get('/admin/stats', requireAdminViaSubscription, async (req, res) => {
   try {
     await db;
-    
+
     // Get total statistics for all posts
     const totalStatsResult = await db
       .select({
@@ -810,7 +813,7 @@ router.get('/admin/stats', requireAdminViaSubscription, async (req, res) => {
       .where(eq(blogPosts.isActive, true));
 
     const stats = totalStatsResult[0];
-    
+
     // Get topics statistics
     const topicsStatsResult = await db
       .select({
@@ -894,7 +897,7 @@ router.get('/admin/seo-metrics', requireAdminViaSubscription, async (req, res) =
     }
 
     await db;
-    
+
     const metrics = await db
       .select({
         postId: seoMetrics.postId,
@@ -911,7 +914,7 @@ router.get('/admin/seo-metrics', requireAdminViaSubscription, async (req, res) =
       .leftJoin(blogPosts, eq(seoMetrics.postId, blogPosts.id))
       .orderBy(desc(seoMetrics.lastChecked))
       .limit(50);
-    
+
     res.json({ metrics });
   } catch (error) {
     console.error('Error fetching SEO metrics:', error);

@@ -329,8 +329,42 @@ export async function requireAdminViaSubscription(req: Request, res: Response, n
   try {
     const { ip, userAgent } = getClientInfo(req);
     
-    // For admin operations, we require a valid subscription token via cookie
-    // Use the same cookie parsing as main routes since cookie-parser was removed
+    // First try JWT token authentication (for admin users logged in via JWT)
+    const authHeader = req.headers.authorization;
+    if (authHeader && authHeader.startsWith('Bearer ')) {
+      const jwtToken = authHeader.substring(7);
+      try {
+        const { joseAuthService } = await import('./jose-auth-service');
+        const validation = await joseAuthService.validateAccessToken(jwtToken);
+        if (validation.valid && validation.payload) {
+          const user = await databaseStorage.getUser(validation.payload.userId);
+          if (user) {
+            // Check if user is admin by email
+            const adminEmails = ['admin@readmyfineprint.com', 'prodbybuddha@icloud.com', 'beatsbybuddha@gmail.com'];
+            const isAdmin = adminEmails.includes(user.email);
+            
+            if (isAdmin) {
+              console.log(`✅ Admin access granted via JWT: ${user.email}`);
+              securityLogger.logAdminAuth(ip, userAgent, req.path + ' (JWT admin)');
+              
+              // Add user info to request for downstream use
+              (req as any).user = {
+                id: user.id,
+                email: user.email,
+                tier: 'admin',
+                isAdmin: true
+              };
+              
+              return next();
+            }
+          }
+        }
+      } catch (jwtError) {
+        console.log('JWT admin validation failed, trying subscription token:', jwtError);
+      }
+    }
+    
+    // Fallback to subscription token authentication
     let adminSubscriptionToken = req.cookies?.subscriptionToken;
 
     // If no cookies object or subscriptionToken, try to parse manually from Cookie header
