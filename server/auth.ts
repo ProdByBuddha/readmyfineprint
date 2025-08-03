@@ -375,11 +375,12 @@ export async function requireAdminViaSubscription(req: Request, res: Response, n
 
     if (!isAdmin) {
       // Check if user has admin or ultimate tier from subscription data
-      if (!tokenData.tier || !['admin', 'ultimate'].includes(tokenData.tier)) {
-        securityLogger.logFailedAuth(ip, userAgent, `Admin access denied: insufficient privileges (tier: ${tokenData.tier})`, req.path);
+      const userTier = tokenData.tier as string;
+      if (!userTier || !['admin', 'ultimate'].includes(userTier)) {
+        securityLogger.logFailedAuth(ip, userAgent, `Admin access denied: insufficient privileges (tier: ${userTier})`, req.path);
         return res.status(403).json({ 
           error: 'Admin access denied: insufficient privileges',
-          userTier: tokenData.tier,
+          userTier: userTier,
           requiredTier: 'admin or ultimate'
         });
       }
