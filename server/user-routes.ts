@@ -16,20 +16,20 @@ import crypto from "crypto";
  */
 async function findUserByEmailWithEntanglement(email: string): Promise<any> {
   console.log(`🔍 [User Routes] Looking up user for email: ${email}`);
-  
+
   // First try direct lookup
   let user = await databaseStorage.getUserByEmail(email);
   if (user) {
     console.log(`✅ [User Routes] Found user by direct email lookup`);
     return user;
   }
-  
+
   // If not found and email doesn't look pseudonymized, create pseudonym and try lookup
   if (!email.includes('@subscription.internalusers.email')) {
     try {
       const pseudonymizedEmail = await createPseudonymizedEmail(email);
       console.log(`🔗 [User Routes] Generated pseudonym: ${email} -> ${pseudonymizedEmail}`);
-      
+
       user = await databaseStorage.getUserByEmail(pseudonymizedEmail);
       if (user) {
         console.log(`✅ [User Routes] Found user by pseudonymized email lookup`);
@@ -39,7 +39,7 @@ async function findUserByEmailWithEntanglement(email: string): Promise<any> {
       console.error('❌ [User Routes] Failed to create pseudonymized email for lookup:', error);
     }
   }
-  
+
   console.log(`❌ [User Routes] No user found for email: ${email}`);
   return null;
 }
@@ -122,7 +122,7 @@ export function registerUserRoutes(app: Express) {
 
       // Find user using deterministic hash entanglement
       const user = await findUserByEmailWithEntanglement(email);
-      
+
       if (!user || !user.hashedPassword) {
         securityLogger.logFailedAuth(ip, userAgent, `User not found: ${email}`, '/api/login');
         return res.status(401).json({ error: "Invalid email or password" });
@@ -246,7 +246,7 @@ export function registerUserRoutes(app: Express) {
 
       // Remove password from response
       const { hashedPassword: _, ...userResponse } = user;
-      
+
       securityLogger.logSecurityEvent({
         eventType: "LOGIN_SUCCESS" as any,
         severity: "LOW" as any,
@@ -282,15 +282,15 @@ export function registerUserRoutes(app: Express) {
   app.post("/api/users/validate-session", async (req: Request, res: Response) => {
     try {
       const sessionId = req.cookies?.sessionId;
-      
+
       if (!sessionId) {
         return res.status(401).json({ error: "No session found" });
       }
-      
+
       // Get token from session storage
       const { postgresqlSessionStorage } = await import('./postgresql-session-storage');
       const token = await postgresqlSessionStorage.getTokenBySession(sessionId);
-      
+
       if (!token) {
         return res.status(401).json({ error: "Session expired or invalid" });
       }
@@ -298,7 +298,7 @@ export function registerUserRoutes(app: Express) {
       // Validate the JWT token using JOSE
       const { joseAuthService } = await import('./jose-auth-service');
       const validation = await joseAuthService.validateAccessToken(token);
-      
+
       if (!validation.valid || !validation.payload) {
         return res.status(401).json({ error: "Invalid session token" });
       }
@@ -331,27 +331,27 @@ export function registerUserRoutes(app: Express) {
   app.post("/api/users/validate-token", async (req: Request, res: Response) => {
     try {
       const token = req.headers['x-subscription-token'] as string;
-      
+
       if (!token) {
         return res.status(400).json({ error: "Token is required" });
       }
 
       // Use hybrid token service for validation (supports both JOSE and PostgreSQL)
       const { secureJWTService } = await import("./secure-jwt-service");
-      
+
       try {
         // Debug: Log the incoming token for troubleshooting
         console.log(`🔍 Validating token: ${token.slice(0, 50)}... (length: ${token.length})`);
-        
+
         // Try to get token info from JOSE service for subscription tokens
         const { joseTokenService } = await import('./jose-token-service');
         const tokenData = await joseTokenService.validateSubscriptionToken(token);
-        
+
         console.log(`🔍 Token validation result:`, tokenData ? 'SUCCESS' : 'FAILED');
         if (tokenData) {
           console.log(`🔍 Token data: userId=${tokenData.userId}, tierId=${tokenData.tierId}`);
         }
-        
+
         if (!tokenData) {
           console.log(`❌ Token validation failed for: ${token.slice(0, 20)}...`);
           return res.status(401).json({ error: "Invalid token" });
@@ -657,7 +657,7 @@ export function registerUserRoutes(app: Express) {
   app.post("/api/admin/users/:id/restore", requireUserAuth, async (req: Request, res: Response) => {
     try {
       const currentUser = (req as any).user;
-      
+
       // Check if current user is admin (this should be enhanced with proper admin auth)
       if (!currentUser.isAdmin) {
         return res.status(403).json({ error: "Admin access required" });
@@ -700,7 +700,7 @@ export function registerUserRoutes(app: Express) {
       const userId = (req as any).user?.id;
       const ip = req.ip || req.socket.remoteAddress as string;
       const userAgent = req.get('User-Agent') || 'unknown';
-      
+
       if (!userId) {
         return res.status(401).json({ error: "User ID not found" });
       }
@@ -708,7 +708,7 @@ export function registerUserRoutes(app: Express) {
       // Validate Professional tier access
       const { validateProfessionalAccess } = await import('./tier-validation.js');
       const tierValidation = await validateProfessionalAccess(userId);
-      
+
       if (!tierValidation.hasAccess) {
         console.log(`🚫 Data export blocked for user ${userId}: ${tierValidation.message}`);
         return res.status(403).json({ 
@@ -721,7 +721,7 @@ export function registerUserRoutes(app: Express) {
       }
 
       console.log(`📥 User data download requested for user: ${userId} (${tierValidation.currentTier} tier)`);
-      
+
       // Get user basic information
       const user = await databaseStorage.getUser(userId);
       if (!user) {
@@ -730,13 +730,13 @@ export function registerUserRoutes(app: Express) {
 
       // Get subscription data
       const subscription = await databaseStorage.getUserSubscription(userId);
-      
+
       // Get usage history
       const usageHistory = await databaseStorage.getUserUsageHistory(userId, 24); // Last 24 months
-      
+
       // Get email change requests
       const emailRequests = await databaseStorage.getUserPendingEmailChangeRequests(userId);
-      
+
       // Get security events for this user
       const userSecurityEvents = securityLogger.getRecentEvents(1000)
         .filter(event => {
@@ -746,7 +746,7 @@ export function registerUserRoutes(app: Express) {
                  (event.details?.sessionId && req.headers['x-session-id'] === event.details.sessionId);
         })
         .slice(0, 500); // Limit to last 500 events
-      
+
       // Prepare comprehensive data export
       const exportData = {
         exportInfo: {
@@ -821,7 +821,7 @@ export function registerUserRoutes(app: Express) {
           lawfulBasis: 'Processing is based on contract performance (Article 6(1)(b)) and legitimate interests (Article 6(1)(f))'
         }
       };
-      
+
       // Log the data export for audit purposes
       securityLogger.logSecurityEvent({
         eventType: 'DATA_EXPORT' as any,
@@ -838,19 +838,93 @@ export function registerUserRoutes(app: Express) {
           usageRecordsCount: usageHistory.length
         }
       });
-      
+
       // Set headers for file download
       const filename = `readmyfineprint-data-export-${user.id}-${new Date().toISOString().split('T')[0]}.json`;
       res.setHeader('Content-Type', 'application/json');
       res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);
+```text
       res.setHeader('X-Export-Date', new Date().toISOString());
       res.setHeader('X-Data-Types', exportData.exportInfo.dataTypes.join(','));
-      
+
       res.json(exportData);
-      
+
     } catch (error) {
       console.error("User data download error:", error);
       res.status(500).json({ error: "Failed to generate data export" });
+    }
+  });
+
+  const { requireAuth } = await import('./auth');
+  const { subscriptionService } = await import('./subscription-service');
+  const { securityQuestionsService } = await import('./security-questions-service');
+
+  // Get user profile
+  app.get('/api/user/profile', requireAuth, async (req, res) => {
+    try {
+      const userId = req.user!.id;
+      console.log(`[Profile API] Getting profile for user: ${userId}`);
+
+      // Get user data
+      const user = await databaseStorage.getUser(userId);
+      if (!user) {
+        console.log(`[Profile API] User not found: ${userId}`);
+        return res.status(404).json({ error: 'User not found' });
+      }
+
+      console.log(`[Profile API] User found: ${user.email} (${userId})`);
+
+      // Get subscription and usage data
+      const subscriptionData = await subscriptionService.getUserSubscriptionWithUsage(userId);
+      console.log(`[Profile API] Subscription data - Tier: ${subscriptionData.tier.name} (${subscriptionData.tier.id})`);
+
+      // Get security questions status
+      let hasSecurityQuestions = false;
+      try {
+        const questions = await securityQuestionsService.getUserSecurityQuestions(userId);
+        hasSecurityQuestions = questions && questions.length > 0;
+      } catch (error) {
+        console.error('Error checking security questions:', error);
+        hasSecurityQuestions = false;
+      }
+
+      // Get 2FA status
+      let hasTwoFactor = false;
+      try {
+        hasTwoFactor = await twoFactorService.isEnabled(userId);
+      } catch (error) {
+        console.error('Error checking 2FA status:', error);
+        hasTwoFactor = false;
+      }
+
+      const responseData = {
+        user: {
+          id: user.id,
+          email: user.email,
+          username: user.username,
+          emailVerified: user.isEmailVerified,
+          isActive: user.isActive,
+          createdAt: user.createdAt,
+          lastLoginAt: user.lastLoginAt,
+          preferredName: user.preferredName,
+          isLegalProfessional: user.isLegalProfessional,
+        },
+        subscription: subscriptionData.subscription,
+        tier: subscriptionData.tier,
+        usage: subscriptionData.usage,
+        canUpgrade: subscriptionData.canUpgrade,
+        suggestedUpgrade: subscriptionData.suggestedUpgrade,
+        security: {
+          hasSecurityQuestions,
+          hasTwoFactor,
+        }
+      };
+
+      console.log(`[Profile API] Responding with tier: ${responseData.tier.name} for user: ${userId}`);
+      res.json(responseData);
+    } catch (error) {
+      console.error('Error getting user profile:', error);
+      res.status(500).json({ error: 'Internal server error' });
     }
   });
 }

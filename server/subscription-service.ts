@@ -402,24 +402,28 @@ export class SubscriptionService {
         };
       }
 
-      // Check if user is admin and handle admin subscription logic
+      // PRIORITY 1: Check if user is admin FIRST - before any other logic
       let isAdmin = false;
       let subscription: UserSubscription | undefined;
 
       try {
         isAdmin = await this.isAdminByEmail(userId);
+        console.log(`[Admin Check] User ${userId} admin status: ${isAdmin}`);
       } catch (adminCheckError: any) {
         console.error('Error checking admin email:', adminCheckError);
 
-        // For known admin user ID, assume admin status during database issues
-        if (userId === '24c3ec47-dd61-4619-9c9e-18abbd0981ea') {
+        // For known admin user IDs, assume admin status during database issues
+        if (userId === '24c3ec47-dd61-4619-9c9e-18abbd0981ea' || userId === 'c970c8a1-3a9d-43e0-b758-e5092db524ff') {
           console.log('[Admin Fallback] Using known admin user ID for admin verification during database issue');
           isAdmin = true;
         }
       }
 
+      // PRIORITY 2: If admin, ALWAYS return ultimate tier regardless of subscription status
       if (isAdmin) {
-        // For admin users, ensure they have ultimate tier subscription
+        console.log(`[Admin Access] Providing ultimate tier for admin user: ${userId}`);
+        
+        // Try to ensure admin has proper subscription, but don't fail if it doesn't work
         try {
           const existingSubscription = await databaseStorage.getUserSubscription(userId);
 
@@ -446,58 +450,39 @@ export class SubscriptionService {
             } else {
               // Create new ultimate tier subscription
               const ultimateSubscription = await this.createAdminUltimateSubscription(userId);
-              subscription = ultimateSubscription || await this.ensureUserHasSubscription(userId);
+              subscription = ultimateSubscription || undefined;
             }
           } else {
             subscription = existingSubscription;
             console.log(`[Admin Setup] Admin user already has ultimate tier subscription`);
           }
         } catch (subscriptionError: any) {
-          console.error('Error managing admin subscription:', subscriptionError);
-
-          // Check if this is a database connection issue
-          if (subscriptionError.message?.includes('terminating connection') || 
-              subscriptionError.cause?.message?.includes('terminating connection') ||
-              subscriptionError.code === '57P01') {
-
-            console.log('[Admin Fallback] Database connection issue, providing admin tier without subscription record');
-
-            // Return admin tier without subscription record during database issues
-            const tier = this.getUltimateTier();
-            const usage: SubscriptionUsage = {
-              documentsAnalyzed: 0,
-              tokensUsed: 0,
-              cost: 0,
-              resetDate: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000), // 1 year
-            };
-
-            return {
-              tier,
-              usage,
-              canUpgrade: false,
-              suggestedUpgrade: undefined,
-            };
-          } else {
-            throw subscriptionError; // Re-throw if not a connection issue
-          }
+          console.warn('Error managing admin subscription, continuing with ultimate tier anyway:', subscriptionError);
+          // Continue - admin gets ultimate tier regardless of subscription issues
         }
 
-        // Double-check that admin has ultimate tier before proceeding
-        if (subscription && subscription.tierId !== 'ultimate') {
-          console.warn(`[Admin Warning] Admin user ${userId} does not have ultimate tier, but should. Current tier: ${subscription.tierId}`);
-          // Force ultimate tier for admin regardless of subscription record
-          subscription = {
-            ...subscription,
-            tierId: 'ultimate',
-            status: 'active',
-            currentPeriodEnd: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000)
-          };
-          console.log(`[Admin Override] Forced ultimate tier assignment for admin user: ${userId}`);
-        }
-      } else {
-        // For regular users, get or create subscription normally
-        subscription = await this.ensureUserHasSubscription(userId);
+        // ALWAYS return ultimate tier for admin, even if subscription setup failed
+        const ultimateTier = this.getUltimateTier();
+        const usage: SubscriptionUsage = {
+          documentsAnalyzed: 0,
+          tokensUsed: 0,
+          cost: 0,
+          resetDate: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000), // 1 year
+        };
+
+        console.log(`[Admin Access] Returning ultimate tier (${ultimateTier.name}) for admin user: ${userId}`);
+
+        return {
+          subscription,
+          tier: ultimateTier,
+          usage,
+          canUpgrade: false,
+          suggestedUpgrade: undefined,
+        };
       }
+
+      // For regular users, get or create subscription normally
+      subscription = await this.ensureUserHasSubscription(userId);
 
       // Determine tier with proper subscription validation
       const tier = await this.validateAndAssignTier(subscription);
@@ -509,16 +494,7 @@ export class SubscriptionService {
         usageRecord = await databaseStorage.getUserUsage(userId, currentPeriod);
       } catch (usageError: any) {
         console.error('Error getting usage record:', usageError);
-
-        // For admin users during database issues, provide default usage
-        if (isAdmin && (usageError.message?.includes('terminating connection') || 
-                       usageError.cause?.message?.includes('terminating connection') ||
-                       usageError.code === '57P01')) {
-          console.log('[Admin Fallback] Using default usage during database connection issue');
-          // usageRecord will remain null and we'll use defaults below
-        } else {
-          throw usageError; // Re-throw if not a connection issue
-        }
+        // Continue with null usageRecord
       }
 
       // Calculate usage data
@@ -545,8 +521,8 @@ export class SubscriptionService {
     } catch (error) {
       console.error('Error getting user subscription:', error);
 
-      // Enhanced fallback for admin users
-      if (userId === '24c3ec47-dd61-4619-9c9e-18abbd0981ea') {
+      // Enhanced fallback for known admin users
+      if (userId === '24c3ec47-dd61-4619-9c9e-18abbd0981ea' || userId === 'c970c8a1-3a9d-43e0-b758-e5092db524ff') {
         console.log('[Admin Emergency Fallback] Providing ultimate tier for known admin during system error');
         const tier = this.getUltimateTier();
         const usage: SubscriptionUsage = {
@@ -754,12 +730,14 @@ export class SubscriptionService {
    */
   async isAdminByEmail(userId: string): Promise<boolean> {
     try {
-      // Primary admin user ID check first (fastest)
-      if (userId === '24c3ec47-dd61-4619-9c9e-18abbd0981ea' || userId === 'c970c8a1-3a9d-43e0-b758-e5092db524ff') {
+      // Primary admin user ID check first (fastest and most reliable)
+      const knownAdminIds = ['24c3ec47-dd61-4619-9c9e-18abbd0981ea', 'c970c8a1-3a9d-43e0-b758-e5092db524ff'];
+      if (knownAdminIds.includes(userId)) {
         console.log(`[Admin Detection] Recognized known admin user ID: ${userId}`);
         return true;
       }
 
+      // Try to get user from database for email verification
       const user = await databaseStorage.getUser(userId);
       if (!user) {
         console.log(`[Admin Detection] User not found: ${userId}`);
@@ -780,7 +758,8 @@ export class SubscriptionService {
       console.error('Error checking admin email:', error);
       
       // Fallback: check against known admin user IDs during database issues
-      if (userId === '24c3ec47-dd61-4619-9c9e-18abbd0981ea' || userId === 'c970c8a1-3a9d-43e0-b758-e5092db524ff') {
+      const knownAdminIds = ['24c3ec47-dd61-4619-9c9e-18abbd0981ea', 'c970c8a1-3a9d-43e0-b758-e5092db524ff'];
+      if (knownAdminIds.includes(userId)) {
         console.log(`[Admin Fallback] Using known admin user ID during database error: ${userId}`);
         return true;
       }
