@@ -89,7 +89,7 @@ function AppContent() {
     handleSecurityQuestionsComplete,
     closeSecurityQuestionsModal 
   } = useSecurityQuestionsHandler();
-  
+
   useScrollToTop();
   useSEO(location.pathname);
   useFocusVisible();
@@ -115,7 +115,7 @@ function AppContent() {
       if (import.meta.env.DEV) {
         // Set global flag to prevent other hooks from making auth requests during auto-login
         (window as any).isAutoLoginInProgress = true;
-        
+
         try {
           // Check if already logged in via session cookie or JWT
           const sessionResponse = await fetch('/api/auth/session', {
@@ -125,7 +125,7 @@ function AppContent() {
             },
             credentials: 'include',
           });
-          
+
           if (sessionResponse.ok) {
             const sessionData = await sessionResponse.json();
             if (sessionData.authenticated && sessionData.user) {
@@ -134,7 +134,7 @@ function AppContent() {
               return;
             }
           }
-          
+
           // Not logged in, try auto-login
           const response = await fetch('/api/dev/auto-admin-login', {
             method: 'POST',
@@ -143,20 +143,20 @@ function AppContent() {
             },
             credentials: 'include',
           });
-          
+
           if (response.ok) {
             const data = await response.json();
             console.log('✅ Development auto-login successful:', data);
-            
+
             // Force a longer delay to ensure session cookies are fully set and processed
             await new Promise(resolve => setTimeout(resolve, 2000));
-            
+
             // Verify session is working before triggering events
             const verifyResponse = await fetch('/api/auth/session', {
               method: 'GET',
               credentials: 'include',
             });
-            
+
             if (verifyResponse.ok) {
               console.log('✅ Session verified, triggering auth events');
               // Only trigger events if session is actually working
@@ -179,7 +179,7 @@ function AppContent() {
         }
       }
     };
-    
+
     autoLogin();
   }, [toast]);
 
@@ -191,7 +191,7 @@ function AppContent() {
     };
 
     window.addEventListener('consentRequired', handleConsentRequired);
-    
+
     return () => {
       window.removeEventListener('consentRequired', handleConsentRequired);
     };
@@ -223,7 +223,7 @@ function AppContent() {
 
   return (
     <>
-      <div className="h-screen flex flex-col app-container bg-gray-50 dark:bg-gray-900">
+      <div className="h-screen flex flex-col app-container bg-gray-50 dark:bg-gray-900 pb-16 sm:pb-12">
         {/* Fixed Header */}
         <Header />
 
@@ -250,7 +250,7 @@ function AppContent() {
       {showConsentModal && (
         <CombinedConsent onAccept={handleConsentAccepted} />
       )}
-      
+
       {/* Security Questions Modal */}
       <SecurityQuestionsModal
         isOpen={showSecurityQuestionsModal || (!isLoading && requiresSetup)}
@@ -258,7 +258,7 @@ function AppContent() {
         onClose={closeSecurityQuestionsModal}
         allowClose={false}
       />
-      
+
       <ScrollToTop />
       {/* Live region for announcements */}
       <div

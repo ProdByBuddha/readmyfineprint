@@ -449,31 +449,31 @@ export function CookieConsent() {
   }
 
   return (
-    <div className="fixed bottom-0 left-0 right-0 z-50 p-4">
-      <div className="max-w-4xl mx-auto bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow-lg">
-        <div className="p-4 flex flex-col sm:flex-row items-start sm:items-center gap-4">
-          <div className="flex items-start gap-3 flex-1">
-            <Cookie className="w-5 h-5 text-primary mt-0.5 flex-shrink-0" />
+    <div className="fixed bottom-0 left-0 right-0 z-[100] bg-white/95 dark:bg-gray-900/95 backdrop-blur-sm border-t border-gray-200 dark:border-gray-700 shadow-lg">
+      <div className="max-w-6xl mx-auto p-3 sm:p-4">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3 sm:gap-4">
+          <div className="flex items-start gap-2 sm:gap-3 flex-1 min-w-0">
+            <Cookie className="w-4 h-4 sm:w-5 sm:h-5 text-primary mt-0.5 flex-shrink-0" />
             <div className="flex-1 min-w-0">
-              <p className="text-sm text-gray-900 dark:text-white font-medium mb-1">
-                We use essential cookies for functionality
+              <p className="text-sm font-medium text-gray-900 dark:text-white mb-1">
+                Consent Required
               </p>
-              <p className="text-xs text-gray-600 dark:text-gray-300">
-                No tracking, no ads, just the basics to make the app work.
-                <a href="/cookies" className="text-primary hover:underline ml-1">
+              <p className="text-xs text-gray-600 dark:text-gray-300 leading-tight">
+                We need your consent to analyze documents. Essential cookies only, no tracking.
+                <a href="/cookies" className="text-primary hover:underline ml-1 whitespace-nowrap">
                   Learn more
                 </a>
               </p>
             </div>
           </div>
 
-          <div className="flex items-center gap-2 flex-shrink-0">
+          <div className="flex items-center gap-2 flex-shrink-0 w-full sm:w-auto">
             <Button
               onClick={acceptAll}
               size="sm"
-              className="bg-primary hover:bg-primary/90 text-white"
+              className="bg-primary hover:bg-primary/90 text-white flex-1 sm:flex-none"
             >
-              Accept All
+              Accept & Continue
             </Button>
           </div>
         </div>
