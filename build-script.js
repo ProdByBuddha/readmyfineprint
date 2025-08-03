@@ -40,7 +40,7 @@ try {
   }
 }
 
-const __dirname = path.dirname(new URL(import.meta.url).pathname);
+const __dirname = path.dirname(new URL('file://' + __filename).pathname);
 
 // Clean dist directory
 const distDir = path.join(__dirname, 'dist', 'public');
