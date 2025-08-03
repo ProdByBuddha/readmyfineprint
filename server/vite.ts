@@ -65,7 +65,7 @@ export async function setupVite(app: Express, server: Server) {
     let viteConfig: any = {};
     try {
       const configModule = await import("../vite.config.js");
-      viteConfig = configModule.default || {};
+      viteConfig = configModule.default ? configModule.default : {};
     } catch (error) {
       console.warn("Could not load vite config, using defaults:", error);
       viteConfig = {};
