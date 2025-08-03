@@ -1,6 +1,7 @@
 import fs from 'fs';
 import path from 'path';
 import { execSync } from 'child_process';
+import { fileURLToPath } from 'url';
 
 // Import esbuild with fallback handling
 let build;
@@ -40,7 +41,8 @@ try {
   }
 }
 
-const __dirname = path.dirname(new URL('file://' + __filename).pathname);
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 // Clean dist directory
 const distDir = path.join(__dirname, 'dist', 'public');
