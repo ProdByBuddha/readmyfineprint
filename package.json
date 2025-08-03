@@ -11,7 +11,7 @@
     "dev:staging": "NODE_ENV=staging concurrently \"npm run server:staging\" \"npm run client:dev\"",
     "server:dev": "unset NODE_ENV && NODE_ENV=development tsx watch server/index.ts",
     "server:staging": "NODE_ENV=staging tsx watch server/index.ts",
-    "client:dev": "npx vite --root ./client",
+    "client:dev": "node_modules/.bin/vite --root ./client",
     "llm:replit": "python3 scripts/local-llm-server.py",
     "llm:setup-python": "pip install -r requirements.txt || echo 'Python dependencies not installed - using regex fallback'",
     "build": "npm run client:build && npm run server:build",
