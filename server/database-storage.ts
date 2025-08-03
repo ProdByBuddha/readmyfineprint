@@ -45,7 +45,7 @@ async function initializeDatabase() {
       }),
       execute: (query: any) => Promise.resolve([])
     };
-    
+
     users = {};
     userSubscriptions = {};
     usageRecords = {};
@@ -54,7 +54,7 @@ async function initializeDatabase() {
     // Import real database modules
     const dbModule = await import('./db');
     db = dbModule.db;
-    
+
     const schemaModule = await import('@shared/schema');
     users = schemaModule.users;
     userSubscriptions = schemaModule.userSubscriptions;
@@ -73,7 +73,7 @@ export class DatabaseStorage implements IStorage {
   constructor() {
     // Initialize database connection asynchronously
     this.initializeAsync();
-    
+
     // Clean up expired sessions every 10 minutes
     setInterval(() => this.clearExpiredSessions(), 10 * 60 * 1000);
   }
@@ -119,7 +119,7 @@ export class DatabaseStorage implements IStorage {
     if (!session) {
       return [];
     }
-    
+
     session.lastAccessed = new Date();
     return Array.from(session.documents.values());
   }
@@ -171,7 +171,7 @@ export class DatabaseStorage implements IStorage {
   async getUser(id: string): Promise<User | undefined> {
     await this.ensureInitialized();
     if (process.env.VALIDATION_MODE === 'true') return undefined;
-    
+
     const result = await db.select().from(users).where(eq(users.id, id)).limit(1);
     return result[0];
   }
@@ -179,7 +179,7 @@ export class DatabaseStorage implements IStorage {
   async getUserByEmail(email: string): Promise<User | undefined> {
     await this.ensureInitialized();
     if (process.env.VALIDATION_MODE === 'true') return undefined;
-    
+
     const result = await db.select().from(users).where(eq(users.email, email)).limit(1);
     return result[0];
   }
@@ -189,7 +189,7 @@ export class DatabaseStorage implements IStorage {
     if (process.env.VALIDATION_MODE === 'true') {
       return { id: 'mock-user-id', email: insertUser.email, createdAt: new Date(), updatedAt: new Date() } as User;
     }
-    
+
     const result = await db.insert(users).values(insertUser).returning();
     return result[0];
   }
@@ -233,11 +233,41 @@ export class DatabaseStorage implements IStorage {
     return !!user;
   }
 
+  async getUserByEmail(email: string): Promise<User | null> {
+    try {
+      const result = await db
+        .select()
+        .from(users)
+        .where(eq(users.email, email))
+        .limit(1);
+
+      return result[0] || null;
+    } catch (error) {
+      console.error('Error getting user by email:', error);
+      throw error;
+    }
+  }
+
+  async getUserBySessionId(sessionId: string): Promise<User | null> {
+    try {
+      const result = await db
+        .select()
+        .from(users)
+        .where(eq(users.id, sessionId))
+        .limit(1);
+
+      return result[0] || null;
+    } catch (error) {
+      console.error('Error getting user by session ID:', error);
+      return null;
+    }
+  }
+
   // Subscription management methods
   async getUserSubscription(userId: string): Promise<UserSubscription | undefined> {
     await this.ensureInitialized();
     if (process.env.VALIDATION_MODE === 'true') return undefined;
-    
+
     const result = await db
       .select()
       .from(userSubscriptions)
@@ -293,7 +323,7 @@ export class DatabaseStorage implements IStorage {
             updatedAt: new Date() 
           })
           .where(eq(users.id, userId));
-        
+
         console.log(`✅ Synced Stripe customer ID ${stripeCustomerId} to user ${userId}`);
       }
     } catch (error) {
@@ -312,21 +342,21 @@ export class DatabaseStorage implements IStorage {
     errors: string[];
   }> {
     const report = { consistent: 0, fixed: 0, errors: [] as string[] };
-    
+
     try {
       // Get all subscriptions with Stripe customer IDs
       const subscriptions = await this.getAllUserSubscriptions();
       const subscriptionsWithStripe = subscriptions.filter(sub => sub.stripeCustomerId);
-      
+
       for (const subscription of subscriptionsWithStripe) {
         try {
           const user = await this.getUser(subscription.userId);
-          
+
           if (!user) {
             report.errors.push(`User ${subscription.userId} not found for subscription ${subscription.id}`);
             continue;
           }
-          
+
           if (user.stripeCustomerId === subscription.stripeCustomerId) {
             report.consistent++;
           } else {
@@ -341,7 +371,7 @@ export class DatabaseStorage implements IStorage {
     } catch (error) {
       report.errors.push(`Failed to verify consistency: ${error}`);
     }
-    
+
     return report;
   }
 
@@ -380,7 +410,7 @@ export class DatabaseStorage implements IStorage {
   async getUserUsage(userId: string, period: string): Promise<UsageRecord | undefined> {
     await this.ensureInitialized();
     if (process.env.VALIDATION_MODE === 'true') return undefined;
-    
+
     const result = await db
       .select()
       .from(usageRecords)
@@ -389,7 +419,7 @@ export class DatabaseStorage implements IStorage {
         eq(usageRecords.period, period)
       ))
       .limit(1);
-    
+
     return result[0] || undefined;
   }
 
@@ -565,7 +595,7 @@ export class DatabaseStorage implements IStorage {
   async getTotalUserCount(): Promise<number> {
     await this.ensureInitialized();
     if (process.env.VALIDATION_MODE === 'true') return 0;
-    
+
     const result = await db.select({ count: sql<number>`count(*)` }).from(users);
     return result[0]?.count || 0;
   }
@@ -621,10 +651,10 @@ export class DatabaseStorage implements IStorage {
     totalPages: number;
   }> {
     const offset = (options.page - 1) * options.limit;
-    
+
     // Build query conditions
     let conditions = sql`1=1`;
-    
+
     if (options.search) {
       const searchTerm = `%${options.search}%`;
       conditions = sql`${users.email} ILIKE ${searchTerm}`;
@@ -656,7 +686,7 @@ export class DatabaseStorage implements IStorage {
     // Get users with sorting
     const orderColumn = options.sortBy === 'email' ? users.email : users.createdAt;
     const orderDirection = options.sortOrder === 'asc' ? sql`ASC` : sql`DESC`;
-    
+
     const userResults = await db
       .select()
       .from(users)
@@ -694,7 +724,7 @@ export class DatabaseStorage implements IStorage {
       .where(sql`${users.createdAt} >= ${startDate.toISOString()}`)
       .groupBy(sql`DATE(${users.createdAt})`)
       .orderBy(sql`DATE(${users.createdAt})`);
-    
+
     return result;
   }
 
@@ -819,9 +849,9 @@ export class DatabaseStorage implements IStorage {
       .from(users)
       .where(eq(users.id, userId))
       .limit(1);
-    
+
     if (result.length === 0) return null;
-    
+
     const user = result[0];
     return { ...user, hashedPassword: undefined } as any;
   }
@@ -888,7 +918,7 @@ export class DatabaseStorage implements IStorage {
       .delete(usageRecords)
       .where(eq(usageRecords.userId, userId))
       .returning();
-    
+
     return { count: results.length };
   }
 

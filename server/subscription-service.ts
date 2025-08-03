@@ -31,7 +31,7 @@ interface SubscriptionUsage {
 }
 
 export class SubscriptionService {
-  
+
   constructor() {
     // Start periodic token cleanup (every 6 hours)
     this.startTokenCleanup();
@@ -42,7 +42,7 @@ export class SubscriptionService {
    */
   private startTokenCleanup(): void {
     const cleanupInterval = 6 * 60 * 60 * 1000; // 6 hours
-    
+
     setInterval(async () => {
       try {
         console.log('🧹 Starting periodic token cleanup...');
@@ -53,7 +53,7 @@ export class SubscriptionService {
         console.error('Error during token cleanup:', error);
       }
     }, cleanupInterval);
-    
+
     // Also run cleanup on startup
     setTimeout(async () => {
       try {
@@ -370,11 +370,11 @@ export class SubscriptionService {
         }
         console.log(`📊 Session-based user detected (${userId}), providing free tier without subscription record`);
         const tier = this.getFreeTier();
-        
+
         // For anonymous users, get individual usage from collective user service
         const currentPeriod = new Date().toISOString().slice(0, 7); // YYYY-MM format
         let individualUsage = 0;
-        
+
         try {
           // Get individual usage from collective user service
           individualUsage = await collectiveUserService.getIndividualMonthlyUsage(userId, currentPeriod);
@@ -382,16 +382,16 @@ export class SubscriptionService {
           console.error('Error getting individual anonymous user usage:', error);
           individualUsage = 0;
         }
-        
+
         const usage = {
           documentsAnalyzed: individualUsage,
           tokensUsed: 0, // Not tracked individually
           cost: 0, // Not tracked individually  
           resetDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
         };
-        
+
         console.log(`📊 Individual anonymous user (${userId}) usage: ${usage.documentsAnalyzed} documents analyzed this month`);
-        
+
         return {
           tier,
           usage,
@@ -403,32 +403,32 @@ export class SubscriptionService {
       // Check if user is admin and handle admin subscription logic
       let isAdmin = false;
       let subscription: UserSubscription | undefined;
-      
+
       try {
         isAdmin = await this.isAdminByEmail(userId);
       } catch (adminCheckError: any) {
         console.error('Error checking admin email:', adminCheckError);
-        
+
         // For known admin user ID, assume admin status during database issues
         if (userId === '24c3ec47-dd61-4619-9c9e-18abbd0981ea') {
           console.log('[Admin Fallback] Using known admin user ID for admin verification during database issue');
           isAdmin = true;
         }
       }
-      
+
       if (isAdmin) {
         // For admin users, ensure they have ultimate tier subscription
         try {
           const existingSubscription = await databaseStorage.getUserSubscription(userId);
-          
+
           if (!existingSubscription || existingSubscription.tierId !== 'ultimate') {
             console.log(`[Admin Setup] Creating/updating ultimate tier subscription for admin user: ${userId}`);
-            
+
             if (existingSubscription && existingSubscription.tierId !== 'ultimate') {
               // Update existing subscription to ultimate tier
               const now = new Date();
               const futureDate = new Date(Date.now() + 365 * 24 * 60 * 60 * 1000); // 1 year
-              
+
               const updatedSubscription = await databaseStorage.updateUserSubscription(existingSubscription.id, {
                 tierId: 'ultimate',
                 status: 'active',
@@ -438,7 +438,7 @@ export class SubscriptionService {
                 stripeCustomerId: null, // Admin subscriptions don't use Stripe
                 stripeSubscriptionId: null
               });
-              
+
               subscription = updatedSubscription || existingSubscription;
               console.log(`[Admin Setup] Updated existing subscription ${existingSubscription.id} to ultimate tier`);
             } else {
@@ -452,14 +452,14 @@ export class SubscriptionService {
           }
         } catch (subscriptionError: any) {
           console.error('Error managing admin subscription:', subscriptionError);
-          
+
           // Check if this is a database connection issue
           if (subscriptionError.message?.includes('terminating connection') || 
               subscriptionError.cause?.message?.includes('terminating connection') ||
               subscriptionError.code === '57P01') {
-            
+
             console.log('[Admin Fallback] Database connection issue, providing admin tier without subscription record');
-            
+
             // Return admin tier without subscription record during database issues
             const tier = this.getUltimateTier();
             const usage: SubscriptionUsage = {
@@ -494,7 +494,7 @@ export class SubscriptionService {
         usageRecord = await databaseStorage.getUserUsage(userId, currentPeriod);
       } catch (usageError: any) {
         console.error('Error getting usage record:', usageError);
-        
+
         // For admin users during database issues, provide default usage
         if (isAdmin && (usageError.message?.includes('terminating connection') || 
                        usageError.cause?.message?.includes('terminating connection') ||
@@ -529,7 +529,7 @@ export class SubscriptionService {
       };
     } catch (error) {
       console.error('Error getting user subscription:', error);
-      
+
       // Enhanced fallback for admin users
       if (userId === '24c3ec47-dd61-4619-9c9e-18abbd0981ea') {
         console.log('[Admin Emergency Fallback] Providing ultimate tier for known admin during system error');
@@ -548,7 +548,7 @@ export class SubscriptionService {
           suggestedUpgrade: undefined,
         };
       }
-      
+
       // Fallback to free tier for regular users
       const tier = SUBSCRIPTION_TIERS[0];
       const usage: SubscriptionUsage = {
@@ -591,7 +591,7 @@ export class SubscriptionService {
     // Check if subscription is in a valid state for paid access
     const validPaidStatuses = ['active', 'trialing'];
     const isValidPaidSubscription = validPaidStatuses.includes(subscription.status);
-    
+
     // Check if this is a free tier subscription
     const isFreeSubscription = subscription.status === 'free_tier' || subscription.status === 'inactive';
 
@@ -724,7 +724,7 @@ export class SubscriptionService {
     try {
       const user = await databaseStorage.getUser(userId);
       if (!user) return false;
-      
+
       const adminEmails = ['admin@readmyfineprint.com', 'prodbybuddha@icloud.com'];
       return adminEmails.includes(user.email);
     } catch (error) {
@@ -774,7 +774,7 @@ export class SubscriptionService {
       };
 
       const createdSubscription = await databaseStorage.createUserSubscription(ultimateSubscription);
-      
+
       securityLogger.logSecurityEvent({
         eventType: 'ADMIN_SUBSCRIPTION_CREATED' as any,
         severity: 'MEDIUM' as any,
@@ -821,37 +821,56 @@ export class SubscriptionService {
    * Create an inactive free tier subscription for a user
    */
   async createInactiveFreeSubscription(userId: string): Promise<UserSubscription> {
-    const now = new Date();
-    const futureDate = new Date(Date.now() + 365 * 24 * 60 * 60 * 1000); // 1 year from now
+    try {
+      console.log(`Creating inactive free tier subscription for user: ${userId}`);
 
-    const freeSubscription: InsertUserSubscription = {
-      userId: userId,
-      tierId: 'free',
-      status: 'inactive',
-      stripeCustomerId: null,
-      stripeSubscriptionId: null,
-      currentPeriodStart: now,
-      currentPeriodEnd: futureDate,
-      cancelAtPeriodEnd: false,
-    };
+      // First, ensure the user exists in the database
+      const existingUser = await databaseStorage.getUserBySessionId(userId);
+      if (!existingUser) {
+        console.log(`User ${userId} not found in database, creating user record`);
+        // Create a minimal user record if it doesn't exist
+        await databaseStorage.db.insert(databaseStorage.users).values({
+          id: userId,
+          email: `session-${userId.substring(0, 8)}@temp.local`,
+          passwordHash: null,
+          isEmailVerified: false,
+          createdAt: new Date(),
+          updatedAt: new Date(),
+        }).onConflictDoNothing();
+      }
 
-    const createdSubscription = await databaseStorage.createUserSubscription(freeSubscription);
-    
-    securityLogger.logSecurityEvent({
-      eventType: 'SUBSCRIPTION_CREATED' as any,
-      severity: 'LOW' as any,
-      message: `Inactive free tier subscription created for user ${userId}`,
-      ip: 'system',
-      userAgent: 'subscription-service',
-      endpoint: 'subscription-service',
-      details: {
-        userId,
+      const freeSubscription: InsertUserSubscription = {
+        userId: userId,
         tierId: 'free',
         status: 'inactive',
-      },
-    });
+        stripeCustomerId: null,
+        stripeSubscriptionId: null,
+        currentPeriodStart: new Date(),
+        currentPeriodEnd: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000), // 1 year from now
+        cancelAtPeriodEnd: false,
+      };
 
-    return createdSubscription;
+      const createdSubscription = await databaseStorage.createUserSubscription(freeSubscription);
+
+      securityLogger.logSecurityEvent({
+        eventType: 'SUBSCRIPTION_CREATED' as any,
+        severity: 'LOW' as any,
+        message: `Inactive free tier subscription created for user ${userId}`,
+        ip: 'system',
+        userAgent: 'subscription-service',
+        endpoint: 'subscription-service',
+        details: {
+          userId,
+          tierId: 'free',
+          status: 'inactive',
+        },
+      });
+
+      return createdSubscription;
+    } catch (error) {
+      console.error('Error creating inactive free subscription:', error);
+      throw error;
+    }
   }
 
   /**
@@ -895,12 +914,12 @@ export class SubscriptionService {
    */
   async ensureUserHasSubscription(userId: string): Promise<UserSubscription> {
     const existingSubscription = await databaseStorage.getUserSubscription(userId);
-    
+
     if (!existingSubscription) {
       console.log(`Creating inactive free tier subscription for user: ${userId}`);
       return await this.createInactiveFreeSubscription(userId);
     }
-    
+
     return existingSubscription;
   }
 
@@ -1067,10 +1086,10 @@ export class SubscriptionService {
     try {
       // Route anonymous/session users through collective free tier user with individual tracking
       let trackingUserId = userId;
-      
+
       if (userId === "anonymous" || userId.startsWith('session_') || userId.startsWith('test-session-') || userId.length === 32) {
         trackingUserId = '00000000-0000-0000-0000-000000000001';
-        
+
         // Track usage through collective user service with individual tracking
         if (sessionData) {
           await collectiveUserService.trackDocumentAnalysis(
@@ -1079,11 +1098,11 @@ export class SubscriptionService {
             sessionData.ipAddress,
             tokensUsed
           );
-          
+
           // Also track individual usage for monthly limits
           await collectiveUserService.trackIndividualMonthlyUsage(userId, 1);
         }
-        
+
         console.log(`📊 Routing anonymous usage tracking through collective free tier user with individual tracking`);
       } else {
         // Check if authenticated user exists in database
@@ -1091,7 +1110,7 @@ export class SubscriptionService {
         if (!userExists) {
           console.log(`📊 User ${userId} not in database, routing through collective free tier for usage tracking`);
           trackingUserId = '00000000-0000-0000-0000-000000000001';
-          
+
           // Also track through collective service for consistency
           if (sessionData) {
             await collectiveUserService.trackDocumentAnalysis(
@@ -1100,7 +1119,7 @@ export class SubscriptionService {
               sessionData.ipAddress,
               tokensUsed
             );
-            
+
             // Also track individual usage for monthly limits
             await collectiveUserService.trackIndividualMonthlyUsage(userId, 1);
           }
@@ -1374,12 +1393,12 @@ export class SubscriptionService {
             <h1>⚠️ Payment Failed</h1>
             <p>Action needed for your ReadMyFinePrint subscription</p>
         </div>
-        
+
         <div class="content">
             <div class="message">
                 <p>Hello,</p>
                 <p>We were unable to process your payment for your ReadMyFinePrint subscription.</p>
-                
+
                 <p><strong>Payment Details:</strong></p>
                 <ul>
                   <li>Amount: ${(invoice.amount_due / 100).toFixed(2)} ${invoice.currency.toUpperCase()}</li>
@@ -1387,7 +1406,7 @@ export class SubscriptionService {
                   <li>Date: ${new Date().toLocaleDateString()}</li>
                 </ul>
             </div>
-            
+
             <div class="warning">
                 <p><strong>What happens next:</strong></p>
                 <ul>
@@ -1396,16 +1415,16 @@ export class SubscriptionService {
                   <li>You can update your payment method to resolve this immediately</li>
                 </ul>
             </div>
-            
+
             <div class="cta">
                 <a href="https://readmyfineprint.com/subscription" class="button">Update Payment Method</a>
             </div>
-            
+
             <div class="message">
                 <p>If you have any questions or need assistance, please don't hesitate to contact our support team.</p>
             </div>
         </div>
-        
+
         <div class="footer">
             <p>ReadMyFinePrint - Legal Document Analysis</p>
             <p>This is an automated billing notification.</p>
@@ -1446,7 +1465,7 @@ This is an automated billing notification.
       } catch (emailError) {
         console.error('❌ Failed to send payment failure notification:', emailError);
       }
-      
+
       // Restrict usage if payment fails repeatedly
       await this.handleRepeatedPaymentFailures(userId, invoice.attempt_count);
     } catch (error) {
@@ -1470,7 +1489,7 @@ This is an automated billing notification.
       if (attemptCount >= 3) {
         // After 3 failures, downgrade to free tier
         console.log(`⚠️ Downgrading user ${userId} to free tier after ${attemptCount} payment failures`);
-        
+
         await databaseStorage.updateUserSubscription(subscription.id, {
           tierId: 'free',
           status: 'payment_failed'
@@ -1525,13 +1544,13 @@ This is an automated billing notification.
             <h1>🚨 Account Temporarily Restricted</h1>
             <p>Your ReadMyFinePrint subscription requires attention</p>
         </div>
-        
+
         <div class="content">
             <div class="message">
                 <p>Hello,</p>
                 <p>Due to repeated payment failures, your ReadMyFinePrint account has been temporarily restricted to free tier access.</p>
             </div>
-            
+
             <div class="warning">
                 <p><strong>What this means:</strong></p>
                 <ul>
@@ -1541,7 +1560,7 @@ This is an automated billing notification.
                   <li>No data has been lost</li>
                 </ul>
             </div>
-            
+
             <div class="message">
                 <p><strong>To restore full access:</strong></p>
                 <ol>
@@ -1550,16 +1569,16 @@ This is an automated billing notification.
                   <li>Your premium features will be restored immediately upon successful payment</li>
                 </ol>
             </div>
-            
+
             <div class="cta">
                 <a href="https://readmyfineprint.com/subscription" class="button">Update Payment Method</a>
             </div>
-            
+
             <div class="message">
                 <p>We understand payment issues happen. If you're experiencing financial difficulties, please contact our support team to discuss options.</p>
             </div>
         </div>
-        
+
         <div class="footer">
             <p>ReadMyFinePrint - Legal Document Analysis</p>
             <p>Contact: admin@readmyfineprint.com</p>
@@ -1591,7 +1610,7 @@ We understand payment issues happen. If you're experiencing financial difficulti
 Contact: admin@readmyfineprint.com
               `
             });
-            
+
             console.log(`📧 Account restriction notification sent to ${user.email}`);
           }
         } catch (emailError) {
@@ -1600,7 +1619,7 @@ Contact: admin@readmyfineprint.com
       } else if (attemptCount >= 2) {
         // After 2 failures, log warning but maintain access
         console.log(`⚠️ Warning: User ${userId} has ${attemptCount} payment failures`);
-        
+
         securityLogger.logSecurityEvent({
           eventType: 'PAYMENT_WARNING' as any,
           severity: 'MEDIUM' as any,
@@ -1634,7 +1653,7 @@ Contact: admin@readmyfineprint.com
     try {
       // Check if user with this email already exists
       const existingUser = await databaseStorage.getUserByEmail(params.email);
-      
+
       if (existingUser) {
         console.log(`Found existing user ${existingUser.id} with email ${params.email} for Stripe customer ${params.stripeCustomerId}`);
         return existingUser.id;
@@ -1645,7 +1664,7 @@ Contact: admin@readmyfineprint.com
       if (!params.email.includes('@subscription.internalusers.email')) {
         // Import Argon2 hashing functions
         const { createPseudonymizedEmail } = await import('./argon2');
-        
+
         // Create a secure Argon2-hashed internal email to protect customer PII
         finalEmail = await createPseudonymizedEmail(params.email);
         console.log(`Using Argon2-hashed internal email: ${finalEmail} for customer email: ${params.email}`);
@@ -1664,24 +1683,24 @@ Contact: admin@readmyfineprint.com
       return user.id;
     } catch (error) {
       console.error('Error creating subscription user:', error);
-      
+
       // If it's still a duplicate constraint error, try one more time with a salted hash
       if (error instanceof Error && error.message.includes('duplicate key value violates unique constraint')) {
         try {
           // Import Argon2 hashing functions
           const { createPseudonymizedEmail } = await import('./argon2');
-          
+
           // Create a unique salted email by adding timestamp to original email before hashing
           const saltedEmail = `${params.email}_${Date.now()}_${Math.random().toString(36).slice(2)}`;
           const uniqueEmail = await createPseudonymizedEmail(saltedEmail);
-          
+
           const user = await databaseStorage.createUser({
             email: uniqueEmail,
             hashedPassword: crypto.randomBytes(32).toString('hex'),
             emailVerified: true, // Payment transaction verifies the email
             lastLoginAt: new Date(), // Set initial login time
           });
-          
+
           console.log(`Created subscription user ${user.id} with unique Argon2-hashed email after retry`);
           return user.id;
         } catch (retryError) {
@@ -1689,7 +1708,7 @@ Contact: admin@readmyfineprint.com
           throw retryError;
         }
       }
-      
+
       throw error;
     }
   }
@@ -1772,6 +1791,7 @@ Contact: admin@readmyfineprint.com
 
       console.log(`Synced subscription ${subscription.id} with Stripe data`);
     } catch (error) {
+```text
       console.error('Error syncing Stripe subscription:', error);
       throw error;
     }
@@ -1926,7 +1946,7 @@ Contact: admin@readmyfineprint.com
       // Get user's subscription to determine tier
       const subscription = await databaseStorage.getUserSubscription(userId);
       const tier = await this.validateAndAssignTier(subscription);
-      
+
       // Use hybrid token service (prefers JOSE, falls back to PostgreSQL)
       const token = await secureJWTService.generateSubscriptionToken({
         userId,
@@ -1934,7 +1954,7 @@ Contact: admin@readmyfineprint.com
         tierId: tier.id,
         deviceFingerprint: deviceFingerprint || 'unknown'
       });
-      
+
       console.log(`Generated secure subscription token for user ${userId} (expires in 30 days)`);
       return token;
     } catch (error) {
@@ -1959,28 +1979,28 @@ Contact: admin@readmyfineprint.com
         console.warn('Invalid token format - must be JOSE (eyJ*) or legacy (sub_*)');
         return null;
       }
-      
+
       // Get token data from hybrid service (supports both JOSE and PostgreSQL)
       const tokenData = await secureJWTService.validateSubscriptionToken(token);
       if (!tokenData) {
         console.warn('Token not found in storage');
         return null;
       }
-      
+
       // Basic device fingerprint logging (simplified for PostgreSQL storage)
       if (deviceFingerprint && deviceFingerprint !== 'unknown') {
         console.log(`Token used from device: ${deviceFingerprint.slice(0, 16)}... for user ${tokenData.userId}`);
       }
-      
+
       // JOSE tokens are stateless - no usage tracking needed
       // Rate limiting would be handled at the API gateway level or through other means
-      
+
       // Update usage tracking in hybrid service (PostgreSQL tokens only)
       // Token usage tracking not needed for JWT tokens
-      
+
       // Get current subscription data and verify it's still active
       const subscriptionData = await this.getUserSubscriptionWithUsage(tokenData.userId);
-      
+
       // Double-check that the subscription is still active
       if (subscriptionData.subscription && subscriptionData.subscription.status !== 'active') {
         console.warn('Token valid but subscription no longer active');
@@ -1988,7 +2008,7 @@ Contact: admin@readmyfineprint.com
         await secureJWTService.revokeToken(token, 'subscription no longer active');
         return null;
       }
-      
+
       return subscriptionData;
     } catch (error) {
       console.error('Error validating subscription token:', error);
@@ -2020,16 +2040,16 @@ Contact: admin@readmyfineprint.com
       if (!token || token.length < 10) {
         return false;
       }
-      
+
       // Get token data before removal (extract from JOSE token)
       const { joseTokenService } = await import('./jose-token-service');
       const tokenInfo = await joseTokenService.extractTokenInfo(token);
-      
+
       if (!tokenInfo || !tokenInfo.userId) {
         console.warn('Cannot revoke token - unable to extract token info');
         return false;
       }
-      
+
       // Log the revocation
       securityLogger.logSecurityEvent({
         eventType: 'TOKEN_REVOKED' as any,
@@ -2044,13 +2064,13 @@ Contact: admin@readmyfineprint.com
           reason
         }
       });
-      
+
       // Remove from secure JWT service (handles revocation list)
       const success = await secureJWTService.revokeToken(token, reason);
       if (success) {
         console.log(`Revoked subscription token for user ${tokenInfo.userId}: ${reason}`);
       }
-      
+
       return success;
     } catch (error) {
       console.error('Error revoking subscription token:', error);
@@ -2065,7 +2085,7 @@ Contact: admin@readmyfineprint.com
     try {
       // Remove all tokens for the user from hybrid service
       const revokedCount = await secureJWTService.revokeAllUserTokens(userId, reason);
-      
+
       if (revokedCount > 0) {
         securityLogger.logSecurityEvent({
           eventType: 'ALL_TOKENS_REVOKED' as any,
@@ -2080,10 +2100,10 @@ Contact: admin@readmyfineprint.com
             reason
           }
         });
-        
+
         console.log(`Revoked ${revokedCount} tokens for user ${userId}: ${reason}`);
       }
-      
+
       return revokedCount;
     } catch (error) {
       console.error('Error revoking all user tokens:', error);
