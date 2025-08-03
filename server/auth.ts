@@ -327,59 +327,79 @@ export async function requireUserAuth(req: Request, res: Response, next: NextFun
  */
 export async function requireAdminViaSubscription(req: Request, res: Response, next: NextFunction) {
   try {
+    const { ip, userAgent } = getClientInfo(req);
+    
     // For admin operations, we require a valid subscription token via cookie
     // Use the same cookie parsing as main routes since cookie-parser was removed
     let adminSubscriptionToken = req.cookies?.subscriptionToken;
 
     // If no cookies object or subscriptionToken, try to parse manually from Cookie header
     if (!adminSubscriptionToken && req.headers.cookie) {
-      const cookieHeader = req.headers.cookie;
-      const cookies = cookieHeader.split(';').map(cookie => cookie.trim());
-
-      for (const cookie of cookies) {
-        if (cookie.startsWith('subscriptionToken=')) {
-          adminSubscriptionToken = cookie.split('=')[1];
-          // URL decode if needed
-          try {
-            adminSubscriptionToken = decodeURIComponent(adminSubscriptionToken);
-          } catch (e) {
-            // Keep original value if decode fails
-          }
-          break;
-        }
-      }
+      const cookies = parseCookies(req.headers.cookie);
+      adminSubscriptionToken = cookies['subscriptionToken'];
     }
 
     if (!adminSubscriptionToken) {
+      securityLogger.logFailedAuth(ip, userAgent, 'Admin access denied: subscription token required', req.path);
       return res.status(401).json({ 
         error: 'Admin access denied: subscription token required',
         requiresSubscription: true 
       });
     }
 
-    // Validate the subscription token
-    const userInfo = verifySubscriptionToken(adminSubscriptionToken);
-    if (!userInfo) {
+    // Validate the subscription token using the new JOSE token service
+    const { joseTokenService } = await import('./jose-token-service');
+    const tokenData = await joseTokenService.validateSubscriptionToken(adminSubscriptionToken);
+    
+    if (!tokenData || !tokenData.userId) {
+      securityLogger.logFailedAuth(ip, userAgent, 'Invalid subscription token', req.path);
       return res.status(401).json({ 
         error: 'Invalid subscription token',
         requiresSubscription: true 
       });
     }
 
-    // Check if user has admin or ultimate tier
-    if (!userInfo.tier || !['admin', 'ultimate'].includes(userInfo.tier)) {
-      return res.status(403).json({ 
-        error: 'Admin access denied: insufficient privileges',
-        userTier: userInfo.tier,
-        requiredTier: 'admin or ultimate'
+    // Get user data to check admin status
+    const user = await databaseStorage.getUser(tokenData.userId);
+    if (!user) {
+      securityLogger.logFailedAuth(ip, userAgent, 'User not found for subscription token', req.path);
+      return res.status(401).json({ 
+        error: 'Invalid subscription token',
+        requiresSubscription: true 
       });
     }
 
+    // Check if user is admin by email
+    const adminEmails = ['admin@readmyfineprint.com', 'prodbybuddha@icloud.com', 'beatsbybuddha@gmail.com'];
+    const isAdmin = adminEmails.includes(user.email);
+
+    if (!isAdmin) {
+      // Check if user has admin or ultimate tier from subscription data
+      if (!tokenData.tier || !['admin', 'ultimate'].includes(tokenData.tier)) {
+        securityLogger.logFailedAuth(ip, userAgent, `Admin access denied: insufficient privileges (tier: ${tokenData.tier})`, req.path);
+        return res.status(403).json({ 
+          error: 'Admin access denied: insufficient privileges',
+          userTier: tokenData.tier,
+          requiredTier: 'admin or ultimate'
+        });
+      }
+    }
+
+    securityLogger.logAdminAuth(ip, userAgent, req.path + ' (subscription token)');
+
     // Add user info to request for downstream use
-    (req as any).user = userInfo;
+    (req as any).user = {
+      id: user.id,
+      email: user.email,
+      tier: tokenData.tier || 'admin',
+      isAdmin: isAdmin
+    };
+    
     next();
   } catch (error) {
     console.error('Admin auth error:', error);
+    const { ip, userAgent } = getClientInfo(req);
+    securityLogger.logFailedAuth(ip, userAgent, `Admin authentication failed: ${error}`, req.path);
     res.status(401).json({ 
       error: 'Authentication failed',
       requiresSubscription: true 
@@ -407,6 +427,19 @@ export async function generateJWT(userId: string, email?: string): Promise<strin
   const { joseAuthService } = await import('./jose-auth-service');
   const tokenPair = await joseAuthService.generateTokenPair(userId, email);
   return tokenPair.accessToken;
+}
+
+/**
+ * Verify subscription token using JOSE token service
+ */
+export async function verifySubscriptionToken(token: string) {
+  try {
+    const { joseTokenService } = await import('./jose-token-service');
+    return await joseTokenService.validateSubscriptionToken(token);
+  } catch (error) {
+    console.error('Error verifying subscription token:', error);
+    return null;
+  }
 }
 
 /**
