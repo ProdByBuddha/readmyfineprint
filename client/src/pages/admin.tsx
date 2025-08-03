@@ -576,7 +576,7 @@ function DashboardOverview() {
   );
 }
 
-function CreateUserDialog({ adminToken, onUserCreated }: { adminToken: string; onUserCreated: () => void }) {
+function CreateUserDialog({ onUserCreated }: { onUserCreated: () => void }) {
   const [isOpen, setIsOpen] = useState(false);
   const [isCreating, setIsCreating] = useState(false);
   const [formData, setFormData] = useState({
@@ -605,7 +605,6 @@ function CreateUserDialog({ adminToken, onUserCreated }: { adminToken: string; o
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'x-subscription-token': adminToken,
         },
         credentials: 'include',
         body: JSON.stringify(formData)
@@ -741,7 +740,7 @@ function CreateUserDialog({ adminToken, onUserCreated }: { adminToken: string; o
   );
 }
 
-function UserManagement({ adminToken }: { adminToken: string }) {
+function UserManagement() {
   const [search, setSearch] = useState("");
   const [page, setPage] = useState(1);
   const [sortBy, setSortBy] = useState("createdAt");
@@ -762,9 +761,16 @@ function UserManagement({ adminToken }: { adminToken: string }) {
   const { data: usersData, isLoading, refetch } = useQuery<UsersResponse>({
     queryKey: ["/api/admin/users", { page, search, sortBy, sortOrder, hasSubscription }],
     queryFn: async () => {
-      const response = await apiRequest("GET", `/api/admin/users-subscription?page=${page}&search=${search}&sortBy=${sortBy}&sortOrder=${sortOrder}${hasSubscription !== undefined ? `&hasSubscription=${hasSubscription}` : ''}`, {
-        headers: { "x-subscription-token": adminToken || "" }
+      const response = await sessionFetch(`/api/admin/users-subscription?page=${page}&search=${search}&sortBy=${sortBy}&sortOrder=${sortOrder}${hasSubscription !== undefined ? `&hasSubscription=${hasSubscription}` : ''}`, {
+        method: 'GET',
+        credentials: 'include',
+        headers: { 
+          "Content-Type": "application/json"
+        }
       });
+      if (!response.ok) {
+        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+      }
       return await response.json();
     }
   });
@@ -987,7 +993,7 @@ function UserManagement({ adminToken }: { adminToken: string }) {
         <h2 className="text-3xl font-bold">User Management</h2>
         <div className="flex items-center space-x-2">
           <LawEnforcementRequest adminToken={adminToken} />
-          <CreateUserDialog adminToken={adminToken} onUserCreated={() => refetch()} />
+          <CreateUserDialog onUserCreated={() => refetch()} />
           <Button onClick={() => refetch()} variant="outline" size="sm">
             <RefreshCw className="h-4 w-4 mr-2" />
             Refresh
@@ -1278,7 +1284,7 @@ function UserManagement({ adminToken }: { adminToken: string }) {
   );
 }
 
-function SecurityEvents({ adminToken }: { adminToken: string }) {
+function SecurityEvents() {
   const [severity, setSeverity] = useState<string>("all");
   const [limit, setLimit] = useState(100);
 
@@ -1296,12 +1302,17 @@ function SecurityEvents({ adminToken }: { adminToken: string }) {
       
       console.log('Fetching security events with params:', params.toString());
       
-      const response = await apiRequest("GET", `/api/admin/security-events-subscription?${params.toString()}`, {
+      const response = await sessionFetch(`/api/admin/security-events-subscription?${params.toString()}`, {
+        method: 'GET',
+        credentials: 'include',
         headers: { 
-          "x-subscription-token": adminToken || "",
+          "Content-Type": "application/json",
           "x-dashboard-auto-refresh": "true"
         }
       });
+      if (!response.ok) {
+        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+      }
       const result = await response.json();
       console.log('Security events response:', result);
       return result;
@@ -1426,7 +1437,7 @@ function SecurityEvents({ adminToken }: { adminToken: string }) {
   );
 }
 
-function EmailChangeRequests({ adminToken }: { adminToken: string }) {
+function EmailChangeRequests() {
   const [selectedRequest, setSelectedRequest] = useState<any | null>(null);
   const [reviewNotes, setReviewNotes] = useState('');
   const [reviewLoading, setReviewLoading] = useState(false);
@@ -1435,9 +1446,16 @@ function EmailChangeRequests({ adminToken }: { adminToken: string }) {
   const { data: requestsData, isLoading, refetch } = useQuery({
     queryKey: ["/api/admin/email-change-requests"],
     queryFn: async () => {
-      const response = await apiRequest("GET", "/api/admin/email-change-requests-subscription", {
-        headers: { "x-subscription-token": adminToken || "" }
+      const response = await sessionFetch("/api/admin/email-change-requests-subscription", {
+        method: 'GET',
+        credentials: 'include',
+        headers: { 
+          "Content-Type": "application/json"
+        }
       });
+      if (!response.ok) {
+        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+      }
       return await response.json();
     }
   });
@@ -1449,9 +1467,16 @@ function EmailChangeRequests({ adminToken }: { adminToken: string }) {
     }
 
     try {
-      const response = await apiRequest("GET", `/api/admin/email-change-requests-subscription/${request.id}`, {
-        headers: { "x-subscription-token": adminToken || "" }
+      const response = await sessionFetch(`/api/admin/email-change-requests-subscription/${request.id}`, {
+        method: 'GET',
+        credentials: 'include',
+        headers: { 
+          "Content-Type": "application/json"
+        }
       });
+      if (!response.ok) {
+        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+      }
       const data = await response.json();
       setSelectedRequest({ ...data.request, user: data.user });
       setReviewNotes('');
@@ -1469,13 +1494,20 @@ function EmailChangeRequests({ adminToken }: { adminToken: string }) {
 
     setReviewLoading(true);
     try {
-      await apiRequest("POST", `/api/admin/email-change-requests-subscription/${selectedRequest.id}/review`, {
-        headers: { "x-subscription-token": adminToken || "" },
-        body: {
+      const response = await sessionFetch(`/api/admin/email-change-requests-subscription/${selectedRequest.id}/review`, {
+        method: 'POST',
+        credentials: 'include',
+        headers: { 
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
           action,
           adminNotes: reviewNotes.trim() || undefined
-        }
+        })
       });
+      if (!response.ok) {
+        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+      }
 
       toast({
         title: "Success",
@@ -1655,17 +1687,22 @@ function EmailChangeRequests({ adminToken }: { adminToken: string }) {
   );
 }
 
-function Analytics({ adminToken }: { adminToken: string }) {
+function Analytics() {
   const { data: analyticsData, isLoading, error } = useQuery({
     queryKey: ["/api/admin/analytics"],
     queryFn: async () => {
       console.log('Fetching analytics data...');
-      const response = await apiRequest("GET", "/api/admin/analytics-subscription", {
+      const response = await sessionFetch("/api/admin/analytics-subscription", {
+        method: 'GET',
+        credentials: 'include',
         headers: { 
-          "x-subscription-token": adminToken || "",
+          "Content-Type": "application/json",
           "x-dashboard-auto-refresh": "true"
         }
       });
+      if (!response.ok) {
+        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+      }
       const result = await response.json();
       console.log('Analytics response:', result);
       return result;
@@ -2056,15 +2093,15 @@ export default function AdminDashboard() {
           </TabsContent>
 
           <TabsContent value="users">
-            <UserManagement adminToken="" />
+            <UserManagement />
           </TabsContent>
 
           <TabsContent value="email-requests">
-            <EmailChangeRequests adminToken="" />
+            <EmailChangeRequests />
           </TabsContent>
 
           <TabsContent value="security">
-            <SecurityEvents adminToken="" />
+            <SecurityEvents />
           </TabsContent>
 
           <TabsContent value="blog">
@@ -2072,7 +2109,7 @@ export default function AdminDashboard() {
           </TabsContent>
 
           <TabsContent value="analytics">
-            <Analytics adminToken="" />
+            <Analytics />
           </TabsContent>
         </Tabs>
       </div>
