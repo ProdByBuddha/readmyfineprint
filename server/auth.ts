@@ -327,263 +327,63 @@ export async function requireUserAuth(req: Request, res: Response, next: NextFun
  */
 export async function requireAdminViaSubscription(req: Request, res: Response, next: NextFunction) {
   try {
-    const { ip, userAgent } = getClientInfo(req);
-    let subscriptionToken: string | undefined = req.headers['x-subscription-token'] as string;
-    let tokenData: any = null;
+    // For admin operations, we require a valid subscription token via cookie
+    // Use the same cookie parsing as main routes since cookie-parser was removed
+    let adminSubscriptionToken = req.cookies?.subscriptionToken;
 
-    // Debug logging for admin authentication
-    console.log(`🔍 Admin auth via subscription for ${req.path}`);
-    console.log(`🔍 Headers: subscription-token=${subscriptionToken ? 'present' : 'missing'}, cookie=${req.headers.cookie ? 'present' : 'missing'}`);
-    let sessionId: string | undefined;
+    // If no cookies object or subscriptionToken, try to parse manually from Cookie header
+    if (!adminSubscriptionToken && req.headers.cookie) {
+      const cookieHeader = req.headers.cookie;
+      const cookies = cookieHeader.split(';').map(cookie => cookie.trim());
 
-    // First try to get token from httpOnly cookie (more secure)
-
-    if (req.headers.cookie) {
-      const cookies = parseCookies(req.headers.cookie);
-      subscriptionToken = cookies['subscriptionToken'];
-      sessionId = cookies['sessionId'];
-    }
-
-    // Fallback to header for backward compatibility
-    if (!subscriptionToken) {
-      subscriptionToken = req.headers['x-subscription-token'] as string;
-      if (subscriptionToken) {
-        console.log(`⚠️ Using deprecated header-based subscription token (migrate to cookies)`);
-      }
-    }
-
-    if (subscriptionToken) {
-      const { joseTokenService } = await import('./jose-token-service');
-      tokenData = await joseTokenService.validateSubscriptionToken(subscriptionToken);
-    }
-
-    // If no subscription token, try JWT Authorization header
-    if (!tokenData) {
-      const authHeader = req.headers.authorization;
-      if (authHeader && authHeader.startsWith('Bearer ')) {
-        const jwtToken = authHeader.substring(7); // Remove 'Bearer ' prefix
-        console.log(`🔍 Admin auth: Trying JWT token validation`);
-
-        try {
-          // Try access token validation first (more likely for admin sessions)
-          const { joseAuthService } = await import('./jose-auth-service');
-          const accessValidation = await joseAuthService.validateAccessToken(jwtToken);
-
-          if (accessValidation.valid && accessValidation.payload) {
-            // Create subscription token-like data from access token
-            tokenData = {
-              userId: accessValidation.payload.userId,
-              tierId: 'ultimate', // Admin users have ultimate tier
-              subscriptionId: 'admin-jwt'
-            };
-            subscriptionToken = jwtToken;
-            console.log(`✅ Admin auth: JWT validation successful for user ${tokenData.userId} via access token`);
-          } else {
-            // Fallback to subscription token validation
-            const { joseTokenService } = await import('./jose-token-service');
-            tokenData = await joseTokenService.validateSubscriptionToken(jwtToken);
-
-            if (tokenData) {
-              console.log(`✅ Admin auth: JWT validation successful for user ${tokenData.userId} via subscription token`);
-              subscriptionToken = jwtToken;
-            } else {
-              console.log(`❌ Admin auth: JWT validation failed`);
-            }
+      for (const cookie of cookies) {
+        if (cookie.startsWith('subscriptionToken=')) {
+          adminSubscriptionToken = cookie.split('=')[1];
+          // URL decode if needed
+          try {
+            adminSubscriptionToken = decodeURIComponent(adminSubscriptionToken);
+          } catch (e) {
+            // Keep original value if decode fails
           }
-        } catch (jwtError) {
-          console.log(`❌ Admin auth: JWT validation error:`, jwtError);
+          break;
         }
       }
     }
 
-    // If no header token or invalid, try cookie session
-    if (!tokenData) {
-      // Manual cookie parsing fallback (same as other endpoints)
-      let sessionId: string | undefined;
-      if (req.headers.cookie) {
-        const cookies = parseCookies(req.headers.cookie);
-        sessionId = cookies['sessionId'];
-      }
-
-      if (sessionId) {
-        try {
-          const { postgresqlSessionStorage } = await import('./postgresql-session-storage');
-          const token = await postgresqlSessionStorage.getTokenBySession(sessionId);
-
-          if (token) {
-            // First try to validate as access token (more likely for admin sessions)
-            const { joseAuthService } = await import('./jose-auth-service');
-            const accessValidation = await joseAuthService.validateAccessToken(token);
-
-            if (accessValidation.valid && accessValidation.payload) {
-              // Create subscription token-like data from access token
-              tokenData = {
-                userId: accessValidation.payload.userId,
-                tierId: 'ultimate', // Admin users have ultimate tier
-                subscriptionId: 'admin-session'
-              };
-              subscriptionToken = token;
-              console.log(`✅ Admin auth: Session resolved to user ${tokenData.userId} via access token`);
-            } else {
-              // Fallback to subscription token validation
-              const { joseTokenService } = await import('./jose-token-service');
-              tokenData = await joseTokenService.validateSubscriptionToken(token);
-
-              if (tokenData) {
-                subscriptionToken = token;
-                console.log(`✅ Admin auth: Session resolved to user ${tokenData.userId}, tier: ${tokenData.tierId}`);
-              } else {
-                console.log(`❌ Admin auth: Token validation failed for session ${sessionId.slice(0, 8)}...`);
-                // Token is invalid - clean it up
-                try {
-                  await postgresqlSessionStorage.removeSessionToken(sessionId);
-                  console.log('🧹 Cleaned up invalid admin session token');
-                } catch (cleanupError) {
-                  console.error('⚠️ Failed to clean up invalid admin session token:', cleanupError);
-                }
-              }
-            }
-          } else {
-            console.log(`❌ Admin auth: No token found for session ${sessionId.slice(0, 8)}...`);
-          }
-        } catch (sessionError) {
-          console.error('Admin auth session validation error:', sessionError);
-        }
-      } else {
-        console.log('❌ Admin auth: No session ID found in cookies or headers');
-      }
-    }
-
-    if (!tokenData) {
-      return res.status(401).json({ error: 'Invalid subscription token' });
-    }
-
-    if (!tokenData.userId) {
-      console.error('Token validation successful but userId is undefined:', tokenData);
-      return res.status(401).json({ error: 'Invalid token: missing user ID' });
-    }
-
-    // Try to get user from database, but handle connection failures gracefully
-    let user: any = null;
-    let subscriptionData: any = null;
-    let databaseAvailable = true;
-
-    try {
-      user = await databaseStorage.getUser(tokenData.userId);
-
-      // Additional security: Verify user has an active, legitimate subscription
-      const { subscriptionService } = await import("./subscription-service");
-      subscriptionData = await subscriptionService.getUserSubscriptionWithUsage(tokenData.userId);
-    } catch (dbError: any) {
-      console.error('Database connection error during admin auth:', dbError);
-      databaseAvailable = false;
-
-      // Check if this is a connection termination error
-      if (dbError.message?.includes('terminating connection') || 
-          dbError.cause?.message?.includes('terminating connection') ||
-          dbError.code === '57P01') {
-        console.log('Database connection terminated, proceeding with token-based admin verification');
-      } else {
-        throw dbError; // Re-throw if it's not a connection issue
-      }
-    }
-
-    // If database is available, perform full verification
-    if (databaseAvailable && user && subscriptionData) {
-      // Check if user is admin by email
-      const adminEmails = ['admin@readmyfineprint.com', 'prodbybuddha@icloud.com', 'beatsbybuddha@gmail.com'];
-      if (!adminEmails.includes(user.email)) {
-        securityLogger.logSecurityEvent({
-          eventType: SecurityEventType.AUTHENTICATION,
-          severity: SecuritySeverity.HIGH,
-          message: `Non-admin user attempted admin access via subscription token`,
-          ip,
-          userAgent,
-          endpoint: req.path,
-          details: {
-            userId: user.id,
-            email: user.email,
-            tokenUsed: true,
-            attemptedEndpoint: req.path
-          }
-        });
-        return res.status(403).json({ error: 'Admin access denied' });
-      }
-
-      // Admin users must have valid subscription - no free tier admin access
-      if (!subscriptionData.subscription || subscriptionData.tier.id === 'free') {
-        securityLogger.logSecurityEvent({
-          eventType: SecurityEventType.AUTHENTICATION,
-          severity: SecuritySeverity.HIGH,
-          message: `Admin user ${user.email} attempted access without valid paid subscription`,
-          ip,
-          userAgent,
-          endpoint: req.path,
-          details: {
-            userId: user.id,
-            email: user.email,
-            currentTier: subscriptionData.tier.id,
-            hasSubscription: !!subscriptionData.subscription
-          }
-        });
-        return res.status(403).json({ error: 'Admin access requires valid subscription' });
-      }
-
-      req.user = {
-        id: user.id,
-        email: user.email
-      };
-    } else {
-      // Database unavailable - use token-based verification as fallback
-      console.log('Using token-based admin verification due to database unavailability');
-
-      // Extract admin status from token data if available
-      const adminEmails = ['admin@readmyfineprint.com', 'prodbybuddha@icloud.com', 'beatsbybuddha@gmail.com'];
-
-      // SECURITY: Removed hardcoded admin user ID fallback
-      // Admin access now requires database verification - no hardcoded bypasses
-      securityLogger.logSecurityEvent({
-        eventType: SecurityEventType.AUTHENTICATION,
-        severity: SecuritySeverity.HIGH,
-        message: `Admin access denied during database outage - no fallback allowed`,
-        ip,
-        userAgent,
-        endpoint: req.path,
-        details: {
-          userId: tokenData.userId,
-          tokenUsed: true,
-          databaseAvailable: false,
-          attemptedEndpoint: req.path,
-          securityReason: 'Database verification required for admin access'
-        }
-      });
-      return res.status(503).json({ 
-        error: 'Admin access temporarily unavailable - database connection required for security verification',
-        code: 'DATABASE_VERIFICATION_REQUIRED' 
+    if (!adminSubscriptionToken) {
+      return res.status(401).json({ 
+        error: 'Admin access denied: subscription token required',
+        requiresSubscription: true 
       });
     }
 
-    // Log successful admin authentication (skip for dashboard auto-refresh)
-    const isDashboardAutoRefresh = req.headers['x-dashboard-auto-refresh'] === 'true';
-    if (!isDashboardAutoRefresh) {
-      const authMethod = databaseAvailable ? 'via subscription token' : 'via token fallback';
-      securityLogger.logAdminAuth(ip, userAgent, req.path + ` (${authMethod})`);
+    // Validate the subscription token
+    const userInfo = verifySubscriptionToken(adminSubscriptionToken);
+    if (!userInfo) {
+      return res.status(401).json({ 
+        error: 'Invalid subscription token',
+        requiresSubscription: true 
+      });
     }
 
+    // Check if user has admin or ultimate tier
+    if (!userInfo.tier || !['admin', 'ultimate'].includes(userInfo.tier)) {
+      return res.status(403).json({ 
+        error: 'Admin access denied: insufficient privileges',
+        userTier: userInfo.tier,
+        requiredTier: 'admin or ultimate'
+      });
+    }
+
+    // Add user info to request for downstream use
+    (req as any).user = userInfo;
     next();
   } catch (error) {
-    const { ip, userAgent } = getClientInfo(req);
     console.error('Admin auth error:', error);
-    securityLogger.logSecurityEvent({
-      eventType: SecurityEventType.ERROR,
-      severity: SecuritySeverity.CRITICAL,
-      message: 'Admin authentication system error',
-      ip,
-      userAgent,
-      endpoint: req.path,
-      details: { error: error instanceof Error ? error.message : 'Unknown error' }
+    res.status(401).json({ 
+      error: 'Authentication failed',
+      requiresSubscription: true 
     });
-    return res.status(500).json({ error: 'Authentication failed' });
   }
 }
 
@@ -933,7 +733,7 @@ export function addSecurityHeaders(req: Request, res: Response, next: NextFuncti
         `script-src 'self' https://js.stripe.com https://m.stripe.com${replitSources}; ` +
         `script-src-elem 'self' https://js.stripe.com https://m.stripe.com${replitSources}; ` +
         `style-src 'self' data: https://js.stripe.com https://fonts.googleapis.com${replitSources}${(isDevelopment || isStaging) ? " 'unsafe-inline' 'sha256-+OsIn6RhyCZCUkkvtHxFtP0kU3CGdGeLjDd9Fzqdl3o='" : ''}; ` +
-        `style-src-elem 'self' data: https://fonts.googleapis.com${replitSources}${(isDevelopment || isStaging) ? " 'sha256-+OsIn6RhyCZCUkkvtHxFtP0kU3CGdGeLjDd9Fzqdl3o='" : ''}; ` +
+        `style-src-elem 'self' data: https://fonts.googleapis.com${replitSources}${(isDevelopment || isStaging) ? " 'unsafe-inline' 'sha256-+OsIn6RhyCZCUkkvtHxFtP0kU3CGdGeLjDd9Fzqdl3o='" : ''}; ` +
         "font-src 'self' https://fonts.gstatic.com; " +
         "img-src 'self' data: https://img.shields.io https://js.stripe.com; " +
         `connect-src 'self' https://api.openai.com https://api.stripe.com https://js.stripe.com https://m.stripe.com${replitSources}${localhostSources}${websocketSources}; ` +
