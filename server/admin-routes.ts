@@ -885,7 +885,8 @@ This is an automated security email. Please do not reply.
           });
 
           if (emailSent) {
-            console.log(`📧 Password reset email sent successfully to ${user.email}`);Updated the admin subscription routes to use consistent authentication.          } else {
+            console.log(`📧 Password reset email sent successfully to ${user.email}`);
+          } else {
             console.error(`❌ Failed to send password reset email to ${user.email}`);
           }
         } catch (emailError) {

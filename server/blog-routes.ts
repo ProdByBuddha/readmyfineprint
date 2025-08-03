@@ -1,6 +1,3 @@
-The change updates the description of the admin endpoints for blog posts to indicate a JWT fallback for authentication.
-```
-```replit_final_file
 import { Router } from 'express';
 import { db } from './db.js';
 import { 
