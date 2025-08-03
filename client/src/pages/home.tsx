@@ -10,12 +10,13 @@ import { useCombinedConsent } from "@/components/CombinedConsent";
 import { CookieConsentBanner } from "@/components/CookieConsentBanner";
 import { generateFAQSchema, updateSEO } from "@/lib/seo";
 import { LoginForm } from "@/components/LoginForm";
-import { useLocation, Link } from "react-router-dom";
+import { useLocation, useNavigate, Link } from "react-router-dom";
 import type { Document } from "@shared/schema";
 
 export default function Home() {
   const [showAdminLogin, setShowAdminLogin] = useState(false);
-  const [, navigate] = useLocation();
+  const location = useLocation();
+  const navigate = useNavigate();
   const { isAccepted: consentAccepted } = useCombinedConsent();
   const containerRef = usePreventFlicker();
 
@@ -80,14 +81,14 @@ export default function Home() {
 
             {/* Call to Action */}
             <div className="flex flex-col sm:flex-row gap-4 justify-center items-center mb-8">
-              <Link href="/upload">
+              <Link to="/upload">
                 <Button className="bg-primary hover:bg-primary/90 text-white px-8 py-3 text-lg">
                   <FileText className="w-5 h-5 mr-2" />
                   Upload Document
                   <ArrowRight className="w-4 h-4 ml-2" />
                 </Button>
               </Link>
-              <Link href="/blog">
+              <Link to="/blog">
                 <Button variant="outline" className="px-8 py-3 text-lg">
                   Learn More
                 </Button>

@@ -46,7 +46,7 @@ interface Category {
 }
 
 export default function BlogPage() {
-  const [location] = useLocation();
+  const location = useLocation();
   const [posts, setPosts] = useState<BlogPost[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
   const [loading, setLoading] = useState(true);
@@ -231,7 +231,7 @@ export default function BlogPage() {
                     )}
                   </div>
                   <CardTitle className="line-clamp-2 hover:text-blue-600 dark:hover:text-blue-400">
-                    <Link href={`/blog/${post.slug}`}>
+                    <Link to={`/blog/${post.slug}`}>
                       {post.title}
                     </Link>
                   </CardTitle>

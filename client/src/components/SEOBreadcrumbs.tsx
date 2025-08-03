@@ -41,9 +41,9 @@ const defaultBreadcrumbs: Record<string, BreadcrumbItem[]> = {
 };
 
 export function SEOBreadcrumbs({ items, className = '' }: SEOBreadcrumbsProps) {
-  const [location] = useLocation();
-  
-  const breadcrumbItems = items || defaultBreadcrumbs[location] || defaultBreadcrumbs['/'];
+  const location = useLocation();
+
+  const breadcrumbItems = items || defaultBreadcrumbs[location.pathname] || defaultBreadcrumbs['/'];
 
   // Add structured data for breadcrumbs
   useEffect(() => {
@@ -54,7 +54,7 @@ export function SEOBreadcrumbs({ items, className = '' }: SEOBreadcrumbsProps) {
           url: `https://readmyfineprint.com${item.url}`
         }))
       );
-      
+
       updateSEO({
         structuredData: breadcrumbSchema
       });
@@ -62,7 +62,7 @@ export function SEOBreadcrumbs({ items, className = '' }: SEOBreadcrumbsProps) {
   }, [breadcrumbItems]);
 
   // Don't render breadcrumbs for home page or if only one item
-  if (location === '/' || breadcrumbItems.length <= 1) {
+  if (location.pathname === '/' || breadcrumbItems.length <= 1) {
     return null;
   }
 
@@ -86,7 +86,7 @@ export function SEOBreadcrumbs({ items, className = '' }: SEOBreadcrumbsProps) {
                 {index > 0 && (
                   <ChevronRight className="w-3 h-3 mx-1 text-gray-400 dark:text-gray-500 flex-shrink-0" aria-hidden="true" />
                 )}
-                
+
                 {item.current ? (
                   <span 
                     className="text-gray-700 dark:text-gray-300 font-medium flex items-center"
@@ -108,7 +108,7 @@ export function SEOBreadcrumbs({ items, className = '' }: SEOBreadcrumbsProps) {
                     </span>
                   </Link>
                 )}
-                
+
                 <meta itemProp="position" content={String(index + 1)} />
               </li>
             ))}
@@ -121,8 +121,8 @@ export function SEOBreadcrumbs({ items, className = '' }: SEOBreadcrumbsProps) {
 
 // Hook to automatically add breadcrumbs to pages
 export function useBreadcrumbs(customItems?: BreadcrumbItem[]) {
-  const [location] = useLocation();
-  const items = customItems || defaultBreadcrumbs[location];
+  const location = useLocation();
+  const items = customItems || defaultBreadcrumbs[location.pathname];
 
   useEffect(() => {
     if (items && items.length > 1) {
@@ -132,7 +132,7 @@ export function useBreadcrumbs(customItems?: BreadcrumbItem[]) {
           url: `https://readmyfineprint.com${item.url}`
         }))
       );
-      
+
       updateSEO({
         structuredData: breadcrumbSchema
       });
@@ -140,4 +140,4 @@ export function useBreadcrumbs(customItems?: BreadcrumbItem[]) {
   }, [items]);
 
   return items;
-} 
+}

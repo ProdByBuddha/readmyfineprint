@@ -6,7 +6,7 @@ interface PageTransitionProps {
 }
 
 export function PageTransition({ children }: PageTransitionProps) {
-  const [location] = useLocation();
+  const location = useLocation();
 
   useEffect(() => {
     // Scroll to top when location changes

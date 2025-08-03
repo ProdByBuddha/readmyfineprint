@@ -213,7 +213,7 @@ export default function BlogPostPage() {
           <p className="text-gray-600 dark:text-gray-300 mb-6">
             The article you're looking for doesn't exist or has been moved.
           </p>
-          <Link href="/blog">
+          <Link to="/blog">
             <Button>
               <ArrowLeft className="h-4 w-4 mr-2" />
               Back to Blog
@@ -230,7 +230,7 @@ export default function BlogPostPage() {
       <MobileAppWrapper>
         <div className="container mx-auto px-4 py-8 max-w-4xl">
       {/* Back to Blog */}
-      <Link href="/blog" className="inline-flex items-center text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 mb-6">
+      <Link to="/blog" className="inline-flex items-center text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 mb-6">
         <ArrowLeft className="h-4 w-4 mr-2" />
         Back to Blog
       </Link>
@@ -355,7 +355,7 @@ export default function BlogPostPage() {
               <Card key={relatedPost.id} className="hover:shadow-lg transition-shadow">
                 <CardHeader>
                   <CardTitle className="line-clamp-2 hover:text-blue-600">
-                    <Link href={`/blog/${relatedPost.slug}`}>
+                    <Link to={`/blog/${relatedPost.slug}`}>
                       {relatedPost.title}
                     </Link>
                   </CardTitle>

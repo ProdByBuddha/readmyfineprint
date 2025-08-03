@@ -20,7 +20,7 @@ import { useAccessibility } from "@/hooks/useAccessibility";
 import { analyzeDocument, getDocument, createDocument, getQueueStatus } from "@/lib/api";
 import { useToast } from "@/hooks/use-toast";
 import { queryClient } from "@/lib/queryClient";
-import { useLocation } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import type { Document } from "@shared/schema";
 import { useSecurityQuestionsHandler } from "@/hooks/useSecurityQuestionsHandler";
 import { SecurityQuestionsModal } from "@/components/SecurityQuestionsModal";
@@ -29,7 +29,8 @@ export default function Upload() {
   const [currentDocumentId, setCurrentDocumentId] = useState<number | null>(null);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [consentRevoked, setConsentRevoked] = useState(false);
-  const [, navigate] = useLocation();
+  const location = useLocation();
+  const navigate = useNavigate();
   const { toast } = useToast();
   const { isAccepted: consentAccepted } = useCombinedConsent();
   const { announce } = useAccessibility();

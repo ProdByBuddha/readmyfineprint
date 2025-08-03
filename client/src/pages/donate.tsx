@@ -73,7 +73,7 @@ function DonateButton({ amount, onError, onDonate }: DonateButtonProps) {
 }
 
 export default function DonatePage() {
-  const [location] = useLocation();
+  const location = useLocation();
   const searchParams = new URLSearchParams(location.split('?')[1] || '');
   const [customAmount, setCustomAmount] = useState('');
   const [selectedAmount, setSelectedAmount] = useState<number | null>(null);
