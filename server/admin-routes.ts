@@ -101,9 +101,17 @@ export function registerAdminRoutes(app: Express) {
       const result = await adminVerificationService.verifyAdminCode(code, ip, userAgent);
 
       if (result.success) {
+        // Ensure we have required fields for token generation
+        if (!result.userId || !result.email) {
+          return res.status(500).json({ 
+            success: false, 
+            error: "Missing required user information for token generation" 
+          });
+        }
+
         const { accessToken, refreshToken } = await joseAuthService.generateTokenPair(
-          result.userId, // Assuming userId is available in result
-          result.email,   // Assuming email is available in result
+          result.userId,
+          result.email,
           getClientInfo(req)
         );
         res.json({ 
