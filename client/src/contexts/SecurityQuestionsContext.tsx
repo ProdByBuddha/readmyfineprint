@@ -31,6 +31,20 @@ export function SecurityQuestionsProvider({ children }: SecurityQuestionsProvide
   const checkSecurityQuestions = async () => {
     try {
       setIsLoading(true);
+      
+      // Check if user appears to be anonymous by looking for session indicators
+      const hasSessionCookie = document.cookie.includes('session') || 
+                               document.cookie.includes('auth') ||
+                               document.cookie.includes('subscription');
+      
+      if (!hasSessionCookie) {
+        console.log('👤 Anonymous user detected - skipping security questions check');
+        setHasSecurityQuestions(null); // null means not applicable
+        setRequiresSetup(false);
+        setIsLoading(false);
+        return;
+      }
+      
       console.log('🔍 Checking security questions status...');
       
       const response = await getUserSecurityQuestions();
@@ -52,9 +66,14 @@ export function SecurityQuestionsProvider({ children }: SecurityQuestionsProvide
         setRequiresSetup(!response.hasSecurityQuestions);
       }
     } catch (error) {
-      console.error('Failed to check security questions:', error);
+      // Check if this is a 401 Unauthorized error (anonymous user)
+      if (error instanceof Error && error.message.includes('401')) {
+        console.log('👤 Anonymous user detected via 401 error - security questions not required');
+      } else {
+        console.error('Failed to check security questions:', error);
+        console.log('❌ Failed to check security questions, assuming free tier');
+      }
       // If we can't check, assume free tier (no setup required)
-      console.log('❌ Failed to check security questions, assuming free tier');
       setHasSecurityQuestions(null);
       setRequiresSetup(false);
     } finally {
