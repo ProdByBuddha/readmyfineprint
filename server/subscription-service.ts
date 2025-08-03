@@ -7,7 +7,6 @@ import { databaseStorage } from './storage';
 import { secureJWTService } from './secure-jwt-service';
 import { joseAuthService } from './jose-auth-service';
 import { joseTokenService } from './jose-token-service';
-import { joseAuthService } from './jose-auth-service';
 import { securityQuestionsService } from './security-questions-service';
 import { collectiveUserService } from './collective-user-service';
 import { postgresqlSessionStorage } from './postgresql-session-storage';

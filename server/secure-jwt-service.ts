@@ -105,7 +105,7 @@ export class SecureJWTService {
     deviceFingerprint?: string;
   } = {}): Promise<TokenPair> {
     console.warn('⚠️  secureJWTService.generateTokenPair is being replaced with JOSE. Use joseAuthService.generateTokenPair() directly.');
-    
+
     // Delegate to JOSE auth service
     const { joseAuthService } = await import('./jose-auth-service');
     return await joseAuthService.generateTokenPair(userId, email, clientInfo);
@@ -116,7 +116,7 @@ export class SecureJWTService {
    */
   async validateAccessToken(token: string): Promise<TokenValidationResult> {
     console.warn('⚠️  secureJWTService.validateAccessToken is being replaced with JOSE. Use joseAuthService.validateAccessToken() directly.');
-    
+
     // Delegate to JOSE auth service
     const { joseAuthService } = await import('./jose-auth-service');
     return await joseAuthService.validateAccessToken(token);
@@ -131,7 +131,7 @@ export class SecureJWTService {
     deviceFingerprint?: string;
   } = {}): Promise<{ accessToken: string; accessTokenExpiry: Date } | null> {
     console.warn('⚠️  secureJWTService.refreshAccessToken is being replaced with JOSE. Use joseAuthService.refreshAccessToken() directly.');
-    
+
     // Delegate to JOSE auth service
     const { joseAuthService } = await import('./jose-auth-service');
     return await joseAuthService.refreshAccessToken(refreshToken, clientInfo);
@@ -201,7 +201,7 @@ export class SecureJWTService {
     }
   }
 
-  
+
 
   /**
    * Clean up expired tokens and revocations
@@ -348,7 +348,7 @@ export class SecureJWTService {
     if (!process.env.DATABASE_URL) {
       return;
     }
-    
+
     try {
       // Get all user's refresh tokens, ordered by creation date
       const userTokens = await db.query.refreshTokens.findMany({
@@ -376,6 +376,17 @@ export class SecureJWTService {
   }
 
   /**
+   * Revoke all tokens for a specific user
+   */
+  async revokeAllUserTokens(userId: string, reason: string): Promise<number> {
+    console.warn('⚠️  secureJWTService.revokeAllUserTokens is being replaced with JOSE. Use joseAuthService.revokeAllUserTokens() directly.');
+
+    // Delegate to JOSE auth service
+    const { joseAuthService } = await import('./jose-auth-service');
+    return await joseAuthService.revokeAllUserTokens(userId, reason);
+  }
+
+  /**
    * @deprecated Use joseTokenService for subscription tokens - more secure JOSE implementation
    */
   async generateSubscriptionToken(params: {
@@ -385,7 +396,7 @@ export class SecureJWTService {
     deviceFingerprint?: string;
   }): Promise<string> {
     console.warn('⚠️  secureJWTService.generateSubscriptionToken is deprecated. Use joseTokenService.generateSubscriptionToken() for enhanced security.');
-    
+
     // Delegate to JOSE service
     const { joseTokenService } = await import('./jose-token-service');
     return await joseTokenService.generateSubscriptionToken(params);
@@ -401,14 +412,14 @@ export class SecureJWTService {
     deviceFingerprint?: string;
   } | null> {
     console.warn('⚠️  secureJWTService.validateSubscriptionToken is deprecated. Use joseTokenService.validateSubscriptionToken() for enhanced security.');
-    
+
     // Delegate to JOSE service
     const { joseTokenService } = await import('./jose-token-service');
     const result = await joseTokenService.validateSubscriptionToken(token);
-    
+
     // Convert JOSE result to expected format
     if (!result) return null;
-    
+
     return {
       userId: result.userId,
       subscriptionId: result.subscriptionId,
