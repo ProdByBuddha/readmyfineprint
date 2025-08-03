@@ -1030,7 +1030,7 @@ export async function getImprovementSuggestions() {
  * Admin API helper function using session-based authentication
  */
 export async function adminApiRequest(url: string, options: RequestInit = {}) {
-  const headers = {
+  const headers: Record<string, string> = {
     'Content-Type': 'application/json',
     ...options.headers,
   };
