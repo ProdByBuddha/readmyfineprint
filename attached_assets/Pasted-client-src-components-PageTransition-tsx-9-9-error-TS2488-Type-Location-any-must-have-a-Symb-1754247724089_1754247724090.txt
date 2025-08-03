@@ -1,0 +1,122 @@
+client/src/components/PageTransition.tsx:9:9 - error TS2488: Type 'Location<any>' must have a '[Symbol.iterator]()' method that returns an iterator.
+
+9   const [location] = useLocation();
+          ~~~~~~~~~~
+
+client/src/components/SEOBreadcrumbs.tsx:44:9 - error TS2488: Type 'Location<any>' must have a '[Symbol.iterator]()' method that returns an iterator.
+
+44   const [location] = useLocation();
+           ~~~~~~~~~~
+
+client/src/components/SEOBreadcrumbs.tsx:124:9 - error TS2488: Type 'Location<any>' must have a '[Symbol.iterator]()' method that returns an iterator.
+
+124   const [location] = useLocation();
+            ~~~~~~~~~~
+
+client/src/hooks/useScrollToTop.tsx:5:9 - error TS2488: Type 'Location<any>' must have a '[Symbol.iterator]()' method that returns an iterator.
+
+5   const [location] = useLocation();
+          ~~~~~~~~~~
+
+client/src/lib/seo.ts:236:45 - error TS2304: Cannot find name 'customConfig'.
+
+236     const finalConfig = { ...baseConfig, ...customConfig };
+                                                ~~~~~~~~~~~~
+
+client/src/lib/seo.ts:238:17 - error TS2304: Cannot find name 'customConfig'.
+
+238   }, [pathname, customConfig]);
+                    ~~~~~~~~~~~~
+
+client/src/pages/blog-post.tsx:216:17 - error TS2322: Type '{ children: Element; href: string; }' is not assignable to type 'IntrinsicAttributes & LinkProps & RefAttributes<HTMLAnchorElement>'.
+  Property 'href' does not exist on type 'IntrinsicAttributes & LinkProps & RefAttributes<HTMLAnchorElement>'. Did you mean 'ref'?
+
+216           <Link href="/blog">
+                    ~~~~
+
+client/src/pages/blog-post.tsx:233:13 - error TS2322: Type '{ children: (string | Element)[]; href: string; className: string; }' is not assignable to type 'IntrinsicAttributes & LinkProps & RefAttributes<HTMLAnchorElement>'.
+  Property 'href' does not exist on type 'IntrinsicAttributes & LinkProps & RefAttributes<HTMLAnchorElement>'. Did you mean 'ref'?
+
+233       <Link href="/blog" className="inline-flex items-center text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 mb-6">
+                ~~~~
+
+client/src/pages/blog-post.tsx:358:27 - error TS2322: Type '{ children: string; href: string; }' is not assignable to type 'IntrinsicAttributes & LinkProps & RefAttributes<HTMLAnchorElement>'.
+  Property 'href' does not exist on type 'IntrinsicAttributes & LinkProps & RefAttributes<HTMLAnchorElement>'. Did you mean 'ref'?
+
+358                     <Link href={`/blog/${relatedPost.slug}`}>
+                              ~~~~
+
+client/src/pages/blog.tsx:49:9 - error TS2488: Type 'Location<any>' must have a '[Symbol.iterator]()' method that returns an iterator.
+
+49   const [location] = useLocation();
+           ~~~~~~~~~~
+
+client/src/pages/blog.tsx:234:27 - error TS2322: Type '{ children: string; href: string; }' is not assignable to type 'IntrinsicAttributes & LinkProps & RefAttributes<HTMLAnchorElement>'.
+  Property 'href' does not exist on type 'IntrinsicAttributes & LinkProps & RefAttributes<HTMLAnchorElement>'. Did you mean 'ref'?
+
+234                     <Link href={`/blog/${post.slug}`}>
+                              ~~~~
+
+client/src/pages/cookies.tsx:11:9 - error TS2488: Type 'Location<any>' must have a '[Symbol.iterator]()' method that returns an iterator.
+
+11   const [, setLocation] = useLocation();
+           ~~~~~~~~~~~~~~~
+
+client/src/pages/donate.tsx:76:9 - error TS2488: Type 'Location<any>' must have a '[Symbol.iterator]()' method that returns an iterator.
+
+76   const [location] = useLocation();
+           ~~~~~~~~~~
+
+client/src/pages/home.tsx:18:9 - error TS2488: Type 'Location<any>' must have a '[Symbol.iterator]()' method that returns an iterator.
+
+18   const [, navigate] = useLocation();
+           ~~~~~~~~~~~~
+
+client/src/pages/home.tsx:83:21 - error TS2322: Type '{ children: Element; href: string; }' is not assignable to type 'IntrinsicAttributes & LinkProps & RefAttributes<HTMLAnchorElement>'.
+  Property 'href' does not exist on type 'IntrinsicAttributes & LinkProps & RefAttributes<HTMLAnchorElement>'. Did you mean 'ref'?
+
+83               <Link href="/upload">
+                       ~~~~
+
+client/src/pages/home.tsx:90:21 - error TS2322: Type '{ children: Element; href: string; }' is not assignable to type 'IntrinsicAttributes & LinkProps & RefAttributes<HTMLAnchorElement>'.
+  Property 'href' does not exist on type 'IntrinsicAttributes & LinkProps & RefAttributes<HTMLAnchorElement>'. Did you mean 'ref'?
+
+90               <Link href="/blog">
+                       ~~~~
+
+client/src/pages/upload.tsx:32:9 - error TS2488: Type 'Location<any>' must have a '[Symbol.iterator]()' method that returns an iterator.
+
+32   const [, navigate] = useLocation();
+           ~~~~~~~~~~~~
+
+server/vite.ts:74:7 - error TS2698: Spread types may only be created from object types.
+
+74       ...viteConfig,
+         ~~~~~~~~~~~~~
+
+vite.config.ts:2:19 - error TS2307: Cannot find module '@vitejs/plugin-react' or its corresponding type declarations.
+
+2 import react from "@vitejs/plugin-react";
+                    ~~~~~~~~~~~~~~~~~~~~~~
+
+vite.config.ts:4:33 - error TS2307: Cannot find module '@replit/vite-plugin-runtime-error-modal' or its corresponding type declarations.
+
+4 import runtimeErrorOverlay from "@replit/vite-plugin-runtime-error-modal";
+                                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
+Found 20 errors in 12 files.
+
+Errors  Files
+     1  client/src/components/PageTransition.tsx:9
+     2  client/src/components/SEOBreadcrumbs.tsx:44
+     1  client/src/hooks/useScrollToTop.tsx:5
+     2  client/src/lib/seo.ts:236
+     3  client/src/pages/blog-post.tsx:216
+     2  client/src/pages/blog.tsx:49
+     1  client/src/pages/cookies.tsx:11
+     1  client/src/pages/donate.tsx:76
+     3  client/src/pages/home.tsx:18
+     1  client/src/pages/upload.tsx:32
+     1  server/vite.ts:74
+     2  vite.config.ts:2
