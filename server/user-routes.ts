@@ -68,7 +68,7 @@ const accountDeletionSchema = z.object({
   anonymizeData: z.boolean().optional().default(true),
 });
 
-export function registerUserRoutes(app: Express) {
+export async function registerUserRoutes(app: Express) {
   // User registration
   app.post("/api/users/register", async (req: Request, res: Response) => {
     try {
@@ -855,12 +855,12 @@ export function registerUserRoutes(app: Express) {
     }
   });
 
-  const { requireAuth } = await import('./auth');
+  const { requireUserAuth } = await import('./auth');
   const { subscriptionService } = await import('./subscription-service');
   const { securityQuestionsService } = await import('./security-questions-service');
 
   // Get user profile
-  app.get('/api/user/profile', requireAuth, async (req, res) => {
+  app.get('/api/user/profile', requireUserAuth, async (req, res) => {
     try {
       const userId = req.user!.id;
       console.log(`[Profile API] Getting profile for user: ${userId}`);
@@ -901,13 +901,10 @@ export function registerUserRoutes(app: Express) {
         user: {
           id: user.id,
           email: user.email,
-          username: user.username,
-          emailVerified: user.isEmailVerified,
+          emailVerified: user.emailVerified,
           isActive: user.isActive,
           createdAt: user.createdAt,
           lastLoginAt: user.lastLoginAt,
-          preferredName: user.preferredName,
-          isLegalProfessional: user.isLegalProfessional,
         },
         subscription: subscriptionData.subscription,
         tier: subscriptionData.tier,
