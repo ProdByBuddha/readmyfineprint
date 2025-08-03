@@ -1393,7 +1393,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const estimatedWaitTime = priorityQueue.getEstimatedWaitTime(subscriptionData.tier.id);
 
       // Check for test mode to skip OpenAI calls
-      const isTestMode = req.headers['x-skip-openai'] === 'true' || req.body.skipOpenAI === true || req.body.testMode === true;
+      const isTestMode = req.headers['x-skip-openai'] === 'true' || req.body?.skipOpenAI === true || req.body?.testMode === true;
       
       if (isTestMode) {
         console.log(`🧪 Test mode enabled - skipping OpenAI analysis for document ${documentId}`);
