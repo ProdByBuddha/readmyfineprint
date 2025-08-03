@@ -5,6 +5,7 @@ import { securityLogger, SecurityEventType, SecuritySeverity, getClientInfo } fr
 import { emailRecoveryService } from "./email-recovery-service";
 import { priorityQueue } from "./priority-queue";
 import { adminVerificationService } from "./admin-verification";
+import { joseAuthService } from "./jose-auth-service";
 import { SUBSCRIPTION_TIERS } from "./subscription-tiers";
 import { hashPassword } from "./argon2";
 import { z } from "zod";
@@ -100,10 +101,16 @@ export function registerAdminRoutes(app: Express) {
       const result = await adminVerificationService.verifyAdminCode(code, ip, userAgent);
 
       if (result.success) {
+        const { accessToken, refreshToken } = await joseAuthService.generateTokenPair(
+          result.userId, // Assuming userId is available in result
+          result.email,   // Assuming email is available in result
+          getClientInfo(req)
+        );
         res.json({ 
           success: true, 
           message: result.message,
-          adminToken: result.token 
+          accessToken,
+          refreshToken
         });
       } else {
         res.status(401).json({ success: false, error: result.message });

@@ -101,7 +101,7 @@ interface SecurityEvent {
   userId?: string;
 }
 
-function AdminLogin({ onLogin }: { onLogin: (token: string) => void }) {
+function AdminLogin({ onLogin }: { onLogin: (accessToken: string, refreshToken: string) => void }) {
   const [verificationCode, setVerificationCode] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [codeSent, setCodeSent] = useState(false);
@@ -206,7 +206,9 @@ function AdminLogin({ onLogin }: { onLogin: (token: string) => void }) {
       const data = await response.json();
 
       if (data.success) {
-        onLogin(data.adminToken);
+        localStorage.setItem('jwt_access_token', data.accessToken);
+        localStorage.setItem('jwt_refresh_token', data.refreshToken);
+        onLogin(data.accessToken, data.refreshToken);
         toast({
           title: "Admin Access Granted",
           description: "Welcome to the admin dashboard",
@@ -759,7 +761,7 @@ function UserManagement() {
   const { toast } = useToast();
 
   // Get admin token from session storage or other secure source
-  const adminToken = sessionStorage.getItem('adminToken') || '';
+  const adminToken = localStorage.getItem('jwt_access_token') || '';
 
   const { data: usersData, isLoading, refetch } = useQuery<UsersResponse>({
     queryKey: ["/api/admin/users", { page, search, sortBy, sortOrder, hasSubscription }],

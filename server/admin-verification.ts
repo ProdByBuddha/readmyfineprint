@@ -1,6 +1,7 @@
 import crypto from 'crypto';
 import { emailService } from './email-service';
 import { securityLogger, SecurityEventType, SecuritySeverity } from './security-logger';
+import { databaseStorage } from './storage';
 
 interface VerificationCode {
   code: string;
@@ -155,7 +156,7 @@ class AdminVerificationService {
   /**
    * Verify admin code
    */
-  async verifyAdminCode(code: string, requestIp: string, userAgent: string): Promise<{ success: boolean; message: string; token?: string }> {
+  async verifyAdminCode(code: string, requestIp: string, userAgent: string): Promise<{ success: boolean; message: string; token?: string; userId?: string; email?: string }> {
     try {
       const verification = this.verificationCodes.get(code);
 
@@ -232,10 +233,28 @@ class AdminVerificationService {
       this.cleanupExpiredCodes();
       this.cleanupExpiredTokens();
 
+      // Fetch the admin user from the database to get their ID
+      const adminUser = await databaseStorage.getUserByEmail(verification.email);
+
+      if (!adminUser) {
+        securityLogger.logSecurityEvent({
+          eventType: SecurityEventType.ERROR,
+          severity: SecuritySeverity.CRITICAL,
+          message: 'Admin user not found in database after verification',
+          ip: requestIp,
+          userAgent,
+          endpoint: '/api/admin/verify-code',
+          details: { adminEmail: verification.email }
+        });
+        return { success: false, message: 'Admin user not found' };
+      }
+
       return { 
         success: true, 
         message: 'Admin access granted', 
-        token: adminToken 
+        token: adminToken,
+        userId: adminUser.id,
+        email: adminUser.email
       };
 
     } catch (error) {
