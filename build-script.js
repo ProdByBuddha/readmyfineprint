@@ -1,8 +1,20 @@
 
-import { build } from 'esbuild';
 import fs from 'fs';
 import path from 'path';
 import { execSync } from 'child_process';
+
+// Dynamic import of esbuild to handle potential module loading issues
+let build;
+try {
+  const esbuildModule = await import('esbuild');
+  build = esbuildModule.build;
+} catch (error) {
+  console.error('❌ Failed to import esbuild:', error.message);
+  console.log('📦 Installing esbuild...');
+  execSync('npm install esbuild', { stdio: 'inherit' });
+  const esbuildModule = await import('esbuild');
+  build = esbuildModule.build;
+}
 
 const __dirname = path.dirname(new URL(import.meta.url).pathname);
 
