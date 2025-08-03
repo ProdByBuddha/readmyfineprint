@@ -1,0 +1,123 @@
+> readmyfineprint@2.0.0 check
+client/src/App.tsx:94:10 - error TS2345: Argument of type 'Location<any>' is not assignable to parameter of type 'string'.
+
+94   useSEO(location);
+            ~~~~~~~~
+
+client/src/components/CookieManagement.tsx:6:22 - error TS2307: Cannot find module 'wouter' or its corresponding type declarations.
+
+6 import { Link } from "wouter";
+                       ~~~~~~~~
+
+client/src/components/Footer.tsx:1:22 - error TS2307: Cannot find module 'wouter' or its corresponding type declarations.
+
+1 import { Link } from "wouter";
+                       ~~~~~~~~
+
+client/src/components/LegalDisclaimer.tsx:15:22 - error TS2307: Cannot find module 'wouter' or its corresponding type declarations.
+
+15 import { Link } from "wouter";
+                        ~~~~~~~~
+
+client/src/components/PageTransition.tsx:2:29 - error TS2307: Cannot find module 'wouter' or its corresponding type declarations.
+
+2 import { useLocation } from "wouter";
+                              ~~~~~~~~
+
+client/src/components/SEOBreadcrumbs.tsx:2:35 - error TS2307: Cannot find module 'wouter' or its corresponding type declarations.
+
+2 import { Link, useLocation } from 'wouter';
+                                    ~~~~~~~~
+
+client/src/components/SubscriptionPlans.tsx:7:22 - error TS2307: Cannot find module 'wouter' or its corresponding type declarations.
+
+7 import { Link } from 'wouter';
+                       ~~~~~~~~
+
+client/src/hooks/useScrollToTop.tsx:2:29 - error TS2307: Cannot find module 'wouter' or its corresponding type declarations.
+
+2 import { useLocation } from 'wouter';
+                              ~~~~~~~~
+
+client/src/pages/blog-post.tsx:2:33 - error TS2307: Cannot find module 'wouter' or its corresponding type declarations.
+
+2 import { Link, useParams } from 'wouter';
+                                  ~~~~~~~~
+
+client/src/pages/blog.tsx:2:46 - error TS2307: Cannot find module 'wouter' or its corresponding type declarations.
+
+2 import { Link, useParams, useLocation } from 'wouter';
+                                               ~~~~~~~~
+
+client/src/pages/cookies.tsx:7:29 - error TS2307: Cannot find module 'wouter' or its corresponding type declarations.
+
+7 import { useLocation } from "wouter";
+                              ~~~~~~~~
+
+client/src/pages/donate.tsx:3:29 - error TS2307: Cannot find module 'wouter' or its corresponding type declarations.
+
+3 import { useLocation } from 'wouter';
+                              ~~~~~~~~
+
+client/src/pages/donate.tsx:11:22 - error TS2307: Cannot find module 'wouter' or its corresponding type declarations.
+
+11 import { Link } from "wouter";
+                        ~~~~~~~~
+
+client/src/pages/home.tsx:13:35 - error TS2307: Cannot find module 'wouter' or its corresponding type declarations.
+
+13 import { useLocation, Link } from "wouter";
+                                     ~~~~~~~~
+
+client/src/pages/not-found.tsx:4:22 - error TS2307: Cannot find module 'wouter' or its corresponding type declarations.
+
+4 import { Link } from "wouter";
+                       ~~~~~~~~
+
+client/src/pages/roadmap.tsx:5:22 - error TS2307: Cannot find module 'wouter' or its corresponding type declarations.
+
+5 import { Link } from "wouter";
+                       ~~~~~~~~
+
+client/src/pages/upload.tsx:23:29 - error TS2307: Cannot find module 'wouter' or its corresponding type declarations.
+
+23 import { useLocation } from "wouter";
+                               ~~~~~~~~
+
+server/vite.ts:74:7 - error TS2698: Spread types may only be created from object types.
+
+74       ...viteConfig,
+         ~~~~~~~~~~~~~
+
+vite.config.ts:2:19 - error TS2307: Cannot find module '@vitejs/plugin-react' or its corresponding type declarations.
+
+2 import react from "@vitejs/plugin-react";
+                    ~~~~~~~~~~~~~~~~~~~~~~
+
+vite.config.ts:4:33 - error TS2307: Cannot find module '@replit/vite-plugin-runtime-error-modal' or its corresponding type declarations.
+
+4 import runtimeErrorOverlay from "@replit/vite-plugin-runtime-error-modal";
+                                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
+Found 20 errors in 18 files.
+
+Errors  Files
+     1  client/src/App.tsx:94
+     1  client/src/components/CookieManagement.tsx:6
+     1  client/src/components/Footer.tsx:1
+     1  client/src/components/LegalDisclaimer.tsx:15
+     1  client/src/components/PageTransition.tsx:2
+     1  client/src/components/SEOBreadcrumbs.tsx:2
+     1  client/src/components/SubscriptionPlans.tsx:7
+     1  client/src/hooks/useScrollToTop.tsx:2
+     1  client/src/pages/blog-post.tsx:2
+     1  client/src/pages/blog.tsx:2
+     1  client/src/pages/cookies.tsx:7
+     2  client/src/pages/donate.tsx:3
+     1  client/src/pages/home.tsx:13
+     1  client/src/pages/not-found.tsx:4
+     1  client/src/pages/roadmap.tsx:5
+     1  client/src/pages/upload.tsx:23
+     1  server/vite.ts:74
+     2  vite.config.ts:2
