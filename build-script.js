@@ -104,7 +104,12 @@ try {
     define: {
       'process.env.NODE_ENV': '"production"',
       'global': 'globalThis',
-      'React': 'window.React'
+      'React': 'window.React',
+      'import.meta.env.DEV': 'false',
+      'import.meta.env.PROD': 'true',
+      'import.meta.env.MODE': '"production"',
+      'import.meta.env.BASE_URL': '"/"',
+      'import.meta.env.VITE_STRIPE_PUBLIC_KEY': 'process.env.VITE_STRIPE_PUBLIC_KEY || ""'
     },
     external: [],
     splitting: true,
@@ -114,7 +119,7 @@ try {
   } else {
     // Fallback to npx esbuild command
     console.log('📦 Using npx esbuild fallback...');
-    const esbuildCmd = `npx esbuild client/src/main.tsx --bundle --minify --sourcemap --target=es2020 --format=esm --outdir=${distDir} --loader:.tsx=tsx --loader:.jsx=jsx --loader:.js=js --loader:.css=css --loader:.png=file --loader:.jpg=file --loader:.jpeg=file --loader:.gif=file --loader:.svg=file --loader:.woff=file --loader:.woff2=file --loader:.ttf=file --loader:.eot=file --define:process.env.NODE_ENV='"production"' --define:global=globalThis --splitting --metafile`;
+    const esbuildCmd = `npx esbuild client/src/main.tsx --bundle --minify --sourcemap --target=es2020 --format=esm --outdir=${distDir} --loader:.tsx=tsx --loader:.jsx=jsx --loader:.js=js --loader:.css=css --loader:.png=file --loader:.jpg=file --loader:.jpeg=file --loader:.gif=file --loader:.svg=file --loader:.woff=file --loader:.woff2=file --loader:.ttf=file --loader:.eot=file --define:process.env.NODE_ENV='"production"' --define:global=globalThis --define:import.meta.env.DEV=false --define:import.meta.env.PROD=true --define:import.meta.env.MODE='"production"' --define:import.meta.env.BASE_URL='"/"' --splitting --metafile`;
 
     execSync(esbuildCmd, { stdio: 'inherit' });
   }
