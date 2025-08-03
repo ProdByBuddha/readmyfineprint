@@ -23,9 +23,14 @@ declare global {
 }
 
 export function cspMiddleware(req: Request, res: Response, next: NextFunction) {
-  // Generate nonce for this request
-  const nonce = generateNonce();
-  req.nonce = nonce;
+  // Generate nonce for inline styles
+  const nonce = Math.random().toString(36).substring(2, 15);
+  res.locals.nonce = nonce;
+
+  // Only apply CSP in production and staging environments
+  if (process.env.NODE_ENV === 'development') {
+    return next();
+  }
 
   // Environment-specific configuration
   const isDevelopment = process.env.NODE_ENV === 'development';
