@@ -106,9 +106,9 @@ export async function requireAdminAuth(req: Request, res: Response, next: NextFu
             console.log(`❌ User ${user.email} is not an admin`);
           }
         }
-      } catch (jwtError) {
-        console.log('JWT admin validation failed:', jwtError);
       }
+    } catch (jwtError) {
+      console.log('JWT admin validation failed:', jwtError);
     }
   }
 
@@ -235,7 +235,7 @@ export async function requireUserAuth(req: Request, res: Response, next: NextFun
 export async function requireAdminViaSubscription(req: Request, res: Response, next: NextFunction) {
   try {
     const { ip, userAgent } = getClientInfo(req);
-    
+
     // First try JWT token authentication (for admin users logged in via JWT)
     const authHeader = req.headers.authorization;
     if (authHeader && authHeader.startsWith('Bearer ')) {
@@ -249,11 +249,11 @@ export async function requireAdminViaSubscription(req: Request, res: Response, n
             // Check if user is admin by email
             const adminEmails = ['admin@readmyfineprint.com', 'prodbybuddha@icloud.com', 'beatsbybuddha@gmail.com'];
             const isAdmin = adminEmails.includes(user.email);
-            
+
             if (isAdmin) {
               console.log(`✅ Admin access granted via JWT: ${user.email}`);
               securityLogger.logAdminAuth(ip, userAgent, req.path + ' (JWT admin)');
-              
+
               // Add user info to request for downstream use
               (req as any).user = {
                 id: user.id,
@@ -261,7 +261,7 @@ export async function requireAdminViaSubscription(req: Request, res: Response, n
                 tier: 'admin',
                 isAdmin: true
               };
-              
+
               return next();
             }
           }
@@ -270,7 +270,7 @@ export async function requireAdminViaSubscription(req: Request, res: Response, n
         console.log('JWT admin validation failed, trying subscription token:', jwtError);
       }
     }
-    
+
     // Fallback to subscription token authentication
     let adminSubscriptionToken = req.cookies?.subscriptionToken;
 
@@ -291,7 +291,7 @@ export async function requireAdminViaSubscription(req: Request, res: Response, n
     // Validate the subscription token using the new JOSE token service
     const { joseTokenService } = await import('./jose-token-service');
     const tokenData = await joseTokenService.validateSubscriptionToken(adminSubscriptionToken);
-    
+
     if (!tokenData || !tokenData.userId) {
       securityLogger.logFailedAuth(ip, userAgent, 'Invalid subscription token', req.path);
       return res.status(401).json({ 
@@ -336,7 +336,7 @@ export async function requireAdminViaSubscription(req: Request, res: Response, n
       tier: tokenData.tier || 'admin',
       isAdmin: isAdmin
     };
-    
+
     next();
   } catch (error) {
     console.error('Admin auth error:', error);
