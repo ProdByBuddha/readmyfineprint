@@ -60,8 +60,17 @@ export function log(message: string, source = "express") {
 export async function setupVite(app: Express, server: Server) {
   try {
     const { createServer: createViteServer, createLogger } = await import("vite");
-    // @ts-ignore - vite.config.js is a JavaScript file
-    const viteConfig = (await import("../vite.config.js")).default;
+    
+    // Import vite config and handle potential void return
+    let viteConfig: any = {};
+    try {
+      const configModule = await import("../vite.config.js");
+      viteConfig = configModule.default || {};
+    } catch (error) {
+      console.warn("Could not load vite config, using defaults:", error);
+      viteConfig = {};
+    }
+    
     const viteLogger = createLogger();
     
     const serverOptions = {
@@ -71,7 +80,7 @@ export async function setupVite(app: Express, server: Server) {
     };
 
     const vite = await createViteServer({
-      ...(viteConfig || {}),
+      ...viteConfig,
       configFile: false,
       customLogger: {
         ...viteLogger,
