@@ -1,0 +1,57 @@
+server/user-routes.ts:858:11 - error TS2339: Property 'requireAuth' does not exist on type 'typeof import("/home/runner/workspace/server/auth")'.
+
+858   const { requireAuth } = await import('./auth');
+              ~~~~~~~~~~~
+
+server/user-routes.ts:858:27 - error TS1308: 'await' expressions are only allowed within async functions and at the top levels of modules.
+
+858   const { requireAuth } = await import('./auth');
+                              ~~~~~
+
+  server/user-routes.ts:71:17
+    71 export function registerUserRoutes(app: Express) {
+                       ~~~~~~~~~~~~~~~~~~
+    Did you mean to mark this function as 'async'?
+
+server/user-routes.ts:859:35 - error TS1308: 'await' expressions are only allowed within async functions and at the top levels of modules.
+
+859   const { subscriptionService } = await import('./subscription-service');
+                                      ~~~~~
+
+  server/user-routes.ts:71:17
+    71 export function registerUserRoutes(app: Express) {
+                       ~~~~~~~~~~~~~~~~~~
+    Did you mean to mark this function as 'async'?
+
+server/user-routes.ts:860:40 - error TS1308: 'await' expressions are only allowed within async functions and at the top levels of modules.
+
+860   const { securityQuestionsService } = await import('./security-questions-service');
+                                           ~~~~~
+
+  server/user-routes.ts:71:17
+    71 export function registerUserRoutes(app: Express) {
+                       ~~~~~~~~~~~~~~~~~~
+    Did you mean to mark this function as 'async'?
+
+server/user-routes.ts:904:26 - error TS2339: Property 'username' does not exist on type '{ id: string; email: string; hashedPassword: string | null; stripeCustomerId: string | null; emailVerified: boolean; isActive: boolean; isAdmin: boolean; isDeleted: boolean; deletedAt: Date | null; ... 7 more ...; updatedAt: Date; }'.
+
+904           username: user.username,
+                             ~~~~~~~~
+
+server/user-routes.ts:905:31 - error TS2551: Property 'isEmailVerified' does not exist on type '{ id: string; email: string; hashedPassword: string | null; stripeCustomerId: string | null; emailVerified: boolean; isActive: boolean; isAdmin: boolean; isDeleted: boolean; deletedAt: Date | null; ... 7 more ...; updatedAt: Date; }'. Did you mean 'emailVerified'?
+
+905           emailVerified: user.isEmailVerified,
+                                  ~~~~~~~~~~~~~~~
+
+server/user-routes.ts:909:31 - error TS2339: Property 'preferredName' does not exist on type '{ id: string; email: string; hashedPassword: string | null; stripeCustomerId: string | null; emailVerified: boolean; isActive: boolean; isAdmin: boolean; isDeleted: boolean; deletedAt: Date | null; ... 7 more ...; updatedAt: Date; }'.
+
+909           preferredName: user.preferredName,
+                                  ~~~~~~~~~~~~~
+
+server/user-routes.ts:910:37 - error TS2339: Property 'isLegalProfessional' does not exist on type '{ id: string; email: string; hashedPassword: string | null; stripeCustomerId: string | null; emailVerified: boolean; isActive: boolean; isAdmin: boolean; isDeleted: boolean; deletedAt: Date | null; ... 7 more ...; updatedAt: Date; }'.
+
+910           isLegalProfessional: user.isLegalProfessional,
+                                        ~~~~~~~~~~~~~~~~~~~
+
+
+Found 8 errors in the same file, starting at: server/user-routes.ts:858

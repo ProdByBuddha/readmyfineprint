@@ -843,7 +843,7 @@ export function registerUserRoutes(app: Express) {
       const filename = `readmyfineprint-data-export-${user.id}-${new Date().toISOString().split('T')[0]}.json`;
       res.setHeader('Content-Type', 'application/json');
       res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);
-```text
+
       res.setHeader('X-Export-Date', new Date().toISOString());
       res.setHeader('X-Data-Types', exportData.exportInfo.dataTypes.join(','));
 
