@@ -1090,11 +1090,11 @@ export const piiDetectionPatterns = pgTable('pii_detection_patterns', {
 });
 
 // RLHF Relations
-export const piiDetectionFeedbackRelations = relations(piiDetectionFeedback, ({ many }) => ({
+export const piiDetectionFeedbackRelations = relations(piiDetectionFeedback, () => ({
   // No direct relations to users for anonymity
 }));
 
-export const piiDetectionMetricsRelations = relations(piiDetectionMetrics, ({ many }) => ({
+export const piiDetectionMetricsRelations = relations(piiDetectionMetrics, () => ({
   // No direct relations - aggregated data only
 }));
 
