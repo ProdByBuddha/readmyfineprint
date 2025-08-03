@@ -1032,9 +1032,14 @@ export async function getImprovementSuggestions() {
 export async function adminApiRequest(url: string, options: RequestInit = {}) {
   const headers = {
     'Content-Type': 'application/json',
-    'X-Admin-API-Key': import.meta.env.VITE_ADMIN_API_KEY, // Add Admin API Key
     ...options.headers,
   };
+
+  // Only add Admin API Key if it's available (optional for cookie-based auth)
+  const adminApiKey = import.meta.env?.VITE_ADMIN_API_KEY;
+  if (adminApiKey) {
+    headers['X-Admin-API-Key'] = adminApiKey;
+  }
 
   // Use cookie-based authentication
   const response = await fetchWithCSRF(url, {
