@@ -62,7 +62,7 @@ export class JOSEAuthService {
     try {
       await jwtSecretManager.initialize();
       const { secret } = jwtSecretManager.getCurrentSecret();
-      
+
       // Create a consistent 32-byte key for JOSE operations
       // Use same salt as subscription tokens for consistency
       this.secretKey = crypto.scryptSync(secret, 'auth-salt-v2', 32);
@@ -111,7 +111,7 @@ export class JOSEAuthService {
     try {
       const now = Math.floor(Date.now() / 1000);
       const { version } = jwtSecretManager.getCurrentSecret();
-      
+
       // Generate unique JTIs
       const accessJti = crypto.randomUUID();
       const refreshJti = crypto.randomUUID();
@@ -157,7 +157,7 @@ export class JOSEAuthService {
       // Store refresh token in database
       const refreshExpiry = new Date(refreshExp * 1000);
       const accessExpiry = new Date(accessExp * 1000);
-      
+
       if (process.env.DATABASE_URL) {
         const refreshTokenHash = this.hashToken(refreshToken);
 
