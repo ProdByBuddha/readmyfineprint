@@ -1,9 +1,43 @@
-import { Request, Response, NextFunction } from 'express';
+import { getClientInfo } from './security-logger';
+import type { Request, Response, NextFunction } from 'express';
+
+// Manual cookie parsing helper (consistent with server/index.ts)
+function parseCookies(cookieHeader: string): Record<string, string> {
+  const cookies: Record<string, string> = {};
+
+  if (cookieHeader) {
+    cookieHeader.split(';').forEach(cookie => {
+      const parts = cookie.trim().split('=');
+      if (parts.length === 2) {
+        const key = parts[0].trim();
+        const value = parts[1].trim();
+        try {
+          cookies[key] = decodeURIComponent(value);
+        } catch (error) {
+          // If decoding fails, use raw value
+          cookies[key] = value;
+        }
+      }
+    });
+  }
+
+  return cookies;
+}
+
+// Define extended request types
+interface AuthenticatedRequest extends Request {
+  user?: {
+    id: string;
+    email: string;
+    isAdmin?: boolean;
+  };
+  sessionId?: string;
+}
 import argon2 from 'argon2';
 import jwt from 'jsonwebtoken';
 import { secureJWTService } from './secure-jwt-service';
 import crypto from 'crypto';
-import { securityLogger, getClientInfo, SecurityEventType, SecuritySeverity } from './security-logger';
+import { securityLogger, SecurityEventType, SecuritySeverity } from './security-logger';
 import { databaseStorage } from './storage';
 import { consentLogger } from './consent';
 import { adminVerificationService } from './admin-verification';
@@ -79,30 +113,28 @@ export async function requireAdminAuth(req: Request, res: Response, next: NextFu
 
   // Try session-based authentication first (for staging/production)
   let sessionAuthenticated = false;
-  
+
   // Manual cookie parsing fallback (same as other endpoints)
-  let sessionId = req.cookies?.sessionId;
-  if (!sessionId && req.headers.cookie) {
-    const cookieMatch = req.headers.cookie.match(/sessionId=([^;]+)/);
-    if (cookieMatch) {
-      sessionId = cookieMatch[1];
-      console.log(`🔍 Legacy admin auth: Manual parse found sessionId: ${sessionId.slice(0, 8)}...`);
-    }
+  // Manual cookie parsing fallback (same as other endpoints)
+  let sessionId: string | undefined;
+  if (req.headers.cookie) {
+    const cookies = parseCookies(req.headers.cookie);
+    sessionId = cookies['sessionId'];
   }
-  
+
   if (sessionId) {
     try {
       const { postgresqlSessionStorage } = await import('./postgresql-session-storage');
       const token = await postgresqlSessionStorage.getTokenBySession(sessionId);
-      
+
       if (token) {
         const { joseTokenService } = await import('./jose-token-service');
         const tokenData = await joseTokenService.validateSubscriptionToken(token);
-        
+
         if (tokenData && tokenData.userId) {
           const { databaseStorage } = await import('./storage');
           const authenticatedUser = await databaseStorage.getUser(tokenData.userId);
-          
+
           if (authenticatedUser) {
             // Check if user is admin by email
             const adminEmails = ['admin@readmyfineprint.com', 'prodbybuddha@icloud.com', 'beatsbybuddha@gmail.com'];
@@ -124,14 +156,14 @@ export async function requireAdminAuth(req: Request, res: Response, next: NextFu
       console.log('Legacy admin auth session validation error:', sessionError);
     }
   }
-  
+
   if (sessionAuthenticated) {
     return next();
   }
 
   // Fall back to traditional admin key + token authentication
   console.log(`🔍 Session auth failed, trying traditional admin auth for ${req.path}`);
-  
+
   if (!providedKey || !adminToken) {
     securityLogger.logFailedAuth(ip, userAgent, 'Missing admin credentials and no valid session', req.path);
     return res.status(401).json({ 
@@ -209,20 +241,24 @@ export async function optionalUserAuth(req: Request, res: Response, next: NextFu
     }
 
     // Fallback to session-based authentication (like /api/auth/session does)
-    const sessionId = req.cookies?.sessionId;
+    let sessionId: string | undefined;
+    if (req.headers.cookie) {
+      const cookies = parseCookies(req.headers.cookie);
+      sessionId = cookies['sessionId'];
+    }
     if (sessionId) {
       try {
         console.log('🔍 Checking session-based authentication...');
-        
+
         // Get token from database using the same logic as /api/auth/session
         const { postgresqlSessionStorage } = await import('./postgresql-session-storage');
         const token = await postgresqlSessionStorage.getTokenBySession(sessionId);
-        
+
         if (token) {
           // Validate the subscription token (used for admin sessions)
           const { joseTokenService } = await import('./jose-token-service');
           const tokenData = await joseTokenService.validateSubscriptionToken(token);
-          
+
           if (tokenData && tokenData.userId) {
             // Get user data from database
             const user = await databaseStorage.getUser(tokenData.userId);
@@ -283,18 +319,22 @@ export async function requireUserAuth(req: Request, res: Response, next: NextFun
 export async function requireAdminViaSubscription(req: Request, res: Response, next: NextFunction) {
   try {
     const { ip, userAgent } = getClientInfo(req);
-    let subscriptionToken = req.headers['x-subscription-token'] as string;
+    let subscriptionToken: string | undefined = req.headers['x-subscription-token'] as string;
     let tokenData: any = null;
-    
+
     // Debug logging for admin authentication
     console.log(`🔍 Admin auth via subscription for ${req.path}`);
     console.log(`🔍 Headers: subscription-token=${subscriptionToken ? 'present' : 'missing'}, cookie=${req.headers.cookie ? 'present' : 'missing'}`);
-    console.log(`🔍 Cookies: sessionId=${req.cookies?.sessionId ? 'present' : 'missing'}, subscriptionToken=${req.cookies?.subscriptionToken ? 'present' : 'missing'}`);
-    
+    let sessionId: string | undefined;
 
     // First try to get token from httpOnly cookie (more secure)
-    subscriptionToken = req.cookies?.subscriptionToken;
-    
+
+    if (req.headers.cookie) {
+      const cookies = parseCookies(req.headers.cookie);
+      subscriptionToken = cookies['subscriptionToken'];
+      sessionId = cookies['sessionId'];
+    }
+
     // Fallback to header for backward compatibility
     if (!subscriptionToken) {
       subscriptionToken = req.headers['x-subscription-token'] as string;
@@ -302,7 +342,7 @@ export async function requireAdminViaSubscription(req: Request, res: Response, n
         console.log(`⚠️ Using deprecated header-based subscription token (migrate to cookies)`);
       }
     }
-    
+
     if (subscriptionToken) {
       const { joseTokenService } = await import('./jose-token-service');
       tokenData = await joseTokenService.validateSubscriptionToken(subscriptionToken);
@@ -314,12 +354,12 @@ export async function requireAdminViaSubscription(req: Request, res: Response, n
       if (authHeader && authHeader.startsWith('Bearer ')) {
         const jwtToken = authHeader.substring(7); // Remove 'Bearer ' prefix
         console.log(`🔍 Admin auth: Trying JWT token validation`);
-        
+
         try {
           // Try access token validation first (more likely for admin sessions)
           const { joseAuthService } = await import('./jose-auth-service');
           const accessValidation = await joseAuthService.validateAccessToken(jwtToken);
-          
+
           if (accessValidation.valid && accessValidation.payload) {
             // Create subscription token-like data from access token
             tokenData = {
@@ -333,7 +373,7 @@ export async function requireAdminViaSubscription(req: Request, res: Response, n
             // Fallback to subscription token validation
             const { joseTokenService } = await import('./jose-token-service');
             tokenData = await joseTokenService.validateSubscriptionToken(jwtToken);
-            
+
             if (tokenData) {
               console.log(`✅ Admin auth: JWT validation successful for user ${tokenData.userId} via subscription token`);
               subscriptionToken = jwtToken;
@@ -350,25 +390,22 @@ export async function requireAdminViaSubscription(req: Request, res: Response, n
     // If no header token or invalid, try cookie session
     if (!tokenData) {
       // Manual cookie parsing fallback (same as other endpoints)
-      let sessionId = req.cookies?.sessionId;
-      if (!sessionId && req.headers.cookie) {
-        const cookieMatch = req.headers.cookie.match(/sessionId=([^;]+)/);
-        if (cookieMatch) {
-          sessionId = cookieMatch[1];
-          console.log(`🔍 Admin auth: Manual parse found sessionId: ${sessionId.slice(0, 8)}...`);
-        }
+      let sessionId: string | undefined;
+      if (req.headers.cookie) {
+        const cookies = parseCookies(req.headers.cookie);
+        sessionId = cookies['sessionId'];
       }
-      
+
       if (sessionId) {
         try {
           const { postgresqlSessionStorage } = await import('./postgresql-session-storage');
           const token = await postgresqlSessionStorage.getTokenBySession(sessionId);
-          
+
           if (token) {
             // First try to validate as access token (more likely for admin sessions)
             const { joseAuthService } = await import('./jose-auth-service');
             const accessValidation = await joseAuthService.validateAccessToken(token);
-            
+
             if (accessValidation.valid && accessValidation.payload) {
               // Create subscription token-like data from access token
               tokenData = {
@@ -382,7 +419,7 @@ export async function requireAdminViaSubscription(req: Request, res: Response, n
               // Fallback to subscription token validation
               const { joseTokenService } = await import('./jose-token-service');
               tokenData = await joseTokenService.validateSubscriptionToken(token);
-              
+
               if (tokenData) {
                 subscriptionToken = token;
                 console.log(`✅ Admin auth: Session resolved to user ${tokenData.userId}, tier: ${tokenData.tierId}`);
@@ -616,17 +653,20 @@ export async function requireSecurityQuestions(req: Request, res: Response, next
     const adminKey = process.env.ADMIN_API_KEY;
     const providedKey = req.headers['x-admin-key'] as string;
     const adminToken = req.headers['x-admin-token'] as string;
-    
+
     if (adminKey && (providedKey === adminKey || adminToken)) {
       return next();
     }
 
     // Check if this is an admin user via subscription token
-    let subscriptionToken = req.cookies?.subscriptionToken;
-    if (!subscriptionToken) {
+    let subscriptionToken: string | undefined;
+    if (req.headers.cookie) {
+      const cookies = parseCookies(req.headers.cookie);
+      subscriptionToken = cookies['subscriptionToken'];
+    } else {
       subscriptionToken = req.headers['x-subscription-token'] as string;
     }
-    
+
     if (subscriptionToken) {
       try {
         const { joseTokenService } = await import('./jose-token-service');
@@ -669,13 +709,13 @@ export async function requireSecurityQuestions(req: Request, res: Response, next
     try {
       const { subscriptionService } = await import('./subscription-service');
       const subscriptionData = await subscriptionService.getUserSubscriptionWithUsage(userId);
-      
+
       // Free tier users don't need security questions
       if (!subscriptionData || subscriptionData.tier.id === 'free') {
         console.log(`Free tier user ${userId} bypassing security questions requirement`);
         return next();
       }
-      
+
       // Paid tier users need security questions
       console.log(`Checking security questions for ${subscriptionData.tier} tier user ${userId}`);
       const { securityQuestionsService } = await import('./security-questions-service');
@@ -737,11 +777,15 @@ export async function requireConsent(req: Request, res: Response, next: NextFunc
     }
 
     // Check if this is an admin user via subscription token (try cookie first, then header)
-    let subscriptionToken = req.cookies?.subscriptionToken;
-    if (!subscriptionToken) {
+    let subscriptionToken: string | undefined;
+
+    if (req.headers.cookie) {
+      const cookies = parseCookies(req.headers.cookie);
+      subscriptionToken = cookies['subscriptionToken'];
+    } else {
       subscriptionToken = req.headers['x-subscription-token'] as string;
     }
-    
+
     if (subscriptionToken) {
       try {
         const { joseTokenService } = await import('./jose-token-service');
@@ -832,7 +876,7 @@ function isSampleContractRequest(req: Request): boolean {
     // This will be allowed but we'll need to verify in the route handler
     // that it's actually a sample contract
     return false; // Let the route handler decide based on document content
-  }
+  }```text
 
   return false;
 }
