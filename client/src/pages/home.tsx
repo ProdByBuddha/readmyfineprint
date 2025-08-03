@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { ArrowRight, Shield, Clock, CheckCircle, FileText } from "lucide-react";
@@ -77,7 +77,7 @@ export default function Home() {
               Get powerful AI insights from contracts, agreements, and legal documents 
               while keeping your sensitive information completely secure.
             </p>
-            
+
             {/* Call to Action */}
             <div className="flex flex-col sm:flex-row gap-4 justify-center items-center mb-8">
               <Link href="/upload">
