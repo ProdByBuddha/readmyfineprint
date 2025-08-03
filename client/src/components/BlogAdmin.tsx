@@ -1018,7 +1018,7 @@ export function BlogAdmin() {
                   <label className="text-sm font-medium">Title</label>
                   <Input
                     value={newTopic.title}
-                    onChange={(e)> setNewTopic({...newTopic, title: e.target.value})}
+                    onChange={(e) => setNewTopic({...newTopic, title: e.target.value})}
                     placeholder="e.g., Understanding Software License Agreements"
                   />
                 </div>
