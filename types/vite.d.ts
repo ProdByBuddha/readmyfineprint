@@ -31,4 +31,8 @@ declare module 'vite' {
 
   export function createServer(config?: ViteConfig): Promise<ViteDevServer>;
   export function createLogger(): Logger;
+
+    export function defineConfig(arg0: { plugins: any[]; resolve: { alias: { "@": string; "@shared": string; "@assets": string; }; }; root: string; build: { outDir: string; emptyOutDir: boolean; chunkSizeWarningLimit: number; rollupOptions: { output: { manualChunks: { vendor: string[]; ui: string[]; utils: string[]; api: string[]; }; }; }; assetsInlineLimit: number; cssCodeSplit: boolean; sourcemap: boolean; minify: string; target: string[]; }; server: { port: number; strictPort: boolean; host: boolean; allowedHosts: string[]; cors: { origin: (string | RegExp)[]; credentials: boolean; methods: string[]; allowedHeaders: string[]; }; fs: { strict: boolean; deny: string[]; }; proxy: { '/api': { target: string; changeOrigin: boolean; secure: boolean; }; }; }; optimizeDeps: { include: string[]; }; css: { devSourcemap: boolean; }; }) {
+        throw new Error("Function not implemented.");
+    }
 }
