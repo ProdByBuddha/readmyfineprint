@@ -2,7 +2,7 @@ import dotenv from "dotenv";
 dotenv.config();
 import express, { type Request, Response, NextFunction } from "express";
 import cors from "cors";
-import cookieParser from "cookie-parser";
+
 import rateLimit from "express-rate-limit";
 import { registerRoutes } from "./routes";
 import { setupVite, serveStatic, log } from "./vite";
@@ -38,21 +38,26 @@ app.use(enhancedCorsProtection);
 app.use(requestSizeProtection);
 app.use(developmentServerProtection);
 
-// Add cookie parser middleware with configuration
-app.use(cookieParser(process.env.COOKIE_SECRET || undefined));
-
-// Additional middleware to ensure cookies are parsed in Replit/staging environments
+// Manual cookie parsing middleware (more reliable than cookie-parser in Replit)
 app.use((req, res, next) => {
-  // If cookie-parser didn't work and we have a cookie header, parse manually
-  if (!req.cookies && req.headers.cookie) {
-    req.cookies = {};
+  req.cookies = {};
+  
+  if (req.headers.cookie) {
     req.headers.cookie.split(';').forEach(cookie => {
       const parts = cookie.trim().split('=');
       if (parts.length === 2) {
-        req.cookies[parts[0]] = decodeURIComponent(parts[1]);
+        const key = parts[0].trim();
+        const value = parts[1].trim();
+        try {
+          req.cookies[key] = decodeURIComponent(value);
+        } catch (error) {
+          // If decoding fails, use raw value
+          req.cookies[key] = value;
+        }
       }
     });
   }
+  
   next();
 });
 
