@@ -1,5 +1,5 @@
 import { useEffect } from "react";
-import { useLocation } from "wouter";
+import { useLocation } from "react-router-dom";
 
 interface PageTransitionProps {
   children: React.ReactNode;

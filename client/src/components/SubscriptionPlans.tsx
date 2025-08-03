@@ -4,7 +4,7 @@ import { Check, Crown, Zap, Star, Sparkles, AlertTriangle, Target, ArrowRight } 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Link } from 'wouter';
+import { Link } from "react-router-dom";
 import { MailingListModal } from '@/components/MailingListModal';
 // Alert components available if needed for future features
 // import { Alert, AlertDescription } from '@/components/ui/alert';

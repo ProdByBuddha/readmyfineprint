@@ -10,7 +10,7 @@ import { useCombinedConsent } from "@/components/CombinedConsent";
 import { CookieConsentBanner } from "@/components/CookieConsentBanner";
 import { generateFAQSchema, updateSEO } from "@/lib/seo";
 import { LoginForm } from "@/components/LoginForm";
-import { useLocation, Link } from "wouter";
+import { useLocation, Link } from "react-router-dom";
 import type { Document } from "@shared/schema";
 
 export default function Home() {

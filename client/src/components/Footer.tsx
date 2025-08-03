@@ -1,4 +1,4 @@
-import { Link } from "wouter";
+import { Link } from "react-router-dom";
 import { Heart, Cookie, Share2, Target } from "lucide-react";
 import { CookieManagement } from "@/components/CookieManagement";
 import { useToast } from "@/hooks/use-toast";

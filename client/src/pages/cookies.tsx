@@ -4,7 +4,7 @@ import { Badge } from "@/components/ui/badge";
 import { TouchScrollContainer } from "@/components/TouchScrollContainer";
 import { Cookie, Shield, CheckCircle, AlertCircle, Info } from "lucide-react";
 import { useCombinedConsent } from "@/components/CombinedConsent";
-import { useLocation } from "wouter";
+import { useLocation } from "react-router-dom";
 
 export default function Cookies() {
   const { isAccepted, acceptAll, revokeConsent } = useCombinedConsent();

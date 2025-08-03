@@ -229,7 +229,8 @@ export function updateSEO(config: SEOConfig) {
   }
 }
 
-export function useSEO(pathname: string, customConfig?: Partial<SEOConfig>) {
+export const useSEO = (location: { pathname: string }) => {
+  const pathname = location.pathname;
   useEffect(() => {
     const baseConfig = pageSEOConfigs[pathname] || defaultSEO;
     const finalConfig = { ...baseConfig, ...customConfig };

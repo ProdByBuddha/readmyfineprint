@@ -12,7 +12,7 @@ import {
 import { Card, CardContent } from "@/components/ui/card";
 import { Checkbox } from "@/components/ui/checkbox";
 import { logConsent } from "@/lib/api";
-import { Link } from "wouter";
+import { Link } from "react-router-dom";
 
 interface LegalDisclaimerProps {
   onAccept: () => void;

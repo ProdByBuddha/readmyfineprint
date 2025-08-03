@@ -1,6 +1,6 @@
 
 import { useState, useEffect } from 'react';
-import { useLocation } from 'wouter';
+import { useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -8,7 +8,7 @@ import { Label } from "@/components/ui/label";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { CheckCircle, Heart, ArrowLeft, CreditCard, Loader2, Wallet, Copy, Target, ArrowRight } from "lucide-react";
 import { SocialShare } from "@/components/SocialShare";
-import { Link } from "wouter";
+import { Link } from "react-router-dom";
 import { useDonationTracking } from "../hooks/useDonationTracking";
 
 interface DonateButtonProps {

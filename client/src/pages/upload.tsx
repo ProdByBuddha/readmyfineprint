@@ -20,7 +20,7 @@ import { useAccessibility } from "@/hooks/useAccessibility";
 import { analyzeDocument, getDocument, createDocument, getQueueStatus } from "@/lib/api";
 import { useToast } from "@/hooks/use-toast";
 import { queryClient } from "@/lib/queryClient";
-import { useLocation } from "wouter";
+import { useLocation } from "react-router-dom";
 import type { Document } from "@shared/schema";
 import { useSecurityQuestionsHandler } from "@/hooks/useSecurityQuestionsHandler";
 import { SecurityQuestionsModal } from "@/components/SecurityQuestionsModal";
