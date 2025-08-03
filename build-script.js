@@ -3,17 +3,42 @@ import fs from 'fs';
 import path from 'path';
 import { execSync } from 'child_process';
 
-// Dynamic import of esbuild to handle potential module loading issues
+// Import esbuild with fallback handling
 let build;
 try {
+  // Try direct import first
   const esbuildModule = await import('esbuild');
   build = esbuildModule.build;
+  console.log('✅ esbuild imported successfully');
 } catch (error) {
   console.error('❌ Failed to import esbuild:', error.message);
-  console.log('📦 Installing esbuild...');
-  execSync('npm install esbuild', { stdio: 'inherit' });
-  const esbuildModule = await import('esbuild');
-  build = esbuildModule.build;
+  
+  // Try to reinstall esbuild with specific version
+  console.log('📦 Reinstalling esbuild...');
+  try {
+    execSync('npm uninstall esbuild', { stdio: 'inherit' });
+    execSync('npm install esbuild@^0.25.8', { stdio: 'inherit' });
+    
+    // Try import again after reinstall
+    const esbuildModule = await import('esbuild');
+    build = esbuildModule.build;
+    console.log('✅ esbuild imported after reinstall');
+  } catch (reinstallError) {
+    console.error('❌ Failed to reinstall and import esbuild:', reinstallError.message);
+    
+    // Final fallback: try using require syntax for CJS compatibility
+    try {
+      const { createRequire } = await import('module');
+      const require = createRequire(import.meta.url);
+      const esbuild = require('esbuild');
+      build = esbuild.build;
+      console.log('✅ esbuild imported using require fallback');
+    } catch (requireError) {
+      console.error('❌ All import methods failed:', requireError.message);
+      console.log('🔄 Falling back to npx esbuild command...');
+      build = null; // Will use npx fallback below
+    }
+  }
 }
 
 const __dirname = path.dirname(new URL(import.meta.url).pathname);
@@ -51,7 +76,9 @@ try {
 
 // Build React app with esbuild
 try {
-  await build({
+  if (build) {
+    // Use imported esbuild function
+    await build({
     entryPoints: ['client/src/main.tsx'],
     bundle: true,
     minify: true,
@@ -83,7 +110,14 @@ try {
     splitting: true,
     metafile: true,
     write: true
-  });
+    });
+  } else {
+    // Fallback to npx esbuild command
+    console.log('📦 Using npx esbuild fallback...');
+    const esbuildCmd = `npx esbuild client/src/main.tsx --bundle --minify --sourcemap --target=es2020 --format=esm --outdir=${distDir} --loader:.tsx=tsx --loader:.ts=ts --loader:.jsx=jsx --loader:.js=js --loader:.css=css --loader:.png=file --loader:.jpg=file --loader:.jpeg=file --loader:.gif=file --loader:.svg=file --loader:.woff=file --loader:.woff2=file --loader:.ttf=file --loader:.eot=file --define:process.env.NODE_ENV='"production"' --define:global=globalThis --splitting --metafile`;
+    
+    execSync(esbuildCmd, { stdio: 'inherit' });
+  }
 
   // Create index.html
   const indexHtml = `<!DOCTYPE html>
