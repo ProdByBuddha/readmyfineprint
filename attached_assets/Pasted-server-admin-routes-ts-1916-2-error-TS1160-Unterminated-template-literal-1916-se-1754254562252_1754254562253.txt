@@ -1,0 +1,395 @@
+server/admin-routes.ts:1916:2 - error TS1160: Unterminated template literal.
+
+1916 }
+      
+
+server/subscription-service.ts:1794:3 - error TS1443: Module declaration names may only use ' or " quoted strings.
+
+1794 ```text
+       ~~~~~
+1795       console.error('Error syncing Stripe subscription:', error);
+     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+ ... 
+1839       if (!newTier) {
+     ~~~~~~~~~~~~~~~~~~~~~
+1840         throw new Error(`Invalid tier ID: ${newTierId}`);
+     ~~~~~~~~~~~~~~~~~~~~~~~~~
+
+server/subscription-service.ts:1840:26 - error TS1434: Unexpected keyword or identifier.
+
+1840         throw new Error(`Invalid tier ID: ${newTierId}`);
+                              ~~~~~~~
+
+server/subscription-service.ts:1840:34 - error TS1434: Unexpected keyword or identifier.
+
+1840         throw new Error(`Invalid tier ID: ${newTierId}`);
+                                      ~~~~
+
+server/subscription-service.ts:1840:43 - error TS1434: Unexpected keyword or identifier.
+
+1840         throw new Error(`Invalid tier ID: ${newTierId}`);
+                                               ~
+
+server/subscription-service.ts:1853:19 - error TS1005: ';' expected.
+
+1853         message: `Admin updated subscription tier for user ${userId} to ${newTierId}`,
+                       ~~~~~
+
+server/subscription-service.ts:1853:25 - error TS1434: Unexpected keyword or identifier.
+
+1853         message: `Admin updated subscription tier for user ${userId} to ${newTierId}`,
+                             ~~~~~~~
+
+server/subscription-service.ts:1853:33 - error TS1434: Unexpected keyword or identifier.
+
+1853         message: `Admin updated subscription tier for user ${userId} to ${newTierId}`,
+                                     ~~~~~~~~~~~~
+
+server/subscription-service.ts:1853:46 - error TS1434: Unexpected keyword or identifier.
+
+1853         message: `Admin updated subscription tier for user ${userId} to ${newTierId}`,
+                                                  ~~~~
+
+server/subscription-service.ts:1853:55 - error TS1005: '(' expected.
+
+1853         message: `Admin updated subscription tier for user ${userId} to ${newTierId}`,
+                                                           ~~~~
+
+server/subscription-service.ts:1853:60 - error TS1005: ';' expected.
+
+1853         message: `Admin updated subscription tier for user ${userId} to ${newTierId}`,
+                                                                ~
+
+server/subscription-service.ts:1853:61 - error TS1005: ';' expected.
+
+1853         message: `Admin updated subscription tier for user ${userId} to ${newTierId}`,
+                                                                 ~
+
+server/subscription-service.ts:1853:70 - error TS1005: ')' expected.
+
+1853         message: `Admin updated subscription tier for user ${userId} to ${newTierId}`,
+                                                                          ~~
+
+server/subscription-service.ts:1853:73 - error TS1434: Unexpected keyword or identifier.
+
+1853         message: `Admin updated subscription tier for user ${userId} to ${newTierId}`,
+                                                                             ~
+
+server/subscription-service.ts:1895:19 - error TS1005: ';' expected.
+
+1895         message: `Admin extended subscription for user ${userId} by ${days} days`,
+                       ~~~~~
+
+server/subscription-service.ts:1895:25 - error TS1435: Unknown keyword or identifier. Did you mean 'extends'?
+
+1895         message: `Admin extended subscription for user ${userId} by ${days} days`,
+                             ~~~~~~~~
+
+server/subscription-service.ts:1895:34 - error TS1434: Unexpected keyword or identifier.
+
+1895         message: `Admin extended subscription for user ${userId} by ${days} days`,
+                                      ~~~~~~~~~~~~
+
+server/subscription-service.ts:1895:51 - error TS1005: '(' expected.
+
+1895         message: `Admin extended subscription for user ${userId} by ${days} days`,
+                                                       ~~~~
+
+server/subscription-service.ts:1895:56 - error TS1005: ';' expected.
+
+1895         message: `Admin extended subscription for user ${userId} by ${days} days`,
+                                                            ~
+
+server/subscription-service.ts:1895:57 - error TS1005: ';' expected.
+
+1895         message: `Admin extended subscription for user ${userId} by ${days} days`,
+                                                             ~
+
+server/subscription-service.ts:1895:66 - error TS1005: ')' expected.
+
+1895         message: `Admin extended subscription for user ${userId} by ${days} days`,
+                                                                      ~~
+
+server/subscription-service.ts:1895:69 - error TS1434: Unexpected keyword or identifier.
+
+1895         message: `Admin extended subscription for user ${userId} by ${days} days`,
+                                                                         ~
+
+server/subscription-service.ts:1895:81 - error TS1443: Module declaration names may only use ' or " quoted strings.
+
+1895         message: `Admin extended subscription for user ${userId} by ${days} days`,
+                                                                                     ~~
+1896         ip: 'system',
+     ~~~~~~~~~~~~~~~~~~~~~
+ ... 
+1957 
+     
+1958       console.log(`Generated secure subscription token for user ${userId} (expires in 30 days)`);
+     ~~~~~~~~~~~~~~~~~~~
+
+server/subscription-service.ts:1958:20 - error TS1434: Unexpected keyword or identifier.
+
+1958       console.log(`Generated secure subscription token for user ${userId} (expires in 30 days)`);
+                        ~~~~~~~~~
+
+server/subscription-service.ts:1958:30 - error TS1434: Unexpected keyword or identifier.
+
+1958       console.log(`Generated secure subscription token for user ${userId} (expires in 30 days)`);
+                                  ~~~~~~
+
+server/subscription-service.ts:1958:37 - error TS1434: Unexpected keyword or identifier.
+
+1958       console.log(`Generated secure subscription token for user ${userId} (expires in 30 days)`);
+                                         ~~~~~~~~~~~~
+
+server/subscription-service.ts:1958:50 - error TS1434: Unexpected keyword or identifier.
+
+1958       console.log(`Generated secure subscription token for user ${userId} (expires in 30 days)`);
+                                                      ~~~~~
+
+server/subscription-service.ts:1958:60 - error TS1005: '(' expected.
+
+1958       console.log(`Generated secure subscription token for user ${userId} (expires in 30 days)`);
+                                                                ~~~~
+
+server/subscription-service.ts:1958:65 - error TS1005: ';' expected.
+
+1958       console.log(`Generated secure subscription token for user ${userId} (expires in 30 days)`);
+                                                                     ~
+
+server/subscription-service.ts:1958:66 - error TS1005: ';' expected.
+
+1958       console.log(`Generated secure subscription token for user ${userId} (expires in 30 days)`);
+                                                                      ~
+
+server/subscription-service.ts:1958:90 - error TS1005: ',' expected.
+
+1958       console.log(`Generated secure subscription token for user ${userId} (expires in 30 days)`);
+                                                                                              ~~~~
+
+server/subscription-service.ts:1992:22 - error TS1005: ')' expected.
+
+1992         console.log(`Token used from device: ${deviceFingerprint.slice(0, 16)}... for user ${tokenData.userId}`);
+                          ~~~~~
+
+server/subscription-service.ts:1992:28 - error TS1434: Unexpected keyword or identifier.
+
+1992         console.log(`Token used from device: ${deviceFingerprint.slice(0, 16)}... for user ${tokenData.userId}`);
+                                ~~~~
+
+server/subscription-service.ts:1992:33 - error TS1434: Unexpected keyword or identifier.
+
+1992         console.log(`Token used from device: ${deviceFingerprint.slice(0, 16)}... for user ${tokenData.userId}`);
+                                     ~~~~
+
+server/subscription-service.ts:1992:46 - error TS1434: Unexpected keyword or identifier.
+
+1992         console.log(`Token used from device: ${deviceFingerprint.slice(0, 16)}... for user ${tokenData.userId}`);
+                                                  ~
+
+server/subscription-service.ts:1992:79 - error TS1128: Declaration or statement expected.
+
+1992         console.log(`Token used from device: ${deviceFingerprint.slice(0, 16)}... for user ${tokenData.userId}`);
+                                                                                   ~~~
+
+server/subscription-service.ts:1992:87 - error TS1005: '(' expected.
+
+1992         console.log(`Token used from device: ${deviceFingerprint.slice(0, 16)}... for user ${tokenData.userId}`);
+                                                                                           ~~~~
+
+server/subscription-service.ts:1992:92 - error TS1005: ';' expected.
+
+1992         console.log(`Token used from device: ${deviceFingerprint.slice(0, 16)}... for user ${tokenData.userId}`);
+                                                                                                ~
+
+server/subscription-service.ts:1992:93 - error TS1005: ';' expected.
+
+1992         console.log(`Token used from device: ${deviceFingerprint.slice(0, 16)}... for user ${tokenData.userId}`);
+                                                                                                 ~
+
+server/subscription-service.ts:1992:103 - error TS1005: ',' expected.
+
+1992         console.log(`Token used from device: ${deviceFingerprint.slice(0, 16)}... for user ${tokenData.userId}`);
+                                                                                                           ~
+
+server/subscription-service.ts:2025:18 - error TS1005: ')' expected.
+
+2025     console.log(`Stored session token mapping for session ${sessionId}`);
+                      ~~~~~~
+
+server/subscription-service.ts:2025:25 - error TS1434: Unexpected keyword or identifier.
+
+2025     console.log(`Stored session token mapping for session ${sessionId}`);
+                             ~~~~~~~
+
+server/subscription-service.ts:2025:33 - error TS1434: Unexpected keyword or identifier.
+
+2025     console.log(`Stored session token mapping for session ${sessionId}`);
+                                     ~~~~~
+
+server/subscription-service.ts:2025:39 - error TS1434: Unexpected keyword or identifier.
+
+2025     console.log(`Stored session token mapping for session ${sessionId}`);
+                                           ~~~~~~~
+
+server/subscription-service.ts:2025:51 - error TS1005: '(' expected.
+
+2025     console.log(`Stored session token mapping for session ${sessionId}`);
+                                                       ~~~~~~~
+
+server/subscription-service.ts:2025:59 - error TS1005: ';' expected.
+
+2025     console.log(`Stored session token mapping for session ${sessionId}`);
+                                                               ~
+
+server/subscription-service.ts:2025:60 - error TS1005: ';' expected.
+
+2025     console.log(`Stored session token mapping for session ${sessionId}`);
+                                                                ~
+
+server/subscription-service.ts:2057:19 - error TS1005: ')' expected.
+
+2057         message: `Subscription token revoked: ${reason}`,
+                       ~~~~~~~~~~~~
+
+server/subscription-service.ts:2057:32 - error TS1434: Unexpected keyword or identifier.
+
+2057         message: `Subscription token revoked: ${reason}`,
+                                    ~~~~~
+
+server/subscription-service.ts:2057:47 - error TS1434: Unexpected keyword or identifier.
+
+2057         message: `Subscription token revoked: ${reason}`,
+                                                   ~
+
+server/subscription-service.ts:2071:22 - error TS1005: ';' expected.
+
+2071         console.log(`Revoked subscription token for user ${tokenInfo.userId}: ${reason}`);
+                          ~~~~~~~
+
+server/subscription-service.ts:2071:30 - error TS1434: Unexpected keyword or identifier.
+
+2071         console.log(`Revoked subscription token for user ${tokenInfo.userId}: ${reason}`);
+                                  ~~~~~~~~~~~~
+
+server/subscription-service.ts:2071:43 - error TS1434: Unexpected keyword or identifier.
+
+2071         console.log(`Revoked subscription token for user ${tokenInfo.userId}: ${reason}`);
+                                               ~~~~~
+
+server/subscription-service.ts:2071:53 - error TS1005: '(' expected.
+
+2071         console.log(`Revoked subscription token for user ${tokenInfo.userId}: ${reason}`);
+                                                         ~~~~
+
+server/subscription-service.ts:2071:58 - error TS1005: ';' expected.
+
+2071         console.log(`Revoked subscription token for user ${tokenInfo.userId}: ${reason}`);
+                                                              ~
+
+server/subscription-service.ts:2071:59 - error TS1005: ';' expected.
+
+2071         console.log(`Revoked subscription token for user ${tokenInfo.userId}: ${reason}`);
+                                                               ~
+
+server/subscription-service.ts:2071:69 - error TS1005: ',' expected.
+
+2071         console.log(`Revoked subscription token for user ${tokenInfo.userId}: ${reason}`);
+                                                                         ~
+
+server/subscription-service.ts:2071:77 - error TS1005: ')' expected.
+
+2071         console.log(`Revoked subscription token for user ${tokenInfo.userId}: ${reason}`);
+                                                                                 ~
+
+server/subscription-service.ts:2071:79 - error TS1434: Unexpected keyword or identifier.
+
+2071         console.log(`Revoked subscription token for user ${tokenInfo.userId}: ${reason}`);
+                                                                                   ~
+
+server/subscription-service.ts:2093:21 - error TS1005: ';' expected.
+
+2093           message: `All subscription tokens revoked for user: ${reason}`,
+                         ~~~
+
+server/subscription-service.ts:2093:25 - error TS1434: Unexpected keyword or identifier.
+
+2093           message: `All subscription tokens revoked for user: ${reason}`,
+                             ~~~~~~~~~~~~
+
+server/subscription-service.ts:2093:38 - error TS1434: Unexpected keyword or identifier.
+
+2093           message: `All subscription tokens revoked for user: ${reason}`,
+                                          ~~~~~~
+
+server/subscription-service.ts:2093:45 - error TS1434: Unexpected keyword or identifier.
+
+2093           message: `All subscription tokens revoked for user: ${reason}`,
+                                                 ~~~~~~~
+
+server/subscription-service.ts:2093:57 - error TS1005: '(' expected.
+
+2093           message: `All subscription tokens revoked for user: ${reason}`,
+                                                             ~~~~
+
+server/subscription-service.ts:2093:61 - error TS1005: ';' expected.
+
+2093           message: `All subscription tokens revoked for user: ${reason}`,
+                                                                 ~
+
+server/subscription-service.ts:2093:63 - error TS1434: Unexpected keyword or identifier.
+
+2093           message: `All subscription tokens revoked for user: ${reason}`,
+                                                                   ~
+
+server/subscription-service.ts:2104:22 - error TS1005: ';' expected.
+
+2104         console.log(`Revoked ${revokedCount} tokens for user ${userId}: ${reason}`);
+                          ~~~~~~~
+
+server/subscription-service.ts:2104:30 - error TS1434: Unexpected keyword or identifier.
+
+2104         console.log(`Revoked ${revokedCount} tokens for user ${userId}: ${reason}`);
+                                  ~
+
+server/subscription-service.ts:2104:46 - error TS1434: Unexpected keyword or identifier.
+
+2104         console.log(`Revoked ${revokedCount} tokens for user ${userId}: ${reason}`);
+                                                  ~~~~~~
+
+server/subscription-service.ts:2104:57 - error TS1005: '(' expected.
+
+2104         console.log(`Revoked ${revokedCount} tokens for user ${userId}: ${reason}`);
+                                                             ~~~~
+
+server/subscription-service.ts:2104:62 - error TS1005: ';' expected.
+
+2104         console.log(`Revoked ${revokedCount} tokens for user ${userId}: ${reason}`);
+                                                                  ~
+
+server/subscription-service.ts:2104:63 - error TS1005: ';' expected.
+
+2104         console.log(`Revoked ${revokedCount} tokens for user ${userId}: ${reason}`);
+                                                                   ~
+
+server/subscription-service.ts:2104:71 - error TS1005: ')' expected.
+
+2104         console.log(`Revoked ${revokedCount} tokens for user ${userId}: ${reason}`);
+                                                                           ~
+
+server/subscription-service.ts:2104:73 - error TS1434: Unexpected keyword or identifier.
+
+2104         console.log(`Revoked ${revokedCount} tokens for user ${userId}: ${reason}`);
+                                                                             ~
+
+server/subscription-service.ts:2132:2 - error TS1160: Unterminated template literal.
+
+2132 }
+      
+
+
+Found 75 errors in 2 files.
+
+Errors  Files
+     1  server/admin-routes.ts:1916
+    74  server/subscription-service.ts:1794
