@@ -1032,8 +1032,16 @@ export async function getImprovementSuggestions() {
 export async function adminApiRequest(url: string, options: RequestInit = {}) {
   const headers: Record<string, string> = {
     'Content-Type': 'application/json',
-    ...options.headers,
   };
+
+  // Safely add headers from options if they exist and are valid
+  if (options.headers && typeof options.headers === 'object' && !Array.isArray(options.headers)) {
+    Object.entries(options.headers).forEach(([key, value]) => {
+      if (typeof value === 'string') {
+        headers[key] = value;
+      }
+    });
+  }
 
   // Only add Admin API Key if it's available (optional for cookie-based auth)
   const adminApiKey = import.meta.env?.VITE_ADMIN_API_KEY;
