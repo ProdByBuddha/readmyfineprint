@@ -1,0 +1,177 @@
+server/user-routes.ts:866:29 - error TS1005: ']' expected.
+
+866       console.log(`[Profile API] Getting profile for user: ${userId}`);
+                                ~~~
+
+server/user-routes.ts:866:32 - error TS1128: Declaration or statement expected.
+
+866       console.log(`[Profile API] Getting profile for user: ${userId}`);
+                                   ~
+
+server/user-routes.ts:866:34 - error TS1434: Unexpected keyword or identifier.
+
+866       console.log(`[Profile API] Getting profile for user: ${userId}`);
+                                     ~~~~~~~
+
+server/user-routes.ts:866:42 - error TS1434: Unexpected keyword or identifier.
+
+866       console.log(`[Profile API] Getting profile for user: ${userId}`);
+                                             ~~~~~~~
+
+server/user-routes.ts:866:54 - error TS1005: '(' expected.
+
+866       console.log(`[Profile API] Getting profile for user: ${userId}`);
+                                                         ~~~~
+
+server/user-routes.ts:866:58 - error TS1005: ';' expected.
+
+866       console.log(`[Profile API] Getting profile for user: ${userId}`);
+                                                             ~
+
+server/user-routes.ts:866:60 - error TS1434: Unexpected keyword or identifier.
+
+866       console.log(`[Profile API] Getting profile for user: ${userId}`);
+                                                               ~
+
+server/user-routes.ts:871:31 - error TS1005: ']' expected.
+
+871         console.log(`[Profile API] User not found: ${userId}`);
+                                  ~~~
+
+server/user-routes.ts:871:34 - error TS1128: Declaration or statement expected.
+
+871         console.log(`[Profile API] User not found: ${userId}`);
+                                     ~
+
+server/user-routes.ts:871:36 - error TS1434: Unexpected keyword or identifier.
+
+871         console.log(`[Profile API] User not found: ${userId}`);
+                                       ~~~~
+
+server/user-routes.ts:871:41 - error TS1434: Unexpected keyword or identifier.
+
+871         console.log(`[Profile API] User not found: ${userId}`);
+                                            ~~~
+
+server/user-routes.ts:871:52 - error TS1434: Unexpected keyword or identifier.
+
+871         console.log(`[Profile API] User not found: ${userId}`);
+                                                       ~
+
+server/user-routes.ts:875:29 - error TS1005: ']' expected.
+
+875       console.log(`[Profile API] User found: ${user.email} (${userId})`);
+                                ~~~
+
+server/user-routes.ts:875:32 - error TS1128: Declaration or statement expected.
+
+875       console.log(`[Profile API] User found: ${user.email} (${userId})`);
+                                   ~
+
+server/user-routes.ts:875:34 - error TS1434: Unexpected keyword or identifier.
+
+875       console.log(`[Profile API] User found: ${user.email} (${userId})`);
+                                     ~~~~
+
+server/user-routes.ts:875:46 - error TS1434: Unexpected keyword or identifier.
+
+875       console.log(`[Profile API] User found: ${user.email} (${userId})`);
+                                                 ~
+
+server/user-routes.ts:875:62 - error TS1005: ')' expected.
+
+875       console.log(`[Profile API] User found: ${user.email} (${userId})`);
+                                                                 ~
+
+server/user-routes.ts:875:70 - error TS1128: Declaration or statement expected.
+
+875       console.log(`[Profile API] User found: ${user.email} (${userId})`);
+                                                                         ~
+
+server/user-routes.ts:879:29 - error TS1005: ']' expected.
+
+879       console.log(`[Profile API] Subscription data - Tier: ${subscriptionData.tier.name} (${subscriptionData.tier.id})`);
+                                ~~~
+
+server/user-routes.ts:879:32 - error TS1128: Declaration or statement expected.
+
+879       console.log(`[Profile API] Subscription data - Tier: ${subscriptionData.tier.name} (${subscriptionData.tier.id})`);
+                                   ~
+
+server/user-routes.ts:879:34 - error TS1434: Unexpected keyword or identifier.
+
+879       console.log(`[Profile API] Subscription data - Tier: ${subscriptionData.tier.name} (${subscriptionData.tier.id})`);
+                                     ~~~~~~~~~~~~
+
+server/user-routes.ts:879:58 - error TS1005: ';' expected.
+
+879       console.log(`[Profile API] Subscription data - Tier: ${subscriptionData.tier.name} (${subscriptionData.tier.id})`);
+                                                             ~
+
+server/user-routes.ts:879:60 - error TS1434: Unexpected keyword or identifier.
+
+879       console.log(`[Profile API] Subscription data - Tier: ${subscriptionData.tier.name} (${subscriptionData.tier.id})`);
+                                                               ~
+
+server/user-routes.ts:879:92 - error TS1005: ')' expected.
+
+879       console.log(`[Profile API] Subscription data - Tier: ${subscriptionData.tier.name} (${subscriptionData.tier.id})`);
+                                                                                               ~
+
+server/user-routes.ts:879:118 - error TS1128: Declaration or statement expected.
+
+879       console.log(`[Profile API] Subscription data - Tier: ${subscriptionData.tier.name} (${subscriptionData.tier.id})`);
+                                                                                                                         ~
+
+server/user-routes.ts:923:29 - error TS1005: ']' expected.
+
+923       console.log(`[Profile API] Responding with tier: ${responseData.tier.name} for user: ${userId}`);
+                                ~~~
+
+server/user-routes.ts:923:32 - error TS1128: Declaration or statement expected.
+
+923       console.log(`[Profile API] Responding with tier: ${responseData.tier.name} for user: ${userId}`);
+                                   ~
+
+server/user-routes.ts:923:34 - error TS1434: Unexpected keyword or identifier.
+
+923       console.log(`[Profile API] Responding with tier: ${responseData.tier.name} for user: ${userId}`);
+                                     ~~~~~~~~~~
+
+server/user-routes.ts:923:50 - error TS1005: '(' expected.
+
+923       console.log(`[Profile API] Responding with tier: ${responseData.tier.name} for user: ${userId}`);
+                                                     ~~~~
+
+server/user-routes.ts:923:54 - error TS1005: ')' expected.
+
+923       console.log(`[Profile API] Responding with tier: ${responseData.tier.name} for user: ${userId}`);
+                                                         ~
+
+server/user-routes.ts:923:56 - error TS1434: Unexpected keyword or identifier.
+
+923       console.log(`[Profile API] Responding with tier: ${responseData.tier.name} for user: ${userId}`);
+                                                           ~
+
+server/user-routes.ts:923:86 - error TS1005: '(' expected.
+
+923       console.log(`[Profile API] Responding with tier: ${responseData.tier.name} for user: ${userId}`);
+                                                                                         ~~~~
+
+server/user-routes.ts:923:90 - error TS1005: ';' expected.
+
+923       console.log(`[Profile API] Responding with tier: ${responseData.tier.name} for user: ${userId}`);
+                                                                                             ~
+
+server/user-routes.ts:923:92 - error TS1434: Unexpected keyword or identifier.
+
+923       console.log(`[Profile API] Responding with tier: ${responseData.tier.name} for user: ${userId}`);
+                                                                                               ~
+
+server/user-routes.ts:930:2 - error TS1160: Unterminated template literal.
+
+930 }
+     
+
+
+Found 35 errors in the same file, starting at: server/user-routes.ts:866
