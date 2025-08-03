@@ -378,14 +378,19 @@ export class DatabaseStorage implements IStorage {
 
   // Usage tracking methods
   async getUserUsage(userId: string, period: string): Promise<UsageRecord | undefined> {
-    const [usage] = await db
+    await this.ensureInitialized();
+    if (process.env.VALIDATION_MODE === 'true') return undefined;
+    
+    const result = await db
       .select()
       .from(usageRecords)
       .where(and(
         eq(usageRecords.userId, userId),
         eq(usageRecords.period, period)
-      ));
-    return usage || undefined;
+      ))
+      .limit(1);
+    
+    return result[0] || undefined;
   }
 
   async createUsageRecord(insertUsage: InsertUsageRecord): Promise<UsageRecord> {
