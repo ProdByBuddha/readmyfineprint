@@ -18,7 +18,7 @@ MONITORING_EMAIL_RECIPIENT = "prodbybuddha@icloud.com"
 MONITORING_EMAIL_SUBJECT = "ReadMyFinePrint Production Alert"
 
 [workflows]
-runButton = "Deploy Staging"
+runButton = "Start Dev + PII LLM"
 
 [[workflows.workflow]]
 name = "Project"

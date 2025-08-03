@@ -1,4 +1,4 @@
-import { Switch, Route, useLocation, Redirect } from "wouter";
+import { BrowserRouter as Router, Routes, Route, useLocation } from "react-router-dom";
 import { queryClient } from "./lib/queryClient";
 import { QueryClientProvider } from "@tanstack/react-query";
 import { Toaster } from "./components/ui/toaster";
@@ -50,37 +50,37 @@ const PageLoader = () => (
   </div>
 );
 
-function Router() {
+function AppRouter() {
   return (
     <Suspense fallback={<PageLoader />}>
-      <Switch>
-        <Route path="/" component={Home} />
-        <Route path="/upload" component={Upload} />
-        <Route path="/privacy" component={Privacy} />
-        <Route path="/terms" component={Terms} />
-        <Route path="/cookies" component={Cookies} />
-        <Route path="/donate" component={Donate} />
-        <Route path="/roadmap" component={Roadmap} />
-        <Route path="/subscription" component={Subscription} />
+      <Routes>
+        <Route path="/" element={<Home />} />
+        <Route path="/upload" element={<Upload />} />
+        <Route path="/privacy" element={<Privacy />} />
+        <Route path="/terms" element={<Terms />} />
+        <Route path="/cookies" element={<Cookies />} />
+        <Route path="/donate" element={<Donate />} />
+        <Route path="/roadmap" element={<Roadmap />} />
+        <Route path="/subscription" element={<Subscription />} />
         <Route 
               path="/admin" 
-              component={AdminDashboard} 
+              element={<AdminDashboard />} 
             />
-        <Route path="/email-recovery" component={EmailRecoveryPage} />
-        <Route path="/trust" component={TrustPage} />
-        <Route path="/blog" component={BlogPage} />
-        <Route path="/blog/:slug" component={BlogPostPage} />
-        <Route path="/unsubscribe" component={UnsubscribePage} />
-        <Route path="/settings" component={SettingsPage} />
-        <Route component={NotFound} />
-      </Switch>
+        <Route path="/email-recovery" element={<EmailRecoveryPage />} />
+        <Route path="/trust" element={<TrustPage />} />
+        <Route path="/blog" element={<BlogPage />} />
+        <Route path="/blog/:slug" element={<BlogPostPage />} />
+        <Route path="/unsubscribe" element={<UnsubscribePage />} />
+        <Route path="/settings" element={<SettingsPage />} />
+        <Route path="*" element={<NotFound />} />
+      </Routes>
     </Suspense>
   );
 }
 
 // Inner component that has access to SecurityQuestionsProvider context
 function AppContent() {
-  const [location] = useLocation();
+  const location = useLocation();
   const [showConsentModal, setShowConsentModal] = useState(false);
   const { toast } = useToast();
   const { requiresSetup, isLoading } = useSecurityQuestions();
@@ -238,7 +238,7 @@ function AppContent() {
           aria-label="Main content"
         >
           <PageTransition>
-            <Router />
+            <AppRouter />
           </PageTransition>
         </main>
 
@@ -274,20 +274,22 @@ function AppContent() {
 // Main App component with providers
 function App() {
   return (
-    <QueryClientProvider client={queryClient}>
-      <ThemeProvider>
-        <TooltipProvider>
-          <ErrorBoundary>
-            <SkipLinks />
-            <DirectionProvider dir="ltr">
-              <SecurityQuestionsProvider>
-                <AppContent />
-              </SecurityQuestionsProvider>
-            </DirectionProvider>
-          </ErrorBoundary>
-        </TooltipProvider>
-      </ThemeProvider>
-    </QueryClientProvider>
+    <Router>
+      <QueryClientProvider client={queryClient}>
+        <ThemeProvider>
+          <TooltipProvider>
+            <ErrorBoundary>
+              <SkipLinks />
+              <DirectionProvider dir="ltr">
+                <SecurityQuestionsProvider>
+                  <AppContent />
+                </SecurityQuestionsProvider>
+              </DirectionProvider>
+            </ErrorBoundary>
+          </TooltipProvider>
+        </ThemeProvider>
+      </QueryClientProvider>
+    </Router>
   );
 }
 
