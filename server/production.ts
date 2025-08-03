@@ -11,7 +11,6 @@ import { securityLogger, getClientInfo } from './security-logger.js';
 import { enhancedCorsProtection, requestSizeProtection, developmentServerProtection } from './security-middleware.js';
 import crypto from 'crypto';
 import { subscriptionService } from './subscription-service';
-import { securityLogger } from './security-logger';
 import { xssProtectionService } from './xss-protection-service';
 import { tierAssignmentMonitor } from './tier-assignment-monitor';
 
