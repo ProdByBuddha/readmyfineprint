@@ -1,0 +1,1413 @@
+> readmyfineprint@2.0.0 start:staging
+> NODE_ENV=staging concurrently "tsx server/production.ts" "node scripts/local-llm-server.cjs" "npm run monitor:continuous"
+
+[1] 🚀 Local LLM server running on port 11434
+[1] 📡 Compatible with Ollama API endpoints
+[1] 🔍 Ready for PII detection requests
+[1] 🛑 Press Ctrl+C to stop
+[2] 
+[2] > readmyfineprint@2.0.0 monitor:continuous
+[2] > node scripts/production-monitor.js --continuous
+[2] 
+[2] 🚀 Production Monitor initialized for staging environment
+[2] 📧 Email alerts enabled for: prodbybuddha@icloud.com
+[2] 🚀 Starting continuous production monitoring...
+[2] 📊 Environment: staging
+[2] ⏰ Check interval: 120 seconds
+[2] Press Ctrl+C to stop
+[2] 
+[[0] ✓ Consent logging enabled with PostgreSQL database.
+[0] ✅ JWT Secret Manager initialized with versioned secrets
+[0] Blog Scheduler initialized with config: {
+[0]   enabled: false,
+[0]   postsPerDay: 3,
+[0]   hours: [ 9, 13, 17 ],
+[0]   maxPostsPerHour: 1,
+[0]   timezone: 'America/New_York',
+[0]   minHoursBetweenPosts: 4
+[0] }
+[0] 📋 Initialized 4 disaster recovery scenarios
+[0] 🔍 Started continuous health monitoring
+[0] 🔑 Using Stripe key: sk_live_51RWnyY... (test mode: false)
+[0] 🚀 Starting ReadMyFinePrint Production Server...
+[0] 🔍 Validating environment variables...
+[0] ✅ OPENAI_API_KEY: sk-***
+[0] ✅ ADMIN_API_KEY: 81ad52472ab148577fb4ba109d09901d1e9b5d55479ccebbea...
+[0] ✅ JWT_SECRET: KQvWGiKq5jAfsTSHFID1StgprPQAusDKhJmSdVFKgZI5W/nF2O...
+[0] ✅ TOKEN_ENCRYPTION_KEY: ddf455b6fd8c0e59d5893bf44e7bca157c0ad51405258c7bee...
+[0] ✅ PASSWORD_PEPPER: b0dea38aca02ad50d94b704f127740decf0e4839b66c6f145d...
+[0] ✅ ALLOWED_ORIGINS: https://readmyfineprint.com,https://edcf3ef7-a826-...
+[0] ✅ NODE_ENV: staging
+[0] ✅ SESSION_ENCRYPTION_KEY: 2651fc8605cabc8b756adbc6861138afe8cf520d54417763ee...
+[0] ✅ REPLIT_DB_URL: https://kv.replit.com/v0/eyJhbGciOiJIUzUxMiIsImlzc...
+[0] 🚧 Running in staging environment
+[0] ✅ STRIPE_PUBLIC_KEY: pk_live_51RWnyYLNxaR...
+[0] ✅ STRIPE_SECRET_KEY: sk_live_51...
+[0] ✅ STRIPE_TEST_PUBLIC_KEY: pk_test_51RWnynPxX1d...
+[0] ✅ STRIPE_TEST_SECRET_KEY: sk_test_51...
+[0] 🔄 Concurrent test/live payment processing enabled
+[0] 
+[0] 📋 Warnings:
+[0]    ⚠️  Optional SECURITY_WEBHOOK_URL not set - Optional webhook URL for security alerts (for external monitoring)
+[0] ✅ Environment validation passed
+[0]    (1 warning)
+[0] 
+[0] 🔧 Environment Configuration:
+[0]    Environment: staging
+[0]    OpenAI API: ✅ Configured
+[0]    Admin Auth: ✅ Configured
+[0]    CORS Origins: https://readmyfineprint.com,https://edcf3ef7-a826-4eed-8e04-7a485b2e183a-00-1wyt...
+[0] 
+[0] ✅ Secure JWT Service initialized with refresh token support
+[0] Warning: Indexing all PDF objects
+[0] 📅 Backup schedules configured
+[0] ✅ Backup service initialized with automated scheduling
+[0] 🔍 Checking database migrations...
+[0] ℹ️ [SECURITY] SYSTEM | LOW | caf37866 | JWT Secret Manager initialized successfully | initialization
+[0] ℹ️ [SECURITY] SYSTEM | LOW | f15f50b0 | Secure JWT Service initialized | initialization
+[0] ℹ️ [SECURITY] SYSTEM | LOW | 1f81d322 | Backup service initialized successfully | initialization
+[0] ✅ Email service configured and verified with SMTP (smtp.mail.me.com)
+[0] ✅ Database schema is up to date
+[0] ✅ Two-Factor Authentication routes registered
+[0] 📋 Production server running on http://0.0.0.0:5000
+[0] 🍪 Cookie-parser failed, trying manual parsing...
+[0] 🍪 Raw cookie header: sessionId=20eb57d4-a2dc-4ca8-a544-0169a4ecbf80...
+[0] 🍪 Parsed cookies: undefined
+[0] 🍪 Manual parse found sessionId: 20eb57d4...
+[0] 🔍 Session validation request: {
+[0]   sessionId: '20eb57d4...',
+[0]   clientSessionId: '95df0cd7...',
+[0]   cookies: [],
+[0]   headers: {
+[0]     cookie: 'present',
+[0]     authorization: 'missing',
+[0]     'x-session-id': 'present'
+[0]   }
+[0] }
+[0] 🔍 Checking authenticated user session...
+[0] ⚠️ [SECURITY] AUTHENTICATION | HIGH | 01090cce | Failed authentication attempt: Authentication required | /api/security-questions/user | {"reason":"Authentication required"}
+[0] 🔍 Token lookup result: { found: false, tokenPrefix: 'none' }
+[0] ❌ No token found for session
+[0] Consent verification request - IP: 10.82.3.98, UA: Mozilla/5.0 (Windows..., User: none, Session: 95df0cd7498a5b0900375af079720126
+[0] Generated pseudonym 905c19b33c072b9392497ff4 from identifier: session:95df0cd7498a5b0900375af079720126...
+[0] Verifying consent for pseudonym: 905c19b33c072b9392497ff4 (IP: 10.82.3.98, UA: Mozilla/5.0 (Windows..., User: none, Session: 95df0cd7498a5b09)
+[0] 🍪 Cookie-parser failed, trying manual parsing...
+[0] 🍪 Raw cookie header: sessionId=20eb57d4-a2dc-4ca8-a544-0169a4ecbf80...
+[0] 🍪 Parsed cookies: undefined
+[0] 🍪 Manual parse found sessionId: 20eb57d4...
+[0] 🔍 Session validation request: {
+[0]   sessionId: '20eb57d4...',
+[0]   clientSessionId: '95df0cd7...',
+[0]   cookies: [],
+[0]   headers: {
+[0]     cookie: 'present',
+[0]     authorization: 'missing',
+[0]     'x-session-id': 'present'
+[0]   }
+[0] }
+[0] 🔍 Checking authenticated user session...
+[0] ⚠️ [SECURITY] AUTHENTICATION | HIGH | d2b52606 | Failed authentication attempt: Authentication required | /api/security-questions/user | {"reason":"Authentication required"}
+[0] ⚠️ [SECURITY] AUTHENTICATION | HIGH | d2b52606 | Failed authentication attempt: Authentication required | /api/security-questions/user | {"reason":"Authentication required"}
+[0] Consent verification result for 905c19b33c072b9392497ff4: false 
+[0] Consent verification request - IP: 10.82.8.98, UA: Mozilla/5.0 (Windows..., User: none, Session: 95df0cd7498a5b0900375af079720126
+[0] Generated pseudonym 905c19b33c072b9392497ff4 from identifier: session:95df0cd7498a5b0900375af079720126...
+[0] Verifying consent for pseudonym: 905c19b33c072b9392497ff4 (IP: 10.82.8.98, UA: Mozilla/5.0 (Windows..., User: none, Session: 95df0cd7498a5b09)
+[0] Using cached consent result for 905c19b33c072b9392497ff4: false
+[0] Consent verification request - IP: 10.82.8.98, UA: Mozilla/5.0 (Windows..., User: none, Session: 95df0cd7498a5b0900375af079720126
+[0] Generated pseudonym 905c19b33c072b9392497ff4 from identifier: session:95df0cd7498a5b0900375af079720126...
+[0] Verifying consent for pseudonym: 905c19b33c072b9392497ff4 (IP: 10.82.8.98, UA: Mozilla/5.0 (Windows..., User: none, Session: 95df0cd7498a5b09)
+[0] Using cached consent result for 905c19b33c072b9392497ff4: false
+[0] 🔍 Token lookup result: { found: false, tokenPrefix: 'none' }
+[0] ❌ No token found for session
+[0] 🍪 Cookie-parser failed, trying manual parsing...
+[0] 🍪 Raw cookie header: sessionId=20eb57d4-a2dc-4ca8-a544-0169a4ecbf80...
+[0] 🍪 Parsed cookies: undefined
+[0] 🍪 Manual parse found sessionId: 20eb57d4...
+[0] 🔍 Session validation request: {
+[0]   sessionId: '20eb57d4...',
+[0]   clientSessionId: '95df0cd7...',
+[0]   cookies: [],
+[0]   headers: {
+[0]     cookie: 'present',
+[0]     authorization: 'missing',
+[0]     'x-session-id': 'present'
+[0]   }
+[0] }
+[0] 🔍 Checking authenticated user session...
+[0] 🔍 Token lookup result: { found: false, tokenPrefix: 'none' }
+[0] ❌ No token found for session
+[0] 🍪 Cookie-parser failed, trying manual parsing...
+[0] 🍪 Raw cookie header: sessionId=20eb57d4-a2dc-4ca8-a544-0169a4ecbf80...
+[0] 🍪 Parsed cookies: undefined
+[0] 🍪 Manual parse found sessionId: 20eb57d4...
+[0] 🔍 Session validation request: {
+[0]   sessionId: '20eb57d4...',
+[0]   clientSessionId: '95df0cd7...',
+[0]   cookies: [],
+[0]   headers: {
+[0]     cookie: 'present',
+[0]     authorization: 'missing',
+[0]     'x-session-id': 'present'
+[0]   }
+[0] }
+[0] 🔍 Checking authenticated user session...
+[0] 🔍 Token lookup result: { found: false, tokenPrefix: 'none' }
+[0] ❌ No token found for session
+[0] 🍪 Cookie-parser failed, trying manual parsing...
+[0] 🍪 Raw cookie header: sessionId=20eb57d4-a2dc-4ca8-a544-0169a4ecbf80...
+[0] 🍪 Parsed cookies: undefined
+[0] 🍪 Manual parse found sessionId: 20eb57d4...
+[0] 🔍 Session validation request: {
+[0]   sessionId: '20eb57d4...',
+[0]   clientSessionId: '95df0cd7...',
+[0]   cookies: [],
+[0]   headers: {
+[0]     cookie: 'present',
+[0]     authorization: 'missing',
+[0]     'x-session-id': 'present'
+[0]   }
+[0] }
+[0] 🔍 Checking authenticated user session...
+[0] 🔍 Token lookup result: { found: false, tokenPrefix: 'none' }
+[0] ❌ No token found for session
+[0] 🍪 Cookie-parser failed, trying manual parsing...
+[0] 🍪 Raw cookie header: sessionId=20eb57d4-a2dc-4ca8-a544-0169a4ecbf80...
+[0] 🍪 Parsed cookies: undefined
+[0] 🍪 Manual parse found sessionId: 20eb57d4...
+[0] 🔍 Session validation request: {
+[0]   sessionId: '20eb57d4...',
+[0]   clientSessionId: '95df0cd7...',
+[0]   cookies: [],
+[0]   headers: {
+[0]     cookie: 'present',
+[0]     authorization: 'missing',
+[0]     'x-session-id': 'present'
+[0]   }
+[0] }
+[0] 🔍 Checking authenticated user session...
+[0] 🔍 Token lookup result: { found: false, tokenPrefix: 'none' }
+[0] ❌ No token found for session
+[0] 🍪 Cookie-parser failed, trying manual parsing...
+[0] 🍪 Raw cookie header: sessionId=20eb57d4-a2dc-4ca8-a544-0169a4ecbf80...
+[0] 🍪 Parsed cookies: undefined
+[0] 🍪 Manual parse found sessionId: 20eb57d4...
+[0] 🔍 Session validation request: {
+[0]   sessionId: '20eb57d4...',
+[0]   clientSessionId: '95df0cd7...',
+[0]   cookies: [],
+[0]   headers: {
+[0]     cookie: 'present',
+[0]     authorization: 'missing',
+[0]     'x-session-id': 'present'
+[0]   }
+[0] }
+[0] 🔍 Checking authenticated user session...
+[0] 🔍 Token lookup result: { found: false, tokenPrefix: 'none' }
+[0] ❌ No token found for session
+[0] 🍪 Cookie-parser failed, trying manual parsing...
+[0] 🍪 Raw cookie header: sessionId=20eb57d4-a2dc-4ca8-a544-0169a4ecbf80...
+[0] 🍪 Parsed cookies: undefined
+[0] 🍪 Manual parse found sessionId: 20eb57d4...
+[0] 🔍 Session validation request: {
+[0]   sessionId: '20eb57d4...',
+[0]   clientSessionId: '95df0cd7...',
+[0]   cookies: [],
+[0]   headers: {
+[0]     cookie: 'present',
+[0]     authorization: 'missing',
+[0]     'x-session-id': 'present'
+[0]   }
+[0] }
+[0] 🔍 Checking authenticated user session...
+[0] 🔍 Token lookup result: { found: false, tokenPrefix: 'none' }
+[0] ❌ No token found for session
+[0] 🍪 Cookie-parser failed, trying manual parsing...
+[0] 🍪 Raw cookie header: sessionId=20eb57d4-a2dc-4ca8-a544-0169a4ecbf80...
+[0] 🍪 Parsed cookies: undefined
+[0] 🍪 Manual parse found sessionId: 20eb57d4...
+[0] 🔍 Session validation request: {
+[0]   sessionId: '20eb57d4...',
+[0]   clientSessionId: '95df0cd7...',
+[0]   cookies: [],
+[0]   headers: {
+[0]     cookie: 'present',
+[0]     authorization: 'missing',
+[0]     'x-session-id': 'present'
+[0]   }
+[0] }
+[0] 🔍 Checking authenticated user session...
+[0] 🔍 Token lookup result: { found: false, tokenPrefix: 'none' }
+[0] ❌ No token found for session
+[0] 🍪 Cookie-parser failed, trying manual parsing...
+[0] 🍪 Raw cookie header: sessionId=20eb57d4-a2dc-4ca8-a544-0169a4ecbf80...
+[0] 🍪 Parsed cookies: undefined
+[0] 🍪 Manual parse found sessionId: 20eb57d4...
+[0] 🔍 Session validation request: {
+[0]   sessionId: '20eb57d4...',
+[0]   clientSessionId: '95df0cd7...',
+[0]   cookies: [],
+[0]   headers: {
+[0]     cookie: 'present',
+[0]     authorization: 'missing',
+[0]     'x-session-id': 'present'
+[0]   }
+[0] }
+[0] 🔍 Checking authenticated user session...
+[0] 🔍 Token lookup result: { found: false, tokenPrefix: 'none' }
+[0] ❌ No token found for session
+[0] 🍪 Cookie-parser failed, trying manual parsing...
+[0] 🍪 Raw cookie header: sessionId=20eb57d4-a2dc-4ca8-a544-0169a4ecbf80...
+[0] 🍪 Parsed cookies: undefined
+[0] 🍪 Manual parse found sessionId: 20eb57d4...
+[0] 🔍 Session validation request: {
+[0]   sessionId: '20eb57d4...',
+[0]   clientSessionId: '95df0cd7...',
+[0]   cookies: [],
+[0]   headers: {
+[0]     cookie: 'present',
+[0]     authorization: 'missing',
+[0]     'x-session-id': 'present'
+[0]   }
+[0] }
+[0] 🔍 Checking authenticated user session...
+[0] 🔍 Token lookup result: { found: false, tokenPrefix: 'none' }
+[0] ❌ No token found for session
+[0] 🍪 Cookie-parser failed, trying manual parsing...
+[0] 🍪 Raw cookie header: sessionId=20eb57d4-a2dc-4ca8-a544-0169a4ecbf80...
+[0] 🍪 Parsed cookies: undefined
+[0] 🍪 Manual parse found sessionId: 20eb57d4...
+[0] 🔍 Session validation request: {
+[0]   sessionId: '20eb57d4...',
+[0]   clientSessionId: '95df0cd7...',
+[0]   cookies: [],
+[0]   headers: {
+[0]     cookie: 'present',
+[0]     authorization: 'missing',
+[0]     'x-session-id': 'present'
+[0]   }
+[0] }
+[0] 🔍 Checking authenticated user session...
+[0] 🔍 Token lookup result: { found: false, tokenPrefix: 'none' }
+[0] ❌ No token found for session
+[0] 🍪 Cookie-parser failed, trying manual parsing...
+[0] 🍪 Raw cookie header: sessionId=20eb57d4-a2dc-4ca8-a544-0169a4ecbf80...
+[0] 🍪 Parsed cookies: undefined
+[0] 🍪 Manual parse found sessionId: 20eb57d4...
+[0] 🔍 Session validation request: {
+[0]   sessionId: '20eb57d4...',
+[0]   clientSessionId: '95df0cd7...',
+[0]   cookies: [],
+[0]   headers: {
+[0]     cookie: 'present',
+[0]     authorization: 'missing',
+[0]     'x-session-id': 'present'
+[0]   }
+[0] }
+[0] 🔍 Checking authenticated user session...
+[0] 🔍 Token lookup result: { found: false, tokenPrefix: 'none' }
+[0] ❌ No token found for session
+[0] 🍪 Cookie-parser failed, trying manual parsing...
+[0] 🍪 Raw cookie header: sessionId=20eb57d4-a2dc-4ca8-a544-0169a4ecbf80...
+[0] 🍪 Parsed cookies: undefined
+[0] 🍪 Manual parse found sessionId: 20eb57d4...
+[0] 🔍 Session validation request: {
+[0]   sessionId: '20eb57d4...',
+[0]   clientSessionId: '95df0cd7...',
+[0]   cookies: [],
+[0]   headers: {
+[0]     cookie: 'present',
+[0]     authorization: 'missing',
+[0]     'x-session-id': 'present'
+[0]   }
+[0] }
+[0] 🔍 Checking authenticated user session...
+[0] 🔍 Token lookup result: { found: false, tokenPrefix: 'none' }
+[0] ❌ No token found for session
+[0] 🍪 Cookie-parser failed, trying manual parsing...
+[0] 🍪 Raw cookie header: sessionId=20eb57d4-a2dc-4ca8-a544-0169a4ecbf80...
+[0] 🍪 Parsed cookies: undefined
+[0] 🍪 Manual parse found sessionId: 20eb57d4...
+[0] 🔍 Session validation request: {
+[0]   sessionId: '20eb57d4...',
+[0]   clientSessionId: '95df0cd7...',
+[0]   cookies: [],
+[0]   headers: {
+[0]     cookie: 'present',
+[0]     authorization: 'missing',
+[0]     'x-session-id': 'present'
+[0]   }
+[0] }
+[0] 🔍 Checking authenticated user session...
+[0] 🔍 Token lookup result: { found: false, tokenPrefix: 'none' }
+[0] ❌ No token found for session
+[0] 🍪 Cookie-parser failed, trying manual parsing...
+[0] 🍪 Raw cookie header: sessionId=20eb57d4-a2dc-4ca8-a544-0169a4ecbf80...
+[0] 🍪 Parsed cookies: undefined
+[0] 🍪 Manual parse found sessionId: 20eb57d4...
+[0] 🔍 Session validation request: {
+[0]   sessionId: '20eb57d4...',
+[0]   clientSessionId: '95df0cd7...',
+[0]   cookies: [],
+[0]   headers: {
+[0]     cookie: 'present',
+[0]     authorization: 'missing',
+[0]     'x-session-id': 'present'
+[0]   }
+[0] }
+[0] 🔍 Checking authenticated user session...
+[0] 🔍 Token lookup result: { found: false, tokenPrefix: 'none' }
+[0] ❌ No token found for session
+[0] 🍪 Cookie-parser failed, trying manual parsing...
+[0] 🍪 Raw cookie header: sessionId=20eb57d4-a2dc-4ca8-a544-0169a4ecbf80...
+[0] 🍪 Parsed cookies: undefined
+[0] 🍪 Manual parse found sessionId: 20eb57d4...
+[0] 🔍 Session validation request: {
+[0]   sessionId: '20eb57d4...',
+[0]   clientSessionId: '95df0cd7...',
+[0]   cookies: [],
+[0]   headers: {
+[0]     cookie: 'present',
+[0]     authorization: 'missing',
+[0]     'x-session-id': 'present'
+[0]   }
+[0] }
+[0] 🔍 Checking authenticated user session...
+[0] 🔍 Token lookup result: { found: false, tokenPrefix: 'none' }
+[0] ❌ No token found for session
+[0] 🍪 Cookie-parser failed, trying manual parsing...
+[0] 🍪 Raw cookie header: sessionId=20eb57d4-a2dc-4ca8-a544-0169a4ecbf80...
+[0] 🍪 Parsed cookies: undefined
+[0] 🍪 Manual parse found sessionId: 20eb57d4...
+[0] 🔍 Session validation request: {
+[0]   sessionId: '20eb57d4...',
+[0]   clientSessionId: '95df0cd7...',
+[0]   cookies: [],
+[0]   headers: {
+[0]     cookie: 'present',
+[0]     authorization: 'missing',
+[0]     'x-session-id': 'present'
+[0]   }
+[0] }
+[0] 🔍 Checking authenticated user session...
+[0] 🔍 Token lookup result: { found: false, tokenPrefix: 'none' }
+[0] ❌ No token found for session
+[0] 🧹 Cleaned up 0 expired refresh tokens and 0 expired revocations
+[0] Session cleanup completed: 0 expired sessions removed
+[0] 🧹 Startup cleanup: 0 expired tokens removed, 0 expired sessions removed
+[2] 
+[2] 🔍 Production Health Check - 2025-08-03T19:37:14.763Z
+[2] 🌍 Environment: staging
+[2] ────────────────────────────────────────────────────────────
+[2] ✅ SERVER: Server responding normally
+[2] ✅ DATABASE: Server responding normally
+[0] ✅ Email configuration test successful
+[2] ✅ EMAIL: Email service configured and ready
+[2] ✅ PROCESSES: 27 server processes running
+[2] ────────────────────────────────────────────────────────────
+[2] Overall Status: ✅ HEALTHY
+[0] ⚠️ [SECURITY] AUTHENTICATION | HIGH | 01090cce | Failed authentication attempt: Authentication required | /api/security-questions/user | {"reason":"Authentication required"}
+[0] ✅ JOSE Auth Service initialized with key length: 32 bytes
+[0] JWT token expired: Token expired
+[0] 🍪 Cookie-parser failed, trying manual parsing...
+[0] 🍪 Raw cookie header: __stripe_mid=dca14496-80be-4f68-9ddc-36fecc86d19f45dd56; sessionId=20eb57d4-a2dc-4ca8-a544-0169a4ecb...
+[0] 🍪 Parsed cookies: undefined
+[0] 🍪 Manual parse found sessionId: 20eb57d4...
+[0] 🔍 Session validation request: {
+[0]   sessionId: '20eb57d4...',
+[0]   clientSessionId: '9df28d05...',
+[0]   cookies: [],
+[0]   headers: {
+[0]     cookie: 'present',
+[0]     authorization: 'present',
+[0]     'x-session-id': 'present'
+[0]   }
+[0] }
+[0] 🔍 Attempting direct JWT validation as fallback...
+[0] ❌ Direct JWT validation failed: Token expired
+[0] 🔍 Checking authenticated user session...
+[0] ℹ️ [SECURITY] SYSTEM | LOW | b4080c56 | JOSE Auth Service initialized | initialization
+[0] 🔍 Token lookup result: { found: false, tokenPrefix: 'none' }
+[0] ❌ No token found for session
+[0] JWT token expired: Token expired
+[0] 🍪 Cookie-parser failed, trying manual parsing...
+[0] 🍪 Raw cookie header: __stripe_mid=dca14496-80be-4f68-9ddc-36fecc86d19f45dd56; sessionId=20eb57d4-a2dc-4ca8-a544-0169a4ecb...
+[0] 🍪 Parsed cookies: undefined
+[0] 🍪 Manual parse found sessionId: 20eb57d4...
+[0] 🔍 Session validation request: {
+[0]   sessionId: '20eb57d4...',
+[0]   clientSessionId: '9df28d05...',
+[0]   cookies: [],
+[0]   headers: {
+[0]     cookie: 'present',
+[0]     authorization: 'present',
+[0]     'x-session-id': 'present'
+[0]   }
+[0] }
+[0] 🔍 Attempting direct JWT validation as fallback...
+[0] ❌ Direct JWT validation failed: Token expired
+[0] 🔍 Checking authenticated user session...
+[0] JWT token expired: Token expired
+[0] Consent verification request - IP: 10.82.4.161, UA: Mozilla/5.0 (Windows..., User: none, Session: 9df28d05de14d267fe54d2c8ec78e73e
+[0] Generated pseudonym 75b9a523d7551dc93d622573 from identifier: session:9df28d05de14d267fe54d2c8ec78e73e...
+[0] Verifying consent for pseudonym: 75b9a523d7551dc93d622573 (IP: 10.82.4.161, UA: Mozilla/5.0 (Windows..., User: none, Session: 9df28d05de14d267)
+[0] 🔍 Token lookup result: { found: false, tokenPrefix: 'none' }
+[0] ❌ No token found for session
+[0] Consent verification result for 75b9a523d7551dc93d622573: false 
+[0] JWT token expired: Token expired
+[0] 🍪 Cookie-parser failed, trying manual parsing...
+[0] 🍪 Raw cookie header: __stripe_mid=dca14496-80be-4f68-9ddc-36fecc86d19f45dd56; sessionId=20eb57d4-a2dc-4ca8-a544-0169a4ecb...
+[0] 🍪 Parsed cookies: undefined
+[0] 🍪 Manual parse found sessionId: 20eb57d4...
+[0] 🔍 Session validation request: {
+[0]   sessionId: '20eb57d4...',
+[0]   clientSessionId: '9df28d05...',
+[0]   cookies: [],
+[0]   headers: {
+[0]     cookie: 'present',
+[0]     authorization: 'present',
+[0]     'x-session-id': 'present'
+[0]   }
+[0] }
+[0] 🔍 Attempting direct JWT validation as fallback...
+[0] ❌ Direct JWT validation failed: Token expired
+[0] 🔍 Checking authenticated user session...
+[0] 🔍 Token lookup result: { found: false, tokenPrefix: 'none' }
+[0] ❌ No token found for session
+[0] JWT token expired: Token expired
+[0] 🍪 Cookie-parser failed, trying manual parsing...
+[0] 🍪 Raw cookie header: __stripe_mid=dca14496-80be-4f68-9ddc-36fecc86d19f45dd56; sessionId=20eb57d4-a2dc-4ca8-a544-0169a4ecb...
+[0] 🍪 Parsed cookies: undefined
+[0] 🍪 Manual parse found sessionId: 20eb57d4...
+[0] 🔍 Session validation request: {
+[0]   sessionId: '20eb57d4...',
+[0]   clientSessionId: '9df28d05...',
+[0]   cookies: [],
+[0]   headers: {
+[0]     cookie: 'present',
+[0]     authorization: 'present',
+[0]     'x-session-id': 'present'
+[0]   }
+[0] }
+[0] 🔍 Attempting direct JWT validation as fallback...
+[0] ❌ Direct JWT validation failed: Token expired
+[0] 🔍 Checking authenticated user session...
+[0] 🔍 Token lookup result: { found: false, tokenPrefix: 'none' }
+[0] ❌ No token found for session
+[0] JWT token expired: Token expired
+[0] 🍪 Cookie-parser failed, trying manual parsing...
+[0] 🍪 Raw cookie header: __stripe_mid=dca14496-80be-4f68-9ddc-36fecc86d19f45dd56; sessionId=20eb57d4-a2dc-4ca8-a544-0169a4ecb...
+[0] 🍪 Parsed cookies: undefined
+[0] 🍪 Manual parse found sessionId: 20eb57d4...
+[0] 🔍 Session validation request: {
+[0]   sessionId: '20eb57d4...',
+[0]   clientSessionId: '9df28d05...',
+[0]   cookies: [],
+[0]   headers: {
+[0]     cookie: 'present',
+[0]     authorization: 'present',
+[0]     'x-session-id': 'present'
+[0]   }
+[0] }
+[0] 🔍 Attempting direct JWT validation as fallback...
+[0] ❌ Direct JWT validation failed: Token expired
+[0] 🔍 Checking authenticated user session...
+[0] 🔍 Token lookup result: { found: false, tokenPrefix: 'none' }
+[0] ❌ No token found for session
+[0] 🔍 Looking up user for email: admin@readmyfineprint.com
+[0] ✅ Found user by direct email lookup
+[0] [Admin Setup] Admin user already has ultimate tier subscription
+[0] [Admin Access] Ultimate tier automatically assigned to admin user: c970c8a1-3a9d-43e0-b758-e5092db524ff
+[0] ✅ Generated verification code for admin@readmyfineprint.com (expires: 2025-08-03T19:47:32.902Z)
+[0] ✅ Email sent successfully: {
+[0]   messageId: '<8783afa8-99d9-0c5c-a34f-e43cea0de76d@readmyfineprint.com>',
+[0]   recipient: 'admin@readmyfineprint.com',
+[0]   subject: '🔐 Your ReadMyFinePrint Verification Code'
+[0] }
+[0] ✅ Verification email sent successfully to admin@readmyfineprint.com
+[0] 📧 Verification code sent to admin@readmyfineprint.com
+[0] ✅ Email verification cleanup completed
+[0] ✅ Email verification successful for admin@readmyfineprint.com
+[0] 🔍 Looking up user for email: admin@readmyfineprint.com
+[0] ✅ Found user by direct email lookup
+[0] [Admin Setup] Admin user already has ultimate tier subscription
+[0] [Admin Access] Ultimate tier automatically assigned to admin user: c970c8a1-3a9d-43e0-b758-e5092db524ff
+[0] ✅ Generated JOSE token pair for user c970c8a1-3a9d-43e0-b758-e5092db524ff (access: 15min, refresh: 7d)
+[0] ℹ️ [SECURITY] AUTHENTICATION | LOW | 58201d79 | JOSE token pair generated | token-generation | {"userId":"c970c8a1-3a9d-43e0-b758-e5092db524ff","secretVersion":1,"accessExpiry":"2025-08-03T19:52:54.000Z","refreshExpiry":"2025-08-10T19:37:54.000Z"}
+[0] Stored session token mapping in PostgreSQL: 37e32a55-b755-4382-ae26-7d86a43390f2 -> eyJhbGci... (user: c970c8a1-3a9d-43e0-b758-e5092db524ff)
+[0] 🔐 Email verification login successful: {
+[0]   userId: 'c970c8a1-3a9d-43e0-b758-e5092db524ff',
+[0]   email: 'admin@readmyfineprint.com',
+[0]   sessionId: '37e32a55...',
+[0]   accessTokenPrefix: 'eyJhbGciOiJIUzI1...',
+[0]   cookieSettings: {
+[0]     httpOnly: true,
+[0]     secure: false,
+[0]     sameSite: 'lax',
+[0]     path: '/',
+[0]     maxAge: 604800000
+[0]   }
+[0] }
+[0] ✅ Valid JOSE access token for user c970c8a1-3a9d-43e0-b758-e5092db524ff
+[0] 🔑 User authenticated via secure JWT: admin@readmyfineprint.com (c970c8a1-3a9d-43e0-b758-e5092db524ff)
+[0] 🍪 Cookie-parser failed, trying manual parsing...
+[0] 🍪 Raw cookie header: __stripe_mid=dca14496-80be-4f68-9ddc-36fecc86d19f45dd56; sessionId=37e32a55-b755-4382-ae26-7d86a4339...
+[0] 🍪 Parsed cookies: undefined
+[0] 🍪 Manual parse found sessionId: 37e32a55...
+[0] 🔍 Session validation request: {
+[0]   sessionId: '37e32a55...',
+[0]   clientSessionId: '9df28d05...',
+[0]   cookies: [],
+[0]   headers: {
+[0]     cookie: 'present',
+[0]     authorization: 'present',
+[0]     'x-session-id': 'present'
+[0]   }
+[0] }
+[0] ✅ JWT authentication successful for user: admin@readmyfineprint.com
+[0] ✅ Valid JOSE access token for user c970c8a1-3a9d-43e0-b758-e5092db524ff
+[0] ✅ Valid JOSE access token for user c970c8a1-3a9d-43e0-b758-e5092db524ff
+[0] 🔑 User authenticated via secure JWT: admin@readmyfineprint.com (c970c8a1-3a9d-43e0-b758-e5092db524ff)
+[0] 🍪 Cookie-parser failed, trying manual parsing...
+[0] 🍪 Raw cookie header: __stripe_mid=dca14496-80be-4f68-9ddc-36fecc86d19f45dd56; sessionId=37e32a55-b755-4382-ae26-7d86a4339...
+[0] 🍪 Parsed cookies: undefined
+[0] 🍪 Manual parse found sessionId: 37e32a55...
+[0] 🔍 Session validation request: {
+[0]   sessionId: '37e32a55...',
+[0]   clientSessionId: '9df28d05...',
+[0]   cookies: [],
+[0]   headers: {
+[0]     cookie: 'present',
+[0]     authorization: 'present',
+[0]     'x-session-id': 'present'
+[0]   }
+[0] }
+[0] ✅ JWT authentication successful for user: admin@readmyfineprint.com
+[0] 🔑 User authenticated via secure JWT: admin@readmyfineprint.com (c970c8a1-3a9d-43e0-b758-e5092db524ff)
+[0] ℹ️ [SECURITY] USER_ACTIVITY | LOW | 58201d79 | User retrieved cookie consent preferences | /api/user/preferences/cookie-consent | {"userId":"c970c8a1-3a9d-43e0-b758-e5092db524ff","cookieConsent":null}
+[0] ✅ Valid JOSE access token for user c970c8a1-3a9d-43e0-b758-e5092db524ff
+[0] 🔑 User authenticated via secure JWT: admin@readmyfineprint.com (c970c8a1-3a9d-43e0-b758-e5092db524ff)
+[0] 🍪 Cookie-parser failed, trying manual parsing...
+[0] 🍪 Raw cookie header: __stripe_mid=dca14496-80be-4f68-9ddc-36fecc86d19f45dd56; sessionId=37e32a55-b755-4382-ae26-7d86a4339...
+[0] 🍪 Parsed cookies: undefined
+[0] 🍪 Manual parse found sessionId: 37e32a55...
+[0] 🔍 Session validation request: {
+[0]   sessionId: '37e32a55...',
+[0]   clientSessionId: '9df28d05...',
+[0]   cookies: [],
+[0]   headers: {
+[0]     cookie: 'present',
+[0]     authorization: 'present',
+[0]     'x-session-id': 'present'
+[0]   }
+[0] }
+[0] ✅ JWT authentication successful for user: admin@readmyfineprint.com
+[0] ✅ Valid JOSE access token for user c970c8a1-3a9d-43e0-b758-e5092db524ff
+[0] 🔑 User authenticated via secure JWT: admin@readmyfineprint.com (c970c8a1-3a9d-43e0-b758-e5092db524ff)
+[0] ✅ Valid JOSE access token for user c970c8a1-3a9d-43e0-b758-e5092db524ff
+[0] ℹ️ [SECURITY] USER_ACTIVITY | LOW | 58201d79 | User retrieved cookie consent preferences | /api/user/preferences/cookie-consent | {"userId":"c970c8a1-3a9d-43e0-b758-e5092db524ff","cookieConsent":null}
+[0] 🔑 User authenticated via secure JWT: admin@readmyfineprint.com (c970c8a1-3a9d-43e0-b758-e5092db524ff)
+[0] 🍪 Cookie-parser failed, trying manual parsing...
+[0] 🍪 Raw cookie header: __stripe_mid=dca14496-80be-4f68-9ddc-36fecc86d19f45dd56; sessionId=37e32a55-b755-4382-ae26-7d86a4339...
+[0] 🍪 Parsed cookies: undefined
+[0] 🍪 Manual parse found sessionId: 37e32a55...
+[0] 🔍 Session validation request: {
+[0]   sessionId: '37e32a55...',
+[0]   clientSessionId: '9df28d05...',
+[0]   cookies: [],
+[0]   headers: {
+[0]     cookie: 'present',
+[0]     authorization: 'present',
+[0]     'x-session-id': 'present'
+[0]   }
+[0] }
+[0] ✅ JWT authentication successful for user: admin@readmyfineprint.com
+[0] ✅ Valid JOSE access token for user c970c8a1-3a9d-43e0-b758-e5092db524ff
+[0] ✅ Valid JOSE access token for user c970c8a1-3a9d-43e0-b758-e5092db524ff
+[0] 🔑 User authenticated via secure JWT: admin@readmyfineprint.com (c970c8a1-3a9d-43e0-b758-e5092db524ff)
+[0] 🔑 User authenticated via secure JWT: admin@readmyfineprint.com (c970c8a1-3a9d-43e0-b758-e5092db524ff)
+[0] 🍪 Cookie-parser failed, trying manual parsing...
+[0] 🍪 Raw cookie header: __stripe_mid=dca14496-80be-4f68-9ddc-36fecc86d19f45dd56; sessionId=37e32a55-b755-4382-ae26-7d86a4339...
+[0] 🍪 Parsed cookies: undefined
+[0] 🍪 Manual parse found sessionId: 37e32a55...
+[0] 🔍 Session validation request: {
+[0]   sessionId: '37e32a55...',
+[0]   clientSessionId: '9df28d05...',
+[0]   cookies: [],
+[0]   headers: {
+[0]     cookie: 'present',
+[0]     authorization: 'present',
+[0]     'x-session-id': 'present'
+[0]   }
+[0] }
+[0] ✅ JWT authentication successful for user: admin@readmyfineprint.com
+[0] ℹ️ [SECURITY] USER_ACTIVITY | LOW | 58201d79 | User retrieved cookie consent preferences | /api/user/preferences/cookie-consent | {"userId":"c970c8a1-3a9d-43e0-b758-e5092db524ff","cookieConsent":null}
+[0] ✅ Valid JOSE access token for user c970c8a1-3a9d-43e0-b758-e5092db524ff
+[0] ✅ Valid JOSE access token for user c970c8a1-3a9d-43e0-b758-e5092db524ff
+[0] 🔑 User authenticated via secure JWT: admin@readmyfineprint.com (c970c8a1-3a9d-43e0-b758-e5092db524ff)
+[0] 🍪 Cookie-parser failed, trying manual parsing...
+[0] 🍪 Raw cookie header: __stripe_mid=dca14496-80be-4f68-9ddc-36fecc86d19f45dd56; sessionId=37e32a55-b755-4382-ae26-7d86a4339...
+[0] 🍪 Parsed cookies: undefined
+[0] 🍪 Manual parse found sessionId: 37e32a55...
+[0] 🔍 Session validation request: {
+[0]   sessionId: '37e32a55...',
+[0]   clientSessionId: '9df28d05...',
+[0]   cookies: [],
+[0]   headers: {
+[0]     cookie: 'present',
+[0]     authorization: 'present',
+[0]     'x-session-id': 'present'
+[0]   }
+[0] }
+[0] ✅ JWT authentication successful for user: admin@readmyfineprint.com
+[0] 🔑 User authenticated via secure JWT: admin@readmyfineprint.com (c970c8a1-3a9d-43e0-b758-e5092db524ff)
+[0] ✅ Valid JOSE access token for user c970c8a1-3a9d-43e0-b758-e5092db524ff
+[0] ℹ️ [SECURITY] USER_ACTIVITY | LOW | 58201d79 | User retrieved cookie consent preferences | /api/user/preferences/cookie-consent | {"userId":"c970c8a1-3a9d-43e0-b758-e5092db524ff","cookieConsent":null}
+[0] 🔑 User authenticated via secure JWT: admin@readmyfineprint.com (c970c8a1-3a9d-43e0-b758-e5092db524ff)
+[0] 🍪 Cookie-parser failed, trying manual parsing...
+[0] 🍪 Raw cookie header: __stripe_mid=dca14496-80be-4f68-9ddc-36fecc86d19f45dd56; sessionId=37e32a55-b755-4382-ae26-7d86a4339...
+[0] 🍪 Parsed cookies: undefined
+[0] 🍪 Manual parse found sessionId: 37e32a55...
+[0] 🔍 Session validation request: {
+[0]   sessionId: '37e32a55...',
+[0]   clientSessionId: '9df28d05...',
+[0]   cookies: [],
+[0]   headers: {
+[0]     cookie: 'present',
+[0]     authorization: 'present',
+[0]     'x-session-id': 'present'
+[0]   }
+[0] }
+[0] ✅ JWT authentication successful for user: admin@readmyfineprint.com
+[0] ✅ Valid JOSE access token for user c970c8a1-3a9d-43e0-b758-e5092db524ff
+[0] ✅ Valid JOSE access token for user c970c8a1-3a9d-43e0-b758-e5092db524ff
+[0] 🔑 User authenticated via secure JWT: admin@readmyfineprint.com (c970c8a1-3a9d-43e0-b758-e5092db524ff)
+[0] 🔑 User authenticated via secure JWT: admin@readmyfineprint.com (c970c8a1-3a9d-43e0-b758-e5092db524ff)
+[0] 🍪 Cookie-parser failed, trying manual parsing...
+[0] 🍪 Raw cookie header: __stripe_mid=dca14496-80be-4f68-9ddc-36fecc86d19f45dd56; sessionId=37e32a55-b755-4382-ae26-7d86a4339...
+[0] 🍪 Parsed cookies: undefined
+[0] 🍪 Manual parse found sessionId: 37e32a55...
+[0] 🔍 Session validation request: {
+[0]   sessionId: '37e32a55...',
+[0]   clientSessionId: '9df28d05...',
+[0]   cookies: [],
+[0]   headers: {
+[0]     cookie: 'present',
+[0]     authorization: 'present',
+[0]     'x-session-id': 'present'
+[0]   }
+[0] }
+[0] ✅ JWT authentication successful for user: admin@readmyfineprint.com
+[0] ℹ️ [SECURITY] USER_ACTIVITY | LOW | 58201d79 | User retrieved cookie consent preferences | /api/user/preferences/cookie-consent | {"userId":"c970c8a1-3a9d-43e0-b758-e5092db524ff","cookieConsent":null}
+[0] ✅ Valid JOSE access token for user c970c8a1-3a9d-43e0-b758-e5092db524ff
+[0] ✅ Valid JOSE access token for user c970c8a1-3a9d-43e0-b758-e5092db524ff
+[0] 🔑 User authenticated via secure JWT: admin@readmyfineprint.com (c970c8a1-3a9d-43e0-b758-e5092db524ff)
+[0] 🍪 Cookie-parser failed, trying manual parsing...
+[0] 🍪 Raw cookie header: __stripe_mid=dca14496-80be-4f68-9ddc-36fecc86d19f45dd56; sessionId=37e32a55-b755-4382-ae26-7d86a4339...
+[0] 🍪 Parsed cookies: undefined
+[0] 🍪 Manual parse found sessionId: 37e32a55...
+[0] 🔍 Session validation request: {
+[0]   sessionId: '37e32a55...',
+[0]   clientSessionId: '9df28d05...',
+[0]   cookies: [],
+[0]   headers: {
+[0]     cookie: 'present',
+[0]     authorization: 'present',
+[0]     'x-session-id': 'present'
+[0]   }
+[0] }
+[0] ✅ JWT authentication successful for user: admin@readmyfineprint.com
+[0] 🔑 User authenticated via secure JWT: admin@readmyfineprint.com (c970c8a1-3a9d-43e0-b758-e5092db524ff)
+[0] ✅ Valid JOSE access token for user c970c8a1-3a9d-43e0-b758-e5092db524ff
+[0] ℹ️ [SECURITY] USER_ACTIVITY | LOW | 58201d79 | User retrieved cookie consent preferences | /api/user/preferences/cookie-consent | {"userId":"c970c8a1-3a9d-43e0-b758-e5092db524ff","cookieConsent":null}
+[0] 🔑 User authenticated via secure JWT: admin@readmyfineprint.com (c970c8a1-3a9d-43e0-b758-e5092db524ff)
+[0] 🍪 Cookie-parser failed, trying manual parsing...
+[0] 🍪 Raw cookie header: __stripe_mid=dca14496-80be-4f68-9ddc-36fecc86d19f45dd56; sessionId=37e32a55-b755-4382-ae26-7d86a4339...
+[0] 🍪 Parsed cookies: undefined
+[0] 🍪 Manual parse found sessionId: 37e32a55...
+[0] 🔍 Session validation request: {
+[0]   sessionId: '37e32a55...',
+[0]   clientSessionId: '9df28d05...',
+[0]   cookies: [],
+[0]   headers: {
+[0]     cookie: 'present',
+[0]     authorization: 'present',
+[0]     'x-session-id': 'present'
+[0]   }
+[0] }
+[0] ✅ JWT authentication successful for user: admin@readmyfineprint.com
+[0] ✅ Valid JOSE access token for user c970c8a1-3a9d-43e0-b758-e5092db524ff
+[0] 🔑 User authenticated via secure JWT: admin@readmyfineprint.com (c970c8a1-3a9d-43e0-b758-e5092db524ff)
+[0] ✅ Valid JOSE access token for user c970c8a1-3a9d-43e0-b758-e5092db524ff
+[0] ℹ️ [SECURITY] USER_ACTIVITY | LOW | 58201d79 | User retrieved cookie consent preferences | /api/user/preferences/cookie-consent | {"userId":"c970c8a1-3a9d-43e0-b758-e5092db524ff","cookieConsent":null}
+[0] 🔑 User authenticated via secure JWT: admin@readmyfineprint.com (c970c8a1-3a9d-43e0-b758-e5092db524ff)
+[0] 🍪 Cookie-parser failed, trying manual parsing...
+[0] 🍪 Raw cookie header: __stripe_mid=dca14496-80be-4f68-9ddc-36fecc86d19f45dd56; sessionId=37e32a55-b755-4382-ae26-7d86a4339...
+[0] 🍪 Parsed cookies: undefined
+[0] 🍪 Manual parse found sessionId: 37e32a55...
+[0] 🔍 Session validation request: {
+[0]   sessionId: '37e32a55...',
+[0]   clientSessionId: '9df28d05...',
+[0]   cookies: [],
+[0]   headers: {
+[0]     cookie: 'present',
+[0]     authorization: 'present',
+[0]     'x-session-id': 'present'
+[0]   }
+[0] }
+[0] ✅ JWT authentication successful for user: admin@readmyfineprint.com
+[0] ✅ Valid JOSE access token for user c970c8a1-3a9d-43e0-b758-e5092db524ff
+[0] ✅ Valid JOSE access token for user c970c8a1-3a9d-43e0-b758-e5092db524ff
+[0] 🔑 User authenticated via secure JWT: admin@readmyfineprint.com (c970c8a1-3a9d-43e0-b758-e5092db524ff)
+[0] 🔑 User authenticated via secure JWT: admin@readmyfineprint.com (c970c8a1-3a9d-43e0-b758-e5092db524ff)
+[0] 🍪 Cookie-parser failed, trying manual parsing...
+[0] 🍪 Raw cookie header: __stripe_mid=dca14496-80be-4f68-9ddc-36fecc86d19f45dd56; sessionId=37e32a55-b755-4382-ae26-7d86a4339...
+[0] 🍪 Parsed cookies: undefined
+[0] 🍪 Manual parse found sessionId: 37e32a55...
+[0] 🔍 Session validation request: {
+[0]   sessionId: '37e32a55...',
+[0]   clientSessionId: '9df28d05...',
+[0]   cookies: [],
+[0]   headers: {
+[0]     cookie: 'present',
+[0]     authorization: 'present',
+[0]     'x-session-id': 'present'
+[0]   }
+[0] }
+[0] ✅ JWT authentication successful for user: admin@readmyfineprint.com
+[0] ℹ️ [SECURITY] USER_ACTIVITY | LOW | 58201d79 | User retrieved cookie consent preferences | /api/user/preferences/cookie-consent | {"userId":"c970c8a1-3a9d-43e0-b758-e5092db524ff","cookieConsent":null}
+[0] ✅ Valid JOSE access token for user c970c8a1-3a9d-43e0-b758-e5092db524ff
+[0] ✅ Valid JOSE access token for user c970c8a1-3a9d-43e0-b758-e5092db524ff
+[0] 🔑 User authenticated via secure JWT: admin@readmyfineprint.com (c970c8a1-3a9d-43e0-b758-e5092db524ff)
+[0] 🍪 Cookie-parser failed, trying manual parsing...
+[0] 🍪 Raw cookie header: __stripe_mid=dca14496-80be-4f68-9ddc-36fecc86d19f45dd56; sessionId=37e32a55-b755-4382-ae26-7d86a4339...
+[0] 🍪 Parsed cookies: undefined
+[0] 🍪 Manual parse found sessionId: 37e32a55...
+[0] 🔍 Session validation request: {
+[0]   sessionId: '37e32a55...',
+[0]   clientSessionId: '9df28d05...',
+[0]   cookies: [],
+[0]   headers: {
+[0]     cookie: 'present',
+[0]     authorization: 'present',
+[0]     'x-session-id': 'present'
+[0]   }
+[0] }
+[0] ✅ JWT authentication successful for user: admin@readmyfineprint.com
+[0] 🔑 User authenticated via secure JWT: admin@readmyfineprint.com (c970c8a1-3a9d-43e0-b758-e5092db524ff)
+[0] ✅ Valid JOSE access token for user c970c8a1-3a9d-43e0-b758-e5092db524ff
+[0] ℹ️ [SECURITY] USER_ACTIVITY | LOW | 58201d79 | User retrieved cookie consent preferences | /api/user/preferences/cookie-consent | {"userId":"c970c8a1-3a9d-43e0-b758-e5092db524ff","cookieConsent":null}
+[0] 🔑 User authenticated via secure JWT: admin@readmyfineprint.com (c970c8a1-3a9d-43e0-b758-e5092db524ff)
+[0] 🍪 Cookie-parser failed, trying manual parsing...
+[0] 🍪 Raw cookie header: __stripe_mid=dca14496-80be-4f68-9ddc-36fecc86d19f45dd56; sessionId=37e32a55-b755-4382-ae26-7d86a4339...
+[0] 🍪 Parsed cookies: undefined
+[0] 🍪 Manual parse found sessionId: 37e32a55...
+[0] 🔍 Session validation request: {
+[0]   sessionId: '37e32a55...',
+[0]   clientSessionId: '9df28d05...',
+[0]   cookies: [],
+[0]   headers: {
+[0]     cookie: 'present',
+[0]     authorization: 'present',
+[0]     'x-session-id': 'present'
+[0]   }
+[0] }
+[0] ✅ JWT authentication successful for user: admin@readmyfineprint.com
+[0] ✅ Valid JOSE access token for user c970c8a1-3a9d-43e0-b758-e5092db524ff
+[0] ✅ Valid JOSE access token for user c970c8a1-3a9d-43e0-b758-e5092db524ff
+[0] 🔑 User authenticated via secure JWT: admin@readmyfineprint.com (c970c8a1-3a9d-43e0-b758-e5092db524ff)
+[0] 🔑 User authenticated via secure JWT: admin@readmyfineprint.com (c970c8a1-3a9d-43e0-b758-e5092db524ff)
+[0] 🍪 Cookie-parser failed, trying manual parsing...
+[0] 🍪 Raw cookie header: __stripe_mid=dca14496-80be-4f68-9ddc-36fecc86d19f45dd56; sessionId=37e32a55-b755-4382-ae26-7d86a4339...
+[0] 🍪 Parsed cookies: undefined
+[0] 🍪 Manual parse found sessionId: 37e32a55...
+[0] 🔍 Session validation request: {
+[0]   sessionId: '37e32a55...',
+[0]   clientSessionId: '9df28d05...',
+[0]   cookies: [],
+[0]   headers: {
+[0]     cookie: 'present',
+[0]     authorization: 'present',
+[0]     'x-session-id': 'present'
+[0]   }
+[0] }
+[0] ✅ JWT authentication successful for user: admin@readmyfineprint.com
+[0] ℹ️ [SECURITY] USER_ACTIVITY | LOW | 58201d79 | User retrieved cookie consent preferences | /api/user/preferences/cookie-consent | {"userId":"c970c8a1-3a9d-43e0-b758-e5092db524ff","cookieConsent":null}
+[0] ✅ Valid JOSE access token for user c970c8a1-3a9d-43e0-b758-e5092db524ff
+[0] 🔑 User authenticated via secure JWT: admin@readmyfineprint.com (c970c8a1-3a9d-43e0-b758-e5092db524ff)
+[0] ℹ️ [SECURITY] USER_ACTIVITY | LOW | 58201d79 | User retrieved cookie consent preferences | /api/user/preferences/cookie-consent | {"userId":"c970c8a1-3a9d-43e0-b758-e5092db524ff","cookieConsent":null}
+[0] ✅ Valid JOSE access token for user c970c8a1-3a9d-43e0-b758-e5092db524ff
+[0] 🔑 User authenticated via secure JWT: admin@readmyfineprint.com (c970c8a1-3a9d-43e0-b758-e5092db524ff)
+[0] ℹ️ [SECURITY] USER_ACTIVITY | LOW | 58201d79 | User retrieved cookie consent preferences | /api/user/preferences/cookie-consent | {"userId":"c970c8a1-3a9d-43e0-b758-e5092db524ff","cookieConsent":null}
+[0] ✅ Valid JOSE access token for user c970c8a1-3a9d-43e0-b758-e5092db524ff
+[0] 🔑 User authenticated via secure JWT: admin@readmyfineprint.com (c970c8a1-3a9d-43e0-b758-e5092db524ff)
+[0] 🍪 Cookie-parser failed, trying manual parsing...
+[0] 🍪 Raw cookie header: __stripe_mid=dca14496-80be-4f68-9ddc-36fecc86d19f45dd56; sessionId=37e32a55-b755-4382-ae26-7d86a4339...
+[0] 🍪 Parsed cookies: undefined
+[0] 🍪 Manual parse found sessionId: 37e32a55...
+[0] 🔍 Session validation request: {
+[0]   sessionId: '37e32a55...',
+[0]   clientSessionId: '9df28d05...',
+[0]   cookies: [],
+[0]   headers: {
+[0]     cookie: 'present',
+[0]     authorization: 'present',
+[0]     'x-session-id': 'present'
+[0]   }
+[0] }
+[0] ✅ JWT authentication successful for user: admin@readmyfineprint.com
+[0] ✅ Valid JOSE access token for user c970c8a1-3a9d-43e0-b758-e5092db524ff
+[0] 🔑 User authenticated via secure JWT: admin@readmyfineprint.com (c970c8a1-3a9d-43e0-b758-e5092db524ff)
+[0] 🍪 Cookie-parser failed, trying manual parsing...
+[0] 🍪 Raw cookie header: __stripe_mid=dca14496-80be-4f68-9ddc-36fecc86d19f45dd56; sessionId=37e32a55-b755-4382-ae26-7d86a4339...
+[0] 🍪 Parsed cookies: undefined
+[0] 🍪 Manual parse found sessionId: 37e32a55...
+[0] 🔍 Session validation request: {
+[0]   sessionId: '37e32a55...',
+[0]   clientSessionId: '9df28d05...',
+[0]   cookies: [],
+[0]   headers: {
+[0]     cookie: 'present',
+[0]     authorization: 'present',
+[0]     'x-session-id': 'present'
+[0]   }
+[0] }
+[0] ✅ JWT authentication successful for user: admin@readmyfineprint.com
+[0] 🔍 Admin auth via subscription for /api/admin/metrics-subscription
+[0] 🔍 Headers: subscription-token=missing, cookie=present
+[0] 🔍 Cookies: sessionId=missing, subscriptionToken=missing
+[0] 🔍 Admin auth: Trying JWT token validation
+[0] 🔍 Admin auth via subscription for /api/admin/activity-subscription
+[0] 🔍 Headers: subscription-token=missing, cookie=present
+[0] 🔍 Cookies: sessionId=missing, subscriptionToken=missing
+[0] 🔍 Admin auth: Trying JWT token validation
+[0] 🔍 Admin auth via subscription for /api/admin/system-health-subscription
+[0] 🔍 Headers: subscription-token=missing, cookie=present
+[0] 🔍 Cookies: sessionId=missing, subscriptionToken=missing
+[0] 🔍 Admin auth: Trying JWT token validation
+[0] ✅ JOSE service initialized with secret version and key length: 32 bytes
+[0] ✅ JOSE token service initialized with versioned encryption key
+[0] ✅ JOSE service initialized with secret version and key length: 32 bytes
+[0] ✅ JOSE token service initialized with versioned encryption key
+[0] ✅ JOSE service initialized with secret version and key length: 32 bytes
+[0] ✅ JOSE token service initialized with versioned encryption key
+[0] 🔍 JOSE token validation - token prefix: eyJhbGciOiJIUzI1NiIsInR5cCI6Ik...
+[0] 🔍 JOSE token validation - using secret key length: 32 bytes
+[0] 🔍 Current JWT secret version: 1
+[0] 🔍 JOSE token validation - token prefix: eyJhbGciOiJIUzI1NiIsInR5cCI6Ik...
+[0] 🔍 JOSE token validation - using secret key length: 32 bytes
+[0] 🔍 Current JWT secret version: 1
+[0] 🔍 JOSE token validation - token prefix: eyJhbGciOiJIUzI1NiIsInR5cCI6Ik...
+[0] 🔍 JOSE token validation - using secret key length: 32 bytes
+[0] 🔍 Current JWT secret version: 1
+[0] ❌ JOSE token validation failed: unexpected "aud" claim value
+[0] ❌ Token being validated: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiO...
+[0] ❌ Secret key details: { length: 32, keyPrefix: '2940caed' }
+[0] 🔄 Attempting token validation with fresh initialization...
+[0] ✅ JOSE service initialized with secret version and key length: 32 bytes
+[0] ✅ JOSE token service initialized with versioned encryption key
+[0] ❌ JOSE token validation failed: unexpected "aud" claim value
+[0] ❌ Token being validated: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiO...
+[0] ❌ Secret key details: { length: 32, keyPrefix: '2940caed' }
+[0] 🔄 Attempting token validation with fresh initialization...
+[0] ✅ JOSE service initialized with secret version and key length: 32 bytes
+[0] ✅ JOSE token service initialized with versioned encryption key
+[0] ❌ JOSE token validation failed: unexpected "aud" claim value
+[0] ❌ Token being validated: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiO...
+[0] ❌ Secret key details: { length: 32, keyPrefix: '2940caed' }
+[0] 🔄 Attempting token validation with fresh initialization...
+[0] ✅ JOSE service initialized with secret version and key length: 32 bytes
+[0] ✅ JOSE token service initialized with versioned encryption key
+[0] ❌ Token validation failed even after re-initialization: unexpected "aud" claim value
+[0] ❌ Token validation failed even after re-initialization: unexpected "aud" claim value
+[0] ❌ Token validation failed even after re-initialization: unexpected "aud" claim value
+[0] ❌ Admin auth: JWT validation failed
+[0] 🔍 Admin auth: Manual parse found sessionId: 37e32a55...
+[0] ❌ Admin auth: JWT validation failed
+[0] 🔍 Admin auth: Manual parse found sessionId: 37e32a55...
+[0] ❌ Admin auth: JWT validation failed
+[0] 🔍 Admin auth: Manual parse found sessionId: 37e32a55...
+[0] ℹ️ [SECURITY] SYSTEM | LOW | 1379a641 | JOSE token service initialized with versioned secrets | initialization
+[0] ℹ️ [SECURITY] SYSTEM | LOW | 1379a641 | JOSE token service initialized with versioned secrets | initialization
+[0] ℹ️ [SECURITY] SYSTEM | LOW | 1379a641 | JOSE token service initialized with versioned secrets | initialization
+[0] ℹ️ [SECURITY] SYSTEM | LOW | 1379a641 | JOSE token service initialized with versioned secrets | initialization
+[0] ℹ️ [SECURITY] SYSTEM | LOW | 1379a641 | JOSE token service initialized with versioned secrets | initialization
+[0] ℹ️ [SECURITY] SYSTEM | LOW | 1379a641 | JOSE token service initialized with versioned secrets | initialization
+[0] 🔍 JOSE token validation - token prefix: eyJhbGciOiJIUzI1NiIsInR5cCI6Ik...
+[0] 🔍 JOSE token validation - using secret key length: 32 bytes
+[0] 🔍 Current JWT secret version: 1
+[0] ❌ JOSE token validation failed: unexpected "aud" claim value
+[0] ❌ Token being validated: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiO...
+[0] ❌ Secret key details: { length: 32, keyPrefix: '2940caed' }
+[0] 🔄 Attempting token validation with fresh initialization...
+[0] ✅ JOSE service initialized with secret version and key length: 32 bytes
+[0] ✅ JOSE token service initialized with versioned encryption key
+[0] ❌ Token validation failed even after re-initialization: unexpected "aud" claim value
+[0] ❌ Admin auth: Token validation failed for session 37e32a55...
+[0] 🔍 JOSE token validation - token prefix: eyJhbGciOiJIUzI1NiIsInR5cCI6Ik...
+[0] 🔍 JOSE token validation - using secret key length: 32 bytes
+[0] 🔍 Current JWT secret version: 1
+[0] ❌ JOSE token validation failed: unexpected "aud" claim value
+[0] ❌ Token being validated: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiO...
+[0] ❌ Secret key details: { length: 32, keyPrefix: '2940caed' }
+[0] 🔄 Attempting token validation with fresh initialization...
+[0] ✅ JOSE service initialized with secret version and key length: 32 bytes
+[0] ✅ JOSE token service initialized with versioned encryption key
+[0] 🔍 JOSE token validation - token prefix: eyJhbGciOiJIUzI1NiIsInR5cCI6Ik...
+[0] 🔍 JOSE token validation - using secret key length: 32 bytes
+[0] 🔍 Current JWT secret version: 1
+[0] ❌ Token validation failed even after re-initialization: unexpected "aud" claim value
+[0] ❌ Admin auth: Token validation failed for session 37e32a55...
+[0] ❌ JOSE token validation failed: unexpected "aud" claim value
+[0] ❌ Token being validated: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiO...
+[0] ❌ Secret key details: { length: 32, keyPrefix: '2940caed' }
+[0] 🔄 Attempting token validation with fresh initialization...
+[0] ✅ JOSE service initialized with secret version and key length: 32 bytes
+[0] ✅ JOSE token service initialized with versioned encryption key
+[0] ❌ Token validation failed even after re-initialization: unexpected "aud" claim value
+[0] ❌ Admin auth: Token validation failed for session 37e32a55...
+[0] ℹ️ [SECURITY] SYSTEM | LOW | 1379a641 | JOSE token service initialized with versioned secrets | initialization
+[0] ℹ️ [SECURITY] SYSTEM | LOW | 1379a641 | JOSE token service initialized with versioned secrets | initialization
+[0] ℹ️ [SECURITY] SYSTEM | LOW | 1379a641 | JOSE token service initialized with versioned secrets | initialization
+[0] 🧹 Cleaned up invalid admin session token
+[0] 🧹 Cleaned up invalid admin session token
+[0] 🧹 Cleaned up invalid admin session token
+[0] ✅ Refreshed JOSE access token for user c970c8a1-3a9d-43e0-b758-e5092db524ff
+[0] ℹ️ [SECURITY] AUTHENTICATION | LOW | 01090cce | Access token refreshed | token-refresh | {"userId":"c970c8a1-3a9d-43e0-b758-e5092db524ff","secretVersion":1,"accessExpiry":"2025-08-03T19:53:03.000Z"}
+[0] 🔍 Admin auth via subscription for /api/admin/activity-subscription
+[0] 🔍 Headers: subscription-token=missing, cookie=present
+[0] 🔍 Cookies: sessionId=missing, subscriptionToken=missing
+[0] 🔍 Admin auth: Trying JWT token validation
+[0] 🔍 JOSE token validation - token prefix: eyJhbGciOiJIUzI1NiIsInR5cCI6Ik...
+[0] 🔍 JOSE token validation - using secret key length: 32 bytes
+[0] 🔍 Current JWT secret version: 1
+[0] ❌ JOSE token validation failed: unexpected "aud" claim value
+[0] ❌ Token being validated: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiO...
+[0] ❌ Secret key details: { length: 32, keyPrefix: '2940caed' }
+[0] 🔄 Attempting token validation with fresh initialization...
+[0] ✅ JOSE service initialized with secret version and key length: 32 bytes
+[0] ✅ JOSE token service initialized with versioned encryption key
+[0] ❌ Token validation failed even after re-initialization: unexpected "aud" claim value
+[0] ❌ Admin auth: JWT validation failed
+[0] 🔍 Admin auth: Manual parse found sessionId: 37e32a55...
+[0] ✅ Refreshed JOSE access token for user c970c8a1-3a9d-43e0-b758-e5092db524ff
+[0] ✅ Refreshed JOSE access token for user c970c8a1-3a9d-43e0-b758-e5092db524ff
+[0] ℹ️ [SECURITY] SYSTEM | LOW | 1379a641 | JOSE token service initialized with versioned secrets | initialization
+[0] ℹ️ [SECURITY] AUTHENTICATION | LOW | 58201d79 | Access token refreshed | token-refresh | {"userId":"c970c8a1-3a9d-43e0-b758-e5092db524ff","secretVersion":1,"accessExpiry":"2025-08-03T19:53:03.000Z"}
+[0] ℹ️ [SECURITY] AUTHENTICATION | LOW | d2b52606 | Access token refreshed | token-refresh | {"userId":"c970c8a1-3a9d-43e0-b758-e5092db524ff","secretVersion":1,"accessExpiry":"2025-08-03T19:53:03.000Z"}
+[0] 🔍 Admin auth via subscription for /api/admin/metrics-subscription
+[0] 🔍 Headers: subscription-token=missing, cookie=present
+[0] 🔍 Cookies: sessionId=missing, subscriptionToken=missing
+[0] 🔍 Admin auth: Trying JWT token validation
+[0] 🔍 JOSE token validation - token prefix: eyJhbGciOiJIUzI1NiIsInR5cCI6Ik...
+[0] 🔍 JOSE token validation - using secret key length: 32 bytes
+[0] 🔍 Current JWT secret version: 1
+[0] ❌ JOSE token validation failed: unexpected "aud" claim value
+[0] ❌ Token being validated: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiO...
+[0] ❌ Secret key details: { length: 32, keyPrefix: '2940caed' }
+[0] 🔄 Attempting token validation with fresh initialization...
+[0] ✅ JOSE service initialized with secret version and key length: 32 bytes
+[0] ✅ JOSE token service initialized with versioned encryption key
+[0] ❌ Token validation failed even after re-initialization: unexpected "aud" claim value
+[0] ❌ Admin auth: JWT validation failed
+[0] 🔍 Admin auth: Manual parse found sessionId: 37e32a55...
+[0] 🔍 Admin auth via subscription for /api/admin/system-health-subscription
+[0] 🔍 Headers: subscription-token=missing, cookie=present
+[0] 🔍 Cookies: sessionId=missing, subscriptionToken=missing
+[0] 🔍 Admin auth: Trying JWT token validation
+[0] 🔍 JOSE token validation - token prefix: eyJhbGciOiJIUzI1NiIsInR5cCI6Ik...
+[0] 🔍 JOSE token validation - using secret key length: 32 bytes
+[0] 🔍 Current JWT secret version: 1
+[0] ❌ JOSE token validation failed: unexpected "aud" claim value
+[0] ❌ Token being validated: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiO...
+[0] ❌ Secret key details: { length: 32, keyPrefix: '2940caed' }
+[0] 🔄 Attempting token validation with fresh initialization...
+[0] ✅ JOSE service initialized with secret version and key length: 32 bytes
+[0] ✅ JOSE token service initialized with versioned encryption key
+[0] ❌ Token validation failed even after re-initialization: unexpected "aud" claim value
+[0] ❌ Admin auth: JWT validation failed
+[0] 🔍 Admin auth: Manual parse found sessionId: 37e32a55...
+[0] ℹ️ [SECURITY] SYSTEM | LOW | 1379a641 | JOSE token service initialized with versioned secrets | initialization
+[0] ℹ️ [SECURITY] SYSTEM | LOW | 1379a641 | JOSE token service initialized with versioned secrets | initialization
+[0] ❌ Admin auth: No token found for session 37e32a55...
+[0] ❌ Admin auth: No token found for session 37e32a55...
+[0] ❌ Admin auth: No token found for session 37e32a55...
+[0] 🔍 Admin auth via subscription for /api/admin/system-health-subscription
+[0] 🔍 Headers: subscription-token=missing, cookie=present
+[0] 🔍 Cookies: sessionId=missing, subscriptionToken=missing
+[0] 🔍 Admin auth: Trying JWT token validation
+[0] 🔍 JOSE token validation - token prefix: eyJhbGciOiJIUzI1NiIsInR5cCI6Ik...
+[0] 🔍 JOSE token validation - using secret key length: 32 bytes
+[0] 🔍 Current JWT secret version: 1
+[0] ❌ JOSE token validation failed: unexpected "aud" claim value
+[0] ❌ Token being validated: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiO...
+[0] ❌ Secret key details: { length: 32, keyPrefix: '2940caed' }
+[0] 🔄 Attempting token validation with fresh initialization...
+[0] ✅ JOSE service initialized with secret version and key length: 32 bytes
+[0] ✅ JOSE token service initialized with versioned encryption key
+[0] ❌ Token validation failed even after re-initialization: unexpected "aud" claim value
+[0] ❌ Admin auth: JWT validation failed
+[0] 🔍 Admin auth: Manual parse found sessionId: 37e32a55...
+[0] ℹ️ [SECURITY] SYSTEM | LOW | 1379a641 | JOSE token service initialized with versioned secrets | initialization
+[0] ❌ Admin auth: No token found for session 37e32a55...
+[0] ✅ Refreshed JOSE access token for user c970c8a1-3a9d-43e0-b758-e5092db524ff
+[0] ℹ️ [SECURITY] AUTHENTICATION | LOW | d2b52606 | Access token refreshed | token-refresh | {"userId":"c970c8a1-3a9d-43e0-b758-e5092db524ff","secretVersion":1,"accessExpiry":"2025-08-03T19:53:09.000Z"}
+[0] 🔍 Admin auth via subscription for /api/admin/system-health-subscription
+[0] 🔍 Headers: subscription-token=missing, cookie=present
+[0] 🔍 Cookies: sessionId=missing, subscriptionToken=missing
+[0] 🔍 Admin auth: Trying JWT token validation
+[0] 🔍 JOSE token validation - token prefix: eyJhbGciOiJIUzI1NiIsInR5cCI6Ik...
+[0] 🔍 JOSE token validation - using secret key length: 32 bytes
+[0] 🔍 Current JWT secret version: 1
+[0] ❌ JOSE token validation failed: unexpected "aud" claim value
+[0] ❌ Token being validated: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiO...
+[0] ❌ Secret key details: { length: 32, keyPrefix: '2940caed' }
+[0] 🔄 Attempting token validation with fresh initialization...
+[0] ✅ JOSE service initialized with secret version and key length: 32 bytes
+[0] ✅ JOSE token service initialized with versioned encryption key
+[0] ❌ Token validation failed even after re-initialization: unexpected "aud" claim value
+[0] ❌ Admin auth: JWT validation failed
+[0] 🔍 Admin auth: Manual parse found sessionId: 37e32a55...
+[0] ℹ️ [SECURITY] SYSTEM | LOW | 1379a641 | JOSE token service initialized with versioned secrets | initialization
+[0] ❌ Admin auth: No token found for session 37e32a55...
+[0] 🔍 Admin auth via subscription for /api/admin/system-health-subscription
+[0] 🔍 Headers: subscription-token=missing, cookie=present
+[0] 🔍 Cookies: sessionId=missing, subscriptionToken=missing
+[0] 🔍 Admin auth: Trying JWT token validation
+[0] 🔍 JOSE token validation - token prefix: eyJhbGciOiJIUzI1NiIsInR5cCI6Ik...
+[0] 🔍 JOSE token validation - using secret key length: 32 bytes
+[0] 🔍 Current JWT secret version: 1
+[0] ❌ JOSE token validation failed: unexpected "aud" claim value
+[0] ❌ Token being validated: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiO...
+[0] ❌ Secret key details: { length: 32, keyPrefix: '2940caed' }
+[0] 🔄 Attempting token validation with fresh initialization...
+[0] ✅ JOSE service initialized with secret version and key length: 32 bytes
+[0] ✅ JOSE token service initialized with versioned encryption key
+[0] ❌ Token validation failed even after re-initialization: unexpected "aud" claim value
+[0] ❌ Admin auth: JWT validation failed
+[0] 🔍 Admin auth: Manual parse found sessionId: 37e32a55...
+[0] ℹ️ [SECURITY] SYSTEM | LOW | 1379a641 | JOSE token service initialized with versioned secrets | initialization
+[0] ❌ Admin auth: No token found for session 37e32a55...
+[0] ✅ Refreshed JOSE access token for user c970c8a1-3a9d-43e0-b758-e5092db524ff
+[0] ℹ️ [SECURITY] AUTHENTICATION | LOW | d2b52606 | Access token refreshed | token-refresh | {"userId":"c970c8a1-3a9d-43e0-b758-e5092db524ff","secretVersion":1,"accessExpiry":"2025-08-03T19:53:15.000Z"}
+[0] 🔍 Admin auth via subscription for /api/admin/system-health-subscription
+[0] 🔍 Headers: subscription-token=missing, cookie=present
+[0] 🔍 Cookies: sessionId=missing, subscriptionToken=missing
+[0] 🔍 Admin auth: Trying JWT token validation
+[0] 🔍 JOSE token validation - token prefix: eyJhbGciOiJIUzI1NiIsInR5cCI6Ik...
+[0] 🔍 JOSE token validation - using secret key length: 32 bytes
+[0] 🔍 Current JWT secret version: 1
+[0] ❌ JOSE token validation failed: unexpected "aud" claim value
+[0] ❌ Token being validated: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiO...
+[0] ❌ Secret key details: { length: 32, keyPrefix: '2940caed' }
+[0] 🔄 Attempting token validation with fresh initialization...
+[0] ✅ JOSE service initialized with secret version and key length: 32 bytes
+[0] ✅ JOSE token service initialized with versioned encryption key
+[0] ❌ Token validation failed even after re-initialization: unexpected "aud" claim value
+[0] ❌ Admin auth: JWT validation failed
+[0] 🔍 Admin auth: Manual parse found sessionId: 37e32a55...
+[0] ℹ️ [SECURITY] SYSTEM | LOW | 1379a641 | JOSE token service initialized with versioned secrets | initialization
+[0] ❌ Admin auth: No token found for session 37e32a55...
+[0] 🔍 Admin auth via subscription for /api/admin/system-health-subscription
+[0] 🔍 Headers: subscription-token=missing, cookie=present
+[0] 🔍 Cookies: sessionId=missing, subscriptionToken=missing
+[0] 🔍 Admin auth: Trying JWT token validation
+[0] 🔍 JOSE token validation - token prefix: eyJhbGciOiJIUzI1NiIsInR5cCI6Ik...
+[0] 🔍 JOSE token validation - using secret key length: 32 bytes
+[0] 🔍 Current JWT secret version: 1
+[0] ❌ JOSE token validation failed: unexpected "aud" claim value
+[0] ❌ Token being validated: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiO...
+[0] ❌ Secret key details: { length: 32, keyPrefix: '2940caed' }
+[0] 🔄 Attempting token validation with fresh initialization...
+[0] ✅ JOSE service initialized with secret version and key length: 32 bytes
+[0] ✅ JOSE token service initialized with versioned encryption key
+[0] ❌ Token validation failed even after re-initialization: unexpected "aud" claim value
+[0] ❌ Admin auth: JWT validation failed
+[0] 🔍 Admin auth: Manual parse found sessionId: 37e32a55...
+[0] ℹ️ [SECURITY] SYSTEM | LOW | 1379a641 | JOSE token service initialized with versioned secrets | initialization
+[0] ❌ Admin auth: No token found for session 37e32a55...
+[0] ✅ Refreshed JOSE access token for user c970c8a1-3a9d-43e0-b758-e5092db524ff
+[0] ℹ️ [SECURITY] AUTHENTICATION | LOW | d2b52606 | Access token refreshed | token-refresh | {"userId":"c970c8a1-3a9d-43e0-b758-e5092db524ff","secretVersion":1,"accessExpiry":"2025-08-03T19:53:21.000Z"}
+[0] 🔍 Admin auth via subscription for /api/admin/system-health-subscription
+[0] 🔍 Headers: subscription-token=missing, cookie=present
+[0] 🔍 Cookies: sessionId=missing, subscriptionToken=missing
+[0] 🔍 Admin auth: Trying JWT token validation
+[0] 🔍 JOSE token validation - token prefix: eyJhbGciOiJIUzI1NiIsInR5cCI6Ik...
+[0] 🔍 JOSE token validation - using secret key length: 32 bytes
+[0] 🔍 Current JWT secret version: 1
+[0] ❌ JOSE token validation failed: unexpected "aud" claim value
+[0] ❌ Token being validated: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiO...
+[0] ❌ Secret key details: { length: 32, keyPrefix: '2940caed' }
+[0] 🔄 Attempting token validation with fresh initialization...
+[0] ✅ JOSE service initialized with secret version and key length: 32 bytes
+[0] ✅ JOSE token service initialized with versioned encryption key
+[0] ❌ Token validation failed even after re-initialization: unexpected "aud" claim value
+[0] ❌ Admin auth: JWT validation failed
+[0] 🔍 Admin auth: Manual parse found sessionId: 37e32a55...
+[0] ℹ️ [SECURITY] SYSTEM | LOW | 1379a641 | JOSE token service initialized with versioned secrets | initialization
+[0] ❌ Admin auth: No token found for session 37e32a55...
+[0] 🔍 Admin auth via subscription for /api/admin/system-health-subscription
+[0] 🔍 Headers: subscription-token=missing, cookie=present
+[0] 🔍 Cookies: sessionId=missing, subscriptionToken=missing
+[0] 🔍 Admin auth: Trying JWT token validation
+[0] 🔍 JOSE token validation - token prefix: eyJhbGciOiJIUzI1NiIsInR5cCI6Ik...
+[0] 🔍 JOSE token validation - using secret key length: 32 bytes
+[0] 🔍 Current JWT secret version: 1
+[0] ❌ JOSE token validation failed: unexpected "aud" claim value
+[0] ❌ Token being validated: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiO...
+[0] ❌ Secret key details: { length: 32, keyPrefix: '2940caed' }
+[0] 🔄 Attempting token validation with fresh initialization...
+[0] ✅ JOSE service initialized with secret version and key length: 32 bytes
+[0] ✅ JOSE token service initialized with versioned encryption key
+[0] ❌ Token validation failed even after re-initialization: unexpected "aud" claim value
+[0] ❌ Admin auth: JWT validation failed
+[0] 🔍 Admin auth: Manual parse found sessionId: 37e32a55...
+[0] ℹ️ [SECURITY] SYSTEM | LOW | 1379a641 | JOSE token service initialized with versioned secrets | initialization
+[0] ❌ Admin auth: No token found for session 37e32a55...
+[0] ✅ Refreshed JOSE access token for user c970c8a1-3a9d-43e0-b758-e5092db524ff
+[0] ℹ️ [SECURITY] AUTHENTICATION | LOW | d2b52606 | Access token refreshed | token-refresh | {"userId":"c970c8a1-3a9d-43e0-b758-e5092db524ff","secretVersion":1,"accessExpiry":"2025-08-03T19:53:27.000Z"}
+[0] 🔍 Admin auth via subscription for /api/admin/system-health-subscription
+[0] 🔍 Headers: subscription-token=missing, cookie=present
+[0] 🔍 Cookies: sessionId=missing, subscriptionToken=missing
+[0] 🔍 Admin auth: Trying JWT token validation
+[0] 🔍 JOSE token validation - token prefix: eyJhbGciOiJIUzI1NiIsInR5cCI6Ik...
+[0] 🔍 JOSE token validation - using secret key length: 32 bytes
+[0] 🔍 Current JWT secret version: 1
+[0] ❌ JOSE token validation failed: unexpected "aud" claim value
+[0] ❌ Token being validated: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiO...
+[0] ❌ Secret key details: { length: 32, keyPrefix: '2940caed' }
+[0] 🔄 Attempting token validation with fresh initialization...
+[0] ✅ JOSE service initialized with secret version and key length: 32 bytes
+[0] ✅ JOSE token service initialized with versioned encryption key
+[0] ❌ Token validation failed even after re-initialization: unexpected "aud" claim value
+[0] ❌ Admin auth: JWT validation failed
+[0] 🔍 Admin auth: Manual parse found sessionId: 37e32a55...
+[0] ℹ️ [SECURITY] SYSTEM | LOW | 1379a641 | JOSE token service initialized with versioned secrets | initialization
+[0] ❌ Admin auth: No token found for session 37e32a55...
+[0] 🔍 Admin auth via subscription for /api/admin/system-health-subscription
+[0] 🔍 Headers: subscription-token=missing, cookie=present
+[0] 🔍 Cookies: sessionId=missing, subscriptionToken=missing
+[0] 🔍 Admin auth: Trying JWT token validation
+[0] 🔍 JOSE token validation - token prefix: eyJhbGciOiJIUzI1NiIsInR5cCI6Ik...
+[0] 🔍 JOSE token validation - using secret key length: 32 bytes
+[0] 🔍 Current JWT secret version: 1
+[0] ❌ JOSE token validation failed: unexpected "aud" claim value
+[0] ❌ Token being validated: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiO...
+[0] ❌ Secret key details: { length: 32, keyPrefix: '2940caed' }
+[0] 🔄 Attempting token validation with fresh initialization...
+[0] ✅ JOSE service initialized with secret version and key length: 32 bytes
+[0] ✅ JOSE token service initialized with versioned encryption key
+[0] ❌ Token validation failed even after re-initialization: unexpected "aud" claim value
+[0] ❌ Admin auth: JWT validation failed
+[0] 🔍 Admin auth: Manual parse found sessionId: 37e32a55...
+[0] ℹ️ [SECURITY] SYSTEM | LOW | 1379a641 | JOSE token service initialized with versioned secrets | initialization
+[0] ❌ Admin auth: No token found for session 37e32a55...
+[0] ✅ Refreshed JOSE access token for user c970c8a1-3a9d-43e0-b758-e5092db524ff
+[0] ℹ️ [SECURITY] AUTHENTICATION | LOW | d2b52606 | Access token refreshed | token-refresh | {"userId":"c970c8a1-3a9d-43e0-b758-e5092db524ff","secretVersion":1,"accessExpiry":"2025-08-03T19:53:32.000Z"}
+[0] 🔍 Admin auth via subscription for /api/admin/system-health-subscription
+[0] 🔍 Headers: subscription-token=missing, cookie=present
+[0] 🔍 Cookies: sessionId=missing, subscriptionToken=missing
+[0] 🔍 Admin auth: Trying JWT token validation
+[0] 🔍 JOSE token validation - token prefix: eyJhbGciOiJIUzI1NiIsInR5cCI6Ik...
+[0] 🔍 JOSE token validation - using secret key length: 32 bytes
+[0] 🔍 Current JWT secret version: 1
+[0] ❌ JOSE token validation failed: unexpected "aud" claim value
+[0] ❌ Token being validated: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiO...
+[0] ❌ Secret key details: { length: 32, keyPrefix: '2940caed' }
+[0] 🔄 Attempting token validation with fresh initialization...
+[0] ✅ JOSE service initialized with secret version and key length: 32 bytes
+[0] ✅ JOSE token service initialized with versioned encryption key
+[0] ❌ Token validation failed even after re-initialization: unexpected "aud" claim value
+[0] ❌ Admin auth: JWT validation failed
+[0] 🔍 Admin auth: Manual parse found sessionId: 37e32a55...
+[0] ℹ️ [SECURITY] SYSTEM | LOW | 1379a641 | JOSE token service initialized with versioned secrets | initialization
+[0] ❌ Admin auth: No token found for session 37e32a55...
+[0] 🔍 Admin auth via subscription for /api/admin/metrics-subscription
+[0] 🔍 Headers: subscription-token=missing, cookie=present
+[0] 🔍 Cookies: sessionId=missing, subscriptionToken=missing
+[0] 🔍 Admin auth: Trying JWT token validation
+[0] 🔍 JOSE token validation - token prefix: eyJhbGciOiJIUzI1NiIsInR5cCI6Ik...
+[0] 🔍 JOSE token validation - using secret key length: 32 bytes
+[0] 🔍 Current JWT secret version: 1
+[0] ❌ JOSE token validation failed: unexpected "aud" claim value
+[0] ❌ Token being validated: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiO...
+[0] ❌ Secret key details: { length: 32, keyPrefix: '2940caed' }
+[0] 🔄 Attempting token validation with fresh initialization...
+[0] ✅ JOSE service initialized with secret version and key length: 32 bytes
+[0] ✅ JOSE token service initialized with versioned encryption key
+[0] ❌ Token validation failed even after re-initialization: unexpected "aud" claim value
+[0] ❌ Admin auth: JWT validation failed
+[0] 🔍 Admin auth: Manual parse found sessionId: 37e32a55...
+[0] ℹ️ [SECURITY] SYSTEM | LOW | 1379a641 | JOSE token service initialized with versioned secrets | initialization
+[0] ❌ Admin auth: No token found for session 37e32a55...
+[0] ✅ Refreshed JOSE access token for user c970c8a1-3a9d-43e0-b758-e5092db524ff
+[0] ℹ️ [SECURITY] AUTHENTICATION | LOW | d2b52606 | Access token refreshed | token-refresh | {"userId":"c970c8a1-3a9d-43e0-b758-e5092db524ff","secretVersion":1,"accessExpiry":"2025-08-03T19:53:34.000Z"}
+[0] 🔍 Admin auth via subscription for /api/admin/metrics-subscription
+[0] 🔍 Headers: subscription-token=missing, cookie=present
+[0] 🔍 Cookies: sessionId=missing, subscriptionToken=missing
+[0] 🔍 Admin auth: Trying JWT token validation
+[0] 🔍 JOSE token validation - token prefix: eyJhbGciOiJIUzI1NiIsInR5cCI6Ik...
+[0] 🔍 JOSE token validation - using secret key length: 32 bytes
+[0] 🔍 Current JWT secret version: 1
+[0] ❌ JOSE token validation failed: unexpected "aud" claim value
+[0] ❌ Token being validated: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiO...
+[0] ❌ Secret key details: { length: 32, keyPrefix: '2940caed' }
+[0] 🔄 Attempting token validation with fresh initialization...
+[0] ✅ JOSE service initialized with secret version and key length: 32 bytes
+[0] ✅ JOSE token service initialized with versioned encryption key
+[0] ❌ Token validation failed even after re-initialization: unexpected "aud" claim value
+[0] ❌ Admin auth: JWT validation failed
+[0] 🔍 Admin auth: Manual parse found sessionId: 37e32a55...
+[0] ℹ️ [SECURITY] SYSTEM | LOW | 1379a641 | JOSE token service initialized with versioned secrets | initialization
+[0] ❌ Admin auth: No token found for session 37e32a55...
+[0] 🔍 Admin auth via subscription for /api/admin/system-health-subscription
+[0] 🔍 Headers: subscription-token=missing, cookie=present
+[0] 🔍 Cookies: sessionId=missing, subscriptionToken=missing
+[0] 🔍 Admin auth: Trying JWT token validation
+[0] 🔍 JOSE token validation - token prefix: eyJhbGciOiJIUzI1NiIsInR5cCI6Ik...
+[0] 🔍 JOSE token validation - using secret key length: 32 bytes
+[0] 🔍 Current JWT secret version: 1
+[0] ❌ JOSE token validation failed: unexpected "aud" claim value
+[0] ❌ Token being validated: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiO...
+[0] ❌ Secret key details: { length: 32, keyPrefix: '2940caed' }
+[0] 🔄 Attempting token validation with fresh initialization...
+[0] ✅ JOSE service initialized with secret version and key length: 32 bytes
+[0] ✅ JOSE token service initialized with versioned encryption key
+[0] ❌ Token validation failed even after re-initialization: unexpected "aud" claim value
+[0] ❌ Admin auth: JWT validation failed
+[0] 🔍 Admin auth: Manual parse found sessionId: 37e32a55...
+[0] ℹ️ [SECURITY] SYSTEM | LOW | 1379a641 | JOSE token service initialized with versioned secrets | initialization
+[0] ❌ Admin auth: No token found for session 37e32a55...
+[0] ✅ Refreshed JOSE access token for user c970c8a1-3a9d-43e0-b758-e5092db524ff
+[0] ℹ️ [SECURITY] AUTHENTICATION | LOW | d2b52606 | Access token refreshed | token-refresh | {"userId":"c970c8a1-3a9d-43e0-b758-e5092db524ff","secretVersion":1,"accessExpiry":"2025-08-03T19:53:38.000Z"}
+[0] 🔍 Admin auth via subscription for /api/admin/system-health-subscription
+[0] 🔍 Headers: subscription-token=missing, cookie=present
+[0] 🔍 Cookies: sessionId=missing, subscriptionToken=missing
+[0] 🔍 Admin auth: Trying JWT token validation
+[0] 🔍 JOSE token validation - token prefix: eyJhbGciOiJIUzI1NiIsInR5cCI6Ik...
+[0] 🔍 JOSE token validation - using secret key length: 32 bytes
+[0] 🔍 Current JWT secret version: 1
+[0] ❌ JOSE token validation failed: unexpected "aud" claim value
+[0] ❌ Token being validated: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiO...
+[0] ❌ Secret key details: { length: 32, keyPrefix: '2940caed' }
+[0] 🔄 Attempting token validation with fresh initialization...
+[0] ✅ JOSE service initialized with secret version and key length: 32 bytes
+[0] ✅ JOSE token service initialized with versioned encryption key
+[0] ❌ Token validation failed even after re-initialization: unexpected "aud" claim value
+[0] ❌ Admin auth: JWT validation failed
+[0] 🔍 Admin auth: Manual parse found sessionId: 37e32a55...
+[0] ℹ️ [SECURITY] SYSTEM | LOW | 1379a641 | JOSE token service initialized with versioned secrets | initialization
+[0] ❌ Admin auth: No token found for session 37e32a55...
+[0] 🔍 Admin auth via subscription for /api/admin/system-health-subscription
+[0] 🔍 Headers: subscription-token=missing, cookie=present
+[0] 🔍 Cookies: sessionId=missing, subscriptionToken=missing
+[0] 🔍 Admin auth: Trying JWT token validation
+[0] 🔍 JOSE token validation - token prefix: eyJhbGciOiJIUzI1NiIsInR5cCI6Ik...
+[0] 🔍 JOSE token validation - using secret key length: 32 bytes
+[0] 🔍 Current JWT secret version: 1
+[0] ❌ JOSE token validation failed: unexpected "aud" claim value
+[0] ❌ Token being validated: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiO...
+[0] ❌ Secret key details: { length: 32, keyPrefix: '2940caed' }
+[0] 🔄 Attempting token validation with fresh initialization...
+[0] ✅ JOSE service initialized with secret version and key length: 32 bytes
+[0] ✅ JOSE token service initialized with versioned encryption key
+[0] ❌ Token validation failed even after re-initialization: unexpected "aud" claim value
+[0] ❌ Admin auth: JWT validation failed
+[0] 🔍 Admin auth: Manual parse found sessionId: 37e32a55...
+[0] ℹ️ [SECURITY] SYSTEM | LOW | 1379a641 | JOSE token service initialized with versioned secrets | initialization
+[0] ❌ Admin auth: No token found for session 37e32a55...
+[0] ✅ Refreshed JOSE access token for user c970c8a1-3a9d-43e0-b758-e5092db524ff
+[0] ℹ️ [SECURITY] AUTHENTICATION | LOW | d2b52606 | Access token refreshed | token-refresh | {"userId":"c970c8a1-3a9d-43e0-b758-e5092db524ff","secretVersion":1,"accessExpiry":"2025-08-03T19:53:44.000Z"}
+[0] 🔍 Admin auth via subscription for /api/admin/system-health-subscription
+[0] 🔍 Headers: subscription-token=missing, cookie=present
+[0] 🔍 Cookies: sessionId=missing, subscriptionToken=missing
+[0] 🔍 Admin auth: Trying JWT token validation
+[0] 🔍 JOSE token validation - token prefix: eyJhbGciOiJIUzI1NiIsInR5cCI6Ik...
+[0] 🔍 JOSE token validation - using secret key length: 32 bytes
+[0] 🔍 Current JWT secret version: 1
+[0] ❌ JOSE token validation failed: unexpected "aud" claim value
+[0] ❌ Token being validated: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiO...
+[0] ❌ Secret key details: { length: 32, keyPrefix: '2940caed' }
+[0] 🔄 Attempting token validation with fresh initialization...
+[0] ✅ JOSE service initialized with secret version and key length: 32 bytes
+[0] ✅ JOSE token service initialized with versioned encryption key
+[0] ❌ Admin auth: JWT validation failed
+[0] 🔍 Admin auth: Manual parse found sessionId: 37e32a55...
+[0] ❌ Token validation failed even after re-initialization: unexpected "aud" claim value
+[0] ℹ️ [SECURITY] SYSTEM | LOW | 1379a641 | JOSE token service initialized with versioned secrets | initialization
+[0] ❌ Admin auth: No token found for session 37e32a55...
+[0] 🔍 Admin auth via subscription for /api/admin/system-health-subscription
+[0] 🔍 Headers: subscription-token=missing, cookie=present
+[0] 🔍 Cookies: sessionId=missing, subscriptionToken=missing
+[0] 🔍 Admin auth: Trying JWT token validation
+[0] 🔍 JOSE token validation - token prefix: eyJhbGciOiJIUzI1NiIsInR5cCI6Ik...
+[0] 🔍 JOSE token validation - using secret key length: 32 bytes
+[0] 🔍 Current JWT secret version: 1
+[0] ❌ JOSE token validation failed: unexpected "aud" claim value
+[0] ❌ Token being validated: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiO...
+[0] ❌ Secret key details: { length: 32, keyPrefix: '2940caed' }
+[0] 🔄 Attempting token validation with fresh initialization...
+[0] ✅ JOSE service initialized with secret version and key length: 32 bytes
+[0] ✅ JOSE token service initialized with versioned encryption key
+[0] ❌ Token validation failed even after re-initialization: unexpected "aud" claim value
+[0] ❌ Admin auth: JWT validation failed
+[0] 🔍 Admin auth: Manual parse found sessionId: 37e32a55...
+[0] ℹ️ [SECURITY] SYSTEM | LOW | 1379a641 | JOSE token service initialized with versioned secrets | initialization
+[0] ❌ Admin auth: No token found for session 37e32a55...
+[0] ✅ Refreshed JOSE access token for user c970c8a1-3a9d-43e0-b758-e5092db524ff
+[0] ℹ️ [SECURITY] AUTHENTICATION | LOW | d2b52606 | Access token refreshed | token-refresh | {"userId":"c970c8a1-3a9d-43e0-b758-e5092db524ff","secretVersion":1,"accessExpiry":"2025-08-03T19:53:51.000Z"}
+[0] 🔍 Admin auth via subscription for /api/admin/system-health-subscription
+[0] 🔍 Headers: subscription-token=missing, cookie=present
+[0] 🔍 Cookies: sessionId=missing, subscriptionToken=missing
+[0] 🔍 Admin auth: Trying JWT token validation
+[0] 🔍 JOSE token validation - token prefix: eyJhbGciOiJIUzI1NiIsInR5cCI6Ik...
+[0] 🔍 JOSE token validation - using secret key length: 32 bytes
+[0] 🔍 Current JWT secret version: 1
+[0] ❌ JOSE token validation failed: unexpected "aud" claim value
+[0] ❌ Token being validated: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiO...
+[0] ❌ Secret key details: { length: 32, keyPrefix: '2940caed' }
+[0] 🔄 Attempting token validation with fresh initialization...
+[0] ✅ JOSE service initialized with secret version and key length: 32 bytes
+[0] ✅ JOSE token service initialized with versioned encryption key
+[0] ❌ Token validation failed even after re-initialization: unexpected "aud" claim value
+[0] ❌ Admin auth: JWT validation failed
+[0] 🔍 Admin auth: Manual parse found sessionId: 37e32a55...
+[0] ℹ️ [SECURITY] SYSTEM | LOW | 1379a641 | JOSE token service initialized with versioned secrets | initialization
+[0] ❌ Admin auth: No token found for session 37e32a55...
+[0] 🔍 Admin auth via subscription for /api/admin/system-health-subscription
+[0] 🔍 Headers: subscription-token=missing, cookie=present
+[0] 🔍 Cookies: sessionId=missing, subscriptionToken=missing
+[0] 🔍 Admin auth: Trying JWT token validation
+[0] 🔍 JOSE token validation - token prefix: eyJhbGciOiJIUzI1NiIsInR5cCI6Ik...
+[0] 🔍 JOSE token validation - using secret key length: 32 bytes
+[0] 🔍 Current JWT secret version: 1
+[0] ❌ JOSE token validation failed: unexpected "aud" claim value
+[0] ❌ Token being validated: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiO...
+[0] ❌ Secret key details: { length: 32, keyPrefix: '2940caed' }
+[0] 🔄 Attempting token validation with fresh initialization...
+[0] ✅ JOSE service initialized with secret version and key length: 32 bytes
+[0] ✅ JOSE token service initialized with versioned encryption key
+[0] ❌ Admin auth: JWT validation failed
+[0] 🔍 Admin auth: Manual parse found sessionId: 37e32a55...
+[0] ❌ Token validation failed even after re-initialization: unexpected "aud" claim value
+[0] ℹ️ [SECURITY] SYSTEM | LOW | 1379a641 | JOSE token service initialized with versioned secrets | initialization
+[0] ❌ Admin auth: No token found for session 37e32a55...
+[0] ✅ Refreshed JOSE access token for user c970c8a1-3a9d-43e0-b758-e5092db524ff
+[0] ℹ️ [SECURITY] AUTHENTICATION | LOW | d2b52606 | Access token refreshed | token-refresh | {"userId":"c970c8a1-3a9d-43e0-b758-e5092db524ff","secretVersion":1,"accessExpiry":"2025-08-03T19:53:57.000Z"}
+[0] 🔍 Admin auth via subscription for /api/admin/system-health-subscription
+[0] 🔍 Headers: subscription-token=missing, cookie=present
+[0] 🔍 Cookies: sessionId=missing, subscriptionToken=missing
+[0] 🔍 Admin auth: Trying JWT token validation
+[0] 🔍 JOSE token validation - token prefix: eyJhbGciOiJIUzI1NiIsInR5cCI6Ik...
+[0] 🔍 JOSE token validation - using secret key length: 32 bytes
+[0] 🔍 Current JWT secret version: 1
+[0] ❌ JOSE token validation failed: unexpected "aud" claim value
+[0] ❌ Token being validated: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiO...
+[0] ❌ Secret key details: { length: 32, keyPrefix: '2940caed' }
+[0] 🔄 Attempting token validation with fresh initialization...
+[0] ✅ JOSE service initialized with secret version and key length: 32 bytes
+[0] ✅ JOSE token service initialized with versioned encryption key
+[0] ❌ Token validation failed even after re-initialization: unexpected "aud" claim value
+[0] ❌ Admin auth: JWT validation failed
+[0] 🔍 Admin auth: Manual parse found sessionId: 37e32a55...
+[0] ℹ️ [SECURITY] SYSTEM | LOW | 1379a641 | JOSE token service initialized with versioned secrets | initialization
+[0] ❌ Admin auth: No token found for session 37e32a55...
