@@ -8,7 +8,7 @@ export function Footer() {
 
   const handleShareClick = async () => {
     const websiteUrl = "https://readmyfineprint.com/";
-    
+
     try {
       await navigator.clipboard.writeText(websiteUrl);
       toast({
@@ -24,7 +24,7 @@ export function Footer() {
       textArea.select();
       document.execCommand('copy');
       document.body.removeChild(textArea);
-      
+
       toast({
         title: "Link copied!",
         description: "Website URL has been copied to your clipboard.",
@@ -191,3 +191,4 @@ export function Footer() {
     </>
   );
 }
+```
