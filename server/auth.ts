@@ -82,134 +82,41 @@ export async function requireAdminAuth(req: Request, res: Response, next: NextFu
     });
   }
 
-  const providedKey = req.headers['x-admin-key'] as string;
-  const adminToken = req.headers['x-admin-token'] as string;
   const authHeader = req.headers.authorization as string;
 
-  // Development mode bypass - check for JWT token from auto-login
-  if (process.env.NODE_ENV === 'development') {
-    // Check for Bearer token from development auto-login
-    if (authHeader && authHeader.startsWith('Bearer ')) {
-      const jwtToken = authHeader.substring(7);
-      try {
-        const { joseAuthService } = await import('./jose-auth-service');
-        const validation = await joseAuthService.validateAccessToken(jwtToken);
-        if (validation.valid && validation.payload) {
-          console.log('🔓 Development mode: Admin access granted with JWT token');
-          securityLogger.logAdminAuth(ip, userAgent, req.path + ' (dev JWT)');
-          req.user = {
-            id: validation.payload.userId,
-            email: validation.payload.email || 'admin@readmyfineprint.com'
-          };
-          return next();
-        }
-      } catch (jwtError) {
-        console.log('Development JWT validation failed:', jwtError);
-      }
-    }
-
-    // Fallback to API key bypass
-    if (providedKey === adminKey) {
-      console.log('🔓 Development mode: Admin access granted with API key only');
-      securityLogger.logAdminAuth(ip, userAgent, req.path);
-      req.user = {
-        id: 'dev-admin',
-        email: 'admin@readmyfineprint.com'
-      };
-      return next();
-    }
-  }
-
-  // Try session-based authentication first (for staging/production)
-  let sessionAuthenticated = false;
-
-  // Manual cookie parsing fallback (same as other endpoints)
-  // Manual cookie parsing fallback (same as other endpoints)
-  let sessionId: string | undefined;
-  if (req.headers.cookie) {
-    const cookies = parseCookies(req.headers.cookie);
-    sessionId = cookies['sessionId'];
-  }
-
-  if (sessionId) {
+  // Check for Bearer token (JWT access token)
+  if (authHeader && authHeader.startsWith('Bearer ')) {
+    const jwtToken = authHeader.substring(7);
     try {
-      const { postgresqlSessionStorage } = await import('./postgresql-session-storage');
-      const token = await postgresqlSessionStorage.getTokenBySession(sessionId);
-
-      if (token) {
-        const { joseTokenService } = await import('./jose-token-service');
-        const tokenData = await joseTokenService.validateSubscriptionToken(token);
-
-        if (tokenData && tokenData.userId) {
-          const { databaseStorage } = await import('./storage');
-          const authenticatedUser = await databaseStorage.getUser(tokenData.userId);
-
-          if (authenticatedUser) {
-            // Check if user is admin by email
-            const adminEmails = ['admin@readmyfineprint.com', 'prodbybuddha@icloud.com', 'beatsbybuddha@gmail.com'];
-            if (adminEmails.includes(authenticatedUser.email)) {
-              console.log(`✅ Legacy admin auth: Session authenticated as: ${authenticatedUser.email}`);
-              securityLogger.logAdminAuth(ip, userAgent, req.path + ' (session)');
-              req.user = {
-                id: authenticatedUser.id,
-                email: authenticatedUser.email
-              };
-              sessionAuthenticated = true;
-            } else {
-              console.log(`❌ Legacy admin auth: User ${authenticatedUser.email} is not an admin`);
-            }
+      const { joseAuthService } = await import('./jose-auth-service');
+      const validation = await joseAuthService.validateAccessToken(jwtToken);
+      if (validation.valid && validation.payload) {
+        const user = await databaseStorage.getUser(validation.payload.userId);
+        if (user) {
+          const adminEmails = ['admin@readmyfineprint.com', 'prodbybuddha@icloud.com', 'beatsbybuddha@gmail.com'];
+          if (adminEmails.includes(user.email)) {
+            console.log(`✅ Admin access granted via JWT: ${user.email}`);
+            securityLogger.logAdminAuth(ip, userAgent, req.path + ' (JWT admin)');
+            req.user = {
+              id: user.id,
+              email: user.email,
+            };
+            return next();
+          } else {
+            console.log(`❌ User ${user.email} is not an admin`);
           }
         }
+      } catch (jwtError) {
+        console.log('JWT admin validation failed:', jwtError);
       }
-    } catch (sessionError) {
-      console.log('Legacy admin auth session validation error:', sessionError);
     }
   }
 
-  if (sessionAuthenticated) {
-    return next();
-  }
-
-  // Fall back to traditional admin key + token authentication
-  console.log(`🔍 Session auth failed, trying traditional admin auth for ${req.path}`);
-
-  if (!providedKey || !adminToken) {
-    securityLogger.logFailedAuth(ip, userAgent, 'Missing admin credentials and no valid session', req.path);
-    return res.status(401).json({ 
-      error: 'Admin authentication required. Session-based auth failed and admin key/token missing.',
-      code: 'MISSING_ADMIN_CREDENTIALS'
-    });
-  }
-
-  // Validate admin key
-  if (providedKey !== adminKey) {
-    securityLogger.logFailedAuth(ip, userAgent, 'Invalid admin key', req.path);
-    return res.status(401).json({ 
-      error: 'Invalid admin credentials',
-      code: 'INVALID_ADMIN_KEY'
-    });
-  }
-
-  // Validate admin verification token
-  const tokenValidation = adminVerificationService.validateAdminToken(adminToken, ip, userAgent);
-  if (!tokenValidation.valid) {
-    securityLogger.logFailedAuth(ip, userAgent, `Invalid admin token: ${tokenValidation.message}`, req.path);
-    return res.status(401).json({ 
-      error: tokenValidation.message || 'Invalid admin token',
-      code: 'INVALID_ADMIN_TOKEN'
-    });
-  }
-
-  // Log successful authentication
-  securityLogger.logAdminAuth(ip, userAgent, req.path + ' (traditional)');
-
-  // Set user context for admin user
-  req.user = {
-    id: 'admin',
-    email: tokenValidation.email || 'admin@readmyfineprint.com'
-  };
-
-  next();
+  securityLogger.logFailedAuth(ip, userAgent, 'Admin authentication required', req.path);
+  return res.status(401).json({
+    error: 'Admin authentication required. Please log in to access this resource.',
+    code: 'AUTHENTICATION_REQUIRED'
+  });
 }
 
 /**

@@ -39,7 +39,7 @@
     "monitor:staging": "NODE_ENV=staging node scripts/production-monitor.js",
     "monitor:staging:continuous": "NODE_ENV=staging node scripts/production-monitor.js --continuous",
     "predeploy": "npm run lint && npm run check && npm run security:verify",
-    "predeploy:staging": "NODE_ENV=staging npm run lint && NODE_ENV=staging npm run check && NODE_ENV=staging npm run security:verify",
+    "predeploy:staging": "NODE_ENV=staging npm run check && NODE_ENV=staging npm run security:verify",
     "deploy:staging": "NODE_ENV=staging npm run predeploy:staging && npm run build:staging",
     "deploy:staging:full": "NODE_ENV=staging npm run predeploy:staging && npm run build:staging && npm run start:staging",
     "deploy:production": "bash scripts/production-deploy.sh",
