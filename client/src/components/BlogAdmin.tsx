@@ -85,7 +85,7 @@ export function BlogAdmin() {
   const [blogStats, setBlogStats] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [generatingPost, setGeneratingPost] = useState(false);
-  
+
   // Delete dialog states
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [restoreDialogOpen, setRestoreDialogOpen] = useState(false);
@@ -93,7 +93,7 @@ export function BlogAdmin() {
   const [deleteType, setDeleteType] = useState<'soft' | 'hard'>('soft');
   const [deleteLoading, setDeleteLoading] = useState(false);
   const [restoreLoading, setRestoreLoading] = useState(false);
-  
+
   // New topic form
   const [newTopic, setNewTopic] = useState({
     title: '',
@@ -111,11 +111,12 @@ export function BlogAdmin() {
   const [bulkGenerateCount, setBulkGenerateCount] = useState(10);
   const [bulkGenerateLoading, setBulkGenerateLoading] = useState(false);
   const [monthlyGenerateLoading, setMonthlyGenerateLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   const loadData = async () => {
     try {
       setLoading(true);
-      
+
       // Load posts
       try {
         const postsData = await adminApiRequest('/api/blog/admin/posts', {
@@ -125,7 +126,7 @@ export function BlogAdmin() {
       } catch (error) {
         console.error('Failed to load posts:', error);
       }
-      
+
       // Load topics
       try {
         const topicsData = await adminApiRequest('/api/blog/admin/topics', {
@@ -135,7 +136,7 @@ export function BlogAdmin() {
       } catch (error) {
         console.error('Failed to load topics:', error);
       }
-      
+
       // Load scheduler status
       try {
         const schedulerData = await adminApiRequest('/api/blog/admin/scheduler/status', {
@@ -178,6 +179,84 @@ export function BlogAdmin() {
   };
 
   useEffect(() => {
+    const loadData = async () => {
+      try {
+        // Check if user has admin access first
+        const authCheck = await adminApiRequest('/api/blog/admin/stats', {
+          method: 'GET'
+        });
+
+        // If we get here, user has admin access, load all data
+        const [postsResponse, topicsResponse, schedulerResponse, statsResponse, deletedResponse] = await Promise.allSettled([
+          adminApiRequest('/api/blog/admin/posts', {
+            method: 'GET'
+          }),
+          adminApiRequest('/api/blog/admin/topics', {
+            method: 'GET'
+          }),
+          adminApiRequest('/api/blog/admin/scheduler/status', {
+            method: 'GET'
+          }),
+          adminApiRequest('/api/blog/admin/stats', {
+            method: 'GET'
+          }),
+          adminApiRequest('/api/blog/admin/posts/deleted', {
+            method: 'GET'
+          })
+        ]);
+
+        if (postsResponse.status === 'fulfilled') {
+          setPosts(postsResponse.value.posts);
+        } else {
+          console.error('Failed to load posts:', postsResponse.reason);
+        }
+
+        if (topicsResponse.status === 'fulfilled') {
+          setTopics(topicsResponse.value.topics);
+        } else {
+          console.error('Failed to load topics:', topicsResponse.reason);
+        }
+
+        if (schedulerResponse.status === 'fulfilled') {
+          setSchedulerStatus(schedulerResponse.value);
+        } else {
+          console.error('Failed to load scheduler status:', schedulerResponse.reason);
+        }
+
+        if (statsResponse.status === 'fulfilled') {
+          setBlogStats(statsResponse.value);
+        } else {
+          console.error('Failed to load blog stats:', statsResponse.reason);
+        }
+
+        if (deletedResponse.status === 'fulfilled') {
+          setDeletedPosts(deletedResponse.value.posts);
+        } else {
+          console.error('Failed to load deleted posts:', deletedResponse.reason);
+        }
+
+      } catch (error: any) {
+        console.error('Admin access check failed:', error);
+        if (error.message?.includes('401') || error.message?.includes('Unauthorized')) {
+          setError('Access denied: You need admin privileges to access this page. Please log in with an admin account.');
+          toast({
+            title: 'Error',
+            description: 'Access denied: You need admin privileges to access this page. Please log in with an admin account.',
+            variant: 'destructive',
+          });
+        } else {
+          setError(`Failed to load admin data: ${error.message || error}`);
+          toast({
+            title: 'Error',
+            description: `Failed to load admin data: ${error.message || error}`,
+            variant: 'destructive',
+          });
+        }
+      } finally {
+        setLoading(false);
+      }
+    };
+
     loadData();
   }, []);
 
@@ -186,7 +265,7 @@ export function BlogAdmin() {
       await adminApiRequest('/api/blog/admin/scheduler/start', {
         method: 'POST'
       });
-      
+
       toast({
         title: 'Success',
         description: 'Blog scheduler started successfully',
@@ -206,7 +285,7 @@ export function BlogAdmin() {
       await adminApiRequest('/api/blog/admin/scheduler/stop', {
         method: 'POST'
       });
-      
+
       toast({
         title: 'Success',
         description: 'Blog scheduler stopped successfully',
@@ -227,7 +306,7 @@ export function BlogAdmin() {
       const result = await adminApiRequest('/api/blog/admin/scheduler/trigger', {
         method: 'POST'
       });
-      
+
       if (result.success) {
         toast({
           title: 'Success',
@@ -253,7 +332,7 @@ export function BlogAdmin() {
       await adminApiRequest('/api/blog/admin/seed-topics', {
         method: 'POST'
       });
-      
+
       toast({
         title: 'Success',
         description: 'Topics seeded successfully',
@@ -274,7 +353,7 @@ export function BlogAdmin() {
         method: 'POST',
         body: JSON.stringify(newTopic),
       });
-      
+
       toast({
         title: 'Success',
         description: 'Topic created successfully',
@@ -316,7 +395,7 @@ export function BlogAdmin() {
         method: 'PUT',
         body: JSON.stringify(editTopicData),
       });
-      
+
       toast({
         title: 'Success',
         description: 'Topic updated successfully',
@@ -346,7 +425,7 @@ export function BlogAdmin() {
       await adminApiRequest(`/api/blog/admin/topics/${topicId}`, {
         method: 'DELETE',
       });
-      
+
       toast({
         title: 'Success',
         description: 'Topic deleted successfully',
@@ -369,7 +448,7 @@ export function BlogAdmin() {
       await adminApiRequest(`/api/blog/admin/topics/${topicId}/reset`, {
         method: 'PATCH',
       });
-      
+
       toast({
         title: 'Success',
         description: 'Topic usage reset successfully',
@@ -392,7 +471,7 @@ export function BlogAdmin() {
       await adminApiRequest(`/api/blog/admin/topics/${topicId}/mark-used`, {
         method: 'PATCH',
       });
-      
+
       toast({
         title: 'Success',
         description: 'Topic marked as used successfully',
@@ -415,7 +494,7 @@ export function BlogAdmin() {
       const result = await adminApiRequest('/api/blog/admin/generate-monthly-topics', {
         method: 'POST',
       });
-      
+
       toast({
         title: 'Success',
         description: `Generated ${result.generated || 0} monthly topics successfully`,
@@ -439,7 +518,7 @@ export function BlogAdmin() {
         method: 'POST',
         body: JSON.stringify({ count: bulkGenerateCount }),
       });
-      
+
       toast({
         title: 'Success',
         description: `Generated ${result.generated || 0} bulk topics successfully`,
@@ -458,14 +537,14 @@ export function BlogAdmin() {
 
   const handleDeletePost = async (postId: string, permanent: boolean = false) => {
     if (deleteLoading) return;
-    
+
     try {
       setDeleteLoading(true);
       const endpoint = `/api/blog/admin/posts/${postId}${permanent ? '?permanent=true' : ''}`;
       const result = await adminApiRequest(endpoint, {
         method: 'DELETE'
       });
-      
+
       toast({
         title: 'Success',
         description: permanent 
@@ -473,16 +552,16 @@ export function BlogAdmin() {
           : 'Post moved to trash',
         variant: 'default',
       });
-      
+
       // Reload data to update both active and deleted posts
       loadData();
-      
+
       // Close dialogs
       setDeleteDialogOpen(false);
       setSelectedPost(null);
     } catch (error: any) {
       console.error('Delete post error:', error);
-      
+
       let errorMessage = 'Failed to delete post';
       if (error?.message) {
         errorMessage = error.message;
@@ -493,7 +572,7 @@ export function BlogAdmin() {
       } else {
         errorMessage = 'Failed to move post to trash. Please try again.';
       }
-      
+
       toast({
         title: 'Error',
         description: errorMessage,
@@ -506,27 +585,27 @@ export function BlogAdmin() {
 
   const handleRestorePost = async (postId: string) => {
     if (restoreLoading) return;
-    
+
     try {
       setRestoreLoading(true);
       await adminApiRequest(`/api/blog/admin/posts/${postId}/restore`, {
         method: 'PATCH'
       });
-      
+
       toast({
         title: 'Success',
         description: 'Post restored successfully',
       });
-      
+
       // Reload data to update both active and deleted posts
       loadData();
-      
+
       // Close dialogs
       setRestoreDialogOpen(false);
       setSelectedPost(null);
     } catch (error: any) {
       console.error('Restore post error:', error);
-      
+
       let errorMessage = 'Failed to restore post';
       if (error?.message) {
         errorMessage = error.message;
@@ -535,7 +614,7 @@ export function BlogAdmin() {
       } else {
         errorMessage = 'Failed to restore post. The post may not exist or may already be active.';
       }
-      
+
       toast({
         title: 'Error',
         description: errorMessage,
@@ -599,6 +678,15 @@ export function BlogAdmin() {
             </Card>
           ))}
         </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="rounded-md p-4 border border-red-500 bg-red-100 text-red-700">
+        <AlertTriangle className="h-5 w-5 inline-block mr-2 align-middle" />
+        {error}
       </div>
     );
   }
@@ -882,7 +970,7 @@ export function BlogAdmin() {
                     </>
                   )}
                 </Button>
-                
+
                 <div className="flex items-center gap-2">
                   <Input
                     type="number"
@@ -930,7 +1018,7 @@ export function BlogAdmin() {
                   <label className="text-sm font-medium">Title</label>
                   <Input
                     value={newTopic.title}
-                    onChange={(e) => setNewTopic({...newTopic, title: e.target.value})}
+                    onChange={(e)> setNewTopic({...newTopic, title: e.target.value})}
                     placeholder="e.g., Understanding Software License Agreements"
                   />
                 </div>

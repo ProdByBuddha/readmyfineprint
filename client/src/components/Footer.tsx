@@ -80,11 +80,11 @@ export function Footer() {
       <footer
       id="footer"
       role="contentinfo"
-      className="bg-gray-50 dark:bg-gray-900 border-t border-gray-200 dark:border-gray-700 z-40 backdrop-blur-sm bg-opacity-95 dark:bg-opacity-95 transition-all duration-300 ease-in-out flex-shrink-0 pb-20 sm:pb-16"
+      className="bg-gray-50 dark:bg-gray-900 border-t border-gray-200 dark:border-gray-700 z-40 backdrop-blur-sm bg-opacity-95 dark:bg-opacity-95 transition-all duration-300 ease-in-out flex-shrink-0 pb-4 sm:pb-6"
       aria-label="Site footer"
     >
       {/* Mobile Layout - Ultra Compact */}
-      <div className="md:hidden px-2 py-0.5">
+      <div className="md:hidden px-2 py-2">
         <div className="flex items-center justify-center text-xs whitespace-nowrap overflow-hidden min-h-[20px]">
           <div className="flex items-center gap-1.5 flex-shrink min-w-0">
             <Link to="/privacy" className="text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 flex-shrink-0 flex items-center h-4">Privacy</Link>
