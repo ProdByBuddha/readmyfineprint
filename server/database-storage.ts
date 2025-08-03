@@ -70,6 +70,10 @@ export class DatabaseStorage implements IStorage {
   private clientSessions: Map<string, Set<string>> = new Map();
   private initialized = false;
 
+  // Public access to database connection and tables for external services
+  public get db() { return db; }
+  public get users() { return users; }
+
   constructor() {
     // Initialize database connection asynchronously
     this.initializeAsync();
@@ -176,12 +180,22 @@ export class DatabaseStorage implements IStorage {
     return result[0];
   }
 
-  async getUserByEmail(email: string): Promise<User | undefined> {
+  async getUserByEmail(email: string): Promise<User | null> {
     await this.ensureInitialized();
-    if (process.env.VALIDATION_MODE === 'true') return undefined;
+    if (process.env.VALIDATION_MODE === 'true') return null;
 
-    const result = await db.select().from(users).where(eq(users.email, email)).limit(1);
-    return result[0];
+    try {
+      const result = await db
+        .select()
+        .from(users)
+        .where(eq(users.email, email))
+        .limit(1);
+
+      return result[0] || null;
+    } catch (error) {
+      console.error('Error getting user by email:', error);
+      throw error;
+    }
   }
 
   async createUser(insertUser: InsertUser): Promise<User> {
@@ -231,21 +245,6 @@ export class DatabaseStorage implements IStorage {
       .limit(1);
 
     return !!user;
-  }
-
-  async getUserByEmail(email: string): Promise<User | null> {
-    try {
-      const result = await db
-        .select()
-        .from(users)
-        .where(eq(users.email, email))
-        .limit(1);
-
-      return result[0] || null;
-    } catch (error) {
-      console.error('Error getting user by email:', error);
-      throw error;
-    }
   }
 
   async getUserBySessionId(sessionId: string): Promise<User | null> {
