@@ -61,15 +61,17 @@ export async function setupVite(app: Express, server: Server) {
   try {
     const { createServer: createViteServer, createLogger } = await import("vite");
     
-    // Import vite config and handle potential void return
-    let viteConfig: any = {};
-    try {
-      const configModule = await import("../vite.config.js");
-      viteConfig = configModule.default ? configModule.default : {};
-    } catch (error) {
-      console.warn("Could not load vite config, using defaults:", error);
-      viteConfig = {};
-    }
+    // Use a basic vite config for development
+    const viteConfig = {
+      plugins: [],
+      resolve: {
+        alias: {
+          "@": path.resolve(import.meta.dirname, "..", "client", "src"),
+          "@shared": path.resolve(import.meta.dirname, "..", "shared"),
+        },
+      },
+      root: path.resolve(import.meta.dirname, "..", "client"),
+    };
     
     const viteLogger = createLogger();
     
