@@ -1,0 +1,151 @@
+server/admin-routes.ts:888:87 - error TS1434: Unexpected keyword or identifier.
+
+888             console.log(`📧 Password reset email sent successfully to ${user.email}`);Updated the admin subscription routes to use consistent authentication.          } else {
+                                                                                          ~~~~~~~
+
+server/admin-routes.ts:888:95 - error TS1434: Unexpected keyword or identifier.
+
+888             console.log(`📧 Password reset email sent successfully to ${user.email}`);Updated the admin subscription routes to use consistent authentication.          } else {
+                                                                                                  ~~~
+
+server/admin-routes.ts:888:99 - error TS1434: Unexpected keyword or identifier.
+
+888             console.log(`📧 Password reset email sent successfully to ${user.email}`);Updated the admin subscription routes to use consistent authentication.          } else {
+                                                                                                      ~~~~~
+
+server/admin-routes.ts:888:105 - error TS1434: Unexpected keyword or identifier.
+
+888             console.log(`📧 Password reset email sent successfully to ${user.email}`);Updated the admin subscription routes to use consistent authentication.          } else {
+                                                                                                            ~~~~~~~~~~~~
+
+server/admin-routes.ts:888:118 - error TS1434: Unexpected keyword or identifier.
+
+888             console.log(`📧 Password reset email sent successfully to ${user.email}`);Updated the admin subscription routes to use consistent authentication.          } else {
+                                                                                                                         ~~~~~~
+
+server/admin-routes.ts:888:125 - error TS1434: Unexpected keyword or identifier.
+
+888             console.log(`📧 Password reset email sent successfully to ${user.email}`);Updated the admin subscription routes to use consistent authentication.          } else {
+                                                                                                                                ~~
+
+server/admin-routes.ts:888:128 - error TS1434: Unexpected keyword or identifier.
+
+888             console.log(`📧 Password reset email sent successfully to ${user.email}`);Updated the admin subscription routes to use consistent authentication.          } else {
+                                                                                                                                   ~~~
+
+server/admin-routes.ts:888:132 - error TS1434: Unexpected keyword or identifier.
+
+888             console.log(`📧 Password reset email sent successfully to ${user.email}`);Updated the admin subscription routes to use consistent authentication.          } else {
+                                                                                                                                       ~~~~~~~~~~
+
+server/admin-routes.ts:888:168 - error TS1003: Identifier expected.
+
+888             console.log(`📧 Password reset email sent successfully to ${user.email}`);Updated the admin subscription routes to use consistent authentication.          } else {
+                                                                                                                                                                           ~
+
+server/blog-routes.ts:1:1 - error TS1434: Unexpected keyword or identifier.
+
+1 The change updates the description of the admin endpoints for blog posts to indicate a JWT fallback for authentication.
+  ~~~
+
+server/blog-routes.ts:1:5 - error TS1434: Unexpected keyword or identifier.
+
+1 The change updates the description of the admin endpoints for blog posts to indicate a JWT fallback for authentication.
+      ~~~~~~
+
+server/blog-routes.ts:1:12 - error TS1434: Unexpected keyword or identifier.
+
+1 The change updates the description of the admin endpoints for blog posts to indicate a JWT fallback for authentication.
+             ~~~~~~~
+
+server/blog-routes.ts:1:20 - error TS1434: Unexpected keyword or identifier.
+
+1 The change updates the description of the admin endpoints for blog posts to indicate a JWT fallback for authentication.
+                     ~~~
+
+server/blog-routes.ts:1:24 - error TS1434: Unexpected keyword or identifier.
+
+1 The change updates the description of the admin endpoints for blog posts to indicate a JWT fallback for authentication.
+                         ~~~~~~~~~~~
+
+server/blog-routes.ts:1:36 - error TS1434: Unexpected keyword or identifier.
+
+1 The change updates the description of the admin endpoints for blog posts to indicate a JWT fallback for authentication.
+                                     ~~
+
+server/blog-routes.ts:1:39 - error TS1434: Unexpected keyword or identifier.
+
+1 The change updates the description of the admin endpoints for blog posts to indicate a JWT fallback for authentication.
+                                        ~~~
+
+server/blog-routes.ts:1:43 - error TS1434: Unexpected keyword or identifier.
+
+1 The change updates the description of the admin endpoints for blog posts to indicate a JWT fallback for authentication.
+                                            ~~~~~
+
+server/blog-routes.ts:1:49 - error TS1434: Unexpected keyword or identifier.
+
+1 The change updates the description of the admin endpoints for blog posts to indicate a JWT fallback for authentication.
+                                                  ~~~~~~~~~
+
+server/blog-routes.ts:1:63 - error TS1005: '(' expected.
+
+1 The change updates the description of the admin endpoints for blog posts to indicate a JWT fallback for authentication.
+                                                                ~~~~
+
+server/blog-routes.ts:1:68 - error TS1005: ';' expected.
+
+1 The change updates the description of the admin endpoints for blog posts to indicate a JWT fallback for authentication.
+                                                                     ~~~~~
+
+server/blog-routes.ts:1:74 - error TS1005: ';' expected.
+
+1 The change updates the description of the admin endpoints for blog posts to indicate a JWT fallback for authentication.
+                                                                           ~~
+
+server/blog-routes.ts:1:77 - error TS1005: ')' expected.
+
+1 The change updates the description of the admin endpoints for blog posts to indicate a JWT fallback for authentication.
+                                                                              ~~~~~~~~
+
+server/blog-routes.ts:1:86 - error TS1434: Unexpected keyword or identifier.
+
+1 The change updates the description of the admin endpoints for blog posts to indicate a JWT fallback for authentication.
+                                                                                       ~
+
+server/blog-routes.ts:1:88 - error TS1434: Unexpected keyword or identifier.
+
+1 The change updates the description of the admin endpoints for blog posts to indicate a JWT fallback for authentication.
+                                                                                         ~~~
+
+server/blog-routes.ts:1:92 - error TS1434: Unexpected keyword or identifier.
+
+1 The change updates the description of the admin endpoints for blog posts to indicate a JWT fallback for authentication.
+                                                                                             ~~~~~~~~
+
+server/blog-routes.ts:1:105 - error TS1005: '(' expected.
+
+1 The change updates the description of the admin endpoints for blog posts to indicate a JWT fallback for authentication.
+                                                                                                          ~~~~~~~~~~~~~~
+
+server/blog-routes.ts:2:1 - error TS1003: Identifier expected.
+
+2 ```
+  ~~
+
+server/blog-routes.ts:3:4 - error TS1005: ';' expected.
+
+3 ```replit_final_file
+     ~~~~~~~~~~~~~~~~~
+
+server/blog-routes.ts:4:1 - error TS1005: ';' expected.
+
+4 import { Router } from 'express';
+  ~~~~~~
+
+
+Found 29 errors in 2 files.
+
+Errors  Files
+     9  server/admin-routes.ts:888
+    20  server/blog-routes.ts:1
