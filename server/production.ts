@@ -10,6 +10,10 @@ import { validateEnvironmentOrExit, logEnvironmentStatus } from './env-validatio
 import { securityLogger, getClientInfo } from './security-logger.js';
 import { enhancedCorsProtection, requestSizeProtection, developmentServerProtection } from './security-middleware.js';
 import crypto from 'crypto';
+import { subscriptionService } from './subscription-service';
+import { securityLogger } from './security-logger';
+import { xssProtectionService } from './xss-protection-service';
+import { tierAssignmentMonitor } from './tier-assignment-monitor';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -40,7 +44,7 @@ async function startProductionServer() {
   } catch (error) {
     console.error('⚠️  Migration check failed, continuing with server startup:', error);
   }
-  
+
   // Configure trust proxy securely - only trust the first proxy
   app.set('trust proxy', 1);
 
@@ -83,17 +87,17 @@ async function startProductionServer() {
   // Session logging middleware
   app.use((req: Request, res: Response, next: NextFunction) => {
     const clientInfo = getClientInfo(req);
-    
+
     // Generate or retrieve session ID
     let sessionId = req.headers['x-session-id'] as string;
     if (!sessionId) {
       sessionId = crypto.randomBytes(16).toString('hex');
     }
-    
+
     // Add session ID to request for use in routes
     (req as any).sessionId = sessionId;
     (req as any).clientInfo = clientInfo;
-    
+
     next();
   });
 
@@ -109,7 +113,7 @@ async function startProductionServer() {
       } catch (error) {
         dbHealthy = false;
       }
-      
+
       const healthStatus = {
         status: 'healthy',
         timestamp: new Date().toISOString(),
@@ -129,7 +133,7 @@ async function startProductionServer() {
 
       // Overall health check
       const isHealthy = dbHealthy;
-      
+
       res.status(isHealthy ? 200 : 503).json(healthStatus);
     } catch (error) {
       res.status(503).json({
@@ -150,17 +154,39 @@ async function startProductionServer() {
   // Serve index.html for all other routes (SPA fallback)
   app.get('/*path', (req, res) => {
     const indexPath = path.join(staticPath, 'index.html');
-    
+
     // Check if index.html exists
     if (!fs.existsSync(indexPath)) {
       console.error('❌ index.html not found at:', indexPath);
       console.error('Build may have failed. Please run: npm run build');
       return res.status(500).send('Application build files not found. Please rebuild the application.');
     }
-    
+
     res.sendFile(indexPath);
   });
 
+  // Initialize collective free tier user
+  await subscriptionService.ensureCollectiveFreeUserExists();
+
+  // Start tier assignment monitoring
+  tierAssignmentMonitor.startPeriodicMonitoring(30); // Check every 30 minutes
+
+  // Initial admin tier check
+  setTimeout(async () => {
+    try {
+      console.log('🔍 [Startup] Running initial admin tier verification...');
+      const results = await tierAssignmentMonitor.checkAllAdminTierAssignments();
+      if (results.issuesFound > 0) {
+        console.warn(`⚠️ [Startup] Found ${results.issuesFound} admin tier assignment issues that need attention`);
+      } else {
+        console.log('✅ [Startup] All admin tier assignments verified correct');
+      }
+    } catch (error) {
+      console.error('Error during startup tier verification:', error);
+    }
+  }, 5000); // Wait 5 seconds after startup
+
+  console.log(`📋 Production server running on http://0.0.0.0:${PORT}`);
   app.listen(PORT, '0.0.0.0', () => {
     console.log(`📋 Production server running on http://0.0.0.0:${PORT}`);
   });
