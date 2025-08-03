@@ -53,6 +53,35 @@ import { db } from './db';
 import { disasterRecoveryService } from './disaster-recovery-service';
 
 /**
+ * Fallback cookie parsing function for when req.cookies is undefined
+ */
+function getFallbackCookies(req: any): Record<string, string> {
+  if (req.cookies && typeof req.cookies === 'object') {
+    return req.cookies;
+  }
+  
+  const cookies: Record<string, string> = {};
+  const cookieHeader = req.headers.cookie;
+  
+  if (cookieHeader) {
+    cookieHeader.split(';').forEach((cookie: string) => {
+      const parts = cookie.trim().split('=');
+      if (parts.length === 2) {
+        const key = parts[0].trim();
+        const value = parts[1].trim();
+        try {
+          cookies[key] = decodeURIComponent(value);
+        } catch (error) {
+          cookies[key] = value;
+        }
+      }
+    });
+  }
+  
+  return cookies;
+}
+
+/**
  * Find user by email using deterministic hash entanglement
  * This handles the bidirectional relationship between real and pseudonymized emails
  */
@@ -1509,7 +1538,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
       let subscriptionData;
       
       // Manual cookie parsing fallback (same as /api/auth/session)
-      let sessionId = req.cookies?.sessionId;
+      const cookies = getFallbackCookies(req);
+      let sessionId = cookies.sessionId;
       if (!sessionId && req.headers.cookie) {
         const cookieMatch = req.headers.cookie.match(/sessionId=([^;]+)/);
         if (cookieMatch) {
@@ -1519,7 +1549,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       // Check for subscription token first (for persistent subscription access)
       // Try httpOnly cookie first (more secure)
-      let subscriptionToken = req.cookies?.subscriptionToken;
+      let subscriptionToken = cookies.subscriptionToken;
       
       // Fallback to header for backward compatibility
       if (!subscriptionToken) {
@@ -1908,14 +1938,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Session validation endpoint
   app.get("/api/auth/session", optionalUserAuth, async (req, res) => {
     try {
-      let sessionId = req.cookies?.sessionId;
+      const cookies = getFallbackCookies(req);
+      let sessionId = cookies.sessionId;
       const clientSessionId = req.headers['x-session-id'] as string;
       
       // Manual cookie parsing fallback for Replit proxy environment
       if (!sessionId && req.headers.cookie) {
         console.log(`🍪 Cookie-parser failed, trying manual parsing...`);
         console.log(`🍪 Raw cookie header:`, req.headers.cookie.substring(0, 100) + '...');
-        console.log(`🍪 Parsed cookies:`, JSON.stringify(req.cookies));
+        console.log(`🍪 Parsed cookies:`, JSON.stringify(cookies));
         
         // Try manual parsing as fallback
         const cookieMatch = req.headers.cookie.match(/sessionId=([^;]+)/);

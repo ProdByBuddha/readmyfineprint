@@ -24,6 +24,15 @@ function parseCookies(cookieHeader: string): Record<string, string> {
   return cookies;
 }
 
+// Extend Express Request type to include cookies
+declare global {
+  namespace Express {
+    interface Request {
+      cookies: Record<string, string>;
+    }
+  }
+}
+
 // Define extended request types
 interface AuthenticatedRequest extends Request {
   user?: {
