@@ -1,0 +1,56 @@
+> readmyfineprint@2.0.0 check
+client/src/App.tsx:94:10 - error TS2345: Argument of type 'Location<any>' is not assignable to parameter of type 'string'.
+
+94   useSEO(location);
+            ~~~~~~~~
+
+client/src/components/PageTransition.tsx:23:7 - error TS2322: Type 'Location<any>' is not assignable to type 'Key | null | undefined'.
+
+23       key={location}
+         ~~~
+
+  node_modules/@types/react/index.d.ts:262:9
+    262         key?: Key | null | undefined;
+                ~~~
+    The expected type comes from property 'key' which is declared here on type 'DetailedHTMLProps<HTMLAttributes<HTMLDivElement>, HTMLDivElement>'
+
+client/src/pages/cookies.tsx:16:5 - error TS2552: Cannot find name 'setLocation'. Did you mean 'location'?
+
+16     setLocation('/');
+       ~~~~~~~~~~~
+
+  client/src/pages/cookies.tsx:11:9
+    11   const location = useLocation();
+               ~~~~~~~~
+    'location' is declared here.
+
+client/src/pages/donate.tsx:77:53 - error TS2339: Property 'split' does not exist on type 'Location<any>'.
+
+77   const searchParams = new URLSearchParams(location.split('?')[1] || '');
+                                                       ~~~~~
+
+server/vite.ts:74:7 - error TS2698: Spread types may only be created from object types.
+
+74       ...viteConfig,
+         ~~~~~~~~~~~~~
+
+vite.config.ts:2:19 - error TS2307: Cannot find module '@vitejs/plugin-react' or its corresponding type declarations.
+
+2 import react from "@vitejs/plugin-react";
+                    ~~~~~~~~~~~~~~~~~~~~~~
+
+vite.config.ts:4:33 - error TS2307: Cannot find module '@replit/vite-plugin-runtime-error-modal' or its corresponding type declarations.
+
+4 import runtimeErrorOverlay from "@replit/vite-plugin-runtime-error-modal";
+                                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
+Found 7 errors in 6 files.
+
+Errors  Files
+     1  client/src/App.tsx:94
+     1  client/src/components/PageTransition.tsx:23
+     1  client/src/pages/cookies.tsx:16
+     1  client/src/pages/donate.tsx:77
+     1  server/vite.ts:74
+     2  vite.config.ts:2
