@@ -43,7 +43,7 @@ interface AuthenticatedRequest extends Request {
   sessionId?: string;
 }
 import argon2 from 'argon2';
-import jwt from 'jsonwebtoken';
+
 import { secureJWTService } from './secure-jwt-service';
 import crypto from 'crypto';
 import { securityLogger, SecurityEventType, SecuritySeverity } from './security-logger';
@@ -442,27 +442,7 @@ export async function requireAdminViaSubscription(req: Request, res: Response, n
   }
 }
 
-/**
- * Generate JWT token pair for user (DEPRECATED - use secureJWTService instead)
- * @deprecated Use secureJWTService.generateTokenPair() for enhanced security
- */
-export async function generateJWT(userId: string, email?: string): Promise<string> {
-  console.warn('⚠️  generateJWT is deprecated. Use secureJWTService.generateTokenPair() for enhanced security.');
 
-  // Get user email if not provided
-  if (!email) {
-    const user = await databaseStorage.getUser(userId);
-    if (!user) {
-      throw new Error('User not found');
-    }
-    email = user.email;
-  }
-
-  // Use JOSE auth service for token generation
-  const { joseAuthService } = await import('./jose-auth-service');
-  const tokenPair = await joseAuthService.generateTokenPair(userId, email);
-  return tokenPair.accessToken;
-}
 
 /**
  * Verify subscription token using JOSE token service
@@ -509,13 +489,7 @@ export async function revokeJWTToken(token: string, reason: string, revokedBy: s
   return await joseAuthService.revokeToken(token, reason, revokedBy);
 }
 
-/**
- * Revoke all tokens for a user
- */
-export async function revokeAllUserTokens(userId: string, reason: string, revokedBy: string = 'user') {
-  // For now, still use secureJWTService for bulk revocation since it handles database operations
-  return await secureJWTService.revokeAllUserTokens(userId, reason, revokedBy);
-}
+
 
 /**
  * Require security questions middleware

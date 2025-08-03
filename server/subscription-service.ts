@@ -5,6 +5,9 @@ import { SUBSCRIPTION_TIERS, getTierById } from './subscription-tiers';
 import { securityLogger } from './security-logger';
 import { databaseStorage } from './storage';
 import { secureJWTService } from './secure-jwt-service';
+import { joseAuthService } from './jose-auth-service';
+import { joseTokenService } from './jose-token-service';
+import { joseAuthService } from './jose-auth-service';
 import { securityQuestionsService } from './security-questions-service';
 import { collectiveUserService } from './collective-user-service';
 import { postgresqlSessionStorage } from './postgresql-session-storage';
@@ -46,7 +49,7 @@ export class SubscriptionService {
     setInterval(async () => {
       try {
         console.log('🧹 Starting periodic token cleanup...');
-        const tokenResults = await secureJWTService.cleanupExpiredTokens();
+        const tokenResults = await joseAuthService.cleanupExpiredTokens();
         const sessionResults = await postgresqlSessionStorage.cleanupExpired();
         console.log(`🧹 Cleanup completed: ${tokenResults.tokensRemoved} expired tokens removed, ${sessionResults.sessionsRemoved} expired sessions removed`);
       } catch (error) {
@@ -57,7 +60,7 @@ export class SubscriptionService {
     // Also run cleanup on startup
     setTimeout(async () => {
       try {
-        const tokenResults = await secureJWTService.cleanupExpiredTokens();
+        const tokenResults = await joseAuthService.cleanupExpiredTokens();
         const sessionResults = await postgresqlSessionStorage.cleanupExpired();
         console.log(`🧹 Startup cleanup: ${tokenResults.tokensRemoved} expired tokens removed, ${sessionResults.sessionsRemoved} expired sessions removed`);
       } catch (error) {
@@ -1945,7 +1948,8 @@ Contact: admin@readmyfineprint.com
       const tier = await this.validateAndAssignTier(subscription);
 
       // Use hybrid token service (prefers JOSE, falls back to PostgreSQL)
-      const token = await secureJWTService.generateSubscriptionToken({
+      const { joseTokenService } = await import('./jose-token-service');
+      const token = await joseTokenService.generateSubscriptionToken({
         userId,
         subscriptionId,
         tierId: tier.id,
@@ -1978,7 +1982,7 @@ Contact: admin@readmyfineprint.com
       }
 
       // Get token data from hybrid service (supports both JOSE and PostgreSQL)
-      const tokenData = await secureJWTService.validateSubscriptionToken(token);
+      const tokenData = await joseTokenService.validateSubscriptionToken(token);
       if (!tokenData) {
         console.warn('Token not found in storage');
         return null;

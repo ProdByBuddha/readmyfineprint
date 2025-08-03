@@ -375,7 +375,7 @@ export class EncryptedSessionStorage implements IStorage {
     throw new Error("User management not supported in encrypted session storage");
   }
 
-  async getUserByEmail(email: string): Promise<User | undefined> {
+  async getUserByEmail(email: string): Promise<User | null> {
     throw new Error("User management not supported in encrypted session storage");
   }
 

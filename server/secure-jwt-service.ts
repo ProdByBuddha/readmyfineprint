@@ -3,7 +3,8 @@
  * Implements proper JWT management with refresh tokens, versioned secrets, and persistent revocation
  */
 
-import jwt from 'jsonwebtoken';
+
+import { jwtVerify } from 'jose';
 import crypto from 'crypto';
 import { jwtSecretManager } from './jwt-secret-manager';
 import { securityLogger, SecurityEventType, SecuritySeverity, getClientInfo } from './security-logger';
@@ -143,12 +144,10 @@ export class SecureJWTService {
     await this.ensureInitialized();
 
     try {
-      const decoded = jwt.decode(token, { complete: true });
-      if (!decoded || typeof decoded === 'string') {
-        return false;
-      }
+      const parts = token.split('.');
+      if (parts.length !== 3) return false;
 
-      const payload = decoded.payload as any;
+      const payload = JSON.parse(Buffer.from(parts[1], 'base64url').toString()) as any;
       const tokenHash = this.hashToken(token);
 
       // Add to revocation list (skip only in true mock mode)
@@ -202,77 +201,7 @@ export class SecureJWTService {
     }
   }
 
-  /**
-   * Revoke all tokens for a user
-   */
-  async revokeAllUserTokens(userId: string, reason: string, revokedBy: string = 'user'): Promise<number> {
-    await this.ensureInitialized();
-
-    try {
-      // Skip all database operations in mock mode (only if no DATABASE_URL)
-      if (!process.env.DATABASE_URL) {
-        return 0;
-      }
-
-      // Mark all refresh tokens as inactive
-      const refreshResult = await db.update(refreshTokens)
-        .set({ isActive: false })
-        .where(eq(refreshTokens.userId, userId));
-
-      // Get all active refresh tokens to revoke them
-      const userRefreshTokens = await db.query.refreshTokens.findMany({
-        where: eq(refreshTokens.userId, userId)
-      });
-
-      // Add them to revocation list
-      const revocations = userRefreshTokens.map((token: any) => ({
-        jti: crypto.randomUUID(), // We don't have JTI for refresh tokens in DB, generate one
-        tokenHash: token.tokenHash,
-        userId,
-        tokenType: 'refresh',
-        reason,
-        revokedBy,
-        expiresAt: token.expiresAt
-      }));
-
-      if (revocations.length > 0) {
-        // Use onConflictDoNothing to handle duplicate token revocations gracefully
-        await db.insert(jwtTokenRevocations).values(revocations).onConflictDoNothing();
-      }
-
-      securityLogger.logSecurityEvent({
-        eventType: SecurityEventType.AUTHENTICATION,
-        severity: SecuritySeverity.HIGH,
-        message: `All JWT tokens revoked for user: ${reason}`,
-        ip: 'system',
-        userAgent: 'secure-jwt-service',
-        endpoint: 'bulk-token-revocation',
-        details: {
-          userId,
-          tokensRevoked: revocations.length,
-          reason,
-          revokedBy
-        }
-      });
-
-      return revocations.length;
-
-    } catch (error) {
-      securityLogger.logSecurityEvent({
-        eventType: SecurityEventType.ERROR,
-        severity: SecuritySeverity.CRITICAL,
-        message: 'Failed to revoke all user tokens',
-        ip: 'system',
-        userAgent: 'secure-jwt-service',
-        endpoint: 'bulk-token-revocation',
-        details: { 
-          userId,
-          error: error instanceof Error ? error.message : 'Unknown error' 
-        }
-      });
-      throw error;
-    }
-  }
+  
 
   /**
    * Clean up expired tokens and revocations
@@ -317,15 +246,13 @@ export class SecureJWTService {
     }
   }
 
-  private async validateRefreshToken(token: string): Promise<TokenValidationResult> {
+  private async validateRefreshToken(token: string): Promise<{ valid: boolean; payload?: RefreshTokenPayload; expired?: boolean; revoked?: boolean; error?: string; }> {
     try {
-      // Decode and verify similar to access token
-      const decoded = jwt.decode(token, { complete: true });
-      if (!decoded || typeof decoded === 'string') {
+      const parts = token.split('.');
+      if (parts.length !== 3) {
         return { valid: false, error: 'Invalid token format' };
       }
-
-      const payload = decoded.payload as any;
+      const payload = JSON.parse(Buffer.from(parts[1], 'base64url').toString()) as any;
       const version = payload.version || 1;
       const tokenHash = this.hashToken(token);
 
@@ -349,23 +276,34 @@ export class SecureJWTService {
         return { valid: false, error: 'Secret version not found' };
       }
 
-      // Verify token
-      const verifiedPayload = jwt.verify(token, secretInfo.secret, {
-        algorithms: [secretInfo.algorithm as jwt.Algorithm]
-      }) as RefreshTokenPayload;
+      // Convert secret to Uint8Array for JOSE
+      const secretKey = crypto.scryptSync(secretInfo.secret, 'auth-salt-v2', 32);
 
-      if (verifiedPayload.tokenType !== 'refresh') {
+      // Verify token using JOSE
+      const { payload: verifiedPayload } = await jwtVerify(token, secretKey, {
+        issuer: 'readmyfineprint',
+        audience: 'refresh',
+      });
+
+      const refreshPayload = verifiedPayload as unknown as RefreshTokenPayload;
+
+      if (refreshPayload.tokenType !== 'refresh') {
         return { valid: false, error: 'Invalid token type' };
       }
 
-      return { valid: true, payload: verifiedPayload as any };
+      return { valid: true, payload: refreshPayload };
 
     } catch (error) {
-      if (error instanceof jwt.TokenExpiredError) {
-        return { valid: false, expired: true, error: 'Refresh token expired' };
-      }
-      if (error instanceof jwt.JsonWebTokenError) {
-        return { valid: false, error: 'Invalid refresh token signature' };
+      if (error instanceof Error) {
+        if (error.message.includes('expired')) {
+          return { valid: false, expired: true, error: 'Refresh token expired' };
+        }
+        if (error.message.includes('signature')) {
+          return { valid: false, error: 'Invalid refresh token signature' };
+        }
+        if (error.message.includes('aud')) {
+          return { valid: false, error: 'Invalid audience' };
+        }
       }
       return { valid: false, error: error instanceof Error ? error.message : 'Unknown error' };
     }

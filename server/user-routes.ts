@@ -2,7 +2,7 @@ import { Express, Request, Response, NextFunction } from "express";
 import { databaseStorage } from "./storage";
 import { insertUserSchema, insertUserSubscriptionSchema, insertUsageRecordSchema } from "@shared/schema";
 import { z } from "zod";
-import { generateJWT, optionalUserAuth, requireUserAuth } from "./auth";
+import { generateSecureTokenPair, optionalUserAuth, requireUserAuth } from "./auth";
 import { securityLogger, SecurityEventType, SecuritySeverity } from "./security-logger";
 import { hashPassword, verifyPassword, createPseudonymizedEmail, verifyEmailMatch } from "./argon2";
 import { accountDeletionService } from "./account-deletion-service";
@@ -90,7 +90,7 @@ export function registerUserRoutes(app: Express) {
       });
 
       // Generate JWT token for new user
-      const token = generateJWT(user.id);
+      const { accessToken: token } = await generateSecureTokenPair(user.id, user.email);
 
       // Check if user has security questions set up (will be false for new users)
       const { securityQuestionsService } = await import('./security-questions-service');

@@ -532,6 +532,78 @@ export class JOSEAuthService {
   private hashToken(token: string): string {
     return crypto.createHash('sha256').update(token).digest('hex');
   }
+
+  /**
+   * Revoke all tokens for a user
+   */
+  async revokeAllUserTokens(userId: string, reason: string, revokedBy: string = 'user'): Promise<number> {
+    await this.ensureInitialized();
+
+    try {
+      // Skip all database operations in mock mode (only if no DATABASE_URL)
+      if (!process.env.DATABASE_URL) {
+        return 0;
+      }
+
+      // Mark all refresh tokens as inactive
+      const refreshResult = await db.update(refreshTokens)
+        .set({ isActive: false })
+        .where(eq(refreshTokens.userId, userId));
+
+      // Get all active refresh tokens to revoke them
+      const userRefreshTokens = await db.query.refreshTokens.findMany({
+        where: eq(refreshTokens.userId, userId)
+      });
+
+      // Add them to revocation list
+      const revocations = userRefreshTokens.map((token: any) => ({
+        jti: crypto.randomUUID(), // We don't have JTI for refresh tokens in DB, generate one
+        tokenHash: token.tokenHash,
+        userId,
+        tokenType: 'refresh',
+        reason,
+        revokedBy,
+        expiresAt: token.expiresAt
+      }));
+
+      if (revocations.length > 0) {
+        // Use onConflictDoNothing to handle duplicate token revocations gracefully
+        await db.insert(jwtTokenRevocations).values(revocations).onConflictDoNothing();
+      }
+
+      securityLogger.logSecurityEvent({
+        eventType: SecurityEventType.AUTHENTICATION,
+        severity: SecuritySeverity.HIGH,
+        message: `All JWT tokens revoked for user: ${reason}`,
+        ip: 'system',
+        userAgent: 'jose-auth-service',
+        endpoint: 'bulk-token-revocation',
+        details: {
+          userId,
+          tokensRevoked: revocations.length,
+          reason,
+          revokedBy
+        }
+      });
+
+      return revocations.length;
+
+    } catch (error) {
+      securityLogger.logSecurityEvent({
+        eventType: SecurityEventType.ERROR,
+        severity: SecuritySeverity.CRITICAL,
+        message: 'Failed to revoke all user tokens',
+        ip: 'system',
+        userAgent: 'jose-auth-service',
+        endpoint: 'bulk-token-revocation',
+        details: { 
+          userId,
+          error: error instanceof Error ? error.message : 'Unknown error' 
+        }
+      });
+      throw error;
+    }
+  }
 }
 
 // Export singleton instance
