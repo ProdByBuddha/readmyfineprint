@@ -1,0 +1,267 @@
+Server uptime (seconds): 22.610113284
+csrfManager.ts:110  GET https://edcf3ef7-a826-4eed-8e04-7a485b2e183a-00-1wytaob2mj6u8.kirk.replit.dev:5000/api/blog/admin/posts 401 (Unauthorized)
+fetch @ csrfManager.ts:110
+u @ csrfManager.ts:189
+re @ api.ts:1053
+Y @ BlogAdmin.tsx:121
+(anonymous) @ BlogAdmin.tsx:181
+sl @ react-dom.production.min.js:243
+Xn @ react-dom.production.min.js:285
+Yf @ react-dom.production.min.js:282
+hn @ react-dom.production.min.js:280
+Ko @ react-dom.production.min.js:272
+pn @ react-dom.production.min.js:127
+(anonymous) @ react-dom.production.min.js:266Understand this error
+api.ts:1062 Admin API request failed: 401 {"error":"Admin access denied: subscription token required","requiresSubscription":true}
+overrideMethod @ hook.js:608
+re @ api.ts:1062
+await in re
+Y @ BlogAdmin.tsx:121
+(anonymous) @ BlogAdmin.tsx:181
+sl @ react-dom.production.min.js:243
+Xn @ react-dom.production.min.js:285
+Yf @ react-dom.production.min.js:282
+hn @ react-dom.production.min.js:280
+Ko @ react-dom.production.min.js:272
+pn @ react-dom.production.min.js:127
+(anonymous) @ react-dom.production.min.js:266Understand this error
+api.ts:1065 Admin API request failed: 401 Unauthorized
+overrideMethod @ hook.js:608
+re @ api.ts:1065
+await in re
+Y @ BlogAdmin.tsx:121
+(anonymous) @ BlogAdmin.tsx:181
+sl @ react-dom.production.min.js:243
+Xn @ react-dom.production.min.js:285
+Yf @ react-dom.production.min.js:282
+hn @ react-dom.production.min.js:280
+Ko @ react-dom.production.min.js:272
+pn @ react-dom.production.min.js:127
+(anonymous) @ react-dom.production.min.js:266Understand this error
+BlogAdmin.tsx:126 Failed to load posts: Error: Admin API request failed: 401 Unauthorized
+    at re (api.ts:1066:13)
+    at async Y (BlogAdmin.tsx:121:27)
+overrideMethod @ hook.js:608
+Y @ BlogAdmin.tsx:126
+await in Y
+(anonymous) @ BlogAdmin.tsx:181
+sl @ react-dom.production.min.js:243
+Xn @ react-dom.production.min.js:285
+Yf @ react-dom.production.min.js:282
+hn @ react-dom.production.min.js:280
+Ko @ react-dom.production.min.js:272
+pn @ react-dom.production.min.js:127
+(anonymous) @ react-dom.production.min.js:266Understand this error
+csrfManager.ts:110  GET https://edcf3ef7-a826-4eed-8e04-7a485b2e183a-00-1wytaob2mj6u8.kirk.replit.dev:5000/api/blog/admin/topics 401 (Unauthorized)
+fetch @ csrfManager.ts:110
+u @ csrfManager.ts:189
+re @ api.ts:1053
+Y @ BlogAdmin.tsx:131
+await in Y
+(anonymous) @ BlogAdmin.tsx:181
+sl @ react-dom.production.min.js:243
+Xn @ react-dom.production.min.js:285
+Yf @ react-dom.production.min.js:282
+hn @ react-dom.production.min.js:280
+Ko @ react-dom.production.min.js:272
+pn @ react-dom.production.min.js:127
+(anonymous) @ react-dom.production.min.js:266Understand this error
+api.ts:1062 Admin API request failed: 401 {"error":"Admin access denied: subscription token required","requiresSubscription":true}
+overrideMethod @ hook.js:608
+re @ api.ts:1062
+await in re
+Y @ BlogAdmin.tsx:131
+await in Y
+(anonymous) @ BlogAdmin.tsx:181
+sl @ react-dom.production.min.js:243
+Xn @ react-dom.production.min.js:285
+Yf @ react-dom.production.min.js:282
+hn @ react-dom.production.min.js:280
+Ko @ react-dom.production.min.js:272
+pn @ react-dom.production.min.js:127
+(anonymous) @ react-dom.production.min.js:266Understand this error
+api.ts:1065 Admin API request failed: 401 Unauthorized
+overrideMethod @ hook.js:608
+re @ api.ts:1065
+await in re
+Y @ BlogAdmin.tsx:131
+await in Y
+(anonymous) @ BlogAdmin.tsx:181
+sl @ react-dom.production.min.js:243
+Xn @ react-dom.production.min.js:285
+Yf @ react-dom.production.min.js:282
+hn @ react-dom.production.min.js:280
+Ko @ react-dom.production.min.js:272
+pn @ react-dom.production.min.js:127
+(anonymous) @ react-dom.production.min.js:266Understand this error
+BlogAdmin.tsx:136 Failed to load topics: Error: Admin API request failed: 401 Unauthorized
+    at re (api.ts:1066:13)
+    at async Y (BlogAdmin.tsx:131:28)
+overrideMethod @ hook.js:608
+Y @ BlogAdmin.tsx:136
+await in Y
+(anonymous) @ BlogAdmin.tsx:181
+sl @ react-dom.production.min.js:243
+Xn @ react-dom.production.min.js:285
+Yf @ react-dom.production.min.js:282
+hn @ react-dom.production.min.js:280
+Ko @ react-dom.production.min.js:272
+pn @ react-dom.production.min.js:127
+(anonymous) @ react-dom.production.min.js:266Understand this error
+csrfManager.ts:110  GET https://edcf3ef7-a826-4eed-8e04-7a485b2e183a-00-1wytaob2mj6u8.kirk.replit.dev:5000/api/blog/admin/scheduler/status 401 (Unauthorized)
+fetch @ csrfManager.ts:110
+u @ csrfManager.ts:189
+re @ api.ts:1053
+Y @ BlogAdmin.tsx:141
+await in Y
+(anonymous) @ BlogAdmin.tsx:181
+sl @ react-dom.production.min.js:243
+Xn @ react-dom.production.min.js:285
+Yf @ react-dom.production.min.js:282
+hn @ react-dom.production.min.js:280
+Ko @ react-dom.production.min.js:272
+pn @ react-dom.production.min.js:127
+(anonymous) @ react-dom.production.min.js:266Understand this error
+api.ts:1062 Admin API request failed: 401 {"error":"Admin access denied: subscription token required","requiresSubscription":true}
+overrideMethod @ hook.js:608
+re @ api.ts:1062
+await in re
+Y @ BlogAdmin.tsx:141
+await in Y
+(anonymous) @ BlogAdmin.tsx:181
+sl @ react-dom.production.min.js:243
+Xn @ react-dom.production.min.js:285
+Yf @ react-dom.production.min.js:282
+hn @ react-dom.production.min.js:280
+Ko @ react-dom.production.min.js:272
+pn @ react-dom.production.min.js:127
+(anonymous) @ react-dom.production.min.js:266Understand this error
+api.ts:1065 Admin API request failed: 401 Unauthorized
+overrideMethod @ hook.js:608
+re @ api.ts:1065
+await in re
+Y @ BlogAdmin.tsx:141
+await in Y
+(anonymous) @ BlogAdmin.tsx:181
+sl @ react-dom.production.min.js:243
+Xn @ react-dom.production.min.js:285
+Yf @ react-dom.production.min.js:282
+hn @ react-dom.production.min.js:280
+Ko @ react-dom.production.min.js:272
+pn @ react-dom.production.min.js:127
+(anonymous) @ react-dom.production.min.js:266Understand this error
+BlogAdmin.tsx:146 Failed to load scheduler status: Error: Admin API request failed: 401 Unauthorized
+    at re (api.ts:1066:13)
+    at async Y (BlogAdmin.tsx:141:31)
+overrideMethod @ hook.js:608
+Y @ BlogAdmin.tsx:146
+await in Y
+(anonymous) @ BlogAdmin.tsx:181
+sl @ react-dom.production.min.js:243
+Xn @ react-dom.production.min.js:285
+Yf @ react-dom.production.min.js:282
+hn @ react-dom.production.min.js:280
+Ko @ react-dom.production.min.js:272
+pn @ react-dom.production.min.js:127
+(anonymous) @ react-dom.production.min.js:266Understand this error
+csrfManager.ts:110  GET https://edcf3ef7-a826-4eed-8e04-7a485b2e183a-00-1wytaob2mj6u8.kirk.replit.dev:5000/api/blog/admin/stats 401 (Unauthorized)
+fetch @ csrfManager.ts:110
+u @ csrfManager.ts:189
+re @ api.ts:1053
+Y @ BlogAdmin.tsx:151
+await in Y
+(anonymous) @ BlogAdmin.tsx:181
+sl @ react-dom.production.min.js:243
+Xn @ react-dom.production.min.js:285
+Yf @ react-dom.production.min.js:282
+hn @ react-dom.production.min.js:280
+Ko @ react-dom.production.min.js:272
+pn @ react-dom.production.min.js:127
+(anonymous) @ react-dom.production.min.js:266Understand this error
+api.ts:1062 Admin API request failed: 401 {"error":"Admin access denied: subscription token required","requiresSubscription":true}
+overrideMethod @ hook.js:608
+re @ api.ts:1062
+await in re
+Y @ BlogAdmin.tsx:151
+await in Y
+(anonymous) @ BlogAdmin.tsx:181
+sl @ react-dom.production.min.js:243
+Xn @ react-dom.production.min.js:285
+Yf @ react-dom.production.min.js:282
+hn @ react-dom.production.min.js:280
+Ko @ react-dom.production.min.js:272
+pn @ react-dom.production.min.js:127
+(anonymous) @ react-dom.production.min.js:266Understand this error
+api.ts:1065 Admin API request failed: 401 Unauthorized
+overrideMethod @ hook.js:608
+re @ api.ts:1065
+await in re
+Y @ BlogAdmin.tsx:151
+await in Y
+(anonymous) @ BlogAdmin.tsx:181
+sl @ react-dom.production.min.js:243
+Xn @ react-dom.production.min.js:285
+Yf @ react-dom.production.min.js:282
+hn @ react-dom.production.min.js:280
+Ko @ react-dom.production.min.js:272
+pn @ react-dom.production.min.js:127
+(anonymous) @ react-dom.production.min.js:266Understand this error
+BlogAdmin.tsx:156 Failed to load blog stats: Error: Admin API request failed: 401 Unauthorized
+    at re (api.ts:1066:13)
+    at async Y (BlogAdmin.tsx:151:27)
+overrideMethod @ hook.js:608
+Y @ BlogAdmin.tsx:156
+await in Y
+(anonymous) @ BlogAdmin.tsx:181
+sl @ react-dom.production.min.js:243
+Xn @ react-dom.production.min.js:285
+Yf @ react-dom.production.min.js:282
+hn @ react-dom.production.min.js:280
+Ko @ react-dom.production.min.js:272
+pn @ react-dom.production.min.js:127
+(anonymous) @ react-dom.production.min.js:266Understand this error
+csrfManager.ts:110  GET https://edcf3ef7-a826-4eed-8e04-7a485b2e183a-00-1wytaob2mj6u8.kirk.replit.dev:5000/api/blog/admin/posts/deleted 401 (Unauthorized)
+fetch @ csrfManager.ts:110
+u @ csrfManager.ts:189
+re @ api.ts:1053
+Y @ BlogAdmin.tsx:161
+await in Y
+(anonymous) @ BlogAdmin.tsx:181
+sl @ react-dom.production.min.js:243
+Xn @ react-dom.production.min.js:285
+Yf @ react-dom.production.min.js:282
+hn @ react-dom.production.min.js:280
+Ko @ react-dom.production.min.js:272
+pn @ react-dom.production.min.js:127
+(anonymous) @ react-dom.production.min.js:266Understand this error
+api.ts:1062 Admin API request failed: 401 {"error":"Admin access denied: subscription token required","requiresSubscription":true}
+overrideMethod @ hook.js:608
+re @ api.ts:1062
+await in re
+Y @ BlogAdmin.tsx:161
+await in Y
+(anonymous) @ BlogAdmin.tsx:181
+sl @ react-dom.production.min.js:243
+Xn @ react-dom.production.min.js:285
+Yf @ react-dom.production.min.js:282
+hn @ react-dom.production.min.js:280
+Ko @ react-dom.production.min.js:272
+pn @ react-dom.production.min.js:127
+(anonymous) @ react-dom.production.min.js:266Understand this error
+api.ts:1065 Admin API request failed: 401 Unauthorized
+overrideMethod @ hook.js:608
+re @ api.ts:1065
+await in re
+Y @ BlogAdmin.tsx:161
+await in Y
+(anonymous) @ BlogAdmin.tsx:181
+sl @ react-dom.production.min.js:243
+Xn @ react-dom.production.min.js:285
+Yf @ react-dom.production.min.js:282
+hn @ react-dom.production.min.js:280
+Ko @ react-dom.production.min.js:272
+pn @ react-dom.production.min.js:127
+(anonymous) @ react-dom.production.min.js:266Understand this error
+BlogAdmin.tsx:166 Failed to load deleted posts: Error: Admin API request failed: 401 Unauthorized
+    at re (api.ts:1066:13)
+    at async Y (BlogAdmin.tsx:161:29)
