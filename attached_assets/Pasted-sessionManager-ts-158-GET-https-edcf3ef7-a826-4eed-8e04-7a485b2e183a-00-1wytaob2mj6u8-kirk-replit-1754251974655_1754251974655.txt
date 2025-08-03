@@ -1,0 +1,88 @@
+sessionManager.ts:158  GET https://edcf3ef7-a826-4eed-8e04-7a485b2e183a-00-1wytaob2mj6u8.kirk.replit.dev:5000/api/admin/system-health-subscription 401 (Unauthorized)
+p @ sessionManager.ts:158
+queryFn @ admin.tsx:333
+o @ query.ts:457
+w @ retryer.ts:153
+start @ retryer.ts:218
+fetch @ query.ts:576
+Yt @ queryObserver.ts:333
+(anonymous) @ queryObserver.ts:396
+setInterval
+Ce @ queryObserver.ts:391
+Ee @ queryObserver.ts:403
+onQueryUpdate @ queryObserver.ts:717
+(anonymous) @ query.ts:657
+(anonymous) @ query.ts:656
+batch @ notifyManager.ts:54
+$ @ query.ts:655
+d @ query.ts:501
+T @ retryer.ts:116
+(anonymous) @ retryer.ts:180
+Promise.catch
+w @ retryer.ts:160
+start @ retryer.ts:218
+fetch @ query.ts:576
+Yt @ queryObserver.ts:333
+(anonymous) @ queryObserver.ts:396
+setInterval
+Ce @ queryObserver.ts:391
+Ee @ queryObserver.ts:403
+onQueryUpdate @ queryObserver.ts:717
+(anonymous) @ query.ts:657
+(anonymous) @ query.ts:656
+batch @ notifyManager.ts:54
+$ @ query.ts:655
+d @ query.ts:501
+T @ retryer.ts:116
+(anonymous) @ retryer.ts:180
+Promise.catch
+w @ retryer.ts:160
+start @ retryer.ts:218
+fetch @ query.ts:576
+Yt @ queryObserver.ts:333
+(anonymous) @ queryObserver.ts:396
+setInterval
+Ce @ queryObserver.ts:391
+Ee @ queryObserver.ts:403
+onQueryUpdate @ queryObserver.ts:717
+(anonymous) @ query.ts:657
+(anonymous) @ query.ts:656
+batch @ notifyManager.ts:54
+$ @ query.ts:655
+d @ query.ts:501
+T @ retryer.ts:116
+(anonymous) @ retryer.ts:180
+Promise.catch
+w @ retryer.ts:160
+start @ retryer.ts:218
+fetch @ query.ts:576
+Yt @ queryObserver.ts:333
+(anonymous) @ queryObserver.ts:396
+setInterval
+Ce @ queryObserver.ts:391
+Ee @ queryObserver.ts:403
+onQueryUpdate @ queryObserver.ts:717
+(anonymous) @ query.ts:657
+(anonymous) @ query.ts:656
+batch @ notifyManager.ts:54
+$ @ query.ts:655
+d @ query.ts:501
+T @ retryer.ts:116
+(anonymous) @ retryer.ts:180
+Promise.catch
+w @ retryer.ts:160
+start @ retryer.ts:218
+fetch @ query.ts:576
+Yt @ queryObserver.ts:333
+onSubscribe @ queryObserver.ts:104
+subscribe @ subscribable.ts:11
+(anonymous) @ useBaseQuery.ts:100
+la @ react-dom.production.min.js:167
+sl @ react-dom.production.min.js:243
+Xn @ react-dom.production.min.js:285
+Yf @ react-dom.production.min.js:282
+hn @ react-dom.production.min.js:280
+Ko @ react-dom.production.min.js:272
+pn @ react-dom.production.min.js:127
+(anonymous) @ react-dom.production.min.js:266Understand this error
+sessionManager.ts:199  GET https://edcf3ef7-a826-4eed-8e04-7a485b2e183a-00-1wytaob2mj6u8.kirk.replit.dev:5000/api/admin/system-health-subscription 401 (Unauthorize
