@@ -758,6 +758,9 @@ function UserManagement() {
   }>({ isOpen: false, title: "", description: "", action: () => {} });
   const { toast } = useToast();
 
+  // Get admin token from session storage or other secure source
+  const adminToken = sessionStorage.getItem('adminToken') || '';
+
   const { data: usersData, isLoading, refetch } = useQuery<UsersResponse>({
     queryKey: ["/api/admin/users", { page, search, sortBy, sortOrder, hasSubscription }],
     queryFn: async () => {
@@ -777,10 +780,18 @@ function UserManagement() {
 
   const handleUpdateUser = async (userId: string, updates: Partial<User>) => {
     try {
-      await apiRequest("PATCH", `/api/admin/users-subscription/${userId}`, {
-        headers: { "x-subscription-token": adminToken || "" },
-        body: updates
+      const response = await sessionFetch(`/api/admin/users-subscription/${userId}`, {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        credentials: 'include',
+        body: JSON.stringify(updates),
       });
+
+      if (!response.ok) {
+        throw new Error('Failed to update user');
+      }
       
       toast({
         title: "User Updated",
