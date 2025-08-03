@@ -316,14 +316,30 @@ export async function requireAdminViaSubscription(req: Request, res: Response, n
         console.log(`🔍 Admin auth: Trying JWT token validation`);
         
         try {
-          const { joseTokenService } = await import('./jose-token-service');
-          tokenData = await joseTokenService.validateSubscriptionToken(jwtToken);
+          // Try access token validation first (more likely for admin sessions)
+          const { joseAuthService } = await import('./jose-auth-service');
+          const accessValidation = await joseAuthService.validateAccessToken(jwtToken);
           
-          if (tokenData) {
-            console.log(`✅ Admin auth: JWT validation successful for user ${tokenData.userId}`);
-            subscriptionToken = jwtToken; // Use JWT as subscription token for downstream logic
+          if (accessValidation.valid && accessValidation.payload) {
+            // Create subscription token-like data from access token
+            tokenData = {
+              userId: accessValidation.payload.userId,
+              tierId: 'ultimate', // Admin users have ultimate tier
+              subscriptionId: 'admin-jwt'
+            };
+            subscriptionToken = jwtToken;
+            console.log(`✅ Admin auth: JWT validation successful for user ${tokenData.userId} via access token`);
           } else {
-            console.log(`❌ Admin auth: JWT validation failed`);
+            // Fallback to subscription token validation
+            const { joseTokenService } = await import('./jose-token-service');
+            tokenData = await joseTokenService.validateSubscriptionToken(jwtToken);
+            
+            if (tokenData) {
+              console.log(`✅ Admin auth: JWT validation successful for user ${tokenData.userId} via subscription token`);
+              subscriptionToken = jwtToken;
+            } else {
+              console.log(`❌ Admin auth: JWT validation failed`);
+            }
           }
         } catch (jwtError) {
           console.log(`❌ Admin auth: JWT validation error:`, jwtError);
@@ -349,20 +365,36 @@ export async function requireAdminViaSubscription(req: Request, res: Response, n
           const token = await postgresqlSessionStorage.getTokenBySession(sessionId);
           
           if (token) {
-            const { joseTokenService } = await import('./jose-token-service');
-            tokenData = await joseTokenService.validateSubscriptionToken(token);
+            // First try to validate as access token (more likely for admin sessions)
+            const { joseAuthService } = await import('./jose-auth-service');
+            const accessValidation = await joseAuthService.validateAccessToken(token);
             
-            if (tokenData) {
-              subscriptionToken = token; // Use the token from session
-              console.log(`✅ Admin auth: Session resolved to user ${tokenData.userId}, tier: ${tokenData.tierId}`);
+            if (accessValidation.valid && accessValidation.payload) {
+              // Create subscription token-like data from access token
+              tokenData = {
+                userId: accessValidation.payload.userId,
+                tierId: 'ultimate', // Admin users have ultimate tier
+                subscriptionId: 'admin-session'
+              };
+              subscriptionToken = token;
+              console.log(`✅ Admin auth: Session resolved to user ${tokenData.userId} via access token`);
             } else {
-              console.log(`❌ Admin auth: Token validation failed for session ${sessionId.slice(0, 8)}...`);
-              // Token is invalid - clean it up
-              try {
-                await postgresqlSessionStorage.removeSessionToken(sessionId);
-                console.log('🧹 Cleaned up invalid admin session token');
-              } catch (cleanupError) {
-                console.error('⚠️ Failed to clean up invalid admin session token:', cleanupError);
+              // Fallback to subscription token validation
+              const { joseTokenService } = await import('./jose-token-service');
+              tokenData = await joseTokenService.validateSubscriptionToken(token);
+              
+              if (tokenData) {
+                subscriptionToken = token;
+                console.log(`✅ Admin auth: Session resolved to user ${tokenData.userId}, tier: ${tokenData.tierId}`);
+              } else {
+                console.log(`❌ Admin auth: Token validation failed for session ${sessionId.slice(0, 8)}...`);
+                // Token is invalid - clean it up
+                try {
+                  await postgresqlSessionStorage.removeSessionToken(sessionId);
+                  console.log('🧹 Cleaned up invalid admin session token');
+                } catch (cleanupError) {
+                  console.error('⚠️ Failed to clean up invalid admin session token:', cleanupError);
+                }
               }
             }
           } else {
