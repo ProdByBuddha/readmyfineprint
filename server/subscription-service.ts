@@ -930,6 +930,7 @@ export class SubscriptionService {
     return SUBSCRIPTION_TIERS.find(tier => tier.id === 'starter') || SUBSCRIPTION_TIERS[1];
   }
 
+  ```
   /**
    * Get the ultimate tier (admin-only tier)
    */
@@ -1789,54 +1790,7 @@ Contact: admin@readmyfineprint.com
         cancelAtPeriodEnd: params.cancelAtPeriodEnd
       });
 
-      console.log(`Synced subscription ${subscription.id} with Stripe data`);
-    } catch (error) {
-```text
-      console.error('Error syncing Stripe subscription:', error);
-      throw error;
-    }
-  }
-
-  /**
-   * Cancel a subscription
-   */
-  async cancelSubscription(userId: string, immediate: boolean = false): Promise<void> {
-    try {
-      const subscription = await databaseStorage.getUserSubscription(userId);
-      if (!subscription) {
-        throw new Error('No subscription found to cancel');
-      }
-
-      const updates: Partial<InsertUserSubscription> = {
-        cancelAtPeriodEnd: !immediate
-      };
-
-      if (immediate) {
-        updates.status = 'canceled';
-        updates.currentPeriodEnd = new Date(); // End immediately
-      }
-
-      await databaseStorage.updateUserSubscription(subscription.id, updates);
-    } catch (error) {
-      console.error('Error canceling subscription:', error);
-      throw error;
-    }
-  }
-
-
-
-  /**
-   * Update subscription tier by user ID (admin method)
-   */
-  async updateSubscriptionTier(userId: string, newTierId: string, reason?: string): Promise<UserSubscription | null> {
-    try {
-      const subscription = await databaseStorage.getUserSubscription(userId);
-      if (!subscription) {
-        throw new Error('No subscription found to update');
-      }
-
-      const newTier = getTierById(newTierId);
-      if (!newTier) {
+      console.log(`Synced subscription ${subscription.id} with Stripe data`);      if (!newTier) {
         throw new Error(`Invalid tier ID: ${newTierId}`);
       }
 

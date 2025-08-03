@@ -1822,7 +1822,6 @@ async function checkDatabaseHealth(): Promise<{ status: string; latency?: number
 async function checkEmailServiceHealth(): Promise<{ status: string; error?: string }> {
   try {
     // Check if email service is configured
-```tool_code
     const hasEmailConfig = !!(process.env.SMTP_USER && process.env.SMTP_PASS);
     return { 
       status: hasEmailConfig ? 'healthy' : 'warning',
