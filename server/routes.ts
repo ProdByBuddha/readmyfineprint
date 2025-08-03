@@ -912,18 +912,30 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const ip = req.ip || req.connection.remoteAddress || 'unknown';
       const userAgent = req.get('User-Agent') || 'unknown';
       const userId = req.user?.id; // Get user ID if authenticated
-
-      console.log(`Consent verification request - IP: ${ip}, UA: ${userAgent?.substring(0, 20)}..., User: ${userId || 'none'}, Session: ${req.sessionId || 'none'}`);
-
-      const proof = await consentLogger.verifyUserConsent(ip, userAgent, userId, req.sessionId);
-      if (proof) {
-        res.json({ hasConsented: true, proof });
-      } else {
-        res.json({ hasConsented: false, proof: null });
+      
+      // Get session ID from multiple sources for consistency
+      let sessionId = req.sessionId;
+      if (!sessionId) {
+        sessionId = req.headers['x-session-id'] as string;
       }
+      if (!sessionId && req.cookies?.sessionId) {
+        sessionId = req.cookies.sessionId;
+      }
+
+      console.log(`Consent verification request - IP: ${ip}, UA: ${userAgent?.substring(0, 20)}..., User: ${userId || 'none'}, Session: ${sessionId || 'none'}`);
+
+      const proof = await consentLogger.verifyUserConsent(ip, userAgent, userId, sessionId);
+      
+      const response = {
+        hasConsented: !!proof,
+        proof: proof || null
+      };
+      
+      console.log(`Consent verification response: ${response.hasConsented} (session: ${sessionId || 'none'})`);
+      res.json(response);
     } catch (error) {
       console.error("Error verifying consent:", error);
-      res.status(500).json({ error: "Failed to verify consent" });
+      res.json({ hasConsented: false, proof: null, error: "Verification failed" });
     }
   });
 

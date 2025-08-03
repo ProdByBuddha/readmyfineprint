@@ -27,7 +27,7 @@ export function useCombinedConsent() {
   const [isAccepted, setIsAccepted] = useState(false);
   const [isCheckingConsent, setIsCheckingConsent] = useState(true);
   const [forceUpdate, setForceUpdate] = useState(0);
-  
+
   // Use the new database-backed hooks
   const { accepted: legalAccepted, loading: legalLoading } = useLegalDisclaimer();
   const { isAccepted: cookieAccepted, loading: cookieLoading } = useCookieConsent();
@@ -42,7 +42,7 @@ export function useCombinedConsent() {
     const combinedAccepted = legalAccepted && cookieAccepted;
     setIsAccepted(combinedAccepted);
     setIsCheckingConsent(false);
-    
+
     // Update global state
     globalConsentState = { 
       status: combinedAccepted, 
@@ -60,7 +60,7 @@ export function useCombinedConsent() {
       globalConsentState = { status: true, timestamp: Date.now() };
       return;
     }
-    
+
     // Check global cache first to prevent excessive API calls
     const now = Date.now();
     if (globalConsentState && (now - globalConsentState.timestamp) < CACHE_DURATION) {
@@ -68,7 +68,7 @@ export function useCombinedConsent() {
       setIsCheckingConsent(false);
       return;
     }
-    
+
     // Prevent concurrent checks
     if (isCheckingGlobally) {
       if (import.meta.env.DEV) {
@@ -76,28 +76,28 @@ export function useCombinedConsent() {
       }
       return;
     }
-    
+
     // Set checking state
     isCheckingGlobally = true;
     setIsCheckingConsent(true);
-    
+
     try {
       const sessionId = getGlobalSessionId();
       if (import.meta.env.DEV) {
         console.log(`Checking consent with session: ${sessionId.substring(0, 16)}...`);
       }
-      
+
       const response = await sessionFetch('/api/consent/verify', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
       });
-      
+
       if (response.ok) {
         const result = await response.json();
         const hasConsented = result.hasConsented === true;
-        
+
         if (import.meta.env.DEV) {
           console.log('Consent check result:', { 
             hasConsented, 
@@ -106,7 +106,7 @@ export function useCombinedConsent() {
             sessionResult: result 
           });
         }
-        
+
         // Update global state and local state
         globalConsentState = { status: hasConsented, timestamp: now, sessionId: getGlobalSessionId() };
         setIsAccepted(hasConsented);
@@ -134,7 +134,7 @@ export function useCombinedConsent() {
     // Check consent on initial mount only if we don't have a recent cache
     const initialCheck = async () => {
       const sessionId = getGlobalSessionId();
-      
+
       // If we have a recent cache entry for this session, use it
       if (globalConsentState && 
           globalConsentState.sessionId === sessionId && 
@@ -146,7 +146,7 @@ export function useCombinedConsent() {
         setIsCheckingConsent(false);
         return;
       }
-      
+
       if (import.meta.env.DEV) {
         console.log(`Initial consent check - session: ${sessionId.substring(0, 16)}...`);
       }
@@ -156,11 +156,11 @@ export function useCombinedConsent() {
 
     // Create event handlers with debouncing
     let debounceTimer: number;
-    
+
     const handleConsentChange = () => {
       // Clear global cache when consent changes
       globalConsentState = null;
-      
+
       // Debounce multiple consent change events
       clearTimeout(debounceTimer);
       debounceTimer = window.setTimeout(() => {
@@ -175,7 +175,7 @@ export function useCombinedConsent() {
       setIsAccepted(false);
       setIsCheckingConsent(false);
       console.log('Consent revoked - enabling gray mode');
-      
+
       // Force immediate re-check to ensure all components are synchronized
       setTimeout(() => {
         console.log('Re-checking consent after revocation');
@@ -198,10 +198,10 @@ export function useCombinedConsent() {
 
   const acceptAll = async () => {
     if (isCheckingConsent) return; // Prevent multiple simultaneous accepts
-    
+
     // Set loading state
     setIsCheckingConsent(true);
-    
+
     // Check if we're in development mode and bypass consent logging
     if (import.meta.env.DEV || import.meta.env.MODE === 'development') {
       console.log('⚠️ Development mode: Bypassing consent logging');
@@ -211,14 +211,14 @@ export function useCombinedConsent() {
       setIsCheckingConsent(false);
       setForceUpdate(prev => prev + 1);
       recentlyAccepted = true;
-      
+
       if (acceptanceTimer) clearTimeout(acceptanceTimer);
       acceptanceTimer = window.setTimeout(() => {
         recentlyAccepted = false;
       }, 2000);
       return;
     }
-    
+
     try {
       // Log consent to database only - using the global API function that now uses sessionFetch
       const result = await logConsent();
@@ -235,13 +235,13 @@ export function useCombinedConsent() {
       window.dispatchEvent(new CustomEvent('consentChanged'));
       setIsAccepted(true);
       setIsCheckingConsent(false);
-      
+
       // Force re-render of all components using this hook
       setForceUpdate(prev => prev + 1);
-      
+
       console.log('Consent accepted successfully');
       recentlyAccepted = true;
-      
+
       // Clear the recent acceptance flag after some time
       if (acceptanceTimer) clearTimeout(acceptanceTimer);
       acceptanceTimer = window.setTimeout(() => {
@@ -258,10 +258,10 @@ export function useCombinedConsent() {
 
   const revokeConsent = async () => {
     if (isCheckingConsent) return; // Prevent multiple simultaneous revocations
-    
+
     // Set loading state
     setIsCheckingConsent(true);
-    
+
     // Check if we're in development mode and bypass consent revocation
     if (import.meta.env.DEV || import.meta.env.MODE === 'development') {
       console.log('⚠️ Development mode: Bypassing consent revocation');
@@ -272,11 +272,11 @@ export function useCombinedConsent() {
       setForceUpdate(prev => prev + 1);
       return;
     }
-    
+
     try {
       const sessionId = getGlobalSessionId();
       console.log(`Revoking consent with session: ${sessionId.substring(0, 16)}...`);
-      
+
       const response = await sessionFetch('/api/consent/revoke', {
         method: 'POST',
         headers: {
@@ -287,7 +287,7 @@ export function useCombinedConsent() {
           userAgent: navigator.userAgent,
         }),
       });
-      
+
       const result = await response.json();
       if (!result.success) {
         console.warn('Failed to revoke consent in database:', result.message);
@@ -344,7 +344,7 @@ export function CombinedConsent({ onAccept }: CombinedConsentProps) {
     try {
       const sessionId = getGlobalSessionId();
       console.log(`Logging consent with session: ${sessionId.substring(0, 16)}...`);
-      
+
       // Log consent to database using session fetch with client session ID
       const response = await sessionFetch('/api/consent', {
         method: 'POST',

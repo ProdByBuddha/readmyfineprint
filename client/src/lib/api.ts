@@ -30,7 +30,7 @@ export async function createDocument(data: { title: string; content: string; fil
     let errorMessage = `Failed to create document: ${response.statusText}`;
     try {
       const responseText = await response.text();
-      
+
       // Try to parse as JSON first
       try {
         const errorData = JSON.parse(responseText);
@@ -49,10 +49,10 @@ export async function createDocument(data: { title: string; content: string; fil
       // If we can't read the response at all, use default message
       console.error('Failed to read error response:', readError);
     }
-    
+
     // Report API error to admin
     reportApiError(new Error(errorMessage), '/api/documents', 'POST');
-    
+
     throw new Error(errorMessage);
   }
 
@@ -500,7 +500,7 @@ export async function logConsent(): Promise<{
   try {
     const sessionId = getGlobalSessionId();
     console.log(`API: Logging consent with session: ${sessionId.substring(0, 16)}...`);
-    
+
     const response = await sessionFetch('/api/consent', {
       method: 'POST',
       headers: {
@@ -535,6 +535,40 @@ export async function logConsent(): Promise<{
       success: false,
       message: 'Consent logging failed, but you can continue using the service'
     };
+  }
+}
+
+// Check consent status
+export async function checkConsentStatus(): Promise<{ hasConsented: boolean; proof?: any } | null> {
+  try {
+    const response = await sessionFetch('/api/consent/verify', {
+      method: 'POST',
+      headers: { 
+        'Content-Type': 'application/json',
+        'X-Session-ID': getGlobalSessionId()
+      },
+      credentials: 'include'
+    });
+
+    if (!response.ok) {
+      console.warn('Consent verification failed:', response.status, response.statusText);
+      return { hasConsented: false };
+    }
+
+    const result = await response.json();
+
+    // Ensure we always return a consistent format
+    if (typeof result === 'object' && result !== null) {
+      return {
+        hasConsented: result.hasConsented === true || !!result.proof,
+        proof: result.proof
+      };
+    }
+
+    return { hasConsented: false };
+  } catch (error) {
+    console.warn('Error checking consent status:', error);
+    return { hasConsented: false };
   }
 }
 
@@ -642,22 +676,22 @@ export async function logout(): Promise<{
         }
       };
     }
-    
+
     // Clear any remaining local storage (for backward compatibility)
     localStorage.removeItem('subscriptionToken');
-    
+
     // Clear session storage
     clearSession();
-    
+
     console.log('🚪 Logout successful:', result);
     return result;
   } catch (error) {
     console.error('Failed to logout:', error);
-    
+
     // Even if server logout fails, clear local data
     localStorage.removeItem('subscriptionToken');
     clearSession();
-    
+
     // Return a fallback response
     return {
       success: false,
@@ -842,7 +876,7 @@ export interface PiiDetectionFeedbackData {
  */
 export async function submitPiiDetectionFeedback(feedbackData: PiiDetectionFeedbackData) {
   const sessionId = getGlobalSessionId();
-  
+
   const response = await fetchWithCSRF('/api/rlhf/feedback', {
     method: 'POST',
     headers: {

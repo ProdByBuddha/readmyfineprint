@@ -277,8 +277,15 @@ class ConsentLogger {
           verification_signature: 'dev-signature'
         };
       }
-      const userPseudonym = this.createUserPseudonym(ip, userAgent, userId, sessionId);
-      console.log(`Verifying consent for pseudonym: ${userPseudonym} (IP: ${ip}, UA: ${userAgent?.substring(0, 20)}..., User: ${userId || 'none'}, Session: ${sessionId?.substring(0, 16) || 'none'})`);
+      
+      // Normalize inputs to ensure consistency
+      const normalizedIp = (ip || 'unknown').trim();
+      const normalizedUserAgent = (userAgent || 'unknown').trim();
+      const normalizedUserId = userId?.trim();
+      const normalizedSessionId = sessionId?.trim();
+      
+      const userPseudonym = this.createUserPseudonym(normalizedIp, normalizedUserAgent, normalizedUserId, normalizedSessionId);
+      console.log(`Verifying consent for pseudonym: ${userPseudonym} (IP: ${normalizedIp}, UA: ${normalizedUserAgent?.substring(0, 20)}..., User: ${normalizedUserId || 'none'}, Session: ${normalizedSessionId?.substring(0, 16) || 'none'})`);
       
       const cacheKey = `verify:${userPseudonym}`;
 
@@ -290,17 +297,31 @@ class ConsentLogger {
         return cached.result;
       }
 
+      // If no database URL, return null (consent not available)
+      if (!process.env.DATABASE_URL) {
+        console.warn('⚠️ No database URL configured, consent verification unavailable');
+        return null;
+      }
+
       // Find the latest consent record for this user
-      const consentRecord = await db
-        .select()
-        .from(consentRecords)
-        .where(eq(consentRecords.userPseudonym, userPseudonym))
-        .orderBy(desc(consentRecords.createdAt))
-        .limit(1);
+      let consentRecord;
+      try {
+        consentRecord = await db
+          .select()
+          .from(consentRecords)
+          .where(eq(consentRecords.userPseudonym, userPseudonym))
+          .orderBy(desc(consentRecords.createdAt))
+          .limit(1);
+      } catch (dbError) {
+        console.error('Database error during consent verification:', dbError);
+        // Cache negative result temporarily to avoid repeated DB errors
+        this.consentCache.set(cacheKey, { result: null, timestamp: now });
+        return null;
+      }
 
       let result: ConsentProof | null = null;
 
-      if (consentRecord.length > 0) {
+      if (consentRecord && consentRecord.length > 0) {
         const record = consentRecord[0];
         const timestamp = record.createdAt.toISOString();
 
