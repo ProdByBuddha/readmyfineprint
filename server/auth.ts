@@ -885,7 +885,7 @@ function isSampleContractRequest(req: Request): boolean {
     // This will be allowed but we'll need to verify in the route handler
     // that it's actually a sample contract
     return false; // Let the route handler decide based on document content
-  }```text
+  }
 
   return false;
 }
