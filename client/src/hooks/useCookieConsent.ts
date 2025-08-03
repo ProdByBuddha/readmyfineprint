@@ -35,7 +35,7 @@ export function useCookieConsent() {
         method: 'GET',
         credentials: 'include'
       });
-      
+
       if (response.ok) {
         const data = await response.json();
         return data.authenticated && data.user;
@@ -81,7 +81,7 @@ export function useCookieConsent() {
       if (!response.ok) {
         throw new Error('Failed to save cookie consent to database');
       }
-      
+
       return true;
     } catch (error) {
       console.warn('Failed to save cookie consent to database:', error);
@@ -94,7 +94,7 @@ export function useCookieConsent() {
     try {
       const accepted = localStorage.getItem('cookie-consent-accepted') === 'true';
       const storedSettings = localStorage.getItem('cookie-consent-settings');
-      
+
       let settings = DEFAULT_SETTINGS;
       if (storedSettings) {
         try {
@@ -103,7 +103,7 @@ export function useCookieConsent() {
           console.warn('Failed to parse stored cookie settings:', error);
         }
       }
-      
+
       return { accepted, settings };
     } catch (error) {
       console.warn('Failed to read localStorage cookie consent:', error);
@@ -139,11 +139,11 @@ export function useCookieConsent() {
 
     try {
       const authenticated = await isAuthenticated();
-      
+
       if (authenticated) {
         // For authenticated users, try to load from database
         const dbSettings = await loadFromDatabase();
-        
+
         if (dbSettings) {
           // Use database settings
           const isAccepted = dbSettings.necessary || dbSettings.analytics || dbSettings.marketing;
@@ -156,16 +156,16 @@ export function useCookieConsent() {
         } else {
           // No database settings, check localStorage and migrate
           const { accepted, settings } = getLocalStorageConsent();
-          
+
           // Save to database if accepted
           if (accepted) {
             const saved = await saveToDatabase(settings);
-            
+
             if (saved) {
               console.log('✅ Cookie consent migrated to database:', settings);
             }
           }
-          
+
           setState(prev => ({ 
             ...prev, 
             settings, 
@@ -211,17 +211,17 @@ export function useCookieConsent() {
       settings: allAcceptedSettings, 
       isAccepted: true 
     }));
-    
+
     // Always save to localStorage for backup
     saveToLocalStorage(allAcceptedSettings, true);
-    
+
     try {
       const authenticated = await isAuthenticated();
-      
+
       if (authenticated) {
         // Also save to database for authenticated users
         const saved = await saveToDatabase(allAcceptedSettings);
-        
+
         if (!saved) {
           setState(prev => ({ 
             ...prev, 
@@ -251,17 +251,17 @@ export function useCookieConsent() {
       settings, 
       isAccepted 
     }));
-    
+
     // Always save to localStorage for backup
     saveToLocalStorage(settings, isAccepted);
-    
+
     try {
       const authenticated = await isAuthenticated();
-      
+
       if (authenticated) {
         // Also save to database for authenticated users
         const saved = await saveToDatabase(settings);
-        
+
         if (!saved) {
           setState(prev => ({ 
             ...prev, 
@@ -295,18 +295,18 @@ export function useCookieConsent() {
       settings: revokedSettings, 
       isAccepted: false 
     }));
-    
+
     // Remove from localStorage
     localStorage.removeItem('cookie-consent-accepted');
     localStorage.removeItem('cookie-consent-settings');
-    
+
     try {
       const authenticated = await isAuthenticated();
-      
+
       if (authenticated) {
         // Also update database for authenticated users
         const saved = await saveToDatabase(revokedSettings);
-        
+
         if (!saved) {
           setState(prev => ({ 
             ...prev, 
@@ -362,4 +362,4 @@ export function useCookieConsent() {
     acceptAll: acceptAllCookies,
     revokeConsent: revokeCookies
   };
-} 
+}
