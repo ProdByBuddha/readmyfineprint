@@ -156,17 +156,17 @@ export default function Upload() {
       'service agreement', 'rental agreement'
     ].some(keyword => document.title.toLowerCase().includes(keyword.toLowerCase()));
     
-    // If not a sample contract and consent not accepted, show consent modal first
-    if (!isSampleContract && !consentAccepted) {
-      console.log('Non-sample document requires consent, showing consent modal');
+    // Always require consent for document analysis (including sample contracts)
+    if (!consentAccepted) {
+      console.log('Document analysis requires consent, triggering consent modal');
       // Trigger consent modal via custom event
       window.dispatchEvent(new CustomEvent('consentRequired', { 
         detail: { reason: 'Document analysis requires consent' }
       }));
-      announce("Please accept our terms to analyze this document", 'polite');
+      announce("Please accept our terms to analyze documents", 'polite');
       toast({
         title: "Consent Required",
-        description: "Please accept our terms and conditions to analyze your document",
+        description: "Please accept our terms and conditions before analyzing any documents",
         variant: "destructive",
       });
       return;
@@ -202,10 +202,16 @@ export default function Upload() {
   }, []);
 
   const handleSampleContract = useCallback(async (title: string, content: string) => {
-    // Check if consent is accepted
+    // Always check if consent is accepted before processing any documents
     if (!consentAccepted) {
-      const message = "Please accept the terms and privacy policy to process documents.";
+      const message = "Please accept the terms and privacy policy to process any documents, including sample contracts.";
       announce(message, 'assertive');
+      
+      // Trigger consent modal
+      window.dispatchEvent(new CustomEvent('consentRequired', { 
+        detail: { reason: 'Sample contract processing requires consent' }
+      }));
+      
       toast({
         title: "Consent Required",
         description: message,
