@@ -83,33 +83,33 @@ export function Footer() {
       className="bg-gray-50 dark:bg-gray-900 border-t border-gray-200 dark:border-gray-700 z-40 backdrop-blur-sm bg-opacity-95 dark:bg-opacity-95 transition-all duration-300 ease-in-out flex-shrink-0 pb-4 sm:pb-6"
       aria-label="Site footer"
     >
-      {/* Mobile Layout - Ultra Compact */}
-      <div className="md:hidden px-2 py-2">
-        <div className="flex items-center justify-center text-xs whitespace-nowrap overflow-hidden min-h-[20px]">
-          <div className="flex items-center gap-1.5 flex-shrink min-w-0">
-            <Link to="/privacy" className="text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 flex-shrink-0 flex items-center h-4">Privacy</Link>
-            <Link to="/terms" className="text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 flex-shrink-0 flex items-center h-4">Terms</Link>
-            <CookieManagement
-              trigger={
-                <button className="text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 flex items-center flex-shrink-0 h-4">
-                  <Cookie className="w-2 h-2 mr-0.5" />Cookies
-                </button>
-              }
-            />
-            <Link to="/donate" className="text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 flex items-center flex-shrink-0 h-4">
-              <Heart className="w-2 h-2 mr-0.5 text-red-500" />Donate
+      {/* Mobile Layout - Improved with better spacing */}
+      <div className="md:hidden px-3 py-3">
+        <div className="space-y-2">
+          {/* Top row - Main links */}
+          <div className="flex items-center justify-center gap-3 text-xs">
+            <Link to="/privacy" className="text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200 font-medium">Privacy</Link>
+            <Link to="/terms" className="text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200 font-medium">Terms</Link>
+            <Link to="/cookies" className="text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-200 font-medium">
+              Cookie Settings
             </Link>
-            <Link to="/roadmap" className="text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 flex items-center flex-shrink-0 h-4">
-              <Target className="w-2 h-2 mr-0.5 text-purple-500" />Roadmap
+            <a href="mailto:admin@readmyfineprint.com" className="text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200 font-medium">Contact</a>
+          </div>
+          
+          {/* Bottom row - Action links */}
+          <div className="flex items-center justify-center gap-3 text-xs">
+            <Link to="/donate" className="text-red-600 dark:text-red-400 hover:text-red-700 dark:hover:text-red-300 flex items-center gap-1">
+              <Heart className="w-3 h-3" />Donate
+            </Link>
+            <Link to="/roadmap" className="text-purple-600 dark:text-purple-400 hover:text-purple-700 dark:hover:text-purple-300 flex items-center gap-1">
+              <Target className="w-3 h-3" />Roadmap
             </Link>
             <button
               onClick={handleShareClick}
-              className="text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 flex items-center flex-shrink-0 h-4"
+              className="text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 flex items-center gap-1"
             >
-              <Share2 className="w-2 h-2 mr-0.5" />Share
+              <Share2 className="w-3 h-3" />Share
             </button>
-            <a href="mailto:admin@readmyfineprint.com" className="text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 flex-shrink-0 flex items-center h-4">Contact</a>
-            {/* <a href="/contact.vcf" className="text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 flex-shrink-0 flex items-center h-4" title="Download Contact Card">vCard</a> */}
           </div>
         </div>
       </div>
@@ -128,61 +128,55 @@ export function Footer() {
           </div>
 
           {/* Links */}
-          <div className="flex items-center gap-4 text-xs">
+          <div className="flex items-center gap-6 text-sm">
             <Link
               to="/privacy"
               className="text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white transition-all duration-300 ease-in-out"
             >
-              Privacy
+              Privacy Policy
             </Link>
             <Link
               to="/terms"
               className="text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white transition-all duration-300 ease-in-out"
             >
-              Terms
-            </Link>
-            <CookieManagement
-              trigger={
-                <button className="text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white transition-all duration-300 ease-in-out inline-flex items-center">
-                  <Cookie className="w-3 h-3 mr-1" aria-hidden="true" />
-                  Cookie Settings
-                </button>
-              }
-            />
-            <Link
-              to="/donate"
-              className="text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white transition-all duration-300 ease-in-out inline-flex items-center"
-            >
-              <Heart className="w-3 h-3 mr-1 text-red-500" aria-hidden="true" />
-              Donate
+              Terms of Service
             </Link>
             <Link
-              to="/roadmap"
-              className="text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white transition-all duration-300 ease-in-out inline-flex items-center"
+              to="/cookies"
+              className="text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-200 transition-all duration-300 ease-in-out inline-flex items-center font-medium"
             >
-              <Target className="w-3 h-3 mr-1 text-purple-500" aria-hidden="true" />
-              Roadmap
+              <Cookie className="w-4 h-4 mr-2" aria-hidden="true" />
+              Cookie Settings
             </Link>
-            <button
-              onClick={handleShareClick}
-              className="text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white transition-all duration-300 ease-in-out inline-flex items-center"
-            >
-              <Share2 className="w-3 h-3 mr-1" aria-hidden="true" />
-              Share
-            </button>
-            <a
-              href="mailto:admin@readmyfineprint.com"
-              className="text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white transition-all duration-300 ease-in-out"
-            >
-              Contact
-            </a>
-            {/* <a
-              href="/contact.vcf"
-              className="text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white transition-all duration-300 ease-in-out"
-              title="Download Contact Card with Logo"
-            >
-              vCard
-            </a> */}
+            <div className="flex items-center gap-4">
+              <Link
+                to="/donate"
+                className="text-red-600 dark:text-red-400 hover:text-red-700 dark:hover:text-red-300 transition-all duration-300 ease-in-out inline-flex items-center"
+              >
+                <Heart className="w-4 h-4 mr-1" aria-hidden="true" />
+                Donate
+              </Link>
+              <Link
+                to="/roadmap"
+                className="text-purple-600 dark:text-purple-400 hover:text-purple-700 dark:hover:text-purple-300 transition-all duration-300 ease-in-out inline-flex items-center"
+              >
+                <Target className="w-4 h-4 mr-1" aria-hidden="true" />
+                Roadmap
+              </Link>
+              <button
+                onClick={handleShareClick}
+                className="text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 transition-all duration-300 ease-in-out inline-flex items-center"
+              >
+                <Share2 className="w-4 h-4 mr-1" aria-hidden="true" />
+                Share
+              </button>
+              <a
+                href="mailto:admin@readmyfineprint.com"
+                className="text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white transition-all duration-300 ease-in-out"
+              >
+                Contact
+              </a>
+            </div>
           </div>
 
         </div>

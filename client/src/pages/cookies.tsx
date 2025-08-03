@@ -28,42 +28,60 @@ export default function Cookies() {
         </div>
 
         {/* Current Status */}
-        <Card className="mb-6">
+        <Card className={`mb-6 ${isAccepted ? 'border-green-200 bg-green-50 dark:bg-green-950/20' : 'border-blue-200 bg-blue-50 dark:bg-blue-950/20'}`}>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               {isAccepted ? (
                 <CheckCircle className="h-5 w-5 text-green-600" />
               ) : (
-                <AlertCircle className="h-5 w-5 text-amber-600" />
+                <Cookie className="h-5 w-5 text-blue-600" />
               )}
-              Current Status
+              Your Cookie Preferences
             </CardTitle>
+            <CardDescription>
+              {isAccepted 
+                ? "You have accepted our essential cookies and can use all features." 
+                : "Accept cookies to enable document analysis and full functionality."
+              }
+            </CardDescription>
           </CardHeader>
           <CardContent>
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="font-medium">
-                  Cookie Consent: {' '}
-                  <Badge variant={isAccepted ? "default" : "secondary"}>
-                    {isAccepted ? "Accepted" : "Not Accepted"}
-                  </Badge>
-                </p>
-                <p className="text-sm text-muted-foreground mt-1">
-                  {isAccepted 
-                    ? "You can use all features of ReadMyFinePrint"
-                    : "Document processing is disabled until you accept cookies"
-                  }
-                </p>
+            <div className="space-y-4">
+              <div className="flex items-center justify-between p-4 border rounded-lg">
+                <div>
+                  <h4 className="font-medium">Essential Cookies</h4>
+                  <p className="text-sm text-muted-foreground">Required for basic functionality, security, and session management</p>
+                </div>
+                <Badge variant="secondary">Always Active</Badge>
               </div>
-              <div className="flex gap-2">
-                {!isAccepted ? (
-                  <Button onClick={handleAcceptAndReturn} className="bg-green-600 hover:bg-green-700">
-                    Accept Cookies
+
+              <div className="flex items-center justify-between p-4 border rounded-lg">
+                <div>
+                  <h4 className="font-medium">Analytics & Performance</h4>
+                  <p className="text-sm text-muted-foreground">Help us understand usage patterns to improve the service</p>
+                </div>
+                <Badge variant="outline">Privacy-First</Badge>
+              </div>
+
+              <div className="flex gap-3 pt-4">
+                {!isAccepted && (
+                  <Button onClick={handleAcceptAndReturn} className="bg-blue-600 hover:bg-blue-700 flex-1">
+                    Accept All & Continue
                   </Button>
-                ) : (
-                  <Button onClick={revokeConsent} variant="outline" className="text-red-600 border-red-600 hover:bg-red-50">
-                    Revoke Consent
-                  </Button>
+                )}
+
+                {isAccepted && (
+                  <>
+                    <Button onClick={() => navigate('/')} variant="outline" className="flex-1">
+                      Return Home
+                    </Button>
+                    <Button 
+                      onClick={revokeConsent}
+                      variant="destructive"
+                    >
+                      Revoke Consent
+                    </Button>
+                  </>
                 )}
               </div>
             </div>

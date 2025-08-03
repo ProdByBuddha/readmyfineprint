@@ -449,31 +449,45 @@ export function CookieConsent() {
   }
 
   return (
-    <div className="fixed bottom-0 left-0 right-0 z-[100] bg-white/95 dark:bg-gray-900/95 backdrop-blur-sm border-t border-gray-200 dark:border-gray-700 shadow-lg">
-      <div className="max-w-6xl mx-auto p-3 sm:p-4">
-        <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3 sm:gap-4">
-          <div className="flex items-start gap-2 sm:gap-3 flex-1 min-w-0">
-            <Cookie className="w-4 h-4 sm:w-5 sm:h-5 text-primary mt-0.5 flex-shrink-0" />
+    <div className="fixed bottom-0 left-0 right-0 z-[100] bg-white/95 dark:bg-gray-900/95 backdrop-blur-sm border-t border-gray-200 dark:border-gray-700 shadow-xl">
+      <div className="max-w-6xl mx-auto p-4 sm:p-5">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
+          <div className="flex items-start gap-3 flex-1 min-w-0">
+            <div className="flex items-center gap-2">
+              <Cookie className="w-5 h-5 text-blue-600 dark:text-blue-400 flex-shrink-0" />
+              <Shield className="w-5 h-5 text-green-600 dark:text-green-400 flex-shrink-0" />
+            </div>
             <div className="flex-1 min-w-0">
-              <p className="text-sm font-medium text-gray-900 dark:text-white mb-1">
-                Consent Required
+              <h3 className="text-sm font-semibold text-gray-900 dark:text-white mb-2">
+                Privacy & Cookie Consent
+              </h3>
+              <p className="text-sm text-gray-600 dark:text-gray-300 leading-relaxed mb-2">
+                We use essential cookies for session management and security. No tracking or advertising cookies.
+                By continuing, you agree to our terms and that this service provides informational summaries only.
               </p>
-              <p className="text-xs text-gray-600 dark:text-gray-300 leading-tight">
-                We need your consent to analyze documents. Essential cookies only, no tracking.
-                <a href="/cookies" className="text-primary hover:underline ml-1 whitespace-nowrap">
-                  Learn more
-                </a>
-              </p>
+              <div className="flex gap-3 text-xs">
+                <a href="/privacy" className="text-blue-600 dark:text-blue-400 hover:underline">Privacy Policy</a>
+                <a href="/terms" className="text-blue-600 dark:text-blue-400 hover:underline">Terms of Service</a>
+                <a href="/cookies" className="text-blue-600 dark:text-blue-400 hover:underline">Cookie Details</a>
+              </div>
             </div>
           </div>
 
-          <div className="flex items-center gap-2 flex-shrink-0 w-full sm:w-auto">
+          <div className="flex items-center gap-3 flex-shrink-0 w-full sm:w-auto">
             <Button
               onClick={acceptAll}
-              size="sm"
-              className="bg-primary hover:bg-primary/90 text-white flex-1 sm:flex-none"
+              size="default"
+              className="bg-blue-600 hover:bg-blue-700 text-white flex-1 sm:flex-none px-6"
             >
               Accept & Continue
+            </Button>
+            <Button
+              variant="outline"
+              size="default"
+              onClick={() => window.location.href = '/cookies'}
+              className="flex-shrink-0"
+            >
+              Customize
             </Button>
           </div>
         </div>
