@@ -26,7 +26,7 @@ function applySecurityHeaders(res: express.Response) {
     `script-src 'self' https://js.stripe.com https://m.stripe.com${replitSources}; ` +
     `script-src-elem 'self' https://js.stripe.com https://m.stripe.com${replitSources}; ` +
     `style-src 'self' data: https://js.stripe.com https://fonts.googleapis.com${replitSources}${(isDevelopment || isStaging) ? " 'unsafe-inline'" : ''}; ` +
-    `style-src-elem 'self' data: https://fonts.googleapis.com${replitSources}; ` +
+    `style-src-elem 'self' data: https://fonts.googleapis.com${replitSources}${(isDevelopment || isStaging) ? " 'unsafe-inline'" : ''}; ` +
     "font-src 'self' https://fonts.gstatic.com; " +
     "img-src 'self' data: https://img.shields.io https://js.stripe.com; " +
     `connect-src 'self' https://api.openai.com https://api.stripe.com https://js.stripe.com https://m.stripe.com${replitSources}${localhostSources}${websocketSources}; ` +

@@ -53,11 +53,11 @@ export function cspMiddleware(req: Request, res: Response, next: NextFunction) {
     // Script elements (for external scripts)
     `script-src-elem 'self' 'nonce-${nonce}' https://js.stripe.com https://m.stripe.com${replitSources}${devSources}${stagingSources}`,
 
-    // Styles: Use nonce for inline styles, allow external fonts, and hash for dev tools
-    `style-src 'self' 'nonce-${nonce}' data: https://fonts.googleapis.com${replitSources}${devSources}${stagingSources}${isDevelopment ? " 'sha256-+OsIn6RhyCZCUkkvtHxFtP0kU3CGdGeLjDd9Fzqdl3o='" : ''}`,
+    // Styles: Use nonce for inline styles, allow external fonts, and unsafe-inline for React DOM
+    `style-src 'self' 'nonce-${nonce}' data: https://fonts.googleapis.com${replitSources}${devSources}${stagingSources}${isDevelopment ? " 'unsafe-inline'" : ''}`,
 
-    // Style elements (for inline styles)
-    `style-src-elem 'self' 'nonce-${nonce}' data: https://fonts.googleapis.com${replitSources}${devSources}${stagingSources}${isDevelopment ? " 'sha256-+OsIn6RhyCZCUkkvtHxFtP0kU3CGdGeLjDd9Fzqdl3o='" : ''}`,
+    // Style elements (for inline styles) - React DOM needs unsafe-inline in development
+    `style-src-elem 'self' 'nonce-${nonce}' data: https://fonts.googleapis.com${replitSources}${devSources}${stagingSources}${isDevelopment ? " 'unsafe-inline'" : ''}`,
 
     // Images: Allow data URLs for icons, shield badges, and Stripe
     "img-src 'self' data: https://img.shields.io https://js.stripe.com https://*.stripe.com",
