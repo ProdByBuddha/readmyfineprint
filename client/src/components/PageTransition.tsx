@@ -20,7 +20,7 @@ export function PageTransition({ children }: PageTransitionProps) {
 
   return (
     <div 
-      key={location} 
+      key={location.pathname} 
       className="page-fade-in bg-background min-h-screen"
       style={{
         animation: "fadeSlide 400ms ease-out"

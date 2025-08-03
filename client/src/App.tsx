@@ -91,7 +91,7 @@ function AppContent() {
   } = useSecurityQuestionsHandler();
   
   useScrollToTop();
-  useSEO(location);
+  useSEO(location.pathname);
   useFocusVisible();
   useReducedMotion();
   useHighContrast();
