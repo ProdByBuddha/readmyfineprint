@@ -67,20 +67,8 @@ declare global {
 // Simple admin authentication middleware
 export async function requireAdminAuth(req: Request, res: Response, next: NextFunction) {
   const { ip, userAgent } = getClientInfo(req);
-  const adminKey = process.env.ADMIN_API_KEY;
 
   console.log(`🔍 Admin auth attempt for ${req.path}`);
-
-  // Enforce admin key requirement in ALL environments for security
-  if (!adminKey) {
-    const errorMessage = 'ADMIN_API_KEY environment variable is required for admin endpoints';
-    console.error(`🔒 ${errorMessage}`);
-    securityLogger.logSecurityError(ip, userAgent, 'Admin access denied - ADMIN_API_KEY not configured', req.path);
-    return res.status(500).json({
-      error: 'Admin endpoints are not properly configured. Contact system administrator.',
-      code: 'ADMIN_KEY_NOT_CONFIGURED'
-    });
-  }
 
   const authHeader = req.headers.authorization as string;
 
@@ -89,7 +77,10 @@ export async function requireAdminAuth(req: Request, res: Response, next: NextFu
     const jwtToken = authHeader.substring(7);
     try {
       const { joseAuthService } = await import('./jose-auth-service');
+      
+      // Validate the JWT token with expected audience 'api'
       const validation = await joseAuthService.validateAccessToken(jwtToken);
+      
       if (validation.valid && validation.payload) {
         const user = await databaseStorage.getUser(validation.payload.userId);
         if (user) {
@@ -106,6 +97,8 @@ export async function requireAdminAuth(req: Request, res: Response, next: NextFu
             console.log(`❌ User ${user.email} is not an admin`);
           }
         }
+      } else {
+        console.log('JWT validation failed:', validation.error || 'Invalid token');
       }
     } catch (jwtError) {
       console.log('JWT admin validation failed:', jwtError);

@@ -101,11 +101,16 @@ export class JOSEAuthService {
   /**
    * Generate access and refresh token pair using JOSE
    */
-  async generateTokenPair(userId: string, email: string, clientInfo: {
-    ip?: string;
-    userAgent?: string;
-    deviceFingerprint?: string;
-  } = {}): Promise<TokenPair> {
+  async generateTokenPair(
+    userId: string,
+    email: string,
+    clientInfo: {
+      ip?: string;
+      userAgent?: string;
+      deviceFingerprint?: string;
+    } = {},
+    audience: string = 'api'
+  ): Promise<TokenPair> {
     await this.ensureInitialized();
 
     try {

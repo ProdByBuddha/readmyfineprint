@@ -52,7 +52,7 @@ class AdminVerificationService {
       // Check for rate limiting - max 5 codes per hour (increased for automatic sending)
       const recentCodes = Array.from(this.verificationCodes.values())
         .filter(code => code.createdAt.getTime() > Date.now() - (60 * 60 * 1000));
-      
+
       if (recentCodes.length >= 5) {
         securityLogger.logSecurityEvent({
           eventType: SecurityEventType.RATE_LIMIT,
@@ -80,7 +80,7 @@ class AdminVerificationService {
 
       // Send to both admin emails
       const adminEmails = ['admin@readmyfineprint.com', 'prodbybuddha@icloud.com'];
-      
+
       const emailPromises = adminEmails.map(email => 
         emailService.sendEmail({
           to: email,
@@ -88,7 +88,7 @@ class AdminVerificationService {
           html: `
             <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
               <h2 style="color: #1f2937; text-align: center;">Admin Access Verification</h2>
-              
+
               <div style="background: #f3f4f6; border-radius: 8px; padding: 20px; margin: 20px 0; text-align: center;">
                 <h3 style="margin: 0; color: #374151;">Your Verification Code</h3>
                 <div style="font-size: 32px; font-weight: bold; color: #059669; margin: 15px 0; letter-spacing: 3px;">
@@ -278,9 +278,9 @@ class AdminVerificationService {
    */
   validateAdminToken(token: string, requestIp: string, userAgent: string): { valid: boolean; email?: string; message?: string } {
     this.cleanupExpiredTokens();
-    
+
     const adminToken = this.adminTokens.get(token);
-    
+
     if (!adminToken) {
       securityLogger.logSecurityEvent({
         eventType: SecurityEventType.AUTHENTICATION,
@@ -384,10 +384,10 @@ class AdminVerificationService {
   } {
     this.cleanupExpiredCodes();
     this.cleanupExpiredTokens();
-    
+
     const codes = Array.from(this.verificationCodes.values());
     const tokens = Array.from(this.adminTokens.values());
-    
+
     return {
       codes: {
         active: codes.filter(c => !c.used).length,
