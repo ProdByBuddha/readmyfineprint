@@ -1,4 +1,3 @@
-import React from 'react';
 import { UserSecuritySettings } from '@/components/UserSecuritySettings';
 
 export default function SettingsPage() {

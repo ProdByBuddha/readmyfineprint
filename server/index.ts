@@ -240,7 +240,7 @@ app.use('/api/admin/system-health-subscription', adminDashboardLimiter);
 app.use('/api/admin/activity-subscription', adminDashboardLimiter);
 app.use('/api/admin/security-events-subscription', adminDashboardLimiter);
 app.use('/api/admin/', adminLimiter);
-app.use('/api/documents/*/analyze', processLimiter);
+app.use('/api/documents/:id/analyze', processLimiter);
 app.use('/api/documents/upload', processLimiter);
 app.use('/api/create-payment-intent', processLimiter);
 app.use('/api/create-checkout-session', processLimiter);

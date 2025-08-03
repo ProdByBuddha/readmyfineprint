@@ -148,20 +148,49 @@ class ErrorReporter {
         }
       };
 
-      const response = await fetch('/api/errors/report', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(payload),
-        credentials: 'include'
-      });
+      // Add retry logic for network failures
+      let attempts = 0;
+      const maxAttempts = 3;
+      let lastError: any;
 
-      if (response.ok) {
-        console.log('Error reported to admin successfully');
-      } else {
-        console.warn('Failed to report error to admin');
+      while (attempts < maxAttempts) {
+        try {
+          const response = await fetch('/api/errors/report', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(payload),
+            credentials: 'include',
+            // Add timeout to prevent hanging requests
+            signal: AbortSignal.timeout(10000) // 10 second timeout
+          });
+
+          if (response.ok) {
+            console.log('Error reported to admin successfully');
+            return;
+          } else {
+            console.warn('Failed to report error to admin:', response.status);
+            lastError = new Error(`HTTP ${response.status}`);
+          }
+        } catch (fetchError: any) {
+          lastError = fetchError;
+          console.warn(`Error reporting attempt ${attempts + 1} failed:`, fetchError.message);
+          
+          // Don't retry for non-network errors
+          if (!fetchError.message?.includes('fetch') && !fetchError.name?.includes('Abort')) {
+            break;
+          }
+        }
+
+        attempts++;
+        if (attempts < maxAttempts) {
+          // Exponential backoff: 1s, 2s, 4s
+          await new Promise(resolve => setTimeout(resolve, Math.pow(2, attempts - 1) * 1000));
+        }
       }
+
+      console.error('Failed to report error after all attempts:', lastError);
     } catch (reportingError) {
       console.error('Error reporting failed:', reportingError);
       // Don't try to report the reporting error to avoid infinite loops

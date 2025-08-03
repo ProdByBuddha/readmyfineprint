@@ -54,7 +54,7 @@ app.get('/api/health', (req, res) => {
 });
 
 // Serve React app for all other routes
-app.get('*', (req, res) => {
+app.get('/*path', (req, res) => {
   res.sendFile(path.join(__dirname, '../client/dist/index.html'));
 });
 

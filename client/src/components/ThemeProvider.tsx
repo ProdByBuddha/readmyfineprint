@@ -1,4 +1,4 @@
-import { createContext, useContext, useEffect } from "react";
+import React, { createContext, useContext, useEffect } from "react";
 import { useThemePreference } from "../hooks/useThemePreference";
 
 type Theme = "light" | "dark";

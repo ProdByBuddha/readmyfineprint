@@ -85,7 +85,7 @@ export async function setupVite(app: Express, server: Server) {
     });
 
     app.use(vite.middlewares);
-    app.use("*", async (req, res, next) => {
+    app.use("/*path", async (req, res, next) => {
       const url = req.originalUrl;
 
       try {
@@ -183,7 +183,7 @@ export function serveStatic(app: Express) {
   }));
 
   // fall through to index.html for non-API routes - with security headers
-  app.get("*", (req, res) => {
+  app.get("/*path", (req, res) => {
     // Don't intercept API routes
     if (req.path.startsWith('/api/')) {
       return res.status(404).json({ error: 'API endpoint not found' });

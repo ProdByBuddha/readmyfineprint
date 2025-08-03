@@ -1,4 +1,3 @@
-import React from 'react';
 
 interface SkipLinksProps {
   links?: Array<{ href: string; label: string }>;

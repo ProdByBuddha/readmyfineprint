@@ -1,8 +1,39 @@
 import path from "path";
-import react from "@vitejs/plugin-react";
+import { transformWithEsbuild } from 'vite';
+
+// Custom React plugin that doesn't require @vitejs/plugin-react
+const reactPlugin = () => ({
+  name: 'vite:react-custom',
+  config() {
+    return {
+      esbuild: {
+        jsx: 'automatic',
+        jsxDev: false,
+        jsxFactory: 'React.createElement',
+        jsxFragment: 'React.Fragment',
+      },
+      optimizeDeps: {
+        include: ['react', 'react-dom'],
+      },
+    };
+  },
+  async transform(code, id) {
+    // Only transform .jsx and .tsx files
+    if (!/\.[jt]sx?$/.test(id)) return null;
+    
+    // Use esbuild to transform JSX
+    const result = await transformWithEsbuild(code, id, {
+      jsx: 'automatic',
+      jsxImportSource: 'react',
+      loader: id.endsWith('.tsx') ? 'tsx' : id.endsWith('.ts') ? 'ts' : 'jsx',
+    });
+    
+    return result;
+  },
+});
 
 export default {
-  plugins: [react()],
+  plugins: [reactPlugin()],
   resolve: {
     alias: {
       "@": path.resolve(process.cwd(), "client", "src"),

@@ -42,7 +42,17 @@
       "Bash(test:*)",
       "Bash(npx vite:*)",
       "Bash(npx which:*)",
-      "Bash(npm config:*)"
+      "Bash(npm config:*)",
+      "Bash(for file in client/src/components/AnalysisResults.tsx client/src/components/DocumentHistory.tsx client/src/pages/home.tsx client/src/pages/upload.tsx client/src/components/ExpressCheckoutForm.tsx)",
+      "Bash(do)",
+      "Bash(echo \"=== $file ===\")",
+      "Bash(if grep -q \"React\\.\" \"$file\")",
+      "Bash(then)",
+      "Bash(else)",
+      "Bash(fi)",
+      "Bash(if grep -q \"import.*React\" \"$file\")",
+      "Bash(echo)",
+      "Bash(done)"
     ],
     "deny": []
   }
