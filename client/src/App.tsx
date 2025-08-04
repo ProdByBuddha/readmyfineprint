@@ -223,7 +223,7 @@ function AppContent() {
 
   return (
     <>
-      <div className="h-screen flex flex-col app-container bg-gray-50 dark:bg-gray-900 pb-16 sm:pb-12">
+      <div className="h-screen flex flex-col app-container bg-gray-50 dark:bg-gray-900">
         {/* Fixed Header */}
         <Header />
 
