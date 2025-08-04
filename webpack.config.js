@@ -114,6 +114,10 @@ export default {
     host: '0.0.0.0',
     hot: true,
     historyApiFallback: true,
+    allowedHosts: 'all',
+    client: {
+      webSocketURL: 'auto://0.0.0.0:5173/ws',
+    },
     static: {
       directory: path.join(__dirname, 'client/public'),
     },
