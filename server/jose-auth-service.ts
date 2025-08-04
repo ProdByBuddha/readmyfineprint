@@ -539,6 +539,15 @@ export class JOSEAuthService {
   }
 
   /**
+   * Validate subscription token (similar to access token but for subscription context)
+   */
+  async validateSubscriptionToken(token: string): Promise<TokenValidationResult> {
+    // Subscription tokens use the same validation as access tokens
+    // but may have different audience values
+    return this.validateAccessToken(token);
+  }
+
+  /**
    * Revoke all tokens for a user
    */
   async revokeAllUserTokens(userId: string, reason: string, revokedBy: string = 'user'): Promise<number> {
