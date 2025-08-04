@@ -181,15 +181,16 @@ export async function optionalUserAuth(req: Request, res: Response, next: NextFu
               }
             } catch (subscriptionError) {
               console.log('Session token validation failed as subscription token:', subscriptionError instanceof Error ? subscriptionError.message : 'Unknown error');
-              // If subscription token validation fails, it's likely not a subscription token or it's invalid.
-              // Do NOT try to validate it as an access token here, as it would have the wrong audience.
-              // Clean up invalid token if it's truly invalid.
+              // If subscription token validation fails, the token is invalid or expired.
+              // We should NOT attempt to validate it as an access token since session tokens are subscription tokens.
+              // Clean up the invalid token and proceed without authentication.
               try {
                 await postgresqlSessionStorage.removeSessionToken(sessionId);
-                console.log('🧹 Cleaned up invalid session token in auth middleware');
+                console.log('🧹 Cleaned up invalid session token from database');
               } catch (cleanupError) {
                 console.error('⚠️ Failed to clean up invalid session token:', cleanupError);
               }
+              // Don't attempt any further validation - proceed without user authentication
             }
           }
         } catch (sessionError) {
