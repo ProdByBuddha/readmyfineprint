@@ -87,17 +87,18 @@ export function Footer() {
       <div className="md:hidden px-1 py-0">
         <div className="space-y-0">
           {/* Top row - Main links */}
-          <div className="flex items-center justify-center gap-1 text-xs">
+          <div className="flex items-center justify-center gap-2 text-xs">
             <Link to="/privacy" className="text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200 font-medium">Privacy</Link>
             <Link to="/terms" className="text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200 font-medium">Terms</Link>
-            <Link to="/cookies" className="text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-200 font-medium">
-              Cookie Settings
+            <Link to="/cookies" className="text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-200 font-medium flex items-center gap-0.5">
+              <Cookie className="w-3 h-3" />
+              Cookies
             </Link>
             <a href="mailto:admin@readmyfineprint.com" className="text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200 font-medium">Contact</a>
           </div>
           
           {/* Bottom row - Action links */}
-          <div className="flex items-center justify-center gap-1 text-xs">
+          <div className="flex items-center justify-center gap-2 text-xs">
             <Link to="/donate" className="text-red-600 dark:text-red-400 hover:text-red-700 dark:hover:text-red-300 flex items-center gap-0.5">
               <Heart className="w-3 h-3" />Donate
             </Link>
@@ -146,7 +147,7 @@ export function Footer() {
               className="text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-200 transition-all duration-300 ease-in-out inline-flex items-center font-medium"
             >
               <Cookie className="w-3 h-3 mr-1" aria-hidden="true" />
-              Cookie Settings
+              Cookies
             </Link>
             <div className="flex items-center gap-2">
               <Link
