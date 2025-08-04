@@ -69,6 +69,11 @@ const accountDeletionSchema = z.object({
 });
 
 export async function registerUserRoutes(app: Express) {
+  // Import required services at the beginning
+  const { requireUserAuth } = await import('./auth');
+  const { subscriptionService } = await import('./subscription-service');
+  const { securityQuestionsService } = await import('./security-questions-service');
+
   // User registration
   app.post("/api/users/register", async (req: Request, res: Response) => {
     try {
@@ -854,10 +859,6 @@ export async function registerUserRoutes(app: Express) {
       res.status(500).json({ error: "Failed to generate data export" });
     }
   });
-
-  const { requireUserAuth } = await import('./auth');
-  const { subscriptionService } = await import('./subscription-service');
-  const { securityQuestionsService } = await import('./security-questions-service');
 
   // Get user profile
   app.get('/api/user/profile', requireUserAuth, async (req, res) => {
