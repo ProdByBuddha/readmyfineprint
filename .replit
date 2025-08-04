@@ -63,19 +63,7 @@ author = 30822729
 
 [[workflows.workflow.tasks]]
 task = "shell.exec"
-args = "echo '🚧 Preparing staging deployment...'"
-
-[[workflows.workflow.tasks]]
-task = "shell.exec"
-args = "echo '🔍 Running staging deployment (lint, check, build)...'"
-
-[[workflows.workflow.tasks]]
-task = "shell.exec"
 args = "npm run deploy:staging"
-
-[[workflows.workflow.tasks]]
-task = "shell.exec"
-args = "echo '🚀 Starting staging server...'"
 
 [[workflows.workflow.tasks]]
 task = "shell.exec"
