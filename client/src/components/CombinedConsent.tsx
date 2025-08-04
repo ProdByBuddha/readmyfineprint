@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from "react";
-import { AlertTriangle, Cookie, Shield } from "lucide-react";
+import { AlertTriangle, Cookie, Shield, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { logConsent } from "@/lib/api";
@@ -442,11 +442,30 @@ export function CombinedConsent({ onAccept }: CombinedConsentProps) {
 // Simple cookie banner for non-blocking consent
 export function CookieConsent() {
   const { isAccepted, acceptAll, isCheckingConsent } = useCombinedConsent();
+  const [isAccepting, setIsAccepting] = useState(false);
 
   // Don't show banner if already accepted, still checking, or recently accepted
   if (isAccepted || isCheckingConsent || recentlyAccepted) {
     return null;
   }
+
+  const handleAccept = async () => {
+    setIsAccepting(true);
+    try {
+      await acceptAll();
+    } finally {
+      setIsAccepting(false);
+    }
+  };
+
+  const handleDismiss = () => {
+    // Simple dismiss - just hide the banner
+    recentlyAccepted = true;
+    if (acceptanceTimer) clearTimeout(acceptanceTimer);
+    acceptanceTimer = window.setTimeout(() => {
+      recentlyAccepted = false;
+    }, 30000); // Hide for 30 seconds
+  };
 
   return (
     <div className="fixed bottom-0 left-0 right-0 z-[100] bg-white/95 dark:bg-gray-900/95 backdrop-blur-sm border-t border-gray-200 dark:border-gray-700 shadow-xl mb-0">
@@ -477,35 +496,14 @@ export function CookieConsent() {
               size="sm"
               className="text-xs px-2 py-1 h-7"
             >
-              <X className="w-3 h-3" />
+              ×
             </Button>
           </div>
         </div>
         <div className="flex gap-3 mt-1 text-[10px] justify-center sm:justify-start">
           <a href="/privacy" className="text-blue-600 dark:text-blue-400 hover:underline">Privacy</a>
           <a href="/terms" className="text-blue-600 dark:text-blue-400 hover:underline">Terms of Service</a>
-                <a href="/cookies" className="text-blue-600 dark:text-blue-400 hover:underline">Cookie Details</a>
-              </div>
-            </div>
-          </div>
-
-          <div className="flex items-center gap-3 flex-shrink-0 w-full sm:w-auto">
-            <Button
-              onClick={acceptAll}
-              size="default"
-              className="bg-blue-600 hover:bg-blue-700 text-white flex-1 sm:flex-none px-6"
-            >
-              Accept & Continue
-            </Button>
-            <Button
-              variant="outline"
-              size="default"
-              onClick={() => window.location.href = '/cookies'}
-              className="flex-shrink-0"
-            >
-              Customize
-            </Button>
-          </div>
+          <a href="/cookies" className="text-blue-600 dark:text-blue-400 hover:underline">Cookie Details</a>
         </div>
       </div>
     </div>
