@@ -79,7 +79,7 @@ export async function requireAdminAuth(req: Request, res: Response, next: NextFu
       const { joseAuthService } = await import('./jose-auth-service');
       
       // Validate the JWT token with expected audience 'api'
-      const validation = await joseAuthService.validateAccessToken(jwtToken);
+      const validation = await joseAuthService.validateAccessToken(jwtToken, 'api');
       
       if (validation.valid && validation.payload) {
         const user = await databaseStorage.getUser(validation.payload.userId);
@@ -127,7 +127,7 @@ export async function optionalUserAuth(req: Request, res: Response, next: NextFu
 
       try {
         const { joseAuthService } = await import('./jose-auth-service');
-        const validation = await joseAuthService.validateAccessToken(token);
+        const validation = await joseAuthService.validateAccessToken(token, 'api');
         if (validation.valid && validation.payload) {
           const user = await databaseStorage.getUser(validation.payload.userId);
           if (user) {
@@ -185,7 +185,7 @@ export async function optionalUserAuth(req: Request, res: Response, next: NextFu
             // If subscription token validation fails, try as access token
             try {
               const { joseAuthService } = await import('./jose-auth-service');
-              const accessValidation = await joseAuthService.validateAccessToken(token);
+              const accessValidation = await joseAuthService.validateAccessToken(token, 'api');
               if (accessValidation.valid && accessValidation.payload) {
                 const user = await databaseStorage.getUser(accessValidation.payload.userId);
                 if (user) {
@@ -254,7 +254,7 @@ export async function requireAdminViaSubscription(req: Request, res: Response, n
       const jwtToken = authHeader.substring(7);
       try {
         const { joseAuthService } = await import('./jose-auth-service');
-        const validation = await joseAuthService.validateAccessToken(jwtToken);
+        const validation = await joseAuthService.validateAccessToken(jwtToken, 'api');
         if (validation.valid && validation.payload) {
           const user = await databaseStorage.getUser(validation.payload.userId);
           if (user) {

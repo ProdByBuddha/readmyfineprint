@@ -135,7 +135,7 @@ export class JOSEAuthService {
         exp: accessExp,
         jti: accessJti,
         iss: 'readmyfineprint',
-        aud: 'api'
+        aud: audience
       };
 
       // Create refresh token payload
@@ -219,14 +219,14 @@ export class JOSEAuthService {
   /**
    * Validate access token using JOSE
    */
-  async validateAccessToken(token: string): Promise<TokenValidationResult> {
+  async validateAccessToken(token: string, expectedAudience: string = 'api'): Promise<TokenValidationResult> {
     await this.ensureInitialized();
 
     try {
       // Verify token using JOSE
       const { payload } = await jwtVerify(token, this.secretKey, {
         issuer: 'readmyfineprint',
-        audience: 'api',
+        audience: expectedAudience,
       });
 
       const accessPayload = payload as AccessTokenPayload;
