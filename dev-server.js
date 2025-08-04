@@ -44,8 +44,14 @@ const devIndexHtml = `<!DOCTYPE html>
 </body>
 </html>`;
 
-// Serve the dev index for all routes
-app.get('*', (req, res) => {
+// Handle all routes with a simple function instead of using wildcards that might cause path-to-regexp issues
+app.use((req, res, next) => {
+  // Skip if it's a static file request
+  if (req.path.includes('.') && !req.path.includes('/api/')) {
+    return next();
+  }
+  
+  // Serve the dev index for all non-static routes
   res.send(devIndexHtml);
 });
 
