@@ -1,0 +1,155 @@
+ Environment updated. Reloading shell...
+
+> readmyfineprint@2.0.0 dev:with-llm
+> unset NODE_ENV && NODE_ENV=development concurrently "npm run llm:start" "npm run dev"
+
+[0] 
+[0] > readmyfineprint@2.0.0 llm:start
+[0] > node scripts/local-llm-server.cjs
+[0] 
+[1] 
+[1] > readmyfineprint@2.0.0 dev
+[1] > unset NODE_ENV && NODE_ENV=development concurrently "npm run server:dev" "npm run client:dev"
+[1] 
+[0] 🚀 Local LLM server running on port 11434
+[0] 📡 Compatible with Ollama API endpoints
+[0] 🔍 Ready for PII detection requests
+[0] 🛑 Press Ctrl+C to stop
+[1] [0] 
+[1] [0] > readmyfineprint@2.0.0 server:dev
+[1] [0] > unset NODE_ENV && NODE_ENV=development tsx watch server/index.ts
+[1] [0] 
+[1] [1] 
+[1] [1] > readmyfineprint@2.0.0 client:dev
+[1] [1] > node dev-server.js
+[1] [1] 
+[1] [1] 🚀 Starting Webpack Development Server...
+[1] [1] 📦 Building with proper React compilation and TailwindCSS processing
+[1] [0] ⚠️ Consent logging initialized in development mode (database operations will be bypassed)
+[1] [0] Blog Scheduler initialized with config: {
+[1] [0]   enabled: true,
+[1] [0]   postsPerDay: 3,
+[1] [0]   hours: [ 9, 13, 17 ],
+[1] [0]   maxPostsPerHour: 1,
+[1] [0]   timezone: 'America/New_York',
+[1] [0]   minHoursBetweenPosts: 4
+[1] [0] }
+[1] [0] ✅ JWT Secret Manager initialized with versioned secrets
+[1] [0] 📋 Initialized 4 disaster recovery scenarios
+[1] [0] 🔍 Started continuous health monitoring
+[1] [0] 🔑 Using Stripe key: sk_live_51RWnyY... (test mode: false)
+[1] [0] ⚠️ CSRF Protection initialized in development mode (verification will be bypassed)
+[1] [0] 🚀 Starting ReadMyFinePrint Server...
+[1] [0] 🔍 Validating environment variables...
+[1] [0] ✅ OPENAI_API_KEY: sk-***
+[1] [0] ✅ ADMIN_API_KEY: 81ad52472ab148577fb4ba109d09901d1e9b5d55479ccebbea...
+[1] [0] ✅ JWT_SECRET: KQvWGiKq5jAfsTSHFID1StgprPQAusDKhJmSdVFKgZI5W/nF2O...
+[1] [0] ✅ TOKEN_ENCRYPTION_KEY: ddf455b6fd8c0e59d5893bf44e7bca157c0ad51405258c7bee...
+[1] [0] ✅ PASSWORD_PEPPER: b0dea38aca02ad50d94b704f127740decf0e4839b66c6f145d...
+[1] [0] ✅ ALLOWED_ORIGINS: https://readmyfineprint.com,https://edcf3ef7-a826-...
+[1] [0] ✅ NODE_ENV: development
+[1] [0] ✅ SESSION_ENCRYPTION_KEY: 2651fc8605cabc8b756adbc6861138afe8cf520d54417763ee...
+[1] [0] ✅ REPLIT_DB_URL: https://kv.replit.com/v0/eyJhbGciOiJIUzUxMiIsImlzc...
+[1] [0] ✅ STRIPE_PUBLIC_KEY: pk_live_51RWnyYLNxaR...
+[1] [0] ✅ STRIPE_SECRET_KEY: sk_live_51...
+[1] [0] ✅ STRIPE_TEST_PUBLIC_KEY: pk_test_51RWnynPxX1d...
+[1] [0] ✅ STRIPE_TEST_SECRET_KEY: sk_test_51...
+[1] [0] 🔄 Concurrent test/live payment processing enabled
+[1] [0] 
+[1] [0] 📋 Warnings:
+[1] [0]    ⚠️  Optional SECURITY_WEBHOOK_URL not set - Optional webhook URL for security alerts (for external monitoring)
+[1] [0] ✅ Environment validation passed
+[1] [0]    (1 warning)
+[1] [0] 
+[1] [0] 🔧 Environment Configuration:
+[1] [0]    Environment: development
+[1] [0]    OpenAI API: ✅ Configured
+[1] [0]    Admin Auth: ✅ Configured
+[1] [0]    CORS Origins: https://readmyfineprint.com,https://edcf3ef7-a826-4eed-8e04-7a485b2e183a-00-1wyt...
+[1] [0] 
+[1] [0] 🔄 Initializing database connection...
+[1] [0] ✅ Secure JWT Service initialized with refresh token support
+[1] [0] Warning: Indexing all PDF objects
+[1] [0] 🔐 IP address hashed with Argon2id for privacy protection
+[1] [0] 📅 Backup schedules configured
+[1] [0] ✅ Backup service initialized with automated scheduling
+[1] [0] 🔐 User agent hashed with Argon2id for privacy protection
+[1] [0] 🔐 Security log entry protected with Argon2id hashing
+[1] [0] ℹ️ [SECURITY] SYSTEM | LOW | caf37866 | JWT Secret Manager initialized successfully | initialization
+[1] [0] 🔐 IP address hashed with Argon2id for privacy protection
+[1] [0] 🔐 IP address hashed with Argon2id for privacy protection
+[1] [0] 🔐 User agent hashed with Argon2id for privacy protection
+[1] [0] 🔐 Security log entry protected with Argon2id hashing
+[1] [0] ℹ️ [SECURITY] SYSTEM | LOW | f15f50b0 | Secure JWT Service initialized | initialization
+[1] [0] 🔐 User agent hashed with Argon2id for privacy protection
+[1] [0] 🔐 Security log entry protected with Argon2id hashing
+[1] [0] ℹ️ [SECURITY] SYSTEM | LOW | 1f81d322 | Backup service initialized successfully | initialization
+[1] [0] ✅ Email service configured and verified with SMTP (smtp.mail.me.com)
+[1] [0] ✅ Database connected to Replit PostgreSQL
+[1] [0] 🔧 Initializing Enhanced PII Detection with Local LLM...
+[1] [0] 📊 Enhanced PII Detection initialized (regex-only mode, Local LLM disabled)
+[1] [0] ✅ Enhanced PII Detection with Local LLM initialized
+[1] [0] 🔧 Initializing collective free tier user routing...
+[1] [0] ✅ Collective free tier user routing initialized
+[1] [0] ✅ Two-Factor Authentication routes registered
+[1] [0] 🔧 Running in Replit - Vite will run as a separate process
+[1] [0] 11:02:35 AM [express] serving on port 5000
+[1] [0] 🔄 Initializing database connection...
+[1] [0] ✅ Database connected to Replit PostgreSQL
+[1] [0] [SessionStorage] Session storage tables already exist, skipping creation
+[1] [0] ✅ Distributed session storage initialized
+[1] [0] Starting blog scheduler...
+[1] [0] Scheduled blog posts for 9:00 (America/New_York)
+[1] [0] Scheduled blog posts for 13:00 (America/New_York)
+[1] [0] Scheduled blog posts for 17:00 (America/New_York)
+[1] [0] Blog scheduler started with 4 scheduled jobs
+[1] [0] ✅ Blog scheduler initialized
+[1] [0] Starting view drip service...
+[1] [0] ✅ View drip service initialized
+[1] [0] 
+[1] [0] 🔐 Development Mode: Auto-Admin Login Enabled
+[1] [0] 📧 Admin Email: admin@readmyfineprint.com
+[1] [0] 🌐 Admin URL: http://localhost:5000/admin
+[1] [0] ⚡ No authentication required - just visit the admin page!
+[1] [0] 
+[1] [0] ✨ You are automatically logged in as admin in development mode!
+[1] [0] ⚠️  This is for development only - never use in production!
+[1] [0] 
+[1] [1] <i> [webpack-dev-server] [HPM] Proxy created: /api  -> http://localhost:5000
+[1] [1] <i> [webpack-dev-server] [HPM] Proxy created: /health  -> http://localhost:5000
+[1] [1] <i> [webpack-dev-server] [HPM] Proxy created: /admin  -> http://localhost:5000
+[1] [1] <i> [webpack-dev-server] Project is running at:
+[1] [1] <i> [webpack-dev-server] Loopback: http://localhost:5173/, http://[::1]:5173/
+[1] [1] <i> [webpack-dev-server] On Your Network (IPv4): http://172.31.73.130:5173/
+[1] [1] <i> [webpack-dev-server] Content not from webpack is served from '/home/runner/workspace/client/public' directory
+[1] [1] <i> [webpack-dev-server] 404s will fallback to '/index.html'
+[1] [0] ✅ Admin user already exists
+[1] [0] ✅ JOSE Auth Service initialized with key length: 32 bytes
+[1] [0] 🔐 IP address hashed with Argon2id for privacy protection
+[1] [0] 🔐 User agent hashed with Argon2id for privacy protection
+[1] [0] 🔐 Security log entry protected with Argon2id hashing
+[1] [0] ℹ️ [SECURITY] SYSTEM | LOW | b4080c56 | JOSE Auth Service initialized | initialization
+[1] [0] 🧹 Cleaned up 0 expired refresh tokens and 0 expired revocations
+[1] [0] Session cleanup completed: 0 expired sessions removed
+[1] [0] 🧹 Startup cleanup: 0 expired tokens removed, 0 expired sessions removed
+[1] [1] assets by status 14.3 MiB [big]
+[1] [1]   asset vendors.js 11.7 MiB [emitted] [big] (name: vendors) (id hint: vendor)
+[1] [1]   asset main.js 1.33 MiB [emitted] [big] (name: main)
+[1] [1]   asset client_src_pages_admin_tsx.chunk.js 719 KiB [emitted] [big]
+[1] [1]   asset client_src_pages_upload_tsx.chunk.js 541 KiB [emitted] [big]
+[1] [1] + 16 assets
+[1] [1] Entrypoint main [big] 13 MiB = vendors.js 11.7 MiB main.js 1.33 MiB
+[1] [1] orphan modules 1.88 MiB [orphan] 1862 modules
+[1] [1] runtime modules 32.5 KiB 18 modules
+[1] [1] cacheable modules 5.06 MiB
+[1] [1]   modules by path ./node_modules/ 4.03 MiB 712 modules
+[1] [1]   modules by path ./client/src/ 1.03 MiB
+[1] [1]     modules by path ./client/src/components/ 491 KiB 58 modules
+[1] [1]     modules by path ./client/src/pages/*.tsx 287 KiB 16 modules
+[1] [1]     modules by path ./client/src/hooks/ 47.6 KiB 12 modules
+[1] [1]     modules by path ./client/src/lib/*.ts 81 KiB 9 modules
+[1] [1]     modules by path ./client/src/*.tsx 12.5 KiB 2 modules
+[1] [1]     modules by path ./client/src/*.css 104 KiB 2 modules
+[1] [1]     modules by path ./client/src/utils/*.ts 24.8 KiB 2 modules
+[1] [1]     ./client/src/contexts/SecurityQuestionsContext.tsx 3.27 KiB [built] [code generated]
+[1] [1] webpack 5.101.0 compiled successfully in 26201 ms

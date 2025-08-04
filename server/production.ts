@@ -165,7 +165,7 @@ async function startProductionServer() {
   }));
 
   // Serve index.html for all non-API routes (SPA fallback)
-  app.get('*', (req, res) => {
+  app.use((req, res) => {
     // Don't intercept API routes
     if (req.path.startsWith('/api/') || req.path.startsWith('/health') || req.path.startsWith('/admin/api/')) {
       return res.status(404).json({ error: 'API endpoint not found' });
