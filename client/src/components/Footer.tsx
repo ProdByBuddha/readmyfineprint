@@ -80,12 +80,12 @@ export function Footer() {
       <footer
       id="footer"
       role="contentinfo"
-      className="bg-gray-50 dark:bg-gray-900 border-t border-gray-200 dark:border-gray-700 z-40 backdrop-blur-sm bg-opacity-95 dark:bg-opacity-95 transition-all duration-300 ease-in-out flex-shrink-0 pb-4 sm:pb-6"
+      className="bg-gray-50 dark:bg-gray-900 border-t border-gray-200 dark:border-gray-700 z-40 backdrop-blur-sm bg-opacity-95 dark:bg-opacity-95 transition-all duration-300 ease-in-out flex-shrink-0 pb-2"
       aria-label="Site footer"
     >
       {/* Mobile Layout - Improved with better spacing */}
-      <div className="md:hidden px-3 py-3">
-        <div className="space-y-2">
+      <div className="md:hidden px-3 py-2">
+        <div className="space-y-1.5">
           {/* Top row - Main links */}
           <div className="flex items-center justify-center gap-3 text-xs">
             <Link to="/privacy" className="text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200 font-medium">Privacy</Link>
@@ -115,7 +115,7 @@ export function Footer() {
       </div>
 
       {/* Desktop Layout - Full */}
-      <div className="hidden md:block max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+      <div className="hidden md:block max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3">
         <div className="flex justify-between items-center gap-4">
           {/* Company Info */}
           <div className="flex flex-col items-start">
