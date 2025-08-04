@@ -164,29 +164,48 @@ export async function optionalUserAuth(req: Request, res: Response, next: NextFu
         const token = await postgresqlSessionStorage.getTokenBySession(sessionId);
 
         if (token) {
-          // Validate the subscription token (used for admin sessions)
+          // First try as subscription token (for admin sessions), then as access token
           const { joseTokenService } = await import('./jose-token-service');
-          const tokenData = await joseTokenService.validateSubscriptionToken(token);
-
-          if (tokenData && tokenData.userId) {
-            // Get user data from database
-            const user = await databaseStorage.getUser(tokenData.userId);
-            if (user) {
-              req.user = {
-                id: user.id,
-                email: user.email,
-              };
-              console.log(`🔑 User authenticated via session: ${user.email} (${user.id})`);
-              return next();
+          
+          try {
+            // Try subscription token validation first
+            const subscriptionData = await joseTokenService.validateSubscriptionToken(token);
+            if (subscriptionData && subscriptionData.userId) {
+              const user = await databaseStorage.getUser(subscriptionData.userId);
+              if (user) {
+                req.user = {
+                  id: user.id,
+                  email: user.email,
+                };
+                console.log(`🔑 User authenticated via session (subscription token): ${user.email} (${user.id})`);
+                return next();
+              }
             }
-          } else if (token && !tokenData) {
-            // Token exists but is invalid - clean it up
+          } catch (subscriptionError) {
+            // If subscription token validation fails, try as access token
             try {
-              const { postgresqlSessionStorage } = await import('./postgresql-session-storage');
-              await postgresqlSessionStorage.removeSessionToken(sessionId);
-              console.log('🧹 Cleaned up invalid session token in auth middleware');
-            } catch (cleanupError) {
-              console.error('⚠️ Failed to clean up invalid session token:', cleanupError);
+              const { joseAuthService } = await import('./jose-auth-service');
+              const accessValidation = await joseAuthService.validateAccessToken(token);
+              if (accessValidation.valid && accessValidation.payload) {
+                const user = await databaseStorage.getUser(accessValidation.payload.userId);
+                if (user) {
+                  req.user = {
+                    id: user.id,
+                    email: user.email,
+                  };
+                  console.log(`🔑 User authenticated via session (access token): ${user.email} (${user.id})`);
+                  return next();
+                }
+              }
+            } catch (accessError) {
+              console.log('Session token validation failed for both subscription and access token types');
+              // Clean up invalid token
+              try {
+                await postgresqlSessionStorage.removeSessionToken(sessionId);
+                console.log('🧹 Cleaned up invalid session token in auth middleware');
+              } catch (cleanupError) {
+                console.error('⚠️ Failed to clean up invalid session token:', cleanupError);
+              }
             }
           }
         }
