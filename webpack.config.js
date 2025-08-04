@@ -50,11 +50,18 @@ export default {
       {
         test: /\.css$/,
         use: [
-          'style-loader',
-          'css-loader',
+          isDevelopment ? 'style-loader' : MiniCssExtractPlugin.loader,
+          {
+            loader: 'css-loader',
+            options: {
+              importLoaders: 1,
+              sourceMap: isDevelopment,
+            },
+          },
           {
             loader: 'postcss-loader',
             options: {
+              sourceMap: isDevelopment,
               postcssOptions: {
                 plugins: [
                   '@tailwindcss/postcss',
@@ -88,12 +95,10 @@ export default {
       inject: true,
       minify: !isDevelopment,
     }),
-    ...(isDevelopment ? [] : [
-      new MiniCssExtractPlugin({
-        filename: '[name].[contenthash].css',
-        chunkFilename: '[name].[contenthash].chunk.css',
-      }),
-    ]),
+    new MiniCssExtractPlugin({
+      filename: isDevelopment ? '[name].css' : '[name].[contenthash].css',
+      chunkFilename: isDevelopment ? '[name].chunk.css' : '[name].[contenthash].chunk.css',
+    }),
   ],
   
   optimization: {

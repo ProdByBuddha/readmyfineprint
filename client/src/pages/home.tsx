@@ -79,7 +79,7 @@ export default function Home() {
           {/* Hero Section */}
           <section className="text-center mb-24 animate-fade-in-up" role="banner" aria-labelledby="main-heading">
             <div className="max-w-5xl mx-auto">
-              <h1 id="main-heading" className="text-5xl md:text-6xl lg:text-7xl font-black gradient-text mb-8 leading-[1.1] tracking-tight">
+              <h1 id="main-heading" className="text-5xl md:text-6xl lg:text-7xl font-black gradient-text-modern mb-8 leading-[1.1] tracking-tight">
                 Privacy-First Legal Document Analysis
               </h1>
               <p className="text-xl md:text-2xl text-slate-600 mb-12 max-w-4xl mx-auto leading-relaxed font-light">
@@ -91,7 +91,7 @@ export default function Home() {
             {/* Call to Action */}
             <div className="flex flex-col sm:flex-row gap-8 justify-center items-center mb-16">
               <Link to="/upload" className="group">
-                <Button size="lg" className="relative px-12 py-6 text-xl font-bold bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 hover:from-indigo-700 hover:via-purple-700 hover:to-pink-700 text-white rounded-2xl premium-shadow hover:glow-effect transition-all duration-500 transform hover:scale-[1.02] group-hover:-translate-y-1 overflow-hidden">
+                <Button size="lg" className="modern-button relative px-12 py-6 text-xl font-bold text-white rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-500 transform hover:scale-[1.02] group-hover:-translate-y-2 overflow-hidden">
                   <div className="absolute inset-0 bg-gradient-to-r from-white/20 to-white/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
                   <div className="relative flex items-center">
                     <FileText className="w-7 h-7 mr-4" />
@@ -101,7 +101,7 @@ export default function Home() {
                 </Button>
               </Link>
               <Link to="/blog" className="group">
-                <Button variant="outline" size="lg" className="px-12 py-6 text-xl font-bold glass-effect border-2 border-slate-200/80 text-slate-700 hover:text-slate-900 hover:border-slate-300 rounded-2xl modern-shadow transition-all duration-500 transform hover:scale-[1.02] group-hover:-translate-y-1 backdrop-blur-xl">
+                <Button variant="outline" size="lg" className="glass-card px-12 py-6 text-xl font-bold border-2 border-slate-200/80 text-slate-700 hover:text-slate-900 hover:border-slate-300 transition-all duration-500 transform hover:scale-[1.02] group-hover:-translate-y-2">
                   <span className="relative">Learn More</span>
                 </Button>
               </Link>
@@ -137,41 +137,41 @@ export default function Home() {
           </section>
 
           {/* Features Section */}
-          <section className="mb-32 animate-fade-in-scale">
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-              <Card className="group relative overflow-hidden text-center p-10 glass-effect border-0 premium-shadow hover:glow-effect transition-all duration-700 transform hover:-translate-y-3 hover:scale-[1.02]">
+          <section className="mb-32 animate-modern-fade">
+            <div className="modern-grid">
+              <Card className="group relative overflow-hidden text-center p-10 glass-card border-0 shadow-lg hover:shadow-2xl transition-all duration-700 transform hover:-translate-y-3 hover:scale-[1.02]">
                 <div className="absolute inset-0 bg-gradient-to-br from-indigo-500/5 via-purple-500/5 to-pink-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-700"></div>
                 <div className="relative">
                   <div className="w-24 h-24 bg-gradient-to-br from-indigo-500/10 to-purple-500/20 rounded-3xl flex items-center justify-center mx-auto mb-8 group-hover:scale-110 group-hover:rotate-3 transition-all duration-500">
                     <Shield className="w-12 h-12 text-indigo-600" />
                   </div>
-                  <h3 className="text-2xl font-black text-slate-900 mb-6 group-hover:gradient-text transition-all duration-500">Enterprise Security</h3>
+                  <h3 className="text-2xl font-black text-slate-900 mb-6 group-hover:gradient-text-modern transition-all duration-500">Enterprise Security</h3>
                   <p className="text-lg text-slate-600 leading-relaxed font-light">
                     Military-grade encryption and zero-trust architecture ensure your sensitive documents remain completely private and secure.
                   </p>
                 </div>
               </Card>
               
-              <Card className="group relative overflow-hidden text-center p-10 glass-effect border-0 premium-shadow hover:glow-effect transition-all duration-700 transform hover:-translate-y-3 hover:scale-[1.02]">
+              <Card className="group relative overflow-hidden text-center p-10 glass-card border-0 shadow-lg hover:shadow-2xl transition-all duration-700 transform hover:-translate-y-3 hover:scale-[1.02]">
                 <div className="absolute inset-0 bg-gradient-to-br from-purple-500/5 via-pink-500/5 to-indigo-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-700"></div>
                 <div className="relative">
                   <div className="w-24 h-24 bg-gradient-to-br from-purple-500/10 to-pink-500/20 rounded-3xl flex items-center justify-center mx-auto mb-8 group-hover:scale-110 group-hover:rotate-3 transition-all duration-500">
                     <Clock className="w-12 h-12 text-purple-600" />
                   </div>
-                  <h3 className="text-2xl font-black text-slate-900 mb-6 group-hover:gradient-text transition-all duration-500">Lightning Fast</h3>
+                  <h3 className="text-2xl font-black text-slate-900 mb-6 group-hover:gradient-text-modern transition-all duration-500">Lightning Fast</h3>
                   <p className="text-lg text-slate-600 leading-relaxed font-light">
                     Advanced AI processing delivers comprehensive legal insights in seconds, not hours. Real-time analysis at enterprise scale.
                   </p>
                 </div>
               </Card>
               
-              <Card className="group relative overflow-hidden text-center p-10 glass-effect border-0 premium-shadow hover:glow-effect transition-all duration-700 transform hover:-translate-y-3 hover:scale-[1.02]">
+              <Card className="group relative overflow-hidden text-center p-10 glass-card border-0 shadow-lg hover:shadow-2xl transition-all duration-700 transform hover:-translate-y-3 hover:scale-[1.02]">
                 <div className="absolute inset-0 bg-gradient-to-br from-pink-500/5 via-indigo-500/5 to-purple-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-700"></div>
                 <div className="relative">
                   <div className="w-24 h-24 bg-gradient-to-br from-pink-500/10 to-indigo-500/20 rounded-3xl flex items-center justify-center mx-auto mb-8 group-hover:scale-110 group-hover:rotate-3 transition-all duration-500">
                     <CheckCircle className="w-12 h-12 text-pink-600" />
                   </div>
-                  <h3 className="text-2xl font-black text-slate-900 mb-6 group-hover:gradient-text transition-all duration-500">Human Readable</h3>
+                  <h3 className="text-2xl font-black text-slate-900 mb-6 group-hover:gradient-text-modern transition-all duration-500">Human Readable</h3>
                   <p className="text-lg text-slate-600 leading-relaxed font-light">
                     Transform complex legal jargon into clear, actionable insights. No law degree required to understand your documents.
                   </p>
