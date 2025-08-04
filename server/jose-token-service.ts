@@ -12,6 +12,7 @@ interface SubscriptionTokenPayload extends JWTPayload {
   userId: string;
   subscriptionId?: string;
   tierId: string;
+  tier?: string; // Backward compatibility field
   deviceFingerprint?: string;
   tokenType: 'subscription';
 }
@@ -84,6 +85,7 @@ export class JOSETokenService {
         userId: params.userId,
         subscriptionId: params.subscriptionId,
         tierId: params.tierId,
+        tier: params.tierId, // Backward compatibility: include both tierId and tier
         deviceFingerprint: params.deviceFingerprint,
         tokenType: 'subscription',
         iat: Math.floor(Date.now() / 1000),

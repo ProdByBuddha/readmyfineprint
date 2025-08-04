@@ -277,6 +277,29 @@ export async function requireAdminViaSubscription(req: Request, res: Response, n
       adminSubscriptionToken = cookies['subscriptionToken'];
     }
 
+    // If no direct subscription token, try session-based token lookup (for development auto-login)
+    if (!adminSubscriptionToken && req.headers.cookie) {
+      const cookies = parseCookies(req.headers.cookie);
+      const sessionId = cookies['sessionId'];
+      
+      if (sessionId) {
+        try {
+          console.log('🔍 Attempting session-based token lookup for admin access...');
+          const { postgresqlSessionStorage } = await import('./postgresql-session-storage');
+          const sessionToken = await postgresqlSessionStorage.getTokenBySession(sessionId);
+          
+          if (sessionToken) {
+            console.log(`✅ Found subscription token via session lookup for sessionId: ${sessionId.substring(0, 8)}...`);
+            adminSubscriptionToken = sessionToken;
+          } else {
+            console.log(`❌ No subscription token found for sessionId: ${sessionId.substring(0, 8)}...`);
+          }
+        } catch (sessionError) {
+          console.error('Error during session-based token lookup:', sessionError);
+        }
+      }
+    }
+
     if (!adminSubscriptionToken) {
       securityLogger.logFailedAuth(ip, userAgent, 'Admin access denied: subscription token required', req.path);
       return res.status(401).json({ 
@@ -313,7 +336,8 @@ export async function requireAdminViaSubscription(req: Request, res: Response, n
 
     if (!isAdmin) {
       // Check if user has admin or ultimate tier from subscription data
-      const userTier = tokenData.tier as string;
+      // Note: The JOSE token stores tier as 'tierId', but we also check 'tier' for backwards compatibility
+      const userTier = (tokenData.tierId || tokenData.tier) as string;
       if (!userTier || !['admin', 'ultimate'].includes(userTier)) {
         securityLogger.logFailedAuth(ip, userAgent, `Admin access denied: insufficient privileges (tier: ${userTier})`, req.path);
         return res.status(403).json({ 
@@ -330,7 +354,7 @@ export async function requireAdminViaSubscription(req: Request, res: Response, n
     (req as any).user = {
       id: user.id,
       email: user.email,
-      tier: tokenData.tier || 'admin',
+      tier: tokenData.tierId || tokenData.tier || 'admin',
       isAdmin: isAdmin
     };
 
