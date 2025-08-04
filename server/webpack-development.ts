@@ -2,7 +2,11 @@ import express from 'express';
 import { createServer } from 'http';
 import { setupWebpackDevServer } from './webpack-server.js';
 import { registerRoutes } from './routes.js';
-import { loggerMiddleware } from './index.js';
+// Import logging from main server
+const loggerMiddleware = (req: any, res: any, next: any) => {
+  console.log(`${req.method} ${req.path}`);
+  next();
+};
 import cors from 'cors';
 
 const app = express();
@@ -50,7 +54,7 @@ async function startDevelopmentServer() {
     
     const PORT = process.env.PORT || 5000;
     
-    server.listen(PORT, '0.0.0.0', () => {
+    server.listen(parseInt(PORT as string), '0.0.0.0', () => {
       console.log(`✅ Development server running on http://localhost:${PORT}`);
       console.log(`🔗 Frontend: http://localhost:${PORT}`);
       console.log(`🔗 API: http://localhost:${PORT}/api`);

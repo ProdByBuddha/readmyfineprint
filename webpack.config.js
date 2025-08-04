@@ -56,7 +56,10 @@ export default {
             loader: 'postcss-loader',
             options: {
               postcssOptions: {
-                config: './postcss.config.js',
+                plugins: [
+                  '@tailwindcss/postcss',
+                  'autoprefixer',
+                ],
               },
             },
           },
