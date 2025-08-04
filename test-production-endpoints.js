@@ -143,6 +143,14 @@ async function setupAdminAuth(baseUrl) {
     
     const cookies = extractCookies(response.headers);
     TEST_CONFIG.USERS.ADMIN.cookies = cookies;
+    
+    // Also extract any JWT token for Bearer auth
+    if (response.data && response.data.token) {
+      TEST_CONFIG.USERS.ADMIN.bearerToken = response.data.token;
+    } else if (response.data && response.data.user && response.data.user.token) {
+      TEST_CONFIG.USERS.ADMIN.bearerToken = response.data.user.token;
+    }
+    
     console.log('✅ Admin authentication successful');
     return cookies;
   } catch (error) {
@@ -232,8 +240,14 @@ async function testAdminEndpoints(baseUrl) {
   }
   
   await runTest('Admin Metrics', async () => {
+    const headers = {};
+    if (TEST_CONFIG.USERS.ADMIN.bearerToken) {
+      headers['Authorization'] = `Bearer ${TEST_CONFIG.USERS.ADMIN.bearerToken}`;
+    }
+    
     const response = await makeRequest(`${baseUrl}/api/admin/metrics`, {
-      cookies: adminCookies
+      cookies: adminCookies,
+      headers
     });
     if (response.status !== 200) {
       throw new Error(`Expected 200, got ${response.status}`);
@@ -241,8 +255,14 @@ async function testAdminEndpoints(baseUrl) {
   });
   
   await runTest('Admin System Health', async () => {
+    const headers = {};
+    if (TEST_CONFIG.USERS.ADMIN.bearerToken) {
+      headers['Authorization'] = `Bearer ${TEST_CONFIG.USERS.ADMIN.bearerToken}`;
+    }
+    
     const response = await makeRequest(`${baseUrl}/api/admin/system/health`, {
-      cookies: adminCookies
+      cookies: adminCookies,
+      headers
     });
     if (response.status !== 200) {
       throw new Error(`Expected 200, got ${response.status}`);
@@ -250,8 +270,14 @@ async function testAdminEndpoints(baseUrl) {
   });
   
   await runTest('Admin Activity Stats', async () => {
+    const headers = {};
+    if (TEST_CONFIG.USERS.ADMIN.bearerToken) {
+      headers['Authorization'] = `Bearer ${TEST_CONFIG.USERS.ADMIN.bearerToken}`;
+    }
+    
     const response = await makeRequest(`${baseUrl}/api/admin/activity`, {
-      cookies: adminCookies
+      cookies: adminCookies,
+      headers
     });
     if (response.status !== 200) {
       throw new Error(`Expected 200, got ${response.status}`);
