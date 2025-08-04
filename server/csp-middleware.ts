@@ -47,8 +47,8 @@ export function cspMiddleware(req: Request, res: Response, next: NextFunction) {
   const cspDirectives = [
     "default-src 'none'",
 
-    // Scripts: Use nonce instead of unsafe-inline, remove unsafe-eval
-    `script-src 'self' 'nonce-${nonce}' https://js.stripe.com https://m.stripe.com${replitSources}${devSources}${stagingSources}`,
+    // Scripts: Use nonce instead of unsafe-inline, add unsafe-eval for webpack in dev
+    `script-src 'self' 'nonce-${nonce}' https://js.stripe.com https://m.stripe.com${replitSources}${devSources}${stagingSources}${isDevelopment ? " 'unsafe-eval'" : ''}`,
 
     // Script elements (for external scripts)
     `script-src-elem 'self' 'nonce-${nonce}' https://js.stripe.com https://m.stripe.com${replitSources}${devSources}${stagingSources}`,
