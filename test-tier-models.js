@@ -12,14 +12,14 @@ const BASE_URL = 'http://localhost:5000';
 console.log(`🧪 Testing Tier Model Selection on ${BASE_URL}`);
 console.log('=============================================');
 
-// Expected models for each tier
+// Expected models for each tier (Updated August 2025)
 const EXPECTED_MODELS = {
-  'free': 'gpt-4o-mini',
-  'starter': 'gpt-4.1-mini', 
-  'professional': 'gpt-4o',
-  'business': 'gpt-4-turbo',
-  'enterprise': 'o1-preview',
-  'ultimate': 'gpt-4o'
+  'free': 'gpt-4.1-nano',        // Most cost-efficient
+  'starter': 'gpt-4.1-mini',     // 83% cheaper than GPT-4.1, beats GPT-4o
+  'professional': 'gpt-4.1',     // Latest flagship with 1M context
+  'business': 'o3-mini',         // Cost-efficient reasoning
+  'enterprise': 'o3',            // Maximum reasoning capability
+  'ultimate': 'o3'               // Maximum reasoning for admin
 };
 
 async function makeRequest(method, url, data = {}, headers = {}) {
