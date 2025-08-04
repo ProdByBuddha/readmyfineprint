@@ -84,13 +84,13 @@ export function Footer() {
       aria-label="Site footer"
     >
       {/* Mobile Layout - Ultra compact spacing */}
-      <div className="md:hidden px-1 py-0">
-        <div className="space-y-0">
+      <div className="md:hidden px-2 py-2">
+        <div className="space-y-1">
           {/* Top row - Main links */}
-          <div className="flex items-center justify-center gap-2 text-xs">
+          <div className="flex items-center justify-center gap-4 text-sm">
             <Link to="/privacy" className="text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200 font-medium">Privacy</Link>
             <Link to="/terms" className="text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200 font-medium">Terms</Link>
-            <Link to="/cookies" className="text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-200 font-medium flex items-center gap-0.5">
+            <Link to="/cookies" className="text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-200 font-medium flex items-center gap-1">
               <Cookie className="w-3 h-3" />
               Cookies
             </Link>
@@ -98,16 +98,16 @@ export function Footer() {
           </div>
           
           {/* Bottom row - Action links */}
-          <div className="flex items-center justify-center gap-2 text-xs">
-            <Link to="/donate" className="text-red-600 dark:text-red-400 hover:text-red-700 dark:hover:text-red-300 flex items-center gap-0.5">
+          <div className="flex items-center justify-center gap-4 text-sm">
+            <Link to="/donate" className="text-red-600 dark:text-red-400 hover:text-red-700 dark:hover:text-red-300 flex items-center gap-1">
               <Heart className="w-3 h-3" />Donate
             </Link>
-            <Link to="/roadmap" className="text-purple-600 dark:text-purple-400 hover:text-purple-700 dark:hover:text-purple-300 flex items-center gap-0.5">
+            <Link to="/roadmap" className="text-purple-600 dark:text-purple-400 hover:text-purple-700 dark:hover:text-purple-300 flex items-center gap-1">
               <Target className="w-3 h-3" />Roadmap
             </Link>
             <button
               onClick={handleShareClick}
-              className="text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 flex items-center gap-0.5"
+              className="text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 flex items-center gap-1"
             >
               <Share2 className="w-3 h-3" />Share
             </button>
