@@ -450,24 +450,40 @@ export function CookieConsent() {
 
   return (
     <div className="fixed bottom-0 left-0 right-0 z-[100] bg-white/95 dark:bg-gray-900/95 backdrop-blur-sm border-t border-gray-200 dark:border-gray-700 shadow-xl mb-0">
-      <div className="max-w-6xl mx-auto p-4 sm:p-5">
-        <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
-          <div className="flex items-start gap-3 flex-1 min-w-0">
-            <div className="flex items-center gap-2">
-              <Cookie className="w-5 h-5 text-blue-600 dark:text-blue-400 flex-shrink-0" />
-              <Shield className="w-5 h-5 text-green-600 dark:text-green-400 flex-shrink-0" />
-            </div>
-            <div className="flex-1 min-w-0">
-              <h3 className="text-sm font-semibold text-gray-900 dark:text-white mb-2">
-                Privacy & Cookie Consent
-              </h3>
-              <p className="text-sm text-gray-600 dark:text-gray-300 leading-relaxed mb-2">
-                We use essential cookies for session management and security. No tracking or advertising cookies.
-                By continuing, you agree to our terms and that this service provides informational summaries only.
-              </p>
-              <div className="flex gap-3 text-xs">
-                <a href="/privacy" className="text-blue-600 dark:text-blue-400 hover:underline">Privacy Policy</a>
-                <a href="/terms" className="text-blue-600 dark:text-blue-400 hover:underline">Terms of Service</a>
+      <div className="max-w-6xl mx-auto px-3 py-2">
+        <div className="flex items-center gap-3">
+          <div className="flex items-center gap-1.5">
+            <Cookie className="w-4 h-4 text-blue-600 dark:text-blue-400 flex-shrink-0" />
+            <Shield className="w-4 h-4 text-green-600 dark:text-green-400 flex-shrink-0" />
+          </div>
+          <div className="flex-1 min-w-0">
+            <p className="text-xs text-gray-600 dark:text-gray-300 leading-tight">
+              Essential cookies only. By continuing, you agree this provides informational summaries (not legal advice).
+              <span className="hidden sm:inline"> We're not liable for decisions based on summaries.</span>
+            </p>
+          </div>
+          <div className="flex items-center gap-2">
+            <Button
+              onClick={handleAccept}
+              disabled={isAccepting}
+              size="sm"
+              className="text-xs px-3 py-1 h-7"
+            >
+              {isAccepting ? "..." : "Accept"}
+            </Button>
+            <Button
+              onClick={handleDismiss}
+              variant="ghost"
+              size="sm"
+              className="text-xs px-2 py-1 h-7"
+            >
+              <X className="w-3 h-3" />
+            </Button>
+          </div>
+        </div>
+        <div className="flex gap-3 mt-1 text-[10px] justify-center sm:justify-start">
+          <a href="/privacy" className="text-blue-600 dark:text-blue-400 hover:underline">Privacy</a>
+          <a href="/terms" className="text-blue-600 dark:text-blue-400 hover:underline">Terms of Service</a>
                 <a href="/cookies" className="text-blue-600 dark:text-blue-400 hover:underline">Cookie Details</a>
               </div>
             </div>

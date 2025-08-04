@@ -83,53 +83,37 @@ export function Footer() {
       className="bg-gray-50 dark:bg-gray-900 border-t border-gray-200 dark:border-gray-700 z-40 backdrop-blur-sm bg-opacity-95 dark:bg-opacity-95 transition-all duration-300 ease-in-out flex-shrink-0"
       aria-label="Site footer"
     >
-      {/* Mobile Layout - Ultra compact spacing */}
-      <div className="md:hidden px-2 py-2">
-        <div className="space-y-1">
-          {/* Top row - Main links */}
-          <div className="flex items-center justify-center gap-4 text-sm">
-            <Link to="/privacy" className="text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200 font-medium">Privacy</Link>
-            <Link to="/terms" className="text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200 font-medium">Terms</Link>
-            <Link to="/cookies" className="text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-200 font-medium flex items-center gap-1">
-              <Cookie className="w-3 h-3" />
-              Cookies
-            </Link>
-            <a href="mailto:admin@readmyfineprint.com" className="text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200 font-medium">Contact</a>
-          </div>
-          
-          {/* Bottom row - Action links */}
-          <div className="flex items-center justify-center gap-4 text-sm">
-            <Link to="/donate" className="text-red-600 dark:text-red-400 hover:text-red-700 dark:hover:text-red-300 flex items-center gap-1">
-              <Heart className="w-3 h-3" />Donate
-            </Link>
-            <Link to="/roadmap" className="text-purple-600 dark:text-purple-400 hover:text-purple-700 dark:hover:text-purple-300 flex items-center gap-1">
-              <Target className="w-3 h-3" />Roadmap
-            </Link>
-            <button
-              onClick={handleShareClick}
-              className="text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 flex items-center gap-1"
-            >
-              <Share2 className="w-3 h-3" />Share
-            </button>
-          </div>
+      {/* Mobile Layout - Minimal single row */}
+      <div className="md:hidden px-2 py-1">
+        <div className="flex items-center justify-center gap-3 text-xs">
+          <Link to="/privacy" className="text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200">Privacy</Link>
+          <Link to="/terms" className="text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200">Terms</Link>
+          <Link to="/cookies" className="text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-200 flex items-center gap-1">
+            <Cookie className="w-2.5 h-2.5" />
+            Cookies
+          </Link>
+          <Link to="/donate" className="text-red-600 dark:text-red-400 hover:text-red-700 dark:hover:text-red-300 flex items-center gap-1">
+            <Heart className="w-2.5 h-2.5" />Donate
+          </Link>
+          <button
+            onClick={handleShareClick}
+            className="text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 flex items-center gap-1"
+          >
+            <Share2 className="w-2.5 h-2.5" />Share
+          </button>
         </div>
       </div>
 
-      {/* Desktop Layout - Compact */}
-      <div className="hidden md:block max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-1">
-        <div className="flex justify-between items-center gap-2">
+      {/* Desktop Layout - Ultra compact */}
+      <div className="hidden md:block max-w-7xl mx-auto px-4 py-0.5">
+        <div className="flex justify-between items-center">
           {/* Company Info */}
-          <div className="flex flex-col items-start">
-            <h2 className="text-sm font-semibold text-gray-900 dark:text-white mb-0.5">
-              ReadMyFinePrint
-            </h2>
-            <p className="text-gray-600 dark:text-gray-300 text-[0.65rem]">
-              © {new Date().getFullYear()} ReadMyFinePrint. All rights reserved.
-            </p>
+          <div className="text-xs text-gray-600 dark:text-gray-300">
+            © {new Date().getFullYear()} ReadMyFinePrint
           </div>
 
           {/* Links */}
-          <div className="flex items-center gap-4 text-xs">
+          <div className="flex items-center gap-3 text-xs">
             <Link
               to="/privacy"
               className="text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white transition-all duration-300 ease-in-out"
