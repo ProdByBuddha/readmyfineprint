@@ -143,16 +143,35 @@ async function startProductionServer() {
     }
   });
 
-  // Register API routes
-  await registerRoutes(app);
+  // Register API routes first
+  const server = await registerRoutes(app);
 
   // Serve static files from the dist/public directory (where Vite builds to)
-  const staticPath = path.join(__dirname, '../dist/public');
-  app.use(express.static(staticPath));
+  const staticPath = path.resolve(__dirname, '../dist/public');
+  
+  // Check if build directory exists
+  if (!fs.existsSync(staticPath)) {
+    console.error('❌ Build directory not found at:', staticPath);
+    console.error('Build may have failed. Please run: npm run build');
+    process.exit(1);
+  }
 
-  // Serve index.html for all other routes (SPA fallback)
-  app.get('/*path', (req, res) => {
-    const indexPath = path.join(staticPath, 'index.html');
+  app.use(express.static(staticPath, {
+    setHeaders: (res) => {
+      // Add security headers to static files
+      res.setHeader('X-Content-Type-Options', 'nosniff');
+      res.setHeader('X-Frame-Options', 'DENY');
+    }
+  }));
+
+  // Serve index.html for all non-API routes (SPA fallback)
+  app.get('*', (req, res) => {
+    // Don't intercept API routes
+    if (req.path.startsWith('/api/') || req.path.startsWith('/health') || req.path.startsWith('/admin/api/')) {
+      return res.status(404).json({ error: 'API endpoint not found' });
+    }
+    
+    const indexPath = path.resolve(staticPath, 'index.html');
 
     // Check if index.html exists
     if (!fs.existsSync(indexPath)) {
@@ -185,9 +204,29 @@ async function startProductionServer() {
     }
   }, 5000); // Wait 5 seconds after startup
 
-  console.log(`📋 Production server running on http://0.0.0.0:${PORT}`);
-  app.listen(PORT, '0.0.0.0', () => {
-    console.log(`📋 Production server running on http://0.0.0.0:${PORT}`);
+  // Start the server
+  const serverInstance = server.listen(PORT, '0.0.0.0', () => {
+    console.log(`🚀 Production server running on http://0.0.0.0:${PORT}`);
+    console.log(`🔗 Health check: http://0.0.0.0:${PORT}/health`);
+    console.log(`🔗 API health: http://0.0.0.0:${PORT}/api/health`);
+    console.log(`📂 Static files served from: ${staticPath}`);
+  });
+
+  // Graceful shutdown handling
+  process.on('SIGTERM', () => {
+    console.log('SIGTERM received, shutting down gracefully');
+    serverInstance.close(() => {
+      console.log('Process terminated');
+      process.exit(0);
+    });
+  });
+
+  process.on('SIGINT', () => {
+    console.log('SIGINT received, shutting down gracefully');
+    serverInstance.close(() => {
+      console.log('Process terminated');
+      process.exit(0);
+    });
   });
 }
 
