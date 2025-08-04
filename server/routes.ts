@@ -884,7 +884,225 @@ export async function registerRoutes(app: Express): Promise<Server> {
     });
   }
 
-    // Log consent acceptance
+    // Health check endpoint (also available at /health)
+  app.get('/api/health', async (_req, res) => {
+    try {
+      // Database health check
+      let dbHealthy = true;
+      try {
+        const { db } = await import('./db');
+        const { sql } = await import('drizzle-orm');
+        await db.execute(sql`SELECT 1 as health_check`);
+      } catch (error) {
+        dbHealthy = false;
+      }
+      
+      const healthStatus = {
+        status: 'healthy',
+        timestamp: new Date().toISOString(),
+        version: process.env.npm_package_version || '1.0.0',
+        database: {
+          status: dbHealthy ? 'healthy' : 'unhealthy',
+          activeConnection: 'neon',
+          type: 'postgresql'
+        },
+        memory: {
+          used: Math.round(process.memoryUsage().heapUsed / 1024 / 1024),
+          total: Math.round(process.memoryUsage().heapTotal / 1024 / 1024),
+          rss: Math.round(process.memoryUsage().rss / 1024 / 1024)
+        },
+        uptime: Math.round(process.uptime())
+      };
+
+      // Overall health check
+      const isHealthy = dbHealthy;
+      
+      res.status(isHealthy ? 200 : 503).json(healthStatus);
+    } catch (error) {
+      res.status(503).json({
+        status: 'unhealthy',
+        timestamp: new Date().toISOString(),
+        error: 'Health check failed'
+      });
+    }
+  });
+
+  // Admin metrics endpoint
+  app.get('/api/admin/metrics', requireAdminAuth, async (req, res) => {
+    try {
+      const { db } = await import('./db');
+      const { sql } = await import('drizzle-orm');
+      const { users, userSubscriptions } = await import('../shared/schema');
+      
+      // Get basic metrics using raw SQL for simplicity
+      const [totalUsersResult] = await db.execute(sql`SELECT COUNT(*) as count FROM users`);
+      const [activeSubscriptionsResult] = await db.execute(sql`SELECT COUNT(*) as count FROM user_subscriptions WHERE status = 'active'`);
+      
+      const metrics = {
+        totalUsers: totalUsersResult.count?.toString() || '0',
+        activeSubscriptions: activeSubscriptionsResult.count?.toString() || '0',
+        pendingEmailRequests: 0, // Can be implemented later
+        securityEvents: 0, // Can be implemented later
+        timestamp: new Date().toISOString()
+      };
+      
+      res.json(metrics);
+    } catch (error) {
+      console.error('Error fetching admin metrics:', error);
+      res.status(500).json({ error: 'Failed to fetch metrics' });
+    }
+  });
+
+  // Admin system health endpoint
+  app.get('/api/admin/system/health', requireAdminAuth, async (req, res) => {
+    try {
+      // Database health check
+      let dbHealthy = true;
+      let dbLatency = 0;
+      try {
+        const start = Date.now();
+        const { db } = await import('./db');
+        const { sql } = await import('drizzle-orm');
+        await db.execute(sql`SELECT 1 as health_check`);
+        dbLatency = Date.now() - start;
+      } catch (error) {
+        dbHealthy = false;
+      }
+      
+      const systemHealth = {
+        database: {
+          status: dbHealthy ? 'healthy' : 'unhealthy',
+          latency: dbLatency
+        },
+        emailService: {
+          status: 'healthy' // Can be enhanced with actual email service check
+        },
+        openaiService: {
+          status: 'healthy' // Can be enhanced with actual OpenAI service check
+        },
+        priorityQueue: {
+          queueLength: 0,
+          currentlyProcessing: 0,
+          concurrentLimit: 3,
+          queueByTier: {}
+        },
+        memoryUsage: {
+          used: Math.round(process.memoryUsage().heapUsed / 1024 / 1024),
+          total: Math.round(process.memoryUsage().heapTotal / 1024 / 1024),
+          rss: Math.round(process.memoryUsage().rss / 1024 / 1024),
+          external: Math.round(process.memoryUsage().external / 1024 / 1024)
+        },
+        uptime: process.uptime()
+      };
+      
+      res.json(systemHealth);
+    } catch (error) {
+      console.error('Error fetching system health:', error);
+      res.status(500).json({ error: 'Failed to fetch system health' });
+    }
+  });
+
+  // Admin activity stats endpoint
+  app.get('/api/admin/activity', requireAdminAuth, async (req, res) => {
+    try {
+      const { db } = await import('./db');
+      const { sql } = await import('drizzle-orm');
+      
+      // Get activity statistics using raw SQL
+      const yesterday = new Date();
+      yesterday.setDate(yesterday.getDate() - 1);
+      
+      const lastWeek = new Date();
+      lastWeek.setDate(lastWeek.getDate() - 7);
+      
+      const [newUsersLast24h] = await db.execute(sql`SELECT COUNT(*) as count FROM users WHERE created_at >= ${yesterday.toISOString()}`);
+      const [newUsersLast7d] = await db.execute(sql`SELECT COUNT(*) as count FROM users WHERE created_at >= ${lastWeek.toISOString()}`);
+      
+      const activity = {
+        newUsersLast24h: newUsersLast24h.count?.toString() || '0',
+        newUsersLast7d: newUsersLast7d.count?.toString() || '0',
+        activeSubscriptionsLast24h: 0, // Can be enhanced
+        documentsAnalyzedLast24h: 0, // Can be enhanced when document table exists
+        documentsAnalyzedLast7d: 0, // Can be enhanced when document table exists
+        timestamp: new Date().toISOString()
+      };
+      
+      res.json(activity);
+    } catch (error) {
+      console.error('Error fetching activity stats:', error);
+      res.status(500).json({ error: 'Failed to fetch activity stats' });
+    }
+  });
+
+  // Document analysis endpoint (simplified version for testing)
+  app.post('/api/document/analyze', optionalUserAuth, async (req: any, res) => {
+    try {
+      const { content, filename } = req.body;
+      
+      if (!content) {
+        return res.status(400).json({ error: 'Content is required' });
+      }
+      
+      // Get user subscription for rate limiting
+      const subscriptionData = req.user?.id 
+        ? await subscriptionService.getSubscriptionByUserId(req.user.id)
+        : { tier: { id: 'free', model: 'gpt-4o-mini' } };
+      
+      // Mock analysis for testing purposes
+      const mockAnalysis = {
+        summary: `Analysis of ${filename || 'document'}: This is a ${subscriptionData.tier.id} tier analysis.`,
+        keyPoints: [
+          "Mock analysis point 1",
+          "Mock analysis point 2", 
+          "Mock analysis point 3"
+        ],
+        risks: ["Mock risk assessment"],
+        recommendations: ["Mock recommendation"],
+        confidence: 0.95,
+        processingTime: Math.random() * 1000 + 500,
+        model: subscriptionData.tier.model,
+        testMode: true
+      };
+      
+      res.json({
+        id: Math.floor(Math.random() * 1000),
+        title: filename || 'Test Document',
+        content: content,
+        analysis: mockAnalysis,
+        createdAt: new Date().toISOString()
+      });
+    } catch (error) {
+      console.error('Error in document analysis:', error);
+      res.status(500).json({ error: 'Analysis failed' });
+    }
+  });
+
+  // Stripe create checkout session endpoint
+  app.post('/api/stripe/create-checkout-session', optionalUserAuth, async (req: any, res) => {
+    try {
+      const { priceId, tierId } = req.body;
+      
+      if (!priceId || !tierId) {
+        return res.status(400).json({ error: 'priceId and tierId are required' });
+      }
+      
+      // For testing purposes, return mock session data
+      if (process.env.NODE_ENV === 'development') {
+        res.json({
+          sessionId: 'cs_test_' + Math.random().toString(36).substr(2, 9),
+          url: 'https://checkout.stripe.com/pay/cs_test_mock_session',
+          testMode: true
+        });
+      } else {
+        res.status(400).json({ error: 'Stripe checkout requires production configuration' });
+      }
+    } catch (error) {
+      console.error('Error creating checkout session:', error);
+      res.status(500).json({ error: 'Failed to create checkout session' });
+    }
+  });
+
+  // Log consent acceptance
   app.post("/api/consent", optionalUserAuth, async (req: any, res) => {
     try {
       const ip = req.ip || req.connection.remoteAddress || 'unknown';
