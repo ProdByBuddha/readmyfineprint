@@ -42,12 +42,10 @@ const startServer = async () => {
         'import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY': `"${process.env.VITE_STRIPE_PUBLISHABLE_KEY || ''}"`,
         'import.meta.env.VITE_ADMIN_API_KEY': `"${process.env.VITE_ADMIN_API_KEY || ''}"`,
       },
-      resolve: {
-        alias: {
-          '@': path.resolve(__dirname, 'client/src'),
-          '@shared': path.resolve(__dirname, 'shared'),
-          '@assets': path.resolve(__dirname, 'attached_assets'),
-        },
+      alias: {
+        '@': path.resolve(__dirname, 'client/src'),
+        '@shared': path.resolve(__dirname, 'shared'),
+        '@assets': path.resolve(__dirname, 'attached_assets'),
       },
       plugins: [
         {
