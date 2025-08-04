@@ -425,13 +425,10 @@ export function CombinedConsent({ onAccept }: CombinedConsentProps) {
             )}
           </Button>
 
-          <div className="flex gap-2 text-[10px]">
-            <a href="/terms" className="flex-1 text-center text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100">
-              Terms
-            </a>
-            <a href="/privacy" className="flex-1 text-center text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100">
-              Privacy
-            </a>
+          <div className="flex gap-3 mt-1 text-[10px] justify-center sm:justify-start">
+            <a href="/privacy" className="text-blue-600 dark:text-blue-400 hover:underline">Privacy</a>
+            <a href="/terms" className="text-blue-600 dark:text-blue-400 hover:underline">Terms of Service</a>
+            <a href="/cookies" className="text-blue-600 dark:text-blue-400 hover:underline">Cookie Details</a>
           </div>
         </div>
       </DialogContent>
@@ -500,12 +497,13 @@ export function CookieConsent() {
             </Button>
           </div>
         </div>
-        <div className="flex gap-3 mt-1 text-[10px] justify-center sm:justify-start">
-          <a href="/privacy" className="text-blue-600 dark:text-blue-400 hover:underline">Privacy</a>
-          <a href="/terms" className="text-blue-600 dark:text-blue-400 hover:underline">Terms of Service</a>
-          <a href="/cookies" className="text-blue-600 dark:text-blue-400 hover:underline">Cookie Details</a>
+
+          <div className="flex gap-3 mt-1 text-[10px] justify-center sm:justify-start">
+            <a href="/privacy" className="text-blue-600 dark:text-blue-400 hover:underline">Privacy</a>
+            <a href="/terms" className="text-blue-600 dark:text-blue-400 hover:underline">Terms of Service</a>
+            <a href="/cookies" className="text-blue-600 dark:text-blue-400 hover:underline">Cookie Details</a>
+          </div>
         </div>
-      </div>
     </div>
   );
 }
