@@ -206,6 +206,32 @@ export function BlogAdmin() {
           
           if (!subData.tier || subData.tier.id !== 'ultimate') {
             console.error('Insufficient tier access:', subData.tier);
+            
+            // In development mode, automatically try the auto-admin login
+            if (import.meta.env.DEV) {
+              console.log('🔄 Development mode: Attempting auto-admin login...');
+              try {
+                const autoLoginResponse = await fetch('/api/dev/auto-admin-login', {
+                  method: 'POST',
+                  credentials: 'include',
+                  headers: {
+                    'Content-Type': 'application/json',
+                  },
+                });
+                
+                if (autoLoginResponse.ok) {
+                  console.log('✅ Auto-admin login successful, retrying...');
+                  // Retry the subscription check after auto-login
+                  window.location.reload();
+                  return;
+                } else {
+                  console.error('Auto-admin login failed:', await autoLoginResponse.text());
+                }
+              } catch (autoLoginError) {
+                console.error('Auto-admin login error:', autoLoginError);
+              }
+            }
+            
             setError(`Admin access required. Current tier: ${subData.tier?.id || 'none'}. You need ultimate tier access to manage the blog.`);
             setLoading(false);
             return;
