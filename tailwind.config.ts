@@ -6,8 +6,18 @@ export default {
     "./client/index.html", 
     "./client/src/**/*.{js,jsx,ts,tsx}",
     "./client/src/components/**/*.{js,jsx,ts,tsx}",
+    "./client/src/styles/**/*.css",
     "./index.html",
     "./src/**/*.{js,jsx,ts,tsx}"
+  ],
+  safelist: [
+    'modern-button',
+    'glass-card', 
+    'gradient-text-modern',
+    'animate-modern-fade',
+    'modern-grid',
+    'modernFadeIn',
+    'gradientShift'
   ],
   theme: {
     fontFamily: {

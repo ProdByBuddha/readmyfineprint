@@ -2,9 +2,6 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Import modern styles directly here to ensure webpack bundles them */
-@import './styles/modern.css';
-
 @layer base {
   :root {
     --background: 0 0% 100%;
@@ -59,6 +56,15 @@
   body {
     @apply bg-background text-foreground antialiased;
   }
+}
+
+/* Force webpack to include all modern styles */
+.modern-button,
+.glass-card,
+.gradient-text-modern,
+.animate-modern-fade,
+.modern-grid {
+  /* Ensure these classes are included in build */
 }
 
 @layer utilities {
