@@ -3,7 +3,7 @@ import { useState } from "react";
 
 export default function TrustPage() {
   const [activeSection, setActiveSection] = useState<string | null>(null);
-  
+
   const sections = [
     {
       id: 'security',
@@ -260,7 +260,7 @@ export default function TrustPage() {
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
                   </svg>
                 </button>
-                
+
                 {activeSection === section.id && (
                   <div className="px-6 py-4 border-t border-gray-200 dark:border-gray-700">
                     <div className="space-y-6">
@@ -294,7 +294,7 @@ export default function TrustPage() {
               <Book className="w-6 h-6 text-blue-600" />
               Resources & Contact
             </h2>
-            
+
             <div className="grid md:grid-cols-2 gap-8">
               <div>
                 <h3 className="font-semibold text-gray-900 dark:text-white mb-4">Documentation</h3>
@@ -319,7 +319,7 @@ export default function TrustPage() {
                   </li>
                 </ul>
               </div>
-              
+
               <div>
                 <h3 className="font-semibold text-gray-900 dark:text-white mb-4">Security Contact</h3>
                 <div className="space-y-3">
@@ -328,7 +328,7 @@ export default function TrustPage() {
                   </p>
                   <div className="flex items-center gap-2 text-blue-600 dark:text-blue-400">
                     <Mail className="w-4 h-4" />
-                    <a href="mailto:security@readmyfineprint.ai">security@readmyfineprint.ai</a>
+                    <a href="mailto:security@readmyfineprint.com">security@readmyfineprint.com</a>
                   </div>
                   <p className="text-gray-600 dark:text-gray-300 text-sm">
                     We aim to respond to all security inquiries within 24 hours.
@@ -337,7 +337,7 @@ export default function TrustPage() {
               </div>
             </div>
           </div>
-          
+
           {/* Security Implementation Status */}
           <div className="mt-12 text-center">
             <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-6">Security Implementation Status</h3>
