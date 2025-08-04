@@ -1045,7 +1045,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       // Get user subscription for rate limiting
       const subscriptionData = req.user?.id 
-        ? await subscriptionService.getSubscriptionByUserId(req.user.id)
+        ? await subscriptionService.getUserSubscriptionDetails(req.user.id)
         : { tier: { id: 'free', model: 'gpt-4o-mini' } };
       
       // Mock analysis for testing purposes

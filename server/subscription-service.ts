@@ -339,6 +339,32 @@ export class SubscriptionService {
   }
 
   /**
+   * Get user's subscription details including tier information
+   */
+  async getUserSubscriptionDetails(userId: string) {
+    try {
+      const result = await this.getUserSubscriptionWithUsage(userId);
+      return {
+        subscription: result.subscription,
+        tier: result.tier,
+        usage: result.usage
+      };
+    } catch (error) {
+      console.error('Error getting user subscription details:', error);
+      return {
+        subscription: null,
+        tier: this.getFreeTier(),
+        usage: {
+          documentsAnalyzed: 0,
+          tokensUsed: 0,
+          cost: 0,
+          resetDate: new Date()
+        }
+      };
+    }
+  }
+
+  /**
    * Get user's current subscription and usage
    */
   async getUserSubscriptionWithUsage(userId: string): Promise<{

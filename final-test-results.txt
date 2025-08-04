@@ -1,0 +1,165 @@
+🚀 Starting Production Endpoint Testing Suite
+📍 Testing against: http://localhost:3000
+📍 Staging URL: https://edcf3ef7-a826-4eed-8e04-7a485b2e183a-00-1wytaob2mj6u8.kirk.replit.dev:5000
+
+🌐 Testing environment: http://localhost:3000
+
+🔐 Setting up admin authentication...
+✅ Admin authentication successful
+
+💳 Setting up subscriber authentication...
+⚠️  Subscriber auth simulation - would need real Stripe integration
+
+🆓 Setting up free user authentication...
+⚠️  Free user auth simulation - would need user creation flow
+
+📋 Running Public Endpoint Tests...
+
+🧪 Testing: Public Homepage
+✅ PASSED: Public Homepage
+
+🧪 Testing: Health Check
+✅ PASSED: Health Check
+
+🧪 Testing: CSRF Token
+✅ PASSED: CSRF Token
+
+📋 Running Authentication Tests...
+
+🧪 Testing: Subscription Check (Unauthenticated)
+✅ PASSED: Subscription Check (Unauthenticated)
+
+🧪 Testing: Admin Subscription Check
+✅ PASSED: Admin Subscription Check
+
+📋 Running Admin Endpoint Tests...
+
+🧪 Testing: Admin Metrics
+❌ FAILED: Admin Metrics - Expected 200, got 401
+
+🧪 Testing: Admin System Health
+❌ FAILED: Admin System Health - Expected 200, got 401
+
+🧪 Testing: Admin Activity Stats
+❌ FAILED: Admin Activity Stats - Expected 200, got 401
+
+🧪 Testing: Blog Admin Posts
+✅ PASSED: Blog Admin Posts
+
+🧪 Testing: Blog Admin Topics
+✅ PASSED: Blog Admin Topics
+
+🧪 Testing: Blog Admin Scheduler Status
+✅ PASSED: Blog Admin Scheduler Status
+
+📋 Running Document Analysis Tests...
+
+🧪 Testing: Document Analysis (Unauthenticated)
+✅ PASSED: Document Analysis (Unauthenticated)
+
+🧪 Testing: Document Analysis (Admin)
+✅ PASSED: Document Analysis (Admin)
+
+📋 Running Unauthorized Access Tests...
+
+🧪 Testing: Admin Endpoints Without Auth
+✅ PASSED: Admin Endpoints Without Auth
+
+🧪 Testing: Blog Admin Without Auth
+✅ PASSED: Blog Admin Without Auth
+
+📋 Running Stripe Integration Tests...
+
+🧪 Testing: Stripe Create Checkout Session
+✅ PASSED: Stripe Create Checkout Session
+
+🌐 Testing environment: https://edcf3ef7-a826-4eed-8e04-7a485b2e183a-00-1wytaob2mj6u8.kirk.replit.dev:5000
+
+🔐 Setting up admin authentication...
+✅ Admin authentication successful
+
+💳 Setting up subscriber authentication...
+⚠️  Subscriber auth simulation - would need real Stripe integration
+
+🆓 Setting up free user authentication...
+⚠️  Free user auth simulation - would need user creation flow
+
+📋 Running Public Endpoint Tests...
+
+🧪 Testing: Public Homepage
+✅ PASSED: Public Homepage
+
+🧪 Testing: Health Check
+✅ PASSED: Health Check
+
+🧪 Testing: CSRF Token
+❌ FAILED: CSRF Token - Cannot read properties of null (reading 'csrfToken')
+
+📋 Running Authentication Tests...
+
+🧪 Testing: Subscription Check (Unauthenticated)
+✅ PASSED: Subscription Check (Unauthenticated)
+
+🧪 Testing: Admin Subscription Check
+✅ PASSED: Admin Subscription Check
+
+📋 Running Admin Endpoint Tests...
+
+🧪 Testing: Admin Metrics
+✅ PASSED: Admin Metrics
+
+🧪 Testing: Admin System Health
+✅ PASSED: Admin System Health
+
+🧪 Testing: Admin Activity Stats
+✅ PASSED: Admin Activity Stats
+
+🧪 Testing: Blog Admin Posts
+✅ PASSED: Blog Admin Posts
+
+🧪 Testing: Blog Admin Topics
+✅ PASSED: Blog Admin Topics
+
+🧪 Testing: Blog Admin Scheduler Status
+✅ PASSED: Blog Admin Scheduler Status
+
+📋 Running Document Analysis Tests...
+
+🧪 Testing: Document Analysis (Unauthenticated)
+❌ FAILED: Document Analysis (Unauthenticated) - Expected 200 or 429, got 404
+
+🧪 Testing: Document Analysis (Admin)
+❌ FAILED: Document Analysis (Admin) - Expected 200, got 404
+
+📋 Running Unauthorized Access Tests...
+
+🧪 Testing: Admin Endpoints Without Auth
+✅ PASSED: Admin Endpoints Without Auth
+
+🧪 Testing: Blog Admin Without Auth
+✅ PASSED: Blog Admin Without Auth
+
+📋 Running Stripe Integration Tests...
+
+🧪 Testing: Stripe Create Checkout Session
+❌ FAILED: Stripe Create Checkout Session - Expected 200 or 400, got 404
+
+============================================================
+📊 PRODUCTION TEST RESULTS
+============================================================
+✅ Passed: 25
+❌ Failed: 7
+📝 Total:  32
+
+🔍 FAILURE DETAILS:
+1. Admin Metrics: Expected 200, got 401
+2. Admin System Health: Expected 200, got 401
+3. Admin Activity Stats: Expected 200, got 401
+4. CSRF Token: Cannot read properties of null (reading 'csrfToken')
+5. Document Analysis (Unauthenticated): Expected 200 or 429, got 404
+6. Document Analysis (Admin): Expected 200, got 404
+7. Stripe Create Checkout Session: Expected 200 or 400, got 404
+
+📈 Success Rate: 78.1%
+
+⚠️  Some tests failed. Review failures before production deployment.
