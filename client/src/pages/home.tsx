@@ -59,7 +59,7 @@ export default function Home() {
   };
 
   return (
-    <div ref={containerRef} className="bg-gray-50 dark:bg-gray-900 page-transition min-h-screen">
+    <div ref={containerRef} className="animated-gradient page-transition min-h-screen">
       <TradeSecretProtection />
       <MobileAppWrapper>
         {/* Cookie Consent Banner */}
@@ -70,26 +70,26 @@ export default function Home() {
         )}
         <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
           {/* Hero Section */}
-          <section className="text-center mb-12 animate-fade-in-scale" role="banner" aria-labelledby="main-heading">
-            <h1 id="main-heading" className="text-3xl md:text-4xl lg:text-5xl font-bold text-gray-900 dark:text-white mb-4">
+          <section className="text-center mb-12 animate-fade-in-scale glassmorphism rounded-2xl p-8 mx-4" role="banner" aria-labelledby="main-heading">
+            <h1 id="main-heading" className="text-3xl md:text-4xl lg:text-5xl font-bold text-shimmer mb-4">
               Privacy-First Legal Document Analysis
             </h1>
-            <p className="text-lg md:text-xl text-gray-600 dark:text-gray-300 mb-8 max-w-3xl mx-auto">
+            <p className="text-lg md:text-xl text-foreground mb-8 max-w-3xl mx-auto leading-relaxed">
               Get powerful AI insights from contracts, agreements, and legal documents 
               while keeping your sensitive information completely secure.
             </p>
 
             {/* Call to Action */}
-            <div className="flex flex-col sm:flex-row gap-4 justify-center items-center mb-8">
+            <div className="flex flex-col sm:flex-row gap-6 justify-center items-center mb-8">
               <Link to="/upload">
-                <Button className="bg-primary hover:bg-primary/90 text-white px-8 py-3 text-lg">
+                <Button size="lg" className="px-8 py-4 text-lg font-bold pulse-glow">
                   <FileText className="w-5 h-5 mr-2" />
                   Upload Document
                   <ArrowRight className="w-4 h-4 ml-2" />
                 </Button>
               </Link>
               <Link to="/blog">
-                <Button variant="outline" className="px-8 py-3 text-lg">
+                <Button variant="outline" size="lg" className="px-8 py-4 text-lg">
                   Learn More
                 </Button>
               </Link>
@@ -127,33 +127,33 @@ export default function Home() {
           {/* Features Section */}
           <section className="mb-16 animate-fade-in-scale">
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-              <div className="text-center">
-                <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-4">
-                  <Shield className="w-8 h-8 text-primary" />
+              <Card className="text-center p-8">
+                <div className="w-16 h-16 gradient-primary rounded-full flex items-center justify-center mx-auto mb-4">
+                  <Shield className="w-8 h-8 text-white" />
                 </div>
-                <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-3">Secure Processing</h3>
-                <p className="text-gray-600 dark:text-gray-300">
+                <h3 className="text-xl font-semibold text-foreground mb-3">Secure Processing</h3>
+                <p className="text-muted-foreground">
                   Your documents are processed with enterprise-grade security. No data is stored permanently.
                 </p>
-              </div>
-              <div className="text-center">
-                <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-4">
-                  <Clock className="w-8 h-8 text-primary" />
+              </Card>
+              <Card className="text-center p-8">
+                <div className="w-16 h-16 gradient-primary rounded-full flex items-center justify-center mx-auto mb-4">
+                  <Clock className="w-8 h-8 text-white" />
                 </div>
-                <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-3">Instant Analysis</h3>
-                <p className="text-gray-600 dark:text-gray-300">
+                <h3 className="text-xl font-semibold text-foreground mb-3">Instant Analysis</h3>
+                <p className="text-muted-foreground">
                   Get comprehensive analysis results in seconds, not hours. AI-powered insights delivered fast.
                 </p>
-              </div>
-              <div className="text-center">
-                <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-4">
-                  <CheckCircle className="w-8 h-8 text-primary" />
+              </Card>
+              <Card className="text-center p-8">
+                <div className="w-16 h-16 gradient-primary rounded-full flex items-center justify-center mx-auto mb-4">
+                  <CheckCircle className="w-8 h-8 text-white" />
                 </div>
-                <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-3">Plain English</h3>
-                <p className="text-gray-600 dark:text-gray-300">
+                <h3 className="text-xl font-semibold text-foreground mb-3">Plain English</h3>
+                <p className="text-muted-foreground">
                   Complex legal language transformed into clear, understandable summaries and insights.
                 </p>
-              </div>
+              </Card>
             </div>
           </section>
 
