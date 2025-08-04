@@ -1,8 +1,8 @@
 #!/usr/bin/env node
 
-const esbuild = require('esbuild');
-const path = require('path');
-const fs = require('fs');
+import esbuild from 'esbuild';
+import path from 'path';
+import fs from 'fs';
 
 console.log('🚀 Starting esbuild Development Server...');
 console.log('📦 Building React app with esbuild (the working system)');
