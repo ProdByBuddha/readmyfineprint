@@ -425,10 +425,12 @@ export function CombinedConsent({ onAccept }: CombinedConsentProps) {
             )}
           </Button>
 
-          <div className="flex gap-3 mt-1 text-[10px] justify-center sm:justify-start">
-            <a href="/privacy" className="text-blue-600 dark:text-blue-400 hover:underline">Privacy</a>
+          <div className="mt-2 text-[10px] text-center sm:text-left text-gray-500 dark:text-gray-400">
+            <a href="/privacy" className="text-blue-600 dark:text-blue-400 hover:underline">Privacy Policy</a>
+            <span className="mx-1">•</span>
             <a href="/terms" className="text-blue-600 dark:text-blue-400 hover:underline">Terms of Service</a>
-            <a href="/cookies" className="text-blue-600 dark:text-blue-400 hover:underline">Cookie Details</a>
+            <span className="mx-1">•</span>
+            <a href="/cookies" className="text-blue-600 dark:text-blue-400 hover:underline">Cookie Policy</a>
           </div>
         </div>
       </DialogContent>
@@ -498,10 +500,12 @@ export function CookieConsent() {
           </div>
         </div>
 
-          <div className="flex gap-3 mt-1 text-[10px] justify-center sm:justify-start">
-            <a href="/privacy" className="text-blue-600 dark:text-blue-400 hover:underline">Privacy</a>
+          <div className="mt-2 text-[10px] text-center sm:text-left text-gray-500 dark:text-gray-400">
+            <a href="/privacy" className="text-blue-600 dark:text-blue-400 hover:underline">Privacy Policy</a>
+            <span className="mx-1">•</span>
             <a href="/terms" className="text-blue-600 dark:text-blue-400 hover:underline">Terms of Service</a>
-            <a href="/cookies" className="text-blue-600 dark:text-blue-400 hover:underline">Cookie Details</a>
+            <span className="mx-1">•</span>
+            <a href="/cookies" className="text-blue-600 dark:text-blue-400 hover:underline">Cookie Policy</a>
           </div>
         </div>
     </div>
