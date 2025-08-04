@@ -38,9 +38,9 @@ try {
       NODE_ENV: 'production'
     }
   });
-  
+
   console.log('✅ Webpack build completed successfully');
-  
+
   // Copy additional static assets that webpack might miss
   const publicDir = path.join(__dirname, 'client', 'public');
   if (fs.existsSync(publicDir)) {
@@ -48,7 +48,7 @@ try {
     files.forEach(file => {
       const srcFile = path.join(publicDir, file);
       const destFile = path.join(distDir, file);
-      
+
       // Only copy if it doesn't already exist (webpack might have processed it)
       if (!fs.existsSync(destFile)) {
         fs.copyFileSync(srcFile, destFile);
@@ -56,64 +56,21 @@ try {
       }
     });
   }
-  
+
 } catch (error) {
   console.error('❌ Webpack build failed:', error.message);
   console.log('🔄 Falling back to esbuild approach...');
 
-// Build React app with esbuild
-try {
-  if (build) {
-    // Use imported esbuild function
-    await build({
-    entryPoints: ['client/src/main.tsx'],
-    bundle: true,
-    minify: true,
-    sourcemap: true,
-    target: ['es2020'],
-    format: 'esm',
-    outdir: distDir,
-    loader: {
-      '.tsx': 'tsx',
-      '.ts': 'ts',
-      '.jsx': 'jsx',
-      '.js': 'js',
-      '.css': 'css',
-      '.png': 'file',
-      '.jpg': 'file',
-      '.jpeg': 'file',
-      '.gif': 'file',
-      '.svg': 'file',
-      '.woff': 'file',
-      '.woff2': 'file',
-      '.ttf': 'file',
-      '.eot': 'file'
-    },
-    define: {
-      'process.env.NODE_ENV': '"production"',
-      'global': 'globalThis',
-      'React': 'window.React',
-      'import.meta.env.DEV': 'false',
-      'import.meta.env.PROD': 'true',
-      'import.meta.env.MODE': '"production"',
-      'import.meta.env.BASE_URL': '"/"',
-      'import.meta.env.VITE_STRIPE_PUBLIC_KEY': `"${process.env.VITE_STRIPE_PUBLIC_KEY || ''}"`
-    },
-    external: [],
-    splitting: true,
-    metafile: true,
-    write: true
-    });
-  } else {
+  // Build React app with esbuild
+  try {
     // Fallback to npx esbuild command
     console.log('📦 Using npx esbuild fallback...');
     const esbuildCmd = `npx esbuild client/src/main.tsx --bundle --minify --sourcemap --target=es2020 --format=esm --outdir=${distDir} --loader:.tsx=tsx --loader:.jsx=jsx --loader:.js=js --loader:.css=css --loader:.png=file --loader:.jpg=file --loader:.jpeg=file --loader:.gif=file --loader:.svg=file --loader:.woff=file --loader:.woff2=file --loader:.ttf=file --loader:.eot=file --define:process.env.NODE_ENV='"production"' --define:global=globalThis --define:import.meta.env.DEV=false --define:import.meta.env.PROD=true --define:import.meta.env.MODE='"production"' --define:import.meta.env.BASE_URL='"/"' --define:import.meta.env.VITE_STRIPE_PUBLIC_KEY='"${process.env.VITE_STRIPE_PUBLIC_KEY || ''}"' --splitting --metafile`;
 
     execSync(esbuildCmd, { stdio: 'inherit' });
-  }
 
-  // Create index.html
-  const indexHtml = `<!DOCTYPE html>
+    // Create index.html
+    const indexHtml = `<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -138,13 +95,14 @@ try {
 </body>
 </html>`;
 
-  fs.writeFileSync(path.join(distDir, 'index.html'), indexHtml);
+    fs.writeFileSync(path.join(distDir, 'index.html'), indexHtml);
 
-  console.log('✅ Build completed successfully with esbuild fallback');
+    console.log('✅ Build completed successfully with esbuild fallback');
 
-} catch (error) {
-  console.error('❌ All build methods failed:', error);
-  process.exit(1);
+  } catch (error) {
+    console.error('❌ All build methods failed:', error);
+    process.exit(1);
+  }
 }
 
 console.log('🎉 Production build completed successfully!');
