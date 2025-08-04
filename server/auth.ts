@@ -122,7 +122,7 @@ export async function requireAdminAuth(req: Request, res: Response, next: NextFu
         const subscriptionToken = cookies.subscriptionToken;
         if (subscriptionToken) {
           const { joseAuthService } = await import('./jose-auth-service');
-          const validation = await joseAuthService.validateToken(subscriptionToken);
+          const validation = await joseAuthService.validateSubscriptionToken(subscriptionToken);
           
           if (validation.valid && validation.payload) {
             const user = await databaseStorage.getUser(validation.payload.userId);

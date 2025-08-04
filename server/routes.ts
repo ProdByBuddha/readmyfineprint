@@ -1663,7 +1663,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       // Create consistent user identifier for rate limiting
       let rateLimitUserId: string;
-      if (userId && userId !== "anonymous" && !userId.length === 32) {
+      if (userId && userId !== "anonymous" && userId.length !== 32) {
         // Authenticated user - use actual user ID
         rateLimitUserId = userId;
       } else {
