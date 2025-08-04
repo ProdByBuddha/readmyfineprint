@@ -95,13 +95,13 @@ export function Footer() {
           <div className="flex items-center gap-2">
             <Link 
               to="/privacy" 
-              className="text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200 transition-colors py-1"
+              className="text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200 transition-colors py-1 flex items-center"
             >
               Privacy
             </Link>
             <Link 
               to="/terms" 
-              className="text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200 transition-colors py-1"
+              className="text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200 transition-colors py-1 flex items-center"
             >
               Terms
             </Link>
@@ -128,7 +128,7 @@ export function Footer() {
             </button>
             <a
               href="mailto:admin@readmyfineprint.com"
-              className="text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200 transition-colors py-1"
+              className="text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200 transition-colors py-1 flex items-center"
             >
               Contact
             </a>
