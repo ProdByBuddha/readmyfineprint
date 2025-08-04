@@ -300,11 +300,11 @@ export function Header() {
                   className={`${isMobile ? 'w-8 h-8' : 'w-10 h-10'} object-contain rounded-lg`}
                 />
               </div>
-              <h1 className="text-2xl font-bold bg-gradient-to-r from-blue-600 via-purple-600 to-teal-600 bg-clip-text text-transparent hidden md:block">
+              <h1 className="text-3xl font-black bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 bg-clip-text text-transparent hidden md:block tracking-tight">
                 RMFP
               </h1>
               {isMobile && (
-                <h1 className="text-xl font-bold bg-gradient-to-r from-blue-600 via-purple-600 to-teal-600 bg-clip-text text-transparent tracking-tight">
+                <h1 className="text-2xl font-black bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 bg-clip-text text-transparent tracking-tight">
                   RMFP
                 </h1>
               )}
