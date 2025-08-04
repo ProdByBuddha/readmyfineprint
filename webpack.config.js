@@ -1,5 +1,6 @@
 import path from 'path';
 import { fileURLToPath } from 'url';
+import webpack from 'webpack';
 import HtmlWebpackPlugin from 'html-webpack-plugin';
 import MiniCssExtractPlugin from 'mini-css-extract-plugin';
 
@@ -72,6 +73,13 @@ export default {
   },
   
   plugins: [
+    new webpack.DefinePlugin({
+      'import.meta.env.DEV': JSON.stringify(isDevelopment),
+      'import.meta.env.MODE': JSON.stringify(isDevelopment ? 'development' : 'production'),
+      'import.meta.env.VITE_STRIPE_PUBLIC_KEY': JSON.stringify(process.env.VITE_STRIPE_PUBLIC_KEY || ''),
+      'import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY': JSON.stringify(process.env.VITE_STRIPE_PUBLISHABLE_KEY || ''),
+      'import.meta.env.VITE_ADMIN_API_KEY': JSON.stringify(process.env.VITE_ADMIN_API_KEY || ''),
+    }),
     new HtmlWebpackPlugin({
       template: './client/index.html',
       inject: true,
@@ -106,23 +114,26 @@ export default {
     static: {
       directory: path.join(__dirname, 'client/public'),
     },
-    proxy: {
-      '/api': {
+    proxy: [
+      {
+        context: ['/api'],
         target: 'http://localhost:3000',
         changeOrigin: true,
         secure: false,
       },
-      '/health': {
+      {
+        context: ['/health'],
         target: 'http://localhost:3000',
         changeOrigin: true,
         secure: false,
       },
-      '/admin': {
+      {
+        context: ['/admin'],
         target: 'http://localhost:3000',
         changeOrigin: true,
         secure: false,
       },
-    },
+    ],
   },
   
   performance: {

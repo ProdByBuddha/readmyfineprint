@@ -1,8 +1,9 @@
-// Simplified PostCSS config without TailwindCSS to bypass styling issues
+import tailwindcssPostcss from '@tailwindcss/postcss';
+import autoprefixer from 'autoprefixer';
+
 export default {
   plugins: [
-    // Temporarily remove TailwindCSS to fix build
-    // 'tailwindcss',
-    'autoprefixer',
+    tailwindcssPostcss,
+    autoprefixer,
   ],
 };
