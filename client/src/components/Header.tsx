@@ -300,11 +300,11 @@ export function Header() {
                   className={`${isMobile ? 'w-8 h-8' : 'w-10 h-10'} object-contain rounded-lg`}
                 />
               </div>
-              <h1 className="text-xl font-bold text-primary dark:text-primary hidden md:block">
-                ReadMyFinePrint
+              <h1 className="text-xl font-bold text-teal-600 hidden md:block">
+                RMFP
               </h1>
               {isMobile && (
-                <h1 className="text-lg font-bold text-primary dark:text-primary tracking-tight">
+                <h1 className="text-lg font-bold text-teal-600 tracking-tight">
                   RMFP
                 </h1>
               )}
