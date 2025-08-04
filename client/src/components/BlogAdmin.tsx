@@ -125,6 +125,7 @@ export function BlogAdmin() {
         setPosts(postsData.posts);
       } catch (error) {
         console.error('Failed to load posts:', error);
+        setError('Failed to load posts: ' + (error instanceof Error ? error.message : String(error)));
       }
 
       // Load topics
@@ -168,9 +169,11 @@ export function BlogAdmin() {
       }
     } catch (error) {
       console.error('Error loading blog admin data:', error);
+      const errorMessage = error instanceof Error ? error.message : String(error);
+      setError('Failed to load blog admin data: ' + errorMessage);
       toast({
         title: 'Error',
-        description: 'Failed to load blog admin data',
+        description: 'Failed to load blog admin data: ' + errorMessage,
         variant: 'destructive',
       });
     } finally {
@@ -191,20 +194,27 @@ export function BlogAdmin() {
           });
           
           if (!subscriptionData.ok) {
-            setError('Please log in to access admin features.');
+            const errorText = await subscriptionData.text().catch(() => 'Unknown error');
+            console.error('Subscription check failed:', subscriptionData.status, errorText);
+            setError(`Authentication failed: ${errorText}. Please log in to access admin features.`);
             setLoading(false);
             return;
           }
 
           const subData = await subscriptionData.json();
-          if (subData.tier?.id !== 'ultimate') {
-            setError('Admin access required. You need ultimate tier access to manage the blog.');
+          console.log('Subscription data received:', subData);
+          
+          if (!subData.tier || subData.tier.id !== 'ultimate') {
+            console.error('Insufficient tier access:', subData.tier);
+            setError(`Admin access required. Current tier: ${subData.tier?.id || 'none'}. You need ultimate tier access to manage the blog.`);
             setLoading(false);
             return;
           }
+          
+          console.log('✅ Admin access verified via ultimate tier');
         } catch (authError) {
           console.error('Authentication check failed:', authError);
-          setError('Authentication failed. Please log in with an admin account.');
+          setError('Authentication failed: ' + (authError instanceof Error ? authError.message : String(authError)));
           setLoading(false);
           return;
         }

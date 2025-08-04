@@ -284,15 +284,11 @@ export async function requireAdminViaSubscription(req: Request, res: Response, n
       
       if (sessionId) {
         try {
-          console.log('🔍 Attempting session-based token lookup for admin access...');
           const { postgresqlSessionStorage } = await import('./postgresql-session-storage');
           const sessionToken = await postgresqlSessionStorage.getTokenBySession(sessionId);
           
           if (sessionToken) {
-            console.log(`✅ Found subscription token via session lookup for sessionId: ${sessionId.substring(0, 8)}...`);
             adminSubscriptionToken = sessionToken;
-          } else {
-            console.log(`❌ No subscription token found for sessionId: ${sessionId.substring(0, 8)}...`);
           }
         } catch (sessionError) {
           console.error('Error during session-based token lookup:', sessionError);
