@@ -89,19 +89,19 @@ export function Footer() {
         <div className="flex items-center justify-center flex-wrap gap-x-4 gap-y-2 text-sm mb-2">
           <Link 
             to="/privacy" 
-            className="text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200 px-2 py-1 rounded transition-colors min-h-[44px] flex items-center"
+            className="text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200 transition-colors min-h-[44px] flex items-center"
           >
             Privacy
           </Link>
           <Link 
             to="/terms" 
-            className="text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200 px-2 py-1 rounded transition-colors min-h-[44px] flex items-center"
+            className="text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200 transition-colors min-h-[44px] flex items-center"
           >
             Terms
           </Link>
           <Link 
             to="/cookies" 
-            className="text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-200 flex items-center gap-1 px-2 py-1 rounded transition-colors min-h-[44px]"
+            className="text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-200 flex items-center gap-1 transition-colors min-h-[44px]"
           >
             <Cookie className="w-4 h-4" />
             Cookies
@@ -112,21 +112,21 @@ export function Footer() {
         <div className="flex items-center justify-center flex-wrap gap-x-4 gap-y-2 text-sm">
           <Link 
             to="/donate" 
-            className="text-red-600 dark:text-red-400 hover:text-red-700 dark:hover:text-red-300 flex items-center gap-1 px-2 py-1 rounded transition-colors min-h-[44px]"
+            className="text-red-600 dark:text-red-400 hover:text-red-700 dark:hover:text-red-300 flex items-center gap-1 transition-colors min-h-[44px]"
           >
             <Heart className="w-4 h-4" />
             Donate
           </Link>
           <button
             onClick={handleShareClick}
-            className="text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 flex items-center gap-1 px-2 py-1 rounded transition-colors min-h-[44px]"
+            className="text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 flex items-center gap-1 transition-colors min-h-[44px]"
           >
             <Share2 className="w-4 h-4" />
             Share
           </button>
           <a
             href="mailto:admin@readmyfineprint.com"
-            className="text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200 px-2 py-1 rounded transition-colors min-h-[44px] flex items-center"
+            className="text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200 transition-colors min-h-[44px] flex items-center"
           >
             Contact
           </a>
