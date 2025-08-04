@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 
-const { spawn } = require('child_process');
-const path = require('path');
+import { spawn } from 'child_process';
+import path from 'path';
 
 console.log('🚀 Starting Parcel Development Server...');
 console.log('📦 Building React app with Parcel zero-config bundler');
