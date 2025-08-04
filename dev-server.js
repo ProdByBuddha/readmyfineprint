@@ -1,4 +1,3 @@
-
 import express from 'express';
 import path from 'path';
 import fs from 'fs';
@@ -9,9 +8,6 @@ const __dirname = path.dirname(__filename);
 
 const app = express();
 const PORT = 5173;
-
-// Serve static files from client/public
-app.use(express.static(path.join(__dirname, 'client', 'public')));
 
 // Simple dev index.html that loads React in development mode
 const devIndexHtml = `<!DOCTYPE html>
@@ -39,21 +35,19 @@ const devIndexHtml = `<!DOCTYPE html>
         );
       }
       
-      ReactDOM.render(React.createElement(App), document.getElementById('root'));
+      const root = ReactDOM.createRoot(document.getElementById('root'));
+      root.render(React.createElement(App));
     </script>
 </body>
 </html>`;
 
-// Handle all routes with a simple function instead of using wildcards that might cause path-to-regexp issues
-app.use((req, res, next) => {
-  // Skip if it's a static file request
-  if (req.path.includes('.') && !req.path.includes('/api/')) {
-    return next();
-  }
-  
-  // Serve the dev index for all non-static routes
+// Serve the dev index for the root path
+app.get('/', (req, res) => {
   res.send(devIndexHtml);
 });
+
+// Serve static files from client/public for all other requests
+app.use(express.static(path.join(__dirname, 'client', 'public')));
 
 app.listen(PORT, '0.0.0.0', () => {
   console.log(`🚀 Development server running on http://0.0.0.0:${PORT}`);
