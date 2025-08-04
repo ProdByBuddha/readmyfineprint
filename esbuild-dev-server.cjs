@@ -42,18 +42,69 @@ const startServer = async () => {
         {
           name: 'resolve-plugin',
           setup(build) {
+            const fs = require('fs');
+            
+            // Helper function to resolve file with extensions
+            const resolveFileWithExtensions = (basePath) => {
+              const extensions = ['.tsx', '.ts', '.jsx', '.js', '.json'];
+              
+              // Check if exact path exists
+              if (fs.existsSync(basePath)) {
+                return basePath;
+              }
+              
+              // Try with extensions
+              for (const ext of extensions) {
+                const fullPath = basePath + ext;
+                if (fs.existsSync(fullPath)) {
+                  return fullPath;
+                }
+              }
+              
+              // Try index files
+              for (const ext of extensions) {
+                const indexPath = path.join(basePath, `index${ext}`);
+                if (fs.existsSync(indexPath)) {
+                  return indexPath;
+                }
+              }
+              
+              return null;
+            };
+            
             // Handle @ alias imports
-            build.onResolve({ filter: /^@\// }, args => ({
-              path: path.join(__dirname, 'client/src', args.path.slice(2)),
-            }));
+            build.onResolve({ filter: /^@\// }, args => {
+              const basePath = path.join(__dirname, 'client/src', args.path.slice(2));
+              const resolvedPath = resolveFileWithExtensions(basePath);
+              
+              if (resolvedPath) {
+                return { path: resolvedPath };
+              }
+              
+              return { errors: [{ text: `Cannot resolve ${args.path}` }] };
+            });
             
-            build.onResolve({ filter: /^@shared/ }, args => ({
-              path: path.join(__dirname, 'shared', args.path.slice(8)),
-            }));
+            build.onResolve({ filter: /^@shared/ }, args => {
+              const basePath = path.join(__dirname, 'shared', args.path.slice(8));
+              const resolvedPath = resolveFileWithExtensions(basePath);
+              
+              if (resolvedPath) {
+                return { path: resolvedPath };
+              }
+              
+              return { errors: [{ text: `Cannot resolve ${args.path}` }] };
+            });
             
-            build.onResolve({ filter: /^@assets/ }, args => ({
-              path: path.join(__dirname, 'attached_assets', args.path.slice(8)),
-            }));
+            build.onResolve({ filter: /^@assets/ }, args => {
+              const basePath = path.join(__dirname, 'attached_assets', args.path.slice(8));
+              const resolvedPath = resolveFileWithExtensions(basePath);
+              
+              if (resolvedPath) {
+                return { path: resolvedPath };
+              }
+              
+              return { errors: [{ text: `Cannot resolve ${args.path}` }] };
+            });
           },
         },
       ],
