@@ -392,7 +392,7 @@ export class SubscriptionService {
       }
 
       // Check if userId is invalid or this is a session ID (not a real user) - handle as free tier session user
-      if (!userId || userId.length === 32 || userId.includes('session_') || userId.startsWith('test-session-') || !userId.includes('-')) {
+      if (!userId || userId.length === 32 || userId.includes('session_') || userId.startsWith('test-session-') || userId.startsWith('anon_') || !userId.includes('-')) {
         if (!userId) {
           console.warn(`⚠️ getUserSubscriptionWithUsage called with undefined userId`);
         }
@@ -1148,7 +1148,7 @@ export class SubscriptionService {
       // Route anonymous/session users through collective free tier user with individual tracking
       let trackingUserId = userId;
 
-      if (userId === "anonymous" || userId.startsWith('session_') || userId.startsWith('test-session-') || userId.length === 32) {
+      if (userId === "anonymous" || userId.startsWith('session_') || userId.startsWith('test-session-') || userId.startsWith('anon_') || userId.length === 32) {
         trackingUserId = '00000000-0000-0000-0000-000000000001';
 
         // Track usage through collective user service with individual tracking

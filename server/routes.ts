@@ -1034,7 +1034,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Document analysis endpoint (simplified version for testing)
+  // Document analysis endpoint (simplified version for testing with tier-based rate limiting)
   app.post('/api/document/analyze', optionalUserAuth, async (req: any, res) => {
     try {
       const { content, filename } = req.body;
@@ -1046,11 +1046,72 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Get user subscription for rate limiting
       const subscriptionData = req.user?.id 
         ? await subscriptionService.getUserSubscriptionDetails(req.user.id)
-        : { tier: { id: 'free', model: 'gpt-4o-mini' } };
+        : { tier: { id: 'free', model: 'gpt-4o-mini', limits: { documentsPerMonth: 10 } } };
+      
+      // ENFORCE RATE LIMITING BASED ON TIER
+      const currentMonth = new Date().toISOString().slice(0, 7); // YYYY-MM format
+      const userId = req.user?.id || req.sessionId || 'anonymous';
+      
+      // Get current month usage from database/storage
+      const { collectiveUserService } = await import('./collective-user-service');
+      
+      // Check if user has exceeded their monthly limit
+      const monthlyLimit = subscriptionData.tier.limits?.documentsPerMonth || 10;
+      
+      // Use proper user tracking for free tier rate limiting with consistent identifier
+      const simpleDeviceFingerprint = req.headers['x-device-fingerprint'] as string;
+      const simpleClientIp = req.ip || req.socket.remoteAddress || 'unknown';
+      
+      // Create consistent user identifier for rate limiting (same approach as main endpoint)
+      let simpleRateLimitUserId: string;
+      if (req.user?.id && req.user.id !== "anonymous") {
+        // Authenticated user - use actual user ID
+        simpleRateLimitUserId = req.user.id;
+      } else {
+        // Anonymous user - use device fingerprint + IP hash for consistency
+        const simpleAnonymousIdentifier = crypto.createHash('sha256')
+          .update(`${simpleDeviceFingerprint || 'unknown'}:${simpleClientIp}`)
+          .digest('hex')
+          .substring(0, 16);
+        simpleRateLimitUserId = `anon_${simpleAnonymousIdentifier}`;
+      }
+      
+      console.log(`📊 Simple endpoint rate limiting check for user: ${simpleRateLimitUserId} (tier: ${subscriptionData.tier.id})`);
+      
+      // Get current subscription data with usage tracking for this specific user
+      const currentSubscriptionData = await subscriptionService.getUserSubscriptionWithUsage(simpleRateLimitUserId);
+      
+      // Check if user can analyze another document
+      if (currentSubscriptionData.tier.limits.documentsPerMonth !== -1) {
+        if (currentSubscriptionData.usage.documentsAnalyzed >= currentSubscriptionData.tier.limits.documentsPerMonth) {
+          return res.status(429).json({
+            error: `Monthly document limit reached (${currentSubscriptionData.tier.limits.documentsPerMonth} documents for ${currentSubscriptionData.tier.id} tier)`,
+            limit: currentSubscriptionData.tier.limits.documentsPerMonth,
+            used: currentSubscriptionData.usage.documentsAnalyzed,
+            resetDate: currentSubscriptionData.usage.resetDate,
+            upgradeRequired: currentSubscriptionData.tier.id === 'free'
+          });
+        }
+      }
+      
+      // Track usage for rate limiting (increment document analysis count) with consistent user ID
+      await subscriptionService.trackUsage(
+        simpleRateLimitUserId, // Use the same identifier as rate limiting check
+        1500, // Mock token usage
+        currentSubscriptionData.tier.model,
+        {
+          sessionId: req.sessionId,
+          deviceFingerprint: simpleDeviceFingerprint || 'unknown',
+          ipAddress: simpleClientIp
+        }
+      );
+      
+      // Get updated usage after tracking
+      const updatedSubscriptionData = await subscriptionService.getUserSubscriptionWithUsage(simpleRateLimitUserId);
       
       // Mock analysis for testing purposes
       const mockAnalysis = {
-        summary: `Analysis of ${filename || 'document'}: This is a ${subscriptionData.tier.id} tier analysis.`,
+        summary: `Analysis of ${filename || 'document'}: This is a ${updatedSubscriptionData.tier.id} tier analysis. Usage: ${updatedSubscriptionData.usage.documentsAnalyzed}/${updatedSubscriptionData.tier.limits.documentsPerMonth}`,
         keyPoints: [
           "Mock analysis point 1",
           "Mock analysis point 2", 
@@ -1060,8 +1121,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
         recommendations: ["Mock recommendation"],
         confidence: 0.95,
         processingTime: Math.random() * 1000 + 500,
-        model: subscriptionData.tier.model,
-        testMode: true
+        model: updatedSubscriptionData.tier.model,
+        testMode: true,
+        tierInfo: {
+          name: updatedSubscriptionData.tier.id,
+          documentsUsed: updatedSubscriptionData.usage.documentsAnalyzed,
+          documentsLimit: updatedSubscriptionData.tier.limits.documentsPerMonth,
+          remainingDocuments: updatedSubscriptionData.tier.limits.documentsPerMonth - updatedSubscriptionData.usage.documentsAnalyzed
+        }
       };
       
       res.json({
@@ -1069,7 +1136,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
         title: filename || 'Test Document',
         content: content,
         analysis: mockAnalysis,
-        createdAt: new Date().toISOString()
+        createdAt: new Date().toISOString(),
+        usage: {
+          documentsUsed: updatedSubscriptionData.usage.documentsAnalyzed,
+          documentsLimit: updatedSubscriptionData.tier.limits.documentsPerMonth,
+          resetDate: updatedSubscriptionData.usage.resetDate
+        }
       });
     } catch (error) {
       console.error('Error in document analysis:', error);
@@ -1584,15 +1656,38 @@ export async function registerRoutes(app: Express): Promise<Server> {
         userId = finalUserId;
       }
 
-      // Check if user can analyze another document
-      if (subscriptionData.tier.limits.documentsPerMonth !== -1) {
-        if (subscriptionData.usage.documentsAnalyzed >= subscriptionData.tier.limits.documentsPerMonth) {
+      // CRITICAL: Check if user can analyze another document using proper user-specific tracking
+      // Use device fingerprint + IP as consistent identifier for anonymous users
+      const deviceFingerprint = req.headers['x-device-fingerprint'] as string;
+      const rateLimitClientIp = req.ip || req.socket.remoteAddress || 'unknown';
+      
+      // Create consistent user identifier for rate limiting
+      let rateLimitUserId: string;
+      if (userId && userId !== "anonymous" && !userId.length === 32) {
+        // Authenticated user - use actual user ID
+        rateLimitUserId = userId;
+      } else {
+        // Anonymous user - use device fingerprint + IP hash for consistency
+        const anonymousIdentifier = crypto.createHash('sha256')
+          .update(`${deviceFingerprint || 'unknown'}:${rateLimitClientIp}`)
+          .digest('hex')
+          .substring(0, 16);
+        rateLimitUserId = `anon_${anonymousIdentifier}`;
+      }
+      
+      console.log(`📊 Rate limiting check for user: ${rateLimitUserId} (tier: ${subscriptionData.tier.id})`);
+      
+      // Get current subscription data with usage tracking for this specific user
+      const userSpecificSubscriptionData = await subscriptionService.getUserSubscriptionWithUsage(rateLimitUserId);
+      
+      if (userSpecificSubscriptionData.tier.limits.documentsPerMonth !== -1) {
+        if (userSpecificSubscriptionData.usage.documentsAnalyzed >= userSpecificSubscriptionData.tier.limits.documentsPerMonth) {
           return res.status(429).json({
             error: "Monthly document limit reached",
-            limit: subscriptionData.tier.limits.documentsPerMonth,
-            used: subscriptionData.usage.documentsAnalyzed,
-            resetDate: subscriptionData.usage.resetDate,
-            suggestedUpgrade: subscriptionData.suggestedUpgrade
+            limit: userSpecificSubscriptionData.tier.limits.documentsPerMonth,
+            used: userSpecificSubscriptionData.usage.documentsAnalyzed,
+            resetDate: userSpecificSubscriptionData.usage.resetDate,
+            suggestedUpgrade: userSpecificSubscriptionData.suggestedUpgrade
           });
         }
       }
@@ -1640,9 +1735,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
           clientFingerprint
         );
 
-        // Track usage for rate limiting testing
+        // Track usage for rate limiting testing with proper user identifier
         await subscriptionService.trackUsage(
-          userId,
+          rateLimitUserId, // Use the same identifier as rate limiting check
           1500, // Mock token usage
           subscriptionData.tier.model,
           {
@@ -2492,7 +2587,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
         },
       });
 
-      res.json({ url: session.url });
+      res.json({ 
+        url: session.url,
+        sessionId: session.id,
+        testMode: useTestMode
+      });
     } catch (error) {
       console.error("Error creating subscription checkout session:", error);
       res.status(500).json({ 
