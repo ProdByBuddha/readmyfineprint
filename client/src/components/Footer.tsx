@@ -84,7 +84,7 @@ export function Footer() {
       aria-label="Site footer"
     >
       {/* Mobile Layout - Better organized with proper spacing */}
-      <div className="md:hidden px-4 py-3">
+      <div className="md:hidden px-4 py-2">
         {/* Main links row */}
         <div className="flex items-center justify-center flex-wrap gap-x-4 gap-y-2 text-sm mb-2">
           <Link 
