@@ -1,12 +1,7 @@
 #!/usr/bin/env node
 
-import esbuild from 'esbuild';
-import path from 'path';
-import fs from 'fs';
-import { fileURLToPath } from 'url';
-
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
+const esbuild = require('esbuild');
+const path = require('path');
 
 console.log('🚀 Starting esbuild Development Server...');
 console.log('📦 Building React app with esbuild (the working system)');
@@ -42,23 +37,23 @@ const startServer = async () => {
         'import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY': `"${process.env.VITE_STRIPE_PUBLISHABLE_KEY || ''}"`,
         'import.meta.env.VITE_ADMIN_API_KEY': `"${process.env.VITE_ADMIN_API_KEY || ''}"`,
       },
-      alias: {
-        '@': path.resolve(__dirname, 'client/src'),
-        '@shared': path.resolve(__dirname, 'shared'),
-        '@assets': path.resolve(__dirname, 'attached_assets'),
-      },
+
       plugins: [
         {
-          name: 'css-plugin',
+          name: 'resolve-plugin',
           setup(build) {
-            // Handle CSS imports
-            build.onLoad({ filter: /\.css$/ }, async (args) => {
-              const css = await fs.promises.readFile(args.path, 'utf8');
-              return {
-                contents: css,
-                loader: 'css',
-              };
-            });
+            // Handle @ alias imports
+            build.onResolve({ filter: /^@\// }, args => ({
+              path: path.join(__dirname, 'client/src', args.path.slice(2)),
+            }));
+            
+            build.onResolve({ filter: /^@shared/ }, args => ({
+              path: path.join(__dirname, 'shared', args.path.slice(8)),
+            }));
+            
+            build.onResolve({ filter: /^@assets/ }, args => ({
+              path: path.join(__dirname, 'attached_assets', args.path.slice(8)),
+            }));
           },
         },
       ],
@@ -72,7 +67,7 @@ const startServer = async () => {
       fallback: 'client/index.html',
     });
 
-    console.log(`✅ esbuild dev server running at http://${host}:${port}`);
+    console.log(`✅ esbuild dev server running at http://localhost:${port}`);
     console.log('🎨 Your beautiful modern styling should now render correctly!');
 
     // Watch for changes
