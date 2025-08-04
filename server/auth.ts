@@ -105,6 +105,47 @@ export async function requireAdminAuth(req: Request, res: Response, next: NextFu
     }
   }
 
+  // In development mode, also check for session-based admin authentication
+  if (process.env.NODE_ENV === 'development') {
+    try {
+      // Check cookies for admin session
+      const cookieHeader = req.headers.cookie;
+      if (cookieHeader) {
+        const cookies: Record<string, string> = {};
+        cookieHeader.split(';').forEach((cookie) => {
+          const parts = cookie.trim().split('=');
+          if (parts.length === 2) {
+            cookies[parts[0]] = decodeURIComponent(parts[1]);
+          }
+        });
+        
+        const subscriptionToken = cookies.subscriptionToken;
+        if (subscriptionToken) {
+          const { joseAuthService } = await import('./jose-auth-service');
+          const validation = await joseAuthService.validateToken(subscriptionToken);
+          
+          if (validation.valid && validation.payload) {
+            const user = await databaseStorage.getUser(validation.payload.userId);
+            if (user) {
+              const adminEmails = ['admin@readmyfineprint.com', 'prodbybuddha@icloud.com', 'beatsbybuddha@gmail.com'];
+              if (adminEmails.includes(user.email)) {
+                console.log(`✅ Admin access granted via session token in dev mode: ${user.email}`);
+                securityLogger.logAdminAuth(ip, userAgent, req.path + ' (session token dev)');
+                req.user = {
+                  id: user.id,
+                  email: user.email,
+                };
+                return next();
+              }
+            }
+          }
+        }
+      }
+    } catch (sessionError) {
+      console.log('Session admin check failed in dev mode:', sessionError);
+    }
+  }
+
   securityLogger.logFailedAuth(ip, userAgent, 'Admin authentication required', req.path);
   return res.status(401).json({
     error: 'Admin authentication required. Please log in to access this resource.',

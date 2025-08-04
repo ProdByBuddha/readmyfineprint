@@ -375,7 +375,12 @@ app.get('/api/csrf-token', (req: any, res) => {
   
   // Fallback for development or when no session
   console.log(`🔍 Returning dev-disabled token`);
-  return res.json({ csrfToken: 'dev-disabled' });
+  const csrfToken = 'dev-disabled';
+  return res.json({ 
+    csrfToken,
+    token: csrfToken, // Alternative field for compatibility
+    csrf: csrfToken   // Another alternative for different clients
+  });
 });
 
 // Add CSRF protection middleware
