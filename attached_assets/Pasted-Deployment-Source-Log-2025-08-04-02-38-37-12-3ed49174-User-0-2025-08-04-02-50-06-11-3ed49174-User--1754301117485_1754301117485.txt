@@ -1,0 +1,127 @@
+Deployment
+Source
+Log
+2025-08-04 02:38:37.12
+3ed49174
+User
+[0]
+2025-08-04 02:50:06.11
+3ed49174
+User
+[2] ────────────────────────────────────────────────────────────
+2025-08-04 02:50:06.11
+3ed49174
+User
+[2] Overall Status: ❌ ISSUES DETECTED
+2025-08-04 02:50:06.11
+3ed49174
+User
+[2]
+2025-08-04 02:50:06.11
+3ed49174
+User
+[2] 🚨 Critical Issues:
+2025-08-04 02:50:06.11
+3ed49174
+User
+[2] • server: Server responded with status 404
+2025-08-04 02:50:06.11
+3ed49174
+User
+[2] • database: Database health check failed with status 404
+2025-08-04 02:50:06.11
+3ed49174
+User
+[2] • email: Email test failed: Not Found
+2025-08-04 02:50:06.11
+3ed49174
+User
+[2] • external: External endpoint responded with status 404
+2025-08-04 02:50:06.82
+3ed49174
+User
+[2] ❌ Failed to send email alert: 404 Not Found
+2025-08-04 02:51:04.13
+3ed49174
+System
+system: received signal terminated
+2025-08-04 02:51:02.93
+eba5d89c
+User
+[2]
+2025-08-04 02:51:02.93
+eba5d89c
+User
+[2] 🔍 Production Health Check - 2025-08-04T09:51:02.936Z
+2025-08-04 02:51:02.93
+eba5d89c
+User
+[2] 🌍 Environment: production
+2025-08-04 02:51:02.93
+eba5d89c
+User
+[2] ────────────────────────────────────────────────────────────
+2025-08-04 02:51:03.83
+eba5d89c
+User
+[2] ❌ SERVER: Server responded with status 404
+2025-08-04 02:51:03.89
+eba5d89c
+User
+[2] ❌ DATABASE: Database health check failed with status 404
+2025-08-04 02:51:03.95
+eba5d89c
+User
+[2] ❌ EMAIL: Email test failed: Not Found
+2025-08-04 02:51:04.04
+eba5d89c
+User
+[2]
+2025-08-04 02:51:04.05
+eba5d89c
+User
+✅ PROCESSES: 10 server processes running
+2025-08-04 02:51:04.07
+eba5d89c
+User
+[2] ❌ EXTERNAL: External endpoint responded with status 404
+2025-08-04 02:51:04.87
+eba5d89c
+User
+[2] ⚠️ RESOURCES: High memory usage: 962MB (12.1%), CPU usage normal
+2025-08-04 02:51:04.87
+eba5d89c
+User
+[2] ────────────────────────────────────────────────────────────
+2025-08-04 02:51:04.87
+eba5d89c
+User
+[2] Overall Status: ❌ ISSUES DETECTED
+2025-08-04 02:51:04.87
+eba5d89c
+User
+[2]
+2025-08-04 02:51:04.87
+eba5d89c
+User
+[2] 🚨 Critical Issues:
+2025-08-04 02:51:04.87
+eba5d89c
+User
+[2] • server: Server responded with status 404
+2025-08-04 02:51:04.87
+eba5d89c
+User
+[2] • database: Database health check failed with status 404
+2025-08-04 02:51:04.87
+eba5d89c
+User
+[2] • email: Email test failed: Not Found
+2025-08-04 02:51:04.87
+eba5d89c
+User
+[2] • external: External endpoint responded with status 404
+2025-08-04 02:51:05.34
+eba5d89c
+User
+[2] ❌ Failed to send email alert: 404 Not Found
