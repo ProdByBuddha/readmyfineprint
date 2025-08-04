@@ -58,7 +58,7 @@ export function CookieConsentBanner({ onAccept }: CookieConsentBannerProps) {
   }
 
   return (
-    <div className="fixed bottom-0 left-0 right-0 z-50 bg-white/95 dark:bg-gray-900/95 backdrop-blur-sm border-t border-gray-200 dark:border-gray-700 shadow-lg"></div>
+    <div className="fixed bottom-0 left-0 right-0 z-50 bg-white/95 dark:bg-gray-900/95 backdrop-blur-sm border-t border-gray-200 dark:border-gray-700 shadow-lg">
       <div className="max-w-6xl mx-auto p-4">
         <div className="flex flex-col sm:flex-row items-start gap-4">
           <div className="flex items-center gap-2 sm:mt-1">
