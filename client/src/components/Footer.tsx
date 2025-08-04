@@ -85,21 +85,21 @@ export function Footer() {
     >
       {/* Mobile Layout - Minimal single row */}
       <div className="md:hidden px-2 py-1">
-        <div className="flex items-center justify-center gap-3 text-xs">
-          <Link to="/privacy" className="text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200">Privacy</Link>
-          <Link to="/terms" className="text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200">Terms</Link>
-          <Link to="/cookies" className="text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-200 flex items-center gap-1">
-            <Cookie className="w-2.5 h-2.5" />
+        <div className="flex items-center justify-center gap-2 text-xs">
+          <Link to="/privacy" className="text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200 py-1">Privacy</Link>
+          <Link to="/terms" className="text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200 py-1">Terms</Link>
+          <Link to="/cookies" className="text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-200 flex items-center gap-1 py-1">
+            <Cookie className="w-3 h-3" />
             Cookies
           </Link>
-          <Link to="/donate" className="text-red-600 dark:text-red-400 hover:text-red-700 dark:hover:text-red-300 flex items-center gap-1">
-            <Heart className="w-2.5 h-2.5" />Donate
+          <Link to="/donate" className="text-red-600 dark:text-red-400 hover:text-red-700 dark:hover:text-red-300 flex items-center gap-1 py-1">
+            <Heart className="w-3 h-3" />Donate
           </Link>
           <button
             onClick={handleShareClick}
-            className="text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 flex items-center gap-1"
+            className="text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 flex items-center gap-1 py-1"
           >
-            <Share2 className="w-2.5 h-2.5" />Share
+            <Share2 className="w-3 h-3" />Share
           </button>
         </div>
       </div>
@@ -116,48 +116,48 @@ export function Footer() {
           <div className="flex items-center gap-3 text-xs">
             <Link
               to="/privacy"
-              className="text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white transition-all duration-300 ease-in-out"
+              className="text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white transition-all duration-300 ease-in-out py-1"
             >
               Privacy Policy
             </Link>
             <Link
               to="/terms"
-              className="text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white transition-all duration-300 ease-in-out"
+              className="text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white transition-all duration-300 ease-in-out py-1"
             >
               Terms of Service
             </Link>
             <Link
               to="/cookies"
-              className="text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-200 transition-all duration-300 ease-in-out inline-flex items-center font-medium"
+              className="text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-200 transition-all duration-300 ease-in-out inline-flex items-center py-1"
             >
               <Cookie className="w-3 h-3 mr-1" aria-hidden="true" />
               Cookies
             </Link>
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-3">
               <Link
                 to="/donate"
-                className="text-red-600 dark:text-red-400 hover:text-red-700 dark:hover:text-red-300 transition-all duration-300 ease-in-out inline-flex items-center"
+                className="text-red-600 dark:text-red-400 hover:text-red-700 dark:hover:text-red-300 transition-all duration-300 ease-in-out inline-flex items-center py-1"
               >
-                <Heart className="w-3 h-3 mr-0.5" aria-hidden="true" />
+                <Heart className="w-3 h-3 mr-1" aria-hidden="true" />
                 Donate
               </Link>
               <Link
                 to="/roadmap"
-                className="text-purple-600 dark:text-purple-400 hover:text-purple-700 dark:hover:text-purple-300 transition-all duration-300 ease-in-out inline-flex items-center"
+                className="text-purple-600 dark:text-purple-400 hover:text-purple-700 dark:hover:text-purple-300 transition-all duration-300 ease-in-out inline-flex items-center py-1"
               >
-                <Target className="w-3 h-3 mr-0.5" aria-hidden="true" />
+                <Target className="w-3 h-3 mr-1" aria-hidden="true" />
                 Roadmap
               </Link>
               <button
                 onClick={handleShareClick}
-                className="text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 transition-all duration-300 ease-in-out inline-flex items-center"
+                className="text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 transition-all duration-300 ease-in-out inline-flex items-center py-1"
               >
-                <Share2 className="w-3 h-3 mr-0.5" aria-hidden="true" />
+                <Share2 className="w-3 h-3 mr-1" aria-hidden="true" />
                 Share
               </button>
               <a
                 href="mailto:admin@readmyfineprint.com"
-                className="text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white transition-all duration-300 ease-in-out"
+                className="text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white transition-all duration-300 ease-in-out py-1"
               >
                 Contact
               </a>
