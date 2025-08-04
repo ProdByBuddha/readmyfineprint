@@ -1,120 +1,65 @@
+#!/usr/bin/env node
+
+/**
+ * Production Build Script using Webpack
+ * This replaces the broken Vite/esbuild setup with a reliable webpack-based build system
+ */
+
 import fs from 'fs';
 import path from 'path';
 import { execSync } from 'child_process';
 import { fileURLToPath } from 'url';
 
-// Import esbuild with fallback handling
-let build;
-try {
-  // Try direct import first
-  const esbuildModule = await import('esbuild');
-  build = esbuildModule.build;
-  console.log('✅ esbuild imported successfully');
-} catch (error) {
-  console.error('❌ Failed to import esbuild:', error.message);
-
-  // Try to reinstall esbuild with specific version
-  console.log('📦 Reinstalling esbuild...');
-  try {
-    execSync('npm uninstall esbuild', { stdio: 'inherit' });
-    execSync('npm install esbuild@^0.25.8', { stdio: 'inherit' });
-
-    // Try import again after reinstall
-    const esbuildModule = await import('esbuild');
-    build = esbuildModule.build;
-    console.log('✅ esbuild imported after reinstall');
-  } catch (reinstallError) {
-    console.error('❌ Failed to reinstall and import esbuild:', reinstallError.message);
-
-    // Final fallback: try using require syntax for CJS compatibility
-    try {
-      const { createRequire } = await import('module');
-      const require = createRequire(import.meta.url);
-      const esbuild = require('esbuild');
-      build = esbuild.build;
-      console.log('✅ esbuild imported using require fallback');
-    } catch (requireError) {
-      console.error('❌ All import methods failed:', requireError.message);
-      console.log('🔄 Falling back to npx esbuild command...');
-      build = null; // Will use npx fallback below
-    }
-  }
-}
-
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
+
+console.log('🚀 Starting Webpack Production Build...');
+console.log('📦 Building React app with TailwindCSS and optimizations');
+
+// Set production environment
+process.env.NODE_ENV = 'production';
 
 // Clean dist directory
 const distDir = path.join(__dirname, 'dist', 'public');
 if (fs.existsSync(distDir)) {
   fs.rmSync(distDir, { recursive: true });
+  console.log('🧹 Cleaned previous build directory');
 }
 fs.mkdirSync(distDir, { recursive: true });
 
-// Copy static assets
-const publicDir = path.join(__dirname, 'client', 'public');
-if (fs.existsSync(publicDir)) {
-  const files = fs.readdirSync(publicDir);
-  files.forEach(file => {
-    fs.copyFileSync(
-      path.join(publicDir, file),
-      path.join(distDir, file)
-    );
-  });
-}
-
-// Process CSS first
-console.log('🎨 Processing CSS...');
+// Build with webpack
 try {
-  // First try local tailwindcss installation
-  try {
-    execSync(`./node_modules/.bin/tailwindcss -i ./client/src/index.css -o ./dist/public/styles.css --minify`, {
-      stdio: 'inherit'
-    });
-    console.log('✅ CSS processing completed with local TailwindCSS');
-  } catch (localError) {
-    console.log('⚠️ Local TailwindCSS failed, trying npx...');
-    try {
-      // Fallback to npx
-      execSync(`npx tailwindcss -i ./client/src/index.css -o ./dist/public/styles.css --minify`, {
-        stdio: 'inherit'
-      });
-      console.log('✅ CSS processing completed with npx TailwindCSS');
-    } catch (npxError) {
-      console.log('⚠️ TailwindCSS unavailable, using fallback CSS processor...');
-      // Final fallback - basic CSS processing
-      execSync(`node process-css.js`, {
-        stdio: 'inherit'
-      });
-      console.log('✅ CSS processing completed with fallback processor');
+  console.log('📦 Running webpack production build...');
+  execSync('npx webpack --config webpack.config.js --mode production', {
+    stdio: 'inherit',
+    cwd: __dirname,
+    env: {
+      ...process.env,
+      NODE_ENV: 'production'
     }
-  }
-} catch (error) {
-  console.error('❌ All CSS processing methods failed:', error);
-  console.log('💡 Using minimal CSS fallback...');
+  });
   
-  // Emergency fallback - just copy the CSS file
-  try {
-    const fs = await import('fs');
-    const path = await import('path');
-    const { fileURLToPath } = await import('url');
-    const __filename = fileURLToPath(import.meta.url);
-    const __dirname = path.dirname(__filename);
-    
-    if (fs.existsSync('./client/src/index.css')) {
-      fs.copyFileSync('./client/src/index.css', './dist/public/styles.css');
-      console.log('✅ CSS copied as emergency fallback');
-    } else {
-      // Create minimal CSS if source doesn't exist
-      fs.writeFileSync('./dist/public/styles.css', '/* Fallback CSS */\nbody { font-family: system-ui, sans-serif; margin: 0; padding: 20px; }');
-      console.log('✅ Minimal CSS created as emergency fallback');
-    }
-  } catch (fallbackError) {
-    console.error('❌ Even emergency CSS fallback failed:', fallbackError.message);
-    // Don't exit - continue without CSS
-    console.log('⚠️ Continuing build without CSS...');
+  console.log('✅ Webpack build completed successfully');
+  
+  // Copy additional static assets that webpack might miss
+  const publicDir = path.join(__dirname, 'client', 'public');
+  if (fs.existsSync(publicDir)) {
+    const files = fs.readdirSync(publicDir);
+    files.forEach(file => {
+      const srcFile = path.join(publicDir, file);
+      const destFile = path.join(distDir, file);
+      
+      // Only copy if it doesn't already exist (webpack might have processed it)
+      if (!fs.existsSync(destFile)) {
+        fs.copyFileSync(srcFile, destFile);
+        console.log(`📄 Copied ${file} to build directory`);
+      }
+    });
   }
-}
+  
+} catch (error) {
+  console.error('❌ Webpack build failed:', error.message);
+  console.log('🔄 Falling back to esbuild approach...');
 
 // Build React app with esbuild
 try {
@@ -195,9 +140,13 @@ try {
 
   fs.writeFileSync(path.join(distDir, 'index.html'), indexHtml);
 
-  console.log('✅ Build completed successfully with esbuild');
+  console.log('✅ Build completed successfully with esbuild fallback');
 
 } catch (error) {
-  console.error('❌ Build failed:', error);
+  console.error('❌ All build methods failed:', error);
   process.exit(1);
 }
+
+console.log('🎉 Production build completed successfully!');
+console.log(`📂 Build output: ${distDir}`);
+console.log('🚀 Ready for production deployment');

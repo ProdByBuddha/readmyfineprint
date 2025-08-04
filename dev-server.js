@@ -1,54 +1,61 @@
-import express from 'express';
+#!/usr/bin/env node
+
+/**
+ * Development Server using Webpack Dev Server
+ * This replaces the broken Vite setup with a proper webpack-based development environment
+ */
+
+import { execSync } from 'child_process';
 import path from 'path';
-import fs from 'fs';
 import { fileURLToPath } from 'url';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-const app = express();
-const PORT = 5173;
+console.log('🚀 Starting Webpack Development Server...');
+console.log('📦 Building with proper React compilation and TailwindCSS processing');
 
-// Simple dev index.html that loads React in development mode
-const devIndexHtml = `<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ReadMyFinePrint - Development</title>
-    <link rel="icon" type="image/x-icon" href="/favicon.ico">
-    <script src="https://unpkg.com/react@18/umd/react.development.js"></script>
-    <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
-    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
-    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
-</head>
-<body>
-    <div id="root"></div>
-    <script type="text/babel" data-type="module">
-      // Simple React app for development
-      const { useState } = React;
+try {
+  // Set development environment
+  process.env.NODE_ENV = 'development';
+  
+  // Start webpack dev server
+  execSync('npx webpack serve --config webpack.config.js', {
+    stdio: 'inherit',
+    cwd: __dirname,
+    env: {
+      ...process.env,
+      NODE_ENV: 'development'
+    }
+  });
+} catch (error) {
+  console.error('❌ Webpack dev server failed:', error.message);
+  
+  // Fallback to webpack build + simple server
+  console.log('🔄 Falling back to build + serve approach...');
+  try {
+    execSync('npx webpack --config webpack.config.js --mode development', {
+      stdio: 'inherit',
+      cwd: __dirname
+    });
+    
+    // Simple static server for fallback
+    import('express').then(({ default: express }) => {
+      const app = express();
+      const PORT = 5173;
       
-      function App() {
-        return React.createElement('div', { className: 'p-8' }, 
-          React.createElement('h1', { className: 'text-2xl font-bold mb-4' }, 'ReadMyFinePrint - Development Mode'),
-          React.createElement('p', { className: 'text-gray-600' }, 'Development server is running. Build the application for production.')
-        );
-      }
+      app.use(express.static(path.join(__dirname, 'dist', 'public')));
       
-      const root = ReactDOM.createRoot(document.getElementById('root'));
-      root.render(React.createElement(App));
-    </script>
-</body>
-</html>`;
-
-// Serve the dev index for the root path
-app.get('/', (req, res) => {
-  res.send(devIndexHtml);
-});
-
-// Serve static files from client/public for all other requests
-app.use(express.static(path.join(__dirname, 'client', 'public')));
-
-app.listen(PORT, '0.0.0.0', () => {
-  console.log(`🚀 Development server running on http://0.0.0.0:${PORT}`);
-});
+      app.get('*', (req, res) => {
+        res.sendFile(path.join(__dirname, 'dist', 'public', 'index.html'));
+      });
+      
+      app.listen(PORT, '0.0.0.0', () => {
+        console.log(`🚀 Fallback development server running on http://0.0.0.0:${PORT}`);
+      });
+    });
+  } catch (fallbackError) {
+    console.error('❌ All development server methods failed:', fallbackError.message);
+    process.exit(1);
+  }
+}
