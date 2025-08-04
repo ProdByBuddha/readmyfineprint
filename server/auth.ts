@@ -136,6 +136,7 @@ export async function optionalUserAuth(req: Request, res: Response, next: NextFu
               email: user.email,
             };
             console.log(`🔑 User authenticated via secure JWT: ${user.email} (${user.id})`);
+        console.log(`[DEBUG] optionalUserAuth - JWT Access Token Validation: Valid=${validation.valid}, UserID=${validation.payload?.userId}, Email=${validation.payload?.email}`);
             return next();
           }
         } else if (validation.expired) {
@@ -149,57 +150,40 @@ export async function optionalUserAuth(req: Request, res: Response, next: NextFu
       }
     }
 
-    // Fallback to session-based authentication (like /api/auth/session does)
-    let sessionId: string | undefined;
-    if (req.headers.cookie) {
-      const cookies = parseCookies(req.headers.cookie);
-      sessionId = cookies['sessionId'];
-    }
-    if (sessionId) {
-      try {
-        console.log('🔍 Checking session-based authentication...');
+    // If no user found from Bearer token, try session-based authentication
+    if (!req.user) {
+      let sessionId: string | undefined;
+      if (req.headers.cookie) {
+        const cookies = parseCookies(req.headers.cookie);
+        sessionId = cookies['sessionId'];
+      }
+      if (sessionId) {
+        try {
+          console.log('🔍 Checking session-based authentication...');
 
-        // Get token from database using the same logic as /api/auth/session
-        const { postgresqlSessionStorage } = await import('./postgresql-session-storage');
-        const token = await postgresqlSessionStorage.getTokenBySession(sessionId);
+          const { postgresqlSessionStorage } = await import('./postgresql-session-storage');
+          const sessionToken = await postgresqlSessionStorage.getTokenBySession(sessionId);
 
-        if (token) {
-          // First try as subscription token (for admin sessions), then as access token
-          const { joseTokenService } = await import('./jose-token-service');
-          
-          try {
-            // Try subscription token validation first
-            const subscriptionData = await joseTokenService.validateSubscriptionToken(token);
-            if (subscriptionData && subscriptionData.userId) {
-              const user = await databaseStorage.getUser(subscriptionData.userId);
-              if (user) {
-                req.user = {
-                  id: user.id,
-                  email: user.email,
-                };
-                console.log(`🔑 User authenticated via session (subscription token): ${user.email} (${user.id})`);
-                return next();
-              }
-            }
-          } catch (subscriptionError) {
-            // If subscription token validation fails, try as access token
+          if (sessionToken) {
+            const { joseTokenService } = await import('./jose-token-service');
             try {
-              const { joseAuthService } = await import('./jose-auth-service');
-              const accessValidation = await joseAuthService.validateAccessToken(token, 'api');
-              if (accessValidation.valid && accessValidation.payload) {
-                const user = await databaseStorage.getUser(accessValidation.payload.userId);
+              // Try validating as a subscription token
+              const subscriptionData = await joseTokenService.validateSubscriptionToken(sessionToken);
+              if (subscriptionData && subscriptionData.userId) {
+                const user = await databaseStorage.getUser(subscriptionData.userId);
                 if (user) {
                   req.user = {
                     id: user.id,
                     email: user.email,
                   };
-                  console.log(`🔑 User authenticated via session (access token): ${user.email} (${user.id})`);
-                  return next();
+                  console.log(`🔑 User authenticated via session (subscription token): ${user.email} (${user.id})`);
                 }
               }
-            } catch (accessError) {
-              console.log('Session token validation failed for both subscription and access token types');
-              // Clean up invalid token
+            } catch (subscriptionError) {
+              console.log('Session token validation failed as subscription token:', subscriptionError instanceof Error ? subscriptionError.message : 'Unknown error');
+              // If subscription token validation fails, it's likely not a subscription token or it's invalid.
+              // Do NOT try to validate it as an access token here, as it would have the wrong audience.
+              // Clean up invalid token if it's truly invalid.
               try {
                 await postgresqlSessionStorage.removeSessionToken(sessionId);
                 console.log('🧹 Cleaned up invalid session token in auth middleware');
@@ -208,9 +192,9 @@ export async function optionalUserAuth(req: Request, res: Response, next: NextFu
               }
             }
           }
+        } catch (sessionError) {
+          console.log('Error validating session:', sessionError instanceof Error ? sessionError.message : 'Unknown error');
         }
-      } catch (sessionError) {
-        console.log('Error validating session:', sessionError instanceof Error ? sessionError.message : 'Unknown error');
       }
     }
 
