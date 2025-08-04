@@ -221,6 +221,7 @@ router.get('/categories', async (req, res) => {
   }
 });
 
+
 // Get blog sitemap data
 router.get('/sitemap', async (req, res) => {
   try {

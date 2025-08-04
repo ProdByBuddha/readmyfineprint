@@ -502,19 +502,35 @@ app.use((req, res, next) => {
   const server = await registerRoutes(app);
 
   // Development-only redirect to frontend
-  if (process.env.NODE_ENV === 'development') {
-    app.get('/', (req, res) => {
-      // In Replit, both frontend and backend run on the same domain
-      // Just redirect to root path and let the client router handle it
-      const isReplit = process.env.REPL_ID || req.get('host')?.includes('replit.dev');
-      const frontendUrl = isReplit 
-        ? `${req.protocol}://${req.get('host')}/`
-        : 'http://localhost:5173';
-      
-      // Redirect directly to frontend instead of showing splash page
-      res.redirect(frontendUrl);
-    });
-  }
+  // Serve homepage for both development and production
+  app.get('/', (req, res) => {
+    // For production and staging, serve the built client app
+    const isReplit = process.env.REPL_ID || req.get('host')?.includes('replit.dev');
+    
+    if (process.env.NODE_ENV === 'development' && !isReplit) {
+      // Local development - redirect to Vite dev server
+      res.redirect('http://localhost:5173');
+    } else {
+      // Production/staging or Replit development - serve static homepage
+      res.status(200).json({
+        message: "Welcome to ReadMyFinePrint - AI-Powered Contract Analysis",
+        version: "2.0.0",
+        status: "active",
+        features: [
+          "AI document analysis",
+          "Privacy-first processing", 
+          "Multiple subscription tiers",
+          "Enterprise security"
+        ],
+        endpoints: {
+          health: "/health",
+          api: "/api",
+          admin: "/admin",
+          blog: "/api/blog"
+        }
+      });
+    }
+  });
 
   app.use((err: any, _req: Request, res: Response, _next: NextFunction) => {
     const status = err.status || err.statusCode || 500;

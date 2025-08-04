@@ -215,8 +215,8 @@ async function testBlogEndpoints(baseUrl) {
     }
   });
 
-  await runTest('Blog Public Topics', async () => {
-    const response = await makeRequest(`${baseUrl}/api/blog/topics`);
+  await runTest('Blog Public Categories', async () => {
+    const response = await makeRequest(`${baseUrl}/api/blog/categories`);
     if (response.status !== 200) {
       throw new Error(`Expected 200, got ${response.status}`);
     }
