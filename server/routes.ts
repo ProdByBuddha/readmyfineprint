@@ -809,8 +809,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Development-only auto-admin login endpoint - NO authentication required
-  if (process.env.NODE_ENV === 'development') {
+  // Development and staging auto-admin login endpoint - NO authentication required
+  if (process.env.NODE_ENV === 'development' || process.env.NODE_ENV === 'staging') {
     app.post("/api/dev/auto-admin-login", async (req, res) => {
       try {
         const adminEmail = 'admin@readmyfineprint.com';
