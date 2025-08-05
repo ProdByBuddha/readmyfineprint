@@ -20,7 +20,7 @@ export class SecurityMiddleware {
 
   constructor(options: SecurityOptions = {}) {
     this.options = {
-      developmentMode: process.env.NODE_ENV === 'development' || process.env.NODE_ENV === 'staging',
+            developmentMode: process.env.NODE_ENV === 'development' || process.env.APP_ENV === 'staging',
       allowedOrigins: options.allowedOrigins || [],
       maxRequestSize: options.maxRequestSize || 50 * 1024 * 1024, // 50MB
       ...options

@@ -363,8 +363,8 @@ app.get('/api/csrf-token', (req: any, res) => {
   console.log(`🔍 Direct CSRF token request - sessionId: ${sessionId}, path: ${req.path}, method: ${req.method}`);
   console.log(`🔍 Headers:`, req.headers);
   
-  if (process.env.NODE_ENV === 'staging') {
-    // In staging, return a proper token
+  if (process.env.NODE_ENV !== 'development') {
+    // In staging/production, return a proper token
     if (sessionId) {
       const { csrfProtection } = require('./csrf-protection');
       const token = csrfProtection.getToken(sessionId);

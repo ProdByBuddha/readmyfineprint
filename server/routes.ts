@@ -91,7 +91,12 @@ function getFallbackCookies(req: any): Record<string, string> {
  */
 export function isStaging(req?: any): boolean {
   // Explicit staging environment
-  if (process.env.NODE_ENV === 'staging') {
+  const nodeEnv = process.env.NODE_ENV as string | undefined;
+  const isDevelopment = nodeEnv === 'development';
+  const isProd = nodeEnv === 'production';
+  const isStagingEnv = !isDevelopment && !isProd; // Any other environment is considered staging
+
+  if (isStagingEnv) {
     return true;
   }
   
@@ -108,7 +113,6 @@ export function isStaging(req?: any): boolean {
  */
 export function getCookieSettings(req?: any) {
   const isDevelopment = process.env.NODE_ENV === 'development';
-  const isExplicitStaging = process.env.NODE_ENV === 'staging';
   const stagingMode = isStaging(req);
   
   return {
@@ -157,7 +161,7 @@ function getClientBaseUrl(req: any): string {
     baseUrl = `${req.protocol}://${host}`;
   }
   
-  if (process.env.NODE_ENV !== 'production') {
+  if (process.env.NODE_ENV === 'development' || process.env.NODE_ENV === 'test') {
     console.log(`🔍 getClientBaseUrl() -> ${baseUrl} (isReplit: ${isReplit}, host: ${host}, NODE_ENV: ${process.env.NODE_ENV})`);
   }
   return baseUrl;
@@ -809,8 +813,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Development and staging auto-admin login endpoint - NO authentication required
-  if (process.env.NODE_ENV === 'development' || process.env.NODE_ENV === 'staging') {
+  // Development auto-admin login endpoint - NO authentication required
+  if (process.env.NODE_ENV === 'development') {
     app.post("/api/dev/auto-admin-login", async (req, res) => {
       try {
         const adminEmail = 'admin@readmyfineprint.com';

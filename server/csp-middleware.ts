@@ -31,10 +31,11 @@ export function cspMiddleware(req: Request, res: Response, next: NextFunction) {
   if (process.env.NODE_ENV === 'development') {
     return next();
   }
-
   // Environment-specific configuration
-  const isDevelopment = process.env.NODE_ENV === 'development';
-  const isStaging = process.env.NODE_ENV === 'staging';
+  const nodeEnv = process.env.NODE_ENV as string | undefined;
+  const isDevelopment = nodeEnv === 'development';
+  const isProduction = nodeEnv === 'production';
+  const isStaging = nodeEnv !== 'development' && nodeEnv !== 'production'; // Any other environment is considered staging
 
   // Development sources (only in development)
   const replitSources = isDevelopment ? ' https://replit.com https://*.replit.com' : '';

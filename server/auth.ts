@@ -731,7 +731,8 @@ export function addSecurityHeaders(req: Request, res: Response, next: NextFuncti
 
       // Enhanced Content Security Policy - CRITICAL for security scans
       const isDevelopment = process.env.NODE_ENV === 'development';
-      const isStaging = process.env.NODE_ENV === 'staging';
+      const isProduction = process.env.NODE_ENV === 'production';
+      const isStaging = !isDevelopment && !isProduction; // Any other environment is considered staging
       const replitSources = (isDevelopment || isStaging) ? ' https://replit.com https://*.replit.com https://*.replit.dev https://*.kirk.replit.dev https://cdn.jsdelivr.net' : '';
       const localhostSources = isDevelopment ? ' http://localhost:5173 http://localhost:5000 http://127.0.0.1:5173 http://127.0.0.1:5000 https://*.kirk.replit.dev:5173' : '';
       const websocketSources = (isDevelopment || isStaging) ? ' ws://localhost:5173 wss://localhost:5173 wss://*.replit.dev wss://*.kirk.replit.dev' : '';
