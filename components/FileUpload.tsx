@@ -16,6 +16,7 @@ interface FileUploadProps {
 
 // Check if user has a subscription (non-free tier)
 const hasSubscription = (): boolean => {
+  if (typeof window === 'undefined') return false;
   const subscriptionToken = localStorage.getItem('subscriptionToken');
   return !!subscriptionToken;
 };

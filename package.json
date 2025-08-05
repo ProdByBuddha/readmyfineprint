@@ -17,8 +17,9 @@
     "build": "next build",
     "build:staging": "APP_ENV=staging next build",
     "server:build": "echo 'Server build complete - TypeScript files will be executed directly'",
-    "start": "next start",
-    "start:staging": "APP_ENV=staging next start",
+    "cleanup": "./scripts/cleanup-port.sh",
+    "start": "npm run cleanup && next start",
+    "start:staging": "APP_ENV=staging next start -p 3001",
     "lint": "next lint",
     "preview": "npx vite preview",
     "indexnow": "tsx scripts/submit-indexnow.ts",
@@ -94,7 +95,10 @@
     "version:deploy": "node scripts/set-major-version.cjs 2.0.0 && git add package.json CHANGELOG.md && git commit -m 'chore: prepare v2.0.0 for production deployment' || true",
     "postversion": "git push && git push --tags",
     "staging:create-user": "tsx scripts/create-staging-user.ts",
-    "staging:add-subscription": "tsx scripts/add-staging-subscription.ts"
+    "staging:add-subscription": "tsx scripts/add-staging-subscription.ts",
+    "pii:setup-db": "tsx server/setup-pii-correlation-db.ts",
+    "pii:test": "tsx scripts/test-pii-correlation.ts",
+    "pii:test-legacy": "tsx scripts/test-pii-hashing.ts"
   },
   "dependencies": {
     "@axe-core/react": "^4.10.2",

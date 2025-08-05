@@ -1,5 +1,5 @@
 import { useState, useCallback, useEffect } from 'react';
-import { useSecurityQuestions } from '@/contexts/SecurityQuestionsContext';
+import { useSecurityQuestions } from 'contexts/SecurityQuestionsContext';
 
 interface ApiError {
   code?: string;

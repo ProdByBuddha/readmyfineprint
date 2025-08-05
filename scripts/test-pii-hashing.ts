@@ -63,8 +63,8 @@ async function testPIIHashing() {
     console.log('\n📋 Test 2: Cross-Document Entanglement Detection');
     console.log('-'.repeat(40));
 
-    // Store first document entanglement
-    piiEntanglementService.storeDocumentEntanglement(
+    // Store first document correlation
+    await piiEntanglementService.storeDocumentCorrelation(
       'test-session-1', 
       'document-1', 
       result1.hashedMatches
@@ -79,16 +79,16 @@ async function testPIIHashing() {
 
     console.log(`✅ Document 2: Found ${result2.matches.length} PII matches`);
     
-    // Check cross-document entanglement
-    const entanglementCheck = piiEntanglementService.checkCrossDocumentEntanglement(
+    // Check cross-document correlation
+    const entanglementCheck = await piiEntanglementService.checkCrossDocumentCorrelation(
       'test-session-1',
       result2.hashedMatches
     );
 
     console.log(`🔗 Cross-document entanglement: ${entanglementCheck.hasSharedPII ? 'YES' : 'NO'}`);
     if (entanglementCheck.hasSharedPII) {
-      console.log(`   - Shared entanglements: ${entanglementCheck.sharedEntanglementIds.length}`);
-      console.log(`   - Entanglement strength: ${(entanglementCheck.entanglementStrength * 100).toFixed(1)}%`);
+      console.log(`   - Shared correlations: ${entanglementCheck.sharedCorrelationIds.length}`);
+      console.log(`   - Correlation strength: ${(entanglementCheck.correlationStrength * 100).toFixed(1)}%`);
     }
 
     console.log('\n📋 Test 3: Same Person Different Document');
@@ -103,8 +103,8 @@ async function testPIIHashing() {
 
     console.log(`✅ Document 3: Found ${result3.matches.length} PII matches`);
 
-    // Store in new session and check entanglement
-    piiEntanglementService.storeDocumentEntanglement(
+    // Store in new session and check correlation
+    await piiEntanglementService.storeDocumentCorrelation(
       'test-session-2',
       'document-3',
       result3.hashedMatches
@@ -113,14 +113,14 @@ async function testPIIHashing() {
     console.log('\n📋 Test 4: Forensic Analysis Report');
     console.log('-'.repeat(40));
 
-    const forensicReport = piiEntanglementService.createForensicAnalysisReport([
+    const forensicReport = await piiEntanglementService.createForensicAnalysisReport([
       'test-session-1',
       'test-session-2'
     ]);
 
     console.log(`📊 Forensic Report ${forensicReport.reportId}:`);
     console.log(`   - Sessions analyzed: ${forensicReport.sessionCount}`);
-    console.log(`   - Cross-session entanglements: ${forensicReport.crossSessionEntanglements.length}`);
+    console.log(`   - Cross-session correlations: ${forensicReport.crossSessionCorrelations.length}`);
     console.log(`   - Average risk score: ${forensicReport.aggregateRiskProfile.averageRiskScore.toFixed(1)}`);
     console.log(`   - Most common PII types:`, forensicReport.aggregateRiskProfile.mostCommonPIITypes);
 
@@ -154,15 +154,15 @@ async function testPIIHashing() {
       console.log(`   - Document fingerprint: ${analytics.documentPIIFingerprint}`);
       console.log(`   - Risk score: ${analytics.riskScore}/100`);
       console.log(`   - PII type counts:`, analytics.piiTypes);
-      console.log(`   - Entanglement IDs: ${analytics.entanglementIds.length}`);
+      console.log(`   - Correlation IDs: ${analytics.entanglementIds.length}`);
     }
 
     console.log('\n✅ All PII hashing tests completed successfully!');
     console.log('=' .repeat(60));
 
     // Cleanup
-    piiEntanglementService.clearSessionEntanglements('test-session-1');
-    piiEntanglementService.clearSessionEntanglements('test-session-2');
+    await piiEntanglementService.clearSessionCorrelations('test-session-1');
+    await piiEntanglementService.clearSessionCorrelations('test-session-2');
 
   } catch (error) {
     console.error('❌ Test failed:', error);

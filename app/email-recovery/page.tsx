@@ -3,9 +3,13 @@
 'use client';
 
 import { useState } from 'react';
-import { EmailRecoveryForm } from '@/components/EmailRecoveryForm';
+import dynamic from 'next/dynamic';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Alert, AlertDescription } from '@/components/ui/alert';
+
+const EmailRecoveryForm = dynamic(() => import('@/components/EmailRecoveryForm').then(mod => mod.EmailRecoveryForm), {
+  ssr: false,
+});
 
 export default function EmailRecoveryPage() {
   const [recoveryStatus, setRecoveryStatus] = useState<'idle' | 'success' | 'error'>('idle');

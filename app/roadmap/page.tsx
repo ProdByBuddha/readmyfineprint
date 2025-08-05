@@ -1,3 +1,5 @@
+"use client";
+
 import { CheckCircle, Clock, Target, ArrowLeft, Zap, Shield, Globe, Users, Brain, FileText, Building, Key, Palette, BarChart3, GitBranch, Webhook, Crown, Star } from "lucide-react";
 import { Button } from "components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "components/ui/card";

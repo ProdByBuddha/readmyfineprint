@@ -14,6 +14,16 @@ const SecurityQuestionsContext = createContext<SecurityQuestionsContextType | un
 export function useSecurityQuestions() {
   const context = useContext(SecurityQuestionsContext);
   if (context === undefined) {
+    // During SSR or if provider is missing, return safe defaults
+    if (typeof window === 'undefined') {
+      return {
+        hasSecurityQuestions: null,
+        requiresSetup: false,
+        isLoading: false,
+        checkSecurityQuestions: async () => {},
+        markSetupComplete: () => {}
+      };
+    }
     throw new Error('useSecurityQuestions must be used within a SecurityQuestionsProvider');
   }
   return context;
@@ -31,6 +41,14 @@ export function SecurityQuestionsProvider({ children }: SecurityQuestionsProvide
   const checkSecurityQuestions = async () => {
     try {
       setIsLoading(true);
+      
+      // Check if we're in a browser environment
+      if (typeof window === 'undefined') {
+        setHasSecurityQuestions(null);
+        setRequiresSetup(false);
+        setIsLoading(false);
+        return;
+      }
       
       // Check if user appears to be anonymous by looking for session indicators
       const hasSessionCookie = document.cookie.includes('session') || 

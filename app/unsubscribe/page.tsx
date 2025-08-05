@@ -2,12 +2,12 @@
 
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { CheckCircle, XCircle, Mail, ArrowLeft } from "lucide-react";
 import Link from "next/link";
 
-const UnsubscribePage: React.FC = () => {
+const UnsubscribeContent: React.FC = () => {
   const rawSearchParams = useSearchParams();
   const searchParams = new URLSearchParams(rawSearchParams);
   const token = searchParams.get('token');
@@ -81,6 +81,14 @@ const UnsubscribePage: React.FC = () => {
         )}
       </div>
     </div>
+  );
+};
+
+const UnsubscribePage: React.FC = () => {
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <UnsubscribeContent />
+    </Suspense>
   );
 };
 

@@ -8,8 +8,16 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
 import { Clock, Search, Calendar, Eye, Share2 } from 'lucide-react';
-import { MobileAppWrapper } from '@/components/MobileAppWrapper';
-import TradeSecretProtection from '@/components/TradeSecretProtection';
+import dynamic from 'next/dynamic';
+
+const MobileAppWrapper = dynamic(() => import('@/components/MobileAppWrapper').then(mod => mod.MobileAppWrapper), {
+  ssr: false,
+});
+
+const TradeSecretProtection = dynamic(() => import('@/components/TradeSecretProtection'), {
+  ssr: false,
+});
+
 
 interface BlogPost {
   id: string;

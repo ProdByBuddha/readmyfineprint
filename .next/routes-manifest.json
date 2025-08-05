@@ -102,6 +102,12 @@
       "namedRegex": "^/terms(?:/)?$"
     },
     {
+      "page": "/test-page",
+      "regex": "^/test\\-page(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/test\\-page(?:/)?$"
+    },
+    {
       "page": "/trust",
       "regex": "^/trust(?:/)?$",
       "routeKeys": {},

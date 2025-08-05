@@ -1,11 +1,6 @@
 'use client';
 
-'use client';
-
-'use client';
-
 import { Card, CardContent } from "components/ui/card";
-'use client';
 import { Plus } from "lucide-react";
 import { Button } from "components/ui/button";
 import { Loader2 } from "lucide-react";
@@ -14,7 +9,13 @@ import { usePreventFlicker } from "hooks/usePreventFlicker";
 import { FileUpload } from "components/FileUpload";
 import { AnalysisResults } from "components/AnalysisResults";
 import { SampleContracts } from "components/SampleContracts";
-import { DocumentHistory } from "components/DocumentHistory";
+import dynamic from "next/dynamic";
+
+// Import DocumentHistory dynamically to prevent SSR issues with React Query
+const DocumentHistory = dynamic(() => import("components/DocumentHistory").then(mod => ({ default: mod.DocumentHistory })), {
+  ssr: false,
+  loading: () => <div className="animate-pulse bg-gray-200 dark:bg-gray-700 rounded-lg h-32"></div>
+});
 import { AnalysisProgress } from "components/LoadingStates";
 import TradeSecretProtection from "components/TradeSecretProtection";
 
@@ -30,9 +31,11 @@ import { usePathname, useRouter } from "next/navigation";
 import type { Document } from "@shared/schema";
 import { useSecurityQuestionsHandler } from "hooks/useSecurityQuestionsHandler";
 import { SecurityQuestionsModal } from "components/SecurityQuestionsModal";
+import { SecurityQuestionsProvider } from "contexts/SecurityQuestionsContext";
 import { useEffect, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { useMutation } from "@tanstack/react-query";
+import { QueryClientProvider } from "@tanstack/react-query";
 import { useCallback } from "react";
 
 export default function Upload() {
@@ -75,7 +78,8 @@ export default function Upload() {
     };
   }, [announce, toast, consentAccepted]);
 
-  const { data: currentDocument, isLoading: isLoadingDocument } = useQuery({
+  // Only run React Query hooks on client side
+  const { data: currentDocument, isLoading: isLoadingDocument } = typeof window !== 'undefined' ? useQuery({
     queryKey: ['/api/documents', currentDocumentId],
     queryFn: () => currentDocumentId ? getDocument(currentDocumentId) : null,
     enabled: !!currentDocumentId,
@@ -96,9 +100,9 @@ export default function Upload() {
       // Retry other errors up to 3 times
       return failureCount < 3;
     },
-  });
+  }) : { data: null, isLoading: false };
 
-  const analyzeDocumentMutation = useMutation({
+  const analyzeDocumentMutation = typeof window !== 'undefined' ? useMutation({
     mutationFn: async (documentId: number) => {
       // Show initial queue status
       try {
@@ -141,7 +145,7 @@ export default function Upload() {
         });
       }
     },
-  });
+  }) : { mutate: () => {}, mutateAsync: () => Promise.resolve({} as Document), isLoading: false, error: null };
 
   const handleDocumentCreated = useCallback(async (documentId: number) => {
     setCurrentDocumentId(documentId);
@@ -207,6 +211,7 @@ export default function Upload() {
 
   // Check if user has a subscription (non-free tier)
   const hasSubscription = useCallback(() => {
+    if (typeof window === 'undefined') return false;
     const subscriptionToken = localStorage.getItem('subscriptionToken');
     return !!subscriptionToken;
   }, []);
@@ -269,114 +274,118 @@ export default function Upload() {
   }, [consentAccepted, toast, announce, handleDocumentCreated]);
 
   return (
-    <div ref={containerRef} className="bg-gray-50 dark:bg-gray-900 page-transition min-h-screen">
-      <TradeSecretProtection />
-      <MobileAppWrapper>
-        {/* Cookie Consent Banner */}
-        {!consentAccepted && (
-          <CookieConsentBanner onAccept={() => {
-            // The event listener in the hook will trigger the update
-          }} />
-        )}
-        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
-          {/* Document History */}
-          <section aria-label="Document history" className="animate-fade-in-scale">
-            <DocumentHistory
-              onSelectDocument={handleDocumentSelect}
-              currentDocumentId={currentDocumentId}
-            />
-          </section>
-
-          {/* Page Header */}
-          {!currentDocumentId && (
-            <section className="text-center mb-12 animate-fade-in-scale" role="banner" aria-labelledby="upload-heading">
-              <h1 id="upload-heading" className="text-3xl md:text-4xl lg:text-5xl font-bold text-gray-900 dark:text-white mb-4">
-                Upload & Analyze Documents
-              </h1>
-              <p className="text-lg md:text-xl text-gray-600 dark:text-gray-300 mb-4 max-w-3xl mx-auto">
-                Upload your contracts, agreements, and legal documents to get AI-powered analysis and insights.
-              </p>
-            </section>
-          )}
-
-          {/* Main Content Area - Upload and Samples */}
-          {!currentDocumentId && !isAnalyzing && (
-            <div className="animate-fade-in-scale">
-              <section aria-labelledby="upload-section" className="mb-8">
-                <h2 id="upload-section" className="sr-only">Upload Document</h2>
-                <FileUpload
-                  onDocumentCreated={handleDocumentCreated}
-                  disabled={!consentAccepted}
-                  consentAccepted={consentAccepted}
+    <QueryClientProvider client={queryClient}>
+      <SecurityQuestionsProvider>
+        <div ref={containerRef} className="bg-gray-50 dark:bg-gray-900 page-transition min-h-screen">
+          <TradeSecretProtection />
+          <MobileAppWrapper>
+            {/* Cookie Consent Banner */}
+            {!consentAccepted && (
+              <CookieConsentBanner onAccept={() => {
+                // The event listener in the hook will trigger the update
+              }} />
+            )}
+            <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+              {/* Document History */}
+              <section aria-label="Document history" className="animate-fade-in-scale">
+                <DocumentHistory
+                  onSelectDocument={handleDocumentSelect}
+                  currentDocumentId={currentDocumentId}
                 />
               </section>
 
-              {/* Only show sample contracts for free tier users */}
-              {!hasSubscription() && (
-                <section aria-labelledby="samples-section" className="mb-8">
-                  <h2 id="samples-section" className="sr-only">Sample Contracts</h2>
-                  <SampleContracts
-                    onSelectContract={handleSampleContract}
-                    disabled={false}
-                  />
+                        {/* Page Header */}
+              {!currentDocumentId && (
+                <section className="text-center mb-12 animate-fade-in-scale" role="banner" aria-labelledby="upload-heading">
+                  <h1 id="upload-heading" className="text-3xl md:text-4xl lg:text-5xl font-bold text-gray-900 dark:text-white mb-4">
+                    Upload & Analyze Documents
+                  </h1>
+                  <p className="text-lg md:text-xl text-gray-600 dark:text-gray-300 mb-4 max-w-3xl mx-auto">
+                    Upload your contracts, agreements, and legal documents to get AI-powered analysis and insights.
+                  </p>
+                </section>
+              )}
+
+              {/* Main Content Area - Upload and Samples */}
+              {!currentDocumentId && !isAnalyzing && (
+                <div className="animate-fade-in-scale">
+                  <section aria-labelledby="upload-section" className="mb-8">
+                    <h2 id="upload-section" className="sr-only">Upload Document</h2>
+                    <FileUpload
+                      onDocumentCreated={handleDocumentCreated}
+                      disabled={!consentAccepted}
+                      consentAccepted={consentAccepted}
+                    />
+                  </section>
+
+                  {/* Only show sample contracts for free tier users */}
+                  {!hasSubscription() && (
+                    <section aria-labelledby="samples-section" className="mb-8">
+                      <h2 id="samples-section" className="sr-only">Sample Contracts</h2>
+                      <SampleContracts
+                        onSelectContract={handleSampleContract}
+                        disabled={false}
+                      />
+                    </section>
+                  )}
+                </div>
+              )}
+
+              {/* Analysis Progress */}
+              {isAnalyzing && (
+                <section aria-labelledby="analysis-progress" aria-live="polite" className="animate-fade-in-scale flex items-center justify-center min-h-[60vh]">
+                  <h2 id="analysis-progress" className="sr-only">Analysis in Progress</h2>
+                  <div className="w-full max-w-2xl">
+                    <AnalysisProgress />
+                  </div>
+                </section>
+              )}
+
+              {/* Analysis Results */}
+              {currentDocument && !isAnalyzing && (
+                <section aria-labelledby="analysis-results" className="animate-fade-in-scale">
+                  <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-4">
+                    <h2 id="analysis-results" className="text-2xl font-bold text-gray-900 dark:text-white">
+                      Analysis Results
+                    </h2>
+                    <Button
+                      onClick={handleNewAnalysis}
+                      variant="outline"
+                      className="flex items-center gap-2"
+                      aria-label="Start a new document analysis"
+                    >
+                      <Plus className="w-4 h-4" aria-hidden="true" />
+                      New Analysis
+                    </Button>
+                  </div>
+                  <AnalysisResults document={currentDocument} />
+                </section>
+              )}
+
+              {/* Loading State */}
+              {isLoadingDocument && (
+                <section aria-labelledby="loading-document" aria-live="polite" className="flex justify-center items-center py-12">
+                  <h2 id="loading-document" className="sr-only">Loading Document</h2>
+                  <div className="flex items-center space-x-3 text-gray-600 dark:text-gray-300">
+                    <Loader2 className="w-6 h-6 animate-spin" aria-hidden="true" />
+                    <span>Loading document...</span>
+                  </div>
                 </section>
               )}
             </div>
-          )}
-
-          {/* Analysis Progress */}
-          {isAnalyzing && (
-            <section aria-labelledby="analysis-progress" aria-live="polite" className="animate-fade-in-scale flex items-center justify-center min-h-[60vh]">
-              <h2 id="analysis-progress" className="sr-only">Analysis in Progress</h2>
-              <div className="w-full max-w-2xl">
-                <AnalysisProgress />
-              </div>
-            </section>
-          )}
-
-          {/* Analysis Results */}
-          {currentDocument && !isAnalyzing && (
-            <section aria-labelledby="analysis-results" className="animate-fade-in-scale">
-              <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-4">
-                <h2 id="analysis-results" className="text-2xl font-bold text-gray-900 dark:text-white">
-                  Analysis Results
-                </h2>
-                <Button
-                  onClick={handleNewAnalysis}
-                  variant="outline"
-                  className="flex items-center gap-2"
-                  aria-label="Start a new document analysis"
-                >
-                  <Plus className="w-4 h-4" aria-hidden="true" />
-                  New Analysis
-                </Button>
-              </div>
-              <AnalysisResults document={currentDocument} />
-            </section>
-          )}
-
-          {/* Loading State */}
-          {isLoadingDocument && (
-            <section aria-labelledby="loading-document" aria-live="polite" className="flex justify-center items-center py-12">
-              <h2 id="loading-document" className="sr-only">Loading Document</h2>
-              <div className="flex items-center space-x-3 text-gray-600 dark:text-gray-300">
-                <Loader2 className="w-6 h-6 animate-spin" aria-hidden="true" />
-                <span>Loading document...</span>
-              </div>
-            </section>
-          )}
+          </MobileAppWrapper>
+          
+          {/* Security Questions Modal */}
+          <SecurityQuestionsModal
+            isOpen={showSecurityQuestionsModal}
+            onComplete={handleSecurityQuestionsComplete}
+            onClose={closeSecurityQuestionsModal}
+            allowClose={false}
+            title="Security Questions Required"
+            description="To continue using document analysis features, please set up security questions to help protect your account."
+          />
         </div>
-      </MobileAppWrapper>
-      
-      {/* Security Questions Modal */}
-      <SecurityQuestionsModal
-        isOpen={showSecurityQuestionsModal}
-        onComplete={handleSecurityQuestionsComplete}
-        onClose={closeSecurityQuestionsModal}
-        allowClose={false}
-        title="Security Questions Required"
-        description="To continue using document analysis features, please set up security questions to help protect your account."
-      />
-    </div>
+      </SecurityQuestionsProvider>
+    </QueryClientProvider>
   );
 }
