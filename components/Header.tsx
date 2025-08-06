@@ -32,6 +32,7 @@ export function Header() {
   const [user, setUser] = useState<any>(null);
   const [showLogin, setShowLogin] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [isMenuClosing, setIsMenuClosing] = useState(false);
   const [isCheckingAuth, setIsCheckingAuth] = useState(true);
   const [isAdmin, setIsAdmin] = useState(false);
   const { toast } = useToast();
@@ -39,6 +40,15 @@ export function Header() {
   const isMobile = useIsMobile();
   const mobileMenuRef = useRef<HTMLDivElement>(null);
   const burgerButtonRef = useRef<HTMLButtonElement>(null);
+
+  const closeMobileMenu = () => {
+    if (isMenuClosing) return;
+    setIsMenuClosing(true);
+    setTimeout(() => {
+      setIsMobileMenuOpen(false);
+      setIsMenuClosing(false);
+    }, 200); // Corresponds to slideOutToTop animation duration
+  };
 
   // Check authentication status on component mount and when pathname changes
   useEffect(() => {
@@ -150,24 +160,24 @@ export function Header() {
   // Close mobile menu when clicking outside
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
-      if (mobileMenuRef.current && !mobileMenuRef.current.contains(event.target as Node) &&
+      if (isMobileMenuOpen && mobileMenuRef.current && !mobileMenuRef.current.contains(event.target as Node) &&
           burgerButtonRef.current && !burgerButtonRef.current.contains(event.target as Node)) {
-        setIsMobileMenuOpen(false);
+        closeMobileMenu();
       }
     };
 
-    if (isMobileMenuOpen) {
-      document.addEventListener('mousedown', handleClickOutside);
-    }
+    document.addEventListener('mousedown', handleClickOutside);
 
     return () => {
       document.removeEventListener('mousedown', handleClickOutside);
     };
-  }, [isMobileMenuOpen]);
+  }, [isMobileMenuOpen, isMenuClosing]);
 
   // Close mobile menu when pathname changes
   useEffect(() => {
-    setIsMobileMenuOpen(false);
+    if (isMobileMenuOpen) {
+      closeMobileMenu();
+    }
   }, [pathname]);
 
   const handleSubscriptionClick = () => {
@@ -479,7 +489,13 @@ export function Header() {
                 size="sm"
                 className="h-9 w-9 p-0 transition-all duration-200 active:scale-95 touch-manipulation"
                 aria-label={isMobileMenuOpen ? "Close menu" : "Open menu"}
-                onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+                onClick={() => {
+                  if (isMobileMenuOpen) {
+                    closeMobileMenu();
+                  } else {
+                    setIsMobileMenuOpen(true);
+                  }
+                }}
                 onTouchStart={() => {}} // Enable touch events
               >
                 {isMobileMenuOpen ? (
@@ -496,7 +512,7 @@ export function Header() {
         {isMobileMenuOpen && (
           <div 
             ref={mobileMenuRef}
-            className="md:hidden bg-white/95 dark:bg-slate-900/95 backdrop-blur-lg border-t border-gray-200 dark:border-gray-700 shadow-lg mobile-menu-enter"
+            className={`md:hidden bg-white/95 dark:bg-slate-900/95 backdrop-blur-lg border-t border-gray-200 dark:border-gray-700 shadow-lg ${isMenuClosing ? 'mobile-menu-exit' : 'mobile-menu-enter'}`}
             style={{
               paddingLeft: 'var(--app-safe-area-left)',
               paddingRight: 'var(--app-safe-area-right)',
@@ -509,9 +525,7 @@ export function Header() {
                   size="sm"
                   className="w-full justify-start h-10 transition-all duration-200 active:scale-95 touch-manipulation"
                   aria-label="View subscription plans"
-                  onClick={() => {
-                    setIsMobileMenuOpen(false);
-                  }}
+                  onClick={closeMobileMenu}
                   onTouchStart={() => {}} // Enable touch events
                 >
                   <Crown className="w-4 h-4 mr-3 text-yellow-600 dark:text-yellow-400" aria-hidden="true" />
@@ -525,7 +539,7 @@ export function Header() {
                   size="sm"
                   className="w-full justify-start h-10 transition-all duration-200 active:scale-95 touch-manipulation"
                   aria-label="Trust and security information"
-                  onClick={() => setIsMobileMenuOpen(false)}
+                  onClick={closeMobileMenu}
                   onTouchStart={() => {}} // Enable touch events
                 >
                   <Shield className="w-4 h-4 mr-3 text-green-600 dark:text-green-400" aria-hidden="true" />
@@ -539,7 +553,7 @@ export function Header() {
                   size="sm"
                   className="w-full justify-start h-10 transition-all duration-200 active:scale-95 touch-manipulation"
                   aria-label="Legal insights and contract law blog"
-                  onClick={() => setIsMobileMenuOpen(false)}
+                  onClick={closeMobileMenu}
                   onTouchStart={() => {}} // Enable touch events
                 >
                   <BookOpen className="w-4 h-4 mr-3 text-purple-600 dark:text-purple-400" aria-hidden="true" />
@@ -554,7 +568,7 @@ export function Header() {
                     size="sm"
                     className="w-full justify-start h-10 transition-all duration-200 active:scale-95 touch-manipulation"
                     aria-label="Admin Dashboard"
-                    onClick={() => setIsMobileMenuOpen(false)}
+                    onClick={closeMobileMenu}
                     onTouchStart={() => {}} // Enable touch events
                   >
                     <Settings className="w-4 h-4 mr-3 text-blue-600 dark:text-blue-400" aria-hidden="true" />
@@ -569,7 +583,7 @@ export function Header() {
                   size="sm"
                   className="w-full justify-start h-10 transition-all duration-200 active:scale-95 touch-manipulation"
                   aria-label="Support us with a donation"
-                  onClick={() => setIsMobileMenuOpen(false)}
+                  onClick={closeMobileMenu}
                   onTouchStart={() => {}} // Enable touch events
                 >
                   <Heart className="w-4 h-4 mr-3 text-red-500 dark:text-red-400" aria-hidden="true" />
@@ -580,7 +594,7 @@ export function Header() {
               <Button
                 onClick={() => {
                   toggleTheme();
-                  setIsMobileMenuOpen(false);
+                  closeMobileMenu();
                 }}
                 variant="ghost"
                 size="sm"

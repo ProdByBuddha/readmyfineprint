@@ -31,7 +31,7 @@ export default function Home() {
       </div>
       
       {/* Current screen size indicator for debugging */}
-      <div className="fixed bottom-4 right-4 bg-black text-white p-2 rounded text-sm z-50">
+      <div className="fixed bottom-4 right-4 bg-foreground text-background p-2 rounded text-sm z-50">
         <span className="block sm:hidden">XS (&lt; 640px)</span>
         <span className="hidden sm:block md:hidden">SM (640px+)</span>
         <span className="hidden md:block lg:hidden">MD (768px+)</span>

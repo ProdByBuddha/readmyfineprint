@@ -14,12 +14,12 @@ export function SkipLinks({ links }: SkipLinksProps) {
 
   return (
     <nav role="navigation" aria-label="Skip links" className="sr-only focus-within:not-sr-only">
-      <ul className="flex gap-2 p-4 bg-black text-white fixed top-0 left-0 z-50">
+      <ul className="flex gap-2 p-4 bg-background text-foreground fixed top-0 left-0 z-50">
         {skipLinks.map((link, index) => (
           <li key={index}>
             <a
               href={link.href}
-              className="skip-link bg-black text-white px-4 py-2 rounded focus:outline-none focus:ring-2 focus:ring-white"
+              className="skip-link bg-background text-foreground px-4 py-2 rounded focus:outline-none focus:ring-2 focus:ring-ring"
               onClick={(e) => {
                 e.preventDefault();
                 const target = document.querySelector(link.href);
