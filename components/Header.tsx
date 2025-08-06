@@ -17,7 +17,7 @@ import { useToast } from '@/hooks/use-toast';
 import { clearSession } from '@/lib/sessionManager';
 import { clearCSRFToken } from '@/lib/csrfManager';
 import { queryClient } from '@/lib/queryClient';
-import { useTheme } from '@/components/ThemeProvider';
+import { useTheme } from '@/hooks/useTheme';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { SubscriptionLogin } from '@/components/SubscriptionLogin';
 import { authFetch } from '@/lib/auth-fetch';
