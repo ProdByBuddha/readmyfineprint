@@ -83,52 +83,59 @@ export function Footer() {
       className="bg-gray-50 dark:bg-gray-900 border-t border-gray-200 dark:border-gray-700 z-40 backdrop-blur-sm bg-opacity-95 dark:bg-opacity-95 transition-all duration-300 ease-in-out flex-shrink-0"
       aria-label="Site footer"
     >
-      {/* Mobile Layout - Compact like desktop */}
-      <div className="md:hidden px-4 py-1">
-        <div className="flex justify-between items-center text-xs">
-          {/* Copyright */}
-          <div className="text-gray-500 dark:text-gray-400">
+      {/* Mobile Layout - Improved responsive design */}
+      <div className="md:hidden px-3 py-2 sm:px-4">
+        {/* Two-row layout for better mobile experience */}
+        <div className="space-y-2">
+          {/* Copyright row */}
+          <div className="text-center text-xs text-gray-500 dark:text-gray-400">
             © {new Date().getFullYear()} ReadMyFinePrint
           </div>
           
-          {/* Compact links */}
-          <div className="flex items-center gap-2">
+          {/* Links row - wrapped for better mobile experience */}
+          <div className="flex flex-wrap justify-center items-center gap-x-3 gap-y-1 text-xs">
             <Link 
-              to="/privacy" 
-              className="text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200 transition-colors py-1 flex items-center"
+              href="/privacy" 
+              className="text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200 transition-colors py-1.5 px-1 min-h-[44px] flex items-center"
+              aria-label="Privacy Policy"
             >
               Privacy
             </Link>
             <Link 
-              to="/terms" 
-              className="text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200 transition-colors py-1 flex items-center"
+              href="/terms" 
+              className="text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200 transition-colors py-1.5 px-1 min-h-[44px] flex items-center"
+              aria-label="Terms of Service"
             >
               Terms
             </Link>
             <Link 
-              to="/cookies" 
-              className="text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-200 flex items-center gap-1 transition-colors py-1"
+              href="/cookies" 
+              className="text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-200 flex items-center gap-1 transition-colors py-1.5 px-1 min-h-[44px]"
+              aria-label="Cookie Policy"
             >
-              <Cookie className="w-3 h-3" />
+              <Cookie className="w-3 h-3" aria-hidden="true" />
               Cookies
             </Link>
             <Link 
-              to="/donate" 
-              className="text-red-600 dark:text-red-400 hover:text-red-700 dark:hover:text-red-300 flex items-center gap-1 transition-colors py-1"
+              href="/donate" 
+              className="text-red-600 dark:text-red-400 hover:text-red-700 dark:hover:text-red-300 flex items-center gap-1 transition-colors py-1.5 px-1 min-h-[44px]"
+              aria-label="Support us with a donation"
             >
-              <Heart className="w-3 h-3" />
+              <Heart className="w-3 h-3" aria-hidden="true" />
               Donate
             </Link>
             <button
               onClick={handleShareClick}
-              className="text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 flex items-center gap-1 transition-colors py-1"
+              className="text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 flex items-center gap-1 transition-colors py-1.5 px-1 min-h-[44px]"
+              aria-label="Share this website"
             >
-              <Share2 className="w-3 h-3" />
+              <Share2 className="w-3 h-3" aria-hidden="true" />
               Share
             </button>
             <a
               href="mailto:admin@readmyfineprint.com"
-              className="text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200 transition-colors py-1 flex items-center"
+              className="text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200 transition-colors py-1.5 px-1 min-h-[44px] flex items-center"
+              aria-label="Contact us via email"
             >
               Contact
             </a>
@@ -136,66 +143,70 @@ export function Footer() {
         </div>
       </div>
 
-      {/* Desktop Layout - Ultra compact */}
-      <div className="hidden md:block max-w-7xl mx-auto px-4 py-0.5">
-        <div className="flex justify-between items-center">
+      {/* Desktop Layout - Improved spacing and alignment */}
+      <div className="hidden md:block max-w-7xl mx-auto px-4 py-2 lg:py-1">
+        <div className="flex flex-col md:flex-row md:justify-between md:items-center gap-2 md:gap-0">
           {/* Company Info */}
-          <div className="text-xs text-gray-600 dark:text-gray-300">
+          <div className="text-xs text-gray-600 dark:text-gray-300 text-center md:text-left">
             © {new Date().getFullYear()} ReadMyFinePrint
           </div>
 
           {/* Links */}
-          <div className="flex items-center gap-3 text-xs">
+          <div className="flex flex-wrap justify-center md:justify-end items-center gap-x-4 gap-y-1 text-xs">
             <Link
-              to="/privacy"
-              className="text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white transition-all duration-300 ease-in-out py-1"
+              href="/privacy"
+              className="text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white transition-all duration-300 ease-in-out py-1.5 px-1"
+              aria-label="Privacy Policy"
             >
               Privacy Policy
             </Link>
             <Link
-              to="/terms"
-              className="text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white transition-all duration-300 ease-in-out py-1"
+              href="/terms"
+              className="text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white transition-all duration-300 ease-in-out py-1.5 px-1"
+              aria-label="Terms of Service"
             >
               Terms of Service
             </Link>
             <Link
-              to="/cookies"
-              className="text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-200 transition-all duration-300 ease-in-out inline-flex items-center py-1"
+              href="/cookies"
+              className="text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-200 transition-all duration-300 ease-in-out inline-flex items-center py-1.5 px-1"
+              aria-label="Cookie Policy"
             >
               <Cookie className="w-3 h-3 mr-1" aria-hidden="true" />
               Cookies
             </Link>
-            <div className="flex items-center gap-3">
-              <Link
-                to="/donate"
-                className="text-red-600 dark:text-red-400 hover:text-red-700 dark:hover:text-red-300 transition-all duration-300 ease-in-out inline-flex items-center py-1"
-              >
-                <Heart className="w-3 h-3 mr-1" aria-hidden="true" />
-                Donate
-              </Link>
-              <Link
-                to="/roadmap"
-                className="text-purple-600 dark:text-purple-400 hover:text-purple-700 dark:hover:text-purple-300 transition-all duration-300 ease-in-out inline-flex items-center py-1"
-              >
-                <Target className="w-3 h-3 mr-1" aria-hidden="true" />
-                Roadmap
-              </Link>
-              <button
-                onClick={handleShareClick}
-                className="text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 transition-all duration-300 ease-in-out inline-flex items-center py-1"
-              >
-                <Share2 className="w-3 h-3 mr-1" aria-hidden="true" />
-                Share
-              </button>
-              <a
-                href="mailto:admin@readmyfineprint.com"
-                className="text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white transition-all duration-300 ease-in-out py-1"
-              >
-                Contact
-              </a>
-            </div>
+            <Link
+              href="/donate"
+              className="text-red-600 dark:text-red-400 hover:text-red-700 dark:hover:text-red-300 transition-all duration-300 ease-in-out inline-flex items-center py-1.5 px-1"
+              aria-label="Support us with a donation"
+            >
+              <Heart className="w-3 h-3 mr-1" aria-hidden="true" />
+              Donate
+            </Link>
+            <Link
+              href="/roadmap"
+              className="text-purple-600 dark:text-purple-400 hover:text-purple-700 dark:hover:text-purple-300 transition-all duration-300 ease-in-out inline-flex items-center py-1.5 px-1"
+              aria-label="View our roadmap"
+            >
+              <Target className="w-3 h-3 mr-1" aria-hidden="true" />
+              Roadmap
+            </Link>
+            <button
+              onClick={handleShareClick}
+              className="text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 transition-all duration-300 ease-in-out inline-flex items-center py-1.5 px-1"
+              aria-label="Share this website"
+            >
+              <Share2 className="w-3 h-3 mr-1" aria-hidden="true" />
+              Share
+            </button>
+            <a
+              href="mailto:admin@readmyfineprint.com"
+              className="text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white transition-all duration-300 ease-in-out py-1.5 px-1"
+              aria-label="Contact us via email"
+            >
+              Contact
+            </a>
           </div>
-
         </div>
       </div>
     </footer>

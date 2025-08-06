@@ -3,6 +3,8 @@ import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
 import { ThemeProvider } from "../components/providers";
+import { Header } from "../components/Header";
+import { Footer } from "../components/Footer";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -18,14 +20,24 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" className={`${inter.className} font-sans`} suppressHydrationWarning>
-      <body>
+      <head>
+        <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+        <meta name="theme-color" content="#ffffff" />
+        <meta name="theme-color" content="#0f172a" media="(prefers-color-scheme: dark)" />
+      </head>
+      <body className="min-h-screen bg-background text-foreground antialiased">
         <ThemeProvider
-          attribute="class"
           defaultTheme="light"
           enableSystem
           disableTransitionOnChange={false}
         >
-          {children}
+          <div className="flex min-h-screen flex-col">
+            <Header />
+            <main className="flex-1 overflow-auto">
+              {children}
+            </main>
+            <Footer />
+          </div>
         </ThemeProvider>
       </body>
     </html>

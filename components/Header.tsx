@@ -38,7 +38,7 @@ export function Header() {
   const mobileMenuRef = useRef<HTMLDivElement>(null);
   const burgerButtonRef = useRef<HTMLButtonElement>(null);
 
-  // Check authentication status on component mount and when location changes
+  // Check authentication status on component mount and when pathname changes
   useEffect(() => {
     const checkAuth = async () => {
       setIsCheckingAuth(true);
@@ -68,7 +68,7 @@ export function Header() {
           }
         } else {
           // Session validation failed - try development auto-login if in dev mode
-          if (import.meta.env.DEV && response.status === 401) {
+          if (process.env.NODE_ENV === 'development' && response.status === 401) {
             console.log('Authentication failed, attempting development auto-login...');
             try {
               const autoLoginResponse = await authFetch('/api/dev/auto-admin-login', {
@@ -143,7 +143,7 @@ export function Header() {
       window.removeEventListener('authUpdate', handleAuthUpdate);
       window.removeEventListener('authStateChanged', handleAuthUpdate);
     };
-  }, [location, toast]);
+  }, [pathname, toast]);
 
   // Close mobile menu when clicking outside
   useEffect(() => {
@@ -163,13 +163,13 @@ export function Header() {
     };
   }, [isMobileMenuOpen]);
 
-  // Close mobile menu when location changes
+  // Close mobile menu when pathname changes
   useEffect(() => {
     setIsMobileMenuOpen(false);
-  }, [location]);
+  }, [pathname]);
 
   const handleSubscriptionClick = () => {
-    navigate('/subscription?tab=plans');
+    router.push('/subscription?tab=plans');
   };
 
   const handleLoginClick = (e: React.MouseEvent) => {
@@ -292,7 +292,7 @@ export function Header() {
     >
       <div className="w-full px-4 sm:px-6 lg:px-8">
         <div className={`flex justify-between items-center ${isMobile ? 'h-14' : 'h-16'}`}>
-          <Link to="/" aria-label="ReadMyFinePrint - Go to homepage">
+          <Link href="/" aria-label="ReadMyFinePrint - Go to homepage">
             <div className="flex items-center space-x-3 cursor-pointer group">
               <div className={`${isMobile ? 'p-1' : 'p-1.5'} bg-gradient-to-br from-blue-50 to-blue-100 dark:from-blue-900/20 dark:to-blue-800/20 rounded-xl shadow-sm group-hover:shadow-md transition-all duration-200 group-active:scale-95`}>
                 <img
@@ -317,7 +317,7 @@ export function Header() {
             role="navigation"
             aria-label="Main navigation"
           >
-            <Link to="/subscription?tab=plans">
+            <Link href="/subscription?tab=plans">
               <Button
                 variant="ghost"
                 size="sm"
@@ -329,7 +329,7 @@ export function Header() {
                 Plans
               </Button>
             </Link>
-            <Link to="/trust">
+            <Link href="/trust">
               <Button
                 variant="ghost"
                 size="sm"
@@ -340,7 +340,7 @@ export function Header() {
                 Trust
               </Button>
             </Link>
-            <Link to="/blog">
+            <Link href="/blog">
               <Button
                 variant="ghost"
                 size="sm"
@@ -352,7 +352,7 @@ export function Header() {
               </Button>
             </Link>
             {isAdmin && (
-              <Link to="/admin">
+              <Link href="/admin">
                 <Button
                   variant="ghost"
                   size="sm"
@@ -397,7 +397,7 @@ export function Header() {
                 Login / Subscribe
               </Button>
             )}
-            <Link to="/donate">
+            <Link href="/donate">
               <Button
                 variant="outline"
                 size="sm"
@@ -494,14 +494,13 @@ export function Header() {
             className="md:hidden bg-white/95 dark:bg-slate-900/95 backdrop-blur-lg border-t border-gray-200 dark:border-gray-700 shadow-lg animate-in slide-in-from-top-2 duration-200"
           >
             <div className="px-4 py-3 space-y-2">
-              <Link to="/subscription?tab=plans">
+              <Link href="/subscription?tab=plans">
                 <Button
                   variant="ghost"
                   size="sm"
                   className="w-full justify-start h-10 transition-all duration-200 active:scale-95"
                   aria-label="View subscription plans"
                   onClick={() => {
-                    handleSubscriptionClick();
                     setIsMobileMenuOpen(false);
                   }}
                 >
@@ -510,7 +509,7 @@ export function Header() {
                 </Button>
               </Link>
               
-              <Link to="/trust">
+              <Link href="/trust">
                 <Button
                   variant="ghost"
                   size="sm"
@@ -523,7 +522,7 @@ export function Header() {
                 </Button>
               </Link>
               
-              <Link to="/blog">
+              <Link href="/blog">
                 <Button
                   variant="ghost"
                   size="sm"
@@ -537,7 +536,7 @@ export function Header() {
               </Link>
               
               {isAdmin && (
-                <Link to="/admin">
+                <Link href="/admin">
                   <Button
                     variant="ghost"
                     size="sm"
@@ -551,7 +550,7 @@ export function Header() {
                 </Link>
               )}
               
-              <Link to="/donate">
+              <Link href="/donate">
                 <Button
                   variant="ghost"
                   size="sm"
