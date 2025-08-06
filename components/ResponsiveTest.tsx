@@ -10,7 +10,7 @@ export function ResponsiveTest() {
       {/* Test different breakpoints */}
       <div className="space-y-2">
         <div className="block sm:hidden bg-red-200 dark:bg-red-800 p-2 rounded">
-          Mobile only (< 640px)
+          Mobile only (&lt; 640px)
         </div>
         
         <div className="hidden sm:block md:hidden bg-yellow-200 dark:bg-yellow-800 p-2 rounded">
@@ -30,7 +30,7 @@ export function ResponsiveTest() {
         </div>
         
         <div className="hidden 2xl:block bg-pink-200 dark:bg-pink-800 p-2 rounded">
-          2XL screens (>= 1536px)
+          2XL screens (&gt;= 1536px)
         </div>
       </div>
       
