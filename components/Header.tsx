@@ -1,3 +1,5 @@
+"use client";
+
 import { useState, useEffect, useRef } from 'react';
 import Link from "next/link";
 import { usePathname, useRouter } from 'next/navigation';
@@ -449,9 +451,10 @@ export function Header() {
                 <Button
                   variant="outline"
                   size="sm"
-                  className="h-9 px-3 text-xs transition-all duration-200 active:scale-95"
+                  className="h-9 px-3 text-xs transition-all duration-200 active:scale-95 touch-manipulation"
                   aria-label="Logout"
                   onClick={handleLogoutClick}
+                  onTouchStart={() => {}} // Enable touch events
                 >
                   <LogOut className="w-3 h-3 mr-1" aria-hidden="true" />
                   Logout
@@ -460,9 +463,10 @@ export function Header() {
                 <Button
                   variant="default"
                   size="sm"
-                  className="h-9 px-3 text-xs bg-blue-600 hover:bg-blue-700 text-white transition-all duration-200 active:scale-95"
+                  className="h-9 px-3 text-xs bg-blue-600 hover:bg-blue-700 text-white transition-all duration-200 active:scale-95 touch-manipulation"
                   aria-label="Login or Subscribe"
                   onClick={handleLoginClick}
+                  onTouchStart={() => {}} // Enable touch events
                 >
                   Login
                 </Button>
@@ -473,9 +477,10 @@ export function Header() {
                 ref={burgerButtonRef}
                 variant="ghost"
                 size="sm"
-                className="h-9 w-9 p-0 transition-all duration-200 active:scale-95"
+                className="h-9 w-9 p-0 transition-all duration-200 active:scale-95 touch-manipulation"
                 aria-label={isMobileMenuOpen ? "Close menu" : "Open menu"}
                 onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+                onTouchStart={() => {}} // Enable touch events
               >
                 {isMobileMenuOpen ? (
                   <X className="w-5 h-5" aria-hidden="true" />
@@ -491,18 +496,23 @@ export function Header() {
         {isMobileMenuOpen && (
           <div 
             ref={mobileMenuRef}
-            className="md:hidden bg-white/95 dark:bg-slate-900/95 backdrop-blur-lg border-t border-gray-200 dark:border-gray-700 shadow-lg animate-in slide-in-from-top-2 duration-200"
+            className="md:hidden bg-white/95 dark:bg-slate-900/95 backdrop-blur-lg border-t border-gray-200 dark:border-gray-700 shadow-lg mobile-menu-enter"
+            style={{
+              paddingLeft: 'var(--app-safe-area-left)',
+              paddingRight: 'var(--app-safe-area-right)',
+            }}
           >
-            <div className="px-4 py-3 space-y-2">
+            <div className="px-4 py-3 space-y-2 mobile-scroll-container">
               <Link href="/subscription?tab=plans">
                 <Button
                   variant="ghost"
                   size="sm"
-                  className="w-full justify-start h-10 transition-all duration-200 active:scale-95"
+                  className="w-full justify-start h-10 transition-all duration-200 active:scale-95 touch-manipulation"
                   aria-label="View subscription plans"
                   onClick={() => {
                     setIsMobileMenuOpen(false);
                   }}
+                  onTouchStart={() => {}} // Enable touch events
                 >
                   <Crown className="w-4 h-4 mr-3 text-yellow-600 dark:text-yellow-400" aria-hidden="true" />
                   Plans
@@ -513,9 +523,10 @@ export function Header() {
                 <Button
                   variant="ghost"
                   size="sm"
-                  className="w-full justify-start h-10 transition-all duration-200 active:scale-95"
+                  className="w-full justify-start h-10 transition-all duration-200 active:scale-95 touch-manipulation"
                   aria-label="Trust and security information"
                   onClick={() => setIsMobileMenuOpen(false)}
+                  onTouchStart={() => {}} // Enable touch events
                 >
                   <Shield className="w-4 h-4 mr-3 text-green-600 dark:text-green-400" aria-hidden="true" />
                   Trust
@@ -526,9 +537,10 @@ export function Header() {
                 <Button
                   variant="ghost"
                   size="sm"
-                  className="w-full justify-start h-10 transition-all duration-200 active:scale-95"
+                  className="w-full justify-start h-10 transition-all duration-200 active:scale-95 touch-manipulation"
                   aria-label="Legal insights and contract law blog"
                   onClick={() => setIsMobileMenuOpen(false)}
+                  onTouchStart={() => {}} // Enable touch events
                 >
                   <BookOpen className="w-4 h-4 mr-3 text-purple-600 dark:text-purple-400" aria-hidden="true" />
                   Blog
@@ -540,9 +552,10 @@ export function Header() {
                   <Button
                     variant="ghost"
                     size="sm"
-                    className="w-full justify-start h-10 transition-all duration-200 active:scale-95"
+                    className="w-full justify-start h-10 transition-all duration-200 active:scale-95 touch-manipulation"
                     aria-label="Admin Dashboard"
                     onClick={() => setIsMobileMenuOpen(false)}
+                    onTouchStart={() => {}} // Enable touch events
                   >
                     <Settings className="w-4 h-4 mr-3 text-blue-600 dark:text-blue-400" aria-hidden="true" />
                     Admin
@@ -554,9 +567,10 @@ export function Header() {
                 <Button
                   variant="ghost"
                   size="sm"
-                  className="w-full justify-start h-10 transition-all duration-200 active:scale-95"
+                  className="w-full justify-start h-10 transition-all duration-200 active:scale-95 touch-manipulation"
                   aria-label="Support us with a donation"
                   onClick={() => setIsMobileMenuOpen(false)}
+                  onTouchStart={() => {}} // Enable touch events
                 >
                   <Heart className="w-4 h-4 mr-3 text-red-500 dark:text-red-400" aria-hidden="true" />
                   Donate
@@ -570,9 +584,10 @@ export function Header() {
                 }}
                 variant="ghost"
                 size="sm"
-                className="w-full justify-start h-10 transition-all duration-200 active:scale-95"
+                className="w-full justify-start h-10 transition-all duration-200 active:scale-95 touch-manipulation"
                 aria-label={`Switch to ${theme === "light" ? "dark" : "light"} theme`}
                 aria-pressed={theme === "dark"}
+                onTouchStart={() => {}} // Enable touch events
               >
                 {theme === "light" ? (
                   <Moon className="w-4 h-4 mr-3" aria-hidden="true" />

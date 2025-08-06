@@ -31,9 +31,9 @@ export default function RootLayout({
           enableSystem
           disableTransitionOnChange={false}
         >
-          <div className="flex min-h-screen flex-col">
+          <div className="flex min-h-screen flex-col mobile-scroll-container">
             <Header />
-            <main className="flex-1 overflow-auto">
+            <main className="flex-1 overflow-auto mobile-scroll-container">
               {children}
             </main>
             <Footer />

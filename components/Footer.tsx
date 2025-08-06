@@ -1,3 +1,5 @@
+"use client";
+
 import Link from "next/link";
 import { Heart, Cookie, Share2, Target } from "lucide-react";
 import { CookieManagement } from "@/components/CookieManagement";
@@ -96,21 +98,21 @@ export function Footer() {
           <div className="flex flex-wrap justify-center items-center gap-x-3 gap-y-1 text-xs">
             <Link 
               href="/privacy" 
-              className="text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200 transition-colors py-1.5 px-1 min-h-[44px] flex items-center"
+              className="text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200 transition-colors py-1.5 px-1 min-h-[44px] flex items-center touch-manipulation"
               aria-label="Privacy Policy"
             >
               Privacy
             </Link>
             <Link 
               href="/terms" 
-              className="text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200 transition-colors py-1.5 px-1 min-h-[44px] flex items-center"
+              className="text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200 transition-colors py-1.5 px-1 min-h-[44px] flex items-center touch-manipulation"
               aria-label="Terms of Service"
             >
               Terms
             </Link>
             <Link 
               href="/cookies" 
-              className="text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-200 flex items-center gap-1 transition-colors py-1.5 px-1 min-h-[44px]"
+              className="text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-200 flex items-center gap-1 transition-colors py-1.5 px-1 min-h-[44px] touch-manipulation"
               aria-label="Cookie Policy"
             >
               <Cookie className="w-3 h-3" aria-hidden="true" />
@@ -118,7 +120,7 @@ export function Footer() {
             </Link>
             <Link 
               href="/donate" 
-              className="text-red-600 dark:text-red-400 hover:text-red-700 dark:hover:text-red-300 flex items-center gap-1 transition-colors py-1.5 px-1 min-h-[44px]"
+              className="text-red-600 dark:text-red-400 hover:text-red-700 dark:hover:text-red-300 flex items-center gap-1 transition-colors py-1.5 px-1 min-h-[44px] touch-manipulation"
               aria-label="Support us with a donation"
             >
               <Heart className="w-3 h-3" aria-hidden="true" />
@@ -126,15 +128,16 @@ export function Footer() {
             </Link>
             <button
               onClick={handleShareClick}
-              className="text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 flex items-center gap-1 transition-colors py-1.5 px-1 min-h-[44px]"
+              className="text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 flex items-center gap-1 transition-colors py-1.5 px-1 min-h-[44px] touch-manipulation"
               aria-label="Share this website"
+              onTouchStart={() => {}} // Enable touch events
             >
               <Share2 className="w-3 h-3" aria-hidden="true" />
               Share
             </button>
             <a
               href="mailto:admin@readmyfineprint.com"
-              className="text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200 transition-colors py-1.5 px-1 min-h-[44px] flex items-center"
+              className="text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200 transition-colors py-1.5 px-1 min-h-[44px] flex items-center touch-manipulation"
               aria-label="Contact us via email"
             >
               Contact
@@ -155,21 +158,21 @@ export function Footer() {
           <div className="flex flex-wrap justify-center md:justify-end items-center gap-x-4 gap-y-1 text-xs">
             <Link
               href="/privacy"
-              className="text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white transition-all duration-300 ease-in-out py-1.5 px-1"
+              className="text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white transition-all duration-300 ease-in-out py-1.5 px-1 touch-manipulation"
               aria-label="Privacy Policy"
             >
               Privacy Policy
             </Link>
             <Link
               href="/terms"
-              className="text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white transition-all duration-300 ease-in-out py-1.5 px-1"
+              className="text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white transition-all duration-300 ease-in-out py-1.5 px-1 touch-manipulation"
               aria-label="Terms of Service"
             >
               Terms of Service
             </Link>
             <Link
               href="/cookies"
-              className="text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-200 transition-all duration-300 ease-in-out inline-flex items-center py-1.5 px-1"
+              className="text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-200 transition-all duration-300 ease-in-out inline-flex items-center py-1.5 px-1 touch-manipulation"
               aria-label="Cookie Policy"
             >
               <Cookie className="w-3 h-3 mr-1" aria-hidden="true" />
@@ -177,7 +180,7 @@ export function Footer() {
             </Link>
             <Link
               href="/donate"
-              className="text-red-600 dark:text-red-400 hover:text-red-700 dark:hover:text-red-300 transition-all duration-300 ease-in-out inline-flex items-center py-1.5 px-1"
+              className="text-red-600 dark:text-red-400 hover:text-red-700 dark:hover:text-red-300 transition-all duration-300 ease-in-out inline-flex items-center py-1.5 px-1 touch-manipulation"
               aria-label="Support us with a donation"
             >
               <Heart className="w-3 h-3 mr-1" aria-hidden="true" />
@@ -185,7 +188,7 @@ export function Footer() {
             </Link>
             <Link
               href="/roadmap"
-              className="text-purple-600 dark:text-purple-400 hover:text-purple-700 dark:hover:text-purple-300 transition-all duration-300 ease-in-out inline-flex items-center py-1.5 px-1"
+              className="text-purple-600 dark:text-purple-400 hover:text-purple-700 dark:hover:text-purple-300 transition-all duration-300 ease-in-out inline-flex items-center py-1.5 px-1 touch-manipulation"
               aria-label="View our roadmap"
             >
               <Target className="w-3 h-3 mr-1" aria-hidden="true" />
@@ -193,15 +196,16 @@ export function Footer() {
             </Link>
             <button
               onClick={handleShareClick}
-              className="text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 transition-all duration-300 ease-in-out inline-flex items-center py-1.5 px-1"
+              className="text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 transition-all duration-300 ease-in-out inline-flex items-center py-1.5 px-1 touch-manipulation"
               aria-label="Share this website"
+              onTouchStart={() => {}} // Enable touch events
             >
               <Share2 className="w-3 h-3 mr-1" aria-hidden="true" />
               Share
             </button>
             <a
               href="mailto:admin@readmyfineprint.com"
-              className="text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white transition-all duration-300 ease-in-out py-1.5 px-1"
+              className="text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white transition-all duration-300 ease-in-out py-1.5 px-1 touch-manipulation"
               aria-label="Contact us via email"
             >
               Contact
