@@ -1,0 +1,22 @@
+{
+  "enabled": true,
+  "name": "Git Sync Before Operations",
+  "description": "Automatically commits and syncs local changes to remote repository before running build, test, or development commands to ensure remote SSH development stays synchronized",
+  "version": "1",
+  "when": {
+    "type": "fileEdited",
+    "patterns": [
+      "package.json",
+      "scripts/*",
+      "server/*",
+      "app/*",
+      "components/*",
+      "lib/*",
+      "hooks/*"
+    ]
+  },
+  "then": {
+    "type": "askAgent",
+    "prompt": "The codebase has been modified. Before running any build, test, or development commands, please commit the current changes and sync them to the remote repository. This ensures that the remote SSH development environment stays synchronized with local progress. Execute: 1) git add . 2) git commit -m \"Auto-sync: [brief description of changes]\" 3) git push origin [current-branch]. Then proceed with the intended operation."
+  }
+}
