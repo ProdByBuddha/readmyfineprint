@@ -1,10 +1,8 @@
-
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
 import { ThemeProvider } from "../components/providers";
-import { Header } from "../components/Header";
-import { Footer } from "../components/Footer";
+import React from "react";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -28,15 +26,13 @@ export default function RootLayout({
       <body className="min-h-screen bg-background text-foreground antialiased">
         <ThemeProvider
           defaultTheme="light"
-          enableSystem
+          enableSystem={true}
           disableTransitionOnChange={false}
         >
           <div className="flex min-h-screen flex-col mobile-scroll-container">
-            <Header />
             <main className="flex-1 overflow-auto mobile-scroll-container">
               {children}
             </main>
-            <Footer />
           </div>
         </ThemeProvider>
       </body>

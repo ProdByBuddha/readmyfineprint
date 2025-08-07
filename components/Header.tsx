@@ -1,8 +1,7 @@
 "use client";
 
 import { useState, useEffect, useRef } from 'react';
-import Link from "next/link";
-import { usePathname, useRouter } from 'next/navigation';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { 
@@ -24,10 +23,11 @@ import { useIsMobile } from '@/hooks/use-mobile';
 import { SubscriptionLogin } from '@/components/SubscriptionLogin';
 import { authFetch } from '@/lib/auth-fetch';
 import ReactDOM from 'react-dom';
+import React from 'react';
 
 export function Header() {
-  const pathname = usePathname();
-  const router = useRouter();
+  const location = useLocation();
+  const navigate = useNavigate();
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [user, setUser] = useState<any>(null);
   const [showLogin, setShowLogin] = useState(false);
@@ -40,7 +40,7 @@ export function Header() {
   const mobileMenuRef = useRef<HTMLDivElement>(null);
   const burgerButtonRef = useRef<HTMLButtonElement>(null);
 
-  // Check authentication status on component mount and when pathname changes
+  // Check authentication status on component mount and when location changes
   useEffect(() => {
     const checkAuth = async () => {
       setIsCheckingAuth(true);
@@ -145,7 +145,7 @@ export function Header() {
       window.removeEventListener('authUpdate', handleAuthUpdate);
       window.removeEventListener('authStateChanged', handleAuthUpdate);
     };
-  }, [pathname, toast]);
+  }, [location.pathname, toast]);
 
   // Close mobile menu when clicking outside
   useEffect(() => {
@@ -165,13 +165,13 @@ export function Header() {
     };
   }, [isMobileMenuOpen]);
 
-  // Close mobile menu when pathname changes
+  // Close mobile menu when location changes
   useEffect(() => {
     setIsMobileMenuOpen(false);
-  }, [pathname]);
+  }, [location.pathname]);
 
   const handleSubscriptionClick = () => {
-    router.push('/subscription?tab=plans');
+    navigate('/subscription?tab=plans');
   };
 
   const handleLoginClick = (e: React.MouseEvent) => {
@@ -294,7 +294,7 @@ export function Header() {
     >
       <div className="w-full px-4 sm:px-6 lg:px-8">
         <div className={`flex justify-between items-center ${isMobile ? 'h-14' : 'h-16'}`}>
-          <Link href="/" aria-label="ReadMyFinePrint - Go to homepage">
+          <Link to="/" aria-label="ReadMyFinePrint - Go to homepage">
             <div className="flex items-center space-x-3 cursor-pointer group">
               <div className={`${isMobile ? 'p-1' : 'p-1.5'} bg-gradient-to-br from-blue-50 to-blue-100 dark:from-blue-900/20 dark:to-blue-800/20 rounded-xl shadow-sm group-hover:shadow-md transition-all duration-200 group-active:scale-95`}>
                 <img
@@ -319,7 +319,7 @@ export function Header() {
             role="navigation"
             aria-label="Main navigation"
           >
-            <Link href="/subscription?tab=plans">
+            <Link to="/subscription?tab=plans">
               <Button
                 variant="ghost"
                 size="sm"
@@ -331,7 +331,7 @@ export function Header() {
                 Plans
               </Button>
             </Link>
-            <Link href="/trust">
+            <Link to="/trust">
               <Button
                 variant="ghost"
                 size="sm"
@@ -342,7 +342,7 @@ export function Header() {
                 Trust
               </Button>
             </Link>
-            <Link href="/blog">
+            <Link to="/blog">
               <Button
                 variant="ghost"
                 size="sm"
@@ -354,7 +354,7 @@ export function Header() {
               </Button>
             </Link>
             {isAdmin && (
-              <Link href="/admin">
+              <Link to="/admin">
                 <Button
                   variant="ghost"
                   size="sm"
@@ -399,7 +399,7 @@ export function Header() {
                 Login / Subscribe
               </Button>
             )}
-            <Link href="/donate">
+            <Link to="/donate">
               <Button
                 variant="outline"
                 size="sm"
@@ -503,7 +503,7 @@ export function Header() {
             }}
           >
             <div className="px-4 py-3 space-y-2 mobile-scroll-container">
-              <Link href="/subscription?tab=plans">
+              <Link to="/subscription?tab=plans">
                 <Button
                   variant="ghost"
                   size="sm"
@@ -519,7 +519,7 @@ export function Header() {
                 </Button>
               </Link>
               
-              <Link href="/trust">
+              <Link to="/trust">
                 <Button
                   variant="ghost"
                   size="sm"
@@ -533,7 +533,7 @@ export function Header() {
                 </Button>
               </Link>
               
-              <Link href="/blog">
+              <Link to="/blog">
                 <Button
                   variant="ghost"
                   size="sm"
@@ -548,7 +548,7 @@ export function Header() {
               </Link>
               
               {isAdmin && (
-                <Link href="/admin">
+                <Link to="/admin">
                   <Button
                     variant="ghost"
                     size="sm"
@@ -563,7 +563,7 @@ export function Header() {
                 </Link>
               )}
               
-              <Link href="/donate">
+              <Link to="/donate">
                 <Button
                   variant="ghost"
                   size="sm"
