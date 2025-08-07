@@ -1,0 +1,28 @@
+{
+  "enabled": true,
+  "name": "Documentation Sync",
+  "description": "Monitors all TypeScript, JavaScript, and configuration files for changes and automatically updates documentation in README.md and /docs folder to keep it synchronized with the codebase",
+  "version": "1",
+  "when": {
+    "type": "fileEdited",
+    "patterns": [
+      "**/*.ts",
+      "**/*.tsx",
+      "**/*.js",
+      "**/*.jsx",
+      "**/*.mjs",
+      "**/*.cjs",
+      "package.json",
+      "tsconfig.json",
+      "next.config.js",
+      "tailwind.config.ts",
+      "components.json",
+      "eslint.config.mjs",
+      "postcss.config.js"
+    ]
+  },
+  "then": {
+    "type": "askAgent",
+    "prompt": "Source files have been modified. Please review the changes and update the documentation accordingly. Update the README.md file and any relevant documentation in the /docs folder to reflect the current state of the codebase. Focus on:\n\n1. API changes and new endpoints\n2. Component updates and new features\n3. Configuration changes\n4. Architecture modifications\n5. Security enhancements\n6. New dependencies or build process changes\n\nEnsure the documentation accurately represents the current functionality and maintains consistency with the codebase."
+  }
+}

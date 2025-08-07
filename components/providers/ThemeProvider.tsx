@@ -8,17 +8,19 @@ type ThemeProviderProps = {
   defaultTheme?: string;
   enableSystem?: boolean;
   disableTransitionOnChange?: boolean;
+  attribute?: string;
 }
 
 export function ThemeProvider({ 
   children, 
   defaultTheme = "system",
   enableSystem = true,
-  disableTransitionOnChange = false
+  disableTransitionOnChange = false,
+  attribute = "class"
 }: ThemeProviderProps) {
   return (
     <NextThemesProvider
-      attribute="class"
+      attribute={attribute}
       defaultTheme={defaultTheme}
       enableSystem={enableSystem}
       disableTransitionOnChange={disableTransitionOnChange}

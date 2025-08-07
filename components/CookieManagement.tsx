@@ -3,7 +3,7 @@ import { Cookie, Shield, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogTrigger } from "@/components/ui/dialog";
 import { useCombinedConsent } from "@/components/CombinedConsent";
-import Link from "next/link";
+import { Link } from "react-router-dom";
 import { getGlobalSessionId, sessionFetch } from '@/lib/sessionManager';
 
 interface CookieManagementProps {
