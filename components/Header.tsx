@@ -21,7 +21,7 @@ import { clearCSRFToken } from '@/lib/csrfManager';
 import { queryClient } from '@/lib/queryClient';
 import { useTheme } from '@/hooks/useTheme';
 import { useIsMobile } from '@/hooks/use-mobile';
-import { SubscriptionLogin } from '@/components/SubscriptionLogin';
+import { ThemeToggle } from './ThemeToggle';
 import { authFetch } from '@/lib/auth-fetch';
 import ReactDOM from 'react-dom';
 
@@ -420,23 +420,7 @@ export function Header() {
                 Donate
               </Button>
             </Link>
-            <Button
-              onClick={toggleTheme}
-              variant="ghost"
-              size="sm"
-              className="mr-2"
-              aria-label={`Switch to ${theme === "light" ? "dark" : "light"} theme`}
-              aria-pressed={theme === "dark"}
-            >
-              {theme === "light" ? (
-                <Moon className="w-4 h-4" aria-hidden="true" />
-              ) : (
-                <Sun className="w-4 h-4" aria-hidden="true" />
-              )}
-              <span className="sr-only">
-                {theme === "light" ? "Switch to dark theme" : "Switch to light theme"}
-              </span>
-            </Button>
+            <ThemeToggle />
           </nav>
 
           {/* Mobile navigation */}

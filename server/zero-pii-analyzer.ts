@@ -37,7 +37,7 @@ export class ZeroPIIAnalyzer {
     // Override the URL to use our enhanced Replit PII detector
     const ollamaUrl = process.env.OLLAMA_URL || 'http://localhost:11434';
     (this.localLLM as any).ollamaUrl = ollamaUrl.replace(':11434', ':11435'); // Use enhanced PII detector port
-    (this.localLLM as any).model = 'replit-pii-detector';
+    // (this.localLLM as any).model = 'replit-pii-detector';
     (this.localLLM as any).fallbackToRegex = true; // Use enhanced regex patterns
   }
 

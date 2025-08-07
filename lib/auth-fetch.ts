@@ -39,7 +39,7 @@ export async function authFetch(url: string, options: RequestInit = {}): Promise
   const response = await fetch(getApiUrl(url), authOptions);
   
   // Debug logging for development mode
-  if (import.meta.env.DEV && response.status === 401) {
+  if (process.env.NODE_ENV === 'development' && response.status === 401) {
     console.log('🔐 auth-fetch received 401:', {
       url,
       hasAccessToken: !!accessToken,

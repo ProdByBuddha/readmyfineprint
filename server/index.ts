@@ -24,6 +24,8 @@ import { subscriptionService } from './subscription-service';
 import { initializeDatabase } from './db-init';
 import { blogScheduler } from './blog-scheduler.js';
 import { viewDripService } from './view-drip-service.js';
+import blogRoutes from './blog-routes.js';
+
 
 const app = express();
 
@@ -251,6 +253,7 @@ app.use('/api/documents/:id/analyze', processLimiter);
 app.use('/api/documents/upload', processLimiter);
 app.use('/api/create-payment-intent', processLimiter);
 app.use('/api/create-checkout-session', processLimiter);
+
 
 // Special middleware for Stripe webhooks (needs raw body)
 app.use('/api/stripe-webhook', express.raw({ type: 'application/json' }));
