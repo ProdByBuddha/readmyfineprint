@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 "use client";
 
 import { useTheme as useNextTheme } from "next-themes";
@@ -17,3 +18,10 @@ export function useTheme() {
     error: null,
   };
 }
+=======
+"use client";
+
+import { useTheme as useNextTheme } from "next-themes";
+
+export const useTheme = useNextTheme;
+>>>>>>> 7cc2891905625b3209b30e87e2aac95bced64f65
