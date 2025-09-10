@@ -135,7 +135,7 @@ export async function analyzeDocumentWithPII(
         
         // Store entanglement data for cross-document analysis
         if (sessionId && redactionInfo.hashedMatches) {
-          await piiEntanglementService.storeDocumentCorrelation(
+          piiEntanglementService.storeDocumentEntanglement(
             sessionId, 
             title || 'untitled',
             redactionInfo.hashedMatches,
@@ -143,13 +143,13 @@ export async function analyzeDocumentWithPII(
           );
           
           // Check for cross-document entanglements in this session
-          const entanglementCheck = await piiEntanglementService.checkCrossDocumentCorrelation(
+          const entanglementCheck = piiEntanglementService.checkCrossDocumentEntanglement(
             sessionId,
             redactionInfo.hashedMatches
           );
           
           if (entanglementCheck.hasSharedPII) {
-            console.log(`⚠️ Cross-document PII detected: ${entanglementCheck.sharedCorrelationIds.length} shared correlations with previous document`);
+            console.log(`⚠️ Cross-document PII detected: ${entanglementCheck.sharedEntanglementIds.length} shared entanglements with previous document`);
           }
         }
       }

@@ -18,7 +18,7 @@ MONITORING_EMAIL_RECIPIENT = "prodbybuddha@icloud.com"
 MONITORING_EMAIL_SUBJECT = "ReadMyFinePrint Production Alert"
 
 [workflows]
-runButton = "Start Dev + PII LLM"
+runButton = "Deploy Staging"
 
 [[workflows.workflow]]
 name = "Project"
@@ -188,57 +188,31 @@ args = "echo '📋 Confirm deployment readiness...'"
 task = "shell.exec"
 args = "npm run version:deploy"
 
-[[workflows.workflow]]
-name = "Debug Route Error"
-author = 30822729
-mode = "sequential"
-
-[[workflows.workflow.tasks]]
-task = "shell.exec"
-args = "echo \"Stopping any running servers...\""
-
-[[workflows.workflow.tasks]]
-task = "shell.exec"
-args = "lsof -ti:3000 | xargs -r kill -9 || echo \"Port 3000 is free\""
-
-[[workflows.workflow.tasks]]
-task = "shell.exec"
-args = "lsof -ti:5000 | xargs -r kill -9 || echo \"Port 5000 is free\""
-
-[[workflows.workflow.tasks]]
-task = "shell.exec"
-args = "echo \"Starting server with debug output...\""
-
-[[workflows.workflow.tasks]]
-task = "shell.exec"
-args = "NODE_ENV=development tsx server/index.ts"
-
 [[ports]]
 localPort = 3000
-externalPort = 80
+externalPort = 3001
 
 [[ports]]
 localPort = 3001
-externalPort = 3001
+externalPort = 3003
 
 [[ports]]
 localPort = 5000
 externalPort = 5000
 
 [[ports]]
-localPort = 8000
-externalPort = 8000
+localPort = 5173
+externalPort = 5173
 
 [[ports]]
 localPort = 11434
-externalPort = 3000
+externalPort = 80
 
 [[ports]]
-localPort = 42903
+localPort = 33257
 externalPort = 3002
-exposeLocalhost = true
 
 [[ports]]
-localPort = 46287
-externalPort = 3003
+localPort = 43609
+externalPort = 3000
 exposeLocalhost = true

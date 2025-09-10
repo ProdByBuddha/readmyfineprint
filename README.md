@@ -51,22 +51,6 @@ For commercial licensing, enterprise deployment, or technical support:
 
 ---
 
-## 🛠️ Technical Overview
-
-### Styling and Theming
-
-The project uses **Tailwind CSS** for styling. The configuration can be found in `tailwind.config.ts`.
-
-- **Global Styles**: All global styles, including CSS custom properties for theming, are consolidated in `app/globals.css`. The project no longer uses separate CSS files in the `styles` directory.
-- **Theming**: Light and dark modes are managed by the `next-themes` package. The `ThemeProvider` is configured in `app/layout.tsx`.
-- **Usage**: To implement theme switching (e.g., a light/dark mode toggle), use the `useTheme` hook from `hooks/useTheme.ts`. A practical example can be found in the `components/Header.tsx` component.
-
-### Testing
-
-The project uses Jest for testing. However, due to a persistent environment issue, the test suite is currently not runnable. This should be addressed before any further development.
-
----
-
 **© 2025 Nexus Integrated Technologies. All Rights Reserved.**
 
 *ReadMyFinePrint is a trademark of Nexus Integrated Technologies.*

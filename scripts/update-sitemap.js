@@ -7,7 +7,7 @@ import { fileURLToPath } from 'url';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-const SITEMAP_PATH = path.join(__dirname, '../public/sitemap.xml');
+const SITEMAP_PATH = path.join(__dirname, '../client/public/sitemap.xml');
 const BASE_URL = 'https://readmyfineprint.com';
 
 const pages = [
@@ -56,10 +56,10 @@ function updateSitemap() {
 
 function validateSEOFiles() {
   const seoFiles = [
-    { path: '../public/sitemap.xml', name: 'Sitemap' },
-    { path: '../public/robots.txt', name: 'Robots.txt' },
-    { path: '../public/manifest.json', name: 'Web App Manifest' },
-    { path: '../app/layout.tsx', name: 'HTML with meta tags' },
+    { path: '../client/public/sitemap.xml', name: 'Sitemap' },
+    { path: '../client/public/robots.txt', name: 'Robots.txt' },
+    { path: '../client/public/manifest.json', name: 'Web App Manifest' },
+    { path: '../client/index.html', name: 'HTML with meta tags' },
   ];
 
   console.log('🔍 Validating SEO files...\n');

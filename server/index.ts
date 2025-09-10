@@ -24,8 +24,6 @@ import { subscriptionService } from './subscription-service';
 import { initializeDatabase } from './db-init';
 import { blogScheduler } from './blog-scheduler.js';
 import { viewDripService } from './view-drip-service.js';
-import blogRoutes from './blog-routes.js';
-
 
 const app = express();
 
@@ -254,7 +252,6 @@ app.use('/api/documents/upload', processLimiter);
 app.use('/api/create-payment-intent', processLimiter);
 app.use('/api/create-checkout-session', processLimiter);
 
-
 // Special middleware for Stripe webhooks (needs raw body)
 app.use('/api/stripe-webhook', express.raw({ type: 'application/json' }));
 
@@ -366,8 +363,8 @@ app.get('/api/csrf-token', (req: any, res) => {
   console.log(`🔍 Direct CSRF token request - sessionId: ${sessionId}, path: ${req.path}, method: ${req.method}`);
   console.log(`🔍 Headers:`, req.headers);
   
-  if (process.env.NODE_ENV !== 'development') {
-    // In staging/production, return a proper token
+  if (process.env.NODE_ENV === 'staging') {
+    // In staging, return a proper token
     if (sessionId) {
       const { csrfProtection } = require('./csrf-protection');
       const token = csrfProtection.getToken(sessionId);

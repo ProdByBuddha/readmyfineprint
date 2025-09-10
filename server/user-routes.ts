@@ -390,7 +390,7 @@ export async function registerUserRoutes(app: Express) {
     }
   });
 
-  // Get user profile  
+  // Get user profile
   app.get("/api/users/:id", async (req: Request, res: Response) => {
     try {
       const user = await databaseStorage.getUser(req.params.id);

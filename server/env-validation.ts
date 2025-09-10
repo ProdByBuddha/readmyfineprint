@@ -135,10 +135,8 @@ export function validateEnvironment(): ValidationResult {
   const errors: string[] = [];
   const warnings: string[] = [];
   const config: Record<string, string> = {};
-  const nodeEnv = process.env.NODE_ENV as string | undefined;
-  const isProduction = nodeEnv === 'production';
-  const isDevelopment = nodeEnv === 'development';
-  const isStaging = !isProduction && !isDevelopment;
+  const isProduction = process.env.NODE_ENV === 'production';
+  const isStaging = process.env.NODE_ENV === 'staging';
 
   if (!isProduction) {
     console.log('🔍 Validating environment variables...');

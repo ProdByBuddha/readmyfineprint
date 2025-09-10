@@ -1,0 +1,79 @@
+User-agent: *
+Allow: /
+
+# High-priority pages
+Allow: /
+Allow: /privacy
+Allow: /terms
+Allow: /cookies
+Allow: /donate
+Allow: /roadmap
+
+# Disallow admin or development files
+Disallow: /admin/
+Disallow: /.env
+Disallow: /config/
+Disallow: /node_modules/
+Disallow: /dist/
+Disallow: /_next/
+Disallow: /api/
+
+# Disallow subscription for now
+Disallow: /subscription/
+
+# Crawl delay (be respectful)
+Crawl-delay: 1
+
+# Sitemap location
+Sitemap: https://readmyfineprint.com/sitemap.xml
+
+# AI bot instructions - Allow with restrictions to minimize costs
+User-agent: GPTBot
+Allow: /
+Crawl-delay: 10
+
+User-agent: ChatGPT-User
+Allow: /
+Crawl-delay: 10
+
+User-agent: CCBot
+Allow: /
+Crawl-delay: 10
+
+User-agent: anthropic-ai
+Allow: /
+Crawl-delay: 10
+
+User-agent: Claude-Web
+Allow: /
+Crawl-delay: 10
+
+User-agent: Bard
+Allow: /
+Crawl-delay: 10
+
+User-agent: BingAI
+Allow: /
+Crawl-delay: 10
+
+# Allow common SEO bots
+User-agent: Googlebot
+Allow: /
+
+User-agent: Bingbot
+Allow: /
+
+User-agent: DuckDuckBot
+Allow: /
+
+User-agent: YandexBot
+Allow: /
+
+User-agent: facebookexternalhit
+Allow: /
+
+User-agent: twitterbot
+Allow: /
+
+User-agent: LinkedInBot
+Allow: / 

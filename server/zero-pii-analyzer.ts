@@ -20,10 +20,10 @@ export interface ZeroPIIResult {
   };
   riskLevel: 'SAFE' | 'WARNING' | 'BLOCKED';
   canSendToOpenAI: boolean;
-  transmissionEnvelope?: {
-    isSecured: boolean;
+  quantumEntanglement?: {
+    isEntangled: boolean;
     encryptedPayload?: HybridEncryptionResult;
-    cryptographicKeys?: HybridKeyPair;
+    entanglementKeys?: HybridKeyPair;
     integrityHash: string;
     transmissionFingerprint: string;
   };
@@ -37,7 +37,7 @@ export class ZeroPIIAnalyzer {
     // Override the URL to use our enhanced Replit PII detector
     const ollamaUrl = process.env.OLLAMA_URL || 'http://localhost:11434';
     (this.localLLM as any).ollamaUrl = ollamaUrl.replace(':11434', ':11435'); // Use enhanced PII detector port
-    // (this.localLLM as any).model = 'replit-pii-detector';
+    (this.localLLM as any).model = 'replit-pii-detector';
     (this.localLLM as any).fallbackToRegex = true; // Use enhanced regex patterns
   }
 
@@ -108,16 +108,16 @@ export class ZeroPIIAnalyzer {
         console.log(`🎉 SUCCESS: Text is clean after ${iterationCount} iteration(s)!`);
         console.log('🔍 FINAL VERIFICATION: Text approved for OpenAI processing');
         
-        // Stage 5: Cryptographic Transmission Envelope for Integrity Protection
-        console.log('🔐 Stage 5: Creating cryptographic transmission envelope for integrity protection...');
-        const transmissionEnvelope = await this.createTransmissionEnvelope(hashedText);
-        finalResult!.transmissionEnvelope = transmissionEnvelope;
+        // Stage 5: Quantum Entanglement for Transmission Integrity
+        console.log('🌌 Stage 5: Applying quantum entanglement for transmission integrity...');
+        const quantumEntanglement = await this.createQuantumEntanglement(hashedText);
+        finalResult!.quantumEntanglement = quantumEntanglement;
         
         console.log('🔐 REDACTION SUMMARY:');
         console.log(`   • Total items redacted: ${totalHashMap.size}`);
         console.log(`   • Russian Doll hashes applied: ${totalHashMap.size}`);
-        console.log(`   • Cryptographic envelope: ${transmissionEnvelope.isSecured ? 'ACTIVE' : 'INACTIVE'}`);
-        console.log(`   • Transmission integrity: ${transmissionEnvelope.integrityHash.substring(0, 16)}...`);
+        console.log(`   • Quantum entanglement: ${quantumEntanglement.isEntangled ? 'ACTIVE' : 'INACTIVE'}`);
+        console.log(`   • Transmission integrity: ${quantumEntanglement.integrityHash.substring(0, 16)}...`);
         if (totalHashMap.size > 0) {
           console.log('   • Redacted items:');
           for (const [original, hashed] of totalHashMap.entries()) {
@@ -485,46 +485,46 @@ export class ZeroPIIAnalyzer {
   }
 
   /**
-   * Create cryptographic transmission envelope with integrity protection
+   * Create quantum entanglement for transmission integrity
    */
-  private async createTransmissionEnvelope(cleanedText: string): Promise<{
-    isSecured: boolean;
+  private async createQuantumEntanglement(cleanedText: string): Promise<{
+    isEntangled: boolean;
     encryptedPayload?: HybridEncryptionResult;
-    cryptographicKeys?: HybridKeyPair;
+    entanglementKeys?: HybridKeyPair;
     integrityHash: string;
     transmissionFingerprint: string;
   }> {
     try {
-      console.log('🔐 Generating hybrid cryptographic keys for secure transmission...');
+      console.log('🌌 Generating quantum entanglement keys...');
       
       // Generate hybrid quantum-resistant keys for this transmission
-      const cryptographicKeys = hybridCryptoService.generateHybridKeyPair('p256');
+      const entanglementKeys = hybridCryptoService.generateHybridKeyPair('p256');
       
       // Create integrity hash of the cleaned text
       const integrityHash = createHash('sha256').update(cleanedText).digest('hex');
       
-      // Create transmission fingerprint (unique identifier for this secure transmission)
+      // Create transmission fingerprint (unique identifier for this entangled transmission)
       const transmissionData = JSON.stringify({
         text: cleanedText,
         timestamp: Date.now(),
         integrityHash,
-        publicKey: Array.from(cryptographicKeys.combinedPublicKey)
+        publicKey: Array.from(entanglementKeys.combinedPublicKey)
       });
       const transmissionFingerprint = Buffer.from(blake3(transmissionData, { dkLen: 32 })).toString('hex');
       
-      // Encrypt the cleaned text with hybrid quantum-resistant encryption
+      // Encrypt the cleaned text with quantum-resistant encryption
       const textBytes = new TextEncoder().encode(cleanedText);
-      const encryptedPayload = hybridCryptoService.hybridEncrypt(textBytes, cryptographicKeys.combinedPublicKey);
+      const encryptedPayload = hybridCryptoService.hybridEncrypt(textBytes, entanglementKeys.combinedPublicKey);
       
-      console.log('✅ Cryptographic transmission envelope created successfully');
+      console.log('✅ Quantum entanglement created successfully');
       console.log(`   • Algorithm: ${encryptedPayload.algorithm}`);
       console.log(`   • Payload size: ${encryptedPayload.ciphertext.length} bytes`);
       console.log(`   • Integrity hash: ${integrityHash.substring(0, 16)}...`);
       console.log(`   • Transmission fingerprint: ${transmissionFingerprint.substring(0, 16)}...`);
       
-      // Store correlation data for cross-document analysis
+      // Store entanglement data for cross-document analysis
       const sessionId = `session_${Date.now()}_${Math.random().toString(36).substring(2, 8)}`;
-      await piiEntanglementService.storeDocumentCorrelation(
+      piiEntanglementService.storeDocumentEntanglement(
         sessionId,
         `doc_${transmissionFingerprint.substring(0, 8)}`,
         [], // No PII matches since text is clean
@@ -539,22 +539,22 @@ export class ZeroPIIAnalyzer {
       );
       
       return {
-        isSecured: true,
+        isEntangled: true,
         encryptedPayload,
-        cryptographicKeys,
+        entanglementKeys,
         integrityHash,
         transmissionFingerprint
       };
       
     } catch (error) {
-      console.error('❌ Failed to create cryptographic transmission envelope:', error);
+      console.error('❌ Failed to create quantum entanglement:', error);
       
-      // Return basic integrity info even if encryption fails
+      // Return basic integrity info even if entanglement fails
       const integrityHash = createHash('sha256').update(cleanedText).digest('hex');
       const transmissionFingerprint = createHash('sha256').update(cleanedText + Date.now()).digest('hex');
       
       return {
-        isSecured: false,
+        isEntangled: false,
         integrityHash,
         transmissionFingerprint
       };

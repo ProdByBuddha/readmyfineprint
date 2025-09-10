@@ -31,11 +31,10 @@ export function cspMiddleware(req: Request, res: Response, next: NextFunction) {
   if (process.env.NODE_ENV === 'development') {
     return next();
   }
+
   // Environment-specific configuration
-  const nodeEnv = process.env.NODE_ENV as string | undefined;
-  const isDevelopment = nodeEnv === 'development';
-  const isProduction = nodeEnv === 'production';
-  const isStaging = nodeEnv !== 'development' && nodeEnv !== 'production'; // Any other environment is considered staging
+  const isDevelopment = process.env.NODE_ENV === 'development';
+  const isStaging = process.env.NODE_ENV === 'staging';
 
   // Development sources (only in development)
   const replitSources = isDevelopment ? ' https://replit.com https://*.replit.com' : '';
@@ -48,8 +47,8 @@ export function cspMiddleware(req: Request, res: Response, next: NextFunction) {
   const cspDirectives = [
     "default-src 'none'",
 
-    // Scripts: Use nonce instead of unsafe-inline, add unsafe-eval for webpack in dev
-    `script-src 'self' 'nonce-${nonce}' https://js.stripe.com https://m.stripe.com${replitSources}${devSources}${stagingSources}${isDevelopment ? " 'unsafe-eval'" : ''}`,
+    // Scripts: Use nonce instead of unsafe-inline, remove unsafe-eval
+    `script-src 'self' 'nonce-${nonce}' https://js.stripe.com https://m.stripe.com${replitSources}${devSources}${stagingSources}`,
 
     // Script elements (for external scripts)
     `script-src-elem 'self' 'nonce-${nonce}' https://js.stripe.com https://m.stripe.com${replitSources}${devSources}${stagingSources}`,
