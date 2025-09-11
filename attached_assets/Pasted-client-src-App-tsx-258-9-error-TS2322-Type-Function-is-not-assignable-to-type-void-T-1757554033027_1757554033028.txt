@@ -1,0 +1,804 @@
+client/src/App.tsx:258:9 - error TS2322: Type 'Function' is not assignable to type '() => void'.
+  Target signature provides too few arguments. Expected 3 or more, but got 0.
+
+258         onClose={closeSecurityQuestionsModal}
+            ~~~~~~~
+
+  client/src/components/SecurityQuestionsModal.tsx:10:3
+    10   onClose?: () => void;
+         ~~~~~~~
+    The expected type comes from property 'onClose' which is declared here on type 'IntrinsicAttributes & SecurityQuestionsModalProps'
+
+client/src/components/CombinedConsent.tsx:166:7 - error TS2322: Type 'Timeout' is not assignable to type 'number'.
+
+166       debounceTimer = window.setTimeout(() => {
+          ~~~~~~~~~~~~~
+
+client/src/components/CombinedConsent.tsx:216:7 - error TS2322: Type 'Timeout' is not assignable to type 'number'.
+
+216       acceptanceTimer = window.setTimeout(() => {
+          ~~~~~~~~~~~~~~~
+
+client/src/components/CombinedConsent.tsx:247:7 - error TS2322: Type 'Timeout' is not assignable to type 'number'.
+
+247       acceptanceTimer = window.setTimeout(() => {
+          ~~~~~~~~~~~~~~~
+
+client/src/components/CombinedConsent.tsx:464:5 - error TS2322: Type 'Timeout' is not assignable to type 'number'.
+
+464     acceptanceTimer = window.setTimeout(() => {
+        ~~~~~~~~~~~~~~~
+
+client/src/components/DocumentHistory.tsx:58:38 - error TS2345: Argument of type '() => void' is not assignable to parameter of type 'Function'.
+  Type 'void' is not assignable to type 'Promise<void>'.
+
+58   const handleClearAll = useCallback(() => {
+                                        ~~~~~~~
+
+client/src/components/DocumentHistory.tsx:71:35 - error TS2345: Argument of type '(analysis: DocumentAnalysis | null) => React.JSX.Element' is not assignable to parameter of type 'Function'.
+  Types of parameters 'analysis' and 'req' are incompatible.
+    Type 'Request<ParamsDictionary, any, any, ParsedQs, Record<string, any>>' is missing the following properties from type 'DocumentAnalysis': summary, overallRisk, keyFindings, sections
+
+71   const getRiskIcon = useCallback((analysis: DocumentAnalysis | null) => {
+                                     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+client/src/components/DocumentHistory.tsx:86:36 - error TS2345: Argument of type '(analysis: DocumentAnalysis | null) => "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300" | "bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-300" | "bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-300" | "bg-gray-100 text-gray-600"' is not assignable to parameter of type 'Function'.
+  Types of parameters 'analysis' and 'req' are incompatible.
+    Type 'Request<ParamsDictionary, any, any, ParsedQs, Record<string, any>>' is missing the following properties from type 'DocumentAnalysis': summary, overallRisk, keyFindings, sections
+
+86   const getRiskColor = useCallback((analysis: DocumentAnalysis | null) => {
+                                      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+client/src/components/DocumentHistory.tsx:147:15 - error TS2322: Type 'Function' is not assignable to type 'MouseEventHandler<HTMLButtonElement>'.
+  Target signature provides too few arguments. Expected 3 or more, but got 1.
+
+147               onClick={handleClearAll}
+                  ~~~~~~~
+
+  node_modules/@types/react/index.d.ts:2506:9
+    2506         onClick?: MouseEventHandler<T> | undefined;
+                 ~~~~~~~
+    The expected type comes from property 'onClick' which is declared here on type 'IntrinsicAttributes & ButtonProps & RefAttributes<HTMLButtonElement>'
+
+client/src/components/DocumentHistory.tsx:185:25 - error TS2322: Type 'Promise<void> & void' is not assignable to type 'ReactNode'.
+
+185                         {getRiskIcon(analysis)}
+                            ~~~~~~~~~~~~~~~~~~~~~~~
+
+  node_modules/@types/react/index.d.ts:2398:9
+    2398         children?: ReactNode | undefined;
+                 ~~~~~~~~
+    The expected type comes from property 'children' which is declared here on type 'DetailedHTMLProps<HTMLAttributes<HTMLDivElement>, HTMLDivElement>'
+
+client/src/components/DocumentHistory.tsx:185:26 - error TS2554: Expected 2-3 arguments, but got 1.
+
+185                         {getRiskIcon(analysis)}
+                             ~~~~~~~~~~~
+
+  types/middleware-types.d.ts:8:28
+    8     (req: express.Request, res: express.Response): void;
+                                 ~~~~~~~~~~~~~~~~~~~~~
+    An argument for 'res' was not provided.
+
+client/src/components/DocumentHistory.tsx:193:86 - error TS2554: Expected 2-3 arguments, but got 1.
+
+193                         <Badge className={`text-[10px] px-1.5 py-0.5 flex-shrink-0 ${getRiskColor(analysis)}`}>
+                                                                                         ~~~~~~~~~~~~
+
+  types/middleware-types.d.ts:8:28
+    8     (req: express.Request, res: express.Response): void;
+                                 ~~~~~~~~~~~~~~~~~~~~~
+    An argument for 'res' was not provided.
+
+client/src/components/FileUpload.tsx:81:16 - error TS2345: Argument of type 'string' is not assignable to parameter of type 'Request<ParamsDictionary, any, any, ParsedQs, Record<string, any>>'.
+
+81       announce(validationError, 'assertive');
+                  ~~~~~~~~~~~~~~~
+
+client/src/components/FileUpload.tsx:91:14 - error TS2345: Argument of type 'string' is not assignable to parameter of type 'Request<ParamsDictionary, any, any, ParsedQs, Record<string, any>>'.
+
+91     announce("Uploading file, please wait...", 'polite');
+                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+client/src/components/FileUpload.tsx:97:16 - error TS2345: Argument of type 'string' is not assignable to parameter of type 'Request<ParamsDictionary, any, any, ParsedQs, Record<string, any>>'.
+
+97       announce(`File ${file.name} uploaded successfully`, 'polite');
+                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+client/src/components/FileUpload.tsx:106:16 - error TS2345: Argument of type 'string' is not assignable to parameter of type 'Request<ParamsDictionary, any, any, ParsedQs, Record<string, any>>'.
+
+106       announce(`Upload failed: ${errorMessage}`, 'assertive');
+                   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+client/src/components/FileUpload.tsx:127:16 - error TS2345: Argument of type 'string' is not assignable to parameter of type 'Request<ParamsDictionary, any, any, ParsedQs, Record<string, any>>'.
+
+127       announce(errorMessage, 'assertive');
+                   ~~~~~~~~~~~~
+
+client/src/components/FileUpload.tsx:138:14 - error TS2345: Argument of type 'string' is not assignable to parameter of type 'Request<ParamsDictionary, any, any, ParsedQs, Record<string, any>>'.
+
+138     announce("Creating document from text, please wait...", 'polite');
+                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+client/src/components/FileUpload.tsx:148:16 - error TS2345: Argument of type 'string' is not assignable to parameter of type 'Request<ParamsDictionary, any, any, ParsedQs, Record<string, any>>'.
+
+148       announce("Document created successfully from pasted text", 'polite');
+                   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+client/src/components/FileUpload.tsx:157:16 - error TS2345: Argument of type 'string' is not assignable to parameter of type 'Request<ParamsDictionary, any, any, ParsedQs, Record<string, any>>'.
+
+157       announce(`Document creation failed: ${errorMessage}`, 'assertive');
+                   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+client/src/components/ThemeProvider.tsx:41:36 - error TS2322: Type '{ theme: Theme; setTheme: Function; toggleTheme: Function; loading: boolean; error: string | null; }' is not assignable to type 'ThemeProviderContextType'.
+  Types of property 'setTheme' are incompatible.
+    Type 'Function' is not assignable to type '(theme: Theme) => void'.
+      Target signature provides too few arguments. Expected 3 or more, but got 1.
+
+41     <ThemeProviderContext.Provider value={value}>
+                                      ~~~~~
+
+  node_modules/@types/react/index.d.ts:617:9
+    617         value: T;
+                ~~~~~
+    The expected type comes from property 'value' which is declared here on type 'IntrinsicAttributes & ProviderProps<ThemeProviderContextType | undefined>'
+
+client/src/components/ui/carousel.tsx:69:40 - error TS2345: Argument of type '(api: CarouselApi) => void' is not assignable to parameter of type 'Function'.
+  Types of parameters 'api' and 'req' are incompatible.
+    Type 'Request<ParamsDictionary, any, any, ParsedQs, Record<string, any>>' is missing the following properties from type 'EmblaCarouselType': canScrollNext, canScrollPrev, containerNode, internalEngine, and 17 more.
+
+69     const onSelect = React.useCallback((api: CarouselApi) => {
+                                          ~~~~~~~~~~~~~~~~~~~~~~~
+
+client/src/components/ui/carousel.tsx:78:42 - error TS2345: Argument of type '() => void' is not assignable to parameter of type 'Function'.
+  Type 'void' is not assignable to type 'Promise<void>'.
+
+78     const scrollPrev = React.useCallback(() => {
+                                            ~~~~~~~
+
+client/src/components/ui/carousel.tsx:82:42 - error TS2345: Argument of type '() => void' is not assignable to parameter of type 'Function'.
+  Type 'void' is not assignable to type 'Promise<void>'.
+
+82     const scrollNext = React.useCallback(() => {
+                                            ~~~~~~~
+
+client/src/components/ui/carousel.tsx:87:7 - error TS2345: Argument of type '(event: React.KeyboardEvent<HTMLDivElement>) => void' is not assignable to parameter of type 'Function'.
+  Types of parameters 'event' and 'req' are incompatible.
+    Type 'Request<ParamsDictionary, any, any, ParsedQs, Record<string, any>>' is missing the following properties from type 'KeyboardEvent<HTMLDivElement>': altKey, charCode, ctrlKey, code, and 26 more.
+
+87       (event: React.KeyboardEvent<HTMLDivElement>) => {
+         ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+client/src/components/ui/carousel.tsx:90:11 - error TS2554: Expected 2-3 arguments, but got 0.
+
+90           scrollPrev()
+             ~~~~~~~~~~
+
+  types/middleware-types.d.ts:8:6
+    8     (req: express.Request, res: express.Response): void;
+           ~~~~~~~~~~~~~~~~~~~~
+    An argument for 'req' was not provided.
+
+client/src/components/ui/carousel.tsx:93:11 - error TS2554: Expected 2-3 arguments, but got 0.
+
+93           scrollNext()
+             ~~~~~~~~~~
+
+  types/middleware-types.d.ts:8:6
+    8     (req: express.Request, res: express.Response): void;
+           ~~~~~~~~~~~~~~~~~~~~
+    An argument for 'req' was not provided.
+
+client/src/components/ui/carousel.tsx:112:7 - error TS2554: Expected 2-3 arguments, but got 1.
+
+112       onSelect(api)
+          ~~~~~~~~
+
+  types/middleware-types.d.ts:8:28
+    8     (req: express.Request, res: express.Response): void;
+                                 ~~~~~~~~~~~~~~~~~~~~~
+    An argument for 'res' was not provided.
+
+client/src/components/ui/carousel.tsx:113:24 - error TS2345: Argument of type 'Function' is not assignable to parameter of type 'CallbackType'.
+  Target signature provides too few arguments. Expected 3 or more, but got 2.
+
+113       api.on("reInit", onSelect)
+                           ~~~~~~~~
+
+client/src/components/ui/carousel.tsx:114:24 - error TS2345: Argument of type 'Function' is not assignable to parameter of type 'CallbackType'.
+  Target signature provides too few arguments. Expected 3 or more, but got 2.
+
+114       api.on("select", onSelect)
+                           ~~~~~~~~
+
+client/src/components/ui/carousel.tsx:117:28 - error TS2345: Argument of type 'Function' is not assignable to parameter of type 'CallbackType'.
+  Target signature provides too few arguments. Expected 3 or more, but got 2.
+
+117         api?.off("select", onSelect)
+                               ~~~~~~~~
+
+client/src/components/ui/carousel.tsx:129:11 - error TS2322: Type 'Function' is not assignable to type '() => void'.
+  Target signature provides too few arguments. Expected 3 or more, but got 0.
+
+129           scrollPrev,
+              ~~~~~~~~~~
+
+client/src/components/ui/carousel.tsx:130:11 - error TS2322: Type 'Function' is not assignable to type '() => void'.
+  Target signature provides too few arguments. Expected 3 or more, but got 0.
+
+130           scrollNext,
+              ~~~~~~~~~~
+
+client/src/components/ui/carousel.tsx:137:11 - error TS2322: Type 'Function' is not assignable to type 'KeyboardEventHandler<HTMLDivElement>'.
+  Target signature provides too few arguments. Expected 3 or more, but got 1.
+
+137           onKeyDownCapture={handleKeyDown}
+              ~~~~~~~~~~~~~~~~
+
+  node_modules/@types/react/index.d.ts:2449:9
+    2449         onKeyDownCapture?: KeyboardEventHandler<T> | undefined;
+                 ~~~~~~~~~~~~~~~~
+    The expected type comes from property 'onKeyDownCapture' which is declared here on type 'DetailedHTMLProps<HTMLAttributes<HTMLDivElement>, HTMLDivElement>'
+
+client/src/components/ui/sidebar.tsx:82:7 - error TS2345: Argument of type '(value: boolean | ((value: boolean) => boolean)) => void' is not assignable to parameter of type 'Function'.
+  Types of parameters 'value' and 'req' are incompatible.
+    Type 'Request<ParamsDictionary, any, any, ParsedQs, Record<string, any>>' is not assignable to type 'boolean | ((value: boolean) => boolean)'.
+
+82       (value: boolean | ((value: boolean) => boolean)) => {
+         ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+client/src/components/ui/sidebar.tsx:97:45 - error TS2345: Argument of type '() => void' is not assignable to parameter of type 'Function'.
+  Type 'void' is not assignable to type 'Promise<void>'.
+
+97     const toggleSidebar = React.useCallback(() => {
+                                               ~~~~~~~
+
+client/src/components/ui/sidebar.tsx:100:11 - error TS2554: Expected 2-3 arguments, but got 1.
+
+100         : setOpen((open) => !open)
+              ~~~~~~~
+
+  types/middleware-types.d.ts:8:28
+    8     (req: express.Request, res: express.Response): void;
+                                 ~~~~~~~~~~~~~~~~~~~~~
+    An argument for 'res' was not provided.
+
+client/src/components/ui/sidebar.tsx:100:20 - error TS7006: Parameter 'open' implicitly has an 'any' type.
+
+100         : setOpen((open) => !open)
+                       ~~~~
+
+client/src/components/ui/sidebar.tsx:111:11 - error TS2554: Expected 2-3 arguments, but got 0.
+
+111           toggleSidebar()
+              ~~~~~~~~~~~~~
+
+  types/middleware-types.d.ts:8:6
+    8     (req: express.Request, res: express.Response): void;
+           ~~~~~~~~~~~~~~~~~~~~
+    An argument for 'req' was not provided.
+
+client/src/components/ui/sidebar.tsx:127:9 - error TS2322: Type 'Function' is not assignable to type '(open: boolean) => void'.
+  Target signature provides too few arguments. Expected 3 or more, but got 1.
+
+127         setOpen,
+            ~~~~~~~
+
+  client/src/components/ui/sidebar.tsx:36:3
+    36   setOpen: (open: boolean) => void
+         ~~~~~~~
+    The expected type comes from property 'setOpen' which is declared here on type 'SidebarContextProps'
+
+client/src/components/ui/sidebar.tsx:131:9 - error TS2322: Type 'Function' is not assignable to type '() => void'.
+  Target signature provides too few arguments. Expected 3 or more, but got 0.
+
+131         toggleSidebar,
+            ~~~~~~~~~~~~~
+
+  client/src/components/ui/sidebar.tsx:40:3
+    40   toggleSidebar: () => void
+         ~~~~~~~~~~~~~
+    The expected type comes from property 'toggleSidebar' which is declared here on type 'SidebarContextProps'
+
+client/src/hooks/use-pull-to-refresh.tsx:23:40 - error TS2345: Argument of type '(e: TouchEvent) => void' is not assignable to parameter of type 'Function'.
+  Types of parameters 'e' and 'req' are incompatible.
+    Type 'Request<ParamsDictionary, any, any, ParsedQs, Record<string, any>>' is missing the following properties from type 'TouchEvent': altKey, changedTouches, ctrlKey, metaKey, and 29 more.
+
+23   const handleTouchStart = useCallback((e: TouchEvent) => {
+                                          ~~~~~~~~~~~~~~~~~~~~
+
+client/src/hooks/use-pull-to-refresh.tsx:35:39 - error TS2345: Argument of type '(e: TouchEvent) => void' is not assignable to parameter of type 'Function'.
+  Types of parameters 'e' and 'req' are incompatible.
+    Type 'Request<ParamsDictionary, any, any, ParsedQs, Record<string, any>>' is missing the following properties from type 'TouchEvent': altKey, changedTouches, ctrlKey, metaKey, and 29 more.
+
+35   const handleTouchMove = useCallback((e: TouchEvent) => {
+                                         ~~~~~~~~~~~~~~~~~~~~
+
+client/src/hooks/use-pull-to-refresh.tsx:89:46 - error TS2769: No overload matches this call.
+  Overload 1 of 2, '(type: "touchstart", listener: (this: HTMLElement, ev: TouchEvent) => any, options?: boolean | AddEventListenerOptions | undefined): void', gave the following error.
+    Argument of type 'Function' is not assignable to parameter of type '(this: HTMLElement, ev: TouchEvent) => any'.
+      Target signature provides too few arguments. Expected 3 or more, but got 1.
+  Overload 2 of 2, '(type: string, listener: EventListenerOrEventListenerObject, options?: boolean | AddEventListenerOptions | undefined): void', gave the following error.
+    Argument of type 'Function' is not assignable to parameter of type 'EventListenerOrEventListenerObject'.
+      Type 'Function' is not assignable to type 'EventListener'.
+        Target signature provides too few arguments. Expected 3 or more, but got 1.
+
+89     container.addEventListener('touchstart', handleTouchStart, { passive: false });
+                                                ~~~~~~~~~~~~~~~~
+
+
+client/src/hooks/use-pull-to-refresh.tsx:90:45 - error TS2769: No overload matches this call.
+  Overload 1 of 2, '(type: "touchmove", listener: (this: HTMLElement, ev: TouchEvent) => any, options?: boolean | AddEventListenerOptions | undefined): void', gave the following error.
+    Argument of type 'Function' is not assignable to parameter of type '(this: HTMLElement, ev: TouchEvent) => any'.
+      Target signature provides too few arguments. Expected 3 or more, but got 1.
+  Overload 2 of 2, '(type: string, listener: EventListenerOrEventListenerObject, options?: boolean | AddEventListenerOptions | undefined): void', gave the following error.
+    Argument of type 'Function' is not assignable to parameter of type 'EventListenerOrEventListenerObject'.
+      Type 'Function' is not assignable to type 'EventListener'.
+        Target signature provides too few arguments. Expected 3 or more, but got 1.
+
+90     container.addEventListener('touchmove', handleTouchMove, { passive: false });
+                                               ~~~~~~~~~~~~~~~
+
+
+client/src/hooks/use-pull-to-refresh.tsx:94:51 - error TS2769: No overload matches this call.
+  Overload 1 of 2, '(type: "touchstart", listener: (this: HTMLElement, ev: TouchEvent) => any, options?: boolean | EventListenerOptions | undefined): void', gave the following error.
+    Argument of type 'Function' is not assignable to parameter of type '(this: HTMLElement, ev: TouchEvent) => any'.
+      Target signature provides too few arguments. Expected 3 or more, but got 1.
+  Overload 2 of 2, '(type: string, listener: EventListenerOrEventListenerObject, options?: boolean | EventListenerOptions | undefined): void', gave the following error.
+    Argument of type 'Function' is not assignable to parameter of type 'EventListenerOrEventListenerObject'.
+      Type 'Function' is not assignable to type 'EventListener'.
+        Target signature provides too few arguments. Expected 3 or more, but got 1.
+
+94       container.removeEventListener('touchstart', handleTouchStart);
+                                                     ~~~~~~~~~~~~~~~~
+
+
+client/src/hooks/use-pull-to-refresh.tsx:95:50 - error TS2769: No overload matches this call.
+  Overload 1 of 2, '(type: "touchmove", listener: (this: HTMLElement, ev: TouchEvent) => any, options?: boolean | EventListenerOptions | undefined): void', gave the following error.
+    Argument of type 'Function' is not assignable to parameter of type '(this: HTMLElement, ev: TouchEvent) => any'.
+      Target signature provides too few arguments. Expected 3 or more, but got 1.
+  Overload 2 of 2, '(type: string, listener: EventListenerOrEventListenerObject, options?: boolean | EventListenerOptions | undefined): void', gave the following error.
+    Argument of type 'Function' is not assignable to parameter of type 'EventListenerOrEventListenerObject'.
+      Type 'Function' is not assignable to type 'EventListener'.
+        Target signature provides too few arguments. Expected 3 or more, but got 1.
+
+95       container.removeEventListener('touchmove', handleTouchMove);
+                                                    ~~~~~~~~~~~~~~~
+
+
+client/src/hooks/useAccessibility.ts:24:32 - error TS2345: Argument of type '(message: string, priority?: "polite" | "assertive") => void' is not assignable to parameter of type 'Function'.
+  Types of parameters 'message' and 'req' are incompatible.
+    Type 'Request<ParamsDictionary, any, any, ParsedQs, Record<string, any>>' is not assignable to type 'string'.
+
+24   const announce = useCallback((message: string, priority: 'polite' | 'assertive' = 'polite') => {
+                                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+client/src/hooks/useAccessibility.ts:52:37 - error TS2345: Argument of type '() => void' is not assignable to parameter of type 'Function'.
+  Type 'void' is not assignable to type 'Promise<void>'.
+
+52   const skipToContent = useCallback(() => {
+                                       ~~~~~~~
+
+client/src/hooks/useAccessibility.ts:61:23 - error TS2345: Argument of type 'Function' is not assignable to parameter of type 'HotkeyCallback'.
+  Target signature provides too few arguments. Expected 3 or more, but got 2.
+
+61   useHotkeys('alt+1', skipToContent, { preventDefault: true });
+                         ~~~~~~~~~~~~~
+
+client/src/hooks/useCookieConsent.ts:70:38 - error TS2345: Argument of type '(settings: CookieConsentSettings) => Promise<boolean>' is not assignable to parameter of type 'Function'.
+  Types of parameters 'settings' and 'req' are incompatible.
+    Type 'Request<ParamsDictionary, any, any, ParsedQs, Record<string, any>>' is missing the following properties from type 'CookieConsentSettings': necessary, analytics, marketing
+
+70   const saveToDatabase = useCallback(async (settings: CookieConsentSettings) => {
+                                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+client/src/hooks/useCookieConsent.ts:93:46 - error TS2345: Argument of type '() => { accepted: boolean; settings: CookieConsentSettings; }' is not assignable to parameter of type 'Function'.
+  Type '{ accepted: boolean; settings: CookieConsentSettings; }' is missing the following properties from type 'Promise<void>': then, catch, finally, [Symbol.toStringTag]
+
+93   const getLocalStorageConsent = useCallback(() => {
+                                                ~~~~~~~
+
+client/src/hooks/useCookieConsent.ts:115:42 - error TS2345: Argument of type '(settings: CookieConsentSettings, accepted: boolean) => void' is not assignable to parameter of type 'Function'.
+  Types of parameters 'settings' and 'req' are incompatible.
+    Type 'Request<ParamsDictionary, any, any, ParsedQs, Record<string, any>>' is missing the following properties from type 'CookieConsentSettings': necessary, analytics, marketing
+
+115   const saveToLocalStorage = useCallback((settings: CookieConsentSettings, accepted: boolean) => {
+                                             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+client/src/hooks/useCookieConsent.ts:158:19 - error TS2339: Property 'accepted' does not exist on type 'Promise<void> & void'.
+
+158           const { accepted, settings } = getLocalStorageConsent();
+                      ~~~~~~~~
+
+client/src/hooks/useCookieConsent.ts:158:29 - error TS2339: Property 'settings' does not exist on type 'Promise<void> & void'.
+
+158           const { accepted, settings } = getLocalStorageConsent();
+                                ~~~~~~~~
+
+client/src/hooks/useCookieConsent.ts:158:42 - error TS2554: Expected 2-3 arguments, but got 0.
+
+158           const { accepted, settings } = getLocalStorageConsent();
+                                             ~~~~~~~~~~~~~~~~~~~~~~
+
+  types/middleware-types.d.ts:8:6
+    8     (req: express.Request, res: express.Response): void;
+           ~~~~~~~~~~~~~~~~~~~~
+    An argument for 'req' was not provided.
+
+client/src/hooks/useCookieConsent.ts:162:33 - error TS2554: Expected 2-3 arguments, but got 1.
+
+162             const saved = await saveToDatabase(settings);
+                                    ~~~~~~~~~~~~~~
+
+  types/middleware-types.d.ts:8:28
+    8     (req: express.Request, res: express.Response): void;
+                                 ~~~~~~~~~~~~~~~~~~~~~
+    An argument for 'res' was not provided.
+
+client/src/hooks/useCookieConsent.ts:178:17 - error TS2339: Property 'accepted' does not exist on type 'Promise<void> & void'.
+
+178         const { accepted, settings } = getLocalStorageConsent();
+                    ~~~~~~~~
+
+client/src/hooks/useCookieConsent.ts:178:27 - error TS2339: Property 'settings' does not exist on type 'Promise<void> & void'.
+
+178         const { accepted, settings } = getLocalStorageConsent();
+                              ~~~~~~~~
+
+client/src/hooks/useCookieConsent.ts:178:40 - error TS2554: Expected 2-3 arguments, but got 0.
+
+178         const { accepted, settings } = getLocalStorageConsent();
+                                           ~~~~~~~~~~~~~~~~~~~~~~
+
+  types/middleware-types.d.ts:8:6
+    8     (req: express.Request, res: express.Response): void;
+           ~~~~~~~~~~~~~~~~~~~~
+    An argument for 'req' was not provided.
+
+client/src/hooks/useCookieConsent.ts:189:15 - error TS2339: Property 'accepted' does not exist on type 'Promise<void> & void'.
+
+189       const { accepted, settings } = getLocalStorageConsent();
+                  ~~~~~~~~
+
+client/src/hooks/useCookieConsent.ts:189:25 - error TS2339: Property 'settings' does not exist on type 'Promise<void> & void'.
+
+189       const { accepted, settings } = getLocalStorageConsent();
+                            ~~~~~~~~
+
+client/src/hooks/useCookieConsent.ts:189:38 - error TS2554: Expected 2-3 arguments, but got 0.
+
+189       const { accepted, settings } = getLocalStorageConsent();
+                                         ~~~~~~~~~~~~~~~~~~~~~~
+
+  types/middleware-types.d.ts:8:6
+    8     (req: express.Request, res: express.Response): void;
+           ~~~~~~~~~~~~~~~~~~~~
+    An argument for 'req' was not provided.
+
+client/src/hooks/useCookieConsent.ts:216:24 - error TS2345: Argument of type 'CookieConsentSettings' is not assignable to parameter of type 'Request<ParamsDictionary, any, any, ParsedQs, Record<string, any>>'.
+  Type 'CookieConsentSettings' is missing the following properties from type 'Request<ParamsDictionary, any, any, ParsedQs, Record<string, any>>': originalUrl, path
+
+216     saveToLocalStorage(allAcceptedSettings, true);
+                           ~~~~~~~~~~~~~~~~~~~
+
+client/src/hooks/useCookieConsent.ts:223:29 - error TS2554: Expected 2-3 arguments, but got 1.
+
+223         const saved = await saveToDatabase(allAcceptedSettings);
+                                ~~~~~~~~~~~~~~
+
+  types/middleware-types.d.ts:8:28
+    8     (req: express.Request, res: express.Response): void;
+                                 ~~~~~~~~~~~~~~~~~~~~~
+    An argument for 'res' was not provided.
+
+client/src/hooks/useCookieConsent.ts:245:37 - error TS2345: Argument of type '(settings: CookieConsentSettings) => Promise<void>' is not assignable to parameter of type 'Function'.
+  Types of parameters 'settings' and 'req' are incompatible.
+    Type 'Request<ParamsDictionary, any, any, ParsedQs, Record<string, any>>' is missing the following properties from type 'CookieConsentSettings': necessary, analytics, marketing
+
+245   const acceptCookies = useCallback(async (settings: CookieConsentSettings) => {
+                                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+client/src/hooks/useCookieConsent.ts:256:24 - error TS2345: Argument of type 'CookieConsentSettings' is not assignable to parameter of type 'Request<ParamsDictionary, any, any, ParsedQs, Record<string, any>>'.
+  Type 'CookieConsentSettings' is missing the following properties from type 'Request<ParamsDictionary, any, any, ParsedQs, Record<string, any>>': originalUrl, path
+
+256     saveToLocalStorage(settings, isAccepted);
+                           ~~~~~~~~
+
+client/src/hooks/useCookieConsent.ts:263:29 - error TS2554: Expected 2-3 arguments, but got 1.
+
+263         const saved = await saveToDatabase(settings);
+                                ~~~~~~~~~~~~~~
+
+  types/middleware-types.d.ts:8:28
+    8     (req: express.Request, res: express.Response): void;
+                                 ~~~~~~~~~~~~~~~~~~~~~
+    An argument for 'res' was not provided.
+
+client/src/hooks/useCookieConsent.ts:308:29 - error TS2554: Expected 2-3 arguments, but got 1.
+
+308         const saved = await saveToDatabase(revokedSettings);
+                                ~~~~~~~~~~~~~~
+
+  types/middleware-types.d.ts:8:28
+    8     (req: express.Request, res: express.Response): void;
+                                 ~~~~~~~~~~~~~~~~~~~~~
+    An argument for 'res' was not provided.
+
+client/src/hooks/useDeviceFingerprint.ts:59:44 - error TS2345: Argument of type '(fingerprint: string) => Promise<boolean>' is not assignable to parameter of type 'Function'.
+  Types of parameters 'fingerprint' and 'req' are incompatible.
+    Type 'Request<ParamsDictionary, any, any, ParsedQs, Record<string, any>>' is not assignable to type 'string'.
+
+59   const saveBackupToDatabase = useCallback(async (fingerprint: string) => {
+                                              ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+client/src/hooks/useDeviceFingerprint.ts:82:53 - error TS2345: Argument of type '() => string' is not assignable to parameter of type 'Function'.
+  Type 'string' is not assignable to type 'Promise<void>'.
+
+82   const getOrGenerateLocalFingerprint = useCallback(() => {
+                                                       ~~~~~~~
+
+client/src/hooks/useDeviceFingerprint.ts:105:32 - error TS2554: Expected 2-3 arguments, but got 0.
+
+105       const localFingerprint = getOrGenerateLocalFingerprint();
+                                   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+  types/middleware-types.d.ts:8:6
+    8     (req: express.Request, res: express.Response): void;
+           ~~~~~~~~~~~~~~~~~~~~
+    An argument for 'req' was not provided.
+
+client/src/hooks/useDeviceFingerprint.ts:108:16 - error TS2345: Argument of type '(prev: DeviceFingerprintState) => { fingerprint: Promise<void> & void; loading: false; synced: false; error: string | null; }' is not assignable to parameter of type 'SetStateAction<DeviceFingerprintState>'.
+  Type '(prev: DeviceFingerprintState) => { fingerprint: Promise<void> & void; loading: false; synced: false; error: string | null; }' is not assignable to type '(prevState: DeviceFingerprintState) => DeviceFingerprintState'.
+    Call signature return types '{ fingerprint: Promise<void> & void; loading: false; synced: false; error: string | null; }' and 'DeviceFingerprintState' are incompatible.
+      The types of 'fingerprint' are incompatible between these types.
+        Type 'Promise<void> & void' is not assignable to type 'string'.
+
+108       setState(prev => ({
+                   ~~~~~~~~~~
+109         ...prev,
+    ~~~~~~~~~~~~~~~~
+... 
+112         synced: false
+    ~~~~~~~~~~~~~~~~~~~~~
+113       }));
+    ~~~~~~~~
+
+client/src/hooks/useDeviceFingerprint.ts:128:35 - error TS2554: Expected 2-3 arguments, but got 1.
+
+128               const saved = await saveBackupToDatabase(localFingerprint);
+                                      ~~~~~~~~~~~~~~~~~~~~
+
+  types/middleware-types.d.ts:8:28
+    8     (req: express.Request, res: express.Response): void;
+                                 ~~~~~~~~~~~~~~~~~~~~~
+    An argument for 'res' was not provided.
+
+client/src/hooks/useDeviceFingerprint.ts:129:24 - error TS2345: Argument of type '(prev: DeviceFingerprintState) => { synced: Promise<void> & void; error: string | null; fingerprint: string; loading: boolean; }' is not assignable to parameter of type 'SetStateAction<DeviceFingerprintState>'.
+  Type '(prev: DeviceFingerprintState) => { synced: Promise<void> & void; error: string | null; fingerprint: string; loading: boolean; }' is not assignable to type '(prevState: DeviceFingerprintState) => DeviceFingerprintState'.
+    Call signature return types '{ synced: Promise<void> & void; error: string | null; fingerprint: string; loading: boolean; }' and 'DeviceFingerprintState' are incompatible.
+      The types of 'synced' are incompatible between these types.
+        Type 'Promise<void> & void' is not assignable to type 'boolean'.
+
+129               setState(prev => ({
+                           ~~~~~~~~~~
+130                 ...prev,
+    ~~~~~~~~~~~~~~~~~~~~~~~~
+... 
+132                 error: saved ? null : 'Failed to sync fingerprint backup'
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+133               }));
+    ~~~~~~~~~~~~~~~~
+
+client/src/hooks/useDeviceFingerprint.ts:140:33 - error TS2554: Expected 2-3 arguments, but got 1.
+
+140             const saved = await saveBackupToDatabase(localFingerprint);
+                                    ~~~~~~~~~~~~~~~~~~~~
+
+  types/middleware-types.d.ts:8:28
+    8     (req: express.Request, res: express.Response): void;
+                                 ~~~~~~~~~~~~~~~~~~~~~
+    An argument for 'res' was not provided.
+
+client/src/hooks/useDeviceFingerprint.ts:191:29 - error TS2554: Expected 2-3 arguments, but got 1.
+
+191         const saved = await saveBackupToDatabase(newFingerprint);
+                                ~~~~~~~~~~~~~~~~~~~~
+
+  types/middleware-types.d.ts:8:28
+    8     (req: express.Request, res: express.Response): void;
+                                 ~~~~~~~~~~~~~~~~~~~~~
+    An argument for 'res' was not provided.
+
+client/src/hooks/useDeviceFingerprint.ts:192:18 - error TS2345: Argument of type '(prev: DeviceFingerprintState) => { synced: Promise<void> & void; error: string | null; fingerprint: string; loading: boolean; }' is not assignable to parameter of type 'SetStateAction<DeviceFingerprintState>'.
+  Type '(prev: DeviceFingerprintState) => { synced: Promise<void> & void; error: string | null; fingerprint: string; loading: boolean; }' is not assignable to type '(prevState: DeviceFingerprintState) => DeviceFingerprintState'.
+    Call signature return types '{ synced: Promise<void> & void; error: string | null; fingerprint: string; loading: boolean; }' and 'DeviceFingerprintState' are incompatible.
+      The types of 'synced' are incompatible between these types.
+        Type 'Promise<void> & void' is not assignable to type 'boolean'.
+
+192         setState(prev => ({
+                     ~~~~~~~~~~
+193           ...prev,
+    ~~~~~~~~~~~~~~~~~~
+... 
+195           error: saved ? null : 'Failed to sync new fingerprint'
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+196         }));
+    ~~~~~~~~~~
+
+client/src/hooks/useDeviceFingerprint.ts:210:45 - error TS2345: Argument of type '() => Promise<false | (Promise<void> & void)>' is not assignable to parameter of type 'Function'.
+  Type 'Promise<false | (Promise<void> & void)>' is not assignable to type 'Promise<void>'.
+    Type 'false | (Promise<void> & void)' is not assignable to type 'void'.
+      Type 'boolean' is not assignable to type 'void'.
+
+210   const forceSyncWithDatabase = useCallback(async () => {
+                                                ~~~~~~~~~~~~~
+
+client/src/hooks/useDeviceFingerprint.ts:222:27 - error TS2554: Expected 2-3 arguments, but got 1.
+
+222       const saved = await saveBackupToDatabase(state.fingerprint);
+                              ~~~~~~~~~~~~~~~~~~~~
+
+  types/middleware-types.d.ts:8:28
+    8     (req: express.Request, res: express.Response): void;
+                                 ~~~~~~~~~~~~~~~~~~~~~
+    An argument for 'res' was not provided.
+
+client/src/hooks/useDeviceFingerprint.ts:224:16 - error TS2345: Argument of type '(prev: DeviceFingerprintState) => { synced: Promise<void> & void; error: string | null; fingerprint: string; loading: boolean; }' is not assignable to parameter of type 'SetStateAction<DeviceFingerprintState>'.
+  Type '(prev: DeviceFingerprintState) => { synced: Promise<void> & void; error: string | null; fingerprint: string; loading: boolean; }' is not assignable to type '(prevState: DeviceFingerprintState) => DeviceFingerprintState'.
+    Call signature return types '{ synced: Promise<void> & void; error: string | null; fingerprint: string; loading: boolean; }' and 'DeviceFingerprintState' are incompatible.
+      The types of 'synced' are incompatible between these types.
+        Type 'Promise<void> & void' is not assignable to type 'boolean'.
+
+224       setState(prev => ({
+                   ~~~~~~~~~~
+225         ...prev,
+    ~~~~~~~~~~~~~~~~
+... 
+227         error: saved ? null : 'Failed to sync with database'
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+228       }));
+    ~~~~~~~~
+
+client/src/hooks/useDonationTracking.ts:56:38 - error TS2345: Argument of type '(visited: boolean) => Promise<boolean>' is not assignable to parameter of type 'Function'.
+  Types of parameters 'visited' and 'req' are incompatible.
+    Type 'Request<ParamsDictionary, any, any, ParsedQs, Record<string, any>>' is not assignable to type 'boolean'.
+
+56   const saveToDatabase = useCallback(async (visited: boolean) => {
+                                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+client/src/hooks/useDonationTracking.ts:98:33 - error TS2554: Expected 2-3 arguments, but got 1.
+
+98             const saved = await saveToDatabase(localVisited);
+                                   ~~~~~~~~~~~~~~
+
+  types/middleware-types.d.ts:8:28
+    8     (req: express.Request, res: express.Response): void;
+                                 ~~~~~~~~~~~~~~~~~~~~~
+    An argument for 'res' was not provided.
+
+client/src/hooks/useDonationTracking.ts:138:29 - error TS2554: Expected 2-3 arguments, but got 1.
+
+138         const saved = await saveToDatabase(true);
+                                ~~~~~~~~~~~~~~
+
+  types/middleware-types.d.ts:8:28
+    8     (req: express.Request, res: express.Response): void;
+                                 ~~~~~~~~~~~~~~~~~~~~~
+    An argument for 'res' was not provided.
+
+client/src/hooks/useDonationTracking.ts:169:29 - error TS2554: Expected 2-3 arguments, but got 1.
+
+169         const saved = await saveToDatabase(false);
+                                ~~~~~~~~~~~~~~
+
+  types/middleware-types.d.ts:8:28
+    8     (req: express.Request, res: express.Response): void;
+                                 ~~~~~~~~~~~~~~~~~~~~~
+    An argument for 'res' was not provided.
+
+client/src/hooks/useLegalDisclaimer.ts:90:38 - error TS2345: Argument of type '(accepted: boolean) => Promise<boolean>' is not assignable to parameter of type 'Function'.
+  Types of parameters 'accepted' and 'req' are incompatible.
+    Type 'Request<ParamsDictionary, any, any, ParsedQs, Record<string, any>>' is not assignable to type 'boolean'.
+
+90   const saveToDatabase = useCallback(async (accepted: boolean) => {
+                                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+client/src/hooks/useLegalDisclaimer.ts:145:33 - error TS2554: Expected 2-3 arguments, but got 1.
+
+145             const saved = await saveToDatabase(localAccepted);
+                                    ~~~~~~~~~~~~~~
+
+  types/middleware-types.d.ts:8:28
+    8     (req: express.Request, res: express.Response): void;
+                                 ~~~~~~~~~~~~~~~~~~~~~
+    An argument for 'res' was not provided.
+
+client/src/hooks/useLegalDisclaimer.ts:187:29 - error TS2554: Expected 2-3 arguments, but got 1.
+
+187         const saved = await saveToDatabase(true);
+                                ~~~~~~~~~~~~~~
+
+  types/middleware-types.d.ts:8:28
+    8     (req: express.Request, res: express.Response): void;
+                                 ~~~~~~~~~~~~~~~~~~~~~
+    An argument for 'res' was not provided.
+
+client/src/hooks/useLegalDisclaimer.ts:219:29 - error TS2554: Expected 2-3 arguments, but got 1.
+
+219         const saved = await saveToDatabase(false);
+                                ~~~~~~~~~~~~~~
+
+  types/middleware-types.d.ts:8:28
+    8     (req: express.Request, res: express.Response): void;
+                                 ~~~~~~~~~~~~~~~~~~~~~
+    An argument for 'res' was not provided.
+
+client/src/hooks/useSecurityQuestionsHandler.ts:27:38 - error TS2345: Argument of type '(error: any) => boolean' is not assignable to parameter of type 'Function'.
+  Type 'boolean' is not assignable to type 'Promise<void>'.
+
+27   const handleApiError = useCallback((error: any) => {
+                                        ~~~~~~~~~~~~~~~~~
+
+client/src/hooks/useSecurityQuestionsHandler.ts:54:51 - error TS2345: Argument of type '() => void' is not assignable to parameter of type 'Function'.
+  Type 'void' is not assignable to type 'Promise<void>'.
+
+54   const closeSecurityQuestionsModal = useCallback(() => {
+                                                     ~~~~~~~
+
+client/src/hooks/useStableCallback.ts:16:3 - error TS2322: Type 'Function' is not assignable to type '(...args: TArgs) => TReturn'.
+  Types of parameters 'req' and 'args' are incompatible.
+    Type 'TArgs' is not assignable to type '[req: Request<ParamsDictionary, any, any, ParsedQs, Record<string, any>>, res: Response<any, Record<string, any>>, next: NextFunction]'.
+      Type 'unknown[]' is not assignable to type '[req: Request<ParamsDictionary, any, any, ParsedQs, Record<string, any>>, res: Response<any, Record<string, any>>, next: NextFunction]'.
+        Target requires 3 element(s) but source may have fewer.
+
+16   return useCallback(((...args: TArgs) => callbackRef.current(...args)), []);
+     ~~~~~~
+
+client/src/hooks/useStableCallback.ts:16:23 - error TS2345: Argument of type '(...args: TArgs) => TReturn' is not assignable to parameter of type 'Function'.
+  Types of parameters 'args' and 'req' are incompatible.
+    Type '[req: Request<ParamsDictionary, any, any, ParsedQs, Record<string, any>>, res: Response<any, Record<string, any>>, next: NextFunction]' is not assignable to type 'TArgs'.
+      '[req: Request<ParamsDictionary, any, any, ParsedQs, Record<string, any>>, res: Response<any, Record<string, any>>, next: NextFunction]' is assignable to the constraint of type 'TArgs', but 'TArgs' could be instantiated with a different subtype of constraint 'unknown[]'.
+
+16   return useCallback(((...args: TArgs) => callbackRef.current(...args)), []);
+                         ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+client/src/hooks/useThemePreference.ts:63:45 - error TS2345: Argument of type '() => Promise<Theme | null>' is not assignable to parameter of type 'Function'.
+  Type 'Promise<Theme | null>' is not assignable to type 'Promise<void>'.
+    Type 'string | null' is not assignable to type 'void'.
+      Type 'null' is not assignable to type 'void'.
+
+63   const loadThemeFromDatabase = useCallback(async () => {
+                                               ~~~~~~~~~~~~~
+
+client/src/hooks/useThemePreference.ts:92:43 - error TS2345: Argument of type '(theme: Theme) => Promise<boolean>' is not assignable to parameter of type 'Function'.
+  Types of parameters 'theme' and 'req' are incompatible.
+    Type 'Request<ParamsDictionary, any, any, ParsedQs, Record<string, any>>' is not assignable to type 'Theme'.
+
+92   const saveThemeToDatabase = useCallback(async (theme: Theme) => {
+                                             ~~~~~~~~~~~~~~~~~~~~~~~~~
+
+client/src/hooks/useThemePreference.ts:131:31 - error TS2554: Expected 2-3 arguments, but got 0.
+
+131         const dbTheme = await loadThemeFromDatabase();
+                                  ~~~~~~~~~~~~~~~~~~~~~
+
+  types/middleware-types.d.ts:8:6
+    8     (req: express.Request, res: express.Response): void;
+           ~~~~~~~~~~~~~~~~~~~~
+    An argument for 'req' was not provided.
+
+client/src/hooks/useThemePreference.ts:141:31 - error TS2554: Expected 2-3 arguments, but got 1.
+
+141           const saved = await saveThemeToDatabase(localTheme);
+                                  ~~~~~~~~~~~~~~~~~~~
+
+  types/middleware-types.d.ts:8:28
+    8     (req: express.Request, res: express.Response): void;
+                                 ~~~~~~~~~~~~~~~~~~~~~
+    An argument for 'res' was not provided.
+
+client/src/hooks/useThemePreference.ts:168:32 - error TS2345: Argument of type '(newTheme: Theme) => Promise<void>' is not assignable to parameter of type 'Function'.
+  Types of parameters 'newTheme' and 'req' are incompatible.
+    Type 'Request<ParamsDictionary, any, any, ParsedQs, Record<string, any>>' is not assignable to type 'Theme'.
+
+168   const setTheme = useCallback(async (newTheme: Theme) => {
