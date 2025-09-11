@@ -11,7 +11,7 @@ export default defineConfig({
   plugins: [react()],
   root: path.join(__dirname, 'client'),
   build: {
-    outDir: path.join(__dirname, 'dist/client'),
+    outDir: path.join(__dirname, 'dist/public'),
     emptyOutDir: true,
   },
   server: {

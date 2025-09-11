@@ -1,6 +1,6 @@
 {
   "extends": "./tsconfig.json",
-  "include": ["server/**/*", "shared/**/*"],
+  "include": ["server/**/*", "shared/**/*", "types/**/*"],
   "exclude": ["node_modules", "build", "dist", "**/*.test.ts", "client/**/*"],
   "compilerOptions": {
     "noEmit": false,
@@ -8,6 +8,8 @@
     "module": "ES2020",
     "target": "ES2020",
     "moduleResolution": "node",
+    "allowJs": true,
+    "resolveJsonModule": true,
     "declaration": false,
     "sourceMap": false,
     "removeComments": true,
@@ -15,7 +17,10 @@
     "allowSyntheticDefaultImports": true,
     "skipLibCheck": true,
     "strict": true,
-    "lib": ["es2020"],
-    "types": ["node"]
+    "noImplicitAny": false,
+    "suppressImplicitAnyIndexErrors": true,
+    "lib": ["es2020", "es2015", "es2015.promise", "es2015.core", "dom", "es6"],
+    "types": ["node", "express"],
+    "typeRoots": ["./node_modules/@types", "./types"]
   }
 } 

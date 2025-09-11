@@ -544,16 +544,9 @@ app.use((req, res, next) => {
   // setting up all the other routes so the catch-all route
   // doesn't interfere with the other routes
   if (app.get("env") === "development") {
-    // In Replit environment, skip vite middleware and let vite run separately
-    if (process.env.REPL_ID) {
-      console.log("🔧 Running in Replit - Vite will run as a separate process");
-      // In Replit, the frontend and backend run on the same domain
-      // The Vite dev server should be handling the frontend routes
-      // This catch-all should only serve static assets or forward to API routes
-      serveStatic(app);
-    } else {
-      await setupVite(app, server);
-    }
+    // Use static serving for development due to module resolution issues
+    console.log("🔧 Using static serving for development");
+    serveStatic(app);
   } else {
     serveStatic(app);
   }
