@@ -5,7 +5,6 @@ import { Badge } from "@/components/ui/badge";
 import { 
   ArrowRight, 
   Shield, 
-  Clock, 
   CheckCircle, 
   FileText, 
   Lock, 
@@ -26,7 +25,7 @@ import { MobileAppWrapper } from "@/components/MobileAppWrapper";
 import { useCombinedConsent } from "@/components/CombinedConsent";
 import { CookieConsentBanner } from "@/components/CookieConsentBanner";
 import { generateFAQSchema, updateSEO } from "@/lib/seo";
-import { Link } from "react-router-dom";
+import { Link } from "wouter";
 
 export default function Home() {
   const { isAccepted: consentAccepted } = useCombinedConsent();
