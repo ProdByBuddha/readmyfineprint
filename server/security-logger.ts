@@ -400,6 +400,22 @@ class SecurityLogger {
   }
 
   /**
+   * Log LLM API usage for audit purposes (generic method for any LLM provider)
+   */
+  public logLLMUsage(ip: string, userAgent: string, sessionId: string, documentTitle: string, providerName: string, tokensUsed?: number): void {
+    this.logSecurityEvent({
+      eventType: SecurityEventType.API_ACCESS,
+      severity: SecuritySeverity.LOW,
+      message: `Document sent to ${providerName} for analysis`,
+      ip,
+      userAgent,
+      sessionId,
+      endpoint: '/api/documents/*/analyze',
+      details: { documentTitle, tokensUsed, service: providerName }
+    });
+  }
+
+  /**
    * Log file upload rejection
    */
   public logFileUploadRejected(req: any, filename: string, fileType: string, reason: string): void {

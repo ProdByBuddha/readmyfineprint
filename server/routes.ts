@@ -4,7 +4,7 @@ import { storage, databaseStorage } from "./storage";
 import { consentLogger } from "./consent";
 import { requireAdminAuth, optionalUserAuth, requireUserAuth, requireConsent, requireSecurityQuestions, refreshAccessToken } from "./auth";
 import { insertDocumentSchema } from "@shared/schema";
-import { analyzeDocument } from "./openai";
+import { LLMFactory } from "./llm";
 import { analyzeDocumentWithPII } from "./openai-with-pii";
 import { FileValidator, createSecureFileFilter } from "./file-validation";
 import { securityLogger, getClientInfo, SecurityEventType, SecuritySeverity } from "./security-logger";
@@ -1784,14 +1784,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
           } else {
             console.log(`📝 Using standard analysis for ${tierValidation.currentTier} tier user ${userId}`);
             // Fall back to regular analysis without PII protection
-            return await analyzeDocument(
+            const provider = LLMFactory.getProvider();
+            return await provider.analyzeDocument(
               document.content,
               document.title,
-              analysisIp,
-              analysisUserAgent,
-              req.sessionId,
-              subscriptionData.tier.model,
-              userId
+              {
+                model: subscriptionData.tier.model,
+                ip: analysisIp,
+                userAgent: analysisUserAgent,
+                sessionId: req.sessionId,
+                userId: userId
+              }
             );
           }
         }

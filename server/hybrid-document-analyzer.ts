@@ -4,8 +4,9 @@
  */
 
 import { zeroPIIAnalyzer, ZeroPIIResult } from './zero-pii-analyzer';
-import { analyzeDocument as openaiAnalyze } from './openai';
+import { LLMFactory } from './llm';
 import { LocalLLMService } from './local-llm-service';
+import type { DocumentAnalysis } from '@shared/schema';
 
 export interface HybridAnalysisResult {
   localAnalysis: {
@@ -103,7 +104,7 @@ export class HybridDocumentAnalyzer {
       
       return {
         piiDetection,
-        basicAnalysis: basicAnalysis.analysis || 'Local analysis completed',
+        basicAnalysis: (basicAnalysis as any)?.analysis || 'Local analysis completed',
         documentType,
         keyTerms
       };
@@ -113,7 +114,7 @@ export class HybridDocumentAnalyzer {
         piiDetection: { hasPII: false, redactionSuggestions: [] },
         basicAnalysis: 'Local analysis unavailable',
         documentType: 'unknown',
-        keyTerms: []
+        keyTerms: [] as string[]
       };
     }
   }
@@ -123,29 +124,34 @@ export class HybridDocumentAnalyzer {
    */
   private async performOpenAIAnalysis(cleanText: string, userId: string) {
     try {
-      // Create a mock document object for the existing OpenAI function
-      const mockDocument = {
-        id: Date.now(),
-        content: cleanText,
-        userId,
-        title: 'Hybrid Analysis Document',
-        fileType: 'text/plain'
-      };
-
-      const openaiResult = await openaiAnalyze(cleanText, 'Hybrid Analysis Document', undefined, undefined, undefined, 'gpt-4o', userId);
+      const provider = LLMFactory.getProvider();
+      const openaiResult: DocumentAnalysis = await provider.analyzeDocument(cleanText, 'Hybrid Analysis Document', {
+        model: 'gpt-4o',
+        userId: userId
+      });
+      
+      // Safe array handling with type assertions
+      const sections = openaiResult.sections;
+      let recommendations: string[] = [];
+      
+      if (sections && Array.isArray(sections)) {
+        recommendations = sections
+          .map((s: any) => s && s.summary && typeof s.summary === 'string' ? s.summary : '')
+          .filter((s: string) => s.length > 0);
+      }
       
       return {
         detailedAnalysis: openaiResult.summary || 'OpenAI analysis completed',
-        legalRisks: openaiResult.keyFindings?.redFlags || [],
-        recommendations: openaiResult.sections?.map(s => s.summary) || [],
+        legalRisks: (openaiResult.keyFindings?.redFlags as string[]) || [],
+        recommendations,
         complexity: this.assessComplexity(openaiResult.summary || '')
       };
     } catch (error) {
       console.error('OpenAI analysis failed:', error);
       return {
         detailedAnalysis: 'OpenAI analysis unavailable',
-        legalRisks: [],
-        recommendations: [],
+        legalRisks: [] as string[],
+        recommendations: [] as string[],
         complexity: 'medium' as const
       };
     }
@@ -155,15 +161,23 @@ export class HybridDocumentAnalyzer {
    * Detect document type using local LLM
    */
   private async detectDocumentType(text: string): Promise<string> {
+    if (!text || typeof text !== 'string') {
+      return 'unknown';
+    }
+    
+    const textSubstring = text.length > 500 ? text.substring(0, 500) : text;
     const prompt = `Analyze this document and identify its type. Respond with only the document type:
 
-${text.substring(0, 500)}...
+${textSubstring}...
 
 Document type:`;
 
     try {
       const response = await this.localLLM.generateResponse(prompt);
-      return response.trim().toLowerCase();
+      if (response && typeof response === 'string') {
+        return response.trim().toLowerCase();
+      }
+      return 'unknown';
     } catch {
       return 'unknown';
     }
@@ -173,15 +187,25 @@ Document type:`;
    * Extract key terms using local LLM
    */
   private async extractKeyTerms(text: string): Promise<string[]> {
+    if (!text || typeof text !== 'string') {
+      return [];
+    }
+    
+    const textSubstring = text.length > 1000 ? text.substring(0, 1000) : text;
     const prompt = `Extract the 5 most important legal terms from this document. Return only a comma-separated list:
 
-${text.substring(0, 1000)}...
+${textSubstring}...
 
 Key terms:`;
 
     try {
       const response = await this.localLLM.generateResponse(prompt);
-      return response.split(',').map(term => term.trim()).filter(term => term.length > 0);
+      if (response && typeof response === 'string') {
+        return response.split(',')
+          .map((term: string) => term.trim())
+          .filter((term: string) => term.length > 0);
+      }
+      return [];
     } catch {
       return [];
     }
@@ -191,13 +215,18 @@ Key terms:`;
    * Assess document complexity
    */
   private assessComplexity(analysis: string): 'low' | 'medium' | 'high' {
-    const complexityIndicators = [
+    if (!analysis || typeof analysis !== 'string') {
+      return 'medium';
+    }
+    
+    const complexityIndicators: string[] = [
       'complex', 'sophisticated', 'intricate', 'detailed', 'comprehensive',
       'multi-party', 'cross-border', 'regulatory', 'compliance'
     ];
     
-    const matches = complexityIndicators.filter(indicator => 
-      analysis.toLowerCase().includes(indicator)
+    const analysisLower = analysis.toLowerCase();
+    const matches = complexityIndicators.filter((indicator: string) => 
+      analysisLower.includes(indicator)
     ).length;
     
     if (matches >= 3) return 'high';
@@ -209,22 +238,26 @@ Key terms:`;
    * Combine local and OpenAI analysis results
    */
   private combineAnalysisResults(localAnalysis: any, openaiAnalysis?: any) {
-    const combinedAnalysis = [
+    const analysisLines: string[] = [
       `Local Analysis: ${localAnalysis.basicAnalysis}`,
       openaiAnalysis ? `Detailed Analysis: ${openaiAnalysis.detailedAnalysis}` : 'Detailed analysis skipped for privacy protection'
-    ].join('\n\n');
-
-    const combinedRisks = [
-      ...(openaiAnalysis?.legalRisks || []),
-      // Add any local risks here if available
     ];
+    
+    const combinedAnalysis = analysisLines.join('\n\n');
 
-    const combinedRecommendations = [
-      ...(openaiAnalysis?.recommendations || []),
+    // Safe array handling
+    const legalRisks = openaiAnalysis?.legalRisks && Array.isArray(openaiAnalysis.legalRisks) ? 
+      openaiAnalysis.legalRisks : [];
+    const recommendations = openaiAnalysis?.recommendations && Array.isArray(openaiAnalysis.recommendations) ? 
+      openaiAnalysis.recommendations : [];
+    
+    const combinedRisks: string[] = [...legalRisks];
+    const combinedRecommendations: string[] = [
+      ...recommendations,
       'Privacy-first analysis completed with local PII protection'
     ];
 
-    const confidence = openaiAnalysis ? 0.9 : 0.7; // Higher confidence with OpenAI
+    const confidence = openaiAnalysis ? 0.9 : 0.7;
 
     return {
       analysis: combinedAnalysis,
