@@ -60,7 +60,7 @@ export default function Home() {
       },
       {
         question: "Can I use this for business or enterprise needs?",
-        answer: "Yes, our platform is designed for both individual and enterprise use with advanced security protocols, audit trails, and compliance features suitable for professional legal review."
+        answer: "Yes, our platform is designed for both individual and business use with advanced security protocols, audit trails, and compliance features suitable for professional legal review."
       }
     ];
 
@@ -600,9 +600,9 @@ export default function Home() {
                       Can I use this for business or enterprise needs?
                     </h3>
                     <p className="text-gray-700 dark:text-gray-300 leading-relaxed">
-                      Yes, our platform is designed for both individual and enterprise use with advanced security protocols, 
-                      audit trails, and compliance features suitable for professional legal review. We offer enterprise plans 
-                      with additional security features and dedicated support.
+                      Yes, our platform is designed for both individual and business use with advanced security protocols, 
+                      audit trails, and compliance features suitable for professional legal review. Additional 
+                      security features and dedicated support are available for business needs.
                     </p>
                   </div>
                 </div>
