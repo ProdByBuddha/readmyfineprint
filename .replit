@@ -4,7 +4,7 @@ hidden = [".config", ".git", "generated-icon.png", "node_modules", "dist"]
 
 [nix]
 channel = "stable-24_05"
-packages = ["imagemagick", "python311Packages.transformers", "python311Packages.torch", "python311Packages.tokenizers", "lsof", "podman", "docker", "systemd"]
+packages = ["imagemagick", "python311Packages.transformers", "python311Packages.torch", "python311Packages.tokenizers", "lsof", "podman", "docker", "systemd", "nodejs"]
 
 [deployment]
 deploymentTarget = "autoscale"
