@@ -529,6 +529,7 @@ export default function Contact() {
                     </div>
                   )}
                 </form>
+                </Form>
               </CardContent>
             </Card>
           </div>

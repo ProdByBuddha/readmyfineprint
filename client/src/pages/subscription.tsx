@@ -17,7 +17,8 @@ import DataExportButton from '@/components/DataExportButton';
 import { getStoredDeviceFingerprint } from '@/utils/deviceFingerprint';
 import { createCustomerPortalSession, reactivateSubscription } from '@/lib/api';
 import TradeSecretProtection from '@/components/TradeSecretProtection';
-import { useQuery, useMutation, queryClient } from '@tanstack/react-query';
+import { useQuery, useMutation } from '@tanstack/react-query';
+import { queryClient } from '@/lib/queryClient';
 import { sessionFetch } from '@/lib/sessionManager';
 
 interface SubscriptionData {

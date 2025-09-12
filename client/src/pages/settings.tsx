@@ -31,7 +31,8 @@ import { UserSecuritySettings } from '@/components/UserSecuritySettings';
 import DataExportButton from '@/components/DataExportButton';
 import AccountDeletion from '@/components/AccountDeletion';
 import { Link } from 'wouter';
-import { useQuery, useMutation, queryClient } from '@tanstack/react-query';
+import { useQuery, useMutation } from '@tanstack/react-query';
+import { queryClient } from '@/lib/queryClient';
 import { sessionFetch } from '@/lib/sessionManager';
 
 interface UserProfile {
