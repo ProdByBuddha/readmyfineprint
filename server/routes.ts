@@ -226,8 +226,8 @@ const getStripeInstance = (useTestMode: boolean = false) => {
   return new Stripe(secretKey);
 };
 
-// Default stripe instance (live mode)
-const stripe = getStripeInstance(false);
+// Default stripe instance (test mode in development, live mode in production)
+const stripe = getStripeInstance(process.env.NODE_ENV === 'development');
 
 // Customer Portal configuration cache to avoid repeated API calls
 const portalConfigCache = new Map<string, { config: any; timestamp: number }>();
