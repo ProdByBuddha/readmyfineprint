@@ -293,11 +293,11 @@ export function Header() {
         <div className={`flex justify-between items-center ${isMobile ? 'h-14' : 'h-16'}`}>
           <Link to="/" aria-label="ReadMyFinePrint - Go to homepage">
             <div className="flex items-center space-x-3 cursor-pointer group">
-              <div className={`${isMobile ? 'p-1' : 'p-1.5'} bg-gradient-to-br from-blue-50 to-blue-100 dark:from-blue-900/20 dark:to-blue-800/20 rounded-xl shadow-sm group-hover:shadow-md transition-all duration-200 group-active:scale-95`}>
+              <div className={`${isMobile ? 'p-1' : 'p-1.5'} bg-gradient-to-br from-blue-50 to-blue-100 dark:from-blue-900/20 dark:to-blue-800/20 rounded-xl shadow-sm group-hover:shadow-md transition-all duration-200 group-active:scale-95 ${isMobile ? 'w-10 h-10' : 'w-12 h-12'} flex items-center justify-center flex-shrink-0`}>
                 <img
                   src="/og-image.png"
                   alt="ReadMyFinePrint Logo"
-                  className={`${isMobile ? 'w-8 h-8' : 'w-10 h-10'} object-contain rounded-lg`}
+                  className={`${isMobile ? 'w-8 h-8' : 'w-10 h-10'} object-contain rounded-lg max-w-full max-h-full flex-shrink-0`}
                 />
               </div>
               <h1 className="text-xl font-bold text-primary dark:text-primary hidden md:block">
