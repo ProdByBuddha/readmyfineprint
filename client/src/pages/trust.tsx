@@ -458,20 +458,26 @@ export default function TrustPage() {
                   <div className="flex flex-wrap justify-center gap-4">
                     <Button className="border border-gray-300 hover:bg-gray-50" asChild data-testid="button-privacy-policy">
                       <a href="/privacy">
-                        <FileText className="w-4 h-4 mr-2" />
-                        Privacy Policy
+                        <>
+                          <FileText className="w-4 h-4 mr-2" />
+                          Privacy Policy
+                        </>
                       </a>
                     </Button>
                     <Button className="border border-gray-300 hover:bg-gray-50" asChild data-testid="button-terms-service">
                       <a href="/terms">
-                        <FileText className="w-4 h-4 mr-2" />
-                        Terms of Service
+                        <>
+                          <FileText className="w-4 h-4 mr-2" />
+                          Terms of Service
+                        </>
                       </a>
                     </Button>
                     <Button className="border border-gray-300 hover:bg-gray-50" asChild data-testid="button-cookie-policy">
                       <a href="/cookies">
-                        <FileText className="w-4 h-4 mr-2" />
-                        Cookie Policy
+                        <>
+                          <FileText className="w-4 h-4 mr-2" />
+                          Cookie Policy
+                        </>
                       </a>
                     </Button>
                     <Button className="border border-gray-300 hover:bg-gray-50" data-testid="button-security-whitepaper">
