@@ -25,7 +25,7 @@ import { MobileAppWrapper } from "@/components/MobileAppWrapper";
 import { useCombinedConsent } from "@/components/CombinedConsent";
 import { CookieConsentBanner } from "@/components/CookieConsentBanner";
 import { generateFAQSchema, updateSEO } from "@/lib/seo";
-import { Link } from "wouter";
+import { Link } from "react-router-dom";
 
 export default function Home() {
   const { isAccepted: consentAccepted } = useCombinedConsent();

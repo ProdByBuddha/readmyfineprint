@@ -62,10 +62,7 @@ function AppRouter() {
         <Route path="/donate" element={<Donate />} />
         <Route path="/roadmap" element={<Roadmap />} />
         <Route path="/subscription" element={<Subscription />} />
-        <Route 
-              path="/admin" 
-              element={<AdminDashboard />} 
-            />
+        <Route path="/admin" element={<AdminDashboard />} />
         <Route path="/email-recovery" element={<EmailRecoveryPage />} />
         <Route path="/trust" element={<TrustPage />} />
         <Route path="/blog" element={<BlogPage />} />
