@@ -523,9 +523,9 @@ app.use((req, res, next) => {
     serveStatic(app);
   }
 
-  // Try to use port 5173 first (as expected by workflow), but fall back to available ports if needed
-  const preferredPort = 5173;
-  const tryPorts = [preferredPort, 5000, 3000, 3001, 8000, 8080, 0]; // 0 means any available port
+  // Use Replit's assigned PORT or fallback to development defaults
+  const assignedPort = Number(process.env.PORT);
+  const tryPorts = assignedPort ? [assignedPort] : [5173, 5000, 3000, 0];
 
   let serverStarted = false;
   for (const port of tryPorts) {
@@ -536,7 +536,7 @@ app.use((req, res, next) => {
           host: "0.0.0.0",
         }, async () => {
           const actualPort = (serverInstance.address() as any)?.port || port;
-          log(`serving on port ${actualPort}`);
+          log(`serving on port ${actualPort}${assignedPort ? ' (Replit assigned)' : ' (development fallback)'}`);
           
           // Initialize distributed session storage after server starts
           await initializeSessionStorage();

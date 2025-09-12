@@ -76,8 +76,8 @@ export default function TrustPage() {
       description: "Your documents are processed without our systems gaining knowledge of their contents",
       details: [
         "End-to-end encryption with client-side key generation",
-        "Homomorphic encryption for computation on encrypted data",
-        "Zero-knowledge proofs for document validation",
+        "Advanced encryption protocols (in development)",
+        "Document validation with privacy controls",
         "Client-controlled decryption keys"
       ]
     },
@@ -89,7 +89,7 @@ export default function TrustPage() {
         "Maximum 30-minute session duration",
         "Automatic memory cleanup after processing",
         "No disk storage or persistence layers",
-        "Cryptographic proof of deletion"
+        "Secure data deletion procedures"
       ]
     },
     {

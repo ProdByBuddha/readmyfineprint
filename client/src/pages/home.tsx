@@ -87,7 +87,7 @@ export default function Home() {
       description: "In-depth review of vendor agreements, partnerships, NDAs, and liability provisions for business protection",
       gradient: "from-emerald-500/20 to-teal-600/20 dark:from-emerald-400/10 dark:to-teal-500/10",
       iconColor: "text-emerald-600 dark:text-emerald-400",
-      stats: "Enterprise Grade"
+      stats: "Professional Quality"
     },
     {
       icon: House,
@@ -137,9 +137,9 @@ export default function Home() {
       icon: Zap,
       title: "AI-Powered Intelligence",
       description: "Advanced natural language processing trained on millions of legal documents delivers comprehensive analysis with enterprise-grade accuracy in under 30 seconds.",
-      badge: "99.9% Uptime",
+      badge: "High Availability",
       gradient: "from-emerald-500/10 to-teal-600/10 dark:from-emerald-400/5 dark:to-teal-500/5",
-      stats: "<30s Analysis",
+      stats: "Fast Analysis",
       highlight: false
     },
     {
@@ -517,7 +517,7 @@ export default function Home() {
                 </div>
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
                   <div className="text-center" data-testid="stat-accuracy">
-                    <div className="text-4xl md:text-5xl font-black text-primary mb-2">99.9%</div>
+                    <div className="text-4xl md:text-5xl font-black text-primary mb-2">High</div>
                     <div className="text-slate-600 dark:text-slate-300 font-semibold">Analysis Accuracy</div>
                   </div>
                   <div className="text-center" data-testid="stat-security">
