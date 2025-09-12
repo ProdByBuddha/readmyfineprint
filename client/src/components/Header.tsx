@@ -224,10 +224,10 @@ export function Header() {
       data-testid="header"
       className={`
         ${isMobile
-          ? 'bg-white/95 dark:bg-slate-900/95 backdrop-blur-lg border-b-0 shadow-sm'
-          : 'bg-white dark:bg-slate-900 border-b border-teal-200 dark:border-slate-700'
+          ? 'bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl border-b border-white/10 dark:border-slate-800/50 shadow-lg'
+          : 'bg-white/90 dark:bg-slate-900/90 backdrop-blur-xl border-b border-gray-200/60 dark:border-slate-800/60 shadow-md'
         }
-        flex-shrink-0 z-50 transition-all duration-300
+        flex-shrink-0 z-50 transition-all duration-500 ease-out supports-[backdrop-filter]:bg-white/80 supports-[backdrop-filter]:dark:bg-slate-900/80
       `}
       style={isMobile ? {
         paddingTop: 'var(--app-safe-area-top)',
@@ -248,10 +248,10 @@ export function Header() {
               <div 
                 className={`
                   ${isMobile ? 'w-8 h-8' : 'w-10 h-10'} 
-                  bg-gradient-to-br from-blue-50 to-blue-100 dark:from-blue-900/20 dark:to-blue-800/20 
-                  rounded-xl shadow-sm group-hover:shadow-md transition-all duration-200 
+                  bg-gradient-to-br from-primary/10 to-primary/20 dark:from-primary/20 dark:to-primary/30 
+                  rounded-xl shadow-md group-hover:shadow-lg group-hover:scale-105 transition-all duration-300 ease-out
                   group-active:scale-95 flex items-center justify-center 
-                  flex-none shrink-0 overflow-hidden
+                  flex-none shrink-0 overflow-hidden border border-primary/10 dark:border-primary/20
                 `}
               >
                 <img
@@ -270,11 +270,11 @@ export function Header() {
                   }}
                 />
               </div>
-              <h1 className="text-xl font-bold text-primary dark:text-primary hidden md:block">
+              <h1 className="text-xl font-bold bg-gradient-to-r from-primary to-primary-600 bg-clip-text text-transparent hidden md:block">
                 ReadMyFinePrint
               </h1>
               {isMobile && (
-                <h1 className="text-lg font-bold text-primary dark:text-primary tracking-tight">
+                <h1 className="text-lg font-bold bg-gradient-to-r from-primary to-primary-600 bg-clip-text text-transparent tracking-tight">
                   RMFP
                 </h1>
               )}
@@ -373,7 +373,7 @@ export function Header() {
                   <Button
                     variant="default"
                     size="sm"
-                    className="mr-2 bg-blue-600 hover:bg-blue-700 text-white"
+                    className="mr-2"
                     aria-label="Login or Subscribe"
                     data-testid="button-login"
                     onClick={handleLoginClick}
@@ -460,7 +460,7 @@ export function Header() {
                     <Button
                       variant="default"
                       size="sm"
-                      className="h-9 px-3 text-xs bg-blue-600 hover:bg-blue-700 text-white transition-all duration-200 active:scale-95"
+                      className="h-9 px-3 text-xs transition-all duration-200 active:scale-95"
                       aria-label="Login or Subscribe"
                       data-testid="button-login-mobile"
                       onClick={handleLoginClick}

@@ -5,25 +5,25 @@ import { cva, type VariantProps } from "class-variance-authority"
 import { cn } from "@/lib/utils"
 
 const buttonVariants = cva(
-  "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-all duration-300 ease-in-out focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 disabled:cursor-not-allowed [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 active:scale-95",
+  "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-lg text-sm font-semibold ring-offset-background transition-all duration-300 ease-out focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 disabled:cursor-not-allowed [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 active:scale-[0.98] relative overflow-hidden group",
   {
     variants: {
       variant: {
-        default: "bg-primary text-primary-foreground hover:bg-primary/90 shadow-sm",
+        default: "bg-gradient-to-r from-primary to-primary/80 text-primary-foreground hover:from-primary/90 hover:to-primary/90 shadow-lg hover:shadow-xl border-0 before:content-[''] before:absolute before:inset-0 before:bg-gradient-to-r before:from-white/10 before:to-transparent before:opacity-0 hover:before:opacity-100 before:transition-opacity before:duration-300",
         destructive:
-          "bg-destructive text-destructive-foreground hover:bg-destructive/90 shadow-sm",
+          "bg-gradient-to-r from-destructive to-destructive/80 text-destructive-foreground hover:from-destructive/90 hover:to-destructive/90 shadow-lg hover:shadow-lg border-0",
         outline:
-          "border border-input bg-background text-gray-700 dark:text-gray-300 hover:bg-accent hover:text-accent-foreground dark:bg-gray-800 dark:border-gray-600 dark:hover:bg-gray-700 shadow-sm",
+          "border-2 border-border hover:border-primary bg-background/80 backdrop-blur-sm text-foreground hover:bg-primary/5 hover:text-primary shadow-md hover:shadow-lg dark:bg-background/50 dark:hover:bg-primary/10",
         secondary:
-          "bg-secondary text-secondary-foreground hover:bg-secondary/80 shadow-sm",
-        ghost: "text-gray-700 dark:text-gray-300 hover:bg-accent hover:text-accent-foreground",
-        link: "text-primary underline-offset-4 hover:underline focus:underline",
+          "bg-gradient-to-r from-secondary/10 to-secondary/20 border border-secondary/20 text-secondary-foreground hover:from-secondary/20 hover:to-secondary/30 hover:border-secondary/30 shadow-md hover:shadow-lg backdrop-blur-sm",
+        ghost: "text-muted-foreground hover:bg-accent/50 hover:text-foreground shadow-none hover:shadow-md backdrop-blur-sm",
+        link: "text-primary underline-offset-4 hover:underline focus:underline shadow-none hover:bg-primary/5 rounded-md px-1",
       },
       size: {
-        default: "h-10 px-4 py-2 min-w-[2.5rem]",
-        sm: "h-9 rounded-md px-3 min-w-[2.25rem]",
-        lg: "h-11 rounded-md px-8 min-w-[2.75rem]",
-        icon: "h-10 w-10",
+        default: "h-11 px-6 py-3 min-w-[3rem] text-sm",
+        sm: "h-9 px-4 py-2 min-w-[2.5rem] text-xs font-medium",
+        lg: "h-12 px-8 py-4 min-w-[3.5rem] text-base",
+        icon: "h-11 w-11 p-0",
       },
     },
     defaultVariants: {
@@ -51,7 +51,7 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
     
     return (
       <Comp
-        className={cn(buttonVariants({ variant, size, className }))}
+        className={cn(buttonVariants({ variant, size }), className)}
         ref={ref}
         disabled={isDisabled}
         aria-disabled={isDisabled}
