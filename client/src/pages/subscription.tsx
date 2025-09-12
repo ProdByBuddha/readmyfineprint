@@ -17,6 +17,8 @@ import DataExportButton from '@/components/DataExportButton';
 import { getStoredDeviceFingerprint } from '@/utils/deviceFingerprint';
 import { createCustomerPortalSession, reactivateSubscription } from '@/lib/api';
 import TradeSecretProtection from '@/components/TradeSecretProtection';
+import { useQuery, useMutation, queryClient } from '@tanstack/react-query';
+import { sessionFetch } from '@/lib/sessionManager';
 
 interface SubscriptionData {
   subscription?: {
@@ -55,14 +57,26 @@ interface SubscriptionData {
 }
 
 export default function SubscriptionPage() {
-  const [subscriptionData, setSubscriptionData] = useState<SubscriptionData | null>(null);
-  const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState('overview');
   const [showLogin, setShowLogin] = useState(false);
   const [user, setUser] = useState<{ id: string; email: string } | null>(null);
 
   // Enable subscription functionality
   const [showComingSoon] = useState(false);
+
+  // Fetch subscription data with React Query
+  const { data: subscriptionData, isLoading: loading, error, refetch } = useQuery({
+    queryKey: ['/api/user/subscription'],
+    enabled: true,
+    staleTime: 2 * 60 * 1000, // 2 minutes
+    retry: (failureCount, error) => {
+      // Don't retry on auth errors
+      if (error?.message?.includes('401') || error?.message?.includes('403')) {
+        return false;
+      }
+      return failureCount < 2;
+    },
+  });
 
   // Fetch user data
   const fetchUserData = async () => {
@@ -169,67 +183,45 @@ export default function SubscriptionPage() {
     window.location.href = '/';
   };
 
-  const fetchSubscriptionData = async () => {
-    try {
-      // No need to manually handle tokens - httpOnly cookies are sent automatically
-      const headers: HeadersInit = {
-        'Content-Type': 'application/json',
-        'x-device-fingerprint': getStoredDeviceFingerprint(), // Still send device fingerprint for security
-      };
-      
-      const response = await fetch('/api/user/subscription', {
-        credentials: 'include', // This sends httpOnly cookies automatically
-        headers,
+  // This function is kept for handling successful subscriptions from Stripe redirects
+  const fetchSubscriptionData = () => {
+    refetch();
+  };
+
+  // CSRF-protected checkout mutation
+  const createCheckoutMutation = useMutation({
+    mutationFn: async ({ tierId, billingCycle }: { tierId: string; billingCycle: 'monthly' | 'yearly' }) => {
+      const response = await sessionFetch('/api/subscription/create-checkout', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          tierId,
+          billingCycle,
+        }),
       });
 
       if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
+        const errorData = await response.text();
+        throw new Error(errorData || `HTTP error! status: ${response.status}`);
       }
 
-      const data = await response.json();
-
-      // Convert resetDate string back to Date object
-      if (data.usage && data.usage.resetDate) {
-        data.usage.resetDate = new Date(data.usage.resetDate);
+      return response.json();
+    },
+    onSuccess: (data) => {
+      if (data.error) {
+        throw new Error(data.error);
       }
-
-      setSubscriptionData(data);
-      console.log('✅ Subscription data fetched using httpOnly cookie');
-    } catch (error) {
-      console.error('Error fetching subscription data:', error);
-
-      // Fallback to free tier data if API fails
-      const fallbackData: SubscriptionData = {
-        tier: {
-          id: 'free',
-          name: 'Free',
-          model: 'gpt-3.5-turbo',
-          monthlyPrice: 0,
-          limits: {
-            documentsPerMonth: -1,
-            prioritySupport: false,
-            advancedAnalysis: false,
-            apiAccess: false,
-          },
-        },
-        usage: {
-          documentsAnalyzed: 0,
-          tokensUsed: 0,
-          cost: 0,
-          resetDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
-        },
-        canUpgrade: true,
-        suggestedUpgrade: {
-          id: 'starter',
-          name: 'Starter',
-          monthlyPrice: 15,
-        },
-      };
-      setSubscriptionData(fallbackData);
-    } finally {
-      setLoading(false);
-    }
-  };
+      // Redirect to Stripe checkout
+      window.location.href = data.url;
+    },
+    onError: (error) => {
+      console.error('Error creating checkout session:', error);
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
+      window.alert(`Failed to start checkout process: ${errorMessage}. Please try again or contact support.`);
+    },
+  });
 
   const handlePlanSelect = async (tierId: string, billingCycle: 'monthly' | 'yearly') => {
     if (tierId === 'free') {
@@ -242,108 +234,116 @@ export default function SubscriptionPage() {
       return;
     }
 
-    try {
-      // Create Stripe checkout session
-      const response = await fetch('/api/subscription/create-checkout', {
+    createCheckoutMutation.mutate({ tierId, billingCycle });
+  };
+
+  // CSRF-protected cancellation mutation
+  const cancelSubscriptionMutation = useMutation({
+    mutationFn: async () => {
+      const response = await sessionFetch('/api/subscription/cancel', {
         method: 'POST',
-        credentials: 'include',
         headers: {
           'Content-Type': 'application/json',
+          'x-device-fingerprint': getStoredDeviceFingerprint(),
         },
         body: JSON.stringify({
-          tierId,
-          billingCycle,
+          subscriptionId: subscriptionData?.subscription?.stripeSubscriptionId,
+          immediate: false,
         }),
       });
 
       if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
+        const errorData = await response.text();
+        throw new Error(errorData || `HTTP error! status: ${response.status}`);
       }
 
-      const data = await response.json();
-
-      if (data.error) {
-        throw new Error(data.error);
-      }
-
-      // Redirect to Stripe checkout
-      window.location.href = data.url;
-    } catch (error) {
-      console.error('Error creating checkout session:', error);
+      return response.json();
+    },
+    onSuccess: (data) => {
+      window.alert(data.message || 'Subscription canceled successfully. You will continue to have access until the end of your billing period.');
+      // Invalidate and refetch subscription data
+      queryClient.invalidateQueries({ queryKey: ['/api/user/subscription'] });
+    },
+    onError: (error) => {
+      console.error('Error canceling subscription:', error);
       const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
-      window.alert(`Failed to start checkout process: ${errorMessage}. Please try again or contact support.`);
-    }
-  };
+      window.alert(`Failed to cancel subscription: ${errorMessage}. Please try again.`);
+    },
+  });
 
   const handleCancelSubscription = async () => {
     if (window.confirm('Are you sure you want to cancel your subscription? You will be downgraded to the free plan at the end of your billing period.')) {
-      try {
-        const headers: HeadersInit = {
-          'Content-Type': 'application/json',
-        };
-
-        // Include device fingerprint for security
-        const deviceFingerprint = getStoredDeviceFingerprint();
-        headers['x-device-fingerprint'] = deviceFingerprint;
-
-        const response = await fetch('/api/subscription/cancel', {
-          method: 'POST',
-          credentials: 'include',
-          headers,
-          body: JSON.stringify({
-            subscriptionId: subscriptionData?.subscription?.stripeSubscriptionId,
-            immediate: false,
-          }),
-        });
-
-        if (!response.ok) {
-          const errorData = await response.json().catch(() => ({ error: 'Unknown server error' }));
-          throw new Error(errorData.error || `HTTP error! status: ${response.status}`);
-        }
-
-        const data = await response.json();
-        window.alert(data.message || 'Subscription canceled successfully. You will continue to have access until the end of your billing period.');
-        fetchSubscriptionData(); // Refresh data
-      } catch (error) {
-        console.error('Error canceling subscription:', error);
-        const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
-        window.alert(`Failed to cancel subscription: ${errorMessage}. Please try again.`);
-      }
+      cancelSubscriptionMutation.mutate();
     }
   };
+
+  // CSRF-protected downgrade mutation
+  const downgradeToFreeMutation = useMutation({
+    mutationFn: async () => {
+      const response = await sessionFetch('/api/subscription/downgrade-to-free', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'x-device-fingerprint': getStoredDeviceFingerprint(),
+        },
+      });
+
+      if (!response.ok) {
+        const errorData = await response.text();
+        throw new Error(errorData || `HTTP error! status: ${response.status}`);
+      }
+
+      return response.json();
+    },
+    onSuccess: (data) => {
+      window.alert(data.message || 'Successfully downgraded to free tier. Your subscription will end at the end of your billing period.');
+      // Invalidate and refetch subscription data
+      queryClient.invalidateQueries({ queryKey: ['/api/user/subscription'] });
+      setActiveTab('overview');
+    },
+    onError: (error) => {
+      console.error('Error downgrading subscription:', error);
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
+      window.alert(`Failed to downgrade subscription: ${errorMessage}. Please try again.`);
+    },
+  });
 
   const handleDowngradeToFree = async () => {
     if (window.confirm('Are you sure you want to downgrade to the free plan? Your subscription will be canceled and you will be downgraded at the end of your billing period.')) {
-      try {
-        const headers: HeadersInit = {
-          'Content-Type': 'application/json',
-          'x-device-fingerprint': getStoredDeviceFingerprint(), // Still send device fingerprint for security
-        };
-
-        console.log(`[Downgrade Frontend] Using httpOnly cookie for authentication`);
-
-        const response = await fetch('/api/subscription/downgrade-to-free', {
-          method: 'POST',
-          credentials: 'include',
-          headers,
-        });
-
-        if (!response.ok) {
-          const errorData = await response.json().catch(() => ({ error: 'Unknown server error' }));
-          throw new Error(errorData.error || `HTTP error! status: ${response.status}`);
-        }
-
-        const data = await response.json();
-        window.alert(data.message || 'Successfully downgraded to free plan.');
-        fetchSubscriptionData(); // Refresh data
-        setActiveTab('overview'); // Switch to overview tab
-      } catch (error) {
-        console.error('Error downgrading to free tier:', error);
-        const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
-        window.alert(`Failed to downgrade subscription: ${errorMessage}. Please try again.`);
-      }
+      downgradeToFreeMutation.mutate();
     }
   };
+
+  // CSRF-protected reactivation mutation
+  const reactivateSubscriptionMutation = useMutation({
+    mutationFn: async () => {
+      const response = await sessionFetch('/api/subscription/reactivate', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'x-device-fingerprint': getStoredDeviceFingerprint(),
+        },
+      });
+
+      if (!response.ok) {
+        const errorData = await response.text();
+        throw new Error(errorData || `HTTP error! status: ${response.status}`);
+      }
+
+      return response.json();
+    },
+    onSuccess: (data) => {
+      window.alert(data.message || 'Subscription reactivated successfully.');
+      // Invalidate and refetch subscription data
+      queryClient.invalidateQueries({ queryKey: ['/api/user/subscription'] });
+      setActiveTab('overview');
+    },
+    onError: (error) => {
+      console.error('Error reactivating subscription:', error);
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
+      window.alert(`Failed to reactivate subscription: ${errorMessage}. Please try again.`);
+    },
+  });
 
   const handleUpdatePaymentMethod = async () => {
     try {
@@ -358,18 +358,7 @@ export default function SubscriptionPage() {
 
   const handleReactivateSubscription = async () => {
     if (window.confirm('Are you sure you want to reactivate your subscription? This will resume your subscription and you will continue to be billed.')) {
-      try {
-        const { success, message } = await reactivateSubscription();
-        if (success) {
-          window.alert(message);
-          fetchSubscriptionData(); // Refresh data
-          setActiveTab('overview'); // Switch to overview tab
-        }
-      } catch (error) {
-        console.error('Error reactivating subscription:', error);
-        const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
-        window.alert(`Failed to reactivate subscription: ${errorMessage}. Please try again.`);
-      }
+      reactivateSubscriptionMutation.mutate();
     }
   };
 
