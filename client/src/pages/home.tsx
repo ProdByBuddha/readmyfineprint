@@ -128,7 +128,7 @@ export default function Home() {
       icon: Shield,
       title: "Enterprise Security Architecture",
       description: "Military-grade encryption, zero-knowledge processing, and SOC 2 Type II compliance ensure your most sensitive documents remain completely secure throughout analysis.",
-      badge: "SOC 2 Compliant",
+      badge: "SOC 2 Ready",
       gradient: "from-blue-500/10 to-indigo-600/10 dark:from-blue-400/5 dark:to-indigo-500/5",
       stats: "256-bit Encryption",
       highlight: true
@@ -163,7 +163,7 @@ export default function Home() {
   ];
 
   const trustIndicators = [
-    { icon: Shield, text: "SOC 2 Type II", subtext: "Certified" },
+    { icon: Shield, text: "SOC 2 Type II", subtext: "In Progress" },
     { icon: Lock, text: "256-bit Encryption", subtext: "Military Grade" },
     { icon: Scale, text: "Legal Professional", subtext: "Approved" },
     { icon: Award, text: "Enterprise Ready", subtext: "Trusted" },
@@ -171,26 +171,8 @@ export default function Home() {
     { icon: CheckCircle, text: "GDPR Compliant", subtext: "Verified" }
   ];
 
-  const testimonials = [
-    {
-      quote: "ReadMyFinePrint has revolutionized our contract review process. The AI insights are remarkably accurate and the security is enterprise-grade.",
-      author: "Sarah Chen",
-      role: "General Counsel, TechCorp",
-      rating: 5
-    },
-    {
-      quote: "Finally, a legal tech solution that understands privacy. The zero-knowledge architecture gives us complete confidence in data protection.",
-      author: "Michael Rodriguez",
-      role: "Partner, Rodriguez & Associates",
-      rating: 5
-    },
-    {
-      quote: "The speed and accuracy of document analysis has transformed how we serve our clients. Professional-grade results every time.",
-      author: "Emily Thompson",
-      role: "Senior Legal Advisor, Fortune 500",
-      rating: 5
-    }
-  ];
+  // Testimonials will be added as we collect real user feedback
+  const testimonials: any[] = [];
 
   return (
     <div 
@@ -226,7 +208,7 @@ export default function Home() {
                 data-testid="hero-badge"
               >
                 <Sparkles className="w-4 h-4 mr-2" />
-                Trusted by 10,000+ Legal Professionals
+                AI-Powered Legal Document Analysis
               </Badge>
             </div>
 
@@ -466,53 +448,56 @@ export default function Home() {
             </div>
           </section>
 
-          {/* Testimonials Section */}
-          <section 
-            className="mb-24" 
-            aria-labelledby="testimonials-heading"
-            data-testid="testimonials-section"
-          >
-            <div className="text-center mb-16">
-              <Badge className="mb-6 px-4 py-2 bg-gradient-to-r from-green-500/10 to-emerald-600/10 text-green-600 dark:text-green-400 border-green-500/20">
-                Client Success
-              </Badge>
-              <h2 
-                id="testimonials-heading"
-                className="text-4xl md:text-5xl lg:text-6xl font-black text-slate-900 dark:text-white mb-6 leading-tight"
-              >
-                Trusted by
-                <br />
-                <span className="bg-gradient-to-r from-green-600 to-emerald-600 bg-clip-text text-transparent">
-                  Legal Leaders
-                </span>
-              </h2>
-            </div>
-            
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-16">
-              {(testimonials as any[]).map((testimonial: any, index: number) => (
-                <Card 
-                  key={index}
-                  className="p-8 bg-white/70 dark:bg-slate-800/70 backdrop-blur-xl border-0 shadow-xl hover:shadow-2xl transition-all duration-300 hover:-translate-y-1"
+          {/* Testimonials Section - Hidden until we have real testimonials */}
+          {testimonials.length > 0 && (
+            <section 
+              className="mb-24" 
+              aria-labelledby="testimonials-heading"
+              data-testid="testimonials-section"
+            >
+              <div className="text-center mb-16">
+                <Badge className="mb-6 px-4 py-2 bg-gradient-to-r from-green-500/10 to-emerald-600/10 text-green-600 dark:text-green-400 border-green-500/20">
+                  Client Success
+                </Badge>
+                <h2 
+                  id="testimonials-heading"
+                  className="text-4xl md:text-5xl lg:text-6xl font-black text-slate-900 dark:text-white mb-6 leading-tight"
                 >
-                  <CardContent className="p-0">
-                    <div className="flex items-center mb-4">
-                      {Array.from({ length: testimonial.rating }).map((_, i: number) => (
-                        <Star key={i} className="w-5 h-5 text-yellow-500 fill-current" />
-                      ))}
-                    </div>
-                    <p className="text-slate-700 dark:text-slate-300 mb-6 italic leading-relaxed text-lg">
-                      "{testimonial.quote}"
-                    </p>
-                    <div>
-                      <div className="font-bold text-slate-900 dark:text-white">{testimonial.author}</div>
-                      <div className="text-slate-600 dark:text-slate-400 text-sm">{testimonial.role}</div>
-                    </div>
-                  </CardContent>
-                </Card>
-              ))}
-            </div>
+                  Trusted by
+                  <br />
+                  <span className="bg-gradient-to-r from-green-600 to-emerald-600 bg-clip-text text-transparent">
+                    Legal Leaders
+                  </span>
+                </h2>
+              </div>
+              
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-16">
+                {(testimonials as any[]).map((testimonial: any, index: number) => (
+                  <Card 
+                    key={index}
+                    className="p-8 bg-white/70 dark:bg-slate-800/70 backdrop-blur-xl border-0 shadow-xl hover:shadow-2xl transition-all duration-300 hover:-translate-y-1"
+                  >
+                    <CardContent className="p-0">
+                      <div className="flex items-center mb-4">
+                        {Array.from({ length: testimonial.rating }).map((_, i: number) => (
+                          <Star key={i} className="w-5 h-5 text-yellow-500 fill-current" />
+                        ))}
+                      </div>
+                      <p className="text-slate-700 dark:text-slate-300 mb-6 italic leading-relaxed text-lg">
+                        "{testimonial.quote}"
+                      </p>
+                      <div>
+                        <div className="font-bold text-slate-900 dark:text-white">{testimonial.author}</div>
+                        <div className="text-slate-600 dark:text-slate-400 text-sm">{testimonial.role}</div>
+                      </div>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+            </section>
+          )}
 
-            {/* Stats Section */}
+          {/* Stats Section */}
             <Card className="p-12 bg-gradient-to-r from-slate-50 to-blue-50 dark:from-slate-900 dark:to-blue-950 border-0 shadow-2xl">
               <CardContent className="p-0">
                 <div className="text-center mb-12">
@@ -541,7 +526,7 @@ export default function Home() {
                   </div>
                   <div className="text-center" data-testid="stat-compliance">
                     <div className="text-4xl md:text-5xl font-black text-emerald-600 mb-2">SOC 2</div>
-                    <div className="text-slate-600 dark:text-slate-300 font-semibold">Compliance</div>
+                    <div className="text-slate-600 dark:text-slate-300 font-semibold">Ready</div>
                   </div>
                   <div className="text-center" data-testid="stat-storage">
                     <div className="text-4xl md:text-5xl font-black text-orange-600 mb-2">Zero</div>
@@ -635,7 +620,7 @@ export default function Home() {
                 <div className="mb-8">
                   <div className="inline-flex items-center gap-3 px-6 py-3 bg-white/50 dark:bg-slate-800/50 rounded-full backdrop-blur-md border border-white/20 dark:border-slate-700/30">
                     <TrendingUp className="w-5 h-5 text-primary" />
-                    <span className="text-slate-900 dark:text-white font-bold">10,000+ Documents Analyzed Daily</span>
+                    <span className="text-slate-900 dark:text-white font-bold">Growing User Base</span>
                   </div>
                 </div>
                 <h2 className="text-4xl md:text-5xl lg:text-6xl font-black text-slate-900 dark:text-white mb-6 leading-tight">
@@ -646,7 +631,7 @@ export default function Home() {
                   </span>
                 </h2>
                 <p className="text-xl md:text-2xl text-slate-600 dark:text-slate-300 mb-12 max-w-3xl mx-auto leading-relaxed font-light">
-                  Join thousands of legal professionals who trust our AI to deliver 
+                  Experience AI-powered document analysis that delivers 
                   <strong className="font-semibold">instant insights</strong> with 
                   <strong className="font-semibold">absolute privacy protection</strong>.
                 </p>
@@ -657,13 +642,13 @@ export default function Home() {
                       data-testid="final-cta-button"
                     >
                       <Sparkles className="w-7 h-7 mr-4 group-hover:rotate-12 transition-transform duration-300" />
-                      Start Enterprise Trial
+                      Start Free Analysis
                       <ArrowRight className="w-7 h-7 ml-4 group-hover:translate-x-2 transition-transform duration-300" />
                     </Button>
                   </Link>
                   <div className="text-center">
                     <div className="text-slate-600 dark:text-slate-400 text-sm font-medium">
-                      🔒 No credit card required • 🚀 Instant setup • ✨ Enterprise support
+                      🔒 No credit card required • 🚀 Instant setup • ✨ Privacy-first analysis
                     </div>
                   </div>
                 </div>
