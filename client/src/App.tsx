@@ -41,6 +41,8 @@ const BlogPage = lazy(() => import("./pages/blog"));
 const BlogPostPage = lazy(() => import("./pages/blog-post"));
 const UnsubscribePage = lazy(() => import("./pages/unsubscribe"));
 const SettingsPage = lazy(() => import("./pages/settings"));
+const ContactPage = lazy(() => import("./pages/contact"));
+const AboutPage = lazy(() => import("./pages/about"));
 const NotFound = lazy(() => import("./pages/not-found"));
 
 // Loading component for suspense
@@ -69,6 +71,8 @@ function AppRouter() {
         <Route path="/blog/:slug" element={<BlogPostPage />} />
         <Route path="/unsubscribe" element={<UnsubscribePage />} />
         <Route path="/settings" element={<SettingsPage />} />
+        <Route path="/contact" element={<ContactPage />} />
+        <Route path="/about" element={<AboutPage />} />
         <Route path="*" element={<NotFound />} />
       </Routes>
     </Suspense>

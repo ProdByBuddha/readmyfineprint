@@ -10,6 +10,10 @@ import { CheckCircle, Heart, ArrowLeft, CreditCard, Loader2, Wallet, Copy, Targe
 import { SocialShare } from "@/components/SocialShare";
 import { Link } from "react-router-dom";
 import { useDonationTracking } from "../hooks/useDonationTracking";
+import { sessionFetch } from "@/lib/sessionManager";
+import { useMutation } from "@tanstack/react-query";
+import { useSEO } from "@/lib/seo"; 
+import { useToast } from "@/hooks/use-toast";
 
 interface DonateButtonProps {
   amount: number;
@@ -28,8 +32,8 @@ function DonateButton({ amount, onError, onDonate }: DonateButtonProps) {
 
     setIsProcessing(true);
     try {
-      // Create checkout session and redirect to Stripe
-      const response = await fetch('/api/create-checkout-session', {
+      // Create checkout session and redirect to Stripe - using sessionFetch for CSRF protection
+      const response = await sessionFetch('/api/create-checkout-session', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -82,10 +86,18 @@ export default function DonatePage() {
   const [showSocialShare, setShowSocialShare] = useState(false);
   const [showThankYouMessage, setShowThankYouMessage] = useState(false);
   const [copiedAddress, setCopiedAddress] = useState<string | null>(null);
-  const [isProcessing, setIsProcessing] = useState(false);
+  const { toast } = useToast();
 
   // Use database-backed donation tracking
   const { visited: hasVisitedBefore, markAsVisited } = useDonationTracking();
+
+  // SEO implementation for Donate page
+  useSEO('/donate', {
+    title: 'Support ReadMyFinePrint - Donate',
+    description: 'Support the development of ReadMyFinePrint, the free advanced legal document analysis tool. Your donation helps keep this service free for everyone.',
+    keywords: 'donate, support, legal tech, AI development, open source, legal document analysis, cryptocurrency donation',
+    canonical: 'https://readmyfineprint.com/donate'
+  });
 
   const success = searchParams.get('success') === 'true';
   const canceled = searchParams.get('canceled') === 'true';
@@ -178,20 +190,15 @@ export default function DonatePage() {
     setPaymentSuccess(false);
   };
 
-  const handleDonate = async () => {
-    if (!selectedAmount) return;
-    
-    setIsProcessing(true);
-    try {
-      // Create checkout session and redirect to Stripe
-      const response = await fetch('/api/create-checkout-session', {
+  // Secure donation mutation using sessionFetch with CSRF protection
+  const createDonationMutation = useMutation({
+    mutationFn: async (amount: number) => {
+      const response = await sessionFetch('/api/create-checkout-session', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ 
-          amount: selectedAmount
-        }),
+        body: JSON.stringify({ amount }),
       });
 
       if (!response.ok) {
@@ -200,17 +207,18 @@ export default function DonatePage() {
         throw new Error(errorMessage);
       }
 
-      const data = await response.json();
-
+      return response.json();
+    },
+    onSuccess: (data) => {
       if (data.url) {
         // Redirect to Stripe checkout
         window.location.href = data.url;
       } else {
         throw new Error('No checkout URL received from server');
       }
-    } catch (error) {
+    },
+    onError: (error: any) => {
       console.error('Donation processing failed:', error);
-      setIsProcessing(false);
       
       let errorMessage = 'Failed to process donation';
       if (error instanceof Error) {
@@ -220,7 +228,17 @@ export default function DonatePage() {
       }
       
       handlePaymentError(errorMessage);
+      toast({
+        title: "Donation Failed",
+        description: errorMessage,
+        variant: "destructive"
+      });
     }
+  });
+
+  const handleDonate = () => {
+    if (!selectedAmount) return;
+    createDonationMutation.mutate(selectedAmount);
   };
 
   const resetForm = () => {
@@ -276,7 +294,11 @@ export default function DonatePage() {
             <p className="text-gray-600 dark:text-gray-400 mb-6">
               No worries! You can try again anytime.
             </p>
-            <Button onClick={() => window.location.href = '/donate'} className="w-full">
+            <Button 
+                onClick={() => window.location.href = '/donate'} 
+                className="w-full"
+                data-testid="button-try-again"
+              >
               Try Again
             </Button>
           </CardContent>
@@ -314,11 +336,20 @@ export default function DonatePage() {
             )}
 
             <div className="space-y-3">
-              <Button onClick={() => window.location.href = '/'} className="w-full">
+              <Button 
+                  onClick={() => window.location.href = '/'} 
+                  className="w-full"
+                  data-testid="button-return-home-success"
+                >
                 <ArrowLeft className="w-4 h-4 mr-2" />
                 Return to Home
               </Button>
-              <Button onClick={resetForm} variant="outline" className="w-full">
+              <Button 
+                  onClick={resetForm} 
+                  variant="outline" 
+                  className="w-full"
+                  data-testid="button-make-another-donation"
+                >
                 Make Another Donation
               </Button>
             </div>
@@ -353,6 +384,7 @@ export default function DonatePage() {
                 variant={selectedAmount === amount ? "default" : "outline"}
                 onClick={() => handleAmountSelect(amount)}
                 className="h-12"
+                data-testid={`button-amount-${amount}`}
               >
                 ${amount}
               </Button>
@@ -372,6 +404,7 @@ export default function DonatePage() {
                 className="pl-8"
                 min="1"
                 step="0.01"
+                data-testid="input-custom-amount"
               />
             </div>
           </div>
@@ -385,12 +418,13 @@ export default function DonatePage() {
           {selectedAmount && selectedAmount > 0 && (
             <div className="pt-6 border-t">
               <Button
-                disabled={isProcessing}
+                disabled={createDonationMutation.isPending}
                 onClick={handleDonate}
                 className="w-full flex items-center justify-center space-x-2 bg-green-600 hover:bg-green-700 text-white"
                 size="lg"
+                data-testid="button-donate"
               >
-                {isProcessing ? (
+                {createDonationMutation.isPending ? (
                   <>
                     <Loader2 className="w-4 h-4 animate-spin" />
                     <span>Processing...</span>
@@ -456,6 +490,7 @@ export default function DonatePage() {
                 size="sm"
                 onClick={() => copyToClipboard(cryptoAddresses.worldchain, 'worldchain')}
                 className="flex-shrink-0"
+                data-testid="button-copy-worldchain"
               >
                 <Copy className="w-4 h-4" />
                 {copiedAddress === 'worldchain' ? 'Copied!' : 'Copy'}
@@ -483,6 +518,7 @@ export default function DonatePage() {
                 size="sm"
                 onClick={() => copyToClipboard(cryptoAddresses.ethereum, 'evm')}
                 className="flex-shrink-0"
+                data-testid="button-copy-evm"
               >
                 <Copy className="w-4 h-4" />
                 {copiedAddress === 'evm' ? 'Copied!' : 'Copy'}
@@ -507,6 +543,7 @@ export default function DonatePage() {
                 size="sm"
                 onClick={() => copyToClipboard(cryptoAddresses.bitcoin, 'bitcoin')}
                 className="flex-shrink-0"
+                data-testid="button-copy-bitcoin"
               >
                 <Copy className="w-4 h-4" />
                 {copiedAddress === 'bitcoin' ? 'Copied!' : 'Copy'}
@@ -534,6 +571,7 @@ export default function DonatePage() {
                 size="sm"
                 onClick={() => copyToClipboard(cryptoAddresses.solana, 'solana')}
                 className="flex-shrink-0"
+                data-testid="button-copy-solana"
               >
                 <Copy className="w-4 h-4" />
                 {copiedAddress === 'solana' ? 'Copied!' : 'Copy'}
@@ -561,6 +599,7 @@ export default function DonatePage() {
                 size="sm"
                 onClick={() => copyToClipboard(cryptoAddresses.cardano, 'cardano')}
                 className="flex-shrink-0"
+                data-testid="button-copy-cardano"
               >
                 <Copy className="w-4 h-4" />
                 {copiedAddress === 'cardano' ? 'Copied!' : 'Copy'}
