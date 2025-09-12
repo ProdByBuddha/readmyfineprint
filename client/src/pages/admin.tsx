@@ -1,5 +1,5 @@
-import { useState, useEffect } from "react";
-import { useQuery } from "@tanstack/react-query";
+import { useState, useEffect, Suspense, lazy } from "react";
+import { useQuery, useMutation } from "@tanstack/react-query";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -12,8 +12,9 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigge
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
-import { Checkbox } from "@/components/ui/checkbox";
+import { Progress } from "@/components/ui/progress";
 import { useToast } from "@/hooks/use-toast";
+import { useSEO } from "@/lib/seo";
 import { 
   Users, 
   Activity, 
@@ -39,28 +40,57 @@ import {
   AlertTriangle,
   MoreHorizontal,
   UserPlus,
-  Loader2
+  Loader2,
+  BarChart3,
+  Clock,
+  Download,
+  Filter,
+  Globe,
+  Lock,
+  Monitor,
+  PieChart,
+  Smartphone,
+  Wifi,
+  Archive,
+  BellRing,
+  Calendar,
+  Crown,
+  DollarSign,
+  HardDrive,
+  MessageSquare,
+  Router,
+  Cpu,
+  MemoryStick
 } from "lucide-react";
-import { apiRequest } from "@/lib/queryClient";
-import { adminApiRequest } from "@/lib/api";
-import TradeSecretProtection from "@/components/TradeSecretProtection";
-import LawEnforcementRequest from '@/components/LawEnforcementRequest';
-import { BlogAdmin } from '@/components/BlogAdmin';
+import { apiRequest, queryClient } from "@/lib/queryClient";
 import { sessionFetch } from "@/lib/sessionManager";
 
+// Lazy load components for better performance
+const AdvancedAnalytics = lazy(() => import("@/components/AdvancedAnalytics"));
+const SecurityCenter = lazy(() => import("@/components/SecurityCenter"));
+const ComplianceReporting = lazy(() => import("@/components/ComplianceReporting"));
+
+// Interface definitions
 interface AdminDashboardData {
   metrics: {
     totalUsers: number;
     activeSubscriptions: number;
     pendingEmailRequests: number;
     securityEvents: number;
+    documentsAnalyzedToday: number;
+    averageResponseTime: number;
+    systemUptime: number;
+    activeSessionsCount: number;
   };
   systemHealth: {
-    database: { status: string; latency?: number };
-    emailService: { status: string };
-    openaiService: { status: string };
+    database: { status: string; latency?: number; connectionPool?: number };
+    emailService: { status: string; lastSent?: string };
+    openaiService: { status: string; tokensUsed?: number };
     priorityQueue: any;
-    memoryUsage: any;
+    memoryUsage: { used: number; total: number; percentage: number };
+    cpuUsage: { percentage: number; loadAverage: number[] };
+    diskUsage: { used: number; total: number; percentage: number };
+    networkStats: { bytesIn: number; bytesOut: number };
     uptime: number;
   };
   recentActivity: {
@@ -69,126 +99,97 @@ interface AdminDashboardData {
     activeSubscriptionsLast24h: number;
     documentsAnalyzedLast24h: number;
     documentsAnalyzedLast7d: number;
+    averageProcessingTime: number;
+    successRate: number;
+    popularDocumentTypes: Array<{ type: string; count: number }>;
+  };
+  securityMetrics: {
+    threatLevel: string;
+    failedLoginAttempts: number;
+    blockedIPs: number;
+    suspiciousActivities: number;
+    complianceScore: number;
+    lastSecurityScan: string;
   };
 }
 
 interface User {
   id: string;
   email: string;
-  username: string;
+  username?: string;
   emailVerified: boolean;
   isActive: boolean;
   createdAt: string;
   lastLoginAt?: string;
+  subscription?: {
+    tierId: string;
+    status: string;
+  };
+  securityRisk: 'low' | 'medium' | 'high';
 }
 
-interface UsersResponse {
-  users: User[];
-  total: number;
-  page: number;
-  limit: number;
-  totalPages: number;
-}
-
-interface SecurityEvent {
-  id: string;
-  type: string;
-  severity: string;
-  message: string;
-  ip: string;
-  userAgent: string;
-  timestamp: string;
-  userId?: string;
-}
-
-function AdminLogin({ onLogin }: { onLogin: (accessToken: string, refreshToken: string) => void }) {
+// Admin Authentication Component
+function AdminLogin({ onLogin }: { onLogin: (accessToken?: string, refreshToken?: string) => void }) {
   const [verificationCode, setVerificationCode] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [codeSent, setCodeSent] = useState(false);
   const { toast } = useToast();
 
-  // Automatically send verification code when component mounts
+  // Auto-send verification code in development
   useEffect(() => {
-    const sendInitialCode = async () => {
-      setIsLoading(true);
-      try {
-        // Use the admin API key for verification request
-        const adminKey = import.meta.env.VITE_ADMIN_API_KEY || process.env.ADMIN_API_KEY;
-        
-        const response = await sessionFetch("/api/admin/request-verification", {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'X-Admin-Key': adminKey || ''
-          }
-        });
-
-        const data = await response.json();
-
-        if (data.success) {
-          setCodeSent(true);
-          toast({
-            title: "Admin Verification Required",
-            description: "A verification code has been sent to your admin emails",
+    if (import.meta.env.DEV) {
+      // Auto-login for development
+      const autoLogin = async () => {
+        try {
+          const response = await sessionFetch('/api/dev/auto-admin-login', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            credentials: 'include',
           });
-        } else {
+
+          if (response.ok) {
+            const data = await response.json();
+            onLogin(data.accessToken, data.refreshToken);
+            toast({
+              title: "Development Auto-Login",
+              description: "Automatically logged in as admin for development",
+            });
+          }
+        } catch (error) {
+          console.log('Development auto-login failed, showing login form');
+          setCodeSent(true);
+        }
+      };
+      autoLogin();
+    } else {
+      // Production: send verification code
+      const sendCode = async () => {
+        setIsLoading(true);
+        try {
+          const response = await sessionFetch("/api/admin/request-verification", {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+          });
+          if (response.ok) {
+            setCodeSent(true);
+            toast({
+              title: "Verification Code Sent",
+              description: "Check your admin email for the verification code",
+            });
+          }
+        } catch (error) {
           toast({
-            title: "Authentication Error",
-            description: data.error || "Failed to send verification code",
+            title: "Error",
+            description: "Failed to send verification code",
             variant: "destructive"
           });
+        } finally {
+          setIsLoading(false);
         }
-      } catch (error) {
-        toast({
-          title: "Connection Error",
-          description: "Failed to initiate admin verification",
-          variant: "destructive"
-        });
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    sendInitialCode();
-  }, [toast]);
-
-  const handleResendCode = async () => {
-    setIsLoading(true);
-    try {
-      const adminKey = import.meta.env.VITE_ADMIN_API_KEY || process.env.ADMIN_API_KEY;
-      
-      const response = await sessionFetch("/api/admin/request-verification", {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'X-Admin-Key': adminKey || ''
-        }
-      });
-
-      const data = await response.json();
-
-      if (data.success) {
-        toast({
-          title: "Code Resent",
-          description: "A new verification code has been sent",
-        });
-      } else {
-        toast({
-          title: "Resend Failed",
-          description: data.error || "Failed to resend verification code",
-          variant: "destructive"
-        });
-      }
-    } catch (error) {
-      toast({
-        title: "Error",
-        description: "Failed to resend verification code",
-        variant: "destructive"
-      });
-    } finally {
-      setIsLoading(false);
+      };
+      sendCode();
     }
-  };
+  }, [onLogin, toast]);
 
   const handleVerifyCode = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -197,17 +198,15 @@ function AdminLogin({ onLogin }: { onLogin: (accessToken: string, refreshToken: 
     try {
       const response = await sessionFetch("/api/admin/verify-code", {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ code: verificationCode })
       });
 
       const data = await response.json();
 
       if (data.success) {
-        localStorage.setItem('jwt_access_token', data.accessToken);
-        localStorage.setItem('jwt_refresh_token', data.refreshToken);
+        // Remove explicit localStorage storage - sessionFetch handles tokens automatically
+        // Store tokens securely via sessionFetch's internal token management
         onLogin(data.accessToken, data.refreshToken);
         toast({
           title: "Admin Access Granted",
@@ -231,719 +230,619 @@ function AdminLogin({ onLogin }: { onLogin: (accessToken: string, refreshToken: 
     }
   };
 
+  if (!codeSent && !import.meta.env.DEV) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-100 to-slate-200 dark:from-slate-900 dark:to-slate-800" data-testid="admin-login-loading">
+        <Card className="w-full max-w-md shadow-xl border-0 bg-white/90 dark:bg-slate-800/90 backdrop-blur-sm">
+          <CardHeader className="text-center pb-2">
+            <div className="mx-auto w-12 h-12 bg-blue-600 rounded-full flex items-center justify-center mb-4">
+              <Shield className="w-6 h-6 text-white" />
+            </div>
+            <CardTitle className="text-xl text-slate-800 dark:text-slate-100">Admin Authentication</CardTitle>
+          </CardHeader>
+          <CardContent className="text-center space-y-4">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto"></div>
+            <p className="text-sm text-slate-600 dark:text-slate-400">
+              Sending admin verification code...
+            </p>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
+
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-900">
-      <Card className="w-full max-w-md">
-        <CardHeader>
-          <CardTitle className="text-center">Admin Verification</CardTitle>
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-100 to-slate-200 dark:from-slate-900 dark:to-slate-800" data-testid="admin-login-form">
+      <Card className="w-full max-w-md shadow-xl border-0 bg-white/90 dark:bg-slate-800/90 backdrop-blur-sm">
+        <CardHeader className="text-center pb-2">
+          <div className="mx-auto w-12 h-12 bg-blue-600 rounded-full flex items-center justify-center mb-4">
+            <Shield className="w-6 h-6 text-white" />
+          </div>
+          <CardTitle className="text-xl text-slate-800 dark:text-slate-100">Admin Verification</CardTitle>
+          <p className="text-xs text-slate-500 dark:text-slate-400 mt-2">
+            Enterprise-grade admin access portal
+          </p>
         </CardHeader>
         <CardContent>
-          {!codeSent ? (
-            <div className="text-center space-y-4">
-              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto"></div>
-              <p className="text-sm text-muted-foreground">
-                Sending verification code to admin emails...
+          <form onSubmit={handleVerifyCode} className="space-y-6">
+            <div className="space-y-2">
+              <Label htmlFor="code" className="text-sm font-medium text-slate-700 dark:text-slate-300">
+                6-Digit Verification Code
+              </Label>
+              <Input
+                id="code"
+                type="text"
+                value={verificationCode}
+                onChange={(e) => setVerificationCode(e.target.value)}
+                placeholder="Enter verification code"
+                maxLength={6}
+                pattern="[0-9]{6}"
+                required
+                data-testid="input-verification-code"
+                className="h-12 text-center text-lg tracking-widest font-mono"
+                disabled={isLoading}
+              />
+              <p className="text-xs text-slate-500 dark:text-slate-400">
+                Code expires in 10 minutes
               </p>
             </div>
-          ) : (
-            <form onSubmit={handleVerifyCode} className="space-y-4">
-              <div className="text-center mb-4">
-                <p className="text-sm text-muted-foreground">
-                  Verification code sent to:
-                </p>
-                <p className="text-xs text-muted-foreground">
-                  admin@readmyfineprint.com<br/>
-                  prodbybuddha@icloud.com
-                </p>
-              </div>
-              
-              <div>
-                <Label htmlFor="code">6-Digit Verification Code</Label>
-                <Input
-                  id="code"
-                  type="text"
-                  value={verificationCode}
-                  onChange={(e) => setVerificationCode(e.target.value)}
-                  placeholder="Enter 6-digit code"
-                  maxLength={6}
-                  pattern="[0-9]{6}"
-                  required
-                  className="placeholder:text-muted-foreground dark:placeholder:text-gray-400"
-                />
-                <p className="text-xs text-muted-foreground mt-1">
-                  Code expires in 10 minutes
-                </p>
-              </div>
-              
-              <div className="flex space-x-2">
-                <Button 
-                  type="button" 
-                  variant="outline" 
-                  onClick={handleResendCode}
-                  disabled={isLoading}
-                  className="flex-1"
-                >
-                  {isLoading ? "Sending..." : "Resend Code"}
-                </Button>
-                <Button type="submit" className="flex-1" disabled={isLoading || !verificationCode}>
-                  {isLoading ? "Verifying..." : "Access Admin"}
-                </Button>
-              </div>
-            </form>
-          )}
+            
+            <Button 
+              type="submit" 
+              className="w-full h-12 bg-blue-600 hover:bg-blue-700 text-white font-medium" 
+              disabled={isLoading || !verificationCode || verificationCode.length !== 6}
+              data-testid="button-verify-admin"
+            >
+              {isLoading ? (
+                <>
+                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                  Verifying...
+                </>
+              ) : (
+                <>
+                  <Shield className="w-4 h-4 mr-2" />
+                  Access Admin Dashboard
+                </>
+              )}
+            </Button>
+          </form>
         </CardContent>
       </Card>
     </div>
   );
 }
 
-function DashboardOverview() {
+// Main Dashboard Overview Component
+function EnterpriseOverview() {
   const [currentTime, setCurrentTime] = useState(new Date());
+  const [selectedTimeRange, setSelectedTimeRange] = useState('24h');
 
   // Update current time every second
   useEffect(() => {
-    const timer = setInterval(() => {
-      setCurrentTime(new Date());
-    }, 1000);
-
+    const timer = setInterval(() => setCurrentTime(new Date()), 1000);
     return () => clearInterval(timer);
   }, []);
 
-  // Separate queries for each metric group with auto-refresh
-  const { data: metricsData, isLoading: metricsLoading, error: metricsError } = useQuery({
-    queryKey: ["/api/admin/metrics"],
+  // Fetch comprehensive dashboard data
+  const { data: dashboardData, isLoading: dashboardLoading, error: dashboardError } = useQuery({
+    queryKey: ["/api/admin/enterprise-dashboard", selectedTimeRange],
     queryFn: async () => {
-      const response = await sessionFetch("/api/admin/metrics-subscription", {
-        method: 'GET',
-        headers: { 
-          "Content-Type": "application/json",
-          "x-dashboard-auto-refresh": "true"
-        }
-      });
-      if (!response.ok) {
-        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
-      }
-      return await response.json();
+      const [metricsResponse, healthResponse, activityResponse] = await Promise.all([
+        sessionFetch("/api/admin/metrics-subscription", {
+          method: 'GET',
+          headers: { "Content-Type": "application/json", "x-dashboard-auto-refresh": "true" }
+        }),
+        sessionFetch("/api/admin/system-health-subscription", {
+          method: 'GET',
+          headers: { "Content-Type": "application/json", "x-dashboard-auto-refresh": "true" }
+        }),
+        sessionFetch("/api/admin/activity-subscription", {
+          method: 'GET',
+          headers: { "Content-Type": "application/json", "x-dashboard-auto-refresh": "true" }
+        })
+      ]);
+
+      const [metrics, health, activity] = await Promise.all([
+        metricsResponse.json(),
+        healthResponse.json(),
+        activityResponse.json()
+      ]);
+
+      return { metrics, health, activity };
     },
-    refetchInterval: 30000, // Refresh every 30 seconds
+    refetchInterval: 30000,
     refetchIntervalInBackground: true
   });
-
-  const { data: systemHealthData, isLoading: healthLoading, error: healthError } = useQuery({
-    queryKey: ["/api/admin/system-health"],
-    queryFn: async () => {
-      const response = await sessionFetch("/api/admin/system-health-subscription", {
-        method: 'GET',
-        headers: { 
-          "Content-Type": "application/json",
-          "x-dashboard-auto-refresh": "true"
-        }
-      });
-      if (!response.ok) {
-        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
-      }
-      return await response.json();
-    },
-    refetchInterval: 5000, // Refresh every 5 seconds for real-time health
-    refetchIntervalInBackground: true
-  });
-
-  const { data: activityData, isLoading: activityLoading, error: activityError } = useQuery({
-    queryKey: ["/api/admin/activity"],
-    queryFn: async () => {
-      const response = await sessionFetch("/api/admin/activity-subscription", {
-        method: 'GET',
-        credentials: 'include', // Include cookies
-        headers: { 
-          "Content-Type": "application/json",
-          "x-dashboard-auto-refresh": "true" // Prevent security events
-        }
-      });
-      if (!response.ok) {
-        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
-      }
-      return await response.json();
-    },
-    refetchInterval: 60000, // Refresh every 60 seconds
-    refetchIntervalInBackground: true
-  });
-
-  console.log("Metrics data:", metricsData);
-  console.log("System health data:", systemHealthData);
-  console.log("Activity data:", activityData);
-  
-  if (systemHealthData?.uptime !== undefined) {
-    console.log("Server uptime (seconds):", systemHealthData.uptime);
-  }
 
   const formatUptime = (seconds: number) => {
-    if (!seconds || seconds < 1) {
-      return "Just started";
-    }
-    
+    if (!seconds || seconds < 1) return "Just started";
     const days = Math.floor(seconds / 86400);
     const hours = Math.floor((seconds % 86400) / 3600);
     const minutes = Math.floor((seconds % 3600) / 60);
-    const remainingSeconds = Math.floor(seconds % 60);
     
-    if (days > 0) {
-      return `${days}d ${hours}h ${minutes}m`;
-    } else if (hours > 0) {
-      return `${hours}h ${minutes}m`;
-    } else if (minutes > 0) {
-      return `${minutes}m ${remainingSeconds}s`;
-    } else {
-      return `${remainingSeconds}s`;
+    if (days > 0) return `${days}d ${hours}h ${minutes}m`;
+    if (hours > 0) return `${hours}h ${minutes}m`;
+    return `${minutes}m`;
+  };
+
+  const formatBytes = (bytes: number) => {
+    const sizes = ['B', 'KB', 'MB', 'GB'];
+    if (bytes === 0) return '0 B';
+    const i = Math.floor(Math.log(bytes) / Math.log(1024));
+    return `${Math.round(bytes / Math.pow(1024, i) * 100) / 100} ${sizes[i]}`;
+  };
+
+  const getHealthStatusColor = (status: string) => {
+    switch (status.toLowerCase()) {
+      case 'healthy': return 'bg-green-500';
+      case 'warning': return 'bg-yellow-500';
+      case 'error': return 'bg-red-500';
+      default: return 'bg-gray-500';
     }
   };
 
-  const formatMemory = (bytes: number) => {
-    return `${Math.round(bytes / 1024 / 1024)}MB`;
-  };
+  if (dashboardLoading) {
+    return (
+      <div className="space-y-6" data-testid="dashboard-loading">
+        <div className="flex items-center justify-between">
+          <div className="space-y-1">
+            <div className="h-8 bg-slate-200 rounded w-64 animate-pulse"></div>
+            <div className="h-4 bg-slate-200 rounded w-48 animate-pulse"></div>
+          </div>
+          <div className="h-4 bg-slate-200 rounded w-32 animate-pulse"></div>
+        </div>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+          {[1, 2, 3, 4].map((i) => (
+            <Card key={i} className="animate-pulse">
+              <CardHeader className="pb-2">
+                <div className="h-4 bg-slate-200 rounded w-3/4"></div>
+              </CardHeader>
+              <CardContent>
+                <div className="h-8 bg-slate-200 rounded w-1/2 mb-2"></div>
+                <div className="h-3 bg-slate-200 rounded w-2/3"></div>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+      </div>
+    );
+  }
+
+  if (dashboardError) {
+    return (
+      <div className="space-y-6" data-testid="dashboard-error">
+        <Card className="border-red-200 bg-red-50">
+          <CardContent className="pt-6">
+            <div className="flex items-center space-x-2 text-red-600">
+              <AlertTriangle className="h-5 w-5" />
+              <span className="font-medium">Dashboard Error</span>
+            </div>
+            <p className="mt-2 text-sm text-red-600">
+              Failed to load dashboard data. Please try refreshing the page.
+            </p>
+            <Button 
+              onClick={() => window.location.reload()} 
+              className="mt-4"
+              variant="outline"
+            >
+              <RefreshCw className="h-4 w-4 mr-2" />
+              Refresh Dashboard
+            </Button>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
 
   return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <h2 className="text-3xl font-bold">Dashboard Overview</h2>
-        <div className="text-sm text-muted-foreground">
-          Auto-refreshing • {currentTime.toLocaleTimeString()}
+    <div className="space-y-8" data-testid="enterprise-dashboard">
+      {/* Header Section */}
+      <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center space-y-4 lg:space-y-0">
+        <div className="space-y-1">
+          <h1 className="text-3xl font-bold text-slate-900 dark:text-slate-100">
+            Enterprise Admin Dashboard
+          </h1>
+          <p className="text-slate-600 dark:text-slate-400">
+            Comprehensive system monitoring and management portal
+          </p>
+        </div>
+        <div className="flex items-center space-x-4">
+          <Select value={selectedTimeRange} onValueChange={setSelectedTimeRange}>
+            <SelectTrigger className="w-32" data-testid="select-time-range">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="1h">Last Hour</SelectItem>
+              <SelectItem value="24h">Last 24h</SelectItem>
+              <SelectItem value="7d">Last 7 days</SelectItem>
+              <SelectItem value="30d">Last 30 days</SelectItem>
+            </SelectContent>
+          </Select>
+          <div className="flex items-center space-x-2 text-sm text-slate-500">
+            <div className="flex items-center space-x-1">
+              <div className="h-2 w-2 bg-green-500 rounded-full animate-pulse"></div>
+              <span>Live</span>
+            </div>
+            <span>•</span>
+            <span>{currentTime.toLocaleTimeString()}</span>
+          </div>
         </div>
       </div>
 
-      {/* Key Metrics */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Users</CardTitle>
-            <Users className="h-4 w-4 text-muted-foreground" />
+      {/* Key Performance Indicators */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        <Card className="border-0 shadow-md bg-gradient-to-br from-blue-50 to-blue-100 dark:from-blue-900/20 dark:to-blue-800/20" data-testid="card-total-users">
+          <CardHeader className="flex flex-row items-center justify-between pb-2">
+            <CardTitle className="text-sm font-medium text-blue-700 dark:text-blue-300">
+              Total Users
+            </CardTitle>
+            <div className="p-2 bg-blue-600 rounded-lg">
+              <Users className="h-4 w-4 text-white" />
+            </div>
           </CardHeader>
           <CardContent>
-            {metricsLoading ? (
-              <div className="text-2xl font-bold animate-pulse">Loading...</div>
-            ) : metricsError ? (
-              <div className="text-2xl font-bold text-red-500">Error</div>
-            ) : (
-              <div className="text-2xl font-bold">{metricsData?.totalUsers || 0}</div>
-            )}
-            <p className="text-xs text-muted-foreground">
-              +{activityLoading ? "..." : (activityData?.newUsersLast24h || 0)} in last 24h
-            </p>
+            <div className="text-2xl font-bold text-blue-900 dark:text-blue-100" data-testid="metric-total-users">
+              {dashboardData?.metrics?.totalUsers?.toLocaleString() || 0}
+            </div>
+            <div className="flex items-center mt-1">
+              <TrendingUp className="h-3 w-3 text-green-600 mr-1" />
+              <span className="text-xs text-green-600 font-medium">
+                +{dashboardData?.activity?.newUsersLast24h || 0} today
+              </span>
+            </div>
           </CardContent>
         </Card>
 
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Active Subscriptions</CardTitle>
-            <TrendingUp className="h-4 w-4 text-muted-foreground" />
+        <Card className="border-0 shadow-md bg-gradient-to-br from-green-50 to-green-100 dark:from-green-900/20 dark:to-green-800/20" data-testid="card-active-subscriptions">
+          <CardHeader className="flex flex-row items-center justify-between pb-2">
+            <CardTitle className="text-sm font-medium text-green-700 dark:text-green-300">
+              Active Subscriptions
+            </CardTitle>
+            <div className="p-2 bg-green-600 rounded-lg">
+              <Crown className="h-4 w-4 text-white" />
+            </div>
           </CardHeader>
           <CardContent>
-            {metricsLoading ? (
-              <div className="text-2xl font-bold animate-pulse">Loading...</div>
-            ) : metricsError ? (
-              <div className="text-2xl font-bold text-red-500">Error</div>
-            ) : (
-              <div className="text-2xl font-bold">{metricsData?.activeSubscriptions || 0}</div>
-            )}
-            <p className="text-xs text-muted-foreground">
-              +{activityLoading ? "..." : (activityData?.activeSubscriptionsLast24h || 0)} in last 24h
-            </p>
+            <div className="text-2xl font-bold text-green-900 dark:text-green-100" data-testid="metric-active-subscriptions">
+              {dashboardData?.metrics?.activeSubscriptions?.toLocaleString() || 0}
+            </div>
+            <div className="flex items-center mt-1">
+              <DollarSign className="h-3 w-3 text-green-600 mr-1" />
+              <span className="text-xs text-green-600 font-medium">
+                +{dashboardData?.activity?.activeSubscriptionsLast24h || 0} today
+              </span>
+            </div>
           </CardContent>
         </Card>
 
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Documents Analyzed</CardTitle>
-            <FileText className="h-4 w-4 text-muted-foreground" />
+        <Card className="border-0 shadow-md bg-gradient-to-br from-purple-50 to-purple-100 dark:from-purple-900/20 dark:to-purple-800/20" data-testid="card-documents-analyzed">
+          <CardHeader className="flex flex-row items-center justify-between pb-2">
+            <CardTitle className="text-sm font-medium text-purple-700 dark:text-purple-300">
+              Documents Analyzed
+            </CardTitle>
+            <div className="p-2 bg-purple-600 rounded-lg">
+              <FileText className="h-4 w-4 text-white" />
+            </div>
           </CardHeader>
           <CardContent>
-            {activityLoading ? (
-              <div className="text-2xl font-bold animate-pulse">Loading...</div>
-            ) : activityError ? (
-              <div className="text-2xl font-bold text-red-500">Error</div>
-            ) : (
-              <div className="text-2xl font-bold">{activityData?.documentsAnalyzedLast24h || 0}</div>
-            )}
-            <p className="text-xs text-muted-foreground">
-              {activityLoading ? "..." : (activityData?.documentsAnalyzedLast7d || 0)} in last 7d
-            </p>
+            <div className="text-2xl font-bold text-purple-900 dark:text-purple-100" data-testid="metric-documents-analyzed">
+              {dashboardData?.activity?.documentsAnalyzedLast24h?.toLocaleString() || 0}
+            </div>
+            <div className="flex items-center mt-1">
+              <Brain className="h-3 w-3 text-purple-600 mr-1" />
+              <span className="text-xs text-purple-600 font-medium">
+                {dashboardData?.activity?.documentsAnalyzedLast7d || 0} this week
+              </span>
+            </div>
           </CardContent>
         </Card>
 
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Security Events</CardTitle>
-            <Shield className="h-4 w-4 text-muted-foreground" />
+        <Card className="border-0 shadow-md bg-gradient-to-br from-red-50 to-red-100 dark:from-red-900/20 dark:to-red-800/20" data-testid="card-security-events">
+          <CardHeader className="flex flex-row items-center justify-between pb-2">
+            <CardTitle className="text-sm font-medium text-red-700 dark:text-red-300">
+              Security Events
+            </CardTitle>
+            <div className="p-2 bg-red-600 rounded-lg">
+              <Shield className="h-4 w-4 text-white" />
+            </div>
           </CardHeader>
           <CardContent>
-            {metricsLoading ? (
-              <div className="text-2xl font-bold animate-pulse">Loading...</div>
-            ) : metricsError ? (
-              <div className="text-2xl font-bold text-red-500">Error</div>
-            ) : (
-              <div className="text-2xl font-bold">{metricsData?.securityEvents || 0}</div>
-            )}
-            <p className="text-xs text-muted-foreground">
-              Pending email requests: {metricsLoading ? "..." : (metricsData?.pendingEmailRequests || 0)}
-            </p>
+            <div className="text-2xl font-bold text-red-900 dark:text-red-100" data-testid="metric-security-events">
+              {dashboardData?.metrics?.securityEvents || 0}
+            </div>
+            <div className="flex items-center mt-1">
+              <AlertTriangle className="h-3 w-3 text-orange-600 mr-1" />
+              <span className="text-xs text-orange-600 font-medium">
+                {dashboardData?.metrics?.pendingEmailRequests || 0} pending requests
+              </span>
+            </div>
           </CardContent>
         </Card>
       </div>
 
-      {/* System Health */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center justify-between">
-            System Health
-            {healthLoading && <div className="flex items-center space-x-2">
-              <div className="h-2 w-2 bg-green-500 rounded-full animate-pulse"></div>
-              <span className="text-xs text-muted-foreground">Live</span>
-            </div>}
-          </CardTitle>
+      {/* System Health Overview */}
+      <Card className="border-0 shadow-md" data-testid="card-system-health">
+        <CardHeader className="border-b border-slate-200 dark:border-slate-700">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center space-x-2">
+              <div className="p-2 bg-slate-100 dark:bg-slate-800 rounded-lg">
+                <Monitor className="h-5 w-5 text-slate-600 dark:text-slate-400" />
+              </div>
+              <div>
+                <CardTitle className="text-lg font-semibold">System Health</CardTitle>
+                <p className="text-sm text-slate-500">Real-time system performance monitoring</p>
+              </div>
+            </div>
+            <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200">
+              <div className="h-2 w-2 bg-green-500 rounded-full mr-2 animate-pulse"></div>
+              All Systems Operational
+            </Badge>
+          </div>
         </CardHeader>
-        <CardContent>
-          {healthLoading ? (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-              {[...Array(6)].map((_, i) => (
-                <div key={i} className="flex items-center space-x-2">
-                  <div className="h-4 w-4 bg-gray-200 rounded animate-pulse" />
-                  <span className="text-sm bg-gray-200 rounded animate-pulse">Loading...</span>
-                </div>
-              ))}
+        <CardContent className="pt-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-6">
+            {/* Database Health */}
+            <div className="space-y-2" data-testid="health-database">
+              <div className="flex items-center space-x-2">
+                <div className={`h-2 w-2 rounded-full ${getHealthStatusColor(dashboardData?.health?.database?.status || 'unknown')}`}></div>
+                <Database className="h-4 w-4 text-slate-600" />
+                <span className="text-sm font-medium">Database</span>
+              </div>
+              <div className="text-xs text-slate-500">
+                {dashboardData?.health?.database?.latency ? `${dashboardData.health.database.latency}ms` : 'N/A'}
+              </div>
+              <Badge variant="outline" className="text-xs">
+                {dashboardData?.health?.database?.status || 'Unknown'}
+              </Badge>
             </div>
-          ) : healthError ? (
-            <div className="text-red-500 text-center py-4">
-              Error loading system health: {healthError.message}
-              <div className="text-xs text-muted-foreground mt-2">
-                Will retry automatically in {5 - (Math.floor(Date.now() / 1000) % 5)}s
+
+            {/* Email Service */}
+            <div className="space-y-2" data-testid="health-email">
+              <div className="flex items-center space-x-2">
+                <div className={`h-2 w-2 rounded-full ${getHealthStatusColor(dashboardData?.health?.emailService?.status || 'unknown')}`}></div>
+                <Mail className="h-4 w-4 text-slate-600" />
+                <span className="text-sm font-medium">Email</span>
               </div>
+              <div className="text-xs text-slate-500">
+                Service Status
+              </div>
+              <Badge variant="outline" className="text-xs">
+                {dashboardData?.health?.emailService?.status || 'Unknown'}
+              </Badge>
             </div>
-          ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-              <div className="flex items-center space-x-2">
-                <Database className="h-4 w-4" />
-                <span className="text-sm">Database:</span>
-                <Badge variant={systemHealthData?.database?.status === 'healthy' ? 'default' : 'destructive'}>
-                  {systemHealthData?.database?.status || 'unknown'}
-                </Badge>
-                {systemHealthData?.database?.latency && (
-                  <span className="text-xs text-muted-foreground">
-                    ({systemHealthData.database.latency}ms)
-                  </span>
-                )}
-              </div>
 
+            {/* AI Service */}
+            <div className="space-y-2" data-testid="health-ai">
               <div className="flex items-center space-x-2">
-                <Mail className="h-4 w-4" />
-                <span className="text-sm">Email Service:</span>
-                <Badge variant={systemHealthData?.emailService?.status === 'healthy' ? 'default' : 'destructive'}>
-                  {systemHealthData?.emailService?.status || 'unknown'}
-                </Badge>
+                <div className={`h-2 w-2 rounded-full ${getHealthStatusColor(dashboardData?.health?.openaiService?.status || 'unknown')}`}></div>
+                <Brain className="h-4 w-4 text-slate-600" />
+                <span className="text-sm font-medium">AI Service</span>
               </div>
-
-              <div className="flex items-center space-x-2">
-                <Brain className="h-4 w-4" />
-                <span className="text-sm">OpenAI Service:</span>
-                <Badge variant={systemHealthData?.openaiService?.status === 'healthy' ? 'default' : 'destructive'}>
-                  {systemHealthData?.openaiService?.status || 'unknown'}
-                </Badge>
+              <div className="text-xs text-slate-500">
+                OpenAI Integration
               </div>
-
-              <div className="flex items-center space-x-2">
-                <Server className="h-4 w-4" />
-                <span className="text-sm">Uptime:</span>
-                <span className="text-sm font-medium">{formatUptime(systemHealthData?.uptime || 0)}</span>
-              </div>
-
-              <div className="flex items-center space-x-2">
-                <Activity className="h-4 w-4" />
-                <span className="text-sm">Memory:</span>
-                <span className="text-sm font-medium">
-                  {formatMemory(systemHealthData?.memoryUsage?.used || 0)} / 
-                  {formatMemory(systemHealthData?.memoryUsage?.total || 0)}
-                </span>
-              </div>
-
-              <div className="flex items-center space-x-2">
-                <Zap className="h-4 w-4" />
-                <span className="text-sm">Queue:</span>
-                <span className="text-sm font-medium">
-                  {systemHealthData?.priorityQueue?.currentlyProcessing || 0} processing
-                </span>
-              </div>
+              <Badge variant="outline" className="text-xs">
+                {dashboardData?.health?.openaiService?.status || 'Unknown'}
+              </Badge>
             </div>
-          )}
+
+            {/* Memory Usage */}
+            <div className="space-y-2" data-testid="health-memory">
+              <div className="flex items-center space-x-2">
+                <MemoryStick className="h-4 w-4 text-slate-600" />
+                <span className="text-sm font-medium">Memory</span>
+              </div>
+              <div className="text-xs text-slate-500">
+                {formatBytes(dashboardData?.health?.memoryUsage?.used || 0)} / {formatBytes(dashboardData?.health?.memoryUsage?.total || 0)}
+              </div>
+              <Progress 
+                value={dashboardData?.health?.memoryUsage?.percentage || 0} 
+                className="h-1"
+              />
+            </div>
+
+            {/* CPU Usage */}
+            <div className="space-y-2" data-testid="health-cpu">
+              <div className="flex items-center space-x-2">
+                <Cpu className="h-4 w-4 text-slate-600" />
+                <span className="text-sm font-medium">CPU</span>
+              </div>
+              <div className="text-xs text-slate-500">
+                {(dashboardData?.health?.cpuUsage?.percentage || 0).toFixed(1)}% usage
+              </div>
+              <Progress 
+                value={dashboardData?.health?.cpuUsage?.percentage || 0} 
+                className="h-1"
+              />
+            </div>
+
+            {/* System Uptime */}
+            <div className="space-y-2" data-testid="health-uptime">
+              <div className="flex items-center space-x-2">
+                <Clock className="h-4 w-4 text-slate-600" />
+                <span className="text-sm font-medium">Uptime</span>
+              </div>
+              <div className="text-xs text-slate-500">
+                {formatUptime(dashboardData?.health?.uptime || 0)}
+              </div>
+              <Badge variant="outline" className="text-xs bg-green-50 text-green-700">
+                Stable
+              </Badge>
+            </div>
+          </div>
         </CardContent>
       </Card>
+
+      {/* Quick Actions and Recent Activity */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        {/* Quick Actions */}
+        <Card className="border-0 shadow-md" data-testid="card-quick-actions">
+          <CardHeader className="border-b border-slate-200 dark:border-slate-700">
+            <div className="flex items-center space-x-2">
+              <div className="p-2 bg-slate-100 dark:bg-slate-800 rounded-lg">
+                <Zap className="h-5 w-5 text-slate-600 dark:text-slate-400" />
+              </div>
+              <CardTitle className="text-lg font-semibold">Quick Actions</CardTitle>
+            </div>
+          </CardHeader>
+          <CardContent className="pt-6">
+            <div className="grid grid-cols-2 gap-4">
+              <Button variant="outline" className="h-16 flex flex-col space-y-2" data-testid="button-user-management">
+                <Users className="h-5 w-5" />
+                <span className="text-xs">User Management</span>
+              </Button>
+              <Button variant="outline" className="h-16 flex flex-col space-y-2" data-testid="button-security-center">
+                <Shield className="h-5 w-5" />
+                <span className="text-xs">Security Center</span>
+              </Button>
+              <Button variant="outline" className="h-16 flex flex-col space-y-2" data-testid="button-system-settings">
+                <Settings className="h-5 w-5" />
+                <span className="text-xs">System Settings</span>
+              </Button>
+              <Button variant="outline" className="h-16 flex flex-col space-y-2" data-testid="button-generate-report">
+                <Download className="h-5 w-5" />
+                <span className="text-xs">Generate Report</span>
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Recent Activity Feed */}
+        <Card className="border-0 shadow-md" data-testid="card-recent-activity">
+          <CardHeader className="border-b border-slate-200 dark:border-slate-700">
+            <div className="flex items-center space-x-2">
+              <div className="p-2 bg-slate-100 dark:bg-slate-800 rounded-lg">
+                <Activity className="h-5 w-5 text-slate-600 dark:text-slate-400" />
+              </div>
+              <CardTitle className="text-lg font-semibold">Recent Activity</CardTitle>
+            </div>
+          </CardHeader>
+          <CardContent className="pt-6">
+            <div className="space-y-4">
+              <div className="flex items-center space-x-3">
+                <div className="p-2 bg-green-100 rounded-full">
+                  <UserPlus className="h-3 w-3 text-green-600" />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm text-slate-900 dark:text-slate-100">
+                    {dashboardData?.activity?.newUsersLast24h || 0} new users registered
+                  </p>
+                  <p className="text-xs text-slate-500">Last 24 hours</p>
+                </div>
+              </div>
+              
+              <div className="flex items-center space-x-3">
+                <div className="p-2 bg-blue-100 rounded-full">
+                  <FileText className="h-3 w-3 text-blue-600" />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm text-slate-900 dark:text-slate-100">
+                    {dashboardData?.activity?.documentsAnalyzedLast24h || 0} documents analyzed
+                  </p>
+                  <p className="text-xs text-slate-500">
+                    Avg. {(dashboardData?.activity?.averageProcessingTime || 0).toFixed(1)}s processing time
+                  </p>
+                </div>
+              </div>
+              
+              <div className="flex items-center space-x-3">
+                <div className="p-2 bg-orange-100 rounded-full">
+                  <Shield className="h-3 w-3 text-orange-600" />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm text-slate-900 dark:text-slate-100">
+                    Security scan completed
+                  </p>
+                  <p className="text-xs text-slate-500">No threats detected</p>
+                </div>
+              </div>
+              
+              <div className="flex items-center space-x-3">
+                <div className="p-2 bg-purple-100 rounded-full">
+                  <TrendingUp className="h-3 w-3 text-purple-600" />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm text-slate-900 dark:text-slate-100">
+                    System performance optimal
+                  </p>
+                  <p className="text-xs text-slate-500">
+                    {(dashboardData?.activity?.successRate || 0).toFixed(1)}% success rate
+                  </p>
+                </div>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
     </div>
   );
 }
 
-function CreateUserDialog({ onUserCreated }: { onUserCreated: () => void }) {
-  const [isOpen, setIsOpen] = useState(false);
-  const [isCreating, setIsCreating] = useState(false);
-  const [formData, setFormData] = useState({
-    email: '',
-    tierId: 'free',
-    emailVerified: false,
-    isActive: true
-  });
-  const { toast } = useToast();
-
-  const availableTiers = [
-    { id: 'free', name: 'Free' },
-    { id: 'starter', name: 'Starter' },
-    { id: 'professional', name: 'Professional' },
-    { id: 'business', name: 'Business' },
-    { id: 'enterprise', name: 'Enterprise' },
-    { id: 'ultimate', name: 'Ultimate' }
-  ];
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setIsCreating(true);
-
-    try {
-      const response = await sessionFetch('/api/admin/users-subscription/create', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        credentials: 'include',
-        body: JSON.stringify(formData)
-      });
-
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.error || 'Failed to create user');
-      }
-
-      const result = await response.json();
-      
-      toast({
-        title: "User Created Successfully",
-        description: `${formData.email} has been created with ${formData.tierId} tier. Welcome email sent.`,
-      });
-
-      // Reset form
-      setFormData({
-        email: '',
-        tierId: 'free',
-        emailVerified: false,
-        isActive: true
-      });
-      
-      setIsOpen(false);
-      onUserCreated();
-
-    } catch (error) {
-      console.error('Failed to create user:', error);
-      toast({
-        title: "Failed to Create User",
-        description: error instanceof Error ? error.message : "Unknown error occurred",
-        variant: "destructive"
-      });
-    } finally {
-      setIsCreating(false);
-    }
-  };
-
-  return (
-    <Dialog open={isOpen} onOpenChange={setIsOpen}>
-      <DialogTrigger asChild>
-        <Button variant="default" size="sm">
-          <UserPlus className="h-4 w-4 mr-2" />
-          Create User
-        </Button>
-      </DialogTrigger>
-      <DialogContent className="max-w-2xl">
-        <DialogHeader>
-          <DialogTitle>Create New User</DialogTitle>
-        </DialogHeader>
-        
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div className="grid grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <Label htmlFor="email">Email *</Label>
-              <Input
-                id="email"
-                type="email"
-                required
-                value={formData.email}
-                onChange={(e) => setFormData(prev => ({ ...prev, email: e.target.value }))}
-                placeholder="user@example.com"
-              />
-            </div>
-              
-            <div className="space-y-2">
-              <Label htmlFor="tierId">Subscription Tier *</Label>
-              <Select value={formData.tierId} onValueChange={(value) => setFormData(prev => ({ ...prev, tierId: value }))}>
-                <SelectTrigger>
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  {availableTiers.map(tier => (
-                    <SelectItem key={tier.id} value={tier.id}>
-                      {tier.name}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-          </div>
-
-          <div className="flex items-center space-x-6">
-            <div className="flex items-center space-x-2">
-              <Checkbox
-                id="emailVerified"
-                checked={formData.emailVerified}
-                onCheckedChange={(checked) => setFormData(prev => ({ ...prev, emailVerified: checked as boolean }))}
-              />
-              <Label htmlFor="emailVerified">Email Verified</Label>
-            </div>
-            
-            <div className="flex items-center space-x-2">
-              <Checkbox
-                id="isActive"
-                checked={formData.isActive}
-                onCheckedChange={(checked) => setFormData(prev => ({ ...prev, isActive: checked as boolean }))}
-              />
-              <Label htmlFor="isActive">Active Account</Label>
-            </div>
-          </div>
-
-          <div className="bg-blue-50 dark:bg-blue-900/20 p-4 rounded-lg border border-blue-200 dark:border-blue-800">
-            <h4 className="font-medium text-blue-900 dark:text-blue-100 mb-2">What happens next:</h4>
-            <ul className="text-sm text-blue-700 dark:text-blue-200 space-y-1">
-              <li>• User account will be created with the specified tier</li>
-              <li>• Welcome email with account access instructions will be sent automatically</li>
-              <li>• User can access their account using email verification</li>
-              <li>• Subscription will be active for 1 year from creation</li>
-            </ul>
-          </div>
-
-          <div className="flex justify-end space-x-2 pt-4">
-            <Button type="button" variant="outline" onClick={() => setIsOpen(false)}>
-              Cancel
-            </Button>
-            <Button type="submit" disabled={isCreating || !formData.email}>
-              {isCreating ? (
-                <>
-                  <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                  Creating...
-                </>
-              ) : (
-                'Create User'
-              )}
-            </Button>
-          </div>
-        </form>
-      </DialogContent>
-    </Dialog>
-  );
-}
-
-function UserManagement() {
-  const [search, setSearch] = useState("");
+// Enhanced User Management Component
+function EnterpriseUserManagement() {
   const [page, setPage] = useState(1);
+  const [limit, setLimit] = useState(25);
+  const [search, setSearch] = useState("");
+  const [hasSubscription, setHasSubscription] = useState<boolean | undefined>(undefined);
   const [sortBy, setSortBy] = useState("createdAt");
   const [sortOrder, setSortOrder] = useState("desc");
-  const [hasSubscription, setHasSubscription] = useState<boolean | undefined>(undefined);
-  const [selectedUser, setSelectedUser] = useState<User | null>(null);
   const [selectedUsers, setSelectedUsers] = useState<string[]>([]);
-  const [operationInProgress, setOperationInProgress] = useState(false);
-  const [bulkOperation, setBulkOperation] = useState<string>("");
-  const [confirmationDialog, setConfirmationDialog] = useState<{
-    isOpen: boolean;
-    title: string;
-    description: string;
-    action: () => void;
-  }>({ isOpen: false, title: "", description: "", action: () => {} });
+  const [selectedUser, setSelectedUser] = useState<User | null>(null);
   const { toast } = useToast();
 
-  // Get admin token from session storage or other secure source
-  const adminToken = localStorage.getItem('jwt_access_token') || '';
-
-  const { data: usersData, isLoading, refetch } = useQuery<UsersResponse>({
-    queryKey: ["/api/admin/users", { page, search, sortBy, sortOrder, hasSubscription }],
+  const { data: usersData, isLoading, refetch } = useQuery({
+    queryKey: ["/api/admin/users", { page, limit, search, hasSubscription, sortBy, sortOrder }],
     queryFn: async () => {
-      const response = await sessionFetch(`/api/admin/users-subscription?page=${page}&search=${search}&sortBy=${sortBy}&sortOrder=${sortOrder}${hasSubscription !== undefined ? `&hasSubscription=${hasSubscription}` : ''}`, {
+      const params = new URLSearchParams({
+        page: page.toString(),
+        limit: limit.toString(),
+        sortBy,
+        sortOrder,
+        ...(search && { search }),
+        ...(hasSubscription !== undefined && { hasSubscription: hasSubscription.toString() })
+      });
+
+      const response = await sessionFetch(`/api/admin/users-subscription?${params.toString()}`, {
         method: 'GET',
         credentials: 'include',
-        headers: { 
-          "Content-Type": "application/json"
-        }
+        headers: { "Content-Type": "application/json" }
       });
-      if (!response.ok) {
-        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
-      }
+
+      if (!response.ok) throw new Error(`HTTP ${response.status}: ${response.statusText}`);
       return await response.json();
     }
   });
 
-  const handleUpdateUser = async (userId: string, updates: Partial<User>) => {
-    try {
-      const response = await sessionFetch(`/api/admin/users-subscription/${userId}`, {
-        method: 'PATCH',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        credentials: 'include',
-        body: JSON.stringify(updates),
-      });
-
-      if (!response.ok) {
-        throw new Error('Failed to update user');
-      }
-      
-      toast({
-        title: "User Updated",
-        description: "User information has been updated successfully",
-      });
-      
-      refetch();
-      setSelectedUser(null);
-    } catch (error) {
-      toast({
-        title: "Error",
-        description: "Failed to update user",
-        variant: "destructive"
-      });
-    }
-  };
-
-  const handleDeleteUser = async (userId: string, reason?: string) => {
-    try {
-      setOperationInProgress(true);
-      await sessionFetch(`/api/admin/users-subscription/${userId}`, {
-        method: 'DELETE',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        credentials: 'include',
-        body: JSON.stringify({
-          confirmDelete: true,
-          reason: reason || 'Admin deletion'
-        }),
-      });
-      
-      toast({
-        title: "User Deleted",
-        description: "User has been permanently deleted",
-      });
-      
-      refetch();
-      setSelectedUser(null);
-    } catch (error) {
-      toast({
-        title: "Error",
-        description: "Failed to delete user",
-        variant: "destructive"
-      });
-    } finally {
-      setOperationInProgress(false);
-    }
-  };
-
-  const handleSuspendUser = async (userId: string, reason?: string) => {
-    try {
-      setOperationInProgress(true);
-      await sessionFetch(`/api/admin/users-subscription/${userId}/status`, {
-        method: 'PATCH',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        credentials: 'include',
-        body: JSON.stringify({
-          isActive: false,
-          reason: reason || 'Admin suspension'
-        }),
-      });
-      
-      toast({
-        title: "User Suspended",
-        description: "User account has been suspended",
-      });
-      
-      refetch();
-      setSelectedUser(null);
-    } catch (error) {
-      toast({
-        title: "Error",
-        description: "Failed to suspend user",
-        variant: "destructive"
-      });
-    } finally {
-      setOperationInProgress(false);
-    }
-  };
-
-  const handleActivateUser = async (userId: string) => {
-    try {
-      setOperationInProgress(true);
-      await sessionFetch(`/api/admin/users-subscription/${userId}/status`, {
-        method: 'PATCH',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        credentials: 'include',
-        body: JSON.stringify({
-          isActive: true
-        }),
-      });
-      
-      toast({
-        title: "User Activated",
-        description: "User account has been activated",
-      });
-      
-      refetch();
-      setSelectedUser(null);
-    } catch (error) {
-      toast({
-        title: "Error",
-        description: "Failed to activate user",
-        variant: "destructive"
-      });
-    } finally {
-      setOperationInProgress(false);
-    }
-  };
-
-  const handleResetPassword = async (userId: string) => {
-    try {
-      setOperationInProgress(true);
-      const response = await sessionFetch(`/api/admin/users-subscription/${userId}/reset-password`, {
+  const bulkOperationMutation = useMutation({
+    mutationFn: async ({ userIds, operation, options }: { userIds: string[], operation: string, options?: any }) => {
+      const response = await sessionFetch('/api/admin/users-subscription/bulk', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
+        headers: { 'Content-Type': 'application/json' },
         credentials: 'include',
-        body: JSON.stringify({
-          sendEmail: false
-        }),
+        body: JSON.stringify({ userIds, operation, options })
       });
       
-      const result = await response.json();
-      
-      toast({
-        title: "Password Reset",
-        description: `Temporary password: ${result.temporaryPassword}`,
-      });
-      
+      if (!response.ok) throw new Error('Bulk operation failed');
+      return response.json();
+    },
+    onSuccess: () => {
       refetch();
-      setSelectedUser(null);
-    } catch (error) {
+      setSelectedUsers([]);
+      toast({
+        title: "Success",
+        description: "Bulk operation completed successfully",
+      });
+    },
+    onError: () => {
       toast({
         title: "Error",
-        description: "Failed to reset password",
+        description: "Bulk operation failed",
         variant: "destructive"
       });
-    } finally {
-      setOperationInProgress(false);
     }
-  };
+  });
 
-  const handleBulkOperation = async (operation: string) => {
+  const handleBulkOperation = (operation: string, options?: any) => {
     if (selectedUsers.length === 0) {
       toast({
         title: "No Users Selected",
@@ -953,242 +852,341 @@ function UserManagement() {
       return;
     }
 
-    try {
-      setOperationInProgress(true);
-      const response = await sessionFetch('/api/admin/users-subscription/bulk', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        credentials: 'include',
-        body: JSON.stringify({
-          userIds: selectedUsers,
-          operation,
-          options: {
-            confirmDelete: operation === 'delete',
-            reason: `Bulk ${operation} operation`
-          }
-        }),
-      });
-      
-      const result = await response.json();
-      
-      toast({
-        title: "Bulk Operation Complete",
-        description: result.message,
-      });
-      
-      setSelectedUsers([]);
-      refetch();
-    } catch (error) {
-      toast({
-        title: "Error",
-        description: "Failed to perform bulk operation",
-        variant: "destructive"
-      });
-    } finally {
-      setOperationInProgress(false);
+    bulkOperationMutation.mutate({ userIds: selectedUsers, operation, options });
+  };
+
+  const getRiskLevel = (user: User) => {
+    // Mock risk assessment based on user data
+    if (!user.emailVerified) return 'high';
+    if (!user.lastLoginAt) return 'medium';
+    return 'low';
+  };
+
+  const getRiskColor = (risk: string) => {
+    switch (risk) {
+      case 'high': return 'text-red-600 bg-red-50';
+      case 'medium': return 'text-yellow-600 bg-yellow-50';
+      case 'low': return 'text-green-600 bg-green-50';
+      default: return 'text-gray-600 bg-gray-50';
     }
   };
 
-  const confirmAction = (title: string, description: string, action: () => void) => {
-    setConfirmationDialog({
-      isOpen: true,
-      title,
-      description,
-      action
-    });
-  };
-
   return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <h2 className="text-3xl font-bold">User Management</h2>
+    <div className="space-y-6" data-testid="enterprise-user-management">
+      <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center space-y-4 lg:space-y-0">
+        <div>
+          <h2 className="text-2xl font-bold text-slate-900 dark:text-slate-100">User Management</h2>
+          <p className="text-slate-600 dark:text-slate-400">Manage user accounts, subscriptions, and security</p>
+        </div>
         <div className="flex items-center space-x-2">
-          <LawEnforcementRequest adminToken={adminToken} />
-          <CreateUserDialog onUserCreated={() => refetch()} />
-          <Button onClick={() => refetch()} variant="outline" size="sm">
+          {selectedUsers.length > 0 && (
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="outline" data-testid="button-bulk-actions">
+                  <Users className="h-4 w-4 mr-2" />
+                  Bulk Actions ({selectedUsers.length})
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                <DropdownMenuItem onClick={() => handleBulkOperation('activate')}>
+                  <UserCheck className="h-4 w-4 mr-2" />
+                  Activate Selected
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => handleBulkOperation('suspend')}>
+                  <UserX className="h-4 w-4 mr-2" />
+                  Suspend Selected
+                </DropdownMenuItem>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem 
+                  onClick={() => handleBulkOperation('reset_password')}
+                  className="text-orange-600"
+                >
+                  <RotateCcw className="h-4 w-4 mr-2" />
+                  Reset Passwords
+                </DropdownMenuItem>
+                <DropdownMenuItem 
+                  onClick={() => handleBulkOperation('delete', { confirmDelete: true })}
+                  className="text-red-600"
+                >
+                  <Trash2 className="h-4 w-4 mr-2" />
+                  Delete Selected
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          )}
+          <Button onClick={() => refetch()} variant="outline" size="sm" data-testid="button-refresh-users">
             <RefreshCw className="h-4 w-4 mr-2" />
             Refresh
           </Button>
         </div>
       </div>
 
-      {/* Filters */}
-      <div className="flex flex-wrap gap-4 items-center">
-        <div className="flex items-center space-x-2">
-          <Search className="h-4 w-4 text-muted-foreground" />
-          <Input
-            placeholder="Search users..."
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            className="w-64 placeholder:text-muted-foreground dark:placeholder:text-gray-400"
-          />
-        </div>
+      {/* Advanced Filters */}
+      <Card className="border-0 shadow-sm">
+        <CardContent className="pt-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+            <div className="space-y-2">
+              <Label className="text-sm font-medium">Search Users</Label>
+              <div className="relative">
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-slate-400" />
+                <Input
+                  placeholder="Email, username, or ID..."
+                  value={search}
+                  onChange={(e) => setSearch(e.target.value)}
+                  className="pl-10"
+                  data-testid="input-search-users"
+                />
+              </div>
+            </div>
 
-        <Select value={hasSubscription?.toString() || "all"} onValueChange={(value) => 
-          setHasSubscription(value === "all" ? undefined : value === "true")
-        }>
-          <SelectTrigger className="w-48">
-            <SelectValue placeholder="Filter by subscription" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all">All Users</SelectItem>
-            <SelectItem value="true">With Subscription</SelectItem>
-            <SelectItem value="false">Without Subscription</SelectItem>
-          </SelectContent>
-        </Select>
+            <div className="space-y-2">
+              <Label className="text-sm font-medium">Subscription Filter</Label>
+              <Select value={hasSubscription?.toString() || "all"} onValueChange={(value) => 
+                setHasSubscription(value === "all" ? undefined : value === "true")
+              }>
+                <SelectTrigger data-testid="select-subscription-filter">
+                  <SelectValue placeholder="Filter by subscription" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All Users</SelectItem>
+                  <SelectItem value="true">With Subscription</SelectItem>
+                  <SelectItem value="false">Without Subscription</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
 
-        <Select value={sortBy} onValueChange={setSortBy}>
-          <SelectTrigger className="w-48">
-            <SelectValue placeholder="Sort by" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="createdAt">Created Date</SelectItem>
-            <SelectItem value="email">Email</SelectItem>
-            <SelectItem value="lastLoginAt">Last Login</SelectItem>
-          </SelectContent>
-        </Select>
+            <div className="space-y-2">
+              <Label className="text-sm font-medium">Sort By</Label>
+              <Select value={sortBy} onValueChange={setSortBy}>
+                <SelectTrigger data-testid="select-sort-by">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="createdAt">Created Date</SelectItem>
+                  <SelectItem value="email">Email</SelectItem>
+                  <SelectItem value="lastLoginAt">Last Login</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
 
-        <Select value={sortOrder} onValueChange={setSortOrder}>
-          <SelectTrigger className="w-32">
-            <SelectValue placeholder="Order" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="desc">Descending</SelectItem>
-            <SelectItem value="asc">Ascending</SelectItem>
-          </SelectContent>
-        </Select>
-      </div>
+            <div className="space-y-2">
+              <Label className="text-sm font-medium">Page Size</Label>
+              <Select value={limit.toString()} onValueChange={(value) => setLimit(parseInt(value))}>
+                <SelectTrigger data-testid="select-page-size">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="10">10 per page</SelectItem>
+                  <SelectItem value="25">25 per page</SelectItem>
+                  <SelectItem value="50">50 per page</SelectItem>
+                  <SelectItem value="100">100 per page</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
 
       {/* Users Table */}
-      <Card>
+      <Card className="border-0 shadow-sm" data-testid="card-users-table">
         <CardHeader>
-          <CardTitle>Users ({usersData?.total || 0})</CardTitle>
+          <div className="flex items-center justify-between">
+            <CardTitle>Users ({usersData?.total?.toLocaleString() || 0})</CardTitle>
+            <div className="flex items-center space-x-2">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setSelectedUsers(selectedUsers.length === usersData?.users?.length ? [] : usersData?.users?.map(u => u.id) || [])}
+                data-testid="button-select-all"
+              >
+                {selectedUsers.length === usersData?.users?.length ? 'Deselect All' : 'Select All'}
+              </Button>
+            </div>
+          </div>
         </CardHeader>
         <CardContent>
           {isLoading ? (
-            <div>Loading users...</div>
+            <div className="space-y-4" data-testid="users-table-loading">
+              {[1, 2, 3, 4, 5].map((i) => (
+                <div key={i} className="flex items-center space-x-4 animate-pulse">
+                  <div className="h-4 w-4 bg-slate-200 rounded"></div>
+                  <div className="h-4 bg-slate-200 rounded flex-1"></div>
+                  <div className="h-4 bg-slate-200 rounded w-20"></div>
+                  <div className="h-4 bg-slate-200 rounded w-16"></div>
+                  <div className="h-4 bg-slate-200 rounded w-24"></div>
+                </div>
+              ))}
+            </div>
           ) : (
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Email</TableHead>
-                  <TableHead>Status</TableHead>
-                  <TableHead>Email Verified</TableHead>
-                  <TableHead>Created</TableHead>
-                  <TableHead>Last Login</TableHead>
-                  <TableHead>Actions</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {usersData?.users.map((user) => (
-                  <TableRow key={user.id}>
-                    <TableCell>{user.email}</TableCell>
-                    <TableCell>
-                      <Badge variant={user.isActive ? 'default' : 'secondary'}>
-                        {user.isActive ? 'Active' : 'Inactive'}
-                      </Badge>
-                    </TableCell>
-                    <TableCell>
-                      {user.emailVerified ? (
-                        <CheckCircle className="h-4 w-4 text-green-500" />
-                      ) : (
-                        <XCircle className="h-4 w-4 text-red-500" />
-                      )}
-                    </TableCell>
-                    <TableCell>{new Date(user.createdAt).toLocaleDateString()}</TableCell>
-                    <TableCell>
-                      {user.lastLoginAt ? new Date(user.lastLoginAt).toLocaleDateString() : 'Never'}
-                    </TableCell>
-                    <TableCell>
-                      <div className="flex space-x-2">
-                        <Button 
-                          variant="outline" 
-                          size="sm"
-                          onClick={() => setSelectedUser(user)}
-                        >
-                          <Eye className="h-4 w-4" />
-                        </Button>
-                        
-                        <DropdownMenu>
-                          <DropdownMenuTrigger asChild>
-                            <Button variant="outline" size="sm" disabled={operationInProgress}>
-                              <MoreHorizontal className="h-4 w-4" />
-                            </Button>
-                          </DropdownMenuTrigger>
-                          <DropdownMenuContent align="end">
-                            {user.isActive ? (
-                              <DropdownMenuItem 
-                                onClick={() => confirmAction(
-                                  "Suspend User",
-                                  `Are you sure you want to suspend ${user.email}?`,
-                                  () => handleSuspendUser(user.id)
-                                )}
-                                className="text-orange-600"
-                              >
-                                <UserX className="h-4 w-4 mr-2" />
-                                Suspend
-                              </DropdownMenuItem>
-                            ) : (
-                              <DropdownMenuItem 
-                                onClick={() => handleActivateUser(user.id)}
-                                className="text-green-600"
-                              >
-                                <UserCheck className="h-4 w-4 mr-2" />
-                                Activate
-                              </DropdownMenuItem>
-                            )}
-                            
-                            <DropdownMenuItem onClick={() => handleResetPassword(user.id)}>
-                              <RotateCcw className="h-4 w-4 mr-2" />
-                              Reset Password
-                            </DropdownMenuItem>
-                            
-                            <DropdownMenuSeparator />
-                            
-                            <DropdownMenuItem 
-                              onClick={() => confirmAction(
-                                "Delete User",
-                                `Are you sure you want to permanently delete ${user.email}? This action cannot be undone.`,
-                                () => handleDeleteUser(user.id)
-                              )}
-                              className="text-red-600"
-                            >
-                              <Trash2 className="h-4 w-4 mr-2" />
-                              Delete User
-                            </DropdownMenuItem>
-                          </DropdownMenuContent>
-                        </DropdownMenu>
-                      </div>
-                    </TableCell>
+            <div className="overflow-x-auto">
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead className="w-12">
+                      <input
+                        type="checkbox"
+                        checked={selectedUsers.length === usersData?.users?.length && usersData?.users?.length > 0}
+                        onChange={() => setSelectedUsers(selectedUsers.length === usersData?.users?.length ? [] : usersData?.users?.map(u => u.id) || [])}
+                        className="rounded border-slate-300"
+                      />
+                    </TableHead>
+                    <TableHead>Email & User Info</TableHead>
+                    <TableHead>Status</TableHead>
+                    <TableHead>Subscription</TableHead>
+                    <TableHead>Risk Level</TableHead>
+                    <TableHead>Activity</TableHead>
+                    <TableHead>Actions</TableHead>
                   </TableRow>
-                ))}
-              </TableBody>
-            </Table>
+                </TableHeader>
+                <TableBody>
+                  {usersData?.users?.map((user: User) => (
+                    <TableRow key={user.id} className="hover:bg-slate-50 dark:hover:bg-slate-800/50">
+                      <TableCell>
+                        <input
+                          type="checkbox"
+                          checked={selectedUsers.includes(user.id)}
+                          onChange={(e) => {
+                            if (e.target.checked) {
+                              setSelectedUsers([...selectedUsers, user.id]);
+                            } else {
+                              setSelectedUsers(selectedUsers.filter(id => id !== user.id));
+                            }
+                          }}
+                          className="rounded border-slate-300"
+                        />
+                      </TableCell>
+                      <TableCell>
+                        <div className="space-y-1">
+                          <div className="font-medium text-slate-900 dark:text-slate-100" data-testid={`user-email-${user.id}`}>
+                            {user.email}
+                          </div>
+                          {user.username && (
+                            <div className="text-sm text-slate-500">@{user.username}</div>
+                          )}
+                          <div className="text-xs text-slate-400">
+                            ID: {user.id.slice(0, 8)}...
+                          </div>
+                        </div>
+                      </TableCell>
+                      <TableCell>
+                        <div className="space-y-1">
+                          <Badge variant={user.isActive ? 'default' : 'secondary'} data-testid={`user-status-${user.id}`}>
+                            {user.isActive ? 'Active' : 'Inactive'}
+                          </Badge>
+                          <div className="flex items-center space-x-1">
+                            {user.emailVerified ? (
+                              <CheckCircle className="h-3 w-3 text-green-500" />
+                            ) : (
+                              <XCircle className="h-3 w-3 text-red-500" />
+                            )}
+                            <span className="text-xs text-slate-500">
+                              {user.emailVerified ? 'Verified' : 'Unverified'}
+                            </span>
+                          </div>
+                        </div>
+                      </TableCell>
+                      <TableCell>
+                        {user.subscription ? (
+                          <div className="space-y-1">
+                            <Badge variant="outline" className="text-xs">
+                              {user.subscription.tierId}
+                            </Badge>
+                            <div className="text-xs text-slate-500">
+                              {user.subscription.status}
+                            </div>
+                          </div>
+                        ) : (
+                          <span className="text-xs text-slate-400">No subscription</span>
+                        )}
+                      </TableCell>
+                      <TableCell>
+                        <Badge variant="outline" className={`text-xs ${getRiskColor(getRiskLevel(user))}`}>
+                          {getRiskLevel(user).toUpperCase()}
+                        </Badge>
+                      </TableCell>
+                      <TableCell>
+                        <div className="space-y-1">
+                          <div className="text-xs text-slate-500">
+                            Joined: {new Date(user.createdAt).toLocaleDateString()}
+                          </div>
+                          <div className="text-xs text-slate-500">
+                            Last login: {user.lastLoginAt ? new Date(user.lastLoginAt).toLocaleDateString() : 'Never'}
+                          </div>
+                        </div>
+                      </TableCell>
+                      <TableCell>
+                        <div className="flex items-center space-x-2">
+                          <Button 
+                            variant="outline" 
+                            size="sm"
+                            onClick={() => setSelectedUser(user)}
+                            data-testid={`button-view-user-${user.id}`}
+                          >
+                            <Eye className="h-3 w-3" />
+                          </Button>
+                          <DropdownMenu>
+                            <DropdownMenuTrigger asChild>
+                              <Button variant="outline" size="sm" data-testid={`button-user-actions-${user.id}`}>
+                                <MoreHorizontal className="h-3 w-3" />
+                              </Button>
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent align="end">
+                              {user.isActive ? (
+                                <DropdownMenuItem className="text-orange-600">
+                                  <UserX className="h-4 w-4 mr-2" />
+                                  Suspend User
+                                </DropdownMenuItem>
+                              ) : (
+                                <DropdownMenuItem className="text-green-600">
+                                  <UserCheck className="h-4 w-4 mr-2" />
+                                  Activate User
+                                </DropdownMenuItem>
+                              )}
+                              <DropdownMenuItem>
+                                <RotateCcw className="h-4 w-4 mr-2" />
+                                Reset Password
+                              </DropdownMenuItem>
+                              <DropdownMenuSeparator />
+                              <DropdownMenuItem className="text-red-600">
+                                <Trash2 className="h-4 w-4 mr-2" />
+                                Delete User
+                              </DropdownMenuItem>
+                            </DropdownMenuContent>
+                          </DropdownMenu>
+                        </div>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </div>
           )}
 
           {/* Pagination */}
           {usersData && usersData.totalPages > 1 && (
-            <div className="flex items-center justify-between mt-4">
-              <div className="text-sm text-muted-foreground">
-                Page {usersData.page} of {usersData.totalPages} 
-                ({usersData.total} total users)
+            <div className="flex items-center justify-between mt-6 pt-4 border-t border-slate-200 dark:border-slate-700">
+              <div className="text-sm text-slate-600 dark:text-slate-400">
+                Showing {((page - 1) * limit) + 1} to {Math.min(page * limit, usersData.total)} of {usersData.total} users
               </div>
-              <div className="flex space-x-2">
+              <div className="flex items-center space-x-2">
                 <Button 
                   variant="outline" 
                   size="sm"
                   disabled={page === 1}
                   onClick={() => setPage(page - 1)}
+                  data-testid="button-prev-page"
                 >
                   Previous
                 </Button>
+                <span className="text-sm text-slate-600 px-2">
+                  Page {page} of {usersData.totalPages}
+                </span>
                 <Button 
                   variant="outline" 
                   size="sm"
                   disabled={page === usersData.totalPages}
                   onClick={() => setPage(page + 1)}
+                  data-testid="button-next-page"
                 >
                   Next
                 </Button>
@@ -1201,928 +1199,235 @@ function UserManagement() {
       {/* User Details Modal */}
       {selectedUser && (
         <Dialog open={!!selectedUser} onOpenChange={() => setSelectedUser(null)}>
-          <DialogContent className="max-w-2xl bg-background dark:bg-gray-800 border-border dark:border-gray-700">
+          <DialogContent className="max-w-4xl" data-testid="dialog-user-details">
             <DialogHeader>
-              <DialogTitle>User Details</DialogTitle>
+              <DialogTitle>User Profile Details</DialogTitle>
             </DialogHeader>
-            <div className="space-y-4">
-              <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              <div className="space-y-4">
                 <div>
-                  <Label className="text-foreground dark:text-gray-200">Email</Label>
-                  <Input value={selectedUser.email} readOnly className="bg-background dark:bg-gray-700 border-border dark:border-gray-600 text-foreground dark:text-gray-100" />
+                  <Label className="text-sm font-medium text-slate-700 dark:text-slate-300">Email Address</Label>
+                  <Input value={selectedUser.email} readOnly className="mt-1" />
                 </div>
                 <div>
-                  <Label className="text-foreground dark:text-gray-200">Username</Label>
-                  <Input value={selectedUser.username || ''} readOnly className="bg-background dark:bg-gray-700 border-border dark:border-gray-600 text-foreground dark:text-gray-100" />
+                  <Label className="text-sm font-medium text-slate-700 dark:text-slate-300">Username</Label>
+                  <Input value={selectedUser.username || 'Not set'} readOnly className="mt-1" />
                 </div>
                 <div>
-                  <Label className="text-foreground dark:text-gray-200">Status</Label>
-                  <Select 
-                    value={selectedUser.isActive ? 'active' : 'inactive'}
-                    onValueChange={(value) => 
-                      handleUpdateUser(selectedUser.id, { isActive: value === 'active' })
-                    }
-                  >
-                    <SelectTrigger className="bg-background dark:bg-gray-700 border-border dark:border-gray-600">
-                      <SelectValue className="text-foreground dark:text-gray-100" />
-                    </SelectTrigger>
-                    <SelectContent className="bg-background dark:bg-gray-700 border-border dark:border-gray-600">
-                      <SelectItem value="active" className="text-foreground dark:text-gray-100">Active</SelectItem>
-                      <SelectItem value="inactive" className="text-foreground dark:text-gray-100">Inactive</SelectItem>
-                    </SelectContent>
-                  </Select>
+                  <Label className="text-sm font-medium text-slate-700 dark:text-slate-300">Account Status</Label>
+                  <div className="mt-1">
+                    <Badge variant={selectedUser.isActive ? 'default' : 'secondary'}>
+                      {selectedUser.isActive ? 'Active' : 'Inactive'}
+                    </Badge>
+                  </div>
                 </div>
                 <div>
-                  <Label className="text-foreground dark:text-gray-200">Email Verified</Label>
-                  <Select 
-                    value={selectedUser.emailVerified ? 'true' : 'false'}
-                    onValueChange={(value) => 
-                      handleUpdateUser(selectedUser.id, { emailVerified: value === 'true' })
-                    }
-                  >
-                    <SelectTrigger className="bg-background dark:bg-gray-700 border-border dark:border-gray-600">
-                      <SelectValue className="text-foreground dark:text-gray-100" />
-                    </SelectTrigger>
-                    <SelectContent className="bg-background dark:bg-gray-700 border-border dark:border-gray-600">
-                      <SelectItem value="true" className="text-foreground dark:text-gray-100">Verified</SelectItem>
-                      <SelectItem value="false" className="text-foreground dark:text-gray-100">Not Verified</SelectItem>
-                    </SelectContent>
-                  </Select>
+                  <Label className="text-sm font-medium text-slate-700 dark:text-slate-300">Email Verified</Label>
+                  <div className="mt-1">
+                    <Badge variant={selectedUser.emailVerified ? 'default' : 'destructive'}>
+                      {selectedUser.emailVerified ? 'Verified' : 'Unverified'}
+                    </Badge>
+                  </div>
                 </div>
               </div>
-              <div>
-                <Label className="text-foreground dark:text-gray-200">Created At</Label>
-                <Input value={new Date(selectedUser.createdAt).toLocaleString()} readOnly className="bg-background dark:bg-gray-700 border-border dark:border-gray-600 text-foreground dark:text-gray-100" />
-              </div>
-              {selectedUser.lastLoginAt && (
+              <div className="space-y-4">
                 <div>
-                  <Label className="text-foreground dark:text-gray-200">Last Login</Label>
-                  <Input value={new Date(selectedUser.lastLoginAt).toLocaleString()} readOnly className="bg-background dark:bg-gray-700 border-border dark:border-gray-600 text-foreground dark:text-gray-100" />
+                  <Label className="text-sm font-medium text-slate-700 dark:text-slate-300">Risk Assessment</Label>
+                  <div className="mt-1">
+                    <Badge variant="outline" className={getRiskColor(getRiskLevel(selectedUser))}>
+                      {getRiskLevel(selectedUser).toUpperCase()} RISK
+                    </Badge>
+                  </div>
                 </div>
-              )}
+                <div>
+                  <Label className="text-sm font-medium text-slate-700 dark:text-slate-300">Account Created</Label>
+                  <Input value={new Date(selectedUser.createdAt).toLocaleString()} readOnly className="mt-1" />
+                </div>
+                <div>
+                  <Label className="text-sm font-medium text-slate-700 dark:text-slate-300">Last Login</Label>
+                  <Input 
+                    value={selectedUser.lastLoginAt ? new Date(selectedUser.lastLoginAt).toLocaleString() : 'Never logged in'} 
+                    readOnly 
+                    className="mt-1" 
+                  />
+                </div>
+                <div>
+                  <Label className="text-sm font-medium text-slate-700 dark:text-slate-300">User ID</Label>
+                  <Input value={selectedUser.id} readOnly className="mt-1 font-mono text-xs" />
+                </div>
+              </div>
             </div>
           </DialogContent>
         </Dialog>
       )}
-
-      {/* Confirmation Dialog */}
-      <AlertDialog open={confirmationDialog.isOpen} onOpenChange={(open) => 
-        setConfirmationDialog({ ...confirmationDialog, isOpen: open })
-      }>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle className="flex items-center gap-2">
-              <AlertTriangle className="h-5 w-5 text-orange-500" />
-              {confirmationDialog.title}
-            </AlertDialogTitle>
-            <AlertDialogDescription>
-              {confirmationDialog.description}
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <AlertDialogAction 
-              onClick={() => {
-                confirmationDialog.action();
-                setConfirmationDialog({ ...confirmationDialog, isOpen: false });
-              }}
-              className="bg-red-600 hover:bg-red-700"
-            >
-              Confirm
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
     </div>
   );
 }
 
-function SecurityEvents() {
-  const [severity, setSeverity] = useState<string>("all");
-  const [limit, setLimit] = useState(100);
-
-  const { data: securityData, isLoading, refetch } = useQuery({
-    queryKey: ["/api/admin/security-events", { severity, limit }],
-    queryFn: async () => {
-      // Build query parameters
-      const params = new URLSearchParams();
-      params.append('limit', limit.toString());
-      
-      // Only add severity if it's not "all"
-      if (severity !== "all") {
-        params.append('severity', severity.toUpperCase());
-      }
-      
-      console.log('Fetching security events with params:', params.toString());
-      
-      const response = await sessionFetch(`/api/admin/security-events-subscription?${params.toString()}`, {
-        method: 'GET',
-        credentials: 'include',
-        headers: { 
-          "Content-Type": "application/json",
-          "x-dashboard-auto-refresh": "true"
-        }
-      });
-      if (!response.ok) {
-        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
-      }
-      const result = await response.json();
-      console.log('Security events response:', result);
-      return result;
-    },
-    refetchInterval: 10000, // Refresh every 10 seconds
-    refetchIntervalInBackground: true
+// Main Admin Component
+export default function EnterpriseAdminDashboard() {
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [activeTab, setActiveTab] = useState("overview");
+  const [adminToken, setAdminToken] = useState<string | null>(null);
+  
+  // SEO optimization for admin dashboard
+  useSEO("/admin", {
+    title: "Enterprise Admin Dashboard - ReadMyFinePrint",
+    description: "Comprehensive administrative control panel for ReadMyFinePrint's privacy-first document analysis platform.",
+    keywords: "admin dashboard, enterprise management, user administration, security monitoring, system health",
+    canonical: "https://readmyfineprint.com/admin",
+    noIndex: true, // Admin pages should not be indexed
   });
 
-  const getSeverityColor = (severity: string) => {
-    switch (severity.toUpperCase()) {
-      case 'HIGH': return 'destructive';
-      case 'MEDIUM': return 'default';
-      case 'LOW': return 'secondary';
-      default: return 'outline';
-    }
-  };
-
-  return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <h2 className="text-3xl font-bold">Security Events</h2>
-        <div className="text-sm text-muted-foreground flex items-center space-x-2">
-          {isLoading && <div className="h-2 w-2 bg-green-500 rounded-full animate-pulse"></div>}
-          <span>Auto-refreshing every 10s</span>
-        </div>
-      </div>
-
-      {/* Filters */}
-      <div className="flex flex-wrap gap-4 items-center">
-        <Select value={severity} onValueChange={setSeverity}>
-          <SelectTrigger className="w-48">
-            <SelectValue placeholder="Filter by severity" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all">All Severities</SelectItem>
-            <SelectItem value="HIGH">High</SelectItem>
-            <SelectItem value="MEDIUM">Medium</SelectItem>
-            <SelectItem value="LOW">Low</SelectItem>
-          </SelectContent>
-        </Select>
-
-        <Select value={limit.toString()} onValueChange={(value) => setLimit(parseInt(value))}>
-          <SelectTrigger className="w-48">
-            <SelectValue placeholder="Number of events" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="50">Last 50 events</SelectItem>
-            <SelectItem value="100">Last 100 events</SelectItem>
-            <SelectItem value="200">Last 200 events</SelectItem>
-            <SelectItem value="500">Last 500 events</SelectItem>
-          </SelectContent>
-        </Select>
-      </div>
-
-      {/* Security Events Table */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Recent Security Events ({securityData?.events?.length || 0} events)</CardTitle>
-        </CardHeader>
-        <CardContent>
-          {isLoading ? (
-            <div>Loading security events...</div>
-          ) : !securityData?.events ? (
-            <div className="text-center py-8 text-gray-500">
-              <Shield className="h-12 w-12 mx-auto mb-4 opacity-50" />
-              <p>No security events found</p>
-              <p className="text-sm text-gray-400 mt-2">
-                {securityData ? 'Events array is empty or missing' : 'No data received'}
-              </p>
-            </div>
-          ) : securityData.events.length === 0 ? (
-            <div className="text-center py-8 text-gray-500">
-              <Shield className="h-12 w-12 mx-auto mb-4 opacity-50" />
-              <p>No security events match your filters</p>
-            </div>
-          ) : (
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Timestamp</TableHead>
-                  <TableHead>Type</TableHead>
-                  <TableHead>Severity</TableHead>
-                  <TableHead>Message</TableHead>
-                  <TableHead>IP Address</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {securityData?.events?.map((event: SecurityEvent, index: number) => (
-                  <TableRow key={event.id || `security-event-${index}-${event.timestamp}`}>
-                    <TableCell>
-                      {new Date(event.timestamp).toLocaleString()}
-                    </TableCell>
-                    <TableCell>
-                      <div className="flex items-center space-x-2">
-                        {event.type === 'DOCUMENT_ANALYSIS' && <FileText className="h-4 w-4" />}
-                        {event.type === 'RATE_LIMIT' && <Zap className="h-4 w-4" />}
-                        {event.type === 'INVALID_INPUT' && <X className="h-4 w-4" />}
-                        {event.type === 'AUTH_FAILURE' && <Shield className="h-4 w-4" />}
-                        {event.type === 'SUBSCRIPTION_EVENT' && <Activity className="h-4 w-4" />}
-                        <Badge variant="outline">{event.type}</Badge>
-                      </div>
-                    </TableCell>
-                    <TableCell>
-                      <Badge variant={getSeverityColor(event.severity)}>
-                        {event.severity}
-                      </Badge>
-                    </TableCell>
-                    <TableCell className="max-w-md truncate">
-                      {event.message}
-                    </TableCell>
-                    <TableCell className="font-mono text-sm">
-                      {event.ip}
-                    </TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          )}
-        </CardContent>
-      </Card>
-    </div>
-  );
-}
-
-function EmailChangeRequests() {
-  const [selectedRequest, setSelectedRequest] = useState<any | null>(null);
-  const [reviewNotes, setReviewNotes] = useState('');
-  const [reviewLoading, setReviewLoading] = useState(false);
-  const { toast } = useToast();
-
-  const { data: requestsData, isLoading, refetch } = useQuery({
-    queryKey: ["/api/admin/email-change-requests"],
-    queryFn: async () => {
-      const response = await sessionFetch("/api/admin/email-change-requests-subscription", {
-        method: 'GET',
-        credentials: 'include',
-        headers: { 
-          "Content-Type": "application/json"
-        }
-      });
-      if (!response.ok) {
-        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
-      }
-      return await response.json();
-    }
-  });
-
-  const handleRequestClick = async (request: any) => {
-    if (selectedRequest?.id === request.id) {
-      setSelectedRequest(null);
-      return;
-    }
-
-    try {
-      const response = await sessionFetch(`/api/admin/email-change-requests-subscription/${request.id}`, {
-        method: 'GET',
-        credentials: 'include',
-        headers: { 
-          "Content-Type": "application/json"
-        }
-      });
-      if (!response.ok) {
-        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
-      }
-      const data = await response.json();
-      setSelectedRequest({ ...data.request, user: data.user });
-      setReviewNotes('');
-    } catch (error) {
-      toast({
-        title: "Error",
-        description: "Failed to load request details",
-        variant: "destructive"
-      });
-    }
-  };
-
-  const handleReview = async (action: 'approve' | 'reject') => {
-    if (!selectedRequest) return;
-
-    setReviewLoading(true);
-    try {
-      const response = await sessionFetch(`/api/admin/email-change-requests-subscription/${selectedRequest.id}/review`, {
-        method: 'POST',
-        credentials: 'include',
-        headers: { 
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify({
-          action,
-          adminNotes: reviewNotes.trim() || undefined
-        })
-      });
-      if (!response.ok) {
-        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
-      }
-
-      toast({
-        title: "Success",
-        description: `Email change request ${action}ed successfully`,
-      });
-
-      refetch();
-      setSelectedRequest(null);
-      setReviewNotes('');
-    } catch (error) {
-      toast({
-        title: "Error",
-        description: `Failed to ${action} request`,
-        variant: "destructive"
-      });
-    } finally {
-      setReviewLoading(false);
-    }
-  };
-
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case 'pending': return 'bg-yellow-100 text-yellow-800 border-yellow-200';
-      case 'approved': return 'bg-green-100 text-green-800 border-green-200';
-      case 'rejected': return 'bg-red-100 text-red-800 border-red-200';
-      case 'expired': return 'bg-gray-100 text-gray-800 border-gray-200';
-      default: return 'bg-gray-100 text-gray-800 border-gray-200';
-    }
-  };
-
-  const formatDate = (date: Date | string) => {
-    return new Date(date).toLocaleString();
-  };
-
-  const getTimeRemaining = (expiresAt: Date | string) => {
-    const now = new Date();
-    const expires = new Date(expiresAt);
-    const diff = expires.getTime() - now.getTime();
-    
-    if (diff <= 0) return 'Expired';
-    
-    const hours = Math.floor(diff / (1000 * 60 * 60));
-    if (hours < 24) return `${hours}h remaining`;
-    
-    const days = Math.floor(hours / 24);
-    return `${days}d remaining`;
-  };
-
-  if (isLoading) {
-    return <div>Loading email change requests...</div>;
-  }
-
-  const requests = requestsData?.requests || [];
-
-  return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <h2 className="text-3xl font-bold">Email Change Requests</h2>
-        <Button onClick={() => refetch()} variant="outline" size="sm">
-          <RefreshCw className="h-4 w-4 mr-2" />
-          Refresh
-        </Button>
-      </div>
-
-      <Card>
-        <CardHeader>
-          <CardTitle>Pending Requests ({requests.length})</CardTitle>
-        </CardHeader>
-        <CardContent>
-          {requests.length === 0 ? (
-            <div className="text-center py-8 text-gray-500">
-              <Mail className="h-12 w-12 mx-auto mb-4 opacity-50" />
-              <p>No pending email change requests</p>
-            </div>
-          ) : (
-            <div className="space-y-4">
-              {requests.map((request: any) => (
-                <div key={request.id} className="border rounded-lg p-4 hover:bg-gray-50 cursor-pointer transition-colors">
-                  <div 
-                    onClick={() => handleRequestClick(request)} 
-                    className="space-y-3"
-                  >
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center space-x-3">
-                        <Badge variant="outline" className={getStatusColor(request.status)}>
-                          {request.status}
-                        </Badge>
-                        <span className="text-sm text-gray-500">
-                          {getTimeRemaining(request.expiresAt)}
-                        </span>
-                      </div>
-                      <div className="text-xs text-gray-500">
-                        {formatDate(request.createdAt)}
-                      </div>
-                    </div>
-
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
-                      <div>
-                        <span className="font-medium">From:</span> {request.currentEmail}
-                      </div>
-                      <div>
-                        <span className="font-medium">To:</span> {request.newEmail}
-                      </div>
-                    </div>
-
-                    <div className="text-sm">
-                      <span className="font-medium">Reason:</span> {request.reason}
-                    </div>
-                  </div>
-
-                  {selectedRequest && selectedRequest.id === request.id && (
-                    <div className="mt-4 pt-4 border-t space-y-4">
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
-                        <div>
-                          <span className="font-medium">User ID:</span> {selectedRequest.userId}
-                        </div>
-                        <div>
-                          <span className="font-medium">Client IP:</span> {selectedRequest.clientIp}
-                        </div>
-                        <div className="md:col-span-2">
-                          <span className="font-medium">User Agent:</span> {selectedRequest.userAgent}
-                        </div>
-                      </div>
-
-                      {selectedRequest.user && (
-                        <div className="bg-gray-50 p-3 rounded border">
-                          <h4 className="font-medium mb-2">User Details</h4>
-                          <div className="grid grid-cols-2 gap-2 text-sm">
-                            <div><span className="font-medium">Email:</span> {selectedRequest.user.email}</div>
-                            <div><span className="font-medium">Username:</span> {selectedRequest.user.username || 'N/A'}</div>
-                            <div><span className="font-medium">Account Created:</span> {formatDate(selectedRequest.user.createdAt)}</div>
-                          </div>
-                        </div>
-                      )}
-
-                      <div className="space-y-4">
-                        <div>
-                          <label htmlFor="admin-notes" className="block text-sm font-medium mb-2">Admin Notes (Optional)</label>
-                          <textarea
-                            id="admin-notes"
-                            value={reviewNotes}
-                            onChange={(e) => setReviewNotes(e.target.value)}
-                            placeholder="Add notes about your decision..."
-                            rows={3}
-                            className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 bg-background dark:bg-gray-800 text-foreground dark:text-white placeholder:text-muted-foreground dark:placeholder:text-gray-400"
-                          />
-                        </div>
-
-                        <div className="flex space-x-3">
-                          <Button
-                            onClick={() => handleReview('approve')}
-                            disabled={reviewLoading}
-                            className="bg-green-600 hover:bg-green-700 text-white"
-                          >
-                            <CheckCircle className="h-4 w-4 mr-2" />
-                            {reviewLoading ? 'Processing...' : 'Approve'}
-                          </Button>
-                          <Button
-                            onClick={() => handleReview('reject')}
-                            disabled={reviewLoading}
-                            variant="destructive"
-                          >
-                            <X className="h-4 w-4 mr-2" />
-                            {reviewLoading ? 'Processing...' : 'Reject'}
-                          </Button>
-                        </div>
-                      </div>
-                    </div>
-                  )}
-                </div>
-              ))}
-            </div>
-          )}
-        </CardContent>
-      </Card>
-    </div>
-  );
-}
-
-function Analytics() {
-  const { data: analyticsData, isLoading, error } = useQuery({
-    queryKey: ["/api/admin/analytics"],
-    queryFn: async () => {
-      console.log('Fetching analytics data...');
-      const response = await sessionFetch("/api/admin/analytics-subscription", {
-        method: 'GET',
-        credentials: 'include',
-        headers: { 
-          "Content-Type": "application/json",
-          "x-dashboard-auto-refresh": "true"
-        }
-      });
-      if (!response.ok) {
-        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
-      }
-      const result = await response.json();
-      console.log('Analytics response:', result);
-      return result;
-    },
-    refetchInterval: 60000, // Refresh every 60 seconds
-    refetchIntervalInBackground: true
-  });
-
-  if (isLoading) {
-    return (
-      <div className="space-y-6">
-        <h2 className="text-3xl font-bold">Analytics Dashboard</h2>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {[...Array(3)].map((_, i) => (
-            <Card key={i}>
-              <CardHeader>
-                <CardTitle className="text-sm">Loading...</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-bold animate-pulse bg-gray-200 rounded h-8 w-20"></div>
-                <p className="text-xs text-muted-foreground">Loading...</p>
-              </CardContent>
-            </Card>
-          ))}
-        </div>
-      </div>
-    );
-  }
-
-  if (error) {
-    return (
-      <div className="space-y-6">
-        <h2 className="text-3xl font-bold">Analytics Dashboard</h2>
-        <Card>
-          <CardContent className="text-center py-8">
-            <p className="text-red-500 mb-2">Error loading analytics data</p>
-            <p className="text-sm text-gray-500">{error.message}</p>
-          </CardContent>
-        </Card>
-      </div>
-    );
-  }
-
-  console.log('Rendering analytics with data:', analyticsData);
-
-  return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <h2 className="text-3xl font-bold">Analytics Dashboard</h2>
-        <div className="text-sm text-muted-foreground">
-          Auto-refreshing every 60s
-        </div>
-      </div>
-
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-sm">Total Revenue</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">
-              ${analyticsData?.revenueAnalytics?.totalRevenue?.toFixed(2) || '0.00'}
-            </div>
-            <p className="text-xs text-muted-foreground">Estimated monthly</p>
-            {!analyticsData && <p className="text-xs text-red-400">No data available</p>}
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-sm">Documents Analyzed</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">
-              {analyticsData?.usageAnalytics?.totalDocuments || 0}
-            </div>
-            <p className="text-xs text-muted-foreground">Last 30 days</p>
-            {!analyticsData && <p className="text-xs text-red-400">No data available</p>}
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-sm">Tokens Used</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">
-              {(analyticsData?.usageAnalytics?.totalTokens || 0).toLocaleString()}
-            </div>
-            <p className="text-xs text-muted-foreground">Last 30 days</p>
-            {!analyticsData && <p className="text-xs text-red-400">No data available</p>}
-          </CardContent>
-        </Card>
-      </div>
-
-      {/* Subscription Breakdown */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Subscription Breakdown</CardTitle>
-        </CardHeader>
-        <CardContent>
-          {!analyticsData?.subscriptionAnalytics?.byTier ? (
-            <div className="text-center py-4 text-gray-500">
-              <p>No subscription data available</p>
-              <p className="text-xs mt-1">Data structure: {JSON.stringify(Object.keys(analyticsData || {}))}</p>
-            </div>
-          ) : (
-            <div className="space-y-4">
-              {(analyticsData?.subscriptionAnalytics?.byTier || []).map((tier: any, index: number) => (
-                <div key={tier.tier || index} className="flex justify-between items-center">
-                  <div className="flex items-center space-x-2">
-                    <Badge variant="outline">{tier.tier || tier.tierId || 'Unknown'}</Badge>
-                    <span className="text-sm">{tier.count || 0} users</span>
-                  </div>
-                  <div className="text-sm font-medium">
-                    ${(tier.revenue || 0).toFixed(2)}/month
-                  </div>
-                </div>
-              ))}
-            </div>
-          )}
-        </CardContent>
-      </Card>
-
-      {/* Debug Info - Only in development */}
-      {import.meta.env.DEV && analyticsData && (
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-sm text-gray-500 dark:text-gray-400">Debug - Analytics Data Structure</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <pre className="text-xs bg-gray-100 dark:bg-gray-800 text-gray-900 dark:text-gray-100 p-2 rounded overflow-auto max-h-40">
-              {JSON.stringify(analyticsData, null, 2)}
-            </pre>
-          </CardContent>
-        </Card>
-      )}
-    </div>
-  );
-}
-
-export default function AdminDashboard() {
-  const [isCheckingAuth, setIsCheckingAuth] = useState(true);
-  const [isAdmin, setIsAdmin] = useState(false);
-
-  // Check if user is admin using existing subscription token
   useEffect(() => {
-    const checkAdminStatus = async () => {
-      if (import.meta.env.DEV) {
-        console.log('🔍 Starting admin authentication check...');
-      }
-      
-      // Check if we're in development mode and try auto-login
-      if (import.meta.env.DEV || import.meta.env.MODE === 'development') {
-        console.log('🔧 Development mode detected, attempting auto-admin login...');
-        try {
-          const response = await sessionFetch('/api/dev/auto-admin-login', {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-            },
-            credentials: 'include',
-          });
-
-          if (response.ok) {
-            const data = await response.json();
-            console.log('✅ Development auto-login successful:', data.user.email);
-            setIsAdmin(true);
-            setIsCheckingAuth(false);
-            return;
-          } else {
-            console.log('⚠️ Development auto-login failed, status:', response.status);
-            const errorText = await response.text();
-            console.log('Error details:', errorText);
-          }
-        } catch (error) {
-          console.error('Development auto-login error:', error);
-        }
-      }
-
-      // Check if user is authenticated via session cookie
-      console.log('🔍 Checking session cookie authentication...');
-      try {
-        const response = await sessionFetch('/api/auth/session', {
-          method: 'GET',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-        });
-
-        console.log('Session check response status:', response.status);
-
-        if (response.ok) {
-          const data = await response.json();
-          console.log('Session data received:', data);
-          
-          // Check if user is authenticated and is admin
-          if (data.authenticated && data.user) {
-            const adminEmails = ['admin@readmyfineprint.com', 'prodbybuddha@icloud.com'];
-            
-            if (adminEmails.includes(data.user.email)) {
-              console.log('✅ Admin access granted via session cookie');
-              setIsAdmin(true);
-            } else {
-              console.log('❌ User is not admin:', data.user?.email);
-              setIsAdmin(false);
-            }
-          } else {
-            console.log('❌ User is not authenticated:', data);
-            setIsAdmin(false);
-          }
-        } else {
-          console.log('❌ Session check failed with status:', response.status);
-          const errorText = await response.text();
-          console.log('Session error details:', errorText);
-          setIsAdmin(false);
-        }
-      } catch (error) {
-        console.error('❌ Admin auth check failed:', error);
-        setIsAdmin(false);
-      } finally {
-        setIsCheckingAuth(false);
-      }
-    };
-
-    checkAdminStatus();
+    // Check for existing admin authentication
+    const token = localStorage.getItem('jwt_access_token');
+    if (token) {
+      setAdminToken(token);
+      setIsAuthenticated(true);
+    }
   }, []);
 
-  // Show loading while checking auth
-  if (isCheckingAuth) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto mb-4"></div>
-          <p>Checking admin access...</p>
-        </div>
-      </div>
-    );
-  }
+  const handleLogin = (accessToken: string, refreshToken: string) => {
+    setAdminToken(accessToken);
+    setIsAuthenticated(true);
+  };
 
-  // Show appropriate message if not admin
-  if (!isAdmin) {
-    // Only show debug panel in development
-    if (import.meta.env.DEV) {
-      return (
-        <div className="min-h-screen flex items-center justify-center p-4">
-          <Card className="w-full max-w-2xl">
-            <CardHeader>
-              <CardTitle className="text-center text-red-600">Admin Access Debug</CardTitle>
-            </CardHeader>
-            <CardContent>
-            <div className="space-y-4">
-              <div>
-                <h3 className="font-semibold mb-2">Session Cookie Test</h3>
-                <Button 
-                  onClick={async () => {
-                    try {
-                      const response = await sessionFetch('/api/auth/session', {
-                        method: 'GET',
-                        credentials: 'include',
-                        headers: {
-                          'x-session-id': sessionStorage.getItem('app-session-id') || 'anonymous',
-                        }
-                      });
-                      const data = await response.json();
-                      console.log('Session test result:', { status: response.status, data });
-                      alert(`Session test: ${response.status} - ${JSON.stringify(data, null, 2)}`);
-                    } catch (error) {
-                      console.error('Session test error:', error);
-                      alert(`Session test error: ${error}`);
-                    }
-                  }}
-                  className="mb-2"
-                >
-                  Test Session Cookie
-                </Button>
-              </div>
-              
-              <div>
-                <h3 className="font-semibold mb-2">Cookie Information</h3>
-                <Button 
-                  onClick={() => {
-                    const cookies = document.cookie;
-                    console.log('All cookies:', cookies);
-                    alert(`Cookies: ${cookies || 'No cookies found'}`);
-                  }}
-                  className="mb-2"
-                >
-                  Check Cookies
-                </Button>
-              </div>
-              
-              <div>
-                <h3 className="font-semibold mb-2">Email Verification Login</h3>
-                <p className="text-sm text-gray-600 mb-2">
-                  After successful email verification, the session cookie should be set automatically.
-                </p>
-                <Button 
-                  onClick={() => {
-                    window.location.href = '/subscription?tab=login';
-                  }}
-                  className="mb-2"
-                >
-                  Go to Email Verification Login
-                </Button>
-              </div>
-              
-              <div>
-                <h3 className="font-semibold mb-2">Development Auto-Login</h3>
-                <Button 
-                  onClick={async () => {
-                    try {
-                      const response = await sessionFetch('/api/dev/auto-admin-login', {
-                        method: 'POST',
-                        headers: {
-                          'Content-Type': 'application/json',
-                        },
-                        credentials: 'include',
-                      });
-                      const data = await response.json();
-                      console.log('Auto-login result:', { status: response.status, data });
-                      if (response.ok) {
-                        alert('Auto-login successful! Refreshing page...');
-                        window.location.reload();
-                      } else {
-                        alert(`Auto-login failed: ${response.status} - ${JSON.stringify(data, null, 2)}`);
-                      }
-                    } catch (error) {
-                      console.error('Auto-login error:', error);
-                      alert(`Auto-login error: ${error}`);
-                    }
-                  }}
-                  className="mb-2"
-                >
-                  Try Development Auto-Login
-                </Button>
-              </div>
-            </div>
-            
-            <div className="mt-6 pt-4 border-t">
-              <Button onClick={() => window.location.href = '/'} variant="outline">
-              Return to Home
-            </Button>
-            </div>
-          </CardContent>
-        </Card>
-      </div>
-    );
-    }
-    
-    // Production: Show proper access denied message
-    return (
-      <div className="min-h-screen flex items-center justify-center p-4">
-        <Card className="w-full max-w-md">
-          <CardHeader>
-            <CardTitle className="text-center">Admin Access Required</CardTitle>
-          </CardHeader>
-          <CardContent className="text-center space-y-4">
-            <Shield className="w-16 h-16 mx-auto text-gray-400" />
-            <p className="text-gray-600 dark:text-gray-400">
-              You don't have permission to access this area.
-            </p>
-            <Button onClick={() => window.location.href = '/'} variant="outline">
-              Return to Home
-            </Button>
-          </CardContent>
-        </Card>
-      </div>
-    );
+  const handleLogout = () => {
+    localStorage.removeItem('jwt_access_token');
+    localStorage.removeItem('jwt_refresh_token');
+    setAdminToken(null);
+    setIsAuthenticated(false);
+  };
+
+  if (!isAuthenticated) {
+    return <AdminLogin onLogin={handleLogin} />;
   }
 
   return (
-    <div className="min-h-screen bg-background dark:bg-gray-900">
-      <TradeSecretProtection />
-      <div className="container mx-auto px-4 py-8 bg-background dark:bg-gray-900">
-        <Tabs defaultValue="overview" className="space-y-6">
-          <TabsList className="grid w-full grid-cols-6">
-            <TabsTrigger value="overview">Overview</TabsTrigger>
-            <TabsTrigger value="users">Users</TabsTrigger>
-            <TabsTrigger value="email-requests">Email Requests</TabsTrigger>
-            <TabsTrigger value="security">Security</TabsTrigger>
-            <TabsTrigger value="blog">Blog</TabsTrigger>
-            <TabsTrigger value="analytics">Analytics</TabsTrigger>
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-900 dark:to-slate-800" data-testid="enterprise-admin-dashboard">
+      {/* Admin Header */}
+      <div className="bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-700 shadow-sm">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex items-center justify-between h-16">
+            <div className="flex items-center space-x-4">
+              <div className="flex items-center space-x-2">
+                <div className="p-2 bg-blue-600 rounded-lg">
+                  <Shield className="h-5 w-5 text-white" />
+                </div>
+                <div>
+                  <h1 className="text-lg font-semibold text-slate-900 dark:text-slate-100">
+                    Admin Console
+                  </h1>
+                  <p className="text-xs text-slate-500">ReadMyFinePrint Enterprise</p>
+                </div>
+              </div>
+            </div>
+            <div className="flex items-center space-x-4">
+              <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200">
+                <div className="h-2 w-2 bg-green-500 rounded-full mr-2 animate-pulse"></div>
+                Online
+              </Badge>
+              <Button variant="outline" onClick={handleLogout} data-testid="button-admin-logout">
+                <X className="h-4 w-4 mr-2" />
+                Logout
+              </Button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-8">
+          <TabsList className="grid w-full grid-cols-7 bg-white dark:bg-slate-800 p-1 rounded-lg shadow-sm">
+            <TabsTrigger value="overview" className="data-[state=active]:bg-blue-600 data-[state=active]:text-white" data-testid="tab-overview">
+              <Monitor className="h-4 w-4 mr-2" />
+              Overview
+            </TabsTrigger>
+            <TabsTrigger value="users" className="data-[state=active]:bg-blue-600 data-[state=active]:text-white" data-testid="tab-users">
+              <Users className="h-4 w-4 mr-2" />
+              Users
+            </TabsTrigger>
+            <TabsTrigger value="analytics" className="data-[state=active]:bg-blue-600 data-[state=active]:text-white" data-testid="tab-analytics">
+              <BarChart3 className="h-4 w-4 mr-2" />
+              Analytics
+            </TabsTrigger>
+            <TabsTrigger value="security" className="data-[state=active]:bg-blue-600 data-[state=active]:text-white" data-testid="tab-security">
+              <Shield className="h-4 w-4 mr-2" />
+              Security
+            </TabsTrigger>
+            <TabsTrigger value="compliance" className="data-[state=active]:bg-blue-600 data-[state=active]:text-white" data-testid="tab-compliance">
+              <Lock className="h-4 w-4 mr-2" />
+              Compliance
+            </TabsTrigger>
+            <TabsTrigger value="system" className="data-[state=active]:bg-blue-600 data-[state=active]:text-white" data-testid="tab-system">
+              <Server className="h-4 w-4 mr-2" />
+              System
+            </TabsTrigger>
+            <TabsTrigger value="settings" className="data-[state=active]:bg-blue-600 data-[state=active]:text-white" data-testid="tab-settings">
+              <Settings className="h-4 w-4 mr-2" />
+              Settings
+            </TabsTrigger>
           </TabsList>
 
-          <TabsContent value="overview">
-            <DashboardOverview />
+          <TabsContent value="overview" className="space-y-6">
+            <EnterpriseOverview />
           </TabsContent>
 
-          <TabsContent value="users">
-            <UserManagement />
+          <TabsContent value="users" className="space-y-6">
+            <EnterpriseUserManagement />
           </TabsContent>
 
-          <TabsContent value="email-requests">
-            <EmailChangeRequests />
+          <TabsContent value="analytics" className="space-y-6">
+            <Suspense fallback={
+              <div className="flex items-center justify-center h-64">
+                <Loader2 className="h-8 w-8 animate-spin" />
+              </div>
+            }>
+              <AdvancedAnalytics />
+            </Suspense>
           </TabsContent>
 
-          <TabsContent value="security">
-            <SecurityEvents />
+          <TabsContent value="security" className="space-y-6">
+            <Suspense fallback={
+              <div className="flex items-center justify-center h-64">
+                <Loader2 className="h-8 w-8 animate-spin" />
+              </div>
+            }>
+              <SecurityCenter />
+            </Suspense>
           </TabsContent>
 
-          <TabsContent value="blog">
-            <BlogAdmin />
+          <TabsContent value="compliance" className="space-y-6">
+            <Suspense fallback={
+              <div className="flex items-center justify-center h-64">
+                <Loader2 className="h-8 w-8 animate-spin" />
+              </div>
+            }>
+              <ComplianceReporting />
+            </Suspense>
           </TabsContent>
 
-          <TabsContent value="analytics">
-            <Analytics />
+          <TabsContent value="system" className="space-y-6">
+            <Card className="p-6">
+              <CardHeader>
+                <CardTitle>System Management</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p className="text-slate-600">System management tools coming soon...</p>
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          <TabsContent value="settings" className="space-y-6">
+            <Card className="p-6">
+              <CardHeader>
+                <CardTitle>Admin Settings</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p className="text-slate-600">Admin configuration settings coming soon...</p>
+              </CardContent>
+            </Card>
           </TabsContent>
         </Tabs>
       </div>
