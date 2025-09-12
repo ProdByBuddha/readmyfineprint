@@ -72,7 +72,7 @@ export class LocalOss20BProvider implements LLMProvider {
     options: LLMAnalysisOptions = {}
   ): Promise<DocumentAnalysis> {
     const {
-      model = this.defaultModel,
+      model, // Ignore the incoming model name
       temperature = 0.3,
       maxTokens = 4000,
       ip,
@@ -81,6 +81,9 @@ export class LocalOss20BProvider implements LLMProvider {
       userId
     } = options;
 
+    // Always use the local model name, regardless of what OpenAI model name was passed
+    const localModel = this.defaultModel;
+
     try {
       // Log usage for audit purposes
       if (ip && userAgent && sessionId) {
@@ -88,10 +91,13 @@ export class LocalOss20BProvider implements LLMProvider {
       }
 
       // Log request metadata only (no sensitive content)
-      console.log(`🤖 Sending to Local OSS20B (${model}):`);
+      console.log(`🤖 Sending to Local OSS20B (${localModel}):`);
       console.log(`   - Document: "${title}"`);
       console.log(`   - Content length: ${content.length} characters`);
       console.log(`   - Base URL: ${this.baseUrl}`);
+      if (model && model !== localModel) {
+        console.log(`   - Original model requested: ${model} (using ${localModel} instead)`);
+      }
       
       // Check if content seems to be garbled or has extraction issues
       const readableRatio = (content.match(/[a-zA-Z\s]/g) || []).length / content.length;
@@ -135,7 +141,7 @@ Focus on:
 Provide practical, actionable insights that help everyday users understand what they're agreeing to. IMPORTANT: Respond only with valid JSON, no additional text or formatting.`;
 
       const requestPayload: OSS20BRequest = {
-        model: model,
+        model: localModel,
         messages: [
           {
             role: "system",
@@ -226,7 +232,7 @@ Provide practical, actionable insights that help everyday users understand what 
         await subscriptionService.trackUsage(
           userId,
           response.usage.total_tokens,
-          model
+          localModel
         );
       }
 
