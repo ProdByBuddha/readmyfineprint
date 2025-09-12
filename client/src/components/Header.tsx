@@ -41,8 +41,8 @@ interface AuthSession {
 export function Header() {
   const location = useLocation();
   const navigate = useNavigate();
-  const [showLogin, setShowLogin] = useState(false);
-  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [showLogin, setShowLogin] = useState<boolean>(false);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState<boolean>(false);
   const { toast } = useToast();
   const { theme, toggleTheme } = useTheme();
   const isMobile = useIsMobile();
@@ -64,9 +64,9 @@ export function Header() {
         });
 
         if (response.ok) {
-          const data = await response.json();
+          const data: any = await response.json();
           if (data.authenticated && data.user) {
-            return data;
+            return data as AuthSession;
           } else {
             // Try development auto-login if in dev mode and not authenticated
             if (import.meta.env.DEV && response.status !== 401) {
@@ -91,14 +91,14 @@ export function Header() {
                   });
                   
                   if (retryResponse.ok) {
-                    const retryData = await retryResponse.json();
+                    const retryData: any = await retryResponse.json();
                     if (retryData.authenticated && retryData.user) {
                       toast({
                         title: "Development Mode",
                         description: "You've been automatically logged in as admin",
                         duration: 3000,
                       });
-                      return retryData;
+                      return retryData as AuthSession;
                     }
                   }
                 }
@@ -113,7 +113,7 @@ export function Header() {
         }
       } catch (error) {
         // Only log unexpected errors, not normal authentication failures
-        if (error instanceof Error && !error.message.includes('401') && !error.message.includes('Unauthorized')) {
+        if (error instanceof Error && error.message && !error.message.includes('401') && !error.message.includes('Unauthorized')) {
           console.error('Error checking authentication:', error);
         }
         return { authenticated: false };

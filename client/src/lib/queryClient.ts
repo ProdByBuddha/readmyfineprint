@@ -4,12 +4,15 @@ import { QueryClient, QueryFunction } from "@tanstack/react-query";
 function getSessionId(): string {
   let sessionId = sessionStorage.getItem('app-session-id');
   if (!sessionId) {
-    sessionId = crypto.getRandomValues(new Uint8Array(16))
-      .reduce((str, byte) => str + byte.toString(16).padStart(2, '0'), '');
+    const uint8Array = new Uint8Array(16);
+    const randomValues = (globalThis as any).crypto.getRandomValues(uint8Array);
+    const arrayFromValues = (globalThis as any).Array.from(randomValues);
+    sessionId = arrayFromValues
+      .reduce((str: string, byte: number) => str + (byte as any).toString(16).padStart(2, '0'), '');
     sessionStorage.setItem('app-session-id', sessionId);
     console.log('Generated new session ID:', sessionId);
   }
-  return sessionId;
+  return sessionId || '';
 }
 
 function updateSessionId(sessionId: string) {
@@ -63,13 +66,13 @@ export async function apiRequest(
   method: string,
   url: string,
   options?: {
-    headers?: Record<string, string>;
+    headers?: { [key: string]: string };
     body?: unknown;
   }
 ): Promise<Response> {
   const customHeaders = options?.headers || {};
   
-  const headers: Record<string, string> = {
+  const headers: { [key: string]: string } = {
     'x-session-id': getSessionId(),
     ...customHeaders,
   };
@@ -114,12 +117,12 @@ export async function apiRequest(
 }
 
 type UnauthorizedBehavior = "returnNull" | "throw";
-export const getQueryFn: <T>(options: {
+export const getQueryFn = <T>(options: {
   on401: UnauthorizedBehavior;
-}) => QueryFunction<T> =
-  ({ on401: unauthorizedBehavior }) =>
-  async ({ queryKey }) => {
-    const res = await fetch(queryKey[0] as string, {
+}): QueryFunction<T> =>
+  async ({ queryKey }: { queryKey: readonly unknown[] }): Promise<T> => {
+    const { on401: unauthorizedBehavior } = options;
+    const res = await fetch((queryKey as any)[0], {
       headers: {
         'x-session-id': getSessionId(),
       },
@@ -151,7 +154,7 @@ export const getQueryFn: <T>(options: {
     }
 
     await throwIfResNotOk(res);
-    return await res.json();
+    return await res.json() as T;
   };
 
 export const queryClient = new QueryClient({
@@ -164,7 +167,7 @@ export const queryClient = new QueryClient({
       refetchOnReconnect: false,
       refetchIntervalInBackground: false,
       notifyOnChangeProps: ['data', 'error'],
-      staleTime: Infinity, // Never consider data stale
+      staleTime: Number.POSITIVE_INFINITY, // Never consider data stale
       gcTime: 24 * 60 * 60 * 1000, // 24 hours
       retry: false,
       structuralSharing: false, // Disable to prevent unnecessary re-renders
