@@ -127,7 +127,7 @@ export default function Home() {
     {
       icon: Shield,
       title: "Enterprise Security Architecture",
-      description: "Military-grade encryption, zero-knowledge processing, and SOC 2 Type II compliance ensure your most sensitive documents remain completely secure throughout analysis.",
+      description: "Military-grade encryption, zero-knowledge processing, and advanced security controls ensure your most sensitive documents remain completely secure throughout analysis.",
       badge: "SOC 2 Ready",
       gradient: "from-blue-500/10 to-indigo-600/10 dark:from-blue-400/5 dark:to-indigo-500/5",
       stats: "256-bit Encryption",
@@ -242,7 +242,7 @@ export default function Home() {
                   data-testid="upload-button"
                 >
                   <Shield className="w-6 h-6 mr-3 group-hover:rotate-12 transition-transform duration-300" />
-                  Start Enterprise Analysis
+                  Start Free Analysis
                   <ArrowRight className="w-6 h-6 ml-3 group-hover:translate-x-1 transition-transform duration-300" />
                 </Button>
               </Link>

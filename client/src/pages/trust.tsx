@@ -17,7 +17,7 @@ export default function TrustPage() {
 
   const securityCertifications: Array<{name: string; status: string; color: string; description: string}> = [
     { name: "SOC 2 Type II", status: "In Progress", color: "bg-blue-500", description: "Security, Availability, and Confidentiality" },
-    { name: "ISO 27001", status: "Certified", color: "bg-blue-500", description: "Information Security Management" },
+    { name: "ISO 27001", status: "In Progress", color: "bg-blue-500", description: "Information Security Management" },
     { name: "GDPR", status: "Compliant", color: "bg-purple-500", description: "EU Data Protection Regulation" },
     { name: "CCPA", status: "Compliant", color: "bg-orange-500", description: "California Consumer Privacy Act" },
     { name: "ASVS L1", status: "98% Complete", color: "bg-green-500", description: "Application Security Verification" },
@@ -25,7 +25,7 @@ export default function TrustPage() {
     { name: "TLS 1.3", status: "Enforced", color: "bg-indigo-500", description: "Transport Layer Security" },
     { name: "AES-256", status: "Implemented", color: "bg-teal-500", description: "Advanced Encryption Standard" },
     { name: "HIPAA", status: "Ready", color: "bg-pink-500", description: "Healthcare Information Protection" },
-    { name: "PCI DSS", status: "Compliant", color: "bg-yellow-500", description: "Payment Card Industry Standards" },
+    { name: "PCI DSS", status: "In Progress", color: "bg-yellow-500", description: "Payment Card Industry Standards" },
     { name: "FedRAMP", status: "In Progress", color: "bg-gray-500", description: "Federal Risk Authorization" },
     { name: "Zero Trust", status: "Architected", color: "bg-cyan-500", description: "Never Trust, Always Verify" }
   ];
@@ -111,7 +111,7 @@ export default function TrustPage() {
         "GDPR Article 25 - Privacy by Design",
         "CCPA compliance with enhanced user rights",
         "PIPEDA alignment for Canadian users",
-        "SOC 2 Type II annual audits"
+        "SOC 2 Type II assessment in progress"
       ]
     }
   ];
