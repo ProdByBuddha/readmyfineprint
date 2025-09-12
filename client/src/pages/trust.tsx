@@ -1,5 +1,5 @@
+import React, { useState, useEffect } from "react";
 import { Shield, Lock, CheckCircle, FileText, Users, Globe, AlertTriangle, Mail, Book, Key, Server, Database, Award, Eye, Clock, Zap, Building, Star, ArrowRight, Download, ExternalLink } from "lucide-react";
-import { useState, useEffect } from "react";
 import { useSEO } from '@/lib/seo';
 import TradeSecretProtection from '@/components/TradeSecretProtection';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
