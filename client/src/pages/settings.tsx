@@ -161,23 +161,36 @@ export default function SettingsPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
-      <div className="max-w-6xl mx-auto px-4 py-8">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-blue-50 dark:from-slate-900 dark:via-slate-800 dark:to-blue-950 relative overflow-hidden" data-testid="settings-page">
+      {/* Background Pattern */}
+      <div className="absolute inset-0 bg-grid-pattern opacity-5 dark:opacity-10" />
+      <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-secondary/5" />
+      
+      <div className="relative max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8 lg:py-12">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="mb-8"
+          className="text-center mb-12"
         >
-          <h1 className="text-3xl font-bold text-gray-900 dark:text-white">
-            Account Settings
+          <Badge className="mb-6 px-6 py-3 text-sm font-semibold bg-gradient-to-r from-primary/5 to-secondary/5 dark:from-primary/10 dark:to-secondary/10 border-primary/20 dark:border-primary/30 shadow-lg backdrop-blur-sm border">
+            <SettingsIcon className="w-4 h-4 mr-2" />
+            Personal Settings
+          </Badge>
+          <h1 className="text-4xl md:text-5xl lg:text-6xl font-black mb-6 leading-tight text-slate-900 dark:text-white">
+            Account
+            <br />
+            <span className="bg-gradient-to-r from-primary via-blue-600 to-secondary bg-clip-text text-transparent">
+              Settings
+            </span>
           </h1>
-          <p className="mt-2 text-gray-600 dark:text-gray-300">
-            Manage your account, security, privacy, and application preferences
+          <p className="text-xl md:text-2xl text-slate-600 dark:text-slate-300 max-w-3xl mx-auto leading-relaxed font-light">
+            Manage your profile, security, preferences, and subscription settings with 
+            <strong className="font-semibold text-primary"> enterprise-grade controls</strong>.
           </p>
         </motion.div>
 
-        <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-          <TabsList className="grid w-full grid-cols-6 lg:max-w-4xl">
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-8">
+          <TabsList className="grid w-full grid-cols-6 lg:max-w-4xl mx-auto bg-white/70 dark:bg-slate-800/70 backdrop-blur-xl border-0 shadow-lg p-2 rounded-2xl">
             <TabsTrigger value="account" className="text-xs sm:text-sm" data-testid="tab-account">
               <User className="h-4 w-4 mr-1" />
               <span className="hidden sm:inline">Account</span>

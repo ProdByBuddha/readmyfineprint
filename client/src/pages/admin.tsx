@@ -232,19 +232,33 @@ function AdminLogin({ onLogin }: { onLogin: (accessToken?: string, refreshToken?
 
   if (!codeSent && !import.meta.env.DEV) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-100 to-slate-200 dark:from-slate-900 dark:to-slate-800" data-testid="admin-login-loading">
-        <Card className="w-full max-w-md shadow-xl border-0 bg-white/90 dark:bg-slate-800/90 backdrop-blur-sm">
-          <CardHeader className="text-center pb-2">
-            <div className="mx-auto w-12 h-12 bg-blue-600 rounded-full flex items-center justify-center mb-4">
-              <Shield className="w-6 h-6 text-white" />
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-50 via-white to-blue-50 dark:from-slate-900 dark:via-slate-800 dark:to-blue-950 relative overflow-hidden" data-testid="admin-login-loading">
+        {/* Background Pattern */}
+        <div className="absolute inset-0 bg-grid-pattern opacity-5 dark:opacity-10" />
+        <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-secondary/5" />
+        
+        <Card className="relative w-full max-w-md shadow-2xl border-0 bg-white/70 dark:bg-slate-800/70 backdrop-blur-xl">
+          <CardHeader className="text-center pb-6">
+            <div className="mx-auto w-16 h-16 bg-gradient-to-br from-primary via-blue-600 to-primary rounded-2xl flex items-center justify-center mb-6 shadow-xl">
+              <Shield className="w-8 h-8 text-white" />
             </div>
-            <CardTitle className="text-xl text-slate-800 dark:text-slate-100">Admin Authentication</CardTitle>
-          </CardHeader>
-          <CardContent className="text-center space-y-4">
-            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto"></div>
-            <p className="text-sm text-slate-600 dark:text-slate-400">
-              Sending admin verification code...
+            <CardTitle className="text-2xl font-bold text-slate-900 dark:text-slate-100">Admin Authentication</CardTitle>
+            <p className="text-slate-600 dark:text-slate-400 text-sm mt-2">
+              Secure enterprise admin portal
             </p>
+          </CardHeader>
+          <CardContent className="text-center space-y-6">
+            <div className="relative">
+              <div className="animate-spin rounded-full h-12 w-12 border-4 border-primary/20 border-t-primary mx-auto"></div>
+            </div>
+            <div className="space-y-2">
+              <p className="text-slate-700 dark:text-slate-300 font-medium">
+                Initializing Security Protocol
+              </p>
+              <p className="text-sm text-slate-500 dark:text-slate-400">
+                Sending admin verification code...
+              </p>
+            </div>
           </CardContent>
         </Card>
       </div>
@@ -252,21 +266,31 @@ function AdminLogin({ onLogin }: { onLogin: (accessToken?: string, refreshToken?
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-100 to-slate-200 dark:from-slate-900 dark:to-slate-800" data-testid="admin-login-form">
-      <Card className="w-full max-w-md shadow-xl border-0 bg-white/90 dark:bg-slate-800/90 backdrop-blur-sm">
-        <CardHeader className="text-center pb-2">
-          <div className="mx-auto w-12 h-12 bg-blue-600 rounded-full flex items-center justify-center mb-4">
-            <Shield className="w-6 h-6 text-white" />
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-50 via-white to-blue-50 dark:from-slate-900 dark:via-slate-800 dark:to-blue-950 relative overflow-hidden" data-testid="admin-login-form">
+      {/* Background Pattern */}
+      <div className="absolute inset-0 bg-grid-pattern opacity-5 dark:opacity-10" />
+      <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-secondary/5" />
+      
+      <Card className="relative w-full max-w-lg shadow-2xl border-0 bg-white/70 dark:bg-slate-800/70 backdrop-blur-xl">
+        <CardHeader className="text-center pb-6">
+          <div className="mx-auto w-16 h-16 bg-gradient-to-br from-primary via-blue-600 to-primary rounded-2xl flex items-center justify-center mb-6 shadow-xl">
+            <Shield className="w-8 h-8 text-white" />
           </div>
-          <CardTitle className="text-xl text-slate-800 dark:text-slate-100">Admin Verification</CardTitle>
-          <p className="text-xs text-slate-500 dark:text-slate-400 mt-2">
+          <CardTitle className="text-3xl font-black text-slate-900 dark:text-slate-100 leading-tight">
+            Admin Verification
+          </CardTitle>
+          <p className="text-slate-600 dark:text-slate-400 mt-3 text-lg font-light">
             Enterprise-grade admin access portal
           </p>
+          <Badge className="mt-4 px-4 py-2 bg-gradient-to-r from-primary/10 to-secondary/10 text-primary border-primary/20 mx-auto">
+            <Lock className="w-3 h-3 mr-2" />
+            Secure Access Required
+          </Badge>
         </CardHeader>
-        <CardContent>
-          <form onSubmit={handleVerifyCode} className="space-y-6">
-            <div className="space-y-2">
-              <Label htmlFor="code" className="text-sm font-medium text-slate-700 dark:text-slate-300">
+        <CardContent className="px-8 pb-8">
+          <form onSubmit={handleVerifyCode} className="space-y-8">
+            <div className="space-y-4">
+              <Label htmlFor="code" className="text-lg font-semibold text-slate-800 dark:text-slate-200">
                 6-Digit Verification Code
               </Label>
               <Input
@@ -274,34 +298,38 @@ function AdminLogin({ onLogin }: { onLogin: (accessToken?: string, refreshToken?
                 type="text"
                 value={verificationCode}
                 onChange={(e) => setVerificationCode(e.target.value)}
-                placeholder="Enter verification code"
+                placeholder="000000"
                 maxLength={6}
                 pattern="[0-9]{6}"
                 required
                 data-testid="input-verification-code"
-                className="h-12 text-center text-lg tracking-widest font-mono"
+                className="h-16 text-center text-2xl tracking-widest font-mono bg-white/50 dark:bg-slate-700/50 backdrop-blur-sm border-2 border-slate-200/50 dark:border-slate-600/50 focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all duration-200"
                 disabled={isLoading}
               />
-              <p className="text-xs text-slate-500 dark:text-slate-400">
-                Code expires in 10 minutes
-              </p>
+              <div className="flex items-center justify-center gap-2 text-slate-500 dark:text-slate-400">
+                <Clock className="w-4 h-4" />
+                <p className="text-sm">
+                  Code expires in 10 minutes
+                </p>
+              </div>
             </div>
             
             <Button 
               type="submit" 
-              className="w-full h-12 bg-blue-600 hover:bg-blue-700 text-white font-medium" 
+              className="w-full h-16 bg-gradient-to-r from-primary via-blue-600 to-primary hover:from-primary/90 hover:via-blue-600/90 hover:to-primary/90 text-white font-bold text-lg shadow-xl hover:shadow-primary/25 transition-all duration-300 transform hover:-translate-y-1" 
               disabled={isLoading || !verificationCode || verificationCode.length !== 6}
               data-testid="button-verify-admin"
             >
               {isLoading ? (
                 <>
-                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                  Verifying...
+                  <Loader2 className="w-6 h-6 mr-3 animate-spin" />
+                  Verifying Security Credentials...
                 </>
               ) : (
                 <>
-                  <Shield className="w-4 h-4 mr-2" />
-                  Access Admin Dashboard
+                  <Shield className="w-6 h-6 mr-3" />
+                  Access Enterprise Dashboard
+                  <ArrowRight className="w-6 h-6 ml-3" />
                 </>
               )}
             </Button>

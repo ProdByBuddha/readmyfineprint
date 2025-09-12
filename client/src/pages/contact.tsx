@@ -223,18 +223,31 @@ export default function Contact() {
   }
 
   return (
-    <TouchScrollContainer className="h-full bg-gray-50 dark:bg-gray-900">
-      <div className="container mx-auto px-4 py-8 max-w-6xl">
-        
-        {/* Header Section */}
-        <div className="text-center mb-12">
-          <h1 className="text-4xl font-bold text-gray-900 dark:text-white mb-4">
-            Contact ReadMyFinePrint
-          </h1>
-          <p className="text-xl text-gray-600 dark:text-gray-300 max-w-3xl mx-auto">
-            Get in touch with our team for security concerns, enterprise sales, technical support, 
-            or general inquiries. We're here to help make legal documents more accessible.
-          </p>
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-blue-50 dark:from-slate-900 dark:via-slate-800 dark:to-blue-950 relative overflow-hidden">
+      {/* Background Pattern */}
+      <div className="absolute inset-0 bg-grid-pattern opacity-5 dark:opacity-10" />
+      <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-secondary/5" />
+      
+      <TouchScrollContainer className="relative">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8 lg:py-12">
+          
+          {/* Header Section */}
+          <div className="text-center mb-16">
+            <Badge className="mb-6 px-6 py-3 text-sm font-semibold bg-gradient-to-r from-primary/5 to-secondary/5 dark:from-primary/10 dark:to-secondary/10 border-primary/20 dark:border-primary/30 shadow-lg backdrop-blur-sm border">
+              <Mail className="w-4 h-4 mr-2" />
+              Enterprise Support
+            </Badge>
+            <h1 className="text-4xl md:text-5xl lg:text-6xl font-black mb-6 leading-tight text-slate-900 dark:text-white">
+              Contact Our
+              <br />
+              <span className="bg-gradient-to-r from-primary via-blue-600 to-secondary bg-clip-text text-transparent">
+                Expert Team
+              </span>
+            </h1>
+            <p className="text-xl md:text-2xl text-slate-600 dark:text-slate-300 max-w-4xl mx-auto leading-relaxed font-light mb-8">
+              Get <strong className="font-semibold text-primary">enterprise-grade support</strong> from our expert teams.
+              We're here to help with security, sales, and technical inquiries.
+            </p>
         </div>
 
         {/* Quick Response Promise */}

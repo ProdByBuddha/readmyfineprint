@@ -283,45 +283,62 @@ export default function Upload() {
   // Render hero section
   const renderHeroSection = () => (
     <section 
-      className="text-center mb-12 animate-fade-in-scale" 
+      className="text-center mb-16 animate-fade-in-scale" 
       role="banner" 
       aria-labelledby="hero-heading"
       data-testid="hero-section"
     >
-      <div className="max-w-4xl mx-auto">
+      <div className="max-w-5xl mx-auto">
+        <div className="mb-8">
+          <Badge 
+            className="mb-6 px-6 py-3 text-sm font-semibold bg-gradient-to-r from-primary/5 to-secondary/5 dark:from-primary/10 dark:to-secondary/10 border-primary/20 dark:border-primary/30 shadow-lg backdrop-blur-sm border"
+            data-testid="hero-badge"
+          >
+            <FileText className="w-4 h-4 mr-2" />
+            AI-Powered Document Analysis
+          </Badge>
+        </div>
+
         <h1 
           id="hero-heading" 
-          className="text-4xl md:text-5xl lg:text-6xl font-bold text-gray-900 dark:text-white mb-6"
+          className="text-5xl md:text-6xl lg:text-7xl font-black mb-8 leading-[0.9] tracking-tight"
           data-testid="hero-title"
         >
-          Analyze Your Documents with AI
+          <span className="bg-gradient-to-r from-slate-900 via-blue-900 to-slate-900 dark:from-white dark:via-blue-100 dark:to-white bg-clip-text text-transparent">
+            Transform Legal
+          </span>
+          <br />
+          <span className="bg-gradient-to-r from-primary via-blue-600 to-secondary bg-clip-text text-transparent">
+            Document Analysis
+          </span>
         </h1>
         
         <p 
-          className="text-xl md:text-2xl text-gray-600 dark:text-gray-300 mb-8 max-w-3xl mx-auto"
+          className="text-xl md:text-2xl lg:text-3xl text-slate-700 dark:text-slate-300 mb-12 max-w-4xl mx-auto leading-relaxed font-light"
           data-testid="hero-description"
         >
-          Upload contracts, agreements, and legal documents to get instant AI-powered analysis 
-          highlighting risks, opportunities, and key insights in plain English.
+          Upload contracts, agreements, and legal documents to get <span className="font-semibold text-primary">instant AI-powered analysis</span> highlighting risks, opportunities, and key insights with <span className="font-semibold text-secondary">enterprise-grade security</span>.
         </p>
 
         {/* Features Grid */}
-        <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6 mt-12">
+        <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8 mt-16" data-testid="features-grid">
           {features.map((feature, index) => (
             <Card 
               key={feature.testId}
-              className="text-center p-6 hover:shadow-lg transition-shadow duration-300"
+              className="group text-center p-8 hover:shadow-2xl transition-all duration-500 hover:-translate-y-2 bg-white/70 dark:bg-slate-800/70 backdrop-blur-xl border-0 shadow-xl hover:shadow-primary/10"
               data-testid={feature.testId}
             >
               <CardContent className="p-0">
-                <feature.icon 
-                  className="w-12 h-12 text-primary mx-auto mb-4" 
-                  aria-hidden="true"
-                />
-                <h3 className="font-semibold text-lg mb-2 text-gray-900 dark:text-white">
+                <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-primary/10 to-secondary/10 dark:from-primary/20 dark:to-secondary/20 flex items-center justify-center mx-auto mb-6 group-hover:scale-110 transition-transform duration-300">
+                  <feature.icon 
+                    className="w-8 h-8 text-primary" 
+                    aria-hidden="true"
+                  />
+                </div>
+                <h3 className="font-bold text-xl mb-4 text-slate-900 dark:text-white">
                   {feature.title}
                 </h3>
-                <p className="text-gray-600 dark:text-gray-300 text-sm">
+                <p className="text-slate-600 dark:text-slate-300 leading-relaxed">
                   {feature.description}
                 </p>
               </CardContent>
@@ -329,13 +346,31 @@ export default function Upload() {
           ))}
         </div>
 
-        {/* Privacy Badge */}
-        <div className="mt-12 inline-flex items-center gap-2 bg-green-50 dark:bg-green-950/20 px-4 py-2 rounded-full">
-          <Shield className="w-5 h-5 text-green-600 dark:text-green-400" aria-hidden="true" />
-          <span className="text-green-800 dark:text-green-200 font-medium text-sm">
-            Enterprise-Grade Security & Privacy
-          </span>
-        </div>
+        {/* Privacy Notice */}
+        <Card 
+          className="max-w-4xl mx-auto mt-16 p-8 bg-gradient-to-r from-emerald-50/80 via-teal-50/60 to-blue-50/80 dark:from-emerald-950/30 dark:via-teal-950/20 dark:to-blue-950/30 border-0 shadow-2xl backdrop-blur-lg" 
+          role="alert" 
+          aria-labelledby="privacy-notice"
+          data-testid="privacy-notice"
+        >
+          <CardContent className="p-0">
+            <div className="flex items-start gap-4">
+              <div className="p-3 bg-gradient-to-br from-emerald-500/20 to-teal-600/20 dark:from-emerald-400/10 dark:to-teal-500/10 rounded-xl">
+                <Shield className="w-8 h-8 text-emerald-600 dark:text-emerald-400" />
+              </div>
+              <div className="flex-1 text-left">
+                <h3 className="text-xl font-bold text-emerald-800 dark:text-emerald-200 mb-3">
+                  🔐 Enterprise-Grade Security & Privacy
+                </h3>
+                <p className="text-emerald-700 dark:text-emerald-300 leading-relaxed text-lg">
+                  Your documents are processed with <strong>military-grade encryption</strong> and our proprietary 
+                  privacy-preserving AI. <strong className="text-emerald-800 dark:text-emerald-200">Zero permanent storage</strong> — 
+                  complete confidentiality with immediate deletion after analysis.
+                </p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
       </div>
     </section>
   );
@@ -355,13 +390,20 @@ export default function Upload() {
 
       {/* Sample Contracts - Only show for free tier users */}
       {!hasSubscription() && (
-        <section aria-labelledby="samples-section" data-testid="sample-contracts-section">
-          <div className="text-center mb-8">
-            <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-4">
-              Try Our Sample Contracts
+        <section aria-labelledby="samples-section" data-testid="sample-contracts-section" className="mt-20">
+          <div className="text-center mb-12">
+            <Badge className="mb-6 px-4 py-2 bg-gradient-to-r from-orange-500/10 to-red-600/10 text-orange-600 dark:text-orange-400 border-orange-500/20">
+              Sample Analysis
+            </Badge>
+            <h2 className="text-4xl md:text-5xl font-black text-slate-900 dark:text-white mb-6 leading-tight">
+              Try Our Sample
+              <br />
+              <span className="bg-gradient-to-r from-orange-600 to-red-600 bg-clip-text text-transparent">
+                Legal Documents
+              </span>
             </h2>
-            <p className="text-lg text-gray-600 dark:text-gray-300 max-w-2xl mx-auto">
-              Get started instantly with these example contracts. Perfect for understanding 
+            <p className="text-xl md:text-2xl text-slate-600 dark:text-slate-300 max-w-4xl mx-auto leading-relaxed font-light">
+              Get started instantly with these <strong className="font-semibold text-primary">example contracts</strong>. Perfect for understanding 
               how our AI analysis works before uploading your own documents.
             </p>
           </div>
@@ -397,33 +439,45 @@ export default function Upload() {
       data-testid="analysis-results-section"
     >
       {/* Results Header */}
-      <div className="bg-gradient-to-r from-primary/5 to-primary/10 rounded-xl p-8">
-        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-          <div>
-            <h2 
-              id="analysis-results" 
-              className="text-3xl font-bold text-gray-900 dark:text-white mb-2"
-              data-testid="results-title"
+      <Card className="bg-gradient-to-r from-primary/5 via-blue-50/50 to-secondary/5 dark:from-primary/10 dark:via-slate-800/50 dark:to-secondary/10 border-0 shadow-xl backdrop-blur-xl p-8">
+        <CardContent className="p-0">
+          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-6">
+            <div className="flex items-start gap-4">
+              <div className="p-3 bg-gradient-to-br from-primary/20 to-secondary/20 rounded-2xl">
+                <CheckCircle className="w-8 h-8 text-primary" />
+              </div>
+              <div>
+                <h2 
+                  id="analysis-results" 
+                  className="text-3xl md:text-4xl font-black text-slate-900 dark:text-white mb-2 leading-tight"
+                  data-testid="results-title"
+                >
+                  Analysis Complete
+                </h2>
+                <p className="text-xl text-slate-600 dark:text-slate-300 font-light">
+                  AI-powered insights for your document
+                </p>
+                <Badge className="mt-2 px-3 py-1 bg-green-100 dark:bg-green-950/30 text-green-700 dark:text-green-300 border-green-200 dark:border-green-700/30">
+                  <Zap className="w-3 h-3 mr-1" />
+                  Professional Analysis
+                </Badge>
+              </div>
+            </div>
+            
+            <Button
+              onClick={handleNewAnalysis}
+              size="lg"
+              className="group bg-gradient-to-r from-primary via-blue-600 to-primary hover:from-primary/90 hover:via-blue-600/90 hover:to-primary/90 text-white px-8 py-4 text-lg font-bold shadow-xl hover:shadow-primary/25 transition-all duration-300 transform hover:-translate-y-1"
+              aria-label="Start a new document analysis"
+              data-testid="button-new-analysis"
             >
-              Analysis Results
-            </h2>
-            <p className="text-gray-600 dark:text-gray-300">
-              AI-powered insights for your document
-            </p>
+              <Plus className="w-5 h-5 mr-2 group-hover:scale-110 transition-transform duration-300" aria-hidden="true" />
+              New Analysis
+              <ArrowRight className="w-5 h-5 ml-2 group-hover:translate-x-1 transition-transform duration-300" />
+            </Button>
           </div>
-          
-          <Button
-            onClick={handleNewAnalysis}
-            size="lg"
-            className="flex items-center gap-2 bg-primary hover:bg-primary/90"
-            aria-label="Start a new document analysis"
-            data-testid="button-new-analysis"
-          >
-            <Plus className="w-5 h-5" aria-hidden="true" />
-            New Analysis
-          </Button>
-        </div>
-      </div>
+        </CardContent>
+      </Card>
 
       {/* Analysis Results Component */}
       {currentDocument && <AnalysisResults document={currentDocument} />}
@@ -449,9 +503,12 @@ export default function Upload() {
   return (
     <div 
       ref={containerRef} 
-      className="bg-gray-50 dark:bg-gray-900 min-h-screen"
+      className="relative min-h-screen bg-gradient-to-br from-slate-50 via-white to-blue-50 dark:from-slate-900 dark:via-slate-800 dark:to-blue-950 overflow-hidden"
       data-testid="upload-page"
     >
+      {/* Background Pattern */}
+      <div className="absolute inset-0 bg-grid-pattern opacity-5 dark:opacity-10" />
+      <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-secondary/5" />
       <TradeSecretProtection />
       
       <MobileAppWrapper>
@@ -464,9 +521,9 @@ export default function Upload() {
           />
         )}
         
-        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 lg:py-12">
           {/* Document History - Always show if documents exist */}
-          <section aria-label="Document history" className="animate-fade-in-scale">
+          <section aria-label="Document history" className="animate-fade-in-scale mb-8">
             <DocumentHistory
               onSelectDocument={handleDocumentSelect}
               currentDocumentId={currentDocumentId}
