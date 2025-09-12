@@ -304,7 +304,49 @@ Provide practical, actionable insights that help everyday users understand what 
       text = jsonMatch[0];
     }
     
-    return text;
+    // Fix common JSON issues from local models
+    try {
+      // First, try to parse as-is
+      JSON.parse(text);
+      return text;
+    } catch (error) {
+      console.log('🔧 JSON cleanup: Original parsing failed, attempting fixes...');
+      
+      // Fix trailing commas in arrays and objects
+      let fixed = text
+        .replace(/,(\s*[}\]])/g, '$1')  // Remove trailing commas before } or ]
+        .replace(/([^,\s])\s*\n\s*([}\]])/g, '$1$2')  // Remove newlines before closing brackets
+        .replace(/,\s*}/g, '}')  // Remove trailing commas in objects
+        .replace(/,\s*]/g, ']');  // Remove trailing commas in arrays
+      
+      // Fix missing commas between array elements (common issue)
+      fixed = fixed.replace(/"\s*\n\s*"/g, '", "');
+      
+      // Fix missing commas between object properties
+      fixed = fixed.replace(/"\s*\n\s*"/g, '", "');
+      
+      // Try to fix incomplete JSON by finding the last complete object/array
+      if (!fixed.endsWith('}') && !fixed.endsWith(']')) {
+        // Find the last complete closing brace or bracket
+        let lastBrace = fixed.lastIndexOf('}');
+        let lastBracket = fixed.lastIndexOf(']');
+        let cutPoint = Math.max(lastBrace, lastBracket);
+        
+        if (cutPoint > 0) {
+          fixed = fixed.substring(0, cutPoint + 1);
+          console.log('🔧 JSON cleanup: Truncated incomplete JSON');
+        }
+      }
+      
+      try {
+        JSON.parse(fixed);
+        console.log('✅ JSON cleanup: Successfully fixed JSON formatting');
+        return fixed;
+      } catch (secondError) {
+        console.warn('⚠️ JSON cleanup: Could not auto-fix JSON, returning original');
+        return text;
+      }
+    }
   }
 
   async isAvailable(): Promise<boolean> {
