@@ -122,6 +122,31 @@ export const pageSEOConfigs: Record<string, SEOConfig> = {
       "description": "Development roadmap and upcoming features for ReadMyFinePrint",
       "url": "https://readmyfineprint.com/roadmap"
     }
+  },
+  '/trust': {
+    title: 'Trust Center - Enterprise Security & Privacy | ReadMyFinePrint',
+    description: 'Comprehensive security and privacy showcase for ReadMyFinePrint. Learn about our enterprise-grade security measures, compliance standards, and privacy-first architecture.',
+    keywords: 'trust center, enterprise security, privacy, compliance, SOC 2, GDPR, security certifications, zero-knowledge processing, document security, legal tech security',
+    canonical: 'https://readmyfineprint.com/trust',
+    ogTitle: 'Trust Center - Enterprise Security & Privacy | ReadMyFinePrint',
+    ogDescription: 'Comprehensive security and privacy showcase for ReadMyFinePrint. Learn about our enterprise-grade security measures, compliance standards, and privacy-first architecture.',
+    structuredData: {
+      "@context": "https://schema.org",
+      "@type": "WebPage",
+      "name": "Trust Center",
+      "description": "Enterprise security and privacy information for ReadMyFinePrint legal document analysis platform",
+      "url": "https://readmyfineprint.com/trust",
+      "about": {
+        "@type": "Organization",
+        "name": "ReadMyFinePrint",
+        "description": "Enterprise-grade legal document analysis with privacy-first architecture"
+      },
+      "mainEntity": {
+        "@type": "CreativeWork",
+        "name": "ReadMyFinePrint Security Framework",
+        "description": "Comprehensive security and privacy measures for legal document analysis"
+      }
+    }
   }
 };
 
