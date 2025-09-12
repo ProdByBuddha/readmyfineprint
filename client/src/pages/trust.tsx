@@ -10,12 +10,12 @@ import { Progress } from '@/components/ui/progress';
 
 export default function TrustPage() {
   const [activeSection, setActiveSection] = useState<string | null>(null);
-  const [visibleCerts, setVisibleCerts] = useState(6);
+  const [visibleCerts, setVisibleCerts] = useState<number>(6);
 
   // SEO optimization
   useSEO('/trust');
 
-  const securityCertifications = [
+  const securityCertifications: Array<{name: string; status: string; color: string; description: string}> = [
     { name: "SOC 2 Type II", status: "Compliant", color: "bg-green-500", description: "Security, Availability, and Confidentiality" },
     { name: "ISO 27001", status: "Certified", color: "bg-blue-500", description: "Information Security Management" },
     { name: "GDPR", status: "Compliant", color: "bg-purple-500", description: "EU Data Protection Regulation" },
@@ -30,7 +30,7 @@ export default function TrustPage() {
     { name: "Zero Trust", status: "Architected", color: "bg-cyan-500", description: "Never Trust, Always Verify" }
   ];
 
-  const enterpriseFeatures = [
+  const enterpriseFeatures: Array<{icon: JSX.Element; title: string; description: string; status: string}> = [
     {
       icon: <Building className="w-6 h-6" />,
       title: "Enterprise SSO",
@@ -69,7 +69,7 @@ export default function TrustPage() {
     }
   ];
 
-  const privacyGuarantees = [
+  const privacyGuarantees: Array<{icon: JSX.Element; title: string; description: string; details: string[]}> = [
     {
       icon: <Lock className="w-8 h-8 text-blue-600" />,
       title: "Zero-Knowledge Processing",
@@ -116,14 +116,14 @@ export default function TrustPage() {
     }
   ];
 
-  const securityMetrics = [
+  const securityMetrics: Array<{label: string; value: number; max: number; color: string}> = [
     { label: "Security Score", value: 98, max: 100, color: "bg-green-500" },
     { label: "Vulnerability Detection", value: 100, max: 100, color: "bg-blue-500" },
     { label: "Incident Response Time", value: 95, max: 100, color: "bg-purple-500" },
     { label: "Compliance Coverage", value: 92, max: 100, color: "bg-orange-500" }
   ];
 
-  const transparencyReports = [
+  const transparencyReports: Array<{title: string; date: string; type: string; status: string; description: string}> = [
     {
       title: "Q4 2024 Security Report",
       date: "January 15, 2025",
