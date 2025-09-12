@@ -39,7 +39,7 @@ const features = [
   {
     icon: Shield,
     title: "Privacy-First Analysis",
-    description: "Your documents never leave our secure servers. Enterprise-grade encryption protects your data.",
+    description: "Your documents are processed securely and not stored permanently. Strong encryption protects your data.",
     testId: "feature-privacy"
   },
   {
@@ -317,7 +317,7 @@ export default function Upload() {
           className="text-xl md:text-2xl lg:text-3xl text-slate-700 dark:text-slate-300 mb-12 max-w-4xl mx-auto leading-relaxed font-light"
           data-testid="hero-description"
         >
-          Upload contracts, agreements, and legal documents to get <span className="font-semibold text-primary">instant AI-powered analysis</span> highlighting risks, opportunities, and key insights with <span className="font-semibold text-secondary">enterprise-grade security</span>.
+          Upload contracts, agreements, and legal documents to get <span className="font-semibold text-primary">instant AI-powered analysis</span> highlighting risks, opportunities, and key insights with <span className="font-semibold text-secondary">strong security</span>.
         </p>
 
         {/* Features Grid */}
@@ -360,12 +360,12 @@ export default function Upload() {
               </div>
               <div className="flex-1 text-left">
                 <h3 className="text-xl font-bold text-emerald-800 dark:text-emerald-200 mb-3">
-                  🔐 Enterprise-Grade Security & Privacy
+                  🔐 Strong Security & Privacy
                 </h3>
                 <p className="text-emerald-700 dark:text-emerald-300 leading-relaxed text-lg">
-                  Your documents are processed with <strong>military-grade encryption</strong> and our proprietary 
+                  Your documents are processed with <strong>strong encryption</strong> and our proprietary 
                   privacy-preserving AI. <strong className="text-emerald-800 dark:text-emerald-200">Zero permanent storage</strong> — 
-                  complete confidentiality with immediate deletion after analysis.
+                  confidentiality with immediate deletion after analysis.
                 </p>
               </div>
             </div>

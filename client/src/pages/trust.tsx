@@ -18,16 +18,16 @@ export default function TrustPage() {
   const securityCertifications: Array<{name: string; status: string; color: string; description: string}> = [
     { name: "SOC 2 Type II", status: "In Progress", color: "bg-blue-500", description: "Security, Availability, and Confidentiality" },
     { name: "ISO 27001", status: "In Progress", color: "bg-blue-500", description: "Information Security Management" },
-    { name: "GDPR", status: "Compliant", color: "bg-purple-500", description: "EU Data Protection Regulation" },
-    { name: "CCPA", status: "Compliant", color: "bg-orange-500", description: "California Consumer Privacy Act" },
+    { name: "GDPR", status: "Aligned", color: "bg-purple-500", description: "EU Data Protection Regulation" },
+    { name: "CCPA", status: "Aligned", color: "bg-orange-500", description: "California Consumer Privacy Act" },
     { name: "ASVS L1", status: "98% Complete", color: "bg-green-500", description: "Application Security Verification" },
     { name: "OWASP Top 10", status: "Protected", color: "bg-red-500", description: "Web Application Security" },
     { name: "TLS 1.3", status: "Enforced", color: "bg-indigo-500", description: "Transport Layer Security" },
     { name: "AES-256", status: "Implemented", color: "bg-teal-500", description: "Advanced Encryption Standard" },
-    { name: "HIPAA", status: "Ready", color: "bg-pink-500", description: "Healthcare Information Protection" },
+    { name: "HIPAA", status: "Not for PHI", color: "bg-gray-500", description: "Not designed for healthcare data" },
     { name: "PCI DSS", status: "In Progress", color: "bg-yellow-500", description: "Payment Card Industry Standards" },
     { name: "FedRAMP", status: "In Progress", color: "bg-gray-500", description: "Federal Risk Authorization" },
-    { name: "Zero Trust", status: "Architected", color: "bg-cyan-500", description: "Never Trust, Always Verify" }
+    { name: "Zero Trust", status: "Principles", color: "bg-cyan-500", description: "Security by design approach" }
   ];
 
   const enterpriseFeatures: Array<{icon: JSX.Element; title: string; description: string; status: string}> = [
@@ -35,19 +35,19 @@ export default function TrustPage() {
       icon: <Building className="w-6 h-6" />,
       title: "Enterprise SSO",
       description: "SAML 2.0 and OAuth 2.0 integration with Azure AD, Okta, and Google Workspace",
-      status: "Available"
+      status: "Contact Sales"
     },
     {
       icon: <Shield className="w-6 h-6" />,
       title: "Advanced Threat Protection",
       description: "Real-time threat detection with ML-powered anomaly detection and automated response",
-      status: "Available"
+      status: "Contact Sales"
     },
     {
       icon: <Database className="w-6 h-6" />,
       title: "Private Cloud Deployment",
       description: "Dedicated infrastructure with isolated processing environments for maximum security",
-      status: "Available"
+      status: "Contact Sales"
     },
     {
       icon: <Key className="w-6 h-6" />,
@@ -59,26 +59,26 @@ export default function TrustPage() {
       icon: <Eye className="w-6 h-6" />,
       title: "Advanced Audit Logging",
       description: "Comprehensive audit trails with SIEM integration and compliance reporting",
-      status: "Available"
+      status: "Contact Sales"
     },
     {
       icon: <Users className="w-6 h-6" />,
       title: "Role-Based Access Control",
       description: "Granular permissions with attribute-based access control (ABAC)",
-      status: "Available"
+      status: "Contact Sales"
     }
   ];
 
   const privacyGuarantees: Array<{icon: JSX.Element; title: string; description: string; details: string[]}> = [
     {
       icon: <Lock className="w-8 h-8 text-blue-600" />,
-      title: "Zero-Knowledge Processing",
+      title: "Privacy-First Processing",
       description: "Your documents are processed without our systems gaining knowledge of their contents",
       details: [
-        "End-to-end encryption with client-side key generation",
+        "End-to-end encryption with secure processing",
         "Advanced encryption protocols (in development)",
         "Document validation with privacy controls",
-        "Client-controlled decryption keys"
+        "Secure document handling procedures"
       ]
     },
     {
@@ -88,7 +88,7 @@ export default function TrustPage() {
       details: [
         "Maximum 30-minute session duration",
         "Automatic memory cleanup after processing",
-        "No disk storage or persistence layers",
+        "Minimal temporary storage during processing",
         "Secure data deletion procedures"
       ]
     },
@@ -106,7 +106,7 @@ export default function TrustPage() {
     {
       icon: <Shield className="w-8 h-8 text-red-600" />,
       title: "Regulatory Compliance",
-      description: "Full compliance with global privacy regulations and standards",
+      description: "Designed to support compliance with global privacy regulations and standards",
       details: [
         "GDPR Article 25 - Privacy by Design",
         "CCPA compliance with enhanced user rights",
@@ -117,10 +117,10 @@ export default function TrustPage() {
   ];
 
   const securityMetrics: Array<{label: string; value: number; max: number; color: string}> = [
-    { label: "Security Score", value: 98, max: 100, color: "bg-green-500" },
-    { label: "Vulnerability Detection", value: 100, max: 100, color: "bg-blue-500" },
-    { label: "Incident Response Time", value: 95, max: 100, color: "bg-purple-500" },
-    { label: "Compliance Coverage", value: 92, max: 100, color: "bg-orange-500" }
+    { label: "Security Practices (Internal Target)", value: 98, max: 100, color: "bg-green-500" },
+    { label: "Monitoring Coverage (Target)", value: 100, max: 100, color: "bg-blue-500" },
+    { label: "Response Planning (Target)", value: 95, max: 100, color: "bg-purple-500" },
+    { label: "Compliance Progress (Target)", value: 92, max: 100, color: "bg-orange-500" }
   ];
 
   const transparencyReports: Array<{title: string; date: string; type: string; status: string; description: string}> = [
@@ -174,7 +174,7 @@ export default function TrustPage() {
             </h1>
             <p className="text-xl lg:text-2xl text-blue-100 dark:text-gray-300 mb-8 max-w-4xl mx-auto leading-relaxed">
               Your security and privacy are our foundation. Discover how ReadMyFinePrint's enterprise-grade 
-              platform protects your most sensitive legal documents with zero-knowledge processing and 
+              platform protects your most sensitive legal documents with privacy-first processing and 
               comprehensive security measures.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
@@ -277,7 +277,7 @@ export default function TrustPage() {
                 Privacy-First Architecture
               </h2>
               <p className="text-xl text-gray-600 dark:text-gray-300 max-w-3xl mx-auto">
-                Built with zero-knowledge processing and ephemeral computing to ensure your documents remain completely private.
+                Built with privacy-first processing and secure computing to ensure your documents remain protected.
               </p>
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8">

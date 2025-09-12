@@ -48,7 +48,7 @@ export default function Home() {
     const faqData = [
       {
         question: "How secure is my document data?",
-        answer: "Your documents are protected with military-grade encryption and privacy-preserving AI technology. We never store your documents permanently, and sensitive information is automatically detected and shielded during analysis."
+        answer: "Your documents are protected with strong encryption and privacy-preserving AI technology. We never store your documents permanently, and sensitive information is automatically detected and shielded during analysis."
       },
       {
         question: "What types of legal documents can I analyze?",
@@ -56,7 +56,7 @@ export default function Home() {
       },
       {
         question: "How accurate are the AI analysis results?",
-        answer: "Our proprietary privacy-preserving AI has been trained on thousands of legal documents and consistently identifies key clauses, risks, and opportunities with enterprise-grade accuracy."
+        answer: "Our privacy-preserving AI has been trained on thousands of legal documents and consistently identifies key clauses, risks, and opportunities with high-quality analysis."
       },
       {
         question: "Can I use this for business or enterprise needs?",
@@ -66,7 +66,7 @@ export default function Home() {
 
     updateSEO({
       title: "Enterprise AI Legal Document Analysis | ReadMyFinePrint",
-      description: "Transform contract review with AI-powered legal document analysis. Enterprise-grade security, instant insights, and complete privacy protection for legal professionals worldwide.",
+      description: "Transform contract review with AI-powered legal document analysis. Strong security, instant insights, and privacy protection for legal professionals worldwide.",
       keywords: "AI legal document analysis, enterprise contract review, legal tech platform, document analysis AI, contract intelligence, legal automation",
       structuredData: generateFAQSchema(faqData)
     });
@@ -79,7 +79,7 @@ export default function Home() {
       description: "Comprehensive analysis of compensation, benefits, non-compete clauses, and termination terms with risk assessment",
       gradient: "from-blue-500/20 to-indigo-600/20 dark:from-blue-400/10 dark:to-indigo-500/10",
       iconColor: "text-blue-600 dark:text-blue-400",
-      stats: "95% Accuracy"
+      stats: "High Quality"
     },
     {
       icon: Scale,
@@ -127,7 +127,7 @@ export default function Home() {
     {
       icon: Shield,
       title: "Enterprise Security Architecture",
-      description: "Military-grade encryption, zero-knowledge processing, and advanced security controls ensure your most sensitive documents remain completely secure throughout analysis.",
+      description: "Strong encryption, privacy-first processing, and advanced security controls ensure your most sensitive documents remain completely secure throughout analysis.",
       badge: "SOC 2 Ready",
       gradient: "from-blue-500/10 to-indigo-600/10 dark:from-blue-400/5 dark:to-indigo-500/5",
       stats: "256-bit Encryption",
@@ -136,7 +136,7 @@ export default function Home() {
     {
       icon: Zap,
       title: "AI-Powered Intelligence",
-      description: "Advanced natural language processing trained on millions of legal documents delivers comprehensive analysis with enterprise-grade accuracy in under 30 seconds.",
+      description: "Advanced natural language processing trained on millions of legal documents delivers comprehensive analysis with high-quality results efficiently.",
       badge: "High Availability",
       gradient: "from-emerald-500/10 to-teal-600/10 dark:from-emerald-400/5 dark:to-teal-500/5",
       stats: "Fast Analysis",
@@ -144,8 +144,8 @@ export default function Home() {
     },
     {
       icon: Eye,
-      title: "Zero-Knowledge Processing",
-      description: "Revolutionary privacy technology processes documents without storing data. Your sensitive information never leaves your control or touches our servers permanently.",
+      title: "Privacy-First Processing",
+      description: "Privacy-first technology processes documents securely with immediate deletion. Your sensitive information is processed on our secure servers and not stored permanently.",
       badge: "Privacy First",
       gradient: "from-purple-500/10 to-violet-600/10 dark:from-purple-400/5 dark:to-violet-500/5",
       stats: "Zero Data Retention",
@@ -164,11 +164,11 @@ export default function Home() {
 
   const trustIndicators = [
     { icon: Shield, text: "SOC 2 Type II", subtext: "In Progress" },
-    { icon: Lock, text: "256-bit Encryption", subtext: "Military Grade" },
+    { icon: Lock, text: "256-bit Encryption", subtext: "Bank Level" },
     { icon: Scale, text: "Legal Professional", subtext: "Approved" },
     { icon: Award, text: "Enterprise Ready", subtext: "Trusted" },
-    { icon: Eye, text: "Zero Knowledge", subtext: "Architecture" },
-    { icon: CheckCircle, text: "GDPR Compliant", subtext: "Verified" }
+    { icon: Eye, text: "Privacy First", subtext: "Processing" },
+    { icon: CheckCircle, text: "GDPR Aligned", subtext: "Privacy-First" }
   ];
 
   // Testimonials will be added as we collect real user feedback
@@ -289,12 +289,12 @@ export default function Home() {
                   </div>
                   <div className="flex-1 text-left">
                     <h3 className="text-xl font-bold text-emerald-800 dark:text-emerald-200 mb-3">
-                      🔐 Zero Knowledge Architecture
+                      🔐 Privacy-First Architecture
                     </h3>
                     <p className="text-emerald-700 dark:text-emerald-300 leading-relaxed text-lg">
-                      Your documents are processed with <strong>military-grade encryption</strong> and our proprietary 
+                      Your documents are processed with <strong>strong encryption</strong> and our proprietary 
                       privacy-preserving AI. <strong className="text-emerald-800 dark:text-emerald-200">Zero permanent storage</strong> — 
-                      complete confidentiality with immediate deletion after analysis.
+                      confidentiality with immediate deletion after analysis.
                     </p>
                   </div>
                 </div>
@@ -325,7 +325,7 @@ export default function Home() {
               </h2>
               <p className="text-xl md:text-2xl text-slate-600 dark:text-slate-300 max-w-4xl mx-auto leading-relaxed font-light">
                 Advanced natural language processing trained on millions of legal documents delivers 
-                <strong className="font-semibold"> enterprise-grade analysis</strong> across all contract types.
+                <strong className="font-semibold"> professional analysis</strong> across all contract types.
               </p>
             </div>
 
@@ -509,7 +509,7 @@ export default function Home() {
                     </div>
                   </div>
                   <h3 className="text-3xl md:text-4xl font-black text-slate-900 dark:text-white mb-4">
-                    Enterprise-Grade Results
+                    Professional Results
                   </h3>
                   <p className="text-xl text-slate-600 dark:text-slate-300 max-w-3xl mx-auto">
                     Proven performance metrics from thousands of legal professionals worldwide
@@ -561,9 +561,9 @@ export default function Home() {
                       How secure is my document data?
                     </h3>
                     <p className="text-gray-700 dark:text-gray-300 leading-relaxed">
-                      Your documents are protected with military-grade encryption and privacy-preserving AI technology. 
+                      Your documents are protected with strong encryption and privacy-preserving AI technology. 
                       We never store your documents permanently, and sensitive information is automatically detected 
-                      and shielded during analysis. Our zero-knowledge architecture ensures complete confidentiality.
+                      and shielded during analysis. Our privacy-first architecture ensures strong confidentiality.
                     </p>
                   </div>
                   <div 
@@ -588,7 +588,7 @@ export default function Home() {
                     </h3>
                     <p className="text-gray-700 dark:text-gray-300 leading-relaxed">
                       Our proprietary privacy-preserving AI has been trained on thousands of legal documents 
-                      and consistently identifies key clauses, risks, and opportunities with enterprise-grade accuracy. 
+                      and consistently identifies key clauses, risks, and opportunities with high-quality analysis. 
                       While highly accurate, we recommend consulting with a legal professional for critical decisions.
                     </p>
                   </div>

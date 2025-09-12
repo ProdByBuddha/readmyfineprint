@@ -10,29 +10,29 @@ export function SecurityBadges({ variant = 'full', className = '' }: SecurityBad
   
   const allBadges = [
     {
-      src: "https://img.shields.io/badge/Security-9.8%2F10-brightgreen",
-      alt: "Security Score 9.8/10",
-      title: "Enterprise-grade security score"
+      src: "https://img.shields.io/badge/Security-OWASP%20Practices-blue",
+      alt: "OWASP Security Practices",
+      title: "Following OWASP security guidelines"
     },
     {
-      src: "https://img.shields.io/badge/Vulnerabilities-0-brightgreen",
-      alt: "Zero Vulnerabilities",
-      title: "No known security vulnerabilities"
+      src: "https://img.shields.io/badge/Standards-Security%20Focused-green",
+      alt: "Security Focused",
+      title: "Designed with security best practices"
     },
     {
-      src: "https://img.shields.io/badge/Privacy-GDPR%20Compliant-blue",
-      alt: "GDPR Compliant",
-      title: "Compliant with European data protection regulation"
+      src: "https://img.shields.io/badge/Privacy-GDPR%20Aligned-blue",
+      alt: "GDPR Aligned",
+      title: "Aligned with European data protection regulation"
     },
     {
-      src: "https://img.shields.io/badge/Privacy-CCPA%20Compliant-blue",
-      alt: "CCPA Compliant",
-      title: "Compliant with California consumer privacy act"
+      src: "https://img.shields.io/badge/Privacy-CCPA%20Aligned-blue",
+      alt: "CCPA Aligned",
+      title: "Aligned with California consumer privacy act"
     },
     {
       src: "https://img.shields.io/badge/Encryption-AES%20256-blue",
       alt: "AES 256 Encryption",
-      title: "Military-grade encryption for data protection"
+      title: "Strong encryption for data protection"
     },
     {
       src: "https://img.shields.io/badge/OWASP-ASVS%20Ready-blue",
@@ -85,10 +85,10 @@ export function SecurityBadges({ variant = 'full', className = '' }: SecurityBad
         <div className="bg-green-50 dark:bg-green-950/20 border border-green-200 dark:border-green-800 rounded-lg p-4 mb-4">
           <div className="flex items-center gap-2 mb-2">
             <CheckCircle className="w-5 h-5 text-green-600" />
-            <span className="font-semibold text-green-800 dark:text-green-200">Security Score: 9.8/10</span>
+            <span className="font-semibold text-green-800 dark:text-green-200">Security Practices</span>
           </div>
           <p className="text-sm text-green-700 dark:text-green-300">
-            Optimal security achieved with enterprise-grade protection, zero vulnerabilities, and comprehensive privacy compliance.
+            Strong security practices with privacy-focused protection and ongoing compliance efforts.
           </p>
         </div>
 
