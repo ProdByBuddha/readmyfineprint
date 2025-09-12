@@ -523,9 +523,9 @@ app.use((req, res, next) => {
     serveStatic(app);
   }
 
-  // Try to use port 5000 first, but fall back to available ports if needed
-  const preferredPort = 5000;
-  const tryPorts = [preferredPort, 3000, 3001, 8000, 8080, 0]; // 0 means any available port
+  // Try to use port 5173 first (as expected by workflow), but fall back to available ports if needed
+  const preferredPort = 5173;
+  const tryPorts = [preferredPort, 5000, 3000, 3001, 8000, 8080, 0]; // 0 means any available port
 
   let serverStarted = false;
   for (const port of tryPorts) {
