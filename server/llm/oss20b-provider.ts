@@ -54,11 +54,16 @@ interface OSS20BResponse {
 export class LocalOss20BProvider implements LLMProvider {
   public readonly name = "LocalOSS20B";
   private readonly baseUrl: string;
+  private readonly defaultModel: string;
   private readonly timeout: number = 60000; // 60 seconds
   private readonly maxRetries: number = 3;
 
   constructor() {
-    this.baseUrl = process.env.OSS20B_BASE_URL || "https://genuine-shepherd-decent.ngrok-free.app";
+    // Use the ngrok URL as the base URL for the local OSS20B model
+    this.baseUrl = "https://genuine-shepherd-decent.ngrok-free.app";
+    // Use the model name from LOCAL_LLM_MODEL or default to gpt-oss20b
+    this.defaultModel = process.env.LOCAL_LLM_MODEL || "gpt-oss20b";
+    console.log(`🔧 LocalOSS20BProvider configured with baseUrl: ${this.baseUrl}, model: ${this.defaultModel}`);
   }
 
   async analyzeDocument(
@@ -67,7 +72,7 @@ export class LocalOss20BProvider implements LLMProvider {
     options: LLMAnalysisOptions = {}
   ): Promise<DocumentAnalysis> {
     const {
-      model = "gpt-oss20b",
+      model = this.defaultModel,
       temperature = 0.3,
       maxTokens = 4000,
       ip,
@@ -319,7 +324,7 @@ Provide practical, actionable insights that help everyday users understand what 
             'ngrok-skip-browser-warning': 'true'
           },
           body: JSON.stringify({
-            model: "gpt-oss20b",
+            model: this.defaultModel,
             messages: [{ role: "user", content: "test" }],
             max_tokens: 1
           }),
@@ -351,7 +356,7 @@ Provide practical, actionable insights that help everyday users understand what 
     return {
       name: "Local OSS 20B",
       version: "1.0.0",
-      models: ["gpt-oss20b"],
+      models: [this.defaultModel],
       maxTokens: 4096
     };
   }

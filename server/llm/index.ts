@@ -13,21 +13,17 @@ export class LLMFactory {
       return this.instance;
     }
 
-    const providerType = process.env.LLM_PROVIDER || "openai";
+    // Check LOCAL_LLM_MODEL for gpt-oss:20b to use local OSS20B provider
+    const localModel = process.env.LOCAL_LLM_MODEL;
+    const useLocalOss20b = localModel === "gpt-oss:20b";
     
-    console.log(`🤖 Initializing LLM provider: ${providerType}`);
+    console.log(`🤖 Initializing LLM provider: ${useLocalOss20b ? 'LocalOSS20B' : 'OpenAI'}`);
+    console.log(`   - LOCAL_LLM_MODEL: ${localModel || 'not set'}`);
 
-    switch (providerType.toLowerCase()) {
-      case "openai":
-        this.instance = new OpenAIProvider();
-        break;
-      case "oss20b":
-        this.instance = new LocalOss20BProvider();
-        break;
-      default:
-        console.warn(`⚠️ Unknown LLM provider: ${providerType}, falling back to OpenAI`);
-        this.instance = new OpenAIProvider();
-        break;
+    if (useLocalOss20b) {
+      this.instance = new LocalOss20BProvider();
+    } else {
+      this.instance = new OpenAIProvider();
     }
 
     console.log(`✅ LLM provider initialized: ${this.instance.name}`);
