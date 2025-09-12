@@ -172,7 +172,12 @@ export function validateEnvironment(): ValidationResult {
     
     // Only log environment variables in development mode
     if (!isProduction) {
-      console.log(`✅ ${envVar.name}: ${envVar.name === 'OPENAI_API_KEY' ? 'sk-***' : value.length > 50 ? value.substring(0, 50) + '...' : value}`);
+      // Mask sensitive values
+      if (envVar.name.includes('SECRET') || envVar.name.includes('KEY') || envVar.name.includes('TOKEN') || envVar.name.includes('PASSWORD') || envVar.name.includes('PEPPER')) {
+        console.log(`✅ ${envVar.name}: [MASKED]`);
+      } else {
+        console.log(`✅ ${envVar.name}: ${value.length > 50 ? value.substring(0, 50) + '...' : value}`);
+      }
     }
   }
 
@@ -199,12 +204,12 @@ export function validateEnvironment(): ValidationResult {
   if (stripePublicKey && stripeSecretKey) {
     // Only log Stripe keys in development mode
     if (!isProduction) {
-      console.log('✅ STRIPE_PUBLIC_KEY:', stripePublicKey.substring(0, 20) + '...');
-      console.log('✅ STRIPE_SECRET_KEY:', stripeSecretKey.substring(0, 10) + '...');
+      console.log('✅ STRIPE_PUBLIC_KEY: [MASKED]');
+      console.log('✅ STRIPE_SECRET_KEY: [MASKED]');
 
       if (stripeTestPublicKey && stripeTestSecretKey) {
-        console.log('✅ STRIPE_TEST_PUBLIC_KEY:', stripeTestPublicKey.substring(0, 20) + '...');
-        console.log('✅ STRIPE_TEST_SECRET_KEY:', stripeTestSecretKey.substring(0, 10) + '...');
+        console.log('✅ STRIPE_TEST_PUBLIC_KEY: [MASKED]');
+        console.log('✅ STRIPE_TEST_SECRET_KEY: [MASKED]');
         console.log('🔄 Concurrent test/live payment processing enabled');
       } else {
         warnings.push('⚠️  Optional Stripe test keys not set - Only live payments will be processed');
