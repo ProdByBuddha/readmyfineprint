@@ -301,7 +301,7 @@ export function Header() {
               </Button>
             </Link>
             
-            <Link to="/trust">
+            {/* <Link to="/trust">
               <Button
                 variant="ghost"
                 size="sm"
@@ -312,7 +312,7 @@ export function Header() {
                 <Shield className="w-4 h-4 mr-2 text-green-600 dark:text-green-400" aria-hidden="true" />
                 Trust
               </Button>
-            </Link>
+            </Link> */}
             
             <Link to="/blog">
               <Button
