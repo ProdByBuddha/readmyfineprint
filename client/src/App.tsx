@@ -37,7 +37,7 @@ const Subscription = lazy(() => import("./pages/subscription"));
 const AdminDashboard = lazy(() => import("./pages/admin"));
 const EmailRecoveryPage = lazy(() => import("./pages/EmailRecovery").then(module => ({ default: module.EmailRecoveryPage })));
 const TrustPage = lazy(() => import("./pages/trust"));
-const BlogPage = lazy(() => import("./pages/blog"));
+const BlogPage = lazy(() => import("./pages/blog-fixed"));
 const BlogPostPage = lazy(() => import("./pages/blog-post"));
 const UnsubscribePage = lazy(() => import("./pages/unsubscribe"));
 const SettingsPage = lazy(() => import("./pages/settings"));
@@ -256,7 +256,7 @@ function AppContent() {
       <SecurityQuestionsModal
         isOpen={showSecurityQuestionsModal || (!isLoading && requiresSetup)}
         onComplete={handleSecurityQuestionsComplete}
-        onClose={closeSecurityQuestionsModal}
+        onClose={() => closeSecurityQuestionsModal()}
         allowClose={false}
       />
 

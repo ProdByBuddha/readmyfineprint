@@ -22,7 +22,6 @@ import {
 import { MobileAppWrapper } from '@/components/MobileAppWrapper';
 // Temporarily disabled TradeSecretProtection due to interference with app functionality
 // import TradeSecretProtection from '@/components/TradeSecretProtection';
-import { useQuery } from '@tanstack/react-query';
 import { cn } from '@/lib/utils';
 import { useSEO } from '@/lib/seo';
 
@@ -64,6 +63,7 @@ interface Category {
 }
 
 export default function BlogPage() {
+  console.log('BlogPage component rendering');
   const location = useLocation();
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('');
@@ -95,57 +95,137 @@ export default function BlogPage() {
     }
   });
 
-  // Fetch blog posts with React Query
-  const {
-    data: blogData,
-    isLoading,
-    error,
-    refetch
-  } = useQuery({
-    queryKey: ['blog', 'posts', {
-      page: currentPage,
-      search: isSearchSubmitted ? searchTerm : '',
-      category: selectedCategory,
-      featured: showFeatured
-    }],
-    queryFn: async () => {
-      const params = new URLSearchParams({
-        page: currentPage.toString(),
-        limit: '10',
-        ...(isSearchSubmitted && searchTerm && { search: searchTerm }),
-        ...(selectedCategory && { category: selectedCategory }),
-        ...(showFeatured && { featured: 'true' }),
-      });
-
-      const response = await fetch(`/api/blog/posts?${params}`);
-      if (!response.ok) {
-        throw new Error(`Failed to fetch posts: ${response.status}`);
-      }
+  // State for blog data
+  const [blogData, setBlogData] = useState<BlogResponse | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<Error | null>(null);
+  
+  // Build URL with query params
+  const buildPostsUrl = () => {
+    const params = new URLSearchParams({
+      page: currentPage.toString(),
+      limit: '10',
+      ...(isSearchSubmitted && searchTerm && { search: searchTerm }),
+      ...(selectedCategory && { category: selectedCategory }),
+      ...(showFeatured && { featured: 'true' }),
+    });
+    const url = `/api/blog/posts?${params}`;
+    console.log('Building posts URL:', url);
+    return url;
+  };
+  
+  // Fetch blog posts using useEffect
+  useEffect(() => {
+    const fetchPosts = async () => {
+      console.log('Fetching blog posts...');
+      setIsLoading(true);
+      setError(null);
       
-      return response.json() as Promise<BlogResponse>;
-    },
-    staleTime: 5 * 60 * 1000, // 5 minutes
-    retry: 2
-  });
-
-  // Fetch categories with React Query
-  const {
-    data: categoriesData,
-    isLoading: categoriesLoading
-  } = useQuery({
-    queryKey: ['blog', 'categories'],
-    queryFn: async () => {
-      const response = await fetch('/api/blog/categories');
-      if (!response.ok) {
-        throw new Error(`Failed to fetch categories: ${response.status}`);
+      try {
+        // Get session ID
+        let sessionId = sessionStorage.getItem('app-session-id');
+        if (!sessionId) {
+          sessionId = Math.random().toString(36).substring(2) + Date.now().toString(36);
+          sessionStorage.setItem('app-session-id', sessionId);
+        }
+        
+        const url = buildPostsUrl();
+        console.log('Fetching from URL:', url);
+        
+        const response = await fetch(url, {
+          headers: {
+            'x-session-id': sessionId || '',
+          },
+          credentials: 'include',
+        });
+        
+        console.log('Response status:', response.status);
+        
+        if (!response.ok) {
+          throw new Error(`Failed to fetch posts: ${response.status}`);
+        }
+        
+        const data = await response.json() as BlogResponse;
+        console.log('Fetched blog data:', { postsCount: data.posts?.length || 0 });
+        setBlogData(data);
+      } catch (err) {
+        console.error('Error fetching blog posts:', err);
+        setError(err instanceof Error ? err : new Error('Failed to fetch posts'));
+      } finally {
+        setIsLoading(false);
       }
+    };
+    
+    fetchPosts();
+  }, [currentPage, isSearchSubmitted, searchTerm, selectedCategory, showFeatured]);
+  
+  const refetch = () => {
+    console.log('Refetching posts...');
+    const fetchPosts = async () => {
+      try {
+        let sessionId = sessionStorage.getItem('app-session-id');
+        if (!sessionId) {
+          sessionId = Math.random().toString(36).substring(2) + Date.now().toString(36);
+          sessionStorage.setItem('app-session-id', sessionId);
+        }
+        const url = buildPostsUrl();
+        const response = await fetch(url, {
+          headers: { 'x-session-id': sessionId || '' },
+          credentials: 'include',
+        });
+        if (response.ok) {
+          const data = await response.json() as BlogResponse;
+          setBlogData(data);
+        }
+      } catch (err) {
+        console.error('Error refetching:', err);
+      }
+    };
+    fetchPosts();
+  };
+  
+  console.log('Blog state:', { isLoading, error, dataExists: !!blogData, postsCount: blogData?.posts?.length || 0 });
+
+  // State for categories
+  const [categoriesResponse, setCategoriesResponse] = useState<{ categories: Category[] } | null>(null);
+  const [categoriesLoading, setCategoriesLoading] = useState(true);
+  
+  // Fetch categories using useEffect
+  useEffect(() => {
+    const fetchCategories = async () => {
+      console.log('Fetching categories...');
+      setCategoriesLoading(true);
       
-      const data = await response.json();
-      return data.categories as Category[];
-    },
-    staleTime: 10 * 60 * 1000, // 10 minutes
-    retry: 2
-  });
+      try {
+        let sessionId = sessionStorage.getItem('app-session-id');
+        if (!sessionId) {
+          sessionId = Math.random().toString(36).substring(2) + Date.now().toString(36);
+          sessionStorage.setItem('app-session-id', sessionId);
+        }
+        
+        const response = await fetch('/api/blog/categories', {
+          headers: {
+            'x-session-id': sessionId || '',
+          },
+          credentials: 'include',
+        });
+        
+        console.log('Categories response status:', response.status);
+        
+        if (response.ok) {
+          const data = await response.json();
+          console.log('Fetched categories:', { count: data.categories?.length || 0 });
+          setCategoriesResponse(data);
+        }
+      } catch (err) {
+        console.error('Error fetching categories:', err);
+      } finally {
+        setCategoriesLoading(false);
+      }
+    };
+    
+    fetchCategories();
+  }, []); // Only fetch categories once on mount
 
   const posts = blogData?.posts || [];
   const pagination = blogData?.pagination || {
@@ -156,14 +236,16 @@ export default function BlogPage() {
     hasNext: false,
     hasPrev: false,
   };
-  const categories = categoriesData || [];
+  const categories = categoriesResponse?.categories || [];
+  
+  console.log('Processed data:', { postsCount: posts.length, categoriesCount: categories.length });
 
   // Reset page when filters change
   useEffect(() => {
     if (currentPage !== 1) {
       setCurrentPage(1);
     }
-  }, [searchTerm, selectedCategory, showFeatured, currentPage]);
+  }, [searchTerm, selectedCategory, showFeatured]); // Removed currentPage from dependencies to avoid infinite loop
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();

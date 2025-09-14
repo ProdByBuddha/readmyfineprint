@@ -1,7 +1,7 @@
 import { QueryClient, QueryFunction } from "@tanstack/react-query";
 
 // Session ID management - use sessionStorage for consistency
-function getSessionId(): string {
+export function getSessionId(): string {
   let sessionId = sessionStorage.getItem('app-session-id');
   if (!sessionId) {
     const uint8Array = new Uint8Array(16);

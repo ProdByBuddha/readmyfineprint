@@ -159,7 +159,7 @@ export default function TrustPage() {
     <div className="min-h-screen bg-gradient-to-b from-gray-50 to-white dark:from-gray-900 dark:to-gray-800">
       {/* Temporarily disabled TradeSecretProtection due to interference with app functionality */}
       {/* <TradeSecretProtection /> */}
-      
+
       {/* Hero Section */}
       <section className="relative overflow-hidden bg-gradient-to-r from-blue-900 via-blue-800 to-indigo-900 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
         <div className="absolute inset-0 bg-black/20 dark:bg-black/40"></div>
@@ -167,8 +167,10 @@ export default function TrustPage() {
           <div className="max-w-5xl mx-auto text-center">
             <div className="flex justify-center mb-6">
               <Badge className="bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300 px-4 py-2 text-sm font-medium" data-testid="badge-enterprise">
-                <Shield className="w-4 h-4 mr-2" />
-                Enterprise-Grade Security
+                <span className="flex items-center">
+                  <Shield className="w-4 h-4 mr-2" />
+                  Enterprise-Grade Security
+                </span>
               </Badge>
             </div>
             <h1 className="text-5xl lg:text-7xl font-bold text-white mb-8 leading-tight" data-testid="heading-main">
@@ -266,7 +268,7 @@ export default function TrustPage() {
                   onClick={() => setVisibleCerts(securityCertifications.length)}
                   data-testid="button-show-more-certs"
                 >
-                  Show All Certifications ({securityCertifications.length - visibleCerts} more)
+                  <span>Show All Certifications ({securityCertifications.length - visibleCerts} more)</span>
                 </Button>
               </div>
             )}
@@ -340,7 +342,7 @@ export default function TrustPage() {
                       <Badge 
                         className={`text-xs ${feature.status === "Available" ? "bg-green-100 text-green-800" : "bg-gray-100 text-gray-800"}`}
                       >
-                        {feature.status}
+                        <span>{feature.status}</span>
                       </Badge>
                     </div>
                     <CardTitle className="text-lg">{feature.title}</CardTitle>
@@ -355,8 +357,10 @@ export default function TrustPage() {
             </div>
             <div className="text-center mt-12">
               <Button className="px-8 py-4" data-testid="button-enterprise-contact">
-                <Mail className="w-5 h-5 mr-2" />
-                Contact Enterprise Sales
+                <span className="flex items-center">
+                  <Mail className="w-5 h-5 mr-2" />
+                  Contact Enterprise Sales
+                </span>
               </Button>
             </div>
           </div>
@@ -381,7 +385,7 @@ export default function TrustPage() {
                   <CardHeader>
                     <div className="flex items-center justify-between mb-2">
                       <Badge className={report.status === "Published" ? "bg-blue-100 text-blue-800" : "bg-gray-100 text-gray-800"}>
-                        {report.status}
+                        <span>{report.status}</span>
                       </Badge>
                       <span className="text-sm text-gray-500">{report.date}</span>
                     </div>
@@ -394,8 +398,10 @@ export default function TrustPage() {
                     </p>
                     {report.status === "Published" && (
                       <Button className="border border-gray-300 hover:bg-gray-50 text-sm px-3 py-1" data-testid={`button-download-report-${index}`}>
-                        <Download className="w-4 h-4 mr-2" />
-                        Download Report
+                        <span className="flex items-center">
+                          <Download className="w-4 h-4 mr-2" />
+                          Download Report
+                        </span>
                       </Button>
                     )}
                   </CardContent>
@@ -458,7 +464,7 @@ export default function TrustPage() {
                     <p className="text-sm text-gray-500 mt-1">Compliance inquiries</p>
                   </div>
                 </div>
-                
+
                 <div className="border-t pt-8">
                   <h3 className="text-xl font-semibold mb-4" data-testid="heading-resources">Additional Resources</h3>
                   <div className="flex flex-wrap justify-center gap-4">
