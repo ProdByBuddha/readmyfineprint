@@ -179,12 +179,16 @@ export default function TrustPage() {
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <Button className="bg-white text-blue-900 hover:bg-gray-100 px-8 py-4 text-lg font-semibold" data-testid="button-security-overview">
-                <Eye className="w-5 h-5 mr-2" />
-                Security Overview
+                <span className="flex items-center">
+                  <Eye className="w-5 h-5 mr-2" />
+                  Security Overview
+                </span>
               </Button>
               <Button className="border-white text-white hover:bg-white/10 px-8 py-4 text-lg font-semibold border" data-testid="button-compliance-report">
-                <Download className="w-5 h-5 mr-2" />
-                Compliance Report
+                <span className="flex items-center">
+                  <Download className="w-5 h-5 mr-2" />
+                  Compliance Report
+                </span>
               </Button>
             </div>
           </div>
@@ -456,27 +460,35 @@ export default function TrustPage() {
                 <div className="border-t pt-8">
                   <h3 className="text-xl font-semibold mb-4" data-testid="heading-resources">Additional Resources</h3>
                   <div className="flex flex-wrap justify-center gap-4">
-                    <Button className="border border-gray-300 hover:bg-gray-50" asChild data-testid="button-privacy-policy">
-                      <a href="/privacy">
-                        <FileText className="w-4 h-4 mr-2" />
-                        Privacy Policy
-                      </a>
-                    </Button>
-                    <Button className="border border-gray-300 hover:bg-gray-50" asChild data-testid="button-terms-service">
-                      <a href="/terms">
-                        <FileText className="w-4 h-4 mr-2" />
-                        Terms of Service
-                      </a>
-                    </Button>
-                    <Button className="border border-gray-300 hover:bg-gray-50" asChild data-testid="button-cookie-policy">
-                      <a href="/cookies">
-                        <FileText className="w-4 h-4 mr-2" />
-                        Cookie Policy
-                      </a>
-                    </Button>
+                    <a href="/privacy">
+                      <Button className="border border-gray-300 hover:bg-gray-50" data-testid="button-privacy-policy">
+                        <span className="flex items-center">
+                          <FileText className="w-4 h-4 mr-2" />
+                          Privacy Policy
+                        </span>
+                      </Button>
+                    </a>
+                    <a href="/terms">
+                      <Button className="border border-gray-300 hover:bg-gray-50" data-testid="button-terms-service">
+                        <span className="flex items-center">
+                          <FileText className="w-4 h-4 mr-2" />
+                          Terms of Service
+                        </span>
+                      </Button>
+                    </a>
+                    <a href="/cookies">
+                      <Button className="border border-gray-300 hover:bg-gray-50" data-testid="button-cookie-policy">
+                        <span className="flex items-center">
+                          <FileText className="w-4 h-4 mr-2" />
+                          Cookie Policy
+                        </span>
+                      </Button>
+                    </a>
                     <Button className="border border-gray-300 hover:bg-gray-50" data-testid="button-security-whitepaper">
-                      <Download className="w-4 h-4 mr-2" />
-                      Security Whitepaper
+                      <span className="flex items-center">
+                        <Download className="w-4 h-4 mr-2" />
+                        Security Whitepaper
+                      </span>
                     </Button>
                   </div>
                 </div>
@@ -498,12 +510,16 @@ export default function TrustPage() {
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <Button className="bg-white text-blue-900 hover:bg-gray-100 px-8 py-4" data-testid="button-start-analysis">
-                Start Secure Analysis
-                <ArrowRight className="w-5 h-5 ml-2" />
+                <span className="flex items-center">
+                  Start Secure Analysis
+                  <ArrowRight className="w-5 h-5 ml-2" />
+                </span>
               </Button>
               <Button className="border-white text-white hover:bg-white/10 px-8 py-4 border" data-testid="button-schedule-demo">
-                Schedule Demo
-                <ExternalLink className="w-5 h-5 ml-2" />
+                <span className="flex items-center">
+                  Schedule Demo
+                  <ExternalLink className="w-5 h-5 ml-2" />
+                </span>
               </Button>
             </div>
           </div>
