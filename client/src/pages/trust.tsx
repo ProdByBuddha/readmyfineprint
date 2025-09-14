@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from "react";
 import { Shield, Lock, CheckCircle, FileText, Users, Globe, AlertTriangle, Mail, Book, Key, Server, Database, Award, Eye, Clock, Zap, Building, Star, ArrowRight, Download, ExternalLink } from "lucide-react";
 import { useSEO } from '@/lib/seo';
-import TradeSecretProtection from '@/components/TradeSecretProtection';
+// Temporarily disabled TradeSecretProtection due to interference with app functionality
+// import TradeSecretProtection from '@/components/TradeSecretProtection';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -156,7 +157,8 @@ export default function TrustPage() {
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-gray-50 to-white dark:from-gray-900 dark:to-gray-800">
-      <TradeSecretProtection />
+      {/* Temporarily disabled TradeSecretProtection due to interference with app functionality */}
+      {/* <TradeSecretProtection /> */}
       
       {/* Hero Section */}
       <section className="relative overflow-hidden bg-gradient-to-r from-blue-900 via-blue-800 to-indigo-900 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
