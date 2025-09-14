@@ -381,7 +381,7 @@ export function CombinedConsent({ onAccept }: CombinedConsentProps) {
 
 
   return (
-    <Dialog open={isOpen} onOpenChange={() => {}}>
+    <Dialog open={isOpen} onOpenChange={undefined}>
       <DialogContent className="max-w-sm p-4 rounded-xl bg-white dark:bg-gray-900 border dark:border-gray-700" hideCloseButton>
         <DialogHeader className="text-center mb-3">
           <div className="flex items-center justify-center gap-2 mb-2">

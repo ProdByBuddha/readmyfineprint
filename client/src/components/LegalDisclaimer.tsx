@@ -72,7 +72,7 @@ export function LegalDisclaimer({ onAccept }: LegalDisclaimerProps) {
   const canAccept = hasReadTerms && hasReadLiability && hasReadNoAdvice;
 
   return (
-    <Dialog open={isOpen} onOpenChange={() => {}}>
+    <Dialog open={isOpen} onOpenChange={undefined}>
       <DialogContent className="w-[90vw] max-w-lg p-0 m-0 rounded-xl shadow-xl" hideCloseButton>
         <div className="bg-gradient-to-b from-white to-gray-50 dark:from-gray-900 dark:to-gray-950 rounded-xl overflow-hidden">
           <DialogHeader className="px-4 py-2.5 border-b border-gray-200 dark:border-gray-700 bg-white/80 dark:bg-gray-900/80 backdrop-blur-sm">

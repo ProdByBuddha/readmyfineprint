@@ -273,13 +273,13 @@ export default function BlogPage() {
               Legal Insights & Contract Law Blog
             </h1>
             <p 
-              className="text-xl md:text-2xl text-gray-600 dark:text-gray-300 max-w-3xl mx-auto mb-6 leading-relaxed"
+              className="text-xl md:text-2xl text-gray-600 dark:text-gray-100 max-w-3xl mx-auto mb-6 leading-relaxed"
               data-testid="blog-description"
             >
               Expert advice, guides, and insights to help you understand contracts, 
               negotiate better terms, and protect your legal interests.
             </p>
-            <div className="flex items-center justify-center gap-6 text-sm text-gray-500 dark:text-gray-400">
+            <div className="flex items-center justify-center gap-6 text-sm text-gray-500 dark:text-gray-300">
               <div className="flex items-center gap-2" data-testid="total-articles">
                 <BookOpen className="h-4 w-4" aria-hidden="true" />
                 <span>{pagination.total} Articles</span>
@@ -393,7 +393,7 @@ export default function BlogPage() {
                 </Button>
                 
                 {(selectedCategory || showFeatured || (isSearchSubmitted && searchTerm)) && (
-                  <div className="text-sm text-gray-600 dark:text-gray-400" data-testid="active-filters">
+                  <div className="text-sm text-gray-600 dark:text-gray-200" data-testid="active-filters">
                     <span className="font-medium">Active filters:</span>
                     <div className="flex flex-wrap gap-1 mt-1">
                       {selectedCategory && (
@@ -504,7 +504,7 @@ export default function BlogPage() {
                           </CardTitle>
                           
                           <CardDescription 
-                            className="text-gray-600 dark:text-gray-300 line-clamp-3 leading-relaxed"
+                            className="text-gray-600 dark:text-gray-100 line-clamp-3 leading-relaxed"
                             id={`excerpt-${post.id}`}
                             data-testid={`post-excerpt-${post.slug}`}
                           >
@@ -515,7 +515,7 @@ export default function BlogPage() {
                         <CardContent className="pt-0">
                           <div className="space-y-4">
                             {/* Meta information */}
-                            <div className="flex items-center justify-between text-sm text-gray-500 dark:text-gray-400">
+                            <div className="flex items-center justify-between text-sm text-gray-500 dark:text-gray-300">
                               <div className="flex items-center gap-4">
                                 <div className="flex items-center gap-1" data-testid={`post-date-${post.slug}`}>
                                   <Calendar className="h-4 w-4" aria-hidden="true" />
@@ -531,7 +531,7 @@ export default function BlogPage() {
                             </div>
                             
                             {/* Engagement metrics */}
-                            <div className="flex items-center justify-between text-sm text-gray-500 dark:text-gray-400">
+                            <div className="flex items-center justify-between text-sm text-gray-500 dark:text-gray-300">
                               <div className="flex items-center gap-4">
                                 <div className="flex items-center gap-1" data-testid={`view-count-${post.slug}`}>
                                   <Eye className="h-4 w-4" aria-hidden="true" />
@@ -585,7 +585,7 @@ export default function BlogPage() {
                     <h3 className="text-xl font-semibold text-gray-900 dark:text-gray-100 mb-3">
                       No articles found
                     </h3>
-                    <p className="text-gray-600 dark:text-gray-300 mb-6">
+                    <p className="text-gray-600 dark:text-gray-100 mb-6">
                       {isSearchSubmitted && searchTerm
                         ? `No articles match your search for "${searchTerm}". Try different keywords or browse by category.`
                         : selectedCategory

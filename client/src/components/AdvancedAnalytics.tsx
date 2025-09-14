@@ -367,9 +367,9 @@ export default function AdvancedAnalytics() {
                       {formatCurrency(tier.revenue)}
                     </div>
                   </div>
-                  <Progress value={tier.percentage} className="h-2" />
+                  <Progress value={tier.percentage || 0} className="h-2" />
                   <div className="text-xs text-slate-500">
-                    {tier.percentage.toFixed(1)}% of total revenue
+                    {tier.percentage !== null && tier.percentage !== undefined ? tier.percentage.toFixed(1) : '0.0'}% of total revenue
                   </div>
                 </div>
               )) || (
@@ -414,10 +414,10 @@ export default function AdvancedAnalytics() {
                       {type.type.replace('_', ' ')}
                     </div>
                     <div className="text-sm text-slate-600 dark:text-slate-400">
-                      {type.count.toLocaleString()} ({type.percentage.toFixed(1)}%)
+                      {type.count.toLocaleString()} ({type.percentage !== null && type.percentage !== undefined ? type.percentage.toFixed(1) : '0.0'}%)
                     </div>
                   </div>
-                  <Progress value={type.percentage} className="h-2" />
+                  <Progress value={type.percentage || 0} className="h-2" />
                 </div>
               )) || (
                 <div className="text-center text-slate-500 py-4">
@@ -459,7 +459,7 @@ export default function AdvancedAnalytics() {
                         {trend.count}
                       </Badge>
                       <div className="text-sm text-slate-900 dark:text-slate-100">
-                        {trend.avgTime.toFixed(1)}s
+                        {trend.avgTime !== null && trend.avgTime !== undefined ? trend.avgTime.toFixed(1) : '0.0'}s
                       </div>
                     </div>
                   </div>
@@ -503,7 +503,7 @@ export default function AdvancedAnalytics() {
                       </div>
                       <div className="flex items-center space-x-2">
                         <Badge variant="outline" className={`text-xs ${api.errorRate > 5 ? 'text-red-600 bg-red-50' : 'text-green-600 bg-green-50'}`}>
-                          {api.errorRate.toFixed(1)}% error
+                          {api.errorRate !== null && api.errorRate !== undefined ? api.errorRate.toFixed(1) : '0.0'}% error
                         </Badge>
                         <div className="text-sm text-slate-600 dark:text-slate-400">
                           {api.avgTime}ms avg

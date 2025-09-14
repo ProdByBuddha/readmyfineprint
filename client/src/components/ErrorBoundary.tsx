@@ -52,7 +52,25 @@ export class ErrorBoundary extends React.Component<ErrorBoundaryProps, ErrorBoun
 
   componentDidCatch(error: any, errorInfo: React.ErrorInfo) {
     const normalizedError = ErrorBoundary.normalizeError(error);
-    console.error('Error boundary caught an error:', normalizedError, errorInfo);
+    console.error('🔴 [ErrorBoundary] ========== ERROR CAUGHT ==========');
+    console.error('🔴 [ErrorBoundary] Raw error:', error);
+    console.error('🔴 [ErrorBoundary] Error type:', typeof error);
+    console.error('🔴 [ErrorBoundary] Is empty object:', error && typeof error === 'object' && Object.keys(error).length === 0);
+    console.error('🔴 [ErrorBoundary] Error toString:', String(error));
+    console.error('🔴 [ErrorBoundary] Error message:', error?.message || 'No message');
+    console.error('🔴 [ErrorBoundary] Error stack:', error?.stack || 'No stack');
+    console.error('🔴 [ErrorBoundary] Normalized error:', normalizedError);
+    console.error('🔴 [ErrorBoundary] Component stack:', errorInfo.componentStack);
+    if (error && typeof error === 'object') {
+      console.error('🔴 [ErrorBoundary] Error keys:', Object.keys(error));
+      console.error('🔴 [ErrorBoundary] Error constructor:', error.constructor?.name);
+      try {
+        console.error('🔴 [ErrorBoundary] Error JSON:', JSON.stringify(error, null, 2));
+      } catch (e) {
+        console.error('🔴 [ErrorBoundary] Error JSON failed:', e);
+      }
+    }
+    console.error('🔴 [ErrorBoundary] ==================================');
     
     // Store errorInfo for better debugging
     this.setState(prevState => ({ 
@@ -130,7 +148,7 @@ function DefaultErrorFallback({ error, resetError }: { error?: Error; resetError
         </CardTitle>
       </CardHeader>
       <CardContent className="space-y-4">
-        <p className="text-gray-600 dark:text-gray-300">
+        <p className="text-gray-600 dark:text-gray-100">
           An unexpected error occurred while processing your request. The error has been reported automatically.
         </p>
         
@@ -141,22 +159,22 @@ function DefaultErrorFallback({ error, resetError }: { error?: Error; resetError
             </summary>
             <div className="mt-2 space-y-2">
               <div>
-                <strong className="text-xs text-gray-700 dark:text-gray-300">Message:</strong>
-                <pre className="text-xs text-gray-600 dark:text-gray-300 overflow-auto mt-1">
+                <strong className="text-xs text-gray-700 dark:text-gray-200">Message:</strong>
+                <pre className="text-xs text-gray-600 dark:text-gray-100 overflow-auto mt-1">
                   {error.message || 'No error message available'}
                 </pre>
               </div>
               {error.stack && (
                 <div>
-                  <strong className="text-xs text-gray-700 dark:text-gray-300">Stack:</strong>
-                  <pre className="text-xs text-gray-600 dark:text-gray-300 overflow-auto mt-1 max-h-32">
+                  <strong className="text-xs text-gray-700 dark:text-gray-200">Stack:</strong>
+                  <pre className="text-xs text-gray-600 dark:text-gray-100 overflow-auto mt-1 max-h-32">
                     {error.stack}
                   </pre>
                 </div>
               )}
               <div>
-                <strong className="text-xs text-gray-700 dark:text-gray-300">Error Type:</strong>
-                <span className="text-xs text-gray-600 dark:text-gray-300 ml-1">
+                <strong className="text-xs text-gray-700 dark:text-gray-200">Error Type:</strong>
+                <span className="text-xs text-gray-600 dark:text-gray-100 ml-1">
                   {error.constructor?.name || 'Unknown'}
                 </span>
               </div>

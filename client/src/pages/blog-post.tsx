@@ -349,7 +349,7 @@ export default function BlogPostPage() {
               <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100 mb-4">
                 {error?.message?.includes('not found') ? 'Article Not Found' : 'Failed to Load Article'}
               </h1>
-              <p className="text-gray-600 dark:text-gray-300 mb-8 max-w-md mx-auto">
+              <p className="text-gray-600 dark:text-gray-100 mb-8 max-w-md mx-auto">
                 {error?.message?.includes('not found') 
                   ? "The article you're looking for doesn't exist or has been moved."
                   : "We're having trouble loading this article. Please try again."}
@@ -456,14 +456,14 @@ export default function BlogPostPage() {
 
               {/* Article Excerpt */}
               <p 
-                className="text-xl md:text-2xl text-gray-600 dark:text-gray-300 mb-8 leading-relaxed"
+                className="text-xl md:text-2xl text-gray-600 dark:text-gray-100 mb-8 leading-relaxed">
                 data-testid="article-excerpt"
               >
                 {post.excerpt}
               </p>
 
               {/* Article Metadata */}
-              <div className="flex flex-wrap items-center gap-6 text-sm text-gray-500 dark:text-gray-400 mb-6" data-testid="article-metadata">
+              <div className="flex flex-wrap items-center gap-6 text-sm text-gray-500 dark:text-gray-300 mb-6" data-testid="article-metadata">
                 <div className="flex items-center gap-2">
                   <Calendar className="h-4 w-4" aria-hidden="true" />
                   <time dateTime={post.publishedAt} data-testid="publish-date">
@@ -542,7 +542,7 @@ export default function BlogPostPage() {
                   <h3 className="text-xl font-semibold text-gray-900 dark:text-gray-100 mb-2">
                     Share this article
                   </h3>
-                  <p className="text-gray-600 dark:text-gray-300 text-sm">
+                  <p className="text-gray-600 dark:text-gray-100 text-sm">
                     Help others discover this content
                   </p>
                 </div>
@@ -630,7 +630,7 @@ export default function BlogPostPage() {
                 <h2 className="text-2xl md:text-3xl font-bold text-gray-900 dark:text-gray-100 mb-3">
                   Related Articles
                 </h2>
-                <p className="text-gray-600 dark:text-gray-300">
+                <p className="text-gray-600 dark:text-gray-100">
                   Continue reading with these related articles
                 </p>
               </div>
@@ -652,12 +652,12 @@ export default function BlogPostPage() {
                       </CardHeader>
                       <CardContent>
                         <p 
-                          className="text-gray-600 dark:text-gray-300 line-clamp-3 mb-4 leading-relaxed"
+                          className="text-gray-600 dark:text-gray-100 line-clamp-3 mb-4 leading-relaxed">
                           data-testid={`related-post-excerpt-${relatedPost.slug}`}
                         >
                           {relatedPost.excerpt}
                         </p>
-                        <div className="flex items-center justify-between text-sm text-gray-500 dark:text-gray-400">
+                        <div className="flex items-center justify-between text-sm text-gray-500 dark:text-gray-300">
                           <div className="flex items-center gap-1" data-testid={`related-post-date-${relatedPost.slug}`}>
                             <Calendar className="h-4 w-4" aria-hidden="true" />
                             <time dateTime={relatedPost.publishedAt}>
