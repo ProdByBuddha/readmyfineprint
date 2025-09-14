@@ -20,7 +20,8 @@ import {
   Zap
 } from 'lucide-react';
 import { MobileAppWrapper } from '@/components/MobileAppWrapper';
-import TradeSecretProtection from '@/components/TradeSecretProtection';
+// Temporarily disabled TradeSecretProtection due to interference with app functionality
+// import TradeSecretProtection from '@/components/TradeSecretProtection';
 import { useQuery } from '@tanstack/react-query';
 import { cn } from '@/lib/utils';
 import { useSEO } from '@/lib/seo';
@@ -223,7 +224,8 @@ export default function BlogPage() {
   if (error) {
     return (
       <div className="bg-gray-50 dark:bg-gray-900 min-h-screen">
-        <TradeSecretProtection />
+        {/* Temporarily disabled TradeSecretProtection due to interference with app functionality */}
+        {/* <TradeSecretProtection /> */}
         <MobileAppWrapper>
           <div className="container mx-auto px-4 py-8 max-w-6xl">
             <Alert className="border-red-200 bg-red-50 text-red-800 dark:border-red-800 dark:bg-red-950 dark:text-red-200" data-testid="error-alert">
@@ -249,7 +251,8 @@ export default function BlogPage() {
 
   return (
     <div className="bg-gray-50 dark:bg-gray-900 page-transition min-h-screen">
-      <TradeSecretProtection />
+      {/* Temporarily disabled TradeSecretProtection due to interference with app functionality */}
+      {/* <TradeSecretProtection /> */}
       <MobileAppWrapper>
         {/* Skip to content link for accessibility */}
         <a 

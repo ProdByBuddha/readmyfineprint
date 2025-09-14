@@ -19,7 +19,8 @@ import { AnalysisProgress } from "@/components/LoadingStates";
 import { MobileAppWrapper } from "@/components/MobileAppWrapper";
 import { CookieConsentBanner } from "@/components/CookieConsentBanner";
 import { SecurityQuestionsModal } from "@/components/SecurityQuestionsModal";
-import TradeSecretProtection from "@/components/TradeSecretProtection";
+// Temporarily disabled TradeSecretProtection due to interference with app functionality
+// import TradeSecretProtection from "@/components/TradeSecretProtection";
 
 // Hooks and services
 import { useCombinedConsent } from "@/components/CombinedConsent";
@@ -509,7 +510,8 @@ export default function Upload() {
       {/* Background Pattern */}
       <div className="absolute inset-0 bg-grid-pattern opacity-5 dark:opacity-10" />
       <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-secondary/5" />
-      <TradeSecretProtection />
+      {/* Temporarily disabled TradeSecretProtection due to interference with app functionality */}
+      {/* <TradeSecretProtection /> */}
       
       <MobileAppWrapper>
         {/* Cookie Consent Banner */}

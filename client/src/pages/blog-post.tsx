@@ -31,7 +31,8 @@ import {
   Zap
 } from 'lucide-react';
 import { MobileAppWrapper } from '@/components/MobileAppWrapper';
-import TradeSecretProtection from '@/components/TradeSecretProtection';
+// Temporarily disabled TradeSecretProtection due to interference with app functionality
+// import TradeSecretProtection from '@/components/TradeSecretProtection';
 import { useQuery } from '@tanstack/react-query';
 import { cn } from '@/lib/utils';
 import { useSEO } from '@/lib/seo';
@@ -297,7 +298,8 @@ export default function BlogPostPage() {
   if (isLoading) {
     return (
       <div className="bg-gray-50 dark:bg-gray-900 min-h-screen">
-        <TradeSecretProtection />
+        {/* Temporarily disabled TradeSecretProtection due to interference with app functionality */}
+        {/* <TradeSecretProtection /> */}
         <MobileAppWrapper>
           <div className="container mx-auto px-4 py-8 max-w-4xl">
             <div className="animate-pulse space-y-8" data-testid="loading-skeleton">
@@ -331,7 +333,8 @@ export default function BlogPostPage() {
   if (error || !post) {
     return (
       <div className="bg-gray-50 dark:bg-gray-900 min-h-screen">
-        <TradeSecretProtection />
+        {/* Temporarily disabled TradeSecretProtection due to interference with app functionality */}
+        {/* <TradeSecretProtection /> */}
         <MobileAppWrapper>
           <div className="container mx-auto px-4 py-8 max-w-4xl">
             <Alert className="border-red-200 bg-red-50 text-red-800 dark:border-red-800 dark:bg-red-950 dark:text-red-200 mb-8" data-testid="error-alert">
@@ -381,7 +384,8 @@ export default function BlogPostPage() {
 
   return (
     <div className="bg-gray-50 dark:bg-gray-900 page-transition min-h-screen">
-      <TradeSecretProtection />
+      {/* Temporarily disabled TradeSecretProtection due to interference with app functionality */}
+      {/* <TradeSecretProtection /> */}
       
       {/* Reading Progress Bar */}
       <div className="fixed top-0 left-0 right-0 z-50 bg-white/90 dark:bg-gray-900/90 backdrop-blur-sm border-b border-gray-200 dark:border-gray-800">

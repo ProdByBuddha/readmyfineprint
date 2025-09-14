@@ -16,7 +16,8 @@ import AccountDeletion from '@/components/AccountDeletion';
 import DataExportButton from '@/components/DataExportButton';
 import { getStoredDeviceFingerprint } from '@/utils/deviceFingerprint';
 import { createCustomerPortalSession, reactivateSubscription } from '@/lib/api';
-import TradeSecretProtection from '@/components/TradeSecretProtection';
+// Temporarily disabled TradeSecretProtection due to interference with app functionality
+// import TradeSecretProtection from '@/components/TradeSecretProtection';
 import { useQuery, useMutation } from '@tanstack/react-query';
 import { queryClient } from '@/lib/queryClient';
 import { sessionFetch } from '@/lib/sessionManager';
@@ -433,7 +434,8 @@ export default function SubscriptionPage() {
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-slate-900">
-      <TradeSecretProtection />
+      {/* Temporarily disabled TradeSecretProtection due to interference with app functionality */}
+      {/* <TradeSecretProtection /> */}
       <div className="max-w-7xl mx-auto px-4 py-8">
         <motion.div
           initial={{ opacity: 0, y: 20 }}

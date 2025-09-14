@@ -6,6 +6,7 @@ import { AlertTriangle, RefreshCw } from "lucide-react";
 interface ErrorBoundaryState {
   hasError: boolean;
   error?: Error;
+  errorInfo?: React.ErrorInfo;
 }
 
 interface ErrorBoundaryProps {
@@ -19,15 +20,49 @@ export class ErrorBoundary extends React.Component<ErrorBoundaryProps, ErrorBoun
     this.state = { hasError: false };
   }
 
-  static getDerivedStateFromError(error: Error): ErrorBoundaryState {
-    return { hasError: true, error };
+  static getDerivedStateFromError(error: any): ErrorBoundaryState {
+    // Normalize non-Error objects that might be thrown
+    const normalizedError = ErrorBoundary.normalizeError(error);
+    return { hasError: true, error: normalizedError };
   }
 
-  componentDidCatch(error: Error, errorInfo: React.ErrorInfo) {
-    console.error('Error boundary caught an error:', error, errorInfo);
+  // Static method to normalize any thrown value into an Error object
+  static normalizeError(error: any): Error {
+    if (error instanceof Error) {
+      return error;
+    }
+    
+    // Handle different types of thrown values
+    if (typeof error === 'string') {
+      return new Error(error);
+    }
+    
+    if (error && typeof error === 'object') {
+      const message = error.message || error.toString() || 'Unknown error object';
+      const normalizedError = new Error(message);
+      // Preserve additional properties if they exist
+      if (error.stack) normalizedError.stack = error.stack;
+      return normalizedError;
+    }
+    
+    // For primitives or null/undefined
+    const errorString = error === null ? 'null' : error === undefined ? 'undefined' : String(error);
+    return new Error(`Non-error thrown: ${errorString}`);
+  }
+
+  componentDidCatch(error: any, errorInfo: React.ErrorInfo) {
+    const normalizedError = ErrorBoundary.normalizeError(error);
+    console.error('Error boundary caught an error:', normalizedError, errorInfo);
+    
+    // Store errorInfo for better debugging
+    this.setState(prevState => ({ 
+      ...prevState, 
+      error: normalizedError, 
+      errorInfo 
+    }));
     
     // Report error to backend for admin notification
-    this.reportError(error, errorInfo);
+    this.reportError(normalizedError, errorInfo);
   }
 
   private reportError = async (error: Error, errorInfo: React.ErrorInfo) => {
@@ -35,14 +70,16 @@ export class ErrorBoundary extends React.Component<ErrorBoundaryProps, ErrorBoun
       const errorData = {
         errorType: 'frontend',
         severity: 'high', // React errors are usually high severity
-        message: error.message,
-        stack: error.stack,
+        message: error.message || 'Unknown error message',
+        stack: error.stack || 'No stack trace available',
         url: window.location.href,
         additionalContext: {
           componentStack: errorInfo.componentStack,
           errorBoundary: true,
           userAgent: navigator.userAgent,
-          timestamp: new Date().toISOString()
+          timestamp: new Date().toISOString(),
+          errorType: error.constructor.name,
+          originalError: typeof error === 'object' ? JSON.stringify(error, null, 2) : String(error)
         }
       };
 
@@ -94,7 +131,7 @@ function DefaultErrorFallback({ error, resetError }: { error?: Error; resetError
       </CardHeader>
       <CardContent className="space-y-4">
         <p className="text-gray-600 dark:text-gray-300">
-          An unexpected error occurred while processing your request.
+          An unexpected error occurred while processing your request. The error has been reported automatically.
         </p>
         
         {error && (
@@ -102,9 +139,28 @@ function DefaultErrorFallback({ error, resetError }: { error?: Error; resetError
             <summary className="cursor-pointer font-medium text-sm">
               Error Details
             </summary>
-            <pre className="mt-2 text-xs text-gray-600 dark:text-gray-300 overflow-auto">
-              {error.message}
-            </pre>
+            <div className="mt-2 space-y-2">
+              <div>
+                <strong className="text-xs text-gray-700 dark:text-gray-300">Message:</strong>
+                <pre className="text-xs text-gray-600 dark:text-gray-300 overflow-auto mt-1">
+                  {error.message || 'No error message available'}
+                </pre>
+              </div>
+              {error.stack && (
+                <div>
+                  <strong className="text-xs text-gray-700 dark:text-gray-300">Stack:</strong>
+                  <pre className="text-xs text-gray-600 dark:text-gray-300 overflow-auto mt-1 max-h-32">
+                    {error.stack}
+                  </pre>
+                </div>
+              )}
+              <div>
+                <strong className="text-xs text-gray-700 dark:text-gray-300">Error Type:</strong>
+                <span className="text-xs text-gray-600 dark:text-gray-300 ml-1">
+                  {error.constructor?.name || 'Unknown'}
+                </span>
+              </div>
+            </div>
           </details>
         )}
         

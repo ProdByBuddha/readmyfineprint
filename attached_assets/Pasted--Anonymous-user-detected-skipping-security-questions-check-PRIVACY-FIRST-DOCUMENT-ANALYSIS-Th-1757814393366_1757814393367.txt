@@ -1,0 +1,27 @@
+👤 Anonymous user detected - skipping security questions check
+🔒 PRIVACY-FIRST DOCUMENT ANALYSIS
+This application uses proprietary privacy-preserving technology protected by trade secret laws.
+Our enterprise-grade security ensures your sensitive information never leaves your control.
+For security inquiries, contact: security@readmyfineprint.ai
+🛡️ PRIVACY PROTECTION ACTIVE
+Your documents are protected by military-grade security protocols.
+Advanced privacy technology ensures complete confidentiality.
+React.Children.only expected to receive a single React element child.
+Error boundary caught an error: 
+Error {}
+ 
+Object {componentStack: "↵@https://edcf3ef7-a826-4eed-8e04-7a485b2e183a-00-1wytaob2mj6u8.kirk.replit.dev:5173/chunk-XDYJI5Y…"}
+componentStack: "↵@https://edcf3ef7-a826-4eed-8e04-7a485b2e183a-00-1wytaob2mj6u8.kirk.replit.dev:5173/chunk-XDYJI5YC.js:1:1632↵@https://edcf3ef7-a826-4eed-8e04-7a485b2e183a-00-1wytaob2mj6u8.kirk.replit.dev:5173/chunk-XDYJI5YC.js:1:1208↵@https://edcf3ef7-a826-4eed-8e04-7a485b2e183a-00-1wytaob2mj6u8.kirk.replit.dev:5173/chunk-XDYJI5YC.js:1:5217↵div↵div↵div↵@https://edcf3ef7-a826-4eed-8e04-7a485b2e183a-00-1wytaob2mj6u8.kirk.replit.dev:5173/chunk-STHQMLS3.js:1:21621↵div↵@https://edcf3ef7-a826-4eed-8e04-7a485b2e183a-00-1wytaob2mj6u8.kirk.replit.dev:5173/chunk-STHQMLS3.js:1:20311↵div↵div↵section↵div↵$@https://edcf3ef7-a826-4eed-8e04-7a485b2e183a-00-1wytaob2mj6u8.kirk.replit.dev:5173/trust-7IZSZYSL.js:1:553↵Ht@https://edcf3ef7-a826-4eed-8e04-7a485b2e183a-00-1wytaob2mj6u8.kirk.replit.dev:5173/chunk-MUM5AJ66.js:3:3251↵Vt@https://edcf3ef7-a826-4eed-8e04-7a485b2e183a-00-1wytaob2mj6u8.kirk.replit.dev:5173/chunk-MUM5AJ66.js:3:7130↵Suspense↵Na↵div↵ao@https://edcf3ef7-a826-4eed-8e04-7a485b2e183a-00-1wytaob2mj6u8.kirk.replit.dev:5173/main.js:13:15475↵main↵div↵Da@https://edcf3ef7-a826-4eed-8e04-7a485b2e183a-00-1wytaob2mj6u8.kirk.replit.dev:5173/main.js:13:19539↵vt@https://edcf3ef7-a826-4eed-8e04-7a485b2e183a-00-1wytaob2mj6u8.kirk.replit.dev:5173/chunk-2KLYDWCO.js:1:18102↵B@https://edcf3ef7-a826-4eed-8e04-7a485b2e183a-00-1wytaob2mj6u8.kirk.replit.dev:5173/chunk-2NPN65LE.js:1:302↵xe@https://edcf3ef7-a826-4eed-8e04-7a485b2e183a-00-1wytaob2mj6u8.kirk.replit.dev:5173/main.js:1:23757↵TooltipProviderProvider@https://edcf3ef7-a826-4eed-8e04-7a485b2e183a-00-1wytaob2mj6u8.kirk.replit.dev:5173/chunk-RVLQZV7G.js:1:576↵TooltipProvider@https://edcf3ef7-a826-4eed-8e04-7a485b2e183a-00-1wytaob2mj6u8.kirk.replit.dev:5173/main.js:1:15842↵S@https://edcf3ef7-a826-4eed-8e04-7a485b2e183a-00-1wytaob2mj6u8.kirk.replit.dev:5173/chunk-FZVLGZWZ.js:1:3215↵Fs@https://edcf3ef7-a826-4eed-8e04-7a485b2e183a-00-1wytaob2mj6u8.kirk.replit.dev:5173/chunk-GAMUBA7V.js:1:34393↵Re@https://edcf3ef7-a826-4eed-8e04-7a485b2e183a-00-1wytaob2mj6u8.kirk.replit.dev:5173/chunk-MUM5AJ66.js:3:6325↵wr@https://edcf3ef7-a826-4eed-8e04-7a485b2e183a-00-1wytaob2mj6u8.kirk.replit.dev:5173/chunk-MUM5AJ66.js:3:15729↵La"
+[[Prototype]]: Object
+
+React.Children.only expected to receive a single React element child.
+Error boundary caught an error: 
+Error {}
+ 
+Object {componentStack: "↵@https://edcf3ef7-a826-4eed-8e04-7a485b2e183a-00-1wytaob2mj6u8.kirk.replit.dev:5173/chunk-XDYJI5Y…"}
+
+React.Children.only expected to receive a single React element child.
+Error boundary caught an error: 
+Error {}
+ 
+Object {componentStack: "↵@https://edcf3ef7-a826-4eed-8e04-7a485b2e183a-00-1wytaob2mj6u8.kirk.replit.dev:5173/chunk-XDYJI5Y…"}
