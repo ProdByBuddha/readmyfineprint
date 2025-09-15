@@ -60,15 +60,15 @@ export default function Home() {
         answer: "Our privacy-preserving AI has been trained on thousands of legal documents and consistently identifies key clauses, risks, and opportunities with high-quality analysis."
       },
       {
-        question: "Can I use this for business or enterprise needs?",
+        question: "Can I use this for business needs?",
         answer: "Yes, our platform is designed for both individual and business use with advanced security protocols, audit trails, and compliance features suitable for professional legal review."
       }
     ];
 
     updateSEO({
-      title: "Enterprise AI Legal Document Analysis | ReadMyFinePrint",
+      title: "AI Legal Document Analysis | ReadMyFinePrint",
       description: "Transform contract review with AI-powered legal document analysis. Strong security, instant insights, and privacy protection for legal professionals worldwide.",
-      keywords: "AI legal document analysis, enterprise contract review, legal tech platform, document analysis AI, contract intelligence, legal automation",
+      keywords: "AI legal document analysis, contract review, legal tech platform, document analysis AI, contract intelligence, legal automation",
       structuredData: generateFAQSchema(faqData)
     });
   }, []);
@@ -84,7 +84,7 @@ export default function Home() {
     },
     {
       icon: Scale,
-      title: "Enterprise Contracts",
+      title: "Business Contracts",
       description: "In-depth review of vendor agreements, partnerships, NDAs, and liability provisions for business protection",
       gradient: "from-emerald-500/20 to-teal-600/20 dark:from-emerald-400/10 dark:to-teal-500/10",
       iconColor: "text-emerald-600 dark:text-emerald-400",
@@ -127,7 +127,7 @@ export default function Home() {
   const features = [
     {
       icon: Shield,
-      title: "Enterprise Security Architecture",
+      title: "Advanced Security Architecture",
       description: "Strong encryption, privacy-first processing, and advanced security controls ensure your most sensitive documents remain completely secure throughout analysis.",
       badge: "SOC 2 Ready",
       gradient: "from-blue-500/10 to-indigo-600/10 dark:from-blue-400/5 dark:to-indigo-500/5",
@@ -167,7 +167,7 @@ export default function Home() {
     { icon: Shield, text: "SOC 2 Type II", subtext: "In Progress" },
     { icon: Lock, text: "256-bit Encryption", subtext: "Bank Level" },
     { icon: Scale, text: "Legal Professional", subtext: "Approved" },
-    { icon: Award, text: "Enterprise Ready", subtext: "Trusted" },
+    // { icon: Award, text: "Enterprise Ready", subtext: "Trusted" }, // Hidden until enterprise tier is built
     { icon: Eye, text: "Privacy First", subtext: "Processing" },
     { icon: CheckCircle, text: "GDPR Aligned", subtext: "Privacy-First" }
   ];
@@ -220,7 +220,7 @@ export default function Home() {
               data-testid="main-heading"
             >
               <span className="bg-gradient-to-r from-slate-900 via-blue-900 to-slate-900 dark:from-white dark:via-blue-100 dark:to-white bg-clip-text text-transparent">
-                Enterprise AI for
+                Professional AI for
               </span>
               <br />
               <span className="bg-gradient-to-r from-primary via-blue-600 to-secondary bg-clip-text text-transparent">
@@ -388,7 +388,7 @@ export default function Home() {
           >
             <div className="text-center mb-16">
               <Badge className="mb-6 px-4 py-2 bg-gradient-to-r from-orange-500/10 to-red-600/10 text-orange-600 dark:text-orange-400 border-orange-500/20">
-                Enterprise Technology
+                Advanced Technology
               </Badge>
               <h2 
                 id="features-heading" 
@@ -405,7 +405,7 @@ export default function Home() {
               </h2>
               <p className="text-xl md:text-2xl text-slate-600 dark:text-slate-300 max-w-4xl mx-auto leading-relaxed font-light">
                 Advanced AI technology with <strong className="font-semibold">uncompromising privacy protection</strong> 
-                designed specifically for legal professionals and enterprises.
+                designed specifically for legal professionals and businesses.
               </p>
             </div>
 
@@ -599,7 +599,7 @@ export default function Home() {
                     data-testid="faq-item-3"
                   >
                     <h3 className="font-semibold mb-3 text-gray-900 dark:text-white text-lg">
-                      Can I use this for business or enterprise needs?
+                      Can I use this for business needs?
                     </h3>
                     <p className="text-gray-700 dark:text-gray-300 leading-relaxed">
                       Yes, our platform is designed for both individual and business use with advanced security protocols, 
