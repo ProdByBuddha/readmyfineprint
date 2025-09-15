@@ -500,6 +500,7 @@ export default function Home() {
           )}
 
           {/* Stats Section */}
+          <section className="mb-24">
             <Card className="p-12 bg-gradient-to-r from-slate-50 to-blue-50 dark:from-slate-900 dark:to-blue-950 border-0 shadow-2xl">
               <CardContent className="p-0">
                 <div className="text-center mb-12">
