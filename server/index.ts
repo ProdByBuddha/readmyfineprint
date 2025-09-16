@@ -516,9 +516,13 @@ app.use((req, res, next) => {
   // setting up all the other routes so the catch-all route
   // doesn't interfere with the other routes
   if (app.get("env") === "development") {
-    // Use static serving for development due to module resolution issues
-    console.log("🔧 Using static serving for development");
-    serveStatic(app);
+    try {
+      await setupVite(app, server);
+    } catch (error) {
+      console.error("Failed to setup Vite:", error);
+      console.log("Falling back to static serving");
+      serveStatic(app);
+    }
   } else {
     serveStatic(app);
   }

@@ -1,4 +1,5 @@
-import { useState, useEffect, useCallback } from 'react';
+// Version: 2.0.0 - Fixed React hooks error
+import { useState, useEffect } from 'react';
 import { Link, useRoute } from "wouter";
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
