@@ -225,8 +225,8 @@ export default function Contact() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-blue-50 dark:from-slate-900 dark:via-slate-800 dark:to-blue-950 relative overflow-hidden">
       {/* Background Pattern */}
-      <div className="absolute inset-0 bg-grid-pattern opacity-5 dark:opacity-10" />
-      <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-secondary/5" />
+      <div className="absolute inset-0 bg-grid-pattern opacity-5 dark:opacity-10"></div>
+      <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-secondary/5"></div>
       
       <TouchScrollContainer className="relative">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8 lg:py-12">
@@ -248,7 +248,7 @@ export default function Contact() {
               Get <strong className="font-semibold text-primary">enterprise-grade support</strong> from our expert teams.
               We're here to help with security, sales, and technical inquiries.
             </p>
-        </div>
+          </div>
 
         {/* Quick Response Promise */}
         <Card className="mb-8 bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-950 dark:to-indigo-950 border-blue-200 dark:border-blue-800">
@@ -574,5 +574,6 @@ export default function Contact() {
         </Card>
       </div>
     </TouchScrollContainer>
+    </div>
   );
 }

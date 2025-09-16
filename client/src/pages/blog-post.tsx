@@ -456,7 +456,7 @@ export default function BlogPostPage() {
 
               {/* Article Excerpt */}
               <p 
-                className="text-xl md:text-2xl text-gray-600 dark:text-gray-100 mb-8 leading-relaxed">
+                className="text-xl md:text-2xl text-gray-600 dark:text-gray-100 mb-8 leading-relaxed"
                 data-testid="article-excerpt"
               >
                 {post.excerpt}
@@ -652,7 +652,7 @@ export default function BlogPostPage() {
                       </CardHeader>
                       <CardContent>
                         <p 
-                          className="text-gray-600 dark:text-gray-100 line-clamp-3 mb-4 leading-relaxed">
+                          className="text-gray-600 dark:text-gray-100 line-clamp-3 mb-4 leading-relaxed"
                           data-testid={`related-post-excerpt-${relatedPost.slug}`}
                         >
                           {relatedPost.excerpt}
