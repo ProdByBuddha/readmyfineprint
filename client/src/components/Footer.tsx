@@ -83,52 +83,53 @@ export function Footer() {
       className="bg-gray-50 dark:bg-gray-900 border-t border-gray-200 dark:border-gray-700 z-40 backdrop-blur-sm bg-opacity-95 dark:bg-opacity-95 transition-all duration-300 ease-in-out flex-shrink-0"
       aria-label="Site footer"
     >
-      {/* Mobile Layout - Compact like desktop */}
-      <div className="md:hidden px-4 py-1">
-        <div className="flex justify-between items-center text-xs">
+      {/* Mobile Layout - Responsive */}
+      <div className="md:hidden px-4 py-2">
+        {/* Two column layout for very small screens, single row for larger mobile */}
+        <div className="flex flex-col space-y-2 sm:space-y-0 sm:flex-row sm:justify-between sm:items-center text-xs">
           {/* Copyright */}
-          <div className="text-gray-500 dark:text-gray-400">
+          <div className="text-gray-500 dark:text-gray-400 text-center sm:text-left">
             © {new Date().getFullYear()} ReadMyFinePrint
           </div>
           
-          {/* Compact links */}
-          <div className="flex items-center gap-2">
+          {/* Compact links with wrapping */}
+          <div className="flex flex-wrap justify-center sm:justify-end gap-x-3 gap-y-1">
             <Link 
               to="/privacy" 
-              className="text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200 transition-colors py-1 flex items-center"
+              className="text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200 transition-colors whitespace-nowrap"
             >
               Privacy
             </Link>
             <Link 
               to="/terms" 
-              className="text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200 transition-colors py-1 flex items-center"
+              className="text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200 transition-colors whitespace-nowrap"
             >
               Terms
             </Link>
             <Link 
               to="/cookies" 
-              className="text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-200 flex items-center gap-1 transition-colors py-1"
+              className="text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-200 flex items-center gap-1 transition-colors whitespace-nowrap"
             >
-              <Cookie className="w-3 h-3" />
-              Cookies
+              <Cookie className="w-3 h-3 flex-shrink-0" />
+              <span>Cookies</span>
             </Link>
             <Link 
               to="/donate" 
-              className="text-red-600 dark:text-red-400 hover:text-red-700 dark:hover:text-red-300 flex items-center gap-1 transition-colors py-1"
+              className="text-red-600 dark:text-red-400 hover:text-red-700 dark:hover:text-red-300 flex items-center gap-1 transition-colors whitespace-nowrap"
             >
-              <Heart className="w-3 h-3" />
-              Donate
+              <Heart className="w-3 h-3 flex-shrink-0" />
+              <span>Donate</span>
             </Link>
             <button
               onClick={handleShareClick}
-              className="text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 flex items-center gap-1 transition-colors py-1"
+              className="text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 flex items-center gap-1 transition-colors whitespace-nowrap"
             >
-              <Share2 className="w-3 h-3" />
-              Share
+              <Share2 className="w-3 h-3 flex-shrink-0" />
+              <span>Share</span>
             </button>
             <a
               href="mailto:admin@readmyfineprint.com"
-              className="text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200 transition-colors py-1 flex items-center"
+              className="text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200 transition-colors whitespace-nowrap"
             >
               Contact
             </a>
