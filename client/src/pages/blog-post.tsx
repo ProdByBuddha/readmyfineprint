@@ -178,7 +178,7 @@ export default function BlogPostPage() {
     if (!post) return;
 
     const updateReadingProgress = () => {
-      const article = document.querySelector('#article-content');
+      const article = document.querySelector('#article-content') as HTMLElement;
       if (!article) return;
 
       const articleTop = article.offsetTop;
@@ -204,28 +204,28 @@ export default function BlogPostPage() {
     return () => window.removeEventListener('scroll', updateReadingProgress);
   }, [post]);
 
-  const formatDate = useCallback((dateString: string) => {
+  const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleDateString('en-US', {
       year: 'numeric',
       month: 'long',
       day: 'numeric',
     });
-  }, []);
+  };
 
-  const formatCategory = useCallback((category: string) => {
+  const formatCategory = (category: string) => {
     return category.split('-').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ');
-  }, []);
+  };
 
-  const parseTags = useCallback((tags?: string) => {
+  const parseTags = (tags?: string) => {
     if (!tags || typeof tags !== 'string') return [];
     try {
       return JSON.parse(tags);
     } catch {
       return tags.split(',').map(tag => tag.trim());
     }
-  }, []);
+  };
 
-  const processContent = useCallback((content: string) => {
+  const processContent = (content: string) => {
     // Check if content is wrapped in markdown code blocks
     const htmlBlockMatch = content.match(/```html\s*\n([\s\S]*?)\n```/);
     if (htmlBlockMatch) {
@@ -235,7 +235,7 @@ export default function BlogPostPage() {
       return htmlContent + remainingContent;
     }
     return content;
-  }, []);
+  };
 
   const shareUrl = `${window.location.origin}/blog/${slug}`;
   const shareTitle = post?.title || '';
