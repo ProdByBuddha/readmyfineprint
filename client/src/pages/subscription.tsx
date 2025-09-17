@@ -10,6 +10,7 @@ import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import SubscriptionPlans from '@/components/SubscriptionPlans';
 import { StripeWrapper } from '@/components/StripeWrapper';
+import { StripeDebug } from '@/components/StripeDebug';
 import { SubscriptionLogin } from '@/components/SubscriptionLogin';
 import AccountDeletion from '@/components/AccountDeletion';
 import DataExportButton from '@/components/DataExportButton';
@@ -678,6 +679,9 @@ export default function SubscriptionPage() {
                 </Alert>
               </motion.div>
             )}
+            
+            {/* Debug component to see what's happening with Stripe - only in development */}
+            {import.meta.env.DEV && <StripeDebug />}
             
             <StripeWrapper>
               <SubscriptionPlans
