@@ -2,13 +2,13 @@ import { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { 
-  ArrowRight, 
-  Shield, 
-  CheckCircle, 
-  FileText, 
-  Lock, 
-  Eye, 
+import {
+  ArrowRight,
+  Shield,
+  CheckCircle,
+  FileText,
+  Lock,
+  Eye,
   Zap,
   Award,
   Users,
@@ -24,7 +24,7 @@ import {
   TrendingUp,
   Sparkles,
   ChevronRight,
-  Building
+  Building,
 } from "lucide-react";
 import { usePreventFlicker } from "@/hooks/usePreventFlicker";
 // Temporarily disabled TradeSecretProtection due to interference with app functionality
@@ -49,27 +49,33 @@ export default function Home() {
     const faqData = [
       {
         question: "How secure is my document data?",
-        answer: "Your documents are protected with strong encryption and privacy-preserving AI technology. We never store your documents permanently, and sensitive information is automatically detected and shielded during analysis."
+        answer:
+          "Your documents are protected with strong encryption and privacy-preserving AI technology. We never store your documents permanently, and sensitive information is automatically detected and shielded during analysis.",
       },
       {
         question: "What types of legal documents can I analyze?",
-        answer: "Our AI analyzes contracts, terms of service, privacy policies, employment agreements, rental agreements, NDAs, purchase agreements, and most other legal documents in English."
+        answer:
+          "Our AI analyzes contracts, terms of service, privacy policies, employment agreements, rental agreements, NDAs, purchase agreements, and most other legal documents in English.",
       },
       {
         question: "How accurate are the AI analysis results?",
-        answer: "Our privacy-preserving AI has been trained on thousands of legal documents and consistently identifies key clauses, risks, and opportunities with high-quality analysis."
+        answer:
+          "Our privacy-preserving AI has been trained on thousands of legal documents and consistently identifies key clauses, risks, and opportunities with high-quality analysis.",
       },
       {
         question: "Can I use this for business needs?",
-        answer: "Yes, our platform is designed for both individual and business use with advanced security protocols, audit trails, and compliance features suitable for professional legal review."
-      }
+        answer:
+          "Yes, our platform is designed for both individual and business use with advanced security protocols, audit trails, and compliance features suitable for professional legal review.",
+      },
     ];
 
     updateSEO({
       title: "AI Legal Document Analysis | ReadMyFinePrint",
-      description: "Transform contract review with AI-powered legal document analysis. Strong security, instant insights, and privacy protection for legal professionals worldwide.",
-      keywords: "AI legal document analysis, contract review, legal tech platform, document analysis AI, contract intelligence, legal automation",
-      structuredData: generateFAQSchema(faqData)
+      description:
+        "Transform contract review with AI-powered legal document analysis. Strong security, instant insights, and privacy protection for legal professionals worldwide.",
+      keywords:
+        "AI legal document analysis, contract review, legal tech platform, document analysis AI, contract intelligence, legal automation",
+      structuredData: generateFAQSchema(faqData),
     });
   }, []);
 
@@ -77,145 +83,95 @@ export default function Home() {
     {
       icon: Briefcase,
       title: "Employment Contracts",
-      description: "Comprehensive analysis of compensation, benefits, non-compete clauses, and termination terms with risk assessment",
-      gradient: "from-blue-500/20 to-indigo-600/20 dark:from-blue-400/10 dark:to-indigo-500/10",
+      description:
+        "Comprehensive analysis of compensation, benefits, non-compete clauses, and termination terms with risk assessment",
+      gradient:
+        "from-blue-500/20 to-indigo-600/20 dark:from-blue-400/10 dark:to-indigo-500/10",
       iconColor: "text-blue-600 dark:text-blue-400",
-      stats: "High Quality"
     },
     {
       icon: Scale,
       title: "Business Contracts",
-      description: "In-depth review of vendor agreements, partnerships, NDAs, and liability provisions for business protection",
-      gradient: "from-emerald-500/20 to-teal-600/20 dark:from-emerald-400/10 dark:to-teal-500/10",
+      description:
+        "In-depth review of vendor agreements, partnerships, NDAs, and liability provisions for business protection",
+      gradient:
+        "from-emerald-500/20 to-teal-600/20 dark:from-emerald-400/10 dark:to-teal-500/10",
       iconColor: "text-emerald-600 dark:text-emerald-400",
-      stats: "Professional Quality"
     },
     {
       icon: House,
       title: "Real Estate Agreements",
-      description: "Detailed analysis of lease terms, purchase agreements, and property obligations with compliance checking",
-      gradient: "from-orange-500/20 to-amber-600/20 dark:from-orange-400/10 dark:to-amber-500/10",
+      description:
+        "Detailed analysis of lease terms, purchase agreements, and property obligations with compliance checking",
+      gradient:
+        "from-orange-500/20 to-amber-600/20 dark:from-orange-400/10 dark:to-amber-500/10",
       iconColor: "text-orange-600 dark:text-orange-400",
-      stats: "Legal Compliant"
     },
     {
       icon: ScrollText,
       title: "Privacy & Terms",
-      description: "Smart parsing of privacy policies, terms of service, and data handling clauses with GDPR compliance",
-      gradient: "from-purple-500/20 to-pink-600/20 dark:from-purple-400/10 dark:to-pink-500/10",
+      description:
+        "Smart parsing of privacy policies, terms of service, and data handling clauses with GDPR compliance",
+      gradient:
+        "from-purple-500/20 to-pink-600/20 dark:from-purple-400/10 dark:to-pink-500/10",
       iconColor: "text-purple-600 dark:text-purple-400",
-      stats: "GDPR Focused"
     },
     {
       icon: FileCheck,
       title: "Commercial Agreements",
-      description: "Expert evaluation of purchase terms, warranties, returns, and commercial obligations with risk scoring",
-      gradient: "from-cyan-500/20 to-blue-600/20 dark:from-cyan-400/10 dark:to-blue-500/10",
+      description:
+        "Expert evaluation of purchase terms, warranties, returns, and commercial obligations with risk scoring",
+      gradient:
+        "from-cyan-500/20 to-blue-600/20 dark:from-cyan-400/10 dark:to-blue-500/10",
       iconColor: "text-cyan-600 dark:text-cyan-400",
-      stats: "Risk Analysis"
     },
     {
       icon: BookOpen,
       title: "Intellectual Property",
-      description: "Thorough review of software licenses, IP agreements, and usage restrictions with compliance validation",
-      gradient: "from-rose-500/20 to-pink-600/20 dark:from-rose-400/10 dark:to-pink-500/10",
+      description:
+        "Thorough review of software licenses, IP agreements, and usage restrictions with compliance validation",
+      gradient:
+        "from-rose-500/20 to-pink-600/20 dark:from-rose-400/10 dark:to-pink-500/10",
       iconColor: "text-rose-600 dark:text-rose-400",
-      stats: "IP Protected"
-    }
-  ];
-
-  const features = [
-    {
-      icon: Shield,
-      title: "Advanced Security Architecture",
-      description: "Strong encryption, privacy-first processing, and advanced security controls ensure your most sensitive documents remain completely secure throughout analysis.",
-      badge: "SOC 2 Ready",
-      gradient: "from-blue-500/10 to-indigo-600/10 dark:from-blue-400/5 dark:to-indigo-500/5",
-      stats: "256-bit Encryption",
-      highlight: true
     },
-    {
-      icon: Zap,
-      title: "AI-Powered Intelligence",
-      description: "Advanced natural language processing trained on millions of legal documents delivers comprehensive analysis with high-quality results efficiently.",
-      badge: "High Availability",
-      gradient: "from-emerald-500/10 to-teal-600/10 dark:from-emerald-400/5 dark:to-teal-500/5",
-      stats: "Fast Analysis",
-      highlight: false
-    },
-    {
-      icon: Eye,
-      title: "Privacy-First Processing",
-      description: "Privacy-first technology processes documents securely with immediate deletion. Your sensitive information is processed on our secure servers and not stored permanently.",
-      badge: "Privacy First",
-      gradient: "from-purple-500/10 to-violet-600/10 dark:from-purple-400/5 dark:to-violet-500/5",
-      stats: "Zero Data Retention",
-      highlight: false
-    },
-    {
-      icon: Target,
-      title: "Professional Insights",
-      description: "Transform complex legal language into clear, actionable recommendations with risk assessment, compliance checking, and strategic guidance for informed decisions.",
-      badge: "Legal Grade",
-      gradient: "from-orange-500/10 to-red-600/10 dark:from-orange-400/5 dark:to-red-500/5",
-      stats: "Professional Reports",
-      highlight: false
-    }
-  ];
-
-  const trustIndicators = [
-    { icon: Shield, text: "SOC 2 Type II", subtext: "In Progress" },
-    { icon: Lock, text: "256-bit Encryption", subtext: "Bank Level" },
-    { icon: Scale, text: "Legal Professional", subtext: "Approved" },
-    // { icon: Award, text: "Enterprise Ready", subtext: "Trusted" }, // Hidden until enterprise tier is built
-    { icon: Eye, text: "Privacy First", subtext: "Processing" },
-    { icon: CheckCircle, text: "GDPR Aligned", subtext: "Privacy-First" }
   ];
 
   // Testimonials will be added as we collect real user feedback
   const testimonials: any[] = [];
 
   return (
-    <div 
-      ref={containerRef} 
+    <div
+      ref={containerRef}
       className={`relative min-h-screen bg-gradient-to-br from-slate-50 via-white to-blue-50 dark:from-slate-900 dark:via-slate-800 dark:to-blue-950 page-transition overflow-hidden transition-opacity duration-700 ${
-        isLoaded ? 'opacity-100' : 'opacity-0'
+        isLoaded ? "opacity-100" : "opacity-0"
       }`}
     >
       {/* Background Pattern */}
       <div className="absolute inset-0 bg-grid-pattern opacity-5 dark:opacity-10" />
       <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-secondary/5" />
-      
+
       {/* Temporarily disabled TradeSecretProtection due to interference with app functionality */}
       {/* <TradeSecretProtection /> */}
       <MobileAppWrapper>
         {/* Cookie Consent Banner */}
         {!consentAccepted && (
-          <CookieConsentBanner onAccept={() => {
-            // The event listener in the hook will trigger the update
-          }} />
+          <CookieConsentBanner
+            onAccept={() => {
+              // The event listener in the hook will trigger the update
+            }}
+          />
         )}
-        
+
         <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 lg:py-12">
           {/* Hero Section */}
-          <section 
-            className="text-center mb-20 animate-fade-in-scale" 
-            role="banner" 
+          <section
+            className="text-center mb-20 animate-fade-in-scale"
+            role="banner"
             aria-labelledby="main-heading"
             data-testid="hero-section"
           >
-            <div className="mb-8">
-              <Badge 
-                className="mb-6 px-6 py-3 text-sm font-semibold bg-gradient-to-r from-primary/5 to-secondary/5 dark:from-primary/10 dark:to-secondary/10 border-primary/20 dark:border-primary/30 shadow-lg backdrop-blur-sm border"
-                data-testid="hero-badge"
-              >
-                <Sparkles className="w-4 h-4 mr-2" />
-                AI-Powered Legal Document Analysis
-              </Badge>
-            </div>
-
-            <h1 
-              id="main-heading" 
+            <h1
+              id="main-heading"
               className="text-5xl md:text-6xl lg:text-7xl font-black mb-8 leading-[0.9] tracking-tight"
               data-testid="main-heading"
             >
@@ -227,19 +183,26 @@ export default function Home() {
                 Legal Intelligence
               </span>
             </h1>
-            
-            <p 
+
+            <p
               className="text-xl md:text-2xl lg:text-3xl text-slate-700 dark:text-slate-300 mb-10 max-w-5xl mx-auto leading-relaxed font-light"
               data-testid="hero-description"
             >
-              Transform contract review with <span className="font-semibold text-primary">AI-powered analysis</span> that delivers 
-              instant insights while maintaining <span className="font-semibold text-secondary">absolute privacy</span> for your sensitive documents.
+              Transform contract review with{" "}
+              <span className="font-semibold text-primary">
+                AI-powered analysis
+              </span>{" "}
+              that delivers instant insights while maintaining{" "}
+              <span className="font-semibold text-secondary">
+                absolute privacy
+              </span>{" "}
+              for your sensitive documents.
             </p>
 
             {/* Call to Action */}
             <div className="flex flex-col sm:flex-row gap-6 justify-center items-center mb-16">
               <Link to="/upload" data-testid="upload-button-link">
-                <Button 
+                <Button
                   className="group bg-gradient-to-r from-primary via-blue-600 to-primary hover:from-primary/90 hover:via-blue-600/90 hover:to-primary/90 text-white px-12 py-5 text-xl font-bold shadow-2xl hover:shadow-primary/25 transition-all duration-500 transform hover:-translate-y-1 hover:scale-105"
                   data-testid="upload-button"
                 >
@@ -248,74 +211,18 @@ export default function Home() {
                   <ArrowRight className="w-6 h-6 ml-3 group-hover:translate-x-1 transition-transform duration-300" />
                 </Button>
               </Link>
-              <Link to="/blog" data-testid="learn-more-link">
-                <Button 
-                  className="group px-12 py-5 text-xl font-semibold border-2 border-primary/30 text-primary hover:bg-primary/5 dark:hover:bg-primary/10 transition-all duration-300 backdrop-blur-sm bg-transparent"
-                  data-testid="learn-more-button"
-                >
-                  <BookOpen className="w-5 h-5 mr-2 group-hover:scale-110 transition-transform duration-300" />
-                  View Demo
-                  <ChevronRight className="w-5 h-5 ml-2 group-hover:translate-x-1 transition-transform duration-300" />
-                </Button>
-              </Link>
             </div>
-
-            {/* Trust Indicators */}
-            <div className="mb-12 max-w-6xl mx-auto" data-testid="trust-indicators">
-              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
-                {(trustIndicators as any[]).map((indicator: any, index: number) => (
-                  <div 
-                    key={index}
-                    className="group flex flex-col items-center justify-center p-4 rounded-2xl bg-white/70 dark:bg-slate-800/70 backdrop-blur-md border border-white/20 dark:border-slate-700/30 shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-1"
-                    data-testid={`trust-indicator-${index}`}
-                  >
-                    <indicator.icon className="w-6 h-6 text-primary mb-2 group-hover:scale-110 transition-transform duration-300" />
-                    <span className="text-sm font-bold text-slate-900 dark:text-white">{indicator.text}</span>
-                    <span className="text-xs text-slate-600 dark:text-slate-400">{indicator.subtext}</span>
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            {/* Privacy Notice */}
-            <Card 
-              className="max-w-4xl mx-auto p-8 bg-gradient-to-r from-emerald-50/80 via-teal-50/60 to-blue-50/80 dark:from-emerald-950/30 dark:via-teal-950/20 dark:to-blue-950/30 border-0 shadow-2xl backdrop-blur-lg" 
-              role="alert" 
-              aria-labelledby="privacy-notice"
-              data-testid="privacy-notice"
-            >
-              <CardContent className="p-0">
-                <div className="flex items-start gap-4">
-                  <div className="p-3 bg-gradient-to-br from-emerald-500/20 to-teal-600/20 dark:from-emerald-400/10 dark:to-teal-500/10 rounded-xl">
-                    <Shield className="w-8 h-8 text-emerald-600 dark:text-emerald-400" />
-                  </div>
-                  <div className="flex-1 text-left">
-                    <h3 className="text-xl font-bold text-emerald-800 dark:text-emerald-200 mb-3">
-                      🔐 Privacy-First Architecture
-                    </h3>
-                    <p className="text-emerald-700 dark:text-emerald-300 leading-relaxed text-lg">
-                      Your documents are processed with <strong>strong encryption</strong> and our proprietary 
-                      privacy-preserving AI. <strong className="text-emerald-800 dark:text-emerald-200">Zero permanent storage</strong> — 
-                      confidentiality with immediate deletion after analysis.
-                    </p>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
           </section>
 
           {/* Sample Analysis Section */}
-          <section 
-            className="mb-24" 
+          <section
+            className="mb-24"
             aria-labelledby="sample-analysis-heading"
             data-testid="sample-analysis-section"
           >
             <div className="text-center mb-16">
-              <Badge className="mb-6 px-4 py-2 bg-gradient-to-r from-primary/10 to-secondary/10 text-primary border-primary/20">
-                Document Intelligence
-              </Badge>
-              <h2 
-                id="sample-analysis-heading" 
+              <h2
+                id="sample-analysis-heading"
                 className="text-4xl md:text-5xl lg:text-6xl font-black text-slate-900 dark:text-white mb-6 leading-tight"
                 data-testid="sample-analysis-heading"
               >
@@ -326,20 +233,29 @@ export default function Home() {
                 </span>
               </h2>
               <p className="text-xl md:text-2xl text-slate-600 dark:text-slate-300 max-w-4xl mx-auto leading-relaxed font-light">
-                Advanced natural language processing trained on millions of legal documents delivers 
-                <strong className="font-semibold"> professional analysis</strong> across all contract types.
+                Advanced natural language processing that delivers
+                <strong className="font-semibold">
+                  {" "}
+                  professional analysis
+                </strong>{" "}
+                across all contract types.
               </p>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8" data-testid="contract-types-grid">
+            <div
+              className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8"
+              data-testid="contract-types-grid"
+            >
               {(contractTypes as any[]).map((type: any, index: number) => (
-                <Card 
+                <Card
                   key={index}
                   className="group hover:shadow-2xl transition-all duration-500 hover:-translate-y-2 bg-white/60 dark:bg-slate-800/60 backdrop-blur-xl border-0 shadow-xl hover:shadow-primary/10"
                   data-testid={`contract-type-${index}`}
                 >
                   <CardHeader className="pb-4">
-                    <div className={`w-16 h-16 rounded-2xl bg-gradient-to-br ${type.gradient} flex items-center justify-center mb-4 group-hover:scale-110 transition-transform duration-300`}>
+                    <div
+                      className={`w-16 h-16 rounded-2xl bg-gradient-to-br ${type.gradient} flex items-center justify-center mb-4 group-hover:scale-110 transition-transform duration-300`}
+                    >
                       <type.icon className={`w-8 h-8 ${type.iconColor}`} />
                     </div>
                     <div className="flex items-center justify-between mb-2">
@@ -357,7 +273,9 @@ export default function Home() {
                     </p>
                     <div className="mt-4 pt-4 border-t border-slate-200/50 dark:border-slate-700/50">
                       <div className="flex items-center text-primary hover:text-primary/80 transition-colors duration-200 cursor-pointer">
-                        <span className="text-sm font-semibold">Learn More</span>
+                        <span className="text-sm font-semibold">
+                          Learn More
+                        </span>
                         <ArrowRight className="w-4 h-4 ml-2 group-hover:translate-x-1 transition-transform duration-300" />
                       </div>
                     </div>
@@ -368,7 +286,7 @@ export default function Home() {
 
             <div className="text-center mt-16">
               <Link to="/upload">
-                <Button 
+                <Button
                   className="group bg-gradient-to-r from-secondary via-teal-600 to-secondary hover:from-secondary/90 hover:via-teal-600/90 hover:to-secondary/90 text-white px-12 py-4 text-xl font-bold shadow-2xl hover:shadow-secondary/25 transition-all duration-500 transform hover:-translate-y-1"
                   data-testid="try-analysis-button"
                 >
@@ -380,80 +298,10 @@ export default function Home() {
             </div>
           </section>
 
-          {/* Features Section */}
-          <section 
-            className="mb-24" 
-            aria-labelledby="features-heading"
-            data-testid="features-section"
-          >
-            <div className="text-center mb-16">
-              <Badge className="mb-6 px-4 py-2 bg-gradient-to-r from-orange-500/10 to-red-600/10 text-orange-600 dark:text-orange-400 border-orange-500/20">
-                Advanced Technology
-              </Badge>
-              <h2 
-                id="features-heading" 
-                className="text-4xl md:text-5xl lg:text-6xl font-black text-slate-900 dark:text-white mb-6 leading-tight"
-                data-testid="features-heading"
-              >
-                Built for
-                <br />
-                <span className="bg-gradient-to-r from-orange-600 to-red-600 bg-clip-text text-transparent">
-                  Mission-Critical
-                </span>
-                <br />
-                Legal Work
-              </h2>
-              <p className="text-xl md:text-2xl text-slate-600 dark:text-slate-300 max-w-4xl mx-auto leading-relaxed font-light">
-                Advanced AI technology with <strong className="font-semibold">uncompromising privacy protection</strong> 
-                designed specifically for legal professionals and businesses.
-              </p>
-            </div>
-
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-10" data-testid="features-grid">
-              {(features as any[]).map((feature: any, index: number) => (
-                <Card 
-                  key={index}
-                  className={`group p-8 hover:shadow-2xl transition-all duration-500 hover:-translate-y-2 bg-white/70 dark:bg-slate-800/70 backdrop-blur-xl border-0 shadow-xl hover:shadow-primary/10 ${
-                    feature.highlight ? 'ring-2 ring-primary/20 bg-gradient-to-br from-primary/5 to-secondary/5' : ''
-                  }`}
-                  data-testid={`feature-${index}`}
-                >
-                  <CardContent className="p-0">
-                    <div className="flex items-start gap-6">
-                      <div className={`w-20 h-20 bg-gradient-to-br ${feature.gradient} rounded-2xl flex items-center justify-center flex-shrink-0 group-hover:scale-110 transition-transform duration-300`}>
-                        <feature.icon className="w-10 h-10 text-primary" />
-                      </div>
-                      <div className="flex-1">
-                        <div className="flex items-center justify-between mb-4">
-                          <h3 className="text-2xl font-bold text-slate-900 dark:text-white">
-                            {feature.title}
-                          </h3>
-                          <Badge className="text-xs font-bold bg-secondary/10 text-secondary">
-                            {feature.badge}
-                          </Badge>
-                        </div>
-                        <p className="text-slate-600 dark:text-slate-300 leading-relaxed text-lg mb-4">
-                          {feature.description}
-                        </p>
-                        <div className="flex items-center justify-between pt-4 border-t border-slate-200/50 dark:border-slate-700/50">
-                          <span className="text-primary font-bold">{feature.stats}</span>
-                          <div className="flex items-center text-primary hover:text-primary/80 transition-colors duration-200">
-                            <span className="text-sm font-semibold mr-2">Details</span>
-                            <ChevronRight className="w-4 h-4 group-hover:translate-x-1 transition-transform duration-300" />
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-              ))}
-            </div>
-          </section>
-
           {/* Testimonials Section - Hidden until we have real testimonials */}
           {testimonials.length > 0 && (
-            <section 
-              className="mb-24" 
+            <section
+              className="mb-24"
               aria-labelledby="testimonials-heading"
               data-testid="testimonials-section"
             >
@@ -461,7 +309,7 @@ export default function Home() {
                 <Badge className="mb-6 px-4 py-2 bg-gradient-to-r from-green-500/10 to-emerald-600/10 text-green-600 dark:text-green-400 border-green-500/20">
                   Client Success
                 </Badge>
-                <h2 
+                <h2
                   id="testimonials-heading"
                   className="text-4xl md:text-5xl lg:text-6xl font-black text-slate-900 dark:text-white mb-6 leading-tight"
                 >
@@ -472,91 +320,61 @@ export default function Home() {
                   </span>
                 </h2>
               </div>
-              
+
               <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-16">
-                {(testimonials as any[]).map((testimonial: any, index: number) => (
-                  <Card 
-                    key={index}
-                    className="p-8 bg-white/70 dark:bg-slate-800/70 backdrop-blur-xl border-0 shadow-xl hover:shadow-2xl transition-all duration-300 hover:-translate-y-1"
-                  >
-                    <CardContent className="p-0">
-                      <div className="flex items-center mb-4">
-                        {Array.from({ length: testimonial.rating }).map((_, i: number) => (
-                          <Star key={i} className="w-5 h-5 text-yellow-500 fill-current" />
-                        ))}
-                      </div>
-                      <p className="text-slate-700 dark:text-slate-300 mb-6 italic leading-relaxed text-lg">
-                        "{testimonial.quote}"
-                      </p>
-                      <div>
-                        <div className="font-bold text-slate-900 dark:text-white">{testimonial.author}</div>
-                        <div className="text-slate-600 dark:text-slate-400 text-sm">{testimonial.role}</div>
-                      </div>
-                    </CardContent>
-                  </Card>
-                ))}
+                {(testimonials as any[]).map(
+                  (testimonial: any, index: number) => (
+                    <Card
+                      key={index}
+                      className="p-8 bg-white/70 dark:bg-slate-800/70 backdrop-blur-xl border-0 shadow-xl hover:shadow-2xl transition-all duration-300 hover:-translate-y-1"
+                    >
+                      <CardContent className="p-0">
+                        <div className="flex items-center mb-4">
+                          {Array.from({ length: testimonial.rating }).map(
+                            (_, i: number) => (
+                              <Star
+                                key={i}
+                                className="w-5 h-5 text-yellow-500 fill-current"
+                              />
+                            ),
+                          )}
+                        </div>
+                        <p className="text-slate-700 dark:text-slate-300 mb-6 italic leading-relaxed text-lg">
+                          "{testimonial.quote}"
+                        </p>
+                        <div>
+                          <div className="font-bold text-slate-900 dark:text-white">
+                            {testimonial.author}
+                          </div>
+                          <div className="text-slate-600 dark:text-slate-400 text-sm">
+                            {testimonial.role}
+                          </div>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  ),
+                )}
               </div>
             </section>
           )}
 
-          {/* Stats Section */}
-          <section className="mb-24">
-            <Card className="p-12 bg-gradient-to-r from-slate-50 to-blue-50 dark:from-slate-900 dark:to-blue-950 border-0 shadow-2xl">
-              <CardContent className="p-0">
-                <div className="text-center mb-12">
-                  <div className="flex justify-center mb-6">
-                    <div className="flex items-center gap-3">
-                      <Award className="w-10 h-10 text-primary" />
-                      <Building className="w-10 h-10 text-secondary" />
-                      <Shield className="w-10 h-10 text-emerald-600" />
-                    </div>
-                  </div>
-                  <h3 className="text-3xl md:text-4xl font-black text-slate-900 dark:text-white mb-4">
-                    Professional Results
-                  </h3>
-                  <p className="text-xl text-slate-600 dark:text-slate-300 max-w-3xl mx-auto">
-                    Proven performance metrics from thousands of legal professionals worldwide
-                  </p>
-                </div>
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
-                  <div className="text-center" data-testid="stat-accuracy">
-                    <div className="text-4xl md:text-5xl font-black text-primary mb-2">High</div>
-                    <div className="text-slate-600 dark:text-slate-300 font-semibold">Analysis Accuracy</div>
-                  </div>
-                  <div className="text-center" data-testid="stat-security">
-                    <div className="text-4xl md:text-5xl font-black text-secondary mb-2">256-bit</div>
-                    <div className="text-slate-600 dark:text-slate-300 font-semibold">Encryption</div>
-                  </div>
-                  <div className="text-center" data-testid="stat-compliance">
-                    <div className="text-4xl md:text-5xl font-black text-emerald-600 mb-2">SOC 2</div>
-                    <div className="text-slate-600 dark:text-slate-300 font-semibold">Ready</div>
-                  </div>
-                  <div className="text-center" data-testid="stat-storage">
-                    <div className="text-4xl md:text-5xl font-black text-orange-600 mb-2">Zero</div>
-                    <div className="text-slate-600 dark:text-slate-300 font-semibold">Data Storage</div>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          </section>
-
           {/* FAQ Section */}
-          <section 
-            aria-labelledby="faq-heading" 
+          <section
+            aria-labelledby="faq-heading"
             className="mb-16"
             data-testid="faq-section"
           >
             <Card className="p-8 md:p-12 bg-white dark:bg-gray-800 shadow-xl border-0">
               <CardContent className="p-0">
-                <h2 
-                  id="faq-heading" 
+                <h2
+                  id="faq-heading"
                   className="text-3xl md:text-4xl font-bold mb-10 text-center text-gray-900 dark:text-white"
                   data-testid="faq-heading"
                 >
                   Frequently Asked Questions
                 </h2>
                 <div className="max-w-4xl mx-auto space-y-6">
-                  <div 
+                  <div
                     className="border border-gray-200 dark:border-gray-700 rounded-xl p-6 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors"
                     data-testid="faq-item-0"
                   >
@@ -564,12 +382,14 @@ export default function Home() {
                       How secure is my document data?
                     </h3>
                     <p className="text-gray-700 dark:text-gray-300 leading-relaxed">
-                      Your documents are protected with strong encryption and privacy-preserving AI technology. 
-                      We never store your documents permanently, and sensitive information is automatically detected 
-                      and shielded during analysis. Our privacy-first architecture ensures strong confidentiality.
+                      Your documents are protected with strong encryption and
+                      privacy-preserving AI technology. We never store your
+                      documents permanently, and sensitive information is
+                      automatically detected and shielded during analysis. Our
+                      privacy-first architecture ensures strong confidentiality.
                     </p>
                   </div>
-                  <div 
+                  <div
                     className="border border-gray-200 dark:border-gray-700 rounded-xl p-6 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors"
                     data-testid="faq-item-1"
                   >
@@ -577,12 +397,14 @@ export default function Home() {
                       What types of legal documents can I analyze?
                     </h3>
                     <p className="text-gray-700 dark:text-gray-300 leading-relaxed">
-                      Our AI analyzes contracts, terms of service, privacy policies, employment agreements, 
-                      rental agreements, NDAs, purchase agreements, and most other legal documents in English. 
-                      Upload PDFs, Word docs, or paste text directly for instant analysis.
+                      Our AI analyzes contracts, terms of service, privacy
+                      policies, employment agreements, rental agreements, NDAs,
+                      purchase agreements, and most other legal documents in
+                      English. Upload PDFs, Word docs, or paste text directly
+                      for instant analysis.
                     </p>
                   </div>
-                  <div 
+                  <div
                     className="border border-gray-200 dark:border-gray-700 rounded-xl p-6 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors"
                     data-testid="faq-item-2"
                   >
@@ -590,12 +412,14 @@ export default function Home() {
                       How accurate are the AI analysis results?
                     </h3>
                     <p className="text-gray-700 dark:text-gray-300 leading-relaxed">
-                      Our proprietary privacy-preserving AI has been trained on thousands of legal documents 
-                      and consistently identifies key clauses, risks, and opportunities with high-quality analysis. 
-                      While highly accurate, we recommend consulting with a legal professional for critical decisions.
+                      Our proprietary privacy-preserving AI has been trained on
+                      thousands of legal documents and consistently identifies
+                      key clauses, risks, and opportunities with high-quality
+                      analysis. While highly accurate, we recommend consulting
+                      with a legal professional for critical decisions.
                     </p>
                   </div>
-                  <div 
+                  <div
                     className="border border-gray-200 dark:border-gray-700 rounded-xl p-6 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors"
                     data-testid="faq-item-3"
                   >
@@ -603,9 +427,11 @@ export default function Home() {
                       Can I use this for business needs?
                     </h3>
                     <p className="text-gray-700 dark:text-gray-300 leading-relaxed">
-                      Yes, our platform is designed for both individual and business use with advanced security protocols, 
-                      audit trails, and compliance features suitable for professional legal review. Additional 
-                      security features and dedicated support are available for business needs.
+                      Yes, our platform is designed for both individual and
+                      business use with advanced security protocols, audit
+                      trails, and compliance features suitable for professional
+                      legal review. Additional security features and dedicated
+                      support are available for business needs.
                     </p>
                   </div>
                 </div>
@@ -614,17 +440,14 @@ export default function Home() {
           </section>
 
           {/* Final CTA */}
-          <section 
+          <section
             className="text-center mb-16"
             data-testid="final-cta-section"
           >
             <Card className="p-12 md:p-16 bg-gradient-to-br from-primary/10 via-secondary/10 to-emerald-600/10 dark:from-primary/20 dark:via-secondary/20 dark:to-emerald-600/20 border-0 shadow-2xl backdrop-blur-xl">
               <CardContent className="p-0">
                 <div className="mb-8">
-                  <div className="inline-flex items-center gap-3 px-6 py-3 bg-white/50 dark:bg-slate-800/50 rounded-full backdrop-blur-md border border-white/20 dark:border-slate-700/30">
-                    <TrendingUp className="w-5 h-5 text-primary" />
-                    <span className="text-slate-900 dark:text-white font-bold">Growing User Base</span>
-                  </div>
+                  <div className="inline-flex items-center gap-3 px-6 py-3 bg-white/50 dark:bg-slate-800/50 rounded-full backdrop-blur-md border border-white/20 dark:border-slate-700/30"></div>
                 </div>
                 <h2 className="text-4xl md:text-5xl lg:text-6xl font-black text-slate-900 dark:text-white mb-6 leading-tight">
                   Ready to Transform
@@ -634,13 +457,19 @@ export default function Home() {
                   </span>
                 </h2>
                 <p className="text-xl md:text-2xl text-slate-600 dark:text-slate-300 mb-12 max-w-3xl mx-auto leading-relaxed font-light">
-                  Experience AI-powered document analysis that delivers 
-                  <strong className="font-semibold">instant insights</strong> with 
-                  <strong className="font-semibold">absolute privacy protection</strong>.
+                  Experience AI-powered document analysis that delivers‎
+                  <strong className="font-semibold">
+                    instant insights
+                  </strong>{" "}
+                  with‎
+                  <strong className="font-semibold">
+                    absolute privacy protection
+                  </strong>
+                  .
                 </p>
                 <div className="flex flex-col sm:flex-row gap-6 justify-center items-center">
                   <Link to="/upload">
-                    <Button 
+                    <Button
                       className="group bg-gradient-to-r from-primary via-blue-600 to-secondary hover:from-primary/90 hover:via-blue-600/90 hover:to-secondary/90 text-white px-16 py-6 text-2xl font-black shadow-2xl hover:shadow-primary/30 transition-all duration-500 transform hover:-translate-y-2 hover:scale-105"
                       data-testid="final-cta-button"
                     >
@@ -651,7 +480,8 @@ export default function Home() {
                   </Link>
                   <div className="text-center">
                     <div className="text-slate-600 dark:text-slate-400 text-sm font-medium">
-                      🔒 No credit card required • 🚀 Instant setup • ✨ Privacy-first analysis
+                      🔒 No credit card required • 🚀 Instant setup • ✨
+                      Privacy-first analysis
                     </div>
                   </div>
                 </div>

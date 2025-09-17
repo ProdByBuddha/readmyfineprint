@@ -252,3 +252,6 @@ externalPort = 8008
 localPort = 43609
 externalPort = 3000
 exposeLocalhost = true
+
+[agent]
+integrations = ["javascript_stripe:1.0.0"]

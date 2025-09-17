@@ -1,0 +1,28 @@
+[1] [0] Failed to setup Vite: Error [ERR_MODULE_NOT_FOUND]: Cannot find module '/home/runner/workspace/node_modules/vite/dist/node/index.js' imported from /home/runner/workspace/server/vite.ts
+[1] [0]     at finalizeResolution (node:internal/modules/esm/resolve:265:11)
+[1] [0]     at moduleResolve (node:internal/modules/esm/resolve:933:10)
+[1] [0]     at defaultResolve (node:internal/modules/esm/resolve:1157:11)
+[1] [0]     at nextResolve (node:internal/modules/esm/hooks:866:28)
+[1] [0]     at resolveBase (file:///home/runner/workspace/node_modules/tsx/dist/esm/index.mjs?1758063340204:2:3744)
+[1] [0]     at async resolveDirectory (file:///home/runner/workspace/node_modules/tsx/dist/esm/index.mjs?1758063340204:2:4237)
+[1] [0]     at async resolve (file:///home/runner/workspace/node_modules/tsx/dist/esm/index.mjs?1758063340204:2:5355)
+[1] [0]     at async nextResolve (node:internal/modules/esm/hooks:866:22)
+[1] [0]     at async Hooks.resolve (node:internal/modules/esm/hooks:304:24)
+[1] [0]     at async handleMessage (node:internal/modules/esm/worker:196:18) {
+[1] [0]   code: 'ERR_MODULE_NOT_FOUND',
+[1] [0]   url: 'file:///home/runner/workspace/node_modules/vite/dist/node/index.js'
+[1] [0] }
+[1] [0] Failed to setup Vite: Error [ERR_MODULE_NOT_FOUND]: Cannot find module '/home/runner/workspace/node_modules/vite/dist/node/index.js' imported from /home/runner/workspace/server/vite.ts
+[1] [0]     at finalizeResolution (node:internal/modules/esm/resolve:265:11)
+[1] [0]     at moduleResolve (node:internal/modules/esm/resolve:933:10)
+[1] [0]     at defaultResolve (node:internal/modules/esm/resolve:1157:11)
+[1] [0]     at nextResolve (node:internal/modules/esm/hooks:866:28)
+[1] [0]     at resolveBase (file:///home/runner/workspace/node_modules/tsx/dist/esm/index.mjs?1758063340204:2:3744)
+[1] [0]     at async resolveDirectory (file:///home/runner/workspace/node_modules/tsx/dist/esm/index.mjs?1758063340204:2:4237)
+[1] [0]     at async resolve (file:///home/runner/workspace/node_modules/tsx/dist/esm/index.mjs?1758063340204:2:5355)
+[1] [0]     at async nextResolve (node:internal/modules/esm/hooks:866:22)
+[1] [0]     at async Hooks.resolve (node:internal/modules/esm/hooks:304:24)
+[1] [0]     at async handleMessage (node:internal/modules/esm/worker:196:18) {
+[1] [0]   code: 'ERR_MODULE_NOT_FOUND',
+[1] [0]   url: 'file:///home/runner/workspace/node_modules/vite/dist/node/index.js'
+[1] [0] }

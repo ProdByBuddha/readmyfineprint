@@ -1,0 +1,37 @@
+[1] [0] Failed to setup Vite: Error: Cannot find module 'vite'
+[1] [0] Require stack:
+[1] [0] - /home/runner/workspace/server/vite.ts
+[1] [0]     at Module._resolveFilename (node:internal/modules/cjs/loader:1143:15)
+[1] [0]     at nextResolveSimple (/home/runner/workspace/node_modules/tsx/dist/register-D46fvsV_.cjs:4:1004)
+[1] [0]     at /home/runner/workspace/node_modules/tsx/dist/register-D46fvsV_.cjs:3:2630
+[1] [0]     at /home/runner/workspace/node_modules/tsx/dist/register-D46fvsV_.cjs:3:1542
+[1] [0]     at resolveTsPaths (/home/runner/workspace/node_modules/tsx/dist/register-D46fvsV_.cjs:4:760)
+[1] [0]     at /home/runner/workspace/node_modules/tsx/dist/register-D46fvsV_.cjs:4:1102
+[1] [0]     at m._resolveFilename (file:///home/runner/workspace/node_modules/tsx/dist/register-B7jrtLTO.mjs:1:789)
+[1] [0]     at Module._load (node:internal/modules/cjs/loader:984:27)
+[1] [0]     at Module.require (node:internal/modules/cjs/loader:1231:19)
+[1] [0]     at require (node:internal/modules/helpers:179:18)
+[1] [0]     at setupVite (/home/runner/workspace/server/vite.ts:80:18)
+[1] [0]     at <anonymous> (/home/runner/workspace/server/index.ts:520:13)
+[1] [0]     at process.processTicksAndRejections (node:internal/process/task_queues:95:5) {
+[1] [0]   code: 'MODULE_NOT_FOUND',
+[1] [0]   requireStack: [ '/home/runner/workspace/server/vite.ts' ]
+[1] [0] }
+[1] [0] Failed to setup Vite: Error: Cannot find module 'vite'
+[1] [0] Require stack:
+[1] [0] - /home/runner/workspace/server/vite.ts
+[1] [0]     at Module._resolveFilename (node:internal/modules/cjs/loader:1143:15)
+[1] [0]     at nextResolveSimple (/home/runner/workspace/node_modules/tsx/dist/register-D46fvsV_.cjs:4:1004)
+[1] [0]     at /home/runner/workspace/node_modules/tsx/dist/register-D46fvsV_.cjs:3:2630
+[1] [0]     at /home/runner/workspace/node_modules/tsx/dist/register-D46fvsV_.cjs:3:1542
+[1] [0]     at resolveTsPaths (/home/runner/workspace/node_modules/tsx/dist/register-D46fvsV_.cjs:4:760)
+[1] [0]     at /home/runner/workspace/node_modules/tsx/dist/register-D46fvsV_.cjs:4:1102
+[1] [0]     at m._resolveFilename (file:///home/runner/workspace/node_modules/tsx/dist/register-B7jrtLTO.mjs:1:789)
+[1] [0]     at Module._load (node:internal/modules/cjs/loader:984:27)
+[1] [0]     at Module.require (node:internal/modules/cjs/loader:1231:19)
+[1] [0]     at require (node:internal/modules/helpers:179:18)
+[1] [0]     at setupVite (/home/runner/workspace/server/vite.ts:80:18)
+[1] [0]     at <anonymous> (/home/runner/workspace/server/index.ts:520:13)
+[1] [0]     at process.processTicksAndRejections (node:internal/process/task_queues:95:5) {
+[1] [0]   code: 'MODULE_NOT_FOUND',
+[1] [0]   

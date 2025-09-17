@@ -1,0 +1,70 @@
+export async function setupVite(app: Express, server: Server) {
+  try {
+    // Use a basic vite config for development
+    const vite = await import('../node_modules/vite/dist/node/index.js');
+    const { createServer: createViteServer, createLogger } = vite;
+    const serverOptions = {
+      middlewareMode: true,
+      hmr: { port: 5173,
+           host: 'localhost',
+           protocol: 'ws'
+           },
+      allowedHosts: true as const,
+    };
+    const viteConfig = {
+      plugins: [],
+      resolve: {
+        alias: {
+          "@": path.resolve(import.meta.dirname, "..", "client", "src"),
+          "@shared": path.resolve(import.meta.dirname, "..", "shared"),
+        },
+      },
+      root: path.resolve(import.meta.dirname, "..", "client"),
+    };
+    
+    const viteLogger = createLogger();
+
+    const viteServer = await createViteServer({
+      ...viteConfig,
+      configFile: false,
+      customLogger: {
+        ...viteLogger,
+        error: (msg: string, options?: any) => {
+          viteLogger.error(msg, options);
+          process.exit(1);
+        },
+      },
+      server: serverOptions,
+      appType: "custom",
+    });
+
+    app.use(viteServer.middlewares);
+    app.use("/*path", async (req, res, next) => {
+      const url = req.originalUrl;
+
+      try {
+        const clientTemplate = path.resolve(
+          import.meta.dirname,
+          "..",
+          "client",
+          "index.html",
+        );
+
+        // always reload the index.html file from disk incase it changes
+        let template = await fs.promises.readFile(clientTemplate, "utf-8");
+        template = template.replace(
+          `src="/src/main.tsx"`,
+          `src="/src/main.tsx?v=${Date.now()}"`,
+        );
+        const page = await viteServer.transformIndexHtml(url, template);
+        res.status(200).set({ "Content-Type": "text/html" }).end(page);
+      } catch (e) {
+        viteServer.ssrFixStacktrace(e as Error);
+        next(e);
+      }
+    });
+  } catch (error) {
+    console.error("Failed to setup Vite:", error);
+    throw error;
+  }
+}
