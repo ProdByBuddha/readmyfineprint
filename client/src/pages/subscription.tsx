@@ -67,7 +67,7 @@ export default function SubscriptionPage() {
   const [showComingSoon] = useState(false);
 
   // Fetch subscription data with React Query
-  const { data: subscriptionData, isLoading: loading, error, refetch } = useQuery({
+  const { data: subscriptionData, isLoading: loading, error, refetch } = useQuery<SubscriptionData>({
     queryKey: ['/api/user/subscription'],
     enabled: true,
     staleTime: 2 * 60 * 1000, // 2 minutes
@@ -154,7 +154,7 @@ export default function SubscriptionPage() {
           const { success, subscription } = await tokenResponse.json();
           if (success && subscription) {
             // Token is now stored as httpOnly cookie automatically
-            setSubscriptionData(subscription);
+            // Subscription data will be updated via React Query refetch
             
             // Notify other components of auth state change
             window.dispatchEvent(new CustomEvent('authStateChanged'));
@@ -178,7 +178,8 @@ export default function SubscriptionPage() {
   };
 
   const handleLoginSuccess = (_token: string, subscription: SubscriptionData) => {
-    setSubscriptionData(subscription);
+    // Invalidate and refetch subscription data
+    queryClient.invalidateQueries({ queryKey: ['/api/user/subscription'] });
     setShowLogin(false);
     setActiveTab('overview');
     // Redirect to home page after successful login
