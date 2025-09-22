@@ -224,11 +224,19 @@ export default function SubscriptionPlans({ currentTier, cancelAtPeriodEnd, onSe
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: index * 0.1 }}
-              className={`relative ${tier.popular ? 'scale-105 z-10' : ''}`}
+              className="relative"
             >
-              <Card className={`h-full flex flex-col relative min-h-[520px] ${
-                tier.popular ? 'border-blue-500 border-2 shadow-xl' : 'border-gray-200'
-              } ${isCurrentTier ? 'ring-2 ring-green-500' : ''} hover:shadow-lg transition-all duration-200`}>
+              <Card
+                className={`h-full flex flex-col relative min-h-[520px] !overflow-visible hover:shadow-lg transition-all duration-200 ${
+                  tier.popular
+                    ? 'border-blue-500 border-2 shadow-xl'
+                    : 'border-gray-200'
+                } ${isCurrentTier
+                  ? 'ring-2 ring-green-500 ring-offset-2 ring-offset-white dark:ring-offset-slate-950'
+                  : tier.popular
+                    ? 'ring-4 ring-blue-200/80 ring-offset-2 ring-offset-white dark:ring-blue-900/40 dark:ring-offset-slate-950'
+                    : ''}`}
+              >
                 {tier.popular && (
                   <div className="absolute -top-3 left-1/2 transform -translate-x-1/2 z-10">
                     <Badge className="bg-blue-500 text-white px-3 py-1">
@@ -345,7 +353,7 @@ export default function SubscriptionPlans({ currentTier, cancelAtPeriodEnd, onSe
           transition={{ delay: SUBSCRIPTION_TIERS.length * 0.1 }}
           className="relative"
         >
-          <Card className="h-full flex flex-col relative min-h-[520px] border-dashed border-2 border-gray-300 bg-gray-50 dark:bg-gray-800 dark:border-gray-600">
+          <Card className="h-full flex flex-col relative min-h-[520px] !overflow-visible border-dashed border-2 border-gray-300 bg-gray-50 dark:bg-gray-800 dark:border-gray-600">
             <div className="absolute -top-3 left-1/2 transform -translate-x-1/2 z-10">
               <Badge className="bg-orange-500 text-white px-3 py-1">
                 Coming Soon

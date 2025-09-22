@@ -1,4 +1,3 @@
-
 #!/usr/bin/env node
 
 import { deployToIPFS } from './ipfs-deploy.js';
