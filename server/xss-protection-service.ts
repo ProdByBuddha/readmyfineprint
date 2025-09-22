@@ -1,3 +1,4 @@
+/* eslint-disable no-useless-escape */
 import { securityLogger, SecurityEventType, SecuritySeverity } from './security-logger';
 
 interface SanitizationResult {
@@ -244,9 +245,10 @@ class XSSProtectionService {
     let sanitized: string;
     
     switch (context) {
-      case 'html':
+      case 'html': {
         const htmlResult = this.sanitizeHTML(input);
         return htmlResult;
+      }
       case 'attribute':
         sanitized = this.encodeHTMLAttribute(input);
         break;
