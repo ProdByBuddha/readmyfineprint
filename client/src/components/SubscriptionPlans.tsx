@@ -418,6 +418,7 @@ export default function SubscriptionPlans({
           transition={{ delay: SUBSCRIPTION_TIERS.length * 0.1 }}
           className="relative"
         >
+
           <Card className="h-full flex flex-col relative min-h-[520px] border-dashed border-2 border-gray-300 bg-gray-50 dark:bg-gray-800 dark:border-gray-600">
             <div className="absolute top-4 left-1/2 transform -translate-x-1/2 z-10">
               <Badge className="bg-orange-500 text-white px-3 py-1">
