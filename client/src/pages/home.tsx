@@ -258,27 +258,14 @@ export default function Home() {
                     >
                       <type.icon className={`w-8 h-8 ${type.iconColor}`} />
                     </div>
-                    <div className="flex items-center justify-between mb-2">
-                      <CardTitle className="text-xl font-bold text-slate-900 dark:text-white">
-                        {type.title}
-                      </CardTitle>
-                      <Badge className="text-xs font-semibold border">
-                        {type.stats}
-                      </Badge>
-                    </div>
+                    <CardTitle className="text-xl font-bold text-slate-900 dark:text-white mb-2">
+                      {type.title}
+                    </CardTitle>
                   </CardHeader>
                   <CardContent>
                     <p className="text-slate-600 dark:text-slate-300 leading-relaxed">
                       {type.description}
                     </p>
-                    <div className="mt-4 pt-4 border-t border-slate-200/50 dark:border-slate-700/50">
-                      <div className="flex items-center text-primary hover:text-primary/80 transition-colors duration-200 cursor-pointer">
-                        <span className="text-sm font-semibold">
-                          Learn More
-                        </span>
-                        <ArrowRight className="w-4 h-4 ml-2 group-hover:translate-x-1 transition-transform duration-300" />
-                      </div>
-                    </div>
                   </CardContent>
                 </Card>
               ))}
