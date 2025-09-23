@@ -31,7 +31,7 @@ export default [
       'build-script.js'
     ]
   },
-  js.recommended,
+  js.configs.recommended,
   {
     files: ['**/*.{js,jsx,ts,tsx}'],
     languageOptions: {
