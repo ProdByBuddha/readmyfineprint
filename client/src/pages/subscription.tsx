@@ -16,6 +16,7 @@ import AccountDeletion from '@/components/AccountDeletion';
 import DataExportButton from '@/components/DataExportButton';
 import { getStoredDeviceFingerprint } from '@/utils/deviceFingerprint';
 import { createCustomerPortalSession, reactivateSubscription } from '@/lib/api';
+import { safeDispatchEvent } from '@/lib/safeDispatchEvent';
 // Temporarily disabled TradeSecretProtection due to interference with app functionality
 // import TradeSecretProtection from '@/components/TradeSecretProtection';
 import { useQuery, useMutation } from '@tanstack/react-query';
@@ -157,7 +158,7 @@ export default function SubscriptionPage() {
             // Subscription data will be updated via React Query refetch
             
             // Notify other components of auth state change
-            window.dispatchEvent(new CustomEvent('authStateChanged'));
+            safeDispatchEvent('authStateChanged');
             
             console.log('✅ Subscription token set as httpOnly cookie');
           }
@@ -624,22 +625,25 @@ export default function SubscriptionPage() {
                 <Alert className="bg-blue-50 dark:bg-blue-900/30 border-blue-200 dark:border-blue-800">
                   <TrendingUp className="h-4 w-4" />
                   <AlertDescription>
-                    <div className="flex items-center justify-between">
-                      <div>
+                    <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+                      <div className="text-left space-y-1">
                         <strong className="dark:text-white">Ready to upgrade or already subscribed?</strong>
                         <p className="text-sm mt-1 dark:text-gray-300">
                           Upgrade to {subscriptionData.suggestedUpgrade.name} for advanced privacy protection and enhanced document analysis capabilities.
                         </p>
                       </div>
-                      <div className="flex space-x-2">
-                        <Button 
-                          variant="outline" 
+                      <div className="flex w-full flex-col gap-2 sm:w-auto sm:flex-row">
+                        <Button
+                          variant="outline"
                           onClick={() => setShowLogin(true)}
-                          className="whitespace-nowrap"
+                          className="whitespace-nowrap text-xs sm:text-sm h-9 sm:h-10 px-3 sm:px-4"
                         >
                           Login to Account
                         </Button>
-                        <Button onClick={() => setActiveTab('plans')}>
+                        <Button
+                          onClick={() => setActiveTab('plans')}
+                          className="text-xs sm:text-sm h-9 sm:h-10 px-3 sm:px-4"
+                        >
                           View Plans
                         </Button>
                       </div>
@@ -661,17 +665,17 @@ export default function SubscriptionPage() {
                 <Alert className="bg-green-50 dark:bg-green-900/30 border-green-200 dark:border-green-800">
                   <LogIn className="h-4 w-4" />
                   <AlertDescription>
-                    <div className="flex items-center justify-between">
-                      <div>
+                    <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+                      <div className="text-left space-y-1">
                         <strong className="dark:text-white">Already have a subscription?</strong>
                         <p className="text-sm mt-1 dark:text-gray-300">
                           If you&apos;ve already subscribed, click here to access your account from this device.
                         </p>
                       </div>
-                      <Button 
-                        variant="outline" 
+                      <Button
+                        variant="outline"
                         onClick={() => setShowLogin(true)}
-                        className="whitespace-nowrap"
+                        className="whitespace-nowrap text-xs sm:text-sm h-9 sm:h-10 px-3 sm:px-4"
                       >
                         Login to Account
                       </Button>

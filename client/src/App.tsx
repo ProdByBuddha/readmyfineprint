@@ -20,6 +20,7 @@ import { setupAutoSubmission } from "./lib/indexnow";
 import { errorReporter } from "./lib/error-reporter";
 import React, { useEffect, useState, lazy, Suspense } from 'react';
 import { authFetch } from './lib/auth-fetch';
+import { safeDispatchEvent } from "./lib/safeDispatchEvent";
 import { DirectionProvider } from "@radix-ui/react-direction";
 import { SecurityQuestionsProvider, useSecurityQuestions } from "./contexts/SecurityQuestionsContext";
 import { SecurityQuestionsModal } from "./components/SecurityQuestionsModal";
@@ -161,8 +162,8 @@ function AppContent() {
             if (verifyResponse.ok) {
               console.log('✅ Session verified, triggering auth events');
               // Only trigger events if session is actually working
-              window.dispatchEvent(new Event('authUpdate'));
-              window.dispatchEvent(new CustomEvent('authStateChanged'));
+              safeDispatchEvent('authUpdate');
+              safeDispatchEvent('authStateChanged');
             } else {
               console.warn('⚠️ Auto-login succeeded but session verification failed');
             }
@@ -207,7 +208,7 @@ function AppContent() {
           console.log('Security questions required - showing modal');
           // We need to manually trigger the modal since the useSecurityQuestionsHandler
           // expects an API error, but we're checking proactively
-          window.dispatchEvent(new CustomEvent('securityQuestionsRequired'));
+          safeDispatchEvent('securityQuestionsRequired');
         }
       }, 1000);
       return () => clearTimeout(timer);
