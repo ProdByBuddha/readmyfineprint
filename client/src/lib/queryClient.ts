@@ -1,4 +1,5 @@
 import { QueryClient, QueryFunction } from "@tanstack/react-query";
+import { safeDispatchEvent } from './safeDispatchEvent';
 
 // Session ID management - use sessionStorage for consistency
 export function getSessionId(): string {
@@ -36,9 +37,9 @@ function isConsentRequired(res: Response): boolean {
 // Function to trigger consent modal when needed
 function triggerConsentModal() {
   // Dispatch custom event that components can listen to
-  window.dispatchEvent(new CustomEvent('consentRequired', { 
-    detail: { reason: 'API request blocked - consent required' }
-  }));
+  safeDispatchEvent('consentRequired', {
+    detail: { reason: 'API request blocked - consent required' },
+  });
 }
 
 async function throwIfResNotOk(res: Response) {

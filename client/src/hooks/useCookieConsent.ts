@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import { sessionFetch } from '../lib/api';
+import { safeDispatchEvent } from '../lib/safeDispatchEvent';
 
 interface CookieConsentSettings {
   necessary: boolean;
@@ -238,7 +239,7 @@ export function useCookieConsent() {
     }
 
     // Dispatch event for other components
-    window.dispatchEvent(new CustomEvent('consentChanged'));
+    safeDispatchEvent('consentChanged');
   }, [isAuthenticated, saveToDatabase, saveToLocalStorage]);
 
   // Accept specific cookie categories
@@ -278,7 +279,7 @@ export function useCookieConsent() {
     }
 
     // Dispatch event for other components
-    window.dispatchEvent(new CustomEvent('consentChanged'));
+    safeDispatchEvent('consentChanged');
   }, [isAuthenticated, saveToDatabase, saveToLocalStorage]);
 
   // Revoke all cookies
@@ -323,7 +324,7 @@ export function useCookieConsent() {
     }
 
     // Dispatch event for other components
-    window.dispatchEvent(new CustomEvent('consentRevoked'));
+    safeDispatchEvent('consentRevoked');
   }, [isAuthenticated, saveToDatabase]);
 
   // Initialize on mount

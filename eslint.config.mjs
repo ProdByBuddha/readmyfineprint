@@ -12,6 +12,7 @@ export default [
       '.pythonlibs/**',
       'node_modules/**',
       'dist/**',
+      '.next/**',
       'ZAP_2.16.1/**',
       '**/*.py',
       '**/*.jar',
@@ -21,6 +22,8 @@ export default [
       'public/**',
       'scripts/local-llm-server.py',
       'scripts/*.cjs',
+      'scripts/fix-linter-warnings.mjs',
+      'scripts/migrate-to-argon2.js',
       'server/start.js',
       'tailwind.config.ts',
       'vite.config.ts',
@@ -85,7 +88,9 @@ export default [
         AbortController: 'readonly',
         Headers: 'readonly',
         Request: 'readonly',
-        Response: 'readonly'
+        Response: 'readonly',
+        NodeJS: 'readonly',
+        btoa: 'readonly'
       }
     },
     plugins: {
@@ -148,13 +153,13 @@ export default [
   },
   // Server-side TypeScript configuration
   {
-    files: ['server/**/*.ts', 'scripts/**/*.ts', 'shared/**/*.ts'],
+    files: ['server/**/*.ts', 'scripts/**/*.ts', 'shared/**/*.ts', 'types/**/*.ts', 'tests/**/*.ts'],
     languageOptions: {
       ecmaVersion: 2022,
       sourceType: 'module',
       parser: tsparser,
       parserOptions: {
-        project: './tsconfig.server.json'
+        project: './tsconfig.eslint.json'
       },
       globals: {
         console: 'readonly',
@@ -193,10 +198,134 @@ export default [
       '@typescript-eslint/no-explicit-any': 'warn',
       '@typescript-eslint/ban-ts-comment': 'warn',
       '@typescript-eslint/no-unused-expressions': 'warn',
+      '@typescript-eslint/no-namespace': 'off',
+      '@typescript-eslint/no-require-imports': 'off',
       'no-console': 'off', // Allow console in server code
       'no-debugger': 'error',
       'no-unused-vars': 'off',
-      'no-undef': 'error'
+      'no-undef': 'off',
+      'no-case-declarations': 'off',
+      'no-useless-escape': 'warn',
+      'no-control-regex': 'warn'
+    }
+  },
+  {
+    files: [
+      'server/**/*.js',
+      'scripts/**/*.{js,cjs,mjs}',
+      'send-test-error*.{js,cjs}',
+      'build-script.js',
+      'minimal-build.js',
+      'production-build.js',
+      'dev-server.js'
+    ],
+    languageOptions: {
+      ecmaVersion: 2022,
+      sourceType: 'module',
+      parserOptions: {
+        allowHashBang: true
+      },
+      globals: {
+        console: 'readonly',
+        process: 'readonly',
+        Buffer: 'readonly',
+        __dirname: 'readonly',
+        __filename: 'readonly',
+        global: 'readonly',
+        module: 'readonly',
+        require: 'readonly',
+        exports: 'readonly',
+        setTimeout: 'readonly',
+        setInterval: 'readonly',
+        clearTimeout: 'readonly',
+        clearInterval: 'readonly',
+        AbortController: 'readonly',
+        Headers: 'readonly',
+        Request: 'readonly',
+        Response: 'readonly',
+        fetch: 'readonly'
+      }
+    },
+    rules: {
+      'no-console': 'off',
+      'no-debugger': 'error',
+      'no-unused-vars': 'warn',
+      'no-undef': 'warn'
+    }
+  },
+  {
+    files: [
+      'tests/**/*.{ts,tsx}',
+      'test/**/*.ts'
+    ],
+    languageOptions: {
+      ecmaVersion: 2022,
+      sourceType: 'module',
+      parser: tsparser,
+      parserOptions: {
+        project: './tsconfig.eslint.json'
+      },
+      globals: {
+        describe: 'readonly',
+        it: 'readonly',
+        test: 'readonly',
+        expect: 'readonly',
+        beforeEach: 'readonly',
+        afterEach: 'readonly',
+        beforeAll: 'readonly',
+        afterAll: 'readonly',
+        vi: 'readonly',
+        jest: 'readonly',
+        console: 'readonly',
+        process: 'readonly',
+        setTimeout: 'readonly',
+        clearTimeout: 'readonly',
+        setInterval: 'readonly',
+        clearInterval: 'readonly',
+        URL: 'readonly',
+        Request: 'readonly',
+        Response: 'readonly',
+        fetch: 'readonly'
+      }
+    },
+    rules: {
+      'no-console': 'off',
+      'no-unused-vars': 'warn'
+    }
+  },
+  {
+    files: [
+      'tests/**/*.js',
+      'test/**/*.js',
+      'test-*.js'
+    ],
+    languageOptions: {
+      ecmaVersion: 2022,
+      sourceType: 'module',
+      globals: {
+        describe: 'readonly',
+        it: 'readonly',
+        test: 'readonly',
+        expect: 'readonly',
+        beforeEach: 'readonly',
+        afterEach: 'readonly',
+        beforeAll: 'readonly',
+        afterAll: 'readonly',
+        console: 'readonly',
+        process: 'readonly',
+        setTimeout: 'readonly',
+        clearTimeout: 'readonly',
+        setInterval: 'readonly',
+        clearInterval: 'readonly',
+        URL: 'readonly',
+        Request: 'readonly',
+        Response: 'readonly',
+        fetch: 'readonly'
+      }
+    },
+    rules: {
+      'no-console': 'off',
+      'no-unused-vars': 'warn'
     }
   },
   // Configuration files
