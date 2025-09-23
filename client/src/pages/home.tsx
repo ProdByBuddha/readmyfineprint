@@ -192,9 +192,13 @@ export default function Home() {
               <span className="font-semibold text-primary">
                 AI-powered analysis
               </span>{" "}
-              that delivers instant insights while maintaining{" "}
+              that delivers{" "}
+              <span className="font-semibold text-primary">
+                instant insights
+              </span>{" "}
+              while maintaining{" "}
               <span className="font-semibold text-secondary">
-                absolute privacy
+                absolute privacy protection
               </span>{" "}
               for your sensitive documents.
             </p>
@@ -258,41 +262,28 @@ export default function Home() {
                     >
                       <type.icon className={`w-8 h-8 ${type.iconColor}`} />
                     </div>
-                    <div className="flex items-center justify-between mb-2">
-                      <CardTitle className="text-xl font-bold text-slate-900 dark:text-white">
-                        {type.title}
-                      </CardTitle>
-                      <Badge className="text-xs font-semibold border">
-                        {type.stats}
-                      </Badge>
-                    </div>
+                    <CardTitle className="text-xl font-bold text-slate-900 dark:text-white mb-2">
+                      {type.title}
+                    </CardTitle>
                   </CardHeader>
                   <CardContent>
                     <p className="text-slate-600 dark:text-slate-300 leading-relaxed">
                       {type.description}
                     </p>
-                    <div className="mt-4 pt-4 border-t border-slate-200/50 dark:border-slate-700/50">
-                      <div className="flex items-center text-primary hover:text-primary/80 transition-colors duration-200 cursor-pointer">
-                        <span className="text-sm font-semibold">
-                          Learn More
-                        </span>
-                        <ArrowRight className="w-4 h-4 ml-2 group-hover:translate-x-1 transition-transform duration-300" />
-                      </div>
-                    </div>
                   </CardContent>
                 </Card>
               ))}
             </div>
 
             <div className="text-center mt-16">
-              <Link to="/upload">
+              <Link to="/upload" className="inline-block w-full max-w-md mx-auto">
                 <Button
-                  className="group bg-gradient-to-r from-secondary via-teal-600 to-secondary hover:from-secondary/90 hover:via-teal-600/90 hover:to-secondary/90 text-white px-12 py-4 text-xl font-bold shadow-2xl hover:shadow-secondary/25 transition-all duration-500 transform hover:-translate-y-1"
+                  className="group bg-gradient-to-r from-secondary via-teal-600 to-secondary hover:from-secondary/90 hover:via-teal-600/90 hover:to-secondary/90 text-white px-6 sm:px-12 py-4 sm:py-4 text-base sm:text-xl font-bold shadow-2xl hover:shadow-secondary/25 transition-all duration-500 transform hover:-translate-y-1 w-full h-auto min-h-[3.5rem] flex items-center justify-center gap-2 sm:gap-3 whitespace-nowrap"
                   data-testid="try-analysis-button"
                 >
-                  <FileText className="w-6 h-6 mr-3 group-hover:scale-110 transition-transform duration-300" />
-                  Experience AI Analysis
-                  <Sparkles className="w-6 h-6 ml-3 group-hover:rotate-12 transition-transform duration-300" />
+                  <FileText className="w-5 h-5 sm:w-6 sm:h-6 group-hover:scale-110 transition-transform duration-300 flex-shrink-0" />
+                  <span className="font-bold">Experience AI Analysis</span>
+                  <Sparkles className="w-5 h-5 sm:w-6 sm:h-6 group-hover:rotate-12 transition-transform duration-300 flex-shrink-0" />
                 </Button>
               </Link>
             </div>
@@ -456,12 +447,15 @@ export default function Home() {
                     Your Legal Workflow?
                   </span>
                 </h2>
-                <p className="text-xl md:text-2xl text-slate-600 dark:text-slate-300 mb-12 max-w-3xl mx-auto leading-relaxed font-light">
-                  Experience AI-powered document analysis that delivers‎
+                <p
+                  className="text-xl md:text-2xl text-slate-600 dark:text-slate-300 mb-12 max-w-3xl mx-auto leading-relaxed font-light"
+                  data-testid="final-cta-description"
+                >
+                  Experience AI-powered document analysis that delivers
                   <strong className="font-semibold">
                     instant insights
                   </strong>{" "}
-                  with‎
+                  with
                   <strong className="font-semibold">
                     absolute privacy protection
                   </strong>

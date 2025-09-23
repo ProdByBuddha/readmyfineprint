@@ -229,9 +229,11 @@ function AppContent() {
 
   return (
     <>
-      <div className="h-screen flex flex-col app-container bg-gray-50 dark:bg-gray-900">
-        {/* Fixed Header */}
-        <Header />
+      <div className="min-h-screen flex flex-col app-container bg-gray-50 dark:bg-gray-900">
+        {/* Fixed Header - Always visible */}
+        <div className="sticky top-0 z-50">
+          <Header />
+        </div>
 
         {/* Scrollable Main Content Area */}
         <SEOBreadcrumbs />
@@ -240,7 +242,7 @@ function AppContent() {
           id="main-content"
           role="main"
           tabIndex={-1}
-          className="flex-1 overflow-y-auto bg-gray-50 dark:bg-gray-900 scroll-smooth custom-scrollbar"
+          className="flex-1 bg-gray-50 dark:bg-gray-900 scroll-smooth"
           aria-label="Main content"
         >
           <PageTransition>

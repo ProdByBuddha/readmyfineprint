@@ -36,10 +36,6 @@ const writeLog = (stream, parts) => {
   stream.write(`${parts.map(formatPart).join(' ')}\n`);
 };
 
-const logInfo = (...parts) => writeLog(stdout, parts);
-const logWarn = (...parts) => writeLog(stderr, parts);
-const logError = (...parts) => writeLog(stderr, parts);
-
 const formatLogPart = part => {
   if (part instanceof Error) {
     return part.stack ?? part.message;

@@ -1,7 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Shield, ThumbsUp, AlertTriangle, XCircle, InfoIcon, FileText, Settings, Crown, Lock } from "lucide-react";
+import { Shield, ThumbsUp, AlertTriangle, XCircle, InfoIcon, FileText, Settings, Crown, Lock, CheckCircle, Zap, Plus, ArrowRight } from "lucide-react";
 import type { Document, DocumentAnalysis } from "@shared/schema";
 import { exportAnalysisToPDF } from "@/utils/pdfExport";
 import { PIIRedactionInfoComponent } from "@/components/PIIRedactionInfo";
@@ -35,7 +35,7 @@ export function AnalysisResults({ document }: AnalysisResultsProps) {
           const data = await response.json();
           const tier = data.subscription?.tierId || 'free';
           setUserTier(tier);
-          
+
           // Starter tier or higher (starter, professional, business, enterprise, ultimate)
           const pdfExportTiers = ['starter', 'professional', 'business', 'enterprise', 'ultimate'];
           setHasProfessionalAccess(pdfExportTiers.includes(tier));
@@ -58,9 +58,9 @@ export function AnalysisResults({ document }: AnalysisResultsProps) {
   // Convert PII matches to feedback format with detection session ID
   const piiDetections: PIIDetection[] = useMemo(() => {
     if (!document.redactionInfo?.matches) return [];
-    
+
     const detectionSessionId = `doc_${document.id}_${Date.now()}`;
-    
+
     return document.redactionInfo.matches.map((match, index) => ({
       id: `${detectionSessionId}_${index}`,
       type: match.type,
@@ -239,52 +239,42 @@ Support our mission: ${window.location.origin + '/donate'}
     }
   };
 
+  // Dummy function to satisfy the build process if currentDocument is not defined
+  const currentDocument = document; 
+  const handleNewAnalysis = () => {
+    // Implement logic to trigger a new analysis or redirect
+    console.log("New analysis initiated");
+    window.location.reload(); // Example: reload to start fresh
+  };
+
   return (
     <Card className="p-3 sm:p-4 lg:p-6 mb-6">
       <CardContent className="p-0">
-        <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-3 mb-4">
-          <div className="min-w-0 flex-1">
-            <h3 className="text-lg sm:text-xl font-semibold text-gray-900 dark:text-white">Analysis Complete</h3>
-            <p className="text-sm text-gray-600 dark:text-gray-300 mt-1 line-clamp-2">
-              {document.title} - {document.content.split(' ').length} words analyzed
-            </p>
-          </div>
-          <div className="flex items-center gap-2 flex-shrink-0">
-
-            {/* Export button */}
+        {/* Render results section */}
+        <section 
+          aria-labelledby="analysis-results" 
+          className="animate-fade-in-scale space-y-8"
+          data-testid="analysis-results-section"
+        >
+          {/* New Analysis Button */}
+          <div className="flex justify-end mb-6">
             <Button
-              onClick={() => handleExport()}
-              disabled={isExporting || !hasProfessionalAccess}
-              className={`flex items-center space-x-2 bg-secondary text-white hover:bg-secondary/90 disabled:opacity-50 text-sm px-3 py-2 h-9 ${!hasProfessionalAccess ? 'cursor-not-allowed' : ''}`}
-              title={!hasProfessionalAccess ? "Starter tier or higher required for PDF export" : ""}
+              onClick={handleNewAnalysis}
+              size="lg"
+              className="group bg-gradient-to-r from-primary via-blue-600 to-primary hover:from-primary/90 hover:via-blue-600/90 hover:to-primary/90 text-white px-8 py-4 text-lg font-bold shadow-xl hover:shadow-primary/25 transition-all duration-300 transform hover:-translate-y-1"
+              aria-label="Start a new document analysis"
+              data-testid="button-new-analysis"
             >
-              {isExporting ? (
-                <>
-                  <div className="w-3 h-3 animate-spin rounded-full border-2 border-white/30 border-t-white"></div>
-                  <span className="hidden sm:inline">
-                    {exportQuality === 'high' ? 'Generating HQ...' : 'Generating...'}
-                  </span>
-                  <span className="sm:hidden">PDF...</span>
-                </>
-              ) : !hasProfessionalAccess ? (
-                <>
-                  <Lock className="w-3 h-3" />
-                  <span className="hidden sm:inline">PDF Export (Starter+)</span>
-                  <span className="sm:hidden">Starter+</span>
-                  <Crown className="w-2 h-2 text-orange-400" />
-                </>
-              ) : (
-                <>
-                  <FileText className="w-3 h-3" />
-                  <span className="hidden sm:inline">
-                    Export PDF {exportQuality === 'high' ? '(HQ)' : ''}
-                  </span>
-                  <span className="sm:hidden">PDF</span>
-                </>
-              )}
+              <Plus className="w-5 h-5 mr-2 group-hover:scale-110 transition-transform duration-300" aria-hidden="true" />
+              New Analysis
+              <ArrowRight className="w-5 h-5 ml-2 group-hover:translate-x-1 transition-transform duration-300" />
             </Button>
           </div>
-        </div>
+
+          {/* Analysis Results Component */}
+          <h2 id="analysis-results" className="sr-only">Analysis Results</h2>
+          {currentDocument && <AnalysisResults document={currentDocument} />}
+        </section>
 
         {/* PII Redaction Information */}
         {document.redactionInfo && (

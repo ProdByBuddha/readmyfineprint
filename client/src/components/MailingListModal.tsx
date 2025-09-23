@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { Mail, CheckCircle, X, Bell } from 'lucide-react';
+import { Mail, CheckCircle, X, Bell, Loader2 } from 'lucide-react';
 
 interface MailingListModalProps {
   isOpen: boolean;
@@ -26,9 +26,12 @@ export function MailingListModal({
   const [success, setSuccess] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+  // Renamed isSubmitting to loading for consistency
+  const isSubmitting = loading;
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (!email.trim()) {
       setError('Please enter your email address');
       return;
@@ -65,7 +68,7 @@ export function MailingListModal({
       }
 
       setSuccess(true);
-      
+
       // Auto-close after 3 seconds
       setTimeout(() => {
         onClose();
@@ -99,22 +102,26 @@ export function MailingListModal({
 
   return (
     <Dialog open={isOpen} onOpenChange={handleClose}>
-      <DialogContent className="sm:max-w-md">
+      {/* Modified DialogContent for mobile sizing */}
+      <DialogContent className="max-w-md mx-4 sm:mx-auto w-[calc(100vw-2rem)] sm:w-auto">
         {!success ? (
           <>
+            {/* Modified DialogHeader for mobile sizing */}
             <DialogHeader>
-              <DialogTitle className="flex items-center gap-2">
-                <Bell className="w-5 h-5 text-purple-600" />
-                Get Notified
+              <DialogTitle className="flex items-center space-x-2 text-lg">
+                <Bell className="h-5 w-5 text-purple-600" />
+                <span>Get Notified</span>
               </DialogTitle>
-              <DialogDescription>
+              {/* Modified DialogDescription for mobile sizing */}
+              <DialogDescription className="text-sm leading-relaxed">
                 Be the first to know when our enterprise features are available! We'll send you an email when team collaboration, API access, and other advanced features launch.
               </DialogDescription>
             </DialogHeader>
 
-            <form onSubmit={handleSubmit} className="space-y-4 mt-4">
+            {/* Modified form for mobile spacing and button sizing */}
+            <form onSubmit={handleSubmit} className="space-y-4 sm:space-y-5 mt-4">
               <div className="space-y-2">
-                <Label htmlFor="email">Email Address</Label>
+                <Label htmlFor="email" className="text-sm font-medium">Email Address</Label>
                 <Input
                   id="email"
                   type="email"
@@ -122,7 +129,7 @@ export function MailingListModal({
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   disabled={loading || Boolean(userEmail)}
-                  className="w-full"
+                  className="w-full h-11"
                   autoFocus
                 />
                 {userEmail && (
@@ -138,25 +145,26 @@ export function MailingListModal({
                 </Alert>
               )}
 
-              <div className="flex gap-2 pt-2">
+              <div className="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-2 pt-2">
                 <Button
                   type="button"
                   variant="outline"
                   onClick={handleClose}
-                  disabled={loading}
-                  className="flex-1"
+                  disabled={isSubmitting}
+                  className="flex-1 h-11"
                 >
                   Cancel
                 </Button>
                 <Button
                   type="submit"
-                  disabled={loading || !email.trim()}
-                  className="flex-1"
+                  disabled={isSubmitting || !email.trim()}
+                  className="flex-1 h-11"
                 >
-                  {loading ? (
+                  {isSubmitting ? (
                     <>
-                      <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2" />
-                      Subscribing...
+                      <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                      <span className="hidden sm:inline">Subscribing...</span>
+                      <span className="sm:hidden">Subscribing</span>
                     </>
                   ) : (
                     <>
@@ -168,7 +176,8 @@ export function MailingListModal({
               </div>
             </form>
 
-            <div className="mt-4 text-xs text-gray-500 text-center">
+            {/* Modified disclaimer text sizing for mobile */}
+            <div className="mt-4 px-2 text-xs text-gray-500 text-center leading-relaxed">
               We'll only email you about enterprise feature updates. You can unsubscribe anytime.
             </div>
           </>
@@ -191,4 +200,4 @@ export function MailingListModal({
       </DialogContent>
     </Dialog>
   );
-} 
+}

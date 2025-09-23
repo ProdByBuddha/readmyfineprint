@@ -33,7 +33,7 @@ export function ScrollToTop() {
       {isVisible && (
         <Button
           onClick={scrollToTop}
-          className="fixed bottom-32 right-4 md:bottom-36 md:right-6 z-[9998] w-12 h-12 rounded-full shadow-lg bg-primary hover:bg-primary/90 text-primary-foreground transition-all duration-300 hover:scale-110"
+          className="fixed bottom-32 right-4 md:bottom-36 md:right-6 z-40 w-12 h-12 rounded-full shadow-lg bg-primary hover:bg-primary/90 text-primary-foreground transition-all duration-300 hover:scale-110"
           size="icon"
           variant="default"
         >

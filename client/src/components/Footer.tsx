@@ -79,7 +79,7 @@ export function Footer() {
       <footer
         id="footer"
         role="contentinfo"
-        className="bg-gray-50 dark:bg-gray-900 border-t border-gray-200 dark:border-gray-700 z-40 backdrop-blur-sm bg-opacity-95 dark:bg-opacity-95 transition-all duration-300 ease-in-out flex-shrink-0"
+        className="bg-gray-50 dark:bg-gray-900 border-t border-gray-200 dark:border-gray-700 z-40 backdrop-blur-sm bg-opacity-95 dark:bg-opacity-95 transition-all duration-300 ease-in-out flex-shrink-0 md:relative fixed bottom-0 left-0 right-0"
         aria-label="Site footer"
       >
       {/* Mobile Layout - Compact single line */}

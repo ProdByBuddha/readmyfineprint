@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { Button } from '@/components/ui/button';
-import { Dialog, DialogContent, DialogTrigger } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogTrigger, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import { Sheet, SheetContent, SheetTrigger, SheetClose } from '@/components/ui/sheet';
 import {
   Crown,
@@ -228,7 +228,7 @@ export function Header() {
           ? 'bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl border-b border-white/10 dark:border-slate-800/50 shadow-lg'
           : 'bg-white/90 dark:bg-slate-900/90 backdrop-blur-xl border-b border-gray-200/60 dark:border-slate-800/60 shadow-md'
         }
-        flex-shrink-0 z-50 transition-all duration-500 ease-out supports-[backdrop-filter]:bg-white/80 supports-[backdrop-filter]:dark:bg-slate-900/80
+        flex-shrink-0 z-50 transition-all duration-500 ease-out supports-[backdrop-filter]:bg-white/80 supports-[backdrop-filter]:dark:bg-slate-900/80 relative w-full
       `}
       style={isMobile ? {
         paddingTop: 'var(--app-safe-area-top)',
@@ -237,12 +237,13 @@ export function Header() {
       } : {}}
     >
       <div className="w-full px-4 sm:px-6 lg:px-8">
-        <div className={`flex justify-between items-center ${isMobile ? 'h-14' : 'h-16'}`}>
+        <div className={`flex justify-between items-center ${isMobile ? 'h-14' : 'h-16'} ${isMobile ? 'py-2' : ''}`}>
           {/* Logo - Fixed size with strict constraints */}
           <Link 
             to="/" 
             aria-label="ReadMyFinePrint - Go to homepage"
             data-testid="logo-link"
+            className="flex items-center"
           >
             <div className="flex items-center space-x-3 cursor-pointer group">
               {/* Logo container with fixed size and overflow hidden */}
@@ -383,6 +384,12 @@ export function Header() {
                   </Button>
                 </DialogTrigger>
                 <DialogContent className="max-w-md">
+                  <DialogHeader>
+                    <DialogTitle>Login / Subscribe</DialogTitle>
+                    <DialogDescription>
+                      Sign in to your account or create a new subscription to access premium features.
+                    </DialogDescription>
+                  </DialogHeader>
                   <SubscriptionLogin
                     onSuccess={handleLoginSuccess}
                     onCancel={() => setShowLogin(false)}
@@ -426,17 +433,17 @@ export function Header() {
 
           {/* Mobile Navigation */}
           <nav
-            className="md:hidden flex items-center space-x-2"
+            className="md:hidden flex items-center space-x-3"
             role="navigation"
             aria-label="Mobile navigation"
           >
-            <div className="flex items-center space-x-2">
+            <div className="flex items-center space-x-3">
               {/* Mobile Auth Button */}
               {isCheckingAuth ? (
                 <Button
                   variant="outline"
                   size="sm"
-                  className="h-9 px-3 text-xs transition-all duration-200"
+                  className="h-8 px-3 text-xs font-medium transition-all duration-200 flex items-center justify-center"
                   disabled
                   aria-label="Checking login status"
                   data-testid="auth-loading-mobile"
@@ -447,7 +454,7 @@ export function Header() {
                 <Button
                   variant="outline"
                   size="sm"
-                  className="h-9 px-3 text-xs transition-all duration-200 active:scale-95"
+                  className="h-8 px-3 text-xs font-medium transition-all duration-200 active:scale-95 flex items-center justify-center"
                   aria-label="Logout"
                   data-testid="button-logout-mobile"
                   onClick={handleLogoutClick}
@@ -461,7 +468,7 @@ export function Header() {
                     <Button
                       variant="default"
                       size="sm"
-                      className="h-9 px-3 text-xs transition-all duration-200 active:scale-95"
+                      className="h-8 px-4 text-xs font-medium transition-all duration-200 active:scale-95 flex items-center justify-center"
                       aria-label="Login or Subscribe"
                       data-testid="button-login-mobile"
                       onClick={handleLoginClick}
@@ -470,6 +477,12 @@ export function Header() {
                     </Button>
                   </DialogTrigger>
                   <DialogContent className="max-w-md">
+                    <DialogHeader>
+                      <DialogTitle>Login / Subscribe</DialogTitle>
+                      <DialogDescription>
+                        Sign in to your account or create a new subscription to access premium features.
+                      </DialogDescription>
+                    </DialogHeader>
                     <SubscriptionLogin
                       onSuccess={handleLoginSuccess}
                       onCancel={() => setShowLogin(false)}
@@ -484,11 +497,11 @@ export function Header() {
                   <Button
                     variant="ghost"
                     size="sm"
-                    className="h-9 w-9 p-0 transition-all duration-200 active:scale-95"
+                    className="h-8 w-8 p-0 transition-all duration-200 active:scale-95 flex items-center justify-center"
                     aria-label="Open menu"
                     data-testid="menu-button"
                   >
-                    <Menu className="w-5 h-5" aria-hidden="true" />
+                    <Menu className="w-4 h-4" aria-hidden="true" />
                   </Button>
                 </SheetTrigger>
                 <SheetContent side="right" className="w-72">
@@ -510,7 +523,7 @@ export function Header() {
                     </SheetClose>
                     
                     <SheetClose asChild>
-                      <Link to="/blog">
+                      <Link to="/roadmap">
                         <Button
                           variant="ghost"
                           size="sm"
@@ -518,7 +531,7 @@ export function Header() {
                           aria-label="ReadMyFinePrint Roadmap"
                           data-testid="nav-roadmap-mobile"
                         >
-                          <Target className="w-3 h-3 mr-1" aria-hidden="true" />
+                          <Target className="w-4 h-4 mr-3" aria-hidden="true" />
                           Roadmap
                         </Button>
                       </Link>

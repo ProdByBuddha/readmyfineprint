@@ -284,15 +284,12 @@ export default function SubscriptionPlans({
                     : ''}`}
               >
 
-                {isCurrentTier && (
-                  <div className="absolute top-4 right-4 z-10">
-                    <Badge className="bg-green-500 text-white px-3 py-1">
+                <CardHeader className="items-center text-center pt-6 pb-8 space-y-3">
+                  {tier.id === currentTier && (
+                    <Badge className="bg-green-600 hover:bg-green-600 text-white font-medium px-3 py-1">
                       Current Plan
                     </Badge>
-                  </div>
-                )}
-
-                <CardHeader className="items-center text-center pt-10 pb-8 space-y-3">
+                  )}
                   {tier.popular && (
                     <Badge className="bg-blue-500 text-white px-3 py-1 shadow-sm">
                       Most Popular
