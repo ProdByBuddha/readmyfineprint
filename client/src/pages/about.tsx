@@ -3,16 +3,17 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { TouchScrollContainer } from "@/components/TouchScrollContainer";
 import { 
-  Shield, 
-  Target, 
-  Users, 
-  Globe, 
-  Brain, 
-  FileText, 
+  Shield,
+  Target,
+  Users,
+  Globe,
+  Brain,
+  FileText,
   Lock,
   Zap,
   Heart,
   Building,
+  Mail,
   CheckCircle,
   Award,
   TrendingUp,
