@@ -510,7 +510,7 @@ export function Header() {
                     </SheetClose>
                     
                     <SheetClose asChild>
-                      <Link to="/blog">
+                      <Link to="/roadmap">
                         <Button
                           variant="ghost"
                           size="sm"
