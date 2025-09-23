@@ -1,0 +1,304 @@
+ 63:7  error  Parsing error: Identifier 'logInfo' has already been declared
+  51:3  error  Parsing error: Unexpected token <
+  26:1  error  Parsing error: The keyword 'interface' is reserved
+  17:13  error  Parsing error: Unexpected token {
+  30:1  error  Parsing error: The keyword 'interface' is reserved
+  24:1  error  Parsing error: The keyword 'interface' is reserved
+  11:1  error  Parsing error: The keyword 'interface' is reserved
+  5:13  error  Parsing error: Unexpected token {
+  22:1  error  Parsing error: The keyword 'interface' is reserved
+  151:1  error  Parsing error: The keyword 'interface' is reserved
+  5:1  error  Parsing error: The keyword 'interface' is reserved
+  33:1  error  Parsing error: The keyword 'interface' is reserved
+  10:1  error  Parsing error: The keyword 'interface' is reserved
+  11:1  error  Parsing error: The keyword 'interface' is reserved
+  34:1  error  Parsing error: The keyword 'interface' is reserved
+  38:47  error  Parsing error: Unexpected token :
+  7:1  error  Parsing error: The keyword 'interface' is reserved
+  9:1  error  Parsing error: The keyword 'interface' is reserved
+  10:5  error  Parsing error: Unexpected token <
+  10:23  error  Parsing error: Unexpected token :
+  12:13  error  Parsing error: Unexpected token {
+  18:13  error  Parsing error: Unexpected token {
+/home/runner/workspace/client/src/components/ErrorBoundary.tsx
+  6:1  error  Parsing error: The keyword 'interface' is reserved
+  17:48  error  Parsing error: Unexpected token :
+  11:1  error  Parsing error: The keyword 'interface' is reserved
+  36:5  error  Parsing error: Unexpected token <
+  30:1  error  Parsing error: The keyword 'interface' is reserved
+  14:1  error  Parsing error: The keyword 'interface' is reserved
+  17:1  error  Parsing error: The keyword 'interface' is reserved
+  13:1  error  Parsing error: The keyword 'interface' is reserved
+  7:5  error  Parsing error: Unexpected token <
+  8:1  error  Parsing error: The keyword 'interface' is reserved
+  2:1  error  Parsing error: The keyword 'interface' is reserved
+  9:1  error  Parsing error: The keyword 'interface' is reserved
+  7:1  error  Parsing error: The keyword 'interface' is reserved
+  8:1  error  Parsing error: The keyword 'interface' is reserved
+  22:13  error  Parsing error: Unexpected token {
+  4:1  error  Parsing error: The keyword 'interface' is reserved
+  17:8  error  Parsing error: Unexpected token interface
+  7:5  error  Parsing error: Unexpected token <
+  6:1  error  Parsing error: The keyword 'interface' is reserved
+  5:1  error  Parsing error: The keyword 'interface' is reserved
+  32:5  error  Parsing error: Unexpected token <
+  3:1  error  Parsing error: The keyword 'interface' is reserved
+  40:1  error  Parsing error: The keyword 'interface' is reserved
+  7:1  error  Parsing error: The keyword 'interface' is reserved
+  11:1  error  Parsing error: The keyword 'interface' is reserved
+  9:1  error  Parsing error: The keyword 'interface' is reserved
+  5:57  error  Parsing error: Unexpected token ]
+  2:1  error  Parsing error: The keyword 'interface' is reserved
+  7:1  error  Parsing error: The keyword 'interface' is reserved
+  18:17  error  Parsing error: Unexpected token :
+  15:1  error  Parsing error: The keyword 'interface' is reserved
+  10:1  error  Parsing error: The keyword 'interface' is reserved
+  16:1  error  Parsing error: The keyword 'interface' is reserved
+  21:1  error  Parsing error: The keyword 'interface' is reserved
+  14:5  error  Parsing error: Unexpected token <
+  4:6  error  Parsing error: Unexpected token Theme
+  12:1  error  Parsing error: The keyword 'interface' is reserved
+  11:1  error  Parsing error: The keyword 'interface' is reserved
+  4:1  error  Parsing error: The keyword 'interface' is reserved
+  13:28  error  Parsing error: Unexpected token :
+  30:1  error  Parsing error: The keyword 'interface' is reserved
+  9:1  error  Parsing error: The keyword 'interface' is reserved
+  3:1  error  Parsing error: The keyword 'interface' is reserved
+  10:51  error  Parsing error: Unexpected token ,
+  14:56  error  Parsing error: Unexpected token ,
+  2:20  error  Parsing error: Unexpected token VariantProps
+  9:48  error  Parsing error: Unexpected token ,
+  2:20  error  Parsing error: Unexpected token VariantProps
+  9:3  error  Parsing error: Identifier 'React' has already been declared
+  3:20  error  Parsing error: Unexpected token VariantProps
+  8:8  error  Parsing error: Unexpected token type
+  7:3  error  Parsing error: Identifier 'React' has already been declared
+  3:8  error  Parsing error: Unexpected token UseEmblaCarouselType
+  9:45  error  Parsing error: Unexpected token as
+  8:50  error  Parsing error: Unexpected token ,
+  2:15  error  Parsing error: Unexpected token DialogProps
+  20:59  error  Parsing error: Unexpected token ,
+  18:51  error  Parsing error: Unexpected token ,
+  11:2  error  Parsing error: Unexpected token :
+  20:60  error  Parsing error: Unexpected token ,
+  10:8  error  Parsing error: Unexpected token ControllerProps
+  13:54  error  Parsing error: Unexpected token ,
+  8:36  error  Parsing error: Unexpected token ,
+  5:8  error  Parsing error: Unexpected token interface
+  3:20  error  Parsing error: Unexpected token VariantProps
+  11:2  error  Parsing error: Unexpected token :
+  9:56  error  Parsing error: Unexpected token ,
+  7:44  error  Parsing error: Unexpected token :
+  11:52  error  Parsing error: Unexpected token ,
+  9:50  error  Parsing error: Unexpected token ,
+  8:52  error  Parsing error: Unexpected token ,
+  11:2  error  Parsing error: Unexpected token :
+  7:52  error  Parsing error: Unexpected token ,
+  16:51  error  Parsing error: Unexpected token ,
+  7:51  error  Parsing error: Unexpected token ,
+  5:20  error  Parsing error: Unexpected token VariantProps
+  33:6  error  Parsing error: Unexpected token SidebarContextProps
+  6:2  error  Parsing error: Unexpected token :
+  7:48  error  Parsing error: Unexpected token ,
+  7:49  error  Parsing error: Unexpected token ,
+  7:3  error  Parsing error: Identifier 'React' has already been declared
+  9:46  error  Parsing error: Unexpected token ,
+  5:8  error  Parsing error: Unexpected token interface
+  3:20  error  Parsing error: Unexpected token VariantProps
+  15:5  error  Parsing error: Unexpected token <
+  5:15  error  Parsing error: Unexpected token VariantProps
+  3:20  error  Parsing error: Unexpected token VariantProps
+  15:52  error  Parsing error: Unexpected token ,
+  4:1  error  Parsing error: The keyword 'interface' is reserved
+  3:1  error  Parsing error: The keyword 'interface' is reserved
+  3:13  error  Parsing error: Unexpected token {
+  4:1  error  Parsing error: The keyword 'interface' is reserved
+  5:1  error  Parsing error: The keyword 'interface' is reserved
+  5:1  error  Parsing error: The keyword 'interface' is reserved
+  4:1  error  Parsing error: The keyword 'interface' is reserved
+  4:1  error  Parsing error: The keyword 'interface' is reserved
+  4:1  error  Parsing error: The keyword 'interface' is reserved
+  7:34  error  Parsing error: Unexpected token <
+  4:6  error  Parsing error: Unexpected token Theme
+  2:13  error  Parsing error: Unexpected token {
+  7:24  error  Parsing error: Unexpected token :
+  7:11  error  Parsing error: Unexpected token token
+/home/runner/workspace/client/src/lib/error-reporter.ts
+  5:1  error  Parsing error: The keyword 'interface' is reserved
+  6:1  error  Parsing error: The keyword 'interface' is reserved
+  5:31  error  Parsing error: Unexpected token :
+  1:8  error  Parsing error: Unexpected token interface
+  4:1  error  Parsing error: The keyword 'interface' is reserved
+  9:20  error  Parsing error: Unexpected token :
+  1:21  error  Parsing error: Unexpected token ClassValue
+  7:9  error  Parsing error: Unexpected token as
+  25:45  error  Parsing error: Unexpected token :
+  179:5  error  Parsing error: Unexpected token <
+  9:1  error  Parsing error: The keyword 'interface' is reserved
+  75:1  error  Parsing error: The keyword 'interface' is reserved
+  8:1  error  Parsing error: The keyword 'interface' is reserved
+  29:1  error  Parsing error: The keyword 'interface' is reserved
+  6:1  error  Parsing error: The keyword 'interface' is reserved
+  4:42  error  Parsing error: Unexpected token ]
+  28:1  error  Parsing error: The keyword 'interface' is reserved
+  48:6  error  Parsing error: Unexpected token ContactFormData
+  20:5  error  Parsing error: Unexpected token <
+  18:1  error  Parsing error: The keyword 'interface' is reserved
+  140:21  error  Parsing error: Unexpected token :
+  9:5  error  Parsing error: Unexpected token <
+  6:5  error  Parsing error: Unexpected token <
+  144:31  error  Parsing error: Unexpected token :
+  38:1  error  Parsing error: The keyword 'interface' is reserved
+  26:1  error  Parsing error: The keyword 'interface' is reserved
+  6:5  error  Parsing error: Unexpected token <
+  19:31  error  Parsing error: Unexpected token :
+  5:22  error  Parsing error: Unexpected token :
+  37:13  error  Parsing error: Unexpected token {
+  6:9  error  Parsing error: Unexpected token const
+  3:13  error  Parsing error: Unexpected token {
+  46:10  warning  'error' is defined but never used  no-unused-vars
+  120:51  error  Parsing error: Unexpected token :
+  56:29  error  Parsing error: Unexpected token :
+  24:14  warning  'error' is defined but never used               no-unused-vars
+  36:14  warning  'error' is defined but never used               no-unused-vars
+  9:11  error  Parsing error: Unexpected token baseUrl
+  31:28  error  Parsing error: Unexpected token :
+  68:16  warning  'error' is defined but never used  no-unused-vars
+  30:14  warning  'error' is defined but never used  no-unused-vars
+  37:10  warning  'error' is defined but never used        no-unused-vars
+  42:12  warning  'globalError' is defined but never used  no-unused-vars
+  98:17  error  Parsing error: Unexpected token :
+  24:46  error  Parsing error: Unexpected token as
+  24:49  error  Parsing error: Unexpected token !
+  32:49  error  Parsing error: Unexpected token !
+  7:36  error  Parsing error: Unexpected token :
+  19:49  error  Parsing error: Unexpected token !
+  24:49  error  Parsing error: Unexpected token !
+  16:1  error  Parsing error: The keyword 'interface' is reserved
+  29:19  error  Parsing error: Unexpected token :
+  14:11  error  Parsing error: Unexpected token ollamaUrl
+  11:1  error  Parsing error: The keyword 'interface' is reserved
+  15:11  error  Parsing error: Unexpected token pythonScript
+  8:1  error  Parsing error: The keyword 'interface' is reserved
+  7:1  error  Parsing error: The keyword 'interface' is reserved
+  12:1  error  Parsing error: The keyword 'interface' is reserved
+  3:1  error  Parsing error: The keyword 'interface' is reserved
+  10:13  error  Parsing error: Unexpected token {
+  7:50  error  Parsing error: Unexpected token :
+  12:1  error  Parsing error: The keyword 'interface' is reserved
+  7:50  error  Parsing error: Unexpected token :
+  9:29  error  Parsing error: Unexpected token :
+  10:1  error  Parsing error: The keyword 'interface' is reserved
+  104:13  error  Parsing error: Unexpected token as
+  7:47  error  Parsing error: Unexpected token :
+  17:1  error  Parsing error: The keyword 'interface' is reserved
+  21:1  error  Parsing error: The keyword 'interface' is reserved
+/home/runner/workspace/send-test-error.js
+  12:64  error  Parsing error: Unexpected token !
+  16:56  error  Parsing error: Unexpected token !
+  6:1  error  Parsing error: The keyword 'interface' is reserved
+  1:13  error  Parsing error: Unexpected token {
+  23:26  error  Parsing error: Unexpected token :
+  16:38  error  Parsing error: Unexpected token :
+  2:13  error  Parsing error: Unexpected token {
+  5:11  error  Parsing error: Unexpected token submissionQueue
+  10:1  error  Parsing error: The keyword 'interface' is reserved
+  12:1  error  Parsing error: The keyword 'interface' is reserved
+  15:1  error  Parsing error: The keyword 'interface' is reserved
+  29:42  error  Parsing error: Unexpected token as
+  7:1  error  Parsing error: The keyword 'interface' is reserved
+  1:13  error  Parsing error: Unexpected token {
+  6:8  error  Parsing error: Unexpected token enum
+  7:1  error  Parsing error: The keyword 'interface' is reserved
+  6:1  error  Parsing error: The keyword 'interface' is reserved
+  12:32  error  Parsing error: Unexpected token :
+  5:1  error  Parsing error: The keyword 'interface' is reserved
+  8:8  error  Parsing error: Unexpected token interface
+  1:15  error  Parsing error: Unexpected token User
+  23:17  error  Parsing error: Unexpected token :
+  18:11  error  Parsing error: Unexpected token :
+  12:1  error  Parsing error: The keyword 'interface' is reserved
+  27:8  error  Parsing error: Unexpected token interface
+  10:56  error  Parsing error: Unexpected token !
+  5:13  error  Parsing error: Unexpected token {
+  3:1  error  Parsing error: The keyword 'interface' is reserved
+  8:11  error  Parsing error: Unexpected token readonly
+  2:15  error  Parsing error: Unexpected token Document
+  5:1  error  Parsing error: The keyword 'interface' is reserved
+  6:8  error  Parsing error: Unexpected token interface
+  6:1  error  Parsing error: The keyword 'interface' is reserved
+/home/runner/workspace/server/error-reporting-service.ts
+  5:8  error  Parsing error: Unexpected token interface
+  6:1  error  Parsing error: The keyword 'interface' is reserved
+  5:1  error  Parsing error: The keyword 'interface' is reserved
+  24:8  error  Parsing error: Unexpected token interface
+  9:13  error  Parsing error: Unexpected token {
+  11:41  error  Parsing error: Unexpected token :
+  9:36  error  Parsing error: Unexpected token HybridKeyPair
+  3:24  error  Parsing error: Unexpected token Request
+  11:1  error  Parsing error: The keyword 'interface' is reserved
+  14:1  error  Parsing error: The keyword 'interface' is reserved
+  11:1  error  Parsing error: The keyword 'interface' is reserved
+  9:1  error  Parsing error: The keyword 'interface' is reserved
+  4:1  error  Parsing error: The keyword 'interface' is reserved
+  1:13  error  Parsing error: Unexpected token {
+  8:8  error  Parsing error: Unexpected token interface
+  1:13  error  Parsing error: Unexpected token {
+  1:13  error  Parsing error: Unexpected token {
+  1:13  error  Parsing error: Unexpected token {
+  1:13  error  Parsing error: Unexpected token {
+  9:8  error  Parsing error: Unexpected token interface
+  2:13  error  Parsing error: Unexpected token {
+  2:13  error  Parsing error: Unexpected token {
+  2:34  error  Parsing error: Unexpected token HashedPIIMatch
+  1:9  error  Parsing error: Unexpected token module
+  4:8  error  Parsing error: Unexpected token interface
+  1:34  error  Parsing error: Unexpected token HashedPIIMatch
+  13:13  error  Parsing error: Unexpected token {
+  14:26  error  Parsing error: Unexpected token :
+  7:30  error  Parsing error: Unexpected token SessionToken
+  7:35  error  Parsing error: Unexpected token SubscriptionToken
+  3:1  error  Parsing error: The keyword 'interface' is reserved
+  1:24  error  Parsing error: Unexpected token Request
+  8:1  error  Parsing error: The keyword 'interface' is reserved
+  32:53  error  Parsing error: Unexpected token :
+  10:13  error  Parsing error: Unexpected token {
+  1:13  error  Parsing error: Unexpected token {
+  23:1  error  Parsing error: The keyword 'interface' is reserved
+  5:1  error  Parsing error: The keyword 'interface' is reserved
+  65:35  error  Parsing error: Unexpected token :
+  5:8  error  Parsing error: Unexpected token enum
+  9:1  error  Parsing error: The keyword 'interface' is reserved
+  8:52  error  Parsing error: Unexpected token :
+  5:13  error  Parsing error: Unexpected token {
+  1:15  error  Parsing error: Unexpected token Document
+  3:13  error  Parsing error: Unexpected token {
+  1:13  error  Parsing error: Unexpected token {
+  6:1  error  Parsing error: The keyword 'interface' is reserved
+  27:47  error  Parsing error: Unexpected token :
+  11:8  error  Parsing error: Unexpected token interface
+  14:8  error  Parsing error: Unexpected token interface
+  1:13  error  Parsing error: Unexpected token {
+  9:1  error  Parsing error: The keyword 'interface' is reserved
+  49:44  error  Parsing error: Unexpected token :
+  8:1  error  Parsing error: The keyword 'interface' is reserved
+  47:50  error  Parsing error: Unexpected token :
+  11:8  error  Parsing error: Unexpected token interface
+  7:8  error  Parsing error: Unexpected token InsertUser
+  5:11  error  Parsing error: Unexpected token async
+  5:1  error  Parsing error: The keyword 'interface' is reserved
+  1:24  error  Parsing error: Unexpected token Express
+  4:1  error  Parsing error: The keyword 'interface' is reserved
+  12:8  error  Parsing error: Unexpected token interface
+  517:8  error  Parsing error: Unexpected token type
+  46:14  warning  'error' is defined but never used  no-unused-vars
+  67:12  warning  'error' is defined but never used  no-unused-vars
+  85:12  warning  'error' is defined but never used  no-unused-vars
+/home/runner/workspace/test-error-reporting.js
+  40:17  error  Parsing error: Unexpected token :
+  1:9  error  Parsing error: Unexpected token module
+  5:9  error  Parsing error: Unexpected token global
+  2:13  error  Parsing error: Unexpected token {
+  1:9  error  Parsing error: Unexpected token module
+  2:9  error  Parsing error: Unexpected token module
+  2:9  error  Parsing error: Unexpected token global
