@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { Button } from '@/components/ui/button';
-import { Dialog, DialogContent, DialogTrigger } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogTrigger, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import { Sheet, SheetContent, SheetTrigger, SheetClose } from '@/components/ui/sheet';
 import {
   Crown,
@@ -384,6 +384,12 @@ export function Header() {
                   </Button>
                 </DialogTrigger>
                 <DialogContent className="max-w-md">
+                  <DialogHeader>
+                    <DialogTitle>Login / Subscribe</DialogTitle>
+                    <DialogDescription>
+                      Sign in to your account or create a new subscription to access premium features.
+                    </DialogDescription>
+                  </DialogHeader>
                   <SubscriptionLogin
                     onSuccess={handleLoginSuccess}
                     onCancel={() => setShowLogin(false)}
@@ -471,6 +477,12 @@ export function Header() {
                     </Button>
                   </DialogTrigger>
                   <DialogContent className="max-w-md">
+                    <DialogHeader>
+                      <DialogTitle>Login / Subscribe</DialogTitle>
+                      <DialogDescription>
+                        Sign in to your account or create a new subscription to access premium features.
+                      </DialogDescription>
+                    </DialogHeader>
                     <SubscriptionLogin
                       onSuccess={handleLoginSuccess}
                       onCancel={() => setShowLogin(false)}
