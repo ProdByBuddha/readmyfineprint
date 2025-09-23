@@ -8,7 +8,8 @@ import {
   Sparkles,
   Star,
   Target,
-  Zap
+  Zap,
+  X // Import X icon
 } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -317,7 +318,10 @@ export default function SubscriptionPlans({
                   {/* Pricing */}
                   <div className="text-center mb-8">
                     {tier.id === "free" ? (
-                      <div className="text-3xl font-bold mb-2">Free</div>
+                      <div className="text-center mb-6">
+                        <span className="text-3xl font-bold">Free</span>
+                        <span className="text-gray-500 text-sm ml-1">/month</span>
+                      </div>
                     ) : (
                       <>
                         <div className="text-3xl font-bold mb-2">
@@ -442,7 +446,7 @@ export default function SubscriptionPlans({
             </CardHeader>
 
             <CardContent className="flex-1 flex flex-col pt-2 px-6 pb-8">
-              {/* Pricing placeholder */}
+              {/* Pricing */}
               <div className="text-center mb-8">
                 <div className="text-3xl font-bold mb-2 text-gray-400 dark:text-gray-500">
                   Coming Soon
