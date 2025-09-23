@@ -5,7 +5,6 @@
  * Automates security testing and badge generation
  */
 
-import https from 'https';
 import { execSync } from 'child_process';
 import fs from 'fs';
 

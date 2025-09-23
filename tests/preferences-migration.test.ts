@@ -8,6 +8,7 @@ import { userPreferencesService } from '../server/user-preferences-service';
 import { db } from '../server/db';
 import { userPreferences, users } from '../shared/schema';
 import { eq } from 'drizzle-orm';
+import { securityLogger } from '../server/security-logger';
 
 // Mock data
 const mockUser = {
@@ -352,22 +353,20 @@ describe('User Preferences Migration System', () => {
 
   describe('Security and Audit', () => {
     it('should log security events for preference operations', async () => {
-      const mockLogger = vi.fn();
-      const originalLogSecurityEvent = require('../server/security-logger').securityLogger.logSecurityEvent;
-      require('../server/security-logger').securityLogger.logSecurityEvent = mockLogger;
+      const logSpy = vi.spyOn(securityLogger, 'logSecurityEvent');
       
       await userPreferencesService.setUserPreference(testUserId, 'theme', 'dark');
       
-      expect(mockLogger).toHaveBeenCalledWith(
+      expect(logSpy).toHaveBeenCalledWith(
         expect.objectContaining({
           eventType: 'PREFERENCE_UPDATED',
           severity: 'LOW',
           message: 'User preference updated'
         })
       );
-      
+
       // Restore original logger
-      require('../server/security-logger').securityLogger.logSecurityEvent = originalLogSecurityEvent;
+      logSpy.mockRestore();
     });
 
     it('should handle preference type validation', async () => {
@@ -382,9 +381,8 @@ describe('User Preferences Migration System', () => {
       expect(systemPref).toBe('value');
     });
   });
-});
 
-describe('Integration with Client-Side Hooks', () => {
+  describe('Integration with Client-Side Hooks', () => {
   // These would be more comprehensive with actual React testing
   describe('Hook Behavior Simulation', () => {
     it('should simulate theme preference migration flow', async () => {
@@ -428,9 +426,9 @@ describe('Integration with Client-Side Hooks', () => {
       expect(backup).toBe(fingerprint);
     });
   });
-});
+  });
 
-describe('Migration Completeness', () => {
+  describe('Migration Completeness', () => {
   it('should handle all localStorage items identified in the analysis', async () => {
     const completeLocalStorageData = {
       theme: 'dark',
@@ -468,4 +466,5 @@ describe('Migration Completeness', () => {
     // Verify they work with existing localStorage fallback patterns
     // (This would be more comprehensive with actual browser testing)
   });
-}); 
+  });
+});

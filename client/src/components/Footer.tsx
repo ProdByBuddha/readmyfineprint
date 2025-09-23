@@ -32,8 +32,7 @@ export function Footer() {
       });
     }
   };
-
-      return (
+  return (
     <>
       {/* Share Modal - Commented out for production, now using direct copy-to-clipboard */}
       {/*
@@ -78,52 +77,52 @@ export function Footer() {
       */}
 
       <footer
-      id="footer"
-      role="contentinfo"
-      className="bg-gray-50 dark:bg-gray-900 border-t border-gray-200 dark:border-gray-700 z-40 backdrop-blur-sm bg-opacity-95 dark:bg-opacity-95 transition-all duration-300 ease-in-out flex-shrink-0"
-      aria-label="Site footer"
-    >
+        id="footer"
+        role="contentinfo"
+        className="bg-gray-50 dark:bg-gray-900 border-t border-gray-200 dark:border-gray-700 z-40 backdrop-blur-sm bg-opacity-95 dark:bg-opacity-95 transition-all duration-300 ease-in-out flex-shrink-0"
+        aria-label="Site footer"
+      >
       {/* Mobile Layout - Compact single line */}
-      <div className="md:hidden px-4 py-1">
-        <div className="flex justify-center items-center text-xs">
+      <div className="md:hidden px-3 py-1.5">
+        <div className="flex justify-center text-[11px] leading-tight tracking-tight">
           {/* Links only - no copyright to save space */}
-          <div className="flex items-center gap-2">
-            <Link 
-              to="/privacy" 
-              className="text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200 transition-colors py-1"
+          <div className="flex w-full flex-nowrap items-center justify-center gap-2 text-center">
+            <Link
+              to="/privacy"
+              className="inline-flex items-center justify-center gap-1 px-1.5 py-0.5 text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200 transition-colors"
             >
               Privacy
             </Link>
-            <Link 
-              to="/terms" 
-              className="text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200 transition-colors py-1"
+            <Link
+              to="/terms"
+              className="inline-flex items-center justify-center gap-1 px-1.5 py-0.5 text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200 transition-colors"
             >
               Terms
             </Link>
-            <Link 
-              to="/cookies" 
-              className="text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-200 flex items-center gap-1 transition-colors py-1"
+            <Link
+              to="/cookies"
+              className="inline-flex items-center justify-center gap-1 px-1.5 py-0.5 text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-200 transition-colors"
             >
               <Cookie className="w-3 h-3" />
               Cookies
             </Link>
-            <Link 
-              to="/donate" 
-              className="text-red-600 dark:text-red-400 hover:text-red-700 dark:hover:text-red-300 flex items-center gap-1 transition-colors py-1"
+            <Link
+              to="/donate"
+              className="inline-flex items-center justify-center gap-1 px-1.5 py-0.5 text-red-600 dark:text-red-400 hover:text-red-700 dark:hover:text-red-300 transition-colors"
             >
               <Heart className="w-3 h-3" />
               Donate
             </Link>
             <button
               onClick={handleShareClick}
-              className="text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 flex items-center gap-1 transition-colors py-1"
+              className="inline-flex items-center justify-center gap-1 px-1.5 py-0.5 text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 transition-colors"
             >
               <Share2 className="w-3 h-3" />
               Share
             </button>
             <a
               href="mailto:admin@readmyfineprint.com"
-              className="text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200 transition-colors py-1"
+              className="inline-flex items-center justify-center gap-1 px-1.5 py-0.5 text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200 transition-colors"
             >
               Contact
             </a>
