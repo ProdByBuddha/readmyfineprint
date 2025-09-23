@@ -4,7 +4,7 @@ import { useQuery } from '@tanstack/react-query';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogTrigger, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import * as VisuallyHidden from '@radix-ui/react-visually-hidden';
-import { Sheet, SheetContent, SheetTrigger, SheetClose } from '@/components/ui/sheet';
+import { Sheet, SheetContent, SheetTrigger, SheetClose, SheetTitle, SheetDescription } from '@/components/ui/sheet';
 import {
   Crown,
   BookOpen,
@@ -507,13 +507,16 @@ export function Header() {
                 </SheetTrigger>
                 <SheetContent side="right" className="w-72">
                   <div className="py-4 space-y-2">
+                    <VisuallyHidden.Root>
+                      <SheetTitle>Navigation Menu</SheetTitle>
+                    </VisuallyHidden.Root>
+                    <VisuallyHidden.Root>
+                      <SheetDescription>Access main navigation links and settings</SheetDescription>
+                    </VisuallyHidden.Root>
                     <div className="pb-4 border-b border-gray-200 dark:border-gray-700">
                       <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100">
-                        <VisuallyHidden.Root>
-                          <DialogTitle>Navigation Menu</DialogTitle>
-                        </VisuallyHidden.Root>
                       </h2>
-                    </div>
+                    </div></div>
                     <SheetClose asChild>
                       <Link to="/subscription?tab=plans">
                         <Button
