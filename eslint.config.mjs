@@ -1,5 +1,3 @@
-
-```javascript
 // Use dynamic imports for better compatibility
 const createEslintConfig = async () => {
   let js, tseslint, tsparser, react, reactHooks, jsxA11y;
@@ -389,4 +387,3 @@ const createEslintConfig = async () => {
 };
 
 export default createEslintConfig();
-```
