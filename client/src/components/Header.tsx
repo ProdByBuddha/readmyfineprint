@@ -237,7 +237,7 @@ export function Header() {
       } : {}}
     >
       <div className="w-full px-4 sm:px-6 lg:px-8">
-        <div className={`flex justify-between items-center ${isMobile ? 'h-14' : 'h-16'}`}>
+        <div className={`flex justify-between items-center ${isMobile ? 'h-14' : 'h-16'} ${isMobile ? 'py-2' : ''}`}>
           {/* Logo - Fixed size with strict constraints */}
           <Link 
             to="/" 
@@ -275,7 +275,7 @@ export function Header() {
                 ReadMyFinePrint
               </h1>
               {isMobile && (
-                <h1 className="text-lg font-bold bg-gradient-to-r from-primary to-primary-600 bg-clip-text text-transparent tracking-tight">
+                <h1 className="text-lg font-bold bg-gradient-to-r from-primary to-primary-600 bg-clip-text text-transparent tracking-tight flex items-center">
                   RMFP
                 </h1>
               )}
@@ -426,17 +426,17 @@ export function Header() {
 
           {/* Mobile Navigation */}
           <nav
-            className="md:hidden flex items-center space-x-2"
+            className="md:hidden flex items-center space-x-3"
             role="navigation"
             aria-label="Mobile navigation"
           >
-            <div className="flex items-center space-x-2">
+            <div className="flex items-center space-x-3">
               {/* Mobile Auth Button */}
               {isCheckingAuth ? (
                 <Button
                   variant="outline"
                   size="sm"
-                  className="h-9 px-3 text-xs transition-all duration-200"
+                  className="h-8 px-3 text-xs font-medium transition-all duration-200 flex items-center justify-center"
                   disabled
                   aria-label="Checking login status"
                   data-testid="auth-loading-mobile"
@@ -447,7 +447,7 @@ export function Header() {
                 <Button
                   variant="outline"
                   size="sm"
-                  className="h-9 px-3 text-xs transition-all duration-200 active:scale-95"
+                  className="h-8 px-3 text-xs font-medium transition-all duration-200 active:scale-95 flex items-center justify-center"
                   aria-label="Logout"
                   data-testid="button-logout-mobile"
                   onClick={handleLogoutClick}
@@ -461,7 +461,7 @@ export function Header() {
                     <Button
                       variant="default"
                       size="sm"
-                      className="h-9 px-3 text-xs transition-all duration-200 active:scale-95"
+                      className="h-8 px-4 text-xs font-medium transition-all duration-200 active:scale-95 flex items-center justify-center"
                       aria-label="Login or Subscribe"
                       data-testid="button-login-mobile"
                       onClick={handleLoginClick}
@@ -484,11 +484,11 @@ export function Header() {
                   <Button
                     variant="ghost"
                     size="sm"
-                    className="h-9 w-9 p-0 transition-all duration-200 active:scale-95"
+                    className="h-8 w-8 p-0 transition-all duration-200 active:scale-95 flex items-center justify-center"
                     aria-label="Open menu"
                     data-testid="menu-button"
                   >
-                    <Menu className="w-5 h-5" aria-hidden="true" />
+                    <Menu className="w-4 h-4" aria-hidden="true" />
                   </Button>
                 </SheetTrigger>
                 <SheetContent side="right" className="w-72">
