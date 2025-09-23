@@ -3,6 +3,42 @@ import path from 'path';
 import { execSync } from 'child_process';
 import process from 'node:process';
 import { fileURLToPath } from 'url';
+import { stdout, stderr, env, exit } from 'node:process';
+import { inspect } from 'node:util';
+
+const inspectOptions = { depth: null, colors: false };
+const formatPart = part => {
+  if (part instanceof Error) {
+    return part.stack ?? part.message;
+  }
+
+  const type = typeof part;
+  if (type === 'string') {
+    return part;
+  }
+
+  if (type === 'number' || type === 'bigint' || type === 'boolean') {
+    return String(part);
+  }
+
+  if (part === null || part === undefined) {
+    return String(part);
+  }
+
+  return inspect(part, inspectOptions);
+};
+
+const writeLog = (stream, parts) => {
+  if (!parts.length) {
+    return;
+  }
+
+  stream.write(`${parts.map(formatPart).join(' ')}\n`);
+};
+
+const logInfo = (...parts) => writeLog(stdout, parts);
+const logWarn = (...parts) => writeLog(stderr, parts);
+const logError = (...parts) => writeLog(stderr, parts);
 
 const formatLogPart = part => {
   if (part instanceof Error) {
@@ -60,7 +96,7 @@ try {
       logInfo('✅ esbuild imported using require fallback');
     } catch (requireError) {
       logError('❌ All import methods failed:', requireError);
-      logWarn('🔄 Falling back to npx esbuild command...');
+      logInfo('🔄 Falling back to npx esbuild command...');
       build = null; // Will use npx fallback below
     }
   }
@@ -98,7 +134,7 @@ try {
     });
     logInfo('✅ CSS processing completed with local TailwindCSS');
   } catch (localError) {
-    console.warn('⚠️ Local TailwindCSS failed, trying npx...', localError);
+    logWarn('⚠️ Local TailwindCSS failed, trying npx...', localError);
     try {
       // Fallback to npx
       execSync(`npx tailwindcss -i ./client/src/index.css -o ./dist/public/styles.css --minify`, {
@@ -106,7 +142,7 @@ try {
       });
       logInfo('✅ CSS processing completed with npx TailwindCSS');
     } catch (npxError) {
-      console.warn('⚠️ TailwindCSS unavailable, using fallback CSS processor...', npxError);
+      logWarn('⚠️ TailwindCSS unavailable, using fallback CSS processor...', npxError);
       // Final fallback - basic CSS processing
       execSync(`node process-css.js`, {
         stdio: 'inherit'
@@ -116,7 +152,7 @@ try {
   }
 } catch (error) {
   logError('❌ All CSS processing methods failed:', error);
-  logWarn('💡 Using minimal CSS fallback...');
+  logInfo('💡 Using minimal CSS fallback...');
 
   // Emergency fallback - just copy the CSS file
   try {
@@ -125,14 +161,14 @@ try {
 
     if (fs.existsSync(cssSource)) {
       fs.copyFileSync(cssSource, cssDestination);
-      console.log('✅ CSS copied as emergency fallback');
+      logInfo('✅ CSS copied as emergency fallback');
     } else {
       // Create minimal CSS if source doesn't exist
       fs.writeFileSync(cssDestination, '/* Fallback CSS */\nbody { font-family: system-ui, sans-serif; margin: 0; padding: 20px; }');
-      console.log('✅ Minimal CSS created as emergency fallback');
+      logInfo('✅ Minimal CSS created as emergency fallback');
     }
   } catch (fallbackError) {
-    console.error('❌ Even emergency CSS fallback failed:', fallbackError);
+    logError('❌ Even emergency CSS fallback failed:', fallbackError);
     // Don't exit - continue without CSS
     logWarn('⚠️ Continuing build without CSS...');
   }
@@ -174,7 +210,7 @@ try {
       'import.meta.env.PROD': 'true',
       'import.meta.env.MODE': '"production"',
       'import.meta.env.BASE_URL': '"/"',
-      'import.meta.env.VITE_STRIPE_PUBLIC_KEY': `"${process.env.VITE_STRIPE_PUBLIC_KEY || ''}"`
+      'import.meta.env.VITE_STRIPE_PUBLIC_KEY': `"${env.VITE_STRIPE_PUBLIC_KEY || ''}"`
     },
     external: [],
     splitting: true,
@@ -183,8 +219,8 @@ try {
     });
   } else {
     // Fallback to npx esbuild command
-    logWarn('📦 Using npx esbuild fallback...');
-    const esbuildCmd = `npx esbuild client/src/main.tsx --bundle --minify --sourcemap --target=es2020 --format=esm --outdir=${distDir} --loader:.tsx=tsx --loader:.jsx=jsx --loader:.js=js --loader:.css=css --loader:.png=file --loader:.jpg=file --loader:.jpeg=file --loader:.gif=file --loader:.svg=file --loader:.woff=file --loader:.woff2=file --loader:.ttf=file --loader:.eot=file --define:process.env.NODE_ENV='"production"' --define:global=globalThis --define:import.meta.env.DEV=false --define:import.meta.env.PROD=true --define:import.meta.env.MODE='"production"' --define:import.meta.env.BASE_URL='"/"' --define:import.meta.env.VITE_STRIPE_PUBLIC_KEY='"${process.env.VITE_STRIPE_PUBLIC_KEY || ''}"' --splitting --metafile`;
+    logInfo('📦 Using npx esbuild fallback...');
+    const esbuildCmd = `npx esbuild client/src/main.tsx --bundle --minify --sourcemap --target=es2020 --format=esm --outdir=${distDir} --loader:.tsx=tsx --loader:.jsx=jsx --loader:.js=js --loader:.css=css --loader:.png=file --loader:.jpg=file --loader:.jpeg=file --loader:.gif=file --loader:.svg=file --loader:.woff=file --loader:.woff2=file --loader:.ttf=file --loader:.eot=file --define:process.env.NODE_ENV='"production"' --define:global=globalThis --define:import.meta.env.DEV=false --define:import.meta.env.PROD=true --define:import.meta.env.MODE='"production"' --define:import.meta.env.BASE_URL='"/"' --define:import.meta.env.VITE_STRIPE_PUBLIC_KEY='"${env.VITE_STRIPE_PUBLIC_KEY || ''}"' --splitting --metafile`;
 
     execSync(esbuildCmd, { stdio: 'inherit' });
   }
@@ -221,5 +257,5 @@ try {
 
 } catch (error) {
   logError('❌ Build failed:', error);
-  process.exit(1);
+  exit(1);
 }
