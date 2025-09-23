@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import {
@@ -58,6 +57,10 @@ export function getTierColor(tierId: string): string {
     if (import.meta.env.DEV) {
       console.error('Failed to resolve tier color', tierId, error);
     }
+  }
+
+  if (import.meta.env.DEV) {
+    console.warn('Unknown tier id when resolving icon color', tierId);
   }
 
   return DEFAULT_ICON_WRAPPER_CLASS;
@@ -281,7 +284,7 @@ export default function SubscriptionPlans({
                 } ${isCurrentTier
                   ? 'ring-2 ring-green-500 ring-offset-2 ring-offset-white dark:ring-offset-slate-950'
                   : tier.popular
-                    ? 'ring-4 ring-blue-200/80 ring-offset-2 ring-offset-white dark:ring-blue-900/40 dark:ring-offset-slate-950'
+                    ? 'ring-4 ring-blue-200/80 ring-offset-2 ring-offset-white dark:blue-900/40 dark:ring-offset-slate-950'
                     : ''}`}
               >
 
