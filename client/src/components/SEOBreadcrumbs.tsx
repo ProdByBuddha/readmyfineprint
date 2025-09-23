@@ -66,7 +66,7 @@ function buildBreadcrumbItems(pathname: string): BreadcrumbItem[] {
 
   segments.forEach((segment, index) => {
     currentPath += `/${segment}`;
-    const label = (PATH_LABELS[currentPath] ?? formatBreadcrumbName(segment)) || segment;
+    const label = PATH_LABELS[currentPath] ?? formatBreadcrumbName(segment) || segment;
 
     const item: BreadcrumbItem = {
       name: label,
