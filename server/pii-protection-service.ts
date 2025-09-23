@@ -226,7 +226,7 @@ export class PIIProtectionService {
     // Check if value looks like PII patterns
     const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     const ipPattern = /^\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}$/;
-    const phonePattern = /^\+?[\d\s\-\(\)]{10,}$/;
+    const phonePattern = /^\+?[\d\s()-]{10,}$/;
     
     const looksLikePII = emailPattern.test(value) || 
                         ipPattern.test(value) || 

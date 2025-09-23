@@ -129,10 +129,10 @@ export class EnhancedPIIDetectionService {
     
     dob: {
       patterns: [
-        { regex: /\b(?:0?[1-9]|1[0-2])[-\/](0?[1-9]|[12][0-9]|3[01])[-\/](19|20)\d{2}\b/g, confidence: 0.75, description: 'MM/DD/YYYY format' },
-        { regex: /\b(19|20)\d{2}[-\/](0?[1-9]|1[0-2])[-\/](0?[1-9]|[12][0-9]|3[01])\b/g, confidence: 0.75, description: 'YYYY/MM/DD format' },
-        { regex: /\bbirth\s*date:?\s*(\d{1,2}[-\/]\d{1,2}[-\/]\d{2,4})\b/gi, confidence: 0.95, description: 'Labeled birth date' },
-        { regex: /\bdob:?\s*(\d{1,2}[-\/]\d{1,2}[-\/]\d{2,4})\b/gi, confidence: 0.95, description: 'DOB label' }
+        { regex: /\b(?:0?[1-9]|1[0-2])[-/](0?[1-9]|[12][0-9]|3[01])[-/](19|20)\d{2}\b/g, confidence: 0.75, description: 'MM/DD/YYYY format' },
+        { regex: /\b(19|20)\d{2}[-/](0?[1-9]|1[0-2])[-/](0?[1-9]|[12][0-9]|3[01])\b/g, confidence: 0.75, description: 'YYYY/MM/DD format' },
+        { regex: /\bbirth\s*date:?\s*(\d{1,2}[-/]\d{1,2}[-/]\d{2,4})\b/gi, confidence: 0.95, description: 'Labeled birth date' },
+        { regex: /\bdob:?\s*(\d{1,2}[-/]\d{1,2}[-/]\d{2,4})\b/gi, confidence: 0.95, description: 'DOB label' }
       ],
       contextValidators: [
         { keywords: ['birth', 'born', 'dob', 'age'], boost: 0.2 },

@@ -455,20 +455,21 @@ async function extractPdfTextBasic(buffer: Buffer): Promise<string> {
     }
 
     // Approach 1: Enhanced text object extraction with better patterns
-    const textPatterns = [
-      // Standard text operators with improved regex
-      /\(((?:[^()\\]|\\[\\()nrtbf]|\\[0-7]{1,3})*?)\)\s*Tj/gi,
-      /\[((?:[^\[\]\\]|\\[\\()nrtbf\[\]]|\\[0-7]{1,3})*?)\]\s*TJ/gi,
-      // Text positioning with content
-      /(?:\d+(?:\.\d+)?\s+){2}Td\s*\(((?:[^()\\]|\\[\\()nrtbf]|\\[0-7]{1,3})*?)\)\s*Tj/gi,
+      /* eslint-disable no-useless-escape */
+      const textPatterns = [
+        // Standard text operators with improved regex
+        /\(((?:[^()\\]|\\[\\()nrtbf]|\\[0-7]{1,3})*?)\)\s*Tj/gi,
+        /\[((?:[^\[\]\\]|\\[\\()nrtbf\[\]]|\\[0-7]{1,3})*?)\]\s*TJ/gi,
+        // Text positioning with content
+        /(?:\d+(?:\.\d+)?\s+){2}Td\s*\(((?:[^()\\]|\\[\\()nrtbf]|\\[0-7]{1,3})*?)\)\s*Tj/gi,
       // Text matrix with content
       /(?:\d+(?:\.\d+)?\s+){6}Tm\s*\(((?:[^()\\]|\\[\\()nrtbf]|\\[0-7]{1,3})*?)\)\s*Tj/gi,
       // Font and text combinations
       /\/\w+\s+\d+(?:\.\d+)?\s+Tf\s*\(((?:[^()\\]|\\[\\()nrtbf]|\\[0-7]{1,3})*?)\)\s*Tj/gi,
       // Simple text in quotes (common in some PDFs)
-      /"([^"]{2,50})"/g,
-      /'([^']{2,50})'/g
-    ];
+        /"([^"]{2,50})"/g,
+        /'([^']{2,50})'/g
+      ];
 
     textPatterns.forEach((pattern, patternIndex) => {
       const matches = pdfString.match(pattern);
@@ -476,10 +477,11 @@ async function extractPdfTextBasic(buffer: Buffer): Promise<string> {
         console.log(`📝 Pattern ${patternIndex + 1}: Found ${matches.length} matches`);
         matches.forEach(match => {
           // Extract text content from parentheses, brackets, or quotes
-          const textMatch = match.match(/\(((?:[^()\\]|\\.)*?)\)/) || 
-                           match.match(/\[((?:[^\[\]\\]|\\.)*?)\]/) ||
-                           match.match(/"([^"]+)"/) ||
-                           match.match(/'([^']+)'/);
+            const textMatch = match.match(/\(((?:[^()\\]|\\.)*?)\)/) ||
+                             match.match(/\[((?:[^\[\]\\]|\\.)*?)\]/) ||
+                             match.match(/"([^"]+)"/) ||
+                             match.match(/'([^']+)'/);
+            /* eslint-enable no-useless-escape */
           
           if (textMatch && textMatch[1]) {
             const rawText = textMatch[1];
@@ -535,7 +537,8 @@ async function extractPdfTextBasic(buffer: Buffer): Promise<string> {
         }
         
         // Look for readable text in stream content with more flexible patterns
-        const readableChunks = streamContent.match(/[a-zA-Z0-9\s.,!?;:()\[\]{}'"%-]{3,}/g);
+          // eslint-disable-next-line no-useless-escape
+          const readableChunks = streamContent.match(/[a-zA-Z0-9\s.,!?;:()\[\]{}'"%-]{3,}/g);
         if (readableChunks) {
           readableChunks.forEach(chunk => {
             const cleaned = chunk.trim();
@@ -576,7 +579,8 @@ async function extractPdfTextBasic(buffer: Buffer): Promise<string> {
       console.log(`🔄 Trying enhanced direct text pattern matching`);
       
       // Look for sequences of readable characters
-      const textSequences = pdfString.match(/[a-zA-Z][a-zA-Z0-9\s.,!?;:()\[\]{}'"%-]{4,50}[a-zA-Z0-9]/g);
+        // eslint-disable-next-line no-useless-escape
+        const textSequences = pdfString.match(/[a-zA-Z][a-zA-Z0-9\s.,!?;:()\[\]{}'"%-]{4,50}[a-zA-Z0-9]/g);
       
       if (textSequences && textSequences.length > 5) {
         const meaningfulSequences = textSequences.filter(seq => {
@@ -596,7 +600,8 @@ async function extractPdfTextBasic(buffer: Buffer): Promise<string> {
       .replace(/([a-z])([A-Z])/g, '$1 $2')  // Add spaces between camelCase
       .replace(/([a-zA-Z])(\d)/g, '$1 $2')  // Add spaces between letters and numbers
       .replace(/(\d)([a-zA-Z])/g, '$1 $2')  // Add spaces between numbers and letters
-      .replace(/\s*[(){}\[\]]\s*/g, ' ')     // Clean up stray brackets
+        // eslint-disable-next-line no-useless-escape
+        .replace(/\s*[(){}\[\]]\s*/g, ' ')     // Clean up stray brackets
       .trim();
 
     console.log(`📊 Enhanced extraction summary:`);
