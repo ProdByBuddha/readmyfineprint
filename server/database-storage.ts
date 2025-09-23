@@ -101,6 +101,7 @@ export class DatabaseStorage implements IStorage {
     const id = session.currentDocumentId++;
     const document: Document = {
       ...insertDocument,
+      content: insertDocument.content,
       id,
       title: insertDocument.title || "Untitled Document",
       createdAt: new Date()

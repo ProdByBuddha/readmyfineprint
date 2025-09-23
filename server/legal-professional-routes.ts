@@ -3,6 +3,7 @@ import { z } from 'zod';
 import { requireUserAuth, optionalUserAuth, requireSecurityQuestions } from './auth';
 import { getClientInfo, securityLogger } from './security-logger';
 import { legalProfessionalService } from './legal-professional-service';
+import type { LegalProfessionalProfile } from './legal-professional-service';
 
 // Validation schemas
 const legalProfessionalProfileSchema = z.object({
@@ -45,7 +46,7 @@ export function registerLegalProfessionalRoutes(app: Express) {
    */
   app.post('/api/legal/verify-professional', requireUserAuth, requireSecurityQuestions, async (req: any, res) => {
     try {
-      const profile = legalProfessionalProfileSchema.parse(req.body);
+      const profile = legalProfessionalProfileSchema.parse(req.body) as LegalProfessionalProfile;
       const userId = req.user.id;
       const { ip, userAgent } = getClientInfo(req);
 

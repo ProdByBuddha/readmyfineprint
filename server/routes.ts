@@ -223,7 +223,9 @@ const getStripeInstance = (useTestMode: boolean = false) => {
   }
 
   console.log(`🔑 Using Stripe key: ${secretKey.substring(0, 15)}... (test mode: ${useTestMode})`);
-  return new Stripe(secretKey);
+  return new Stripe(secretKey, {
+    apiVersion: '2025-08-27.basil',
+  });
 };
 
 // Default stripe instance (test mode in development, live mode in production)
@@ -3419,7 +3421,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
                     const stripeInstance = getStripeInstance(useTestMode);
                     const customer = await stripeInstance.customers.retrieve(stripeCustomerId as string);
                     
-                    if (customer && !customer.deleted && customer.email) {
+                    if (!('deleted' in customer) && customer.email) {
                       customerEmail = customer.email;
                       console.log(`📧 Captured customer email for multi-device access: ${customerEmail}`);
                     }
@@ -3450,7 +3452,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
                       const stripeInstance = getStripeInstance(useTestMode);
                       const customer = await stripeInstance.customers.retrieve(stripeCustomerId as string);
                       
-                      if (customer && !customer.deleted && customer.email) {
+                      if (!('deleted' in customer) && customer.email) {
                         customerEmail = customer.email;
                         console.log(`📧 Using customer email for missing user: ${customerEmail}`);
                       }

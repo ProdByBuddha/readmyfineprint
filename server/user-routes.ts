@@ -1,6 +1,12 @@
 import { Express, Request, Response, NextFunction } from "express";
 import { databaseStorage } from "./storage";
-import { insertUserSchema, insertUserSubscriptionSchema, insertUsageRecordSchema } from "@shared/schema";
+import {
+  insertUserSchema,
+  insertUserSubscriptionSchema,
+  insertUsageRecordSchema,
+  type InsertUser,
+  type InsertUsageRecord
+} from "@shared/schema";
 import { z } from "zod";
 import { generateSecureTokenPair, optionalUserAuth, requireUserAuth } from "./auth";
 import { securityLogger, SecurityEventType, SecuritySeverity } from "./security-logger";
@@ -51,9 +57,11 @@ const loginSchema = z.object({
   twoFactorCode: z.string().length(6).optional(), // Optional 2FA code
 });
 
-const registerSchema = insertUserSchema.extend({
-  password: z.string().min(8),
-}).omit({ hashedPassword: true });
+const registerSchema = insertUserSchema
+  .omit({ hashedPassword: true })
+  .extend({
+    password: z.string().min(8),
+  });
 
 const subscriptionSchema = z.object({
   tierId: z.string(),
@@ -68,6 +76,9 @@ const accountDeletionSchema = z.object({
   anonymizeData: z.boolean().optional().default(true),
 });
 
+type RegisterData = Omit<InsertUser, 'hashedPassword'> & { password: string };
+type UsageRecordData = InsertUsageRecord;
+
 export async function registerUserRoutes(app: Express) {
   // Import required services at the beginning
   const { requireUserAuth } = await import('./auth');
@@ -77,20 +88,21 @@ export async function registerUserRoutes(app: Express) {
   // User registration
   app.post("/api/users/register", async (req: Request, res: Response) => {
     try {
-      const userData = registerSchema.parse(req.body);
+      const parsedData = registerSchema.parse(req.body) as RegisterData;
+      const { password, ...userData } = parsedData;
 
       // Check if user already exists (using entanglement to handle real/pseudo emails)
-      const existingUser = await findUserByEmailWithEntanglement(userData.email);
+      const existingUser = await findUserByEmailWithEntanglement(parsedData.email);
       if (existingUser) {
         return res.status(400).json({ error: "User already exists" });
       }
 
       // Hash password with Argon2id
-      const hashedPassword = await hashPassword(userData.password as string);
+      const hashedPassword = await hashPassword(password);
 
       // Create user
       const user = await databaseStorage.createUser({
-        ...userData,
+        ...(userData as InsertUser),
         hashedPassword,
       });
 
@@ -451,7 +463,9 @@ export async function registerUserRoutes(app: Express) {
 
       const subscription = await databaseStorage.createUserSubscription({
         userId: req.params.id,
-        ...subscriptionData,
+        tierId: subscriptionData.tierId,
+        stripeCustomerId: subscriptionData.stripeCustomerId,
+        stripeSubscriptionId: subscriptionData.stripeSubscriptionId,
         status: "active",
         currentPeriodStart: new Date(),
         currentPeriodEnd: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000), // 30 days
@@ -536,7 +550,7 @@ export async function registerUserRoutes(app: Express) {
   // Track usage (for internal use)
   app.post("/api/users/:id/usage", async (req: Request, res: Response) => {
     try {
-      const usageData = insertUsageRecordSchema.parse(req.body);
+      const usageData = insertUsageRecordSchema.parse(req.body) as unknown as UsageRecordData;
 
       const usage = await databaseStorage.createUsageRecord({
         ...usageData,
