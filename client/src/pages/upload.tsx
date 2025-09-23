@@ -380,6 +380,29 @@ export default function Upload() {
   // Render upload workflow
   const renderUploadWorkflow = () => (
     <div className="space-y-12" data-testid="upload-workflow">
+      {/* Compact Intro Section */}
+      <section className="text-center mb-8" data-testid="upload-intro">
+        <div className="max-w-4xl mx-auto">
+          <Badge 
+            className="mb-4 px-4 py-2 text-sm font-semibold bg-gradient-to-r from-primary/5 to-secondary/5 dark:from-primary/10 dark:to-secondary/10 border-primary/20 dark:border-primary/30 shadow-lg backdrop-blur-sm border"
+            data-testid="upload-badge"
+          >
+            <FileText className="w-4 h-4 mr-2" />
+            AI-Powered Document Analysis
+          </Badge>
+          <h1 className="text-3xl md:text-4xl lg:text-5xl font-black mb-4 leading-tight tracking-tight">
+            <span className="bg-gradient-to-r from-primary via-blue-600 to-secondary bg-clip-text text-transparent">
+              Upload & Analyze Documents
+            </span>
+          </h1>
+          <p className="text-lg md:text-xl text-slate-700 dark:text-slate-300 mb-6 max-w-3xl mx-auto leading-relaxed">
+            Get instant AI-powered analysis of contracts, agreements, and legal documents with 
+            <span className="font-semibold text-primary"> strong security</span> and 
+            <span className="font-semibold text-secondary"> privacy protection</span>.
+          </p>
+        </div>
+      </section>
+
       {/* File Upload Section */}
       <section aria-labelledby="upload-section" data-testid="file-upload-section">
         <h2 id="upload-section" className="sr-only">Upload Document</h2>
@@ -535,11 +558,11 @@ export default function Upload() {
 
           {/* Main Content */}
           <main>
-            {/* Hero Section - Only show when no current document */}
-            {!currentDocumentId && !isAnalyzing && renderHeroSection()}
-
-            {/* Upload Workflow - Show when no document or analysis */}
+            {/* Upload Workflow - Show when no document or analysis - PRIORITY PLACEMENT */}
             {!currentDocumentId && !isAnalyzing && renderUploadWorkflow()}
+
+            {/* Hero Section - Only show when no current document - MOVED BELOW UPLOAD */}
+            {!currentDocumentId && !isAnalyzing && renderHeroSection()}
 
             {/* Analysis Progress */}
             {isAnalyzing && renderAnalysisProgress()}
