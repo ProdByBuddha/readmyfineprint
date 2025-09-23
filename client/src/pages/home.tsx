@@ -276,14 +276,14 @@ export default function Home() {
             </div>
 
             <div className="text-center mt-16">
-              <Link to="/upload" className="inline-block">
+              <Link to="/upload" className="inline-block w-full max-w-md mx-auto">
                 <Button
-                  className="group bg-gradient-to-r from-secondary via-teal-600 to-secondary hover:from-secondary/90 hover:via-teal-600/90 hover:to-secondary/90 text-white px-8 sm:px-12 py-3 sm:py-4 text-lg sm:text-xl font-bold shadow-2xl hover:shadow-secondary/25 transition-all duration-500 transform hover:-translate-y-1 w-full sm:w-auto max-w-sm sm:max-w-none mx-auto"
+                  className="group bg-gradient-to-r from-secondary via-teal-600 to-secondary hover:from-secondary/90 hover:via-teal-600/90 hover:to-secondary/90 text-white px-6 sm:px-12 py-4 sm:py-4 text-base sm:text-xl font-bold shadow-2xl hover:shadow-secondary/25 transition-all duration-500 transform hover:-translate-y-1 w-full h-auto min-h-[3.5rem] flex items-center justify-center gap-2 sm:gap-3 whitespace-nowrap"
                   data-testid="try-analysis-button"
                 >
-                  <FileText className="w-5 h-5 sm:w-6 sm:h-6 mr-2 sm:mr-3 group-hover:scale-110 transition-transform duration-300" />
-                  Experience AI Analysis
-                  <Sparkles className="w-5 h-5 sm:w-6 sm:h-6 ml-2 sm:ml-3 group-hover:rotate-12 transition-transform duration-300" />
+                  <FileText className="w-5 h-5 sm:w-6 sm:h-6 group-hover:scale-110 transition-transform duration-300 flex-shrink-0" />
+                  <span className="font-bold">Experience AI Analysis</span>
+                  <Sparkles className="w-5 h-5 sm:w-6 sm:h-6 group-hover:rotate-12 transition-transform duration-300 flex-shrink-0" />
                 </Button>
               </Link>
             </div>
