@@ -1,17 +1,32 @@
+
 // Use dynamic imports for better compatibility
 const createEslintConfig = async () => {
   let js, tseslint, tsparser, react, reactHooks, jsxA11y;
   
   try {
-    js = (await import('@eslint/js')).default;
-    tseslint = (await import('@typescript-eslint/eslint-plugin')).default;
-    tsparser = (await import('@typescript-eslint/parser')).default;
-    react = (await import('eslint-plugin-react')).default;
-    reactHooks = (await import('eslint-plugin-react-hooks')).default;
-    jsxA11y = (await import('eslint-plugin-jsx-a11y')).default;
+    // Try to import all required plugins
+    const jsModule = await import('@eslint/js');
+    js = jsModule.default;
+    
+    const tseslintModule = await import('@typescript-eslint/eslint-plugin');
+    tseslint = tseslintModule.default;
+    
+    const tsparserModule = await import('@typescript-eslint/parser');
+    tsparser = tsparserModule.default;
+    
+    const reactModule = await import('eslint-plugin-react');
+    react = reactModule.default;
+    
+    const reactHooksModule = await import('eslint-plugin-react-hooks');
+    reactHooks = reactHooksModule.default;
+    
+    const jsxA11yModule = await import('eslint-plugin-jsx-a11y');
+    jsxA11y = jsxA11yModule.default;
+    
+    console.log('✅ All ESLint plugins imported successfully');
   } catch (error) {
     console.error('Failed to import ESLint plugins:', error);
-    // Fallback configuration without the problematic imports
+    // Return a minimal configuration that works
     return [
       {
         ignores: [
