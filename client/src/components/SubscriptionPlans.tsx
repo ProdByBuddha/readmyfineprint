@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import {
@@ -35,6 +36,7 @@ interface SubscriptionTier {
     customIntegrations: boolean;
   };
   popular?: boolean;
+  iconWrapperClass: string;
 }
 
 const DEFAULT_ICON_WRAPPER_CLASS = 'text-gray-600 bg-gray-100 dark:text-gray-100 dark:bg-gray-800/80';
@@ -49,17 +51,13 @@ const TIER_ICON_CLASS_MAP: Record<string, string> = {
 
 export function getTierColor(tierId: string): string {
   try {
-    if (tierId in TIER_ICON_CLASS_MAP) {
-      return TIER_ICON_CLASS_MAP[tierId as keyof typeof TIER_ICON_CLASS_MAP];
+    if (Object.prototype.hasOwnProperty.call(TIER_ICON_CLASS_MAP, tierId)) {
+      return TIER_ICON_CLASS_MAP[tierId];
     }
   } catch (error) {
     if (import.meta.env.DEV) {
       console.error('Failed to resolve tier color', tierId, error);
     }
-  }
-
-  if (import.meta.env.DEV) {
-    console.warn('Unknown tier id when resolving icon color', tierId);
   }
 
   return DEFAULT_ICON_WRAPPER_CLASS;
@@ -87,6 +85,7 @@ const SUBSCRIPTION_TIERS: SubscriptionTier[] = [
       apiAccess: false,
       customIntegrations: false,
     },
+    iconWrapperClass: DEFAULT_ICON_WRAPPER_CLASS,
   },
   {
     id: "starter",
@@ -111,6 +110,7 @@ const SUBSCRIPTION_TIERS: SubscriptionTier[] = [
       customIntegrations: false,
     },
     popular: true,
+    iconWrapperClass: 'text-blue-600 bg-blue-50 dark:text-blue-300 dark:bg-blue-500/10',
   },
   {
     id: "professional",
@@ -136,6 +136,7 @@ const SUBSCRIPTION_TIERS: SubscriptionTier[] = [
       apiAccess: false,
       customIntegrations: false,
     },
+    iconWrapperClass: 'text-purple-600 bg-purple-50 dark:text-purple-300 dark:bg-purple-500/10',
   }
   // Note: Business and Enterprise tiers are temporarily hidden until features are fully implemented
   // Note: Ultimate tier is not displayed in public plans - it's admin-only
@@ -284,12 +285,15 @@ export default function SubscriptionPlans({
                     : ''}`}
               >
 
-                <CardHeader className="items-center text-center pt-6 pb-8 space-y-3">
-                  {tier.id === currentTier && (
-                    <Badge className="bg-green-600 hover:bg-green-600 text-white font-medium px-3 py-1">
+                {isCurrentTier && (
+                  <div className="absolute top-4 right-4 z-10">
+                    <Badge className="bg-green-500 text-white px-3 py-1">
                       Current Plan
                     </Badge>
-                  )}
+                  </div>
+                )}
+
+                <CardHeader className="items-center text-center pt-10 pb-8 space-y-3">
                   {tier.popular && (
                     <Badge className="bg-blue-500 text-white px-3 py-1 shadow-sm">
                       Most Popular
