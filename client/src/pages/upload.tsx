@@ -505,7 +505,7 @@ export default function Upload() {
   return (
     <div 
       ref={containerRef} 
-      className="relative min-h-screen bg-gradient-to-br from-slate-50 via-white to-blue-50 dark:from-slate-900 dark:via-slate-800 dark:to-blue-950 overflow-hidden"
+      className="relative min-h-screen bg-gradient-to-br from-slate-50 via-white to-blue-50 dark:from-slate-900 dark:via-slate-800 dark:to-blue-950"
       data-testid="upload-page"
     >
       {/* Background Pattern */}
@@ -524,7 +524,7 @@ export default function Upload() {
           />
         )}
         
-        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 lg:py-12">
+        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 lg:py-12 pb-20">
           {/* Document History - Always show if documents exist */}
           <section aria-label="Document history" className="animate-fade-in-scale mb-8">
             <DocumentHistory
