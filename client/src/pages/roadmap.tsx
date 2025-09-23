@@ -358,6 +358,19 @@ export default function Roadmap() {
           </CardContent>
         </Card>
 
+        {/* Back to Donate Navigation */}
+        <div className="mb-8">
+          <Link 
+            to="/donate" 
+            className="inline-flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400 hover:text-primary dark:hover:text-primary-400 transition-colors"
+          >
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+            </svg>
+            Back to Donate
+          </Link>
+        </div>
+
         {/* Call to Action */}
         <Card className="mt-12 bg-gradient-to-r from-primary/5 to-secondary/5 dark:from-primary/10 dark:to-secondary/10 border-primary/20 dark:border-primary/30">
           <CardContent className="p-8 text-center">
@@ -368,13 +381,18 @@ export default function Roadmap() {
               Your donations directly fund the development of these features. Every contribution helps us maintain free access 
               while building the tools that make legal documents more accessible to everyone.
             </p>
-            <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <Link to="/donate">
-                <Button size="lg" className="px-8">
+            <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center items-center">
+              <Link to="/donate" className="w-full sm:w-auto">
+                <Button size="lg" className="px-6 sm:px-8 w-full sm:w-auto h-12 text-base sm:text-lg">
                   💝 Support Our Mission
                 </Button>
               </Link>
-              <Button size="lg" variant="outline" className="px-8" onClick={() => window.open('mailto:admin@readmyfineprint.com?subject=Roadmap%20Feedback', '_blank')}>
+              <Button 
+                size="lg" 
+                variant="outline" 
+                className="px-6 sm:px-8 w-full sm:w-auto h-12 text-base sm:text-lg" 
+                onClick={() => window.open('mailto:admin@readmyfineprint.com?subject=Roadmap%20Feedback', '_blank')}
+              >
                 📧 Share Feedback
               </Button>
             </div>
