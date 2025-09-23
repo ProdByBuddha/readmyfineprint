@@ -3,6 +3,7 @@ import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogTrigger, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
+import * as VisuallyHidden from '@radix-ui/react-visually-hidden';
 import { Sheet, SheetContent, SheetTrigger, SheetClose } from '@/components/ui/sheet';
 import {
   Crown,
@@ -506,6 +507,11 @@ export function Header() {
                 </SheetTrigger>
                 <SheetContent side="right" className="w-72">
                   <div className="py-4 space-y-2">
+                    <div className="pb-4 border-b border-gray-200 dark:border-gray-700">
+                      <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100">
+                        Navigation Menu
+                      </h2>
+                    </div>
                     <SheetClose asChild>
                       <Link to="/subscription?tab=plans">
                         <Button
