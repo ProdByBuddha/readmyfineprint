@@ -6,8 +6,9 @@ import { Dialog, DialogContent, DialogTrigger } from '@/components/ui/dialog';
 import { Sheet, SheetContent, SheetTrigger, SheetClose } from '@/components/ui/sheet';
 import { 
   Crown, 
-  Shield, 
-  BookOpen, 
+  Shield,
+  BookOpen,
+  Target, 
   Settings, 
   Heart, 
   Moon, 
@@ -314,16 +315,16 @@ export function Header() {
               </Button>
             </Link> */}
             
-            <Link to="/blog">
+            <Link to="/roadmap">
               <Button
                 variant="ghost"
                 size="sm"
                 className="mr-2"
-                aria-label="Legal insights and contract law blog"
-                data-testid="nav-blog"
+                aria-label="ReadMyFinePrint Roadmap"
+                data-testid="nav-roadmap"
               >
-                <BookOpen className="w-4 h-4 mr-2 text-purple-600 dark:text-purple-400" aria-hidden="true" />
-                Blog
+                <Target className="w-3 h-3 mr-1" aria-hidden="true" />
+                Roadmap
               </Button>
             </Link>
             
@@ -524,16 +525,16 @@ export function Header() {
                     </SheetClose>
                     
                     <SheetClose asChild>
-                      <Link to="/blog">
+                      <Link to="/roadmap">
                         <Button
                           variant="ghost"
                           size="sm"
                           className="w-full justify-start h-10 transition-all duration-200 active:scale-95"
-                          aria-label="Legal insights and contract law blog"
-                          data-testid="nav-blog-mobile"
+                          aria-label="ReadMyFinePrint Roadmap"
+                          data-testid="nav-roadmap-mobile"
                         >
-                          <BookOpen className="w-4 h-4 mr-3 text-purple-600 dark:text-purple-400" aria-hidden="true" />
-                          Blog
+                          <Target className="w-3 h-3 mr-1" aria-hidden="true" />
+                          Roadmap
                         </Button>
                       </Link>
                     </SheetClose>
