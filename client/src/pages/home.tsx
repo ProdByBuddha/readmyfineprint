@@ -447,12 +447,15 @@ export default function Home() {
                     Your Legal Workflow?
                   </span>
                 </h2>
-                <p className="text-xl md:text-2xl text-slate-600 dark:text-slate-300 mb-12 max-w-3xl mx-auto leading-relaxed font-light">
-                  Experience AI-powered document analysis that delivers‎
+                <p
+                  className="text-xl md:text-2xl text-slate-600 dark:text-slate-300 mb-12 max-w-3xl mx-auto leading-relaxed font-light"
+                  data-testid="final-cta-description"
+                >
+                  Experience AI-powered document analysis that delivers
                   <strong className="font-semibold">
                     instant insights
                   </strong>{" "}
-                  with‎
+                  with
                   <strong className="font-semibold">
                     absolute privacy protection
                   </strong>
