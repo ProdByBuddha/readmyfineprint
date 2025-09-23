@@ -11,6 +11,7 @@ import {
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Loader2, LogIn, AlertCircle, Mail, Shield, Crown, X } from "lucide-react";
 import { getStoredDeviceFingerprint } from "@/utils/deviceFingerprint";
+import { safeDispatchEvent } from "@/lib/safeDispatchEvent";
 
 interface SubscriptionLoginProps {
   onSuccess: (token: string, subscription: any) => void;
@@ -182,7 +183,7 @@ export function SubscriptionLogin({
         }
         
         // Dispatch custom event for same-tab updates
-        window.dispatchEvent(new CustomEvent('authStateChanged'));
+        safeDispatchEvent('authStateChanged');
 
         // Call success callback with access token
         onSuccess(data.tokens?.access || '', data.subscription);

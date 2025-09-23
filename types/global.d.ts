@@ -65,8 +65,6 @@ declare global {
   var crypto: {
     getRandomValues<T extends ArrayBufferView | null>(array: T): T;
   };
-  var Infinity: number;
-
   // DOM types for client-side code
   interface Storage {
     getItem(key: string): string | null;

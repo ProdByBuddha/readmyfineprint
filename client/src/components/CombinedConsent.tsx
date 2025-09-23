@@ -6,6 +6,7 @@ import { logConsent } from "@/lib/api";
 import { sessionFetch, getGlobalSessionId } from "../lib/sessionManager";
 import { useLegalDisclaimer } from "../hooks/useLegalDisclaimer";
 import { useCookieConsent } from "../hooks/useCookieConsent";
+import { safeDispatchEvent } from "../lib/safeDispatchEvent";
 
 interface CombinedConsentProps {
   onAccept: () => void;
@@ -206,7 +207,7 @@ export function useCombinedConsent() {
     if (import.meta.env.DEV || import.meta.env.MODE === 'development') {
       console.log('⚠️ Development mode: Bypassing consent logging');
       globalConsentState = { status: true, timestamp: Date.now(), sessionId: getGlobalSessionId() };
-      window.dispatchEvent(new CustomEvent('consentChanged'));
+      safeDispatchEvent('consentChanged');
       setIsAccepted(true);
       setIsCheckingConsent(false);
       setForceUpdate(prev => prev + 1);
@@ -232,7 +233,7 @@ export function useCombinedConsent() {
 
       // Immediately notify other components of the change
       globalConsentState = { status: true, timestamp: Date.now(), sessionId: getGlobalSessionId() };
-      window.dispatchEvent(new CustomEvent('consentChanged'));
+      safeDispatchEvent('consentChanged');
       setIsAccepted(true);
       setIsCheckingConsent(false);
 
@@ -268,7 +269,7 @@ export function useCombinedConsent() {
       globalConsentState = null;
       setIsAccepted(false);
       setIsCheckingConsent(false);
-      window.dispatchEvent(new CustomEvent('consentRevoked'));
+      safeDispatchEvent('consentRevoked');
       setForceUpdate(prev => prev + 1);
       return;
     }
@@ -306,7 +307,7 @@ export function useCombinedConsent() {
       setForceUpdate(prev => prev + 1);
 
       // Single event dispatch for revocation
-      window.dispatchEvent(new CustomEvent('consentRevoked'));
+      safeDispatchEvent('consentRevoked');
 
     } catch (error) {
       console.warn('Failed to revoke consent from database:', error);
@@ -319,7 +320,7 @@ export function useCombinedConsent() {
       recentlyAccepted = false;
       if (acceptanceTimer) clearTimeout(acceptanceTimer);
 
-      window.dispatchEvent(new CustomEvent('consentRevoked'));
+      safeDispatchEvent('consentRevoked');
     }
   };
 

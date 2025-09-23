@@ -11,6 +11,7 @@
  * Commercial licensing available. Contact for terms.
  */
 
+/* eslint-disable no-useless-escape */
 import argon2 from 'argon2';
 
 /**

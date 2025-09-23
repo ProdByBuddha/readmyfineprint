@@ -3,9 +3,10 @@ import { useQuery, useMutation } from "@tanstack/react-query";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Plus, Shield, Clock, Zap, FileText, Users, ArrowRight } from "lucide-react";
+import { Plus, Shield, Clock, Zap, FileText, Users, ArrowRight, CheckCircle } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { queryClient } from "@/lib/queryClient";
+import { safeDispatchEvent } from "@/lib/safeDispatchEvent";
 import { useAccessibility } from "@/hooks/useAccessibility";
 import { usePreventFlicker } from "@/hooks/usePreventFlicker";
 import { useStableCallback } from "@/hooks/useStableCallback";
@@ -184,9 +185,9 @@ export default function Upload() {
     
     if (!consentAccepted) {
       console.log('Document analysis requires consent, triggering consent modal');
-      window.dispatchEvent(new CustomEvent('consentRequired', { 
-        detail: { reason: 'Document analysis requires consent' }
-      }));
+      safeDispatchEvent('consentRequired', {
+        detail: { reason: 'Document analysis requires consent' },
+      });
       announce("Please accept our terms to analyze documents", "polite");
       toast({
         title: "Consent Required",
@@ -231,9 +232,9 @@ export default function Upload() {
       const message = "Please accept the terms and privacy policy to process any documents, including sample contracts.";
       announce(message, "assertive");
       
-      window.dispatchEvent(new CustomEvent('consentRequired', { 
-        detail: { reason: 'Sample contract processing requires consent' }
-      }));
+      safeDispatchEvent('consentRequired', {
+        detail: { reason: 'Sample contract processing requires consent' },
+      });
       
       toast({
         title: "Consent Required",
