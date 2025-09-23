@@ -1,0 +1,283 @@
+~/workspace$ npm run check
+
+> readmyfineprint@2.0.0 check
+> tsc
+
+client/src/App.tsx:109:25 - error TS2339: Property 'DEV' does not exist on type 'ImportMetaEnv'.
+
+109     if (import.meta.env.DEV) {
+                            ~~~
+
+client/src/App.tsx:117:27 - error TS2339: Property 'DEV' does not exist on type 'ImportMetaEnv'.
+
+117       if (import.meta.env.DEV) {
+                              ~~~
+
+client/src/components/BlogAdmin.tsx:211:33 - error TS2339: Property 'DEV' does not exist on type 'ImportMetaEnv'.
+
+211             if (import.meta.env.DEV) {
+                                    ~~~
+
+client/src/components/CombinedConsent.tsx:57:25 - error TS2339: Property 'DEV' does not exist on type 'ImportMetaEnv'.
+
+57     if (import.meta.env.DEV || import.meta.env.MODE === 'development') {
+                           ~~~
+
+client/src/components/CombinedConsent.tsx:57:48 - error TS2339: Property 'MODE' does not exist on type 'ImportMetaEnv'.
+
+57     if (import.meta.env.DEV || import.meta.env.MODE === 'development') {
+                                                  ~~~~
+
+client/src/components/CombinedConsent.tsx:75:27 - error TS2339: Property 'DEV' does not exist on type 'ImportMetaEnv'.
+
+75       if (import.meta.env.DEV) {
+                             ~~~
+
+client/src/components/CombinedConsent.tsx:87:27 - error TS2339: Property 'DEV' does not exist on type 'ImportMetaEnv'.
+
+87       if (import.meta.env.DEV) {
+                             ~~~
+
+client/src/components/CombinedConsent.tsx:102:29 - error TS2339: Property 'DEV' does not exist on type 'ImportMetaEnv'.
+
+102         if (import.meta.env.DEV) {
+                                ~~~
+
+client/src/components/CombinedConsent.tsx:143:29 - error TS2339: Property 'DEV' does not exist on type 'ImportMetaEnv'.
+
+143         if (import.meta.env.DEV) {
+                                ~~~
+
+client/src/components/CombinedConsent.tsx:151:27 - error TS2339: Property 'DEV' does not exist on type 'ImportMetaEnv'.
+
+151       if (import.meta.env.DEV) {
+                              ~~~
+
+client/src/components/CombinedConsent.tsx:207:25 - error TS2339: Property 'DEV' does not exist on type 'ImportMetaEnv'.
+
+207     if (import.meta.env.DEV || import.meta.env.MODE === 'development') {
+                            ~~~
+
+client/src/components/CombinedConsent.tsx:207:48 - error TS2339: Property 'MODE' does not exist on type 'ImportMetaEnv'.
+
+207     if (import.meta.env.DEV || import.meta.env.MODE === 'development') {
+                                                   ~~~~
+
+client/src/components/CombinedConsent.tsx:267:25 - error TS2339: Property 'DEV' does not exist on type 'ImportMetaEnv'.
+
+267     if (import.meta.env.DEV || import.meta.env.MODE === 'development') {
+                            ~~~
+
+client/src/components/CombinedConsent.tsx:267:48 - error TS2339: Property 'MODE' does not exist on type 'ImportMetaEnv'.
+
+267     if (import.meta.env.DEV || import.meta.env.MODE === 'development') {
+                                                   ~~~~
+
+client/src/components/CookieConsent.tsx:9:25 - error TS2339: Property 'DEV' does not exist on type 'ImportMetaEnv'.
+
+9     if (import.meta.env.DEV || import.meta.env.MODE === 'development') {
+                          ~~~
+
+client/src/components/CookieConsent.tsx:9:48 - error TS2339: Property 'MODE' does not exist on type 'ImportMetaEnv'.
+
+9     if (import.meta.env.DEV || import.meta.env.MODE === 'development') {
+                                                 ~~~~
+
+client/src/components/ExpressCheckoutForm.tsx:14:41 - error TS2551: Property 'VITE_STRIPE_PUBLISHABLE_KEY' does not exist on type 'ImportMetaEnv'. Did you mean 'VITE_STRIPE_PUBLIC_KEY'?
+
+14 const stripePublicKey = import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY;
+                                           ~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+  client/src/vite-env.d.ts:5:12
+    5   readonly VITE_STRIPE_PUBLIC_KEY: string
+                 ~~~~~~~~~~~~~~~~~~~~~~
+    'VITE_STRIPE_PUBLIC_KEY' is declared here.
+
+client/src/components/Header.tsx:73:33 - error TS2339: Property 'DEV' does not exist on type 'ImportMetaEnv'.
+
+73             if (import.meta.env.DEV && response.status !== 401) {
+                                   ~~~
+
+client/src/components/LoginForm.tsx:40:42 - error TS2339: Property 'VITE_ADMIN_API_KEY' does not exist on type 'ImportMetaEnv'.
+
+40         const adminKey = import.meta.env.VITE_ADMIN_API_KEY || process.env.ADMIN_API_KEY;
+                                            ~~~~~~~~~~~~~~~~~~
+
+client/src/components/SubscriptionPlans.tsx:56:25 - error TS2339: Property 'DEV' does not exist on type 'ImportMetaEnv'.
+
+56     if (import.meta.env.DEV) {
+                           ~~~
+
+client/src/components/SubscriptionPlans.tsx:61:23 - error TS2339: Property 'DEV' does not exist on type 'ImportMetaEnv'.
+
+61   if (import.meta.env.DEV) {
+                         ~~~
+
+client/src/hooks/useCookieConsent.ts:128:25 - error TS2339: Property 'DEV' does not exist on type 'ImportMetaEnv'.
+
+128     if (import.meta.env.DEV || import.meta.env.MODE === 'development') {
+                            ~~~
+
+client/src/hooks/useCookieConsent.ts:128:48 - error TS2339: Property 'MODE' does not exist on type 'ImportMetaEnv'.
+
+128     if (import.meta.env.DEV || import.meta.env.MODE === 'development') {
+                                                   ~~~~
+
+client/src/hooks/useLegalDisclaimer.ts:241:27 - error TS2339: Property 'DEV' does not exist on type 'ImportMetaEnv'.
+
+241       if (import.meta.env.DEV) {
+                              ~~~
+
+client/src/hooks/useThemePreference.ts:208:27 - error TS2339: Property 'DEV' does not exist on type 'ImportMetaEnv'.
+
+208       if (import.meta.env.DEV) {
+                              ~~~
+
+client/src/lib/api.ts:1047:40 - error TS2339: Property 'VITE_ADMIN_API_KEY' does not exist on type 'ImportMetaEnv'.
+
+1047   const adminApiKey = import.meta.env?.VITE_ADMIN_API_KEY;
+                                            ~~~~~~~~~~~~~~~~~~
+
+client/src/lib/auth-fetch.ts:42:23 - error TS2339: Property 'DEV' does not exist on type 'ImportMetaEnv'.
+
+42   if (import.meta.env.DEV && response.status === 401) {
+                         ~~~
+
+client/src/lib/csrfManager.ts:75:27 - error TS2339: Property 'DEV' does not exist on type 'ImportMetaEnv'.
+
+75       if (import.meta.env.DEV) {
+                             ~~~
+
+client/src/lib/csrfManager.ts:94:27 - error TS2339: Property 'DEV' does not exist on type 'ImportMetaEnv'.
+
+94       if (import.meta.env.DEV) {
+                             ~~~
+
+client/src/lib/csrfManager.ts:130:31 - error TS2339: Property 'DEV' does not exist on type 'ImportMetaEnv'.
+
+130           if (import.meta.env.DEV) {
+                                  ~~~
+
+client/src/lib/csrfManager.ts:147:27 - error TS2339: Property 'DEV' does not exist on type 'ImportMetaEnv'.
+
+147       if (import.meta.env.DEV) {
+                              ~~~
+
+client/src/lib/safeDispatchEvent.ts:28:28 - error TS2339: Property 'DEV' does not exist on type 'ImportMetaEnv'.
+
+28       if (import.meta.env?.DEV) {
+                              ~~~
+
+client/src/lib/safeDispatchEvent.ts:49:28 - error TS2339: Property 'DEV' does not exist on type 'ImportMetaEnv'.
+
+49       if (import.meta.env?.DEV) {
+                              ~~~
+
+client/src/lib/safeDispatchEvent.ts:71:28 - error TS2339: Property 'DEV' does not exist on type 'ImportMetaEnv'.
+
+71       if (import.meta.env?.DEV) {
+                              ~~~
+
+client/src/lib/safeDispatchEvent.ts:93:26 - error TS2339: Property 'DEV' does not exist on type 'ImportMetaEnv'.
+
+93     if (import.meta.env?.DEV) {
+                            ~~~
+
+client/src/lib/safeDispatchEvent.ts:102:26 - error TS2339: Property 'DEV' does not exist on type 'ImportMetaEnv'.
+
+102     if (import.meta.env?.DEV) {
+                             ~~~
+
+client/src/lib/safeDispatchEvent.ts:111:26 - error TS2339: Property 'DEV' does not exist on type 'ImportMetaEnv'.
+
+111     if (import.meta.env?.DEV) {
+                             ~~~
+
+client/src/lib/sessionManager.ts:63:27 - error TS2339: Property 'DEV' does not exist on type 'ImportMetaEnv'.
+
+63       if (import.meta.env.DEV) {
+                             ~~~
+
+client/src/lib/sessionManager.ts:71:27 - error TS2339: Property 'DEV' does not exist on type 'ImportMetaEnv'.
+
+71       if (import.meta.env.DEV) {
+                             ~~~
+
+client/src/lib/sessionManager.ts:83:27 - error TS2339: Property 'DEV' does not exist on type 'ImportMetaEnv'.
+
+83       if (import.meta.env.DEV) {
+                             ~~~
+
+client/src/lib/sessionManager.ts:109:33 - error TS2339: Property 'DEV' does not exist on type 'ImportMetaEnv'.
+
+109             if (import.meta.env.DEV) {
+                                    ~~~
+
+client/src/lib/sessionManager.ts:145:25 - error TS2339: Property 'DEV' does not exist on type 'ImportMetaEnv'.
+
+145     if (import.meta.env.DEV) {
+                            ~~~
+
+client/src/lib/sessionManager.ts:153:25 - error TS2339: Property 'DEV' does not exist on type 'ImportMetaEnv'.
+
+153     if (import.meta.env.DEV) {
+                            ~~~
+
+client/src/lib/sessionManager.ts:166:25 - error TS2339: Property 'DEV' does not exist on type 'ImportMetaEnv'.
+
+166     if (import.meta.env.DEV) {
+                            ~~~
+
+client/src/lib/sessionManager.ts:189:31 - error TS2339: Property 'DEV' does not exist on type 'ImportMetaEnv'.
+
+189           if (import.meta.env.DEV) {
+                                  ~~~
+
+client/src/lib/sessionManager.ts:217:25 - error TS2339: Property 'DEV' does not exist on type 'ImportMetaEnv'.
+
+217     if (import.meta.env.DEV) {
+                            ~~~
+
+client/src/pages/admin.tsx:141:25 - error TS2339: Property 'DEV' does not exist on type 'ImportMetaEnv'.
+
+141     if (import.meta.env.DEV) {
+                            ~~~
+
+client/src/pages/admin.tsx:234:37 - error TS2339: Property 'DEV' does not exist on type 'ImportMetaEnv'.
+
+234   if (!codeSent && !import.meta.env.DEV) {
+                                        ~~~
+
+client/src/pages/donate.tsx:440:32 - error TS2339: Property 'DEV' does not exist on type 'ImportMetaEnv'.
+
+440               {import.meta.env.DEV && (
+                                   ~~~
+
+client/src/pages/subscription.tsx:689:30 - error TS2339: Property 'DEV' does not exist on type 'ImportMetaEnv'.
+
+689             {import.meta.env.DEV && <StripeDebug />}
+                                 ~~~
+
+
+Found 50 errors in 19 files.
+
+Errors  Files
+     2  client/src/App.tsx:109
+     1  client/src/components/BlogAdmin.tsx:211
+    11  client/src/components/CombinedConsent.tsx:57
+     2  client/src/components/CookieConsent.tsx:9
+     1  client/src/components/ExpressCheckoutForm.tsx:14
+     1  client/src/components/Header.tsx:73
+     1  client/src/components/LoginForm.tsx:40
+     2  client/src/components/SubscriptionPlans.tsx:56
+     2  client/src/hooks/useCookieConsent.ts:128
+     1  client/src/hooks/useLegalDisclaimer.ts:241
+     1  client/src/hooks/useThemePreference.ts:208
+     1  client/src/lib/api.ts:1047
+     1  client/src/lib/auth-fetch.ts:42
+     4  client/src/lib/csrfManager.ts:75
+     6  client/src/lib/safeDispatchEvent.ts:28
+     9  client/src/lib/sessionManager.ts:63
+     2  client/src/pages/admin.tsx:141
+     1  client/src/pages/donate.tsx:440
+     1  client/src/pages/subscription.tsx:689
