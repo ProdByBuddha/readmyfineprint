@@ -358,18 +358,7 @@ export default function Roadmap() {
           </CardContent>
         </Card>
 
-        {/* Back to Donate Navigation */}
-        <div className="mb-8">
-          <Link 
-            to="/donate" 
-            className="inline-flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400 hover:text-primary dark:hover:text-primary-400 transition-colors"
-          >
-            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
-            </svg>
-            Back to Donate
-          </Link>
-        </div>
+        
 
         {/* Call to Action */}
         <Card className="mt-12 bg-gradient-to-r from-primary/5 to-secondary/5 dark:from-primary/10 dark:to-secondary/10 border-primary/20 dark:border-primary/30">
