@@ -25,6 +25,7 @@ import { DirectionProvider } from "@radix-ui/react-direction";
 import { SecurityQuestionsProvider, useSecurityQuestions } from "./contexts/SecurityQuestionsContext";
 import { SecurityQuestionsModal } from "./components/SecurityQuestionsModal";
 import { useSecurityQuestionsHandler } from "./hooks/useSecurityQuestionsHandler";
+import { useChunkErrorRecovery } from "./hooks/useChunkErrorRecovery";
 
 // Lazy load route components for better code splitting
 const Home = lazy(() => import("./pages/home"));
