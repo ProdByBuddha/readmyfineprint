@@ -518,7 +518,7 @@ export function Header() {
                           aria-label="ReadMyFinePrint Roadmap"
                           data-testid="nav-roadmap-mobile"
                         >
-                          <Target className="w-3 h-3 mr-1" aria-hidden="true" />
+                          <Target className="w-4 h-4 mr-3" aria-hidden="true" />
                           Roadmap
                         </Button>
                       </Link>
