@@ -275,50 +275,6 @@ function AppContent() {
 
 // Main App component with providers
 function App() {
-  // Ensure browser compatibility for Radix UI and EventTarget
-  React.useEffect(() => {
-    // Fix for EventTarget compatibility
-    if (typeof window !== 'undefined') {
-      if (typeof (window as any).Target === 'undefined') {
-        (window as any).Target = EventTarget;
-      }
-      
-      // Ensure EventTarget is properly available
-      if (!window.EventTarget) {
-        // Polyfill for EventTarget if needed
-        class CustomEventTarget {
-          private listeners: { [key: string]: any[] } = {};
-          
-          addEventListener(type: string, listener: any) {
-            if (!this.listeners[type]) {
-              this.listeners[type] = [];
-            }
-            this.listeners[type].push(listener);
-          }
-          
-          removeEventListener(type: string, listener: any) {
-            if (this.listeners[type]) {
-              const index = this.listeners[type].indexOf(listener);
-              if (index > -1) {
-                this.listeners[type].splice(index, 1);
-              }
-            }
-          }
-          
-          dispatchEvent(event: any) {
-            if (this.listeners[event.type]) {
-              this.listeners[event.type].forEach((listener: any) => {
-                listener.call(this, event);
-              });
-            }
-            return true;
-          }
-        }
-        
-        (window as any).EventTarget = CustomEventTarget;
-      }
-    }
-  }, []);
 
   return (
     <Router>

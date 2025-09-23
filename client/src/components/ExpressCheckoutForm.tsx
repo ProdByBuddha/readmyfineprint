@@ -30,7 +30,7 @@ const loadStripeWithFallback = async (publicKey: string): Promise<Stripe | null>
   // Fallback to direct script loading
   return new Promise((resolve, reject) => {
     console.log("📦 ExpressCheckoutForm: Trying direct script loading...");
-    
+
     // Check if Stripe is already loaded
     if ((window as any).Stripe) {
       console.log("✅ ExpressCheckoutForm: Stripe already available");
