@@ -512,12 +512,12 @@ export default function SubscriptionPlans({
               <div className="mt-auto pt-4 space-y-3">
                 <Link to="/roadmap">
                   <Button
-                    className="w-full py-4 text-base font-medium bg-purple-600 hover:bg-purple-700 text-white"
+                    className="w-full py-4 text-base font-medium bg-purple-600 hover:bg-purple-700 text-white justify-between"
                     variant="default"
                   >
-                    <Target className="w-4 h-4 mr-2" />
-                    View Development Roadmap
-                    <ArrowRight className="w-4 h-4 ml-2" />
+                    <Target className="w-4 h-4" aria-hidden="true" />
+                    <span className="flex-1 text-center">View Development Roadmap</span>
+                    <ArrowRight className="w-4 h-4" aria-hidden="true" />
                   </Button>
                 </Link>
                 <Button
