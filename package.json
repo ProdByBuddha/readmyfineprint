@@ -23,10 +23,11 @@
     "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 2000 || echo 'Linter warnings detected but not blocking build'",
     "preview": "npx vite preview",
     "indexnow": "tsx scripts/submit-indexnow.ts",
-    "test": "npm run test:jest",
-    "test:jest": "jest",
-    "test:coverage": "jest --coverage",
-    "test:ci": "jest --ci --coverage --watchAll=false",
+    "test": "npm run test:unit && npm run test:e2e",
+    "test:unit": "vitest run --config vitest.config.unit.ts",
+    "test:e2e": "vitest run --config vitest.config.e2e.ts",
+    "test:coverage": "vitest run --config vitest.config.unit.ts --coverage",
+    "test:ci": "vitest run --config vitest.config.unit.ts --coverage && vitest run --config vitest.config.e2e.ts",
     "validate:all": "npm run lint && npm run check && npm run test:ci && npm run security:verify",
     "subscription:check": "tsx scripts/check-user-subscription.ts",
     "subscription:audit": "tsx scripts/audit-subscription-tiers.ts",
@@ -232,7 +233,8 @@
     "postcss-load-config": "^6.0.1",
     "snyk": "^1.1297.3",
     "typescript": "^5.8.3",
-    "vite": "^5.4.20"
+    "vite": "^5.4.20",
+    "vitest": "^3.2.4"
   },
   "optionalDependencies": {
     "bufferutil": "^4.0.8"
