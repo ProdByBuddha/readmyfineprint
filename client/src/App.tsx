@@ -275,6 +275,13 @@ function AppContent() {
 
 // Main App component with providers
 function App() {
+  // Ensure browser compatibility for Radix UI
+  React.useEffect(() => {
+    if (typeof (window as any).Target === 'undefined') {
+      (window as any).Target = EventTarget;
+    }
+  }, []);
+
   return (
     <Router>
       <QueryClientProvider client={queryClient}>
