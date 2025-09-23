@@ -1,0 +1,263 @@
+~/workspace$ npm run lint 2>&1 | grep -i error
+   20:10  warning  'errorReporter' is defined but never used  @typescript-eslint/no-unused-vars
+  152:14  warning  'error' is defined but never used                                                                                         @typescript-eslint/no-unused-vars
+  333:14  warning  'error' is defined but never used                                                                         @typescript-eslint/no-unused-vars
+  353:14  warning  'error' is defined but never used                                                                         @typescript-eslint/no-unused-vars
+  400:14  warning  'error' is defined but never used                                                                         @typescript-eslint/no-unused-vars
+  429:14  warning  'error' is defined but never used                                                                         @typescript-eslint/no-unused-vars
+  465:14  warning  'error' is defined but never used                                                                         @typescript-eslint/no-unused-vars
+  493:14  warning  'error' is defined but never used                                                                         @typescript-eslint/no-unused-vars
+  516:14  warning  'error' is defined but never used                                                                         @typescript-eslint/no-unused-vars
+  539:14  warning  'error' is defined but never used                                                                         @typescript-eslint/no-unused-vars
+  562:14  warning  'error' is defined but never used                                                                         @typescript-eslint/no-unused-vars
+  586:14  warning  'error' is defined but never used                                                                         @typescript-eslint/no-unused-vars
+/home/runner/workspace/client/src/components/ErrorBoundary.tsx
+   68:14  warning  'error' is defined but never used                                                                                                   @typescript-eslint/no-unused-vars
+  111:14  warning  'error' is defined but never used                                                                                                   @typescript-eslint/no-unused-vars
+  43:9  warning  'handleSetupError' is assigned a value but never used  @typescript-eslint/no-unused-vars
+  194:16  warning  'error' is defined but never used                    @typescript-eslint/no-unused-vars
+     5:26  warning  'reportNetworkError' is defined but never used  @typescript-eslint/no-unused-vars
+    40:16  warning  'jsonParseError' is defined but never used      @typescript-eslint/no-unused-vars
+    85:16  warning  'jsonParseError' is defined but never used      @typescript-eslint/no-unused-vars
+    89:14  warning  'readError' is defined but never used           @typescript-eslint/no-unused-vars
+   119:16  warning  'jsonParseError' is defined but never used      @typescript-eslint/no-unused-vars
+   122:14  warning  'readError' is defined but never used           @typescript-eslint/no-unused-vars
+   156:16  warning  'jsonParseError' is defined but never used      @typescript-eslint/no-unused-vars
+   159:14  warning  'readError' is defined but never used           @typescript-eslint/no-unused-vars
+   191:16  warning  'jsonParseError' is defined but never used      @typescript-eslint/no-unused-vars
+   194:14  warning  'readError' is defined but never used           @typescript-eslint/no-unused-vars
+   226:16  warning  'jsonParseError' is defined but never used      @typescript-eslint/no-unused-vars
+   229:14  warning  'readError' is defined but never used           @typescript-eslint/no-unused-vars
+   260:16  warning  'jsonParseError' is defined but never used      @typescript-eslint/no-unused-vars
+   263:14  warning  'readError' is defined but never used           @typescript-eslint/no-unused-vars
+   290:16  warning  'jsonParseError' is defined but never used      @typescript-eslint/no-unused-vars
+   293:14  warning  'readError' is defined but never used           @typescript-eslint/no-unused-vars
+   325:16  warning  'jsonParseError' is defined but never used      @typescript-eslint/no-unused-vars
+   328:14  warning  'readError' is defined but never used           @typescript-eslint/no-unused-vars
+   392:14  warning  'readError' is defined but never used           @typescript-eslint/no-unused-vars
+   418:16  warning  'jsonParseError' is defined but never used      @typescript-eslint/no-unused-vars
+   421:14  warning  'readError' is defined but never used           @typescript-eslint/no-unused-vars
+   447:16  warning  'jsonParseError' is defined but never used      @typescript-eslint/no-unused-vars
+   450:14  warning  'readError' is defined but never used           @typescript-eslint/no-unused-vars
+   476:16  warning  'jsonParseError' is defined but never used      @typescript-eslint/no-unused-vars
+   479:14  warning  'readError' is defined but never used           @typescript-eslint/no-unused-vars
+   517:18  warning  'jsonParseError' is defined but never used      @typescript-eslint/no-unused-vars
+   520:16  warning  'readError' is defined but never used           @typescript-eslint/no-unused-vars
+   656:18  warning  'jsonParseError' is defined but never used      @typescript-eslint/no-unused-vars
+   659:16  warning  'readError' is defined but never used           @typescript-eslint/no-unused-vars
+   762:16  warning  'jsonParseError' is defined but never used      @typescript-eslint/no-unused-vars
+   765:14  warning  'readError' is defined but never used           @typescript-eslint/no-unused-vars
+   802:16  warning  'jsonParseError' is defined but never used      @typescript-eslint/no-unused-vars
+   805:14  warning  'readError' is defined but never used           @typescript-eslint/no-unused-vars
+   842:16  warning  'jsonParseError' is defined but never used      @typescript-eslint/no-unused-vars
+   845:14  warning  'readError' is defined but never used           @typescript-eslint/no-unused-vars
+   900:16  warning  'jsonParseError' is defined but never used      @typescript-eslint/no-unused-vars
+   905:14  warning  'readError' is defined but never used           @typescript-eslint/no-unused-vars
+   936:16  warning  'jsonParseError' is defined but never used      @typescript-eslint/no-unused-vars
+   939:14  warning  'readError' is defined but never used           @typescript-eslint/no-unused-vars
+   980:16  warning  'jsonParseError' is defined but never used      @typescript-eslint/no-unused-vars
+   983:14  warning  'readError' is defined but never used           @typescript-eslint/no-unused-vars
+  1013:16  warning  'jsonParseError' is defined but never used      @typescript-eslint/no-unused-vars
+  1016:14  warning  'readError' is defined but never used           @typescript-eslint/no-unused-vars
+  1064:14  warning  'readError' is defined but never used           @typescript-eslint/no-unused-vars
+/home/runner/workspace/client/src/lib/error-reporter.ts
+   159:18   warning  'error' is defined but never used                   @typescript-eslint/no-unused-vars
+   181:18   warning  'error' is defined but never used                   @typescript-eslint/no-unused-vars
+   223:14   warning  'error' is defined but never used                   @typescript-eslint/no-unused-vars
+   87:61  warning  'userError' is assigned a value but never used         @typescript-eslint/no-unused-vars
+  101:72  warning  'preferencesError' is assigned a value but never used  @typescript-eslint/no-unused-vars
+   71:55  warning  'error' is assigned a value but never used                                                                                                                     @typescript-eslint/no-unused-vars
+  0:0  error  Parsing error: "parserOptions.project" has been provided for @typescript-eslint/parser.
+   5:1  error  'console' is not defined  no-undef
+  24:1  error  'console' is not defined  no-undef
+  25:1  error  'process' is not defined  no-undef
+  0:0  error  Parsing error: "parserOptions.project" has been provided for @typescript-eslint/parser.
+  0:0  error  Parsing error: "parserOptions.project" has been provided for @typescript-eslint/parser.
+  0:0  error  Parsing error: "parserOptions.project" has been provided for @typescript-eslint/parser.
+  0:0  error  Parsing error: "parserOptions.project" has been provided for @typescript-eslint/parser.
+  0:0  error  Parsing error: "parserOptions.project" has been provided for @typescript-eslint/parser.
+  0:0  error  Parsing error: "parserOptions.project" has been provided for @typescript-eslint/parser.
+  0:0  error  Parsing error: "parserOptions.project" has been provided for @typescript-eslint/parser.
+  0:0  error  Parsing error: "parserOptions.project" has been provided for @typescript-eslint/parser.
+  0:0  error  Parsing error: "parserOptions.project" has been provided for @typescript-eslint/parser.
+  0:0  error  Parsing error: "parserOptions.project" has been provided for @typescript-eslint/parser.
+  0:0  error  Parsing error: "parserOptions.project" has been provided for @typescript-eslint/parser.
+  0:0  error  Parsing error: "parserOptions.project" has been provided for @typescript-eslint/parser.
+  0:0  error  Parsing error: "parserOptions.project" has been provided for @typescript-eslint/parser.
+  0:0  error  Parsing error: "parserOptions.project" has been provided for @typescript-eslint/parser.
+  0:0  error  Parsing error: "parserOptions.project" has been provided for @typescript-eslint/parser.
+  0:0  error  Parsing error: "parserOptions.project" has been provided for @typescript-eslint/parser.
+  0:0  error  Parsing error: "parserOptions.project" has been provided for @typescript-eslint/parser.
+  0:0  error  Parsing error: "parserOptions.project" has been provided for @typescript-eslint/parser.
+  0:0  error  Parsing error: "parserOptions.project" has been provided for @typescript-eslint/parser.
+  0:0  error  Parsing error: "parserOptions.project" has been provided for @typescript-eslint/parser.
+  0:0  error  Parsing error: "parserOptions.project" has been provided for @typescript-eslint/parser.
+  0:0  error  Parsing error: "parserOptions.project" has been provided for @typescript-eslint/parser.
+  0:0  error  Parsing error: "parserOptions.project" has been provided for @typescript-eslint/parser.
+  0:0  error  Parsing error: "parserOptions.project" has been provided for @typescript-eslint/parser.
+  0:0  error  Parsing error: "parserOptions.project" has been provided for @typescript-eslint/parser.
+  0:0  error  Parsing error: "parserOptions.project" has been provided for @typescript-eslint/parser.
+  0:0  error  Parsing error: "parserOptions.project" has been provided for @typescript-eslint/parser.
+  0:0  error  Parsing error: "parserOptions.project" has been provided for @typescript-eslint/parser.
+  0:0  error  Parsing error: "parserOptions.project" has been provided for @typescript-eslint/parser.
+  0:0  error  Parsing error: "parserOptions.project" has been provided for @typescript-eslint/parser.
+  0:0  error  Parsing error: "parserOptions.project" has been provided for @typescript-eslint/parser.
+  0:0  error  Parsing error: "parserOptions.project" has been provided for @typescript-eslint/parser.
+  0:0  error  Parsing error: "parserOptions.project" has been provided for @typescript-eslint/parser.
+  0:0  error  Parsing error: "parserOptions.project" has been provided for @typescript-eslint/parser.
+  0:0  error  Parsing error: "parserOptions.project" has been provided for @typescript-eslint/parser.
+  0:0  error  Parsing error: "parserOptions.project" has been provided for @typescript-eslint/parser.
+  0:0  error  Parsing error: "parserOptions.project" has been provided for @typescript-eslint/parser.
+  0:0  error  Parsing error: "parserOptions.project" has been provided for @typescript-eslint/parser.
+  0:0  error  Parsing error: "parserOptions.project" has been provided for @typescript-eslint/parser.
+  0:0  error  Parsing error: "parserOptions.project" has been provided for @typescript-eslint/parser.
+  0:0  error  Parsing error: "parserOptions.project" has been provided for @typescript-eslint/parser.
+  0:0  error  Parsing error: "parserOptions.project" has been provided for @typescript-eslint/parser.
+  0:0  error  Parsing error: "parserOptions.project" has been provided for @typescript-eslint/parser.
+  0:0  error  Parsing error: "parserOptions.project" has been provided for @typescript-eslint/parser.
+  0:0  error  Parsing error: "parserOptions.project" has been provided for @typescript-eslint/parser.
+  0:0  error  Parsing error: "parserOptions.project" has been provided for @typescript-eslint/parser.
+  0:0  error  Parsing error: "parserOptions.project" has been provided for @typescript-eslint/parser.
+  0:0  error  Parsing error: "parserOptions.project" has been provided for @typescript-eslint/parser.
+  0:0  error  Parsing error: "parserOptions.project" has been provided for @typescript-eslint/parser.
+  0:0  error  Parsing error: "parserOptions.project" has been provided for @typescript-eslint/parser.
+  0:0  error  Parsing error: "parserOptions.project" has been provided for @typescript-eslint/parser.
+  0:0  error  Parsing error: "parserOptions.project" has been provided for @typescript-eslint/parser.
+  0:0  error  Parsing error: "parserOptions.project" has been provided for @typescript-eslint/parser.
+  0:0  error  Parsing error: "parserOptions.project" has been provided for @typescript-eslint/parser.
+  0:0  error  Parsing error: "parserOptions.project" has been provided for @typescript-eslint/parser.
+  0:0  error  Parsing error: "parserOptions.project" has been provided for @typescript-eslint/parser.
+  0:0  error  Parsing error: "parserOptions.project" has been provided for @typescript-eslint/parser.
+  0:0  error  Parsing error: "parserOptions.project" has been provided for @typescript-eslint/parser.
+  0:0  error  Parsing error: "parserOptions.project" has been provided for @typescript-eslint/parser.
+  0:0  error  Parsing error: "parserOptions.project" has been provided for @typescript-eslint/parser.
+  0:0  error  Parsing error: "parserOptions.project" has been provided for @typescript-eslint/parser.
+  0:0  error  Parsing error: "parserOptions.project" has been provided for @typescript-eslint/parser.
+  0:0  error  Parsing error: "parserOptions.project" has been provided for @typescript-eslint/parser.
+  0:0  error  Parsing error: "parserOptions.project" has been provided for @typescript-eslint/parser.
+  0:0  error  Parsing error: "parserOptions.project" has been provided for @typescript-eslint/parser.
+  0:0  error  Parsing error: "parserOptions.project" has been provided for @typescript-eslint/parser.
+  0:0  error  Parsing error: "parserOptions.project" has been provided for @typescript-eslint/parser.
+  0:0  error  Parsing error: "parserOptions.project" has been provided for @typescript-eslint/parser.
+  0:0  error  Parsing error: "parserOptions.project" has been provided for @typescript-eslint/parser.
+  0:0  error  Parsing error: "parserOptions.project" has been provided for @typescript-eslint/parser.
+  0:0  error  Parsing error: "parserOptions.project" has been provided for @typescript-eslint/parser.
+  0:0  error  Parsing error: "parserOptions.project" has been provided for @typescript-eslint/parser.
+  0:0  error  Parsing error: "parserOptions.project" has been provided for @typescript-eslint/parser.
+  0:0  error  Parsing error: "parserOptions.project" has been provided for @typescript-eslint/parser.
+  0:0  error  Parsing error: "parserOptions.project" has been provided for @typescript-eslint/parser.
+  0:0  error  Parsing error: "parserOptions.project" has been provided for @typescript-eslint/parser.
+  0:0  error  Parsing error: "parserOptions.project" has been provided for @typescript-eslint/parser.
+  0:0  error  Parsing error: "parserOptions.project" has been provided for @typescript-eslint/parser.
+  0:0  error  Parsing error: "parserOptions.project" has been provided for @typescript-eslint/parser.
+  0:0  error  Parsing error: "parserOptions.project" has been provided for @typescript-eslint/parser.
+  0:0  error  Parsing error: "parserOptions.project" has been provided for @typescript-eslint/parser.
+  0:0  error  Parsing error: "parserOptions.project" has been provided for @typescript-eslint/parser.
+  0:0  error  Parsing error: "parserOptions.project" has been provided for @typescript-eslint/parser.
+  0:0  error  Parsing error: "parserOptions.project" has been provided for @typescript-eslint/parser.
+  0:0  error  Parsing error: "parserOptions.project" has been provided for @typescript-eslint/parser.
+  0:0  error  Parsing error: "parserOptions.project" has been provided for @typescript-eslint/parser.
+  0:0  error  Parsing error: "parserOptions.project" has been provided for @typescript-eslint/parser.
+  0:0  error  Parsing error: "parserOptions.project" has been provided for @typescript-eslint/parser.
+  0:0  error  Parsing error: "parserOptions.project" has been provided for @typescript-eslint/parser.
+  0:0  error  Parsing error: "parserOptions.project" has been provided for @typescript-eslint/parser.
+  0:0  error  Parsing error: "parserOptions.project" has been provided for @typescript-eslint/parser.
+/home/runner/workspace/send-test-error-api.cjs
+   8:3   error  'console' is not defined  no-undef
+  45:25  error  'Buffer' is not defined   no-undef
+  58:9   error  'console' is not defined  no-undef
+  59:9   error  'console' is not defined  no-undef
+  62:11  error  'console' is not defined  no-undef
+  63:11  error  'console' is not defined  no-undef
+  64:11  error  'console' is not defined  no-undef
+  67:11  error  'console' is not defined  no-undef
+  74:7   error  'console' is not defined  no-undef
+  76:9   error  'console' is not defined  no-undef
+  77:9   error  'console' is not defined  no-undef
+  89:5   error  'console' is not defined  no-undef
+  90:5   error  'process' is not defined  no-undef
+  93:5   error  'console' is not defined  no-undef
+  94:5   error  'process' is not defined  no-undef
+/home/runner/workspace/send-test-error.cjs
+   9:22  error  '__dirname' is not defined  no-undef
+  14:3   error  'console' is not defined    no-undef
+  53:5   error  'console' is not defined    no-undef
+  54:5   error  'console' is not defined    no-undef
+  55:5   error  'console' is not defined    no-undef
+  56:5   error  'console' is not defined    no-undef
+  57:5   error  'console' is not defined    no-undef
+  58:5   error  'console' is not defined    no-undef
+  59:5   error  'console' is not defined    no-undef
+  60:5   error  'console' is not defined    no-undef
+  61:5   error  'console' is not defined    no-undef
+  62:5   error  'console' is not defined    no-undef
+  65:5   error  'console' is not defined    no-undef
+  66:5   error  'console' is not defined    no-undef
+  72:3   error  'console' is not defined    no-undef
+  73:3   error  'process' is not defined    no-undef
+  75:3   error  'console' is not defined    no-undef
+  76:3   error  'process' is not defined    no-undef
+/home/runner/workspace/send-test-error.js
+  0:0  error  Parsing error: "parserOptions.project" has been provided for @typescript-eslint/parser.
+The file was not found in any of the provided project(s): send-test-error.js
+  197:12  warning  'error' is defined but never used      @typescript-eslint/no-unused-vars
+   16:18  warning  'error' is defined but never used                     @typescript-eslint/no-unused-vars
+  626:14  warning  'error' is defined but never used                       @typescript-eslint/no-unused-vars
+  806:16  warning  'parseError' is defined but never used               @typescript-eslint/no-unused-vars
+  940:18  warning  'error' is defined but never used                    @typescript-eslint/no-unused-vars
+  250:18  warning  'error' is defined but never used  @typescript-eslint/no-unused-vars
+  416:14  warning  'error' is defined but never used                      @typescript-eslint/no-unused-vars
+  462:14  warning  'error' is defined but never used                      @typescript-eslint/no-unused-vars
+  491:14  warning  'error' is defined but never used                      @typescript-eslint/no-unused-vars
+  505:14  warning  'error' is defined but never used                      @typescript-eslint/no-unused-vars
+  268:16  warning  'newEmailError' is defined but never used  @typescript-eslint/no-unused-vars
+/home/runner/workspace/server/error-reporting-service.ts
+  358:14  warning  'error' is defined but never used                                  @typescript-eslint/no-unused-vars
+  268:14  warning  'error' is defined but never used                                  @typescript-eslint/no-unused-vars
+  353:14  warning  'error' is defined but never used                                  @typescript-eslint/no-unused-vars
+  119:14  warning  'error' is defined but never used            @typescript-eslint/no-unused-vars
+  117:14  warning  'error' is defined but never used  @typescript-eslint/no-unused-vars
+   53:18  warning  'error' is defined but never used  @typescript-eslint/no-unused-vars
+  345:14  warning  'error' is defined but never used  @typescript-eslint/no-unused-vars
+  468:16  warning  'error' is defined but never used  @typescript-eslint/no-unused-vars
+  493:14  warning  'error' is defined but never used  @typescript-eslint/no-unused-vars
+  187:14  warning  'error' is defined but never used  @typescript-eslint/no-unused-vars
+  204:14  warning  'error' is defined but never used  @typescript-eslint/no-unused-vars
+  236:14  warning  'error' is defined but never used  @typescript-eslint/no-unused-vars
+  312:14  warning  'error' is defined but never used        @typescript-eslint/no-unused-vars
+  345:16  warning  'secondError' is defined but never used  @typescript-eslint/no-unused-vars
+  375:14  warning  'error' is defined but never used  @typescript-eslint/no-unused-vars
+  396:14  warning  'piiError' is defined but never used                    @typescript-eslint/no-unused-vars
+  112:16  warning  'error' is defined but never used                 @typescript-eslint/no-unused-vars
+  137:14  warning  'error' is defined but never used                 @typescript-eslint/no-unused-vars
+  233:22  warning  'error' is defined but never used         @typescript-eslint/no-unused-vars
+  253:20  warning  'error' is defined but never used         @typescript-eslint/no-unused-vars
+  515:18  warning  'encryptError' is defined but never used  @typescript-eslint/no-unused-vars
+  671:20  warning  'error' is defined but never used         @typescript-eslint/no-unused-vars
+  753:24  warning  'error' is defined but never used         @typescript-eslint/no-unused-vars
+    74:18  warning  'error' is defined but never used                           @typescript-eslint/no-unused-vars
+   898:16  warning  'error' is defined but never used                           @typescript-eslint/no-unused-vars
+   923:14  warning  'error' is defined but never used                           @typescript-eslint/no-unused-vars
+   970:16  warning  'error' is defined but never used                           @typescript-eslint/no-unused-vars
+  3301:20  warning  'testError' is defined but never used                       @typescript-eslint/no-unused-vars
+  4048:16  warning  'error' is defined but never used                           @typescript-eslint/no-unused-vars
+   44:14  warning  'tierError' is defined but never used  @typescript-eslint/no-unused-vars
+    86:18  warning  'error' is defined but never used                        @typescript-eslint/no-unused-vars
+   104:18  warning  'error' is defined but never used                        @typescript-eslint/no-unused-vars
+   123:18  warning  'error' is defined but never used                        @typescript-eslint/no-unused-vars
+   62:16  warning  'error' is defined but never used          @typescript-eslint/no-unused-vars
+  161:18  warning  'error' is defined but never used          @typescript-eslint/no-unused-vars
+  0:0  error  Parsing error: "parserOptions.project" has been provided for @typescript-eslint/parser.
+  0:0  error  Parsing error: "parserOptions.project" has been provided for @typescript-eslint/parser.
+  0:0  error  Parsing error: "parserOptions.project" has been provided for @typescript-eslint/parser.
+/home/runner/workspace/test-error-reporting.js
+  0:0  error  Parsing error: "parserOptions.project" has been provided for @typescript-eslint/parser.
+The file was not found in any of the provided project(s): test-error-reporting.js
+  0:0  error  Parsing error: "parserOptions.project" has been provided for @typescript-eslint/parser.
+  0:0  error  Parsing error: "parserOptions.project" has been provided for @typescript-eslint/parser.
+  0:0  error  Parsing error: "parserOptions.project" has been provided for @typescript-eslint/parser.
+  0:0  error  Parsing error: "parserOptions.project" has been provided for @typescript-eslint/parser.
+  0:0  error  Parsing error: "parserOptions.project" has been provided for @typescript-eslint/parser.
+  0:0  error  Parsing error: "parserOptions.project" has been provided for @typescript-eslint/parser.
+  0:0  error  Parsing error: "parserOptions.project" has been provided for @typescript-eslint/parser.
+  0:0  error  Parsing error: "parserOptions.project" has been provided for @typescript-eslint/parser.
