@@ -83,46 +83,46 @@ export function Footer() {
         aria-label="Site footer"
       >
       {/* Mobile Layout - Compact single line */}
-      <div className="md:hidden px-4 py-2">
-        <div className="flex justify-center text-xs">
+      <div className="md:hidden px-3 py-1.5">
+        <div className="flex justify-center text-[11px] leading-tight tracking-tight">
           {/* Links only - no copyright to save space */}
-          <div className="flex w-full flex-wrap items-center justify-center gap-x-3 gap-y-1 text-center">
+          <div className="flex w-full flex-nowrap items-center justify-center gap-2 text-center">
             <Link
               to="/privacy"
-              className="inline-flex items-center justify-center gap-1 px-2 py-1 text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200 transition-colors"
+              className="inline-flex items-center justify-center gap-1 px-1.5 py-0.5 text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200 transition-colors"
             >
               Privacy
             </Link>
             <Link
               to="/terms"
-              className="inline-flex items-center justify-center gap-1 px-2 py-1 text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200 transition-colors"
+              className="inline-flex items-center justify-center gap-1 px-1.5 py-0.5 text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200 transition-colors"
             >
               Terms
             </Link>
             <Link
               to="/cookies"
-              className="inline-flex items-center justify-center gap-1 px-2 py-1 text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-200 transition-colors"
+              className="inline-flex items-center justify-center gap-1 px-1.5 py-0.5 text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-200 transition-colors"
             >
               <Cookie className="w-3 h-3" />
               Cookies
             </Link>
             <Link
               to="/donate"
-              className="inline-flex items-center justify-center gap-1 px-2 py-1 text-red-600 dark:text-red-400 hover:text-red-700 dark:hover:text-red-300 transition-colors"
+              className="inline-flex items-center justify-center gap-1 px-1.5 py-0.5 text-red-600 dark:text-red-400 hover:text-red-700 dark:hover:text-red-300 transition-colors"
             >
               <Heart className="w-3 h-3" />
               Donate
             </Link>
             <button
               onClick={handleShareClick}
-              className="inline-flex items-center justify-center gap-1 px-2 py-1 text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 transition-colors"
+              className="inline-flex items-center justify-center gap-1 px-1.5 py-0.5 text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 transition-colors"
             >
               <Share2 className="w-3 h-3" />
               Share
             </button>
             <a
               href="mailto:admin@readmyfineprint.com"
-              className="inline-flex items-center justify-center gap-1 px-2 py-1 text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200 transition-colors"
+              className="inline-flex items-center justify-center gap-1 px-1.5 py-0.5 text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200 transition-colors"
             >
               Contact
             </a>

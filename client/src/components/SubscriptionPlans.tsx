@@ -142,18 +142,12 @@ interface SubscriptionPlansProps {
 
 const getTierIcon = (tierId: string) => {
   switch (tierId) {
-    case "free":
-      return <Zap className="h-6 w-6" />;
-    case "starter":
-      return <Star className="h-6 w-6" />;
-    case "professional":
-      return <Crown className="h-6 w-6" />;
-    case "business":
-      return <Sparkles className="h-6 w-6" />;
-    case "enterprise":
-      return <AlertTriangle className="h-6 w-6" />;
-    default:
-      return <Zap className="h-6 w-6" />;
+    case 'free': return <Zap className="h-6 w-6" />;
+    case 'starter': return <Star className="h-6 w-6" />;
+    case 'professional': return <Crown className="h-6 w-6" />;
+    case 'business': return <Sparkles className="h-6 w-6" />;
+    case 'enterprise': return <AlertTriangle className="h-6 w-6" />;
+    default: return <Zap className="h-6 w-6" />;
   }
 };
 
@@ -493,13 +487,13 @@ export default function SubscriptionPlans({
               {/* Action Button */}
               <div className="mt-auto pt-4 space-y-3">
                 <Link to="/roadmap">
-                  <Button
-                    className="w-full py-4 text-base font-medium bg-purple-600 hover:bg-purple-700 text-white justify-between"
+                  <Buttonp
+                    className="w-full items-center justify-center gap-2 py-3 text-sm font-semibold bg-purple-600 hover:bg-purple-700 text-white"
                     variant="default"
                   >
-                    <Target className="w-4 h-4" aria-hidden="true" />
-                    <span className="flex-1 text-center">View Development Roadmap</span>
-                    <ArrowRight className="w-4 h-4" aria-hidden="true" />
+                    <Target className="h-5 w-5" aria-hidden="true" />
+                    <span className="whitespace-nowrap">View Development Roadmap</span>
+                    <ArrowRight className="h-5 w-5" aria-hidden="true" />
                   </Button>
                 </Link>
                 <Button

@@ -4,16 +4,14 @@ import { useQuery } from '@tanstack/react-query';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogTrigger } from '@/components/ui/dialog';
 import { Sheet, SheetContent, SheetTrigger, SheetClose } from '@/components/ui/sheet';
-import { 
-  Crown, 
-  Shield,
+import {
+  Crown,
   BookOpen,
-  Target, 
-  Settings, 
-  Heart, 
-  Moon, 
-  Sun, 
-  LogOut, 
+  Settings,
+  Heart,
+  Moon,
+  Sun,
+  LogOut,
   Menu,
   Loader2
 } from 'lucide-react';
@@ -510,22 +508,7 @@ export function Header() {
                     </SheetClose>
                     
                     <SheetClose asChild>
-                      <Link to="/trust">
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          className="w-full justify-start h-10 transition-all duration-200 active:scale-95"
-                          aria-label="Trust and security information"
-                          data-testid="nav-trust-mobile"
-                        >
-                          <Shield className="w-4 h-4 mr-3 text-green-600 dark:text-green-400" aria-hidden="true" />
-                          Trust
-                        </Button>
-                      </Link>
-                    </SheetClose>
-                    
-                    <SheetClose asChild>
-                      <Link to="/roadmap">
+                      <Link to="/blog">
                         <Button
                           variant="ghost"
                           size="sm"
