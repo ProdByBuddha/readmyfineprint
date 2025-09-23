@@ -68,7 +68,7 @@ class ErrorReporter {
    */
   async reportApiError(error: any, endpoint: string, method: string = 'GET') {
     const severity = this.determineSeverity(error);
-    
+
     await this.reportError({
       errorType: 'api',
       severity,
@@ -176,7 +176,7 @@ class ErrorReporter {
         } catch (fetchError: any) {
           lastError = fetchError;
           console.warn(`Error reporting attempt ${attempts + 1} failed:`, fetchError.message);
-          
+
           // Don't retry for non-network errors
           if (!fetchError.message?.includes('fetch') && !fetchError.name?.includes('Abort')) {
             break;
@@ -191,8 +191,8 @@ class ErrorReporter {
       }
 
       console.error('Failed to report error after all attempts:', lastError);
-    } catch (reportingError) {
-      console.error('Error reporting failed:', reportingError);
+    } catch (_reportingError) {
+      console.error('Error reporting failed:', _reportingError);
       // Don't try to report the reporting error to avoid infinite loops
     }
   }
@@ -251,14 +251,14 @@ class ErrorReporter {
 export const errorReporter = ErrorReporter.getInstance();
 
 // Export utility functions for easy use
-export const reportApiError = (error: any, endpoint: string, method?: string) => 
+export const reportApiError = (error: any, endpoint: string, method?: string) =>
   errorReporter.reportApiError(error, endpoint, method);
 
-export const reportNetworkError = (error: any, url: string) => 
+export const reportNetworkError = (error: any, url: string) =>
   errorReporter.reportNetworkError(error, url);
 
-export const reportAuthError = (message: string, context?: Record<string, any>) => 
+export const reportAuthError = (message: string, context?: Record<string, any>) =>
   errorReporter.reportAuthError(message, context);
 
-export const reportCriticalError = (message: string, context?: Record<string, any>) => 
+export const reportCriticalError = (message: string, context?: Record<string, any>) =>
   errorReporter.reportCriticalError(message, context);

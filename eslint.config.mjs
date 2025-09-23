@@ -1,4 +1,3 @@
-
 import js from '@eslint/js';
 import tseslint from '@typescript-eslint/eslint-plugin';
 import tsparser from '@typescript-eslint/parser';
@@ -59,7 +58,9 @@ export default [
         window: 'readonly',
         document: 'readonly',
         navigator: 'readonly',
-        fetch: 'readonly'
+        fetch: 'readonly',
+        AbortSignal: 'readonly',
+        btoa: 'readonly'
       }
     },
     plugins: {
@@ -71,7 +72,7 @@ export default [
       'no-console': 'warn',
       'no-debugger': 'error',
       'no-unused-vars': 'off',
-      '@typescript-eslint/no-unused-vars': ['warn', { 
+      '@typescript-eslint/no-unused-vars': ['warn', {
         'argsIgnorePattern': '^_',
         'varsIgnorePattern': '^_',
         'caughtErrorsIgnorePattern': '^_'
