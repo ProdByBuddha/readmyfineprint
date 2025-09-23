@@ -1,0 +1,896 @@
+~/workspace$ npm run lint
+
+> readmyfineprint@2.0.0 lint
+> eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 2000 || echo 'Linter warnings detected but not blocking build'
+
+Failed to import ESLint plugins: Error [ERR_MODULE_NOT_FOUND]: Cannot find package '@eslint/js' imported from /home/runner/workspace/eslint.config.mjs
+    at packageResolve (node:internal/modules/esm/resolve:854:9)
+    at moduleResolve (node:internal/modules/esm/resolve:927:18)
+    at defaultResolve (node:internal/modules/esm/resolve:1157:11)
+    at ModuleLoader.defaultResolve (node:internal/modules/esm/loader:390:12)
+    at ModuleLoader.resolve (node:internal/modules/esm/loader:359:25)
+    at ModuleLoader.getModuleJob (node:internal/modules/esm/loader:234:38)
+    at ModuleLoader.import (node:internal/modules/esm/loader:322:34)
+    at importModuleDynamically (node:internal/modules/esm/translators:160:35)
+    at importModuleDynamicallyCallback (node:internal/modules/esm/utils:225:14)
+    at createEslintConfig (file:///home/runner/workspace/eslint.config.mjs?mtime=1758630493165:8:22) {
+  code: 'ERR_MODULE_NOT_FOUND'
+}
+
+/home/runner/workspace/client/src/App.tsx
+  51:3  error  Parsing error: Unexpected token <
+
+/home/runner/workspace/client/src/components/AccountDeletion.tsx
+  26:1  error  Parsing error: The keyword 'interface' is reserved
+
+/home/runner/workspace/client/src/components/AdminEmailChangeRequests.tsx
+  17:13  error  Parsing error: Unexpected token {
+
+/home/runner/workspace/client/src/components/AdminSecurityOverview.tsx
+  30:1  error  Parsing error: The keyword 'interface' is reserved
+
+/home/runner/workspace/client/src/components/AdvancedAnalytics.tsx
+  24:1  error  Parsing error: The keyword 'interface' is reserved
+
+/home/runner/workspace/client/src/components/AgeVerification.tsx
+  11:1  error  Parsing error: The keyword 'interface' is reserved
+
+/home/runner/workspace/client/src/components/AnalysisResults.tsx
+  5:13  error  Parsing error: Unexpected token {
+
+/home/runner/workspace/client/src/components/ApiKeyManagement.tsx
+  22:1  error  Parsing error: The keyword 'interface' is reserved
+
+/home/runner/workspace/client/src/components/BadLeaseExample.tsx
+  151:1  error  Parsing error: The keyword 'interface' is reserved
+
+/home/runner/workspace/client/src/components/BasicStripeProvider.tsx
+  5:1  error  Parsing error: The keyword 'interface' is reserved
+
+/home/runner/workspace/client/src/components/BlogAdmin.tsx
+  33:1  error  Parsing error: The keyword 'interface' is reserved
+
+/home/runner/workspace/client/src/components/CcpaDisclosure.tsx
+  10:1  error  Parsing error: The keyword 'interface' is reserved
+
+/home/runner/workspace/client/src/components/CombinedConsent.tsx
+  11:1  error  Parsing error: The keyword 'interface' is reserved
+
+/home/runner/workspace/client/src/components/ComplianceReporting.tsx
+  34:1  error  Parsing error: The keyword 'interface' is reserved
+
+/home/runner/workspace/client/src/components/CookieConsent.tsx
+  38:47  error  Parsing error: Unexpected token :
+
+/home/runner/workspace/client/src/components/CookieConsentBanner.tsx
+  7:1  error  Parsing error: The keyword 'interface' is reserved
+
+/home/runner/workspace/client/src/components/CookieManagement.tsx
+  9:1  error  Parsing error: The keyword 'interface' is reserved
+
+/home/runner/workspace/client/src/components/CookiePolicy.tsx
+  10:5  error  Parsing error: Unexpected token <
+
+/home/runner/workspace/client/src/components/DataExportButton.tsx
+  10:23  error  Parsing error: Unexpected token :
+
+/home/runner/workspace/client/src/components/DocumentHistory.tsx
+  12:13  error  Parsing error: Unexpected token {
+
+/home/runner/workspace/client/src/components/EmailRecoveryForm.tsx
+  18:13  error  Parsing error: Unexpected token {
+
+/home/runner/workspace/client/src/components/ErrorBoundary.tsx
+  6:1  error  Parsing error: The keyword 'interface' is reserved
+
+/home/runner/workspace/client/src/components/ExpressCheckoutForm.tsx
+  17:48  error  Parsing error: Unexpected token :
+
+/home/runner/workspace/client/src/components/FileUpload.tsx
+  11:1  error  Parsing error: The keyword 'interface' is reserved
+
+/home/runner/workspace/client/src/components/Footer.tsx
+  36:5  error  Parsing error: Unexpected token <
+
+/home/runner/workspace/client/src/components/Header.tsx
+  30:1  error  Parsing error: The keyword 'interface' is reserved
+
+/home/runner/workspace/client/src/components/LawEnforcementRequest.tsx
+  14:1  error  Parsing error: The keyword 'interface' is reserved
+
+/home/runner/workspace/client/src/components/LegalDisclaimer.tsx
+  17:1  error  Parsing error: The keyword 'interface' is reserved
+
+/home/runner/workspace/client/src/components/LegalProfessionalVerification.tsx
+  13:1  error  Parsing error: The keyword 'interface' is reserved
+
+/home/runner/workspace/client/src/components/LoadingStates.tsx
+  7:5  error  Parsing error: Unexpected token <
+
+/home/runner/workspace/client/src/components/LoginForm.tsx
+  8:1  error  Parsing error: The keyword 'interface' is reserved
+
+/home/runner/workspace/client/src/components/Logo.tsx
+  2:1  error  Parsing error: The keyword 'interface' is reserved
+
+/home/runner/workspace/client/src/components/MailingListModal.tsx
+  9:1  error  Parsing error: The keyword 'interface' is reserved
+
+/home/runner/workspace/client/src/components/MobileAppWrapper.tsx
+  7:1  error  Parsing error: The keyword 'interface' is reserved
+
+/home/runner/workspace/client/src/components/NetworkFallbackDonation.tsx
+  8:1  error  Parsing error: The keyword 'interface' is reserved
+
+/home/runner/workspace/client/src/components/PIIRedactionInfo.tsx
+  22:13  error  Parsing error: Unexpected token {
+
+/home/runner/workspace/client/src/components/PageTransition.tsx
+  4:1  error  Parsing error: The keyword 'interface' is reserved
+
+/home/runner/workspace/client/src/components/PiiDetectionFeedback.tsx
+  17:8  error  Parsing error: Unexpected token interface
+
+/home/runner/workspace/client/src/components/PrivacyPolicy.tsx
+  7:5  error  Parsing error: Unexpected token <
+
+/home/runner/workspace/client/src/components/SEOBreadcrumbs.tsx
+  6:1  error  Parsing error: The keyword 'interface' is reserved
+
+/home/runner/workspace/client/src/components/SampleContracts.tsx
+  5:1  error  Parsing error: The keyword 'interface' is reserved
+
+/home/runner/workspace/client/src/components/ScrollToTop.tsx
+  32:5  error  Parsing error: Unexpected token <
+
+/home/runner/workspace/client/src/components/SecurityBadges.tsx
+  3:1  error  Parsing error: The keyword 'interface' is reserved
+
+/home/runner/workspace/client/src/components/SecurityCenter.tsx
+  40:1  error  Parsing error: The keyword 'interface' is reserved
+
+/home/runner/workspace/client/src/components/SecurityQuestionsModal.tsx
+  7:1  error  Parsing error: The keyword 'interface' is reserved
+
+/home/runner/workspace/client/src/components/SecurityQuestionsSetup.tsx
+  11:1  error  Parsing error: The keyword 'interface' is reserved
+
+/home/runner/workspace/client/src/components/SimplePaymentForm.tsx
+  9:1  error  Parsing error: The keyword 'interface' is reserved
+
+/home/runner/workspace/client/src/components/SimpleStripeTest.tsx
+  5:57  error  Parsing error: Unexpected token ]
+
+/home/runner/workspace/client/src/components/SkipLinks.tsx
+  2:1  error  Parsing error: The keyword 'interface' is reserved
+
+/home/runner/workspace/client/src/components/SocialShare.tsx
+  7:1  error  Parsing error: The keyword 'interface' is reserved
+
+/home/runner/workspace/client/src/components/StripeDebug.tsx
+  18:17  error  Parsing error: Unexpected token :
+
+/home/runner/workspace/client/src/components/StripePaymentForm.tsx
+  15:1  error  Parsing error: The keyword 'interface' is reserved
+
+/home/runner/workspace/client/src/components/StripeWrapper.tsx
+  10:1  error  Parsing error: The keyword 'interface' is reserved
+
+/home/runner/workspace/client/src/components/SubscriptionLogin.tsx
+  16:1  error  Parsing error: The keyword 'interface' is reserved
+
+/home/runner/workspace/client/src/components/SubscriptionPlans.tsx
+  21:1  error  Parsing error: The keyword 'interface' is reserved
+
+/home/runner/workspace/client/src/components/TermsOfService.tsx
+  14:5  error  Parsing error: Unexpected token <
+
+/home/runner/workspace/client/src/components/ThemeProvider.tsx
+  4:6  error  Parsing error: Unexpected token Theme
+
+/home/runner/workspace/client/src/components/TotpManager.tsx
+  12:1  error  Parsing error: The keyword 'interface' is reserved
+
+/home/runner/workspace/client/src/components/TotpSetup.tsx
+  11:1  error  Parsing error: The keyword 'interface' is reserved
+
+/home/runner/workspace/client/src/components/TouchScrollContainer.tsx
+  4:1  error  Parsing error: The keyword 'interface' is reserved
+
+/home/runner/workspace/client/src/components/TradeSecretProtection.tsx
+  13:28  error  Parsing error: Unexpected token :
+
+/home/runner/workspace/client/src/components/UserSecuritySettings.tsx
+  30:1  error  Parsing error: The keyword 'interface' is reserved
+
+/home/runner/workspace/client/src/components/donation-form.tsx
+  9:1  error  Parsing error: The keyword 'interface' is reserved
+
+/home/runner/workspace/client/src/components/payment-interface.tsx
+  3:1  error  Parsing error: The keyword 'interface' is reserved
+
+/home/runner/workspace/client/src/components/ui/accordion.tsx
+  10:51  error  Parsing error: Unexpected token ,
+
+/home/runner/workspace/client/src/components/ui/alert-dialog.tsx
+  14:56  error  Parsing error: Unexpected token ,
+
+/home/runner/workspace/client/src/components/ui/alert.tsx
+  2:20  error  Parsing error: Unexpected token VariantProps
+
+/home/runner/workspace/client/src/components/ui/avatar.tsx
+  9:48  error  Parsing error: Unexpected token ,
+
+/home/runner/workspace/client/src/components/ui/badge.tsx
+  2:20  error  Parsing error: Unexpected token VariantProps
+
+/home/runner/workspace/client/src/components/ui/breadcrumb.tsx
+  9:3  error  Parsing error: Identifier 'React' has already been declared
+
+/home/runner/workspace/client/src/components/ui/button.tsx
+  3:20  error  Parsing error: Unexpected token VariantProps
+
+/home/runner/workspace/client/src/components/ui/calendar.tsx
+  8:8  error  Parsing error: Unexpected token type
+
+/home/runner/workspace/client/src/components/ui/card.tsx
+  7:3  error  Parsing error: Identifier 'React' has already been declared
+
+/home/runner/workspace/client/src/components/ui/carousel.tsx
+  3:8  error  Parsing error: Unexpected token UseEmblaCarouselType
+
+/home/runner/workspace/client/src/components/ui/chart.tsx
+  9:45  error  Parsing error: Unexpected token as
+
+/home/runner/workspace/client/src/components/ui/checkbox.tsx
+  8:50  error  Parsing error: Unexpected token ,
+
+/home/runner/workspace/client/src/components/ui/command.tsx
+  2:15  error  Parsing error: Unexpected token DialogProps
+
+/home/runner/workspace/client/src/components/ui/context-menu.tsx
+  20:59  error  Parsing error: Unexpected token ,
+
+/home/runner/workspace/client/src/components/ui/dialog.tsx
+  18:51  error  Parsing error: Unexpected token ,
+
+/home/runner/workspace/client/src/components/ui/drawer.tsx
+  11:2  error  Parsing error: Unexpected token :
+
+/home/runner/workspace/client/src/components/ui/dropdown-menu.tsx
+  20:60  error  Parsing error: Unexpected token ,
+
+/home/runner/workspace/client/src/components/ui/form.tsx
+  10:8  error  Parsing error: Unexpected token ControllerProps
+
+/home/runner/workspace/client/src/components/ui/hover-card.tsx
+  13:54  error  Parsing error: Unexpected token ,
+
+/home/runner/workspace/client/src/components/ui/input-otp.tsx
+  8:36  error  Parsing error: Unexpected token ,
+
+/home/runner/workspace/client/src/components/ui/input.tsx
+  5:8  error  Parsing error: Unexpected token interface
+
+/home/runner/workspace/client/src/components/ui/label.tsx
+  3:20  error  Parsing error: Unexpected token VariantProps
+
+/home/runner/workspace/client/src/components/ui/menubar.tsx
+  11:2  error  Parsing error: Unexpected token :
+
+/home/runner/workspace/client/src/components/ui/navigation-menu.tsx
+  9:56  error  Parsing error: Unexpected token ,
+
+/home/runner/workspace/client/src/components/ui/pagination.tsx
+  7:44  error  Parsing error: Unexpected token :
+
+/home/runner/workspace/client/src/components/ui/popover.tsx
+  11:52  error  Parsing error: Unexpected token ,
+
+/home/runner/workspace/client/src/components/ui/progress.tsx
+  9:50  error  Parsing error: Unexpected token ,
+
+/home/runner/workspace/client/src/components/ui/radio-group.tsx
+  8:52  error  Parsing error: Unexpected token ,
+
+/home/runner/workspace/client/src/components/ui/resizable.tsx
+  11:2  error  Parsing error: Unexpected token :
+
+/home/runner/workspace/client/src/components/ui/scroll-area.tsx
+  7:52  error  Parsing error: Unexpected token ,
+
+/home/runner/workspace/client/src/components/ui/select.tsx
+  16:51  error  Parsing error: Unexpected token ,
+
+/home/runner/workspace/client/src/components/ui/separator.tsx
+  7:51  error  Parsing error: Unexpected token ,
+
+/home/runner/workspace/client/src/components/ui/sheet.tsx
+  5:20  error  Parsing error: Unexpected token VariantProps
+
+/home/runner/workspace/client/src/components/ui/sidebar.tsx
+  33:6  error  Parsing error: Unexpected token SidebarContextProps
+
+/home/runner/workspace/client/src/components/ui/skeleton.tsx
+  6:2  error  Parsing error: Unexpected token :
+
+/home/runner/workspace/client/src/components/ui/slider.tsx
+  7:48  error  Parsing error: Unexpected token ,
+
+/home/runner/workspace/client/src/components/ui/switch.tsx
+  7:49  error  Parsing error: Unexpected token ,
+
+/home/runner/workspace/client/src/components/ui/table.tsx
+  7:3  error  Parsing error: Identifier 'React' has already been declared
+
+/home/runner/workspace/client/src/components/ui/tabs.tsx
+  9:46  error  Parsing error: Unexpected token ,
+
+/home/runner/workspace/client/src/components/ui/textarea.tsx
+  5:8  error  Parsing error: Unexpected token interface
+
+/home/runner/workspace/client/src/components/ui/toast.tsx
+  3:20  error  Parsing error: Unexpected token VariantProps
+
+/home/runner/workspace/client/src/components/ui/toaster.tsx
+  15:5  error  Parsing error: Unexpected token <
+
+/home/runner/workspace/client/src/components/ui/toggle-group.tsx
+  5:15  error  Parsing error: Unexpected token VariantProps
+
+/home/runner/workspace/client/src/components/ui/toggle.tsx
+  3:20  error  Parsing error: Unexpected token VariantProps
+
+/home/runner/workspace/client/src/components/ui/tooltip.tsx
+  15:52  error  Parsing error: Unexpected token ,
+
+/home/runner/workspace/client/src/contexts/SecurityQuestionsContext.tsx
+  4:1  error  Parsing error: The keyword 'interface' is reserved
+
+/home/runner/workspace/client/src/hooks/use-pull-to-refresh.tsx
+  3:1  error  Parsing error: The keyword 'interface' is reserved
+
+/home/runner/workspace/client/src/hooks/use-toast.ts
+  3:13  error  Parsing error: Unexpected token {
+
+/home/runner/workspace/client/src/hooks/useAccessibility.ts
+  4:1  error  Parsing error: The keyword 'interface' is reserved
+
+/home/runner/workspace/client/src/hooks/useCookieConsent.ts
+  5:1  error  Parsing error: The keyword 'interface' is reserved
+
+/home/runner/workspace/client/src/hooks/useDeviceFingerprint.ts
+  5:1  error  Parsing error: The keyword 'interface' is reserved
+
+/home/runner/workspace/client/src/hooks/useDonationTracking.ts
+  4:1  error  Parsing error: The keyword 'interface' is reserved
+
+/home/runner/workspace/client/src/hooks/useLegalDisclaimer.ts
+  4:1  error  Parsing error: The keyword 'interface' is reserved
+
+/home/runner/workspace/client/src/hooks/useSecurityQuestionsHandler.ts
+  4:1  error  Parsing error: The keyword 'interface' is reserved
+
+/home/runner/workspace/client/src/hooks/useStableCallback.ts
+  7:34  error  Parsing error: Unexpected token <
+
+/home/runner/workspace/client/src/hooks/useThemePreference.ts
+  4:6  error  Parsing error: Unexpected token Theme
+
+/home/runner/workspace/client/src/lib/api.ts
+  2:13  error  Parsing error: Unexpected token {
+
+/home/runner/workspace/client/src/lib/auth-fetch.ts
+  7:24  error  Parsing error: Unexpected token :
+
+/home/runner/workspace/client/src/lib/csrfManager.ts
+  7:11  error  Parsing error: Unexpected token token
+
+/home/runner/workspace/client/src/lib/error-reporter.ts
+  5:1  error  Parsing error: The keyword 'interface' is reserved
+
+/home/runner/workspace/client/src/lib/indexnow.ts
+  6:1  error  Parsing error: The keyword 'interface' is reserved
+
+/home/runner/workspace/client/src/lib/queryClient.ts
+  5:31  error  Parsing error: Unexpected token :
+
+/home/runner/workspace/client/src/lib/safeDispatchEvent.ts
+  1:8  error  Parsing error: Unexpected token interface
+
+/home/runner/workspace/client/src/lib/seo.ts
+  4:1  error  Parsing error: The keyword 'interface' is reserved
+
+/home/runner/workspace/client/src/lib/sessionManager.ts
+  9:20  error  Parsing error: Unexpected token :
+
+/home/runner/workspace/client/src/lib/utils.ts
+  1:21  error  Parsing error: Unexpected token ClassValue
+
+/home/runner/workspace/client/src/main.tsx
+  7:9  error  Parsing error: Unexpected token as
+
+/home/runner/workspace/client/src/pages/EmailRecovery.tsx
+  25:45  error  Parsing error: Unexpected token :
+
+/home/runner/workspace/client/src/pages/about.tsx
+  179:5  error  Parsing error: Unexpected token <
+
+/home/runner/workspace/client/src/pages/admin-indexnow.tsx
+  9:1  error  Parsing error: The keyword 'interface' is reserved
+
+/home/runner/workspace/client/src/pages/admin.tsx
+  75:1  error  Parsing error: The keyword 'interface' is reserved
+
+/home/runner/workspace/client/src/pages/blog-fixed.tsx
+  8:1  error  Parsing error: The keyword 'interface' is reserved
+
+/home/runner/workspace/client/src/pages/blog-post.tsx
+  29:1  error  Parsing error: The keyword 'interface' is reserved
+
+/home/runner/workspace/client/src/pages/blog-simple.tsx
+  6:1  error  Parsing error: The keyword 'interface' is reserved
+
+/home/runner/workspace/client/src/pages/blog-test.tsx
+  4:42  error  Parsing error: Unexpected token ]
+
+/home/runner/workspace/client/src/pages/blog.tsx
+  28:1  error  Parsing error: The keyword 'interface' is reserved
+
+/home/runner/workspace/client/src/pages/contact.tsx
+  48:6  error  Parsing error: Unexpected token ContactFormData
+
+/home/runner/workspace/client/src/pages/cookies.tsx
+  20:5  error  Parsing error: Unexpected token <
+
+/home/runner/workspace/client/src/pages/donate.tsx
+  18:1  error  Parsing error: The keyword 'interface' is reserved
+
+/home/runner/workspace/client/src/pages/home.tsx
+  140:21  error  Parsing error: Unexpected token :
+
+/home/runner/workspace/client/src/pages/not-found.tsx
+  9:5  error  Parsing error: Unexpected token <
+
+/home/runner/workspace/client/src/pages/privacy.tsx
+  6:5  error  Parsing error: Unexpected token <
+
+/home/runner/workspace/client/src/pages/roadmap.tsx
+  144:31  error  Parsing error: Unexpected token :
+
+/home/runner/workspace/client/src/pages/settings.tsx
+  38:1  error  Parsing error: The keyword 'interface' is reserved
+
+/home/runner/workspace/client/src/pages/subscription.tsx
+  26:1  error  Parsing error: The keyword 'interface' is reserved
+
+/home/runner/workspace/client/src/pages/terms.tsx
+  6:5  error  Parsing error: Unexpected token <
+
+/home/runner/workspace/client/src/pages/trust.tsx
+  19:31  error  Parsing error: Unexpected token :
+
+/home/runner/workspace/client/src/pages/unsubscribe.tsx
+  5:22  error  Parsing error: Unexpected token :
+
+/home/runner/workspace/client/src/pages/upload.tsx
+  37:13  error  Parsing error: Unexpected token {
+
+/home/runner/workspace/client/src/utils/deviceFingerprint.ts
+  6:9  error  Parsing error: Unexpected token const
+
+/home/runner/workspace/client/src/utils/pdfExport.ts
+  3:13  error  Parsing error: Unexpected token {
+
+/home/runner/workspace/client/src/vite-env.d.ts
+  3:1  error  Parsing error: The keyword 'interface' is reserved
+
+/home/runner/workspace/coverage/lcov-report/block-navigation.js
+  1:1  error  Unused eslint-disable directive (no problems were reported)
+
+/home/runner/workspace/coverage/lcov-report/prettify.js
+  1:1  error  Unused eslint-disable directive (no problems were reported)
+
+/home/runner/workspace/coverage/lcov-report/sorter.js
+  1:1  error  Unused eslint-disable directive (no problems were reported)
+
+/home/runner/workspace/scripts/add-jwt-security-tables.ts
+  120:51  error  Parsing error: Unexpected token :
+
+/home/runner/workspace/scripts/add-security-questions-table.ts
+  56:29  error  Parsing error: Unexpected token :
+
+/home/runner/workspace/scripts/aggressive-rate-test.ts
+  9:11  error  Parsing error: Unexpected token baseUrl
+
+/home/runner/workspace/scripts/check-db-migrations.ts
+  31:28  error  Parsing error: Unexpected token :
+
+/home/runner/workspace/scripts/final-individual-test.ts
+  98:17  error  Parsing error: Unexpected token :
+
+/home/runner/workspace/scripts/get-admin-code.ts
+  24:46  error  Parsing error: Unexpected token as
+
+/home/runner/workspace/scripts/hash-identified-data.ts
+  24:49  error  Parsing error: Unexpected token !
+
+/home/runner/workspace/scripts/hash-unhashed-data.ts
+  32:49  error  Parsing error: Unexpected token !
+
+/home/runner/workspace/scripts/init-stripe-now.ts
+  7:36  error  Parsing error: Unexpected token :
+
+/home/runner/workspace/scripts/scan-unhashed-data-simple.ts
+  19:49  error  Parsing error: Unexpected token !
+
+/home/runner/workspace/scripts/scan-unhashed-data.ts
+  24:49  error  Parsing error: Unexpected token !
+
+/home/runner/workspace/scripts/security-audit.ts
+  16:1  error  Parsing error: The keyword 'interface' is reserved
+
+/home/runner/workspace/scripts/setup-local-db.ts
+  29:19  error  Parsing error: Unexpected token :
+
+/home/runner/workspace/scripts/setup-local-llm.ts
+  14:11  error  Parsing error: Unexpected token ollamaUrl
+
+/home/runner/workspace/scripts/setup-nodejs-llm.ts
+  11:1  error  Parsing error: The keyword 'interface' is reserved
+
+/home/runner/workspace/scripts/setup-replit-llm.ts
+  15:11  error  Parsing error: Unexpected token pythonScript
+
+/home/runner/workspace/scripts/simple-rate-test.ts
+  8:1  error  Parsing error: The keyword 'interface' is reserved
+
+/home/runner/workspace/scripts/test-anonymous-monthly-limit.ts
+  7:1  error  Parsing error: The keyword 'interface' is reserved
+
+/home/runner/workspace/scripts/test-backup-restoration.ts
+  12:1  error  Parsing error: The keyword 'interface' is reserved
+
+/home/runner/workspace/scripts/test-csrf-functionality.ts
+  3:1  error  Parsing error: The keyword 'interface' is reserved
+
+/home/runner/workspace/scripts/test-hybrid-crypto.ts
+  10:13  error  Parsing error: Unexpected token {
+
+/home/runner/workspace/scripts/test-individual-anonymous-limits.ts
+  7:50  error  Parsing error: Unexpected token :
+
+/home/runner/workspace/scripts/test-jwt-security-fixes.ts
+  12:1  error  Parsing error: The keyword 'interface' is reserved
+
+/home/runner/workspace/scripts/test-monthly-limit-fast.ts
+  7:50  error  Parsing error: Unexpected token :
+
+/home/runner/workspace/scripts/test-postgresql-session-storage.ts
+  9:29  error  Parsing error: Unexpected token :
+
+/home/runner/workspace/scripts/test-rate-limiting.ts
+  10:1  error  Parsing error: The keyword 'interface' is reserved
+
+/home/runner/workspace/scripts/test-russian-doll-hashing.ts
+  104:13  error  Parsing error: Unexpected token as
+
+/home/runner/workspace/scripts/test-simple-individual-limits.ts
+  7:47  error  Parsing error: Unexpected token :
+
+/home/runner/workspace/scripts/test-subscription-system.ts
+  17:1  error  Parsing error: The keyword 'interface' is reserved
+
+/home/runner/workspace/scripts/validate-security.ts
+  21:1  error  Parsing error: The keyword 'interface' is reserved
+
+/home/runner/workspace/server/account-deletion-service.ts
+  12:64  error  Parsing error: Unexpected token !
+
+/home/runner/workspace/server/admin-routes.ts
+  16:56  error  Parsing error: Unexpected token !
+
+/home/runner/workspace/server/admin-verification.ts
+  6:1  error  Parsing error: The keyword 'interface' is reserved
+
+/home/runner/workspace/server/age-verification-routes.ts
+  1:13  error  Parsing error: Unexpected token {
+
+/home/runner/workspace/server/argon2.ts
+  23:26  error  Parsing error: Unexpected token :
+
+/home/runner/workspace/server/asvs-compliance-middleware.ts
+  16:38  error  Parsing error: Unexpected token :
+
+/home/runner/workspace/server/auth.ts
+  2:13  error  Parsing error: Unexpected token {
+
+/home/runner/workspace/server/auto-indexnow.ts
+  5:11  error  Parsing error: Unexpected token submissionQueue
+
+/home/runner/workspace/server/backup-monitoring.ts
+  10:1  error  Parsing error: The keyword 'interface' is reserved
+
+/home/runner/workspace/server/backup-service.ts
+  12:1  error  Parsing error: The keyword 'interface' is reserved
+
+/home/runner/workspace/server/blog-content-service.ts
+  15:1  error  Parsing error: The keyword 'interface' is reserved
+
+/home/runner/workspace/server/blog-routes.ts
+  29:42  error  Parsing error: Unexpected token as
+
+/home/runner/workspace/server/blog-scheduler.ts
+  7:1  error  Parsing error: The keyword 'interface' is reserved
+
+/home/runner/workspace/server/ccpa-compliance.ts
+  1:13  error  Parsing error: Unexpected token {
+
+/home/runner/workspace/server/circuit-breaker.ts
+  6:8  error  Parsing error: Unexpected token enum
+
+/home/runner/workspace/server/collective-user-service.ts
+  7:1  error  Parsing error: The keyword 'interface' is reserved
+
+/home/runner/workspace/server/consent.ts
+  6:1  error  Parsing error: The keyword 'interface' is reserved
+
+/home/runner/workspace/server/csp-middleware.ts
+  12:32  error  Parsing error: Unexpected token :
+
+/home/runner/workspace/server/csrf-protection.ts
+  5:1  error  Parsing error: The keyword 'interface' is reserved
+
+/home/runner/workspace/server/data-transfer-compliance.ts
+  8:8  error  Parsing error: Unexpected token interface
+
+/home/runner/workspace/server/database-storage.ts
+  1:15  error  Parsing error: Unexpected token User
+
+/home/runner/workspace/server/db-init.ts
+  23:17  error  Parsing error: Unexpected token :
+
+/home/runner/workspace/server/db.ts
+  18:11  error  Parsing error: Unexpected token :
+
+/home/runner/workspace/server/disaster-recovery-service.ts
+  12:1  error  Parsing error: The keyword 'interface' is reserved
+
+/home/runner/workspace/server/distributed-session-storage.ts
+  27:8  error  Parsing error: Unexpected token interface
+
+/home/runner/workspace/server/email-recovery-routes.ts
+  10:56  error  Parsing error: Unexpected token !
+
+/home/runner/workspace/server/email-recovery-service.ts
+  5:13  error  Parsing error: Unexpected token {
+
+/home/runner/workspace/server/email-service.ts
+  3:1  error  Parsing error: The keyword 'interface' is reserved
+
+/home/runner/workspace/server/email-verification.ts
+  8:11  error  Parsing error: Unexpected token readonly
+
+/home/runner/workspace/server/encrypted-storage.ts
+  2:15  error  Parsing error: Unexpected token Document
+
+/home/runner/workspace/server/enhanced-file-validation.ts
+  5:1  error  Parsing error: The keyword 'interface' is reserved
+
+/home/runner/workspace/server/enhanced-pii-detection.ts
+  6:8  error  Parsing error: Unexpected token interface
+
+/home/runner/workspace/server/env-validation.ts
+  6:1  error  Parsing error: The keyword 'interface' is reserved
+
+/home/runner/workspace/server/error-reporting-service.ts
+  5:8  error  Parsing error: Unexpected token interface
+
+/home/runner/workspace/server/file-security-service.ts
+  6:1  error  Parsing error: The keyword 'interface' is reserved
+
+/home/runner/workspace/server/file-validation.ts
+  5:1  error  Parsing error: The keyword 'interface' is reserved
+
+/home/runner/workspace/server/hybrid-crypto-service.ts
+  24:8  error  Parsing error: Unexpected token interface
+
+/home/runner/workspace/server/hybrid-document-analyzer.ts
+  9:13  error  Parsing error: Unexpected token {
+
+/home/runner/workspace/server/hybrid-routes.ts
+  11:41  error  Parsing error: Unexpected token :
+
+/home/runner/workspace/server/hybrid-security-manager.ts
+  9:36  error  Parsing error: Unexpected token HybridKeyPair
+
+/home/runner/workspace/server/index.ts
+  3:24  error  Parsing error: Unexpected token Request
+
+/home/runner/workspace/server/indexnow-service.ts
+  11:1  error  Parsing error: The keyword 'interface' is reserved
+
+/home/runner/workspace/server/jose-auth-service.ts
+  14:1  error  Parsing error: The keyword 'interface' is reserved
+
+/home/runner/workspace/server/jose-token-service.ts
+  11:1  error  Parsing error: The keyword 'interface' is reserved
+
+/home/runner/workspace/server/jwt-secret-manager.ts
+  9:1  error  Parsing error: The keyword 'interface' is reserved
+
+/home/runner/workspace/server/jwt-security-service.ts
+  4:1  error  Parsing error: The keyword 'interface' is reserved
+
+/home/runner/workspace/server/legal-professional-routes.ts
+  1:13  error  Parsing error: Unexpected token {
+
+/home/runner/workspace/server/legal-professional-service.ts
+  8:8  error  Parsing error: Unexpected token interface
+
+/home/runner/workspace/server/llm/index.ts
+  1:13  error  Parsing error: Unexpected token {
+
+/home/runner/workspace/server/llm/openai-provider.ts
+  1:13  error  Parsing error: Unexpected token {
+
+/home/runner/workspace/server/llm/oss20b-provider.ts
+  1:13  error  Parsing error: Unexpected token {
+
+/home/runner/workspace/server/llm/provider.ts
+  1:13  error  Parsing error: Unexpected token {
+
+/home/runner/workspace/server/local-llm-service.ts
+  9:8  error  Parsing error: Unexpected token interface
+
+/home/runner/workspace/server/openai-with-pii.ts
+  2:13  error  Parsing error: Unexpected token {
+
+/home/runner/workspace/server/openai.ts
+  2:13  error  Parsing error: Unexpected token {
+
+/home/runner/workspace/server/payload-hashing-service.ts
+  2:34  error  Parsing error: Unexpected token HashedPIIMatch
+
+/home/runner/workspace/server/pdf-parse.d.ts
+  1:9  error  Parsing error: Unexpected token module
+
+/home/runner/workspace/server/pii-detection.ts
+  4:8  error  Parsing error: Unexpected token interface
+
+/home/runner/workspace/server/pii-entanglement-service.ts
+  1:34  error  Parsing error: Unexpected token HashedPIIMatch
+
+/home/runner/workspace/server/pii-hashing-service.ts
+  13:13  error  Parsing error: Unexpected token {
+
+/home/runner/workspace/server/pii-protection-service.ts
+  14:26  error  Parsing error: Unexpected token :
+
+/home/runner/workspace/server/postgresql-session-storage.ts
+  7:30  error  Parsing error: Unexpected token SessionToken
+
+/home/runner/workspace/server/postgresql-token-storage.ts
+  7:35  error  Parsing error: Unexpected token SubscriptionToken
+
+/home/runner/workspace/server/priority-queue.ts
+  3:1  error  Parsing error: The keyword 'interface' is reserved
+
+/home/runner/workspace/server/production.ts
+  1:24  error  Parsing error: Unexpected token Request
+
+/home/runner/workspace/server/replit-token-storage.ts
+  8:1  error  Parsing error: The keyword 'interface' is reserved
+
+/home/runner/workspace/server/rlhf-feedback-routes.ts
+  32:53  error  Parsing error: Unexpected token :
+
+/home/runner/workspace/server/rlhf-feedback-service.ts
+  10:13  error  Parsing error: Unexpected token {
+
+/home/runner/workspace/server/routes.ts
+  1:13  error  Parsing error: Unexpected token {
+
+/home/runner/workspace/server/secure-jwt-service.ts
+  23:1  error  Parsing error: The keyword 'interface' is reserved
+
+/home/runner/workspace/server/security-alert.ts
+  5:1  error  Parsing error: The keyword 'interface' is reserved
+
+/home/runner/workspace/server/security-config.ts
+  65:35  error  Parsing error: Unexpected token :
+
+/home/runner/workspace/server/security-logger.ts
+  5:8  error  Parsing error: Unexpected token enum
+
+/home/runner/workspace/server/security-middleware.ts
+  9:1  error  Parsing error: The keyword 'interface' is reserved
+
+/home/runner/workspace/server/security-questions-routes.ts
+  8:52  error  Parsing error: Unexpected token :
+
+/home/runner/workspace/server/security-questions-service.ts
+  5:13  error  Parsing error: Unexpected token {
+
+/home/runner/workspace/server/storage.ts
+  1:15  error  Parsing error: Unexpected token Document
+
+/home/runner/workspace/server/subscription-service.ts
+  3:13  error  Parsing error: Unexpected token {
+
+/home/runner/workspace/server/subscription-tiers.ts
+  1:13  error  Parsing error: Unexpected token {
+
+/home/runner/workspace/server/tier-assignment-monitor.ts
+  6:1  error  Parsing error: The keyword 'interface' is reserved
+
+/home/runner/workspace/server/tier-security-routes.ts
+  27:47  error  Parsing error: Unexpected token :
+
+/home/runner/workspace/server/tier-security-service.ts
+  11:8  error  Parsing error: Unexpected token interface
+
+/home/runner/workspace/server/tier-validation.ts
+  14:8  error  Parsing error: Unexpected token interface
+
+/home/runner/workspace/server/totp-routes.ts
+  1:13  error  Parsing error: Unexpected token {
+
+/home/runner/workspace/server/totp-service.ts
+  9:1  error  Parsing error: The keyword 'interface' is reserved
+
+/home/runner/workspace/server/two-factor-routes.ts
+  49:44  error  Parsing error: Unexpected token :
+
+/home/runner/workspace/server/two-factor-service.ts
+  8:1  error  Parsing error: The keyword 'interface' is reserved
+
+/home/runner/workspace/server/user-preferences-routes.ts
+  47:50  error  Parsing error: Unexpected token :
+
+/home/runner/workspace/server/user-preferences-service.ts
+  11:8  error  Parsing error: Unexpected token interface
+
+/home/runner/workspace/server/user-routes.ts
+  7:8  error  Parsing error: Unexpected token InsertUser
+
+/home/runner/workspace/server/vcard-service.ts
+  5:11  error  Parsing error: Unexpected token async
+
+/home/runner/workspace/server/view-drip-service.ts
+  5:1  error  Parsing error: The keyword 'interface' is reserved
+
+/home/runner/workspace/server/vite.ts
+  1:24  error  Parsing error: Unexpected token Express
+
+/home/runner/workspace/server/xss-protection-service.ts
+  4:1  error  Parsing error: The keyword 'interface' is reserved
+
+/home/runner/workspace/server/zero-pii-analyzer.ts
+  12:8  error  Parsing error: Unexpected token interface
+
+/home/runner/workspace/shared/schema.ts
+  517:8  error  Parsing error: Unexpected token type
+
+/home/runner/workspace/tests/preferences-migration.test.ts
+  40:17  error  Parsing error: Unexpected token :
+
+/home/runner/workspace/types/cors.d.ts
+  1:9  error  Parsing error: Unexpected token module
+
+/home/runner/workspace/types/global.d.ts
+  5:9  error  Parsing error: Unexpected token global
+
+/home/runner/workspace/types/middleware-types.d.ts
+  2:13  error  Parsing error: Unexpected token {
+
+/home/runner/workspace/types/qrcode.d.ts
+  1:9  error  Parsing error: Unexpected token module
+
+/home/runner/workspace/types/vite-plugins.d.ts
+  2:9  error  Parsing error: Unexpected token module
+
+✖ 291 problems (291 errors, 0 warnings)
+  3 errors and 0 warnings potentially fixable with the `--fix` option.
+
+Linter warnings detected but not blocking build
