@@ -32,7 +32,10 @@ async function initializeDatabase() {
       }),
       insert: (table: any) => ({
         values: (data: any) => ({
-          returning: () => Promise.resolve([{ id: 'mock-id' }])
+          returning: () => Promise.resolve([{ id: 'mock-id' }]),
+          onConflictDoNothing: () => ({
+            returning: () => Promise.resolve([{ id: 'mock-id' }])
+          })
         })
       }),
       update: (table: any) => ({
