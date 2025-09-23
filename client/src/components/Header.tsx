@@ -50,10 +50,10 @@ export function Header() {
   const isMobile = useIsMobile();
 
   // Use react-query for auth state management
-  const { 
-    data: authData, 
-    isLoading: isCheckingAuth, 
-    refetch: refetchAuth 
+  const {
+    data: authData,
+    isLoading: isCheckingAuth,
+    refetch: refetchAuth
   } = useQuery<AuthSession>({
     queryKey: ['/api/auth/session'],
     queryFn: async () => {
@@ -80,18 +80,18 @@ export function Header() {
                   },
                   credentials: 'include',
                 });
-                
+
                 if (autoLoginResponse.ok) {
                   // Wait for cookies to be set, then check auth again
                   await new Promise(resolve => setTimeout(resolve, 300));
-                  
+
                   const retryResponse = await authFetch('/api/auth/session', {
                     method: 'GET',
                     headers: {
                       'Content-Type': 'application/json',
                     },
                   });
-                  
+
                   if (retryResponse.ok) {
                     const retryData: any = await retryResponse.json();
                     if (retryData.authenticated && retryData.user) {
@@ -141,44 +141,44 @@ export function Header() {
 
   const handleLogoutClick = async (e: React.MouseEvent) => {
     e.preventDefault();
-    
+
     try {
       // Call the logout API which clears documents and revokes tokens
       const result = await logout();
-      
+
       // Clear any remaining localStorage items from old auth system
       localStorage.removeItem('token');
       localStorage.removeItem('refreshToken');
       localStorage.removeItem('user');
-      
+
       // Clear JWT tokens used for fallback authentication
       localStorage.removeItem('jwt_access_token');
       localStorage.removeItem('jwt_refresh_token');
-      
+
       // Clear subscription tokens
       localStorage.removeItem('subscriptionToken');
       localStorage.removeItem('subscription_token');
-      
+
       // Clear session and CSRF tokens
       clearSession();
       clearCSRFToken();
-      
+
       // Clear all cached query data
       queryClient.clear();
-      
+
       // Show success message
       toast({
         title: "Logged out successfully",
         description: `${result.details.tokensRevoked} tokens revoked, documents cleared`,
         duration: 3000,
       });
-      
+
       // Force page reload to clear all cached state
       window.location.href = '/';
-      
+
     } catch (error) {
       console.error('Logout error:', error);
-      
+
       // Even if API call fails, clear local data
       localStorage.removeItem('token');
       localStorage.removeItem('refreshToken');
@@ -187,31 +187,31 @@ export function Header() {
       localStorage.removeItem('jwt_refresh_token');
       localStorage.removeItem('subscriptionToken');
       localStorage.removeItem('subscription_token');
-      
+
       clearSession();
       clearCSRFToken();
       queryClient.clear();
-      
+
       toast({
         title: "Logged out",
         description: "Session cleared locally",
         duration: 3000,
       });
-      
+
       window.location.href = '/';
     }
   };
 
   const handleLoginSuccess = async () => {
     setShowLogin(false);
-    
+
     // Refetch auth data to update the UI
     await refetchAuth();
-    
+
     // Trigger auth update event for other components
     safeDispatchEvent('authUpdate');
     safeDispatchEvent('authStateChanged');
-    
+
     toast({
       title: "Login successful",
       description: "Welcome back!",
@@ -240,15 +240,15 @@ export function Header() {
       <div className="w-full px-4 sm:px-6 lg:px-8">
         <div className={`flex justify-between items-center ${isMobile ? 'h-14' : 'h-16'} ${isMobile ? 'py-2' : ''}`}>
           {/* Logo - Fixed size with strict constraints */}
-          <Link 
-            to="/" 
+          <Link
+            to="/"
             aria-label="ReadMyFinePrint - Go to homepage"
             data-testid="logo-link"
             className="flex items-center"
           >
             <div className="flex items-center space-x-3 cursor-pointer group">
               {/* Logo container with fixed size and overflow hidden */}
-              <div 
+              <div
                 className={`
                   ${isMobile ? 'w-8 h-8' : 'w-10 h-10'} 
                   bg-gradient-to-br from-primary/10 to-primary/20 dark:from-primary/20 dark:to-primary/30 
@@ -267,9 +267,9 @@ export function Header() {
                     ${isMobile ? 'size-8' : 'size-10'} 
                     object-contain flex-none shrink-0 rounded-lg
                   `}
-                  style={{ 
-                    maxWidth: isMobile ? '32px' : '40px', 
-                    maxHeight: isMobile ? '32px' : '40px' 
+                  style={{
+                    maxWidth: isMobile ? '32px' : '40px',
+                    maxHeight: isMobile ? '32px' : '40px'
                   }}
                 />
               </div>
@@ -303,7 +303,7 @@ export function Header() {
                 Plans
               </Button>
             </Link>
-            
+
             {/* <Link to="/trust">
               <Button
                 variant="ghost"
@@ -316,7 +316,7 @@ export function Header() {
                 Trust
               </Button>
             </Link> */}
-            
+
             <Link to="/roadmap">
               <Button
                 variant="ghost"
@@ -329,7 +329,7 @@ export function Header() {
                 Roadmap
               </Button>
             </Link>
-            
+
             {isAdmin && (
               <Link to="/admin">
                 <Button
@@ -344,7 +344,7 @@ export function Header() {
                 </Button>
               </Link>
             )}
-            
+
             {/* Auth Button */}
             {isCheckingAuth ? (
               <Button
@@ -398,7 +398,7 @@ export function Header() {
                 </DialogContent>
               </Dialog>
             )}
-            
+
             <Link to="/donate">
               <Button
                 variant="outline"
@@ -411,7 +411,7 @@ export function Header() {
                 Donate
               </Button>
             </Link>
-            
+
             <Button
               onClick={toggleTheme}
               variant="ghost"
@@ -491,7 +491,7 @@ export function Header() {
                   </DialogContent>
                 </Dialog>
               )}
-              
+
               {/* Mobile Menu Sheet */}
               <Sheet open={isMobileMenuOpen} onOpenChange={setIsMobileMenuOpen}>
                 <SheetTrigger asChild>
@@ -509,7 +509,9 @@ export function Header() {
                   <div className="py-4 space-y-2">
                     <div className="pb-4 border-b border-gray-200 dark:border-gray-700">
                       <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100">
-                        Navigation Menu
+                        <VisuallyHidden.Root>
+                          <DialogTitle>Navigation Menu</DialogTitle>
+                        </VisuallyHidden.Root>
                       </h2>
                     </div>
                     <SheetClose asChild>
@@ -527,7 +529,7 @@ export function Header() {
                         </Button>
                       </Link>
                     </SheetClose>
-                    
+
                     <SheetClose asChild>
                       <Link to="/roadmap">
                         <Button
@@ -542,7 +544,7 @@ export function Header() {
                         </Button>
                       </Link>
                     </SheetClose>
-                    
+
                     {isAdmin && (
                       <SheetClose asChild>
                         <Link to="/admin">
@@ -559,7 +561,7 @@ export function Header() {
                         </Link>
                       </SheetClose>
                     )}
-                    
+
                     <SheetClose asChild>
                       <Link to="/donate">
                         <Button
@@ -574,7 +576,7 @@ export function Header() {
                         </Button>
                       </Link>
                     </SheetClose>
-                    
+
                     <Button
                       onClick={() => {
                         toggleTheme();
