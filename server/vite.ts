@@ -2,7 +2,6 @@ import express, { type Express } from "express";
 import fs from "fs";
 import path from "path";
 import { type Server } from "http";
-import { createRequire } from "module";
 
 // Helper function to apply all security headers consistently
 function applySecurityHeaders(res: express.Response) {
@@ -76,8 +75,11 @@ export function log(message: string, source = "express") {
 export async function setupVite(app: Express, server: Server) {
   try {
     // Use a basic vite config for development
-    const require = createRequire(import.meta.url);
-    const vite = require("vite");
+    // Dynamically import Vite to avoid CommonJS resolution issues when running
+    // under tsx in ESM mode. Using createRequire() caused module resolution to
+    // fail intermittently even when Vite was installed, so we now rely on the
+    // native ESM loader.
+    const vite = await import("vite");
     const { createServer: createViteServer, createLogger } = vite;
 
     const serverOptions = {
