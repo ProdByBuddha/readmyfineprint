@@ -44,7 +44,7 @@ try {
   }
   
 } catch (error) {
-  console.error('❌ Frontend build failed or timed out');
+  console.error('❌ Frontend build failed or timed out', error);
   process.exit(1);
 }
 

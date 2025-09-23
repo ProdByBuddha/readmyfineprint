@@ -41,8 +41,8 @@ export class PIIDetectionService {
       confidence: 0.95
     },
     // Enhanced date patterns for potential DOB
-    dob: {
-      regex: /\b(?:0?[1-9]|1[0-2])[-\/](?:0?[1-9]|[12][0-9]|3[01])[-\/](?:19|20)\d{2}\b|\b(?:19|20)\d{2}[-\/](?:0?[1-9]|1[0-2])[-\/](?:0?[1-9]|[12][0-9]|3[01])\b/g,
+      dob: {
+        regex: /\b(?:0?[1-9]|1[0-2])[-/](?:0?[1-9]|[12][0-9]|3[01])[-/](?:19|20)\d{2}\b|\b(?:19|20)\d{2}[-/](?:0?[1-9]|1[0-2])[-/](?:0?[1-9]|[12][0-9]|3[01])\b/g,
       confidence: 0.75
     },
     // More comprehensive address detection

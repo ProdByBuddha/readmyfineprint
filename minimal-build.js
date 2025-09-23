@@ -59,22 +59,6 @@ try {
     fs.mkdirSync('dist', { recursive: true });
   }
   
-  // Use esbuild to compile the entire server directory
-  const serverFiles = [
-    'server/production.ts',
-    'server/routes.ts',
-    'server/auth.ts',
-    'server/openai.ts',
-    'server/env-validation.ts',
-    'server/security-logger.ts',
-    'server/file-validation.ts',
-    'server/enhanced-file-validation.ts',
-    'server/encrypted-storage.ts',
-    'server/email-service.ts',
-    'server/consent.ts',
-    'server/security-alert.ts'
-  ];
-  
   // Build the main production server
   execSync(`npx esbuild server/production.ts --platform=node --format=esm --outfile=dist/production.js --bundle --external:express --external:cors --external:express-rate-limit --external:multer --external:ws --external:nodemailer --external:openai --external:stripe --external:mammoth --external:qrcode --external:bufferutil --external:utf-8-validate --minify --sourcemap`, {
     stdio: 'inherit'
