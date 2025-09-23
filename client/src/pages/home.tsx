@@ -192,9 +192,13 @@ export default function Home() {
               <span className="font-semibold text-primary">
                 AI-powered analysis
               </span>{" "}
-              that delivers instant insights while maintaining{" "}
+              that delivers{" "}
+              <span className="font-semibold text-primary">
+                instant insights
+              </span>{" "}
+              while maintaining{" "}
               <span className="font-semibold text-secondary">
-                absolute privacy
+                absolute privacy protection
               </span>{" "}
               for your sensitive documents.
             </p>
