@@ -228,7 +228,7 @@ export function Header() {
           ? 'bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl border-b border-white/10 dark:border-slate-800/50 shadow-lg'
           : 'bg-white/90 dark:bg-slate-900/90 backdrop-blur-xl border-b border-gray-200/60 dark:border-slate-800/60 shadow-md'
         }
-        flex-shrink-0 z-50 transition-all duration-500 ease-out supports-[backdrop-filter]:bg-white/80 supports-[backdrop-filter]:dark:bg-slate-900/80
+        flex-shrink-0 z-50 transition-all duration-500 ease-out supports-[backdrop-filter]:bg-white/80 supports-[backdrop-filter]:dark:bg-slate-900/80 relative w-full
       `}
       style={isMobile ? {
         paddingTop: 'var(--app-safe-area-top)',
