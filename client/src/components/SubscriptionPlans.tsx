@@ -143,7 +143,7 @@ const getTierIcon = (tierId: string) => {
   }
 };
 
-const getTierColor = (tierId: string) => {
+const getTierIconStyles = (tierId: string) => {
   switch (tierId) {
     case "free":
       return "text-gray-600";
