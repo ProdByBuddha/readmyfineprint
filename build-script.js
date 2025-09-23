@@ -1,7 +1,32 @@
 import fs from 'fs';
 import path from 'path';
 import { execSync } from 'child_process';
+import process from 'node:process';
 import { fileURLToPath } from 'url';
+
+const formatLogPart = part => {
+  if (part instanceof Error) {
+    return part.stack ?? part.message;
+  }
+
+  if (typeof part === 'object') {
+    try {
+      return JSON.stringify(part);
+    } catch {
+      return String(part);
+    }
+  }
+
+  return String(part);
+};
+
+const writeLine = (stream, ...parts) => {
+  stream.write(`${parts.map(formatLogPart).join(' ')}\n`);
+};
+
+const logInfo = (...parts) => writeLine(process.stdout, ...parts);
+const logWarn = (...parts) => writeLine(process.stdout, ...parts);
+const logError = (...parts) => writeLine(process.stderr, ...parts);
 
 // Import esbuild with fallback handling
 let build;
@@ -9,12 +34,12 @@ try {
   // Try direct import first
   const esbuildModule = await import('esbuild');
   build = esbuildModule.build;
-  console.log('✅ esbuild imported successfully');
+  logInfo('✅ esbuild imported successfully');
 } catch (error) {
-  console.error('❌ Failed to import esbuild:', error.message);
+  logError('❌ Failed to import esbuild:', error);
 
   // Try to reinstall esbuild with specific version
-  console.log('📦 Reinstalling esbuild...');
+  logInfo('📦 Reinstalling esbuild...');
   try {
     execSync('npm uninstall esbuild', { stdio: 'inherit' });
     execSync('npm install esbuild@^0.25.8', { stdio: 'inherit' });
@@ -22,9 +47,9 @@ try {
     // Try import again after reinstall
     const esbuildModule = await import('esbuild');
     build = esbuildModule.build;
-    console.log('✅ esbuild imported after reinstall');
+    logInfo('✅ esbuild imported after reinstall');
   } catch (reinstallError) {
-    console.error('❌ Failed to reinstall and import esbuild:', reinstallError.message);
+    logError('❌ Failed to reinstall and import esbuild:', reinstallError);
 
     // Final fallback: try using require syntax for CJS compatibility
     try {
@@ -32,10 +57,10 @@ try {
       const require = createRequire(import.meta.url);
       const esbuild = require('esbuild');
       build = esbuild.build;
-      console.log('✅ esbuild imported using require fallback');
+      logInfo('✅ esbuild imported using require fallback');
     } catch (requireError) {
-      console.error('❌ All import methods failed:', requireError.message);
-      console.log('🔄 Falling back to npx esbuild command...');
+      logError('❌ All import methods failed:', requireError);
+      logWarn('🔄 Falling back to npx esbuild command...');
       build = null; // Will use npx fallback below
     }
   }
@@ -64,14 +89,14 @@ if (fs.existsSync(publicDir)) {
 }
 
 // Process CSS first
-console.log('🎨 Processing CSS...');
+logInfo('🎨 Processing CSS...');
 try {
   // First try local tailwindcss installation
   try {
     execSync(`./node_modules/.bin/tailwindcss -i ./client/src/index.css -o ./dist/public/styles.css --minify`, {
       stdio: 'inherit'
     });
-    console.log('✅ CSS processing completed with local TailwindCSS');
+    logInfo('✅ CSS processing completed with local TailwindCSS');
   } catch (localError) {
     console.warn('⚠️ Local TailwindCSS failed, trying npx...', localError);
     try {
@@ -79,20 +104,20 @@ try {
       execSync(`npx tailwindcss -i ./client/src/index.css -o ./dist/public/styles.css --minify`, {
         stdio: 'inherit'
       });
-      console.log('✅ CSS processing completed with npx TailwindCSS');
+      logInfo('✅ CSS processing completed with npx TailwindCSS');
     } catch (npxError) {
       console.warn('⚠️ TailwindCSS unavailable, using fallback CSS processor...', npxError);
       // Final fallback - basic CSS processing
       execSync(`node process-css.js`, {
         stdio: 'inherit'
       });
-      console.log('✅ CSS processing completed with fallback processor');
+      logInfo('✅ CSS processing completed with fallback processor');
     }
   }
 } catch (error) {
-  console.error('❌ All CSS processing methods failed:', error);
-  console.log('💡 Using minimal CSS fallback...');
-  
+  logError('❌ All CSS processing methods failed:', error);
+  logWarn('💡 Using minimal CSS fallback...');
+
   // Emergency fallback - just copy the CSS file
   try {
     const cssSource = path.join(__dirname, 'client', 'src', 'index.css');
@@ -109,7 +134,7 @@ try {
   } catch (fallbackError) {
     console.error('❌ Even emergency CSS fallback failed:', fallbackError);
     // Don't exit - continue without CSS
-    console.log('⚠️ Continuing build without CSS...');
+    logWarn('⚠️ Continuing build without CSS...');
   }
 }
 
@@ -158,7 +183,7 @@ try {
     });
   } else {
     // Fallback to npx esbuild command
-    console.log('📦 Using npx esbuild fallback...');
+    logWarn('📦 Using npx esbuild fallback...');
     const esbuildCmd = `npx esbuild client/src/main.tsx --bundle --minify --sourcemap --target=es2020 --format=esm --outdir=${distDir} --loader:.tsx=tsx --loader:.jsx=jsx --loader:.js=js --loader:.css=css --loader:.png=file --loader:.jpg=file --loader:.jpeg=file --loader:.gif=file --loader:.svg=file --loader:.woff=file --loader:.woff2=file --loader:.ttf=file --loader:.eot=file --define:process.env.NODE_ENV='"production"' --define:global=globalThis --define:import.meta.env.DEV=false --define:import.meta.env.PROD=true --define:import.meta.env.MODE='"production"' --define:import.meta.env.BASE_URL='"/"' --define:import.meta.env.VITE_STRIPE_PUBLIC_KEY='"${process.env.VITE_STRIPE_PUBLIC_KEY || ''}"' --splitting --metafile`;
 
     execSync(esbuildCmd, { stdio: 'inherit' });
@@ -192,9 +217,9 @@ try {
 
   fs.writeFileSync(path.join(distDir, 'index.html'), indexHtml);
 
-  console.log('✅ Build completed successfully with esbuild');
+  logInfo('✅ Build completed successfully with esbuild');
 
 } catch (error) {
-  console.error('❌ Build failed:', error);
+  logError('❌ Build failed:', error);
   process.exit(1);
 }
