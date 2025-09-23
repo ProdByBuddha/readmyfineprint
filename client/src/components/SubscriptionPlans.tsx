@@ -487,7 +487,7 @@ export default function SubscriptionPlans({
               {/* Action Button */}
               <div className="mt-auto pt-4 space-y-3">
                 <Link to="/roadmap">
-                  <Buttonp
+                  <Button
                     className="w-full items-center justify-center gap-2 py-3 text-sm font-semibold bg-purple-600 hover:bg-purple-700 text-white"
                     variant="default"
                   >
