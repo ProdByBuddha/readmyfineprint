@@ -1,0 +1,313 @@
+~/workspace$ npm run check
+
+> readmyfineprint@2.0.0 check
+> tsc
+
+client/src/App.tsx:109:21 - error TS2339: Property 'env' does not exist on type 'ImportMeta'.
+
+109     if (import.meta.env.DEV) {
+                        ~~~
+
+client/src/App.tsx:117:23 - error TS2339: Property 'env' does not exist on type 'ImportMeta'.
+
+117       if (import.meta.env.DEV) {
+                          ~~~
+
+client/src/components/ApiKeyManagement.tsx:37:45 - error TS2339: Property 'env' does not exist on type 'ImportMeta'.
+
+37 const API_KEY_FEATURE_ENABLED = import.meta.env.VITE_ENABLE_API_KEYS === 'true' || false;
+                                               ~~~
+
+client/src/components/BasicStripeProvider.tsx:10:37 - error TS2339: Property 'env' does not exist on type 'ImportMeta'.
+
+10 const stripePublicKey = import.meta.env.VITE_STRIPE_PUBLIC_KEY;
+                                       ~~~
+
+client/src/components/BlogAdmin.tsx:211:29 - error TS2339: Property 'env' does not exist on type 'ImportMeta'.
+
+211             if (import.meta.env.DEV) {
+                                ~~~
+
+client/src/components/CombinedConsent.tsx:57:21 - error TS2339: Property 'env' does not exist on type 'ImportMeta'.
+
+57     if (import.meta.env.DEV || import.meta.env.MODE === 'development') {
+                       ~~~
+
+client/src/components/CombinedConsent.tsx:57:44 - error TS2339: Property 'env' does not exist on type 'ImportMeta'.
+
+57     if (import.meta.env.DEV || import.meta.env.MODE === 'development') {
+                                              ~~~
+
+client/src/components/CombinedConsent.tsx:75:23 - error TS2339: Property 'env' does not exist on type 'ImportMeta'.
+
+75       if (import.meta.env.DEV) {
+                         ~~~
+
+client/src/components/CombinedConsent.tsx:87:23 - error TS2339: Property 'env' does not exist on type 'ImportMeta'.
+
+87       if (import.meta.env.DEV) {
+                         ~~~
+
+client/src/components/CombinedConsent.tsx:102:25 - error TS2339: Property 'env' does not exist on type 'ImportMeta'.
+
+102         if (import.meta.env.DEV) {
+                            ~~~
+
+client/src/components/CombinedConsent.tsx:143:25 - error TS2339: Property 'env' does not exist on type 'ImportMeta'.
+
+143         if (import.meta.env.DEV) {
+                            ~~~
+
+client/src/components/CombinedConsent.tsx:151:23 - error TS2339: Property 'env' does not exist on type 'ImportMeta'.
+
+151       if (import.meta.env.DEV) {
+                          ~~~
+
+client/src/components/CombinedConsent.tsx:207:21 - error TS2339: Property 'env' does not exist on type 'ImportMeta'.
+
+207     if (import.meta.env.DEV || import.meta.env.MODE === 'development') {
+                        ~~~
+
+client/src/components/CombinedConsent.tsx:207:44 - error TS2339: Property 'env' does not exist on type 'ImportMeta'.
+
+207     if (import.meta.env.DEV || import.meta.env.MODE === 'development') {
+                                               ~~~
+
+client/src/components/CombinedConsent.tsx:267:21 - error TS2339: Property 'env' does not exist on type 'ImportMeta'.
+
+267     if (import.meta.env.DEV || import.meta.env.MODE === 'development') {
+                        ~~~
+
+client/src/components/CombinedConsent.tsx:267:44 - error TS2339: Property 'env' does not exist on type 'ImportMeta'.
+
+267     if (import.meta.env.DEV || import.meta.env.MODE === 'development') {
+                                               ~~~
+
+client/src/components/CookieConsent.tsx:9:21 - error TS2339: Property 'env' does not exist on type 'ImportMeta'.
+
+9     if (import.meta.env.DEV || import.meta.env.MODE === 'development') {
+                      ~~~
+
+client/src/components/CookieConsent.tsx:9:44 - error TS2339: Property 'env' does not exist on type 'ImportMeta'.
+
+9     if (import.meta.env.DEV || import.meta.env.MODE === 'development') {
+                                             ~~~
+
+client/src/components/ExpressCheckoutForm.tsx:14:37 - error TS2339: Property 'env' does not exist on type 'ImportMeta'.
+
+14 const stripePublicKey = import.meta.env.VITE_STRIPE_PUBLIC_KEY;
+                                       ~~~
+
+client/src/components/Header.tsx:73:29 - error TS2339: Property 'env' does not exist on type 'ImportMeta'.
+
+73             if (import.meta.env.DEV && response.status !== 401) {
+                               ~~~
+
+client/src/components/LoginForm.tsx:40:38 - error TS2339: Property 'env' does not exist on type 'ImportMeta'.
+
+40         const adminKey = import.meta.env.VITE_ADMIN_API_KEY || process.env.ADMIN_API_KEY;
+                                        ~~~
+
+client/src/components/SimpleStripeTest.tsx:18:37 - error TS2339: Property 'env' does not exist on type 'ImportMeta'.
+
+18       const publicKey = import.meta.env.VITE_STRIPE_PUBLIC_KEY;
+                                       ~~~
+
+client/src/components/StripeDebug.tsx:5:39 - error TS2339: Property 'env' does not exist on type 'ImportMeta'.
+
+5   const stripePublicKey = import.meta.env.VITE_STRIPE_PUBLIC_KEY;
+                                        ~~~
+
+client/src/components/StripeWrapper.tsx:59:43 - error TS2339: Property 'env' does not exist on type 'ImportMeta'.
+
+59       const stripePublicKey = import.meta.env.VITE_STRIPE_PUBLIC_KEY;
+                                             ~~~
+
+client/src/components/StripeWrapper.tsx:68:68 - error TS2339: Property 'env' does not exist on type 'ImportMeta'.
+
+68         console.log("Available env vars:", Object.keys(import.meta.env));
+                                                                      ~~~
+
+client/src/components/SubscriptionPlans.tsx:56:21 - error TS2339: Property 'env' does not exist on type 'ImportMeta'.
+
+56     if (import.meta.env.DEV) {
+                       ~~~
+
+client/src/components/SubscriptionPlans.tsx:61:19 - error TS2339: Property 'env' does not exist on type 'ImportMeta'.
+
+61   if (import.meta.env.DEV) {
+                     ~~~
+
+client/src/hooks/useCookieConsent.ts:128:21 - error TS2339: Property 'env' does not exist on type 'ImportMeta'.
+
+128     if (import.meta.env.DEV || import.meta.env.MODE === 'development') {
+                        ~~~
+
+client/src/hooks/useCookieConsent.ts:128:44 - error TS2339: Property 'env' does not exist on type 'ImportMeta'.
+
+128     if (import.meta.env.DEV || import.meta.env.MODE === 'development') {
+                                               ~~~
+
+client/src/hooks/useLegalDisclaimer.ts:241:23 - error TS2339: Property 'env' does not exist on type 'ImportMeta'.
+
+241       if (import.meta.env.DEV) {
+                          ~~~
+
+client/src/hooks/useThemePreference.ts:208:23 - error TS2339: Property 'env' does not exist on type 'ImportMeta'.
+
+208       if (import.meta.env.DEV) {
+                          ~~~
+
+client/src/lib/api.ts:1047:35 - error TS2339: Property 'env' does not exist on type 'ImportMeta'.
+
+1047   const adminApiKey = import.meta.env?.VITE_ADMIN_API_KEY;
+                                       ~~~
+
+client/src/lib/auth-fetch.ts:42:19 - error TS2339: Property 'env' does not exist on type 'ImportMeta'.
+
+42   if (import.meta.env.DEV && response.status === 401) {
+                     ~~~
+
+client/src/lib/csrfManager.ts:75:23 - error TS2339: Property 'env' does not exist on type 'ImportMeta'.
+
+75       if (import.meta.env.DEV) {
+                         ~~~
+
+client/src/lib/csrfManager.ts:94:23 - error TS2339: Property 'env' does not exist on type 'ImportMeta'.
+
+94       if (import.meta.env.DEV) {
+                         ~~~
+
+client/src/lib/csrfManager.ts:130:27 - error TS2339: Property 'env' does not exist on type 'ImportMeta'.
+
+130           if (import.meta.env.DEV) {
+                              ~~~
+
+client/src/lib/csrfManager.ts:147:23 - error TS2339: Property 'env' does not exist on type 'ImportMeta'.
+
+147       if (import.meta.env.DEV) {
+                          ~~~
+
+client/src/lib/safeDispatchEvent.ts:28:23 - error TS2339: Property 'env' does not exist on type 'ImportMeta'.
+
+28       if (import.meta.env?.DEV) {
+                         ~~~
+
+client/src/lib/safeDispatchEvent.ts:49:23 - error TS2339: Property 'env' does not exist on type 'ImportMeta'.
+
+49       if (import.meta.env?.DEV) {
+                         ~~~
+
+client/src/lib/safeDispatchEvent.ts:71:23 - error TS2339: Property 'env' does not exist on type 'ImportMeta'.
+
+71       if (import.meta.env?.DEV) {
+                         ~~~
+
+client/src/lib/safeDispatchEvent.ts:93:21 - error TS2339: Property 'env' does not exist on type 'ImportMeta'.
+
+93     if (import.meta.env?.DEV) {
+                       ~~~
+
+client/src/lib/safeDispatchEvent.ts:102:21 - error TS2339: Property 'env' does not exist on type 'ImportMeta'.
+
+102     if (import.meta.env?.DEV) {
+                        ~~~
+
+client/src/lib/safeDispatchEvent.ts:111:21 - error TS2339: Property 'env' does not exist on type 'ImportMeta'.
+
+111     if (import.meta.env?.DEV) {
+                        ~~~
+
+client/src/lib/sessionManager.ts:63:23 - error TS2339: Property 'env' does not exist on type 'ImportMeta'.
+
+63       if (import.meta.env.DEV) {
+                         ~~~
+
+client/src/lib/sessionManager.ts:71:23 - error TS2339: Property 'env' does not exist on type 'ImportMeta'.
+
+71       if (import.meta.env.DEV) {
+                         ~~~
+
+client/src/lib/sessionManager.ts:83:23 - error TS2339: Property 'env' does not exist on type 'ImportMeta'.
+
+83       if (import.meta.env.DEV) {
+                         ~~~
+
+client/src/lib/sessionManager.ts:109:29 - error TS2339: Property 'env' does not exist on type 'ImportMeta'.
+
+109             if (import.meta.env.DEV) {
+                                ~~~
+
+client/src/lib/sessionManager.ts:145:21 - error TS2339: Property 'env' does not exist on type 'ImportMeta'.
+
+145     if (import.meta.env.DEV) {
+                        ~~~
+
+client/src/lib/sessionManager.ts:153:21 - error TS2339: Property 'env' does not exist on type 'ImportMeta'.
+
+153     if (import.meta.env.DEV) {
+                        ~~~
+
+client/src/lib/sessionManager.ts:166:21 - error TS2339: Property 'env' does not exist on type 'ImportMeta'.
+
+166     if (import.meta.env.DEV) {
+                        ~~~
+
+client/src/lib/sessionManager.ts:189:27 - error TS2339: Property 'env' does not exist on type 'ImportMeta'.
+
+189           if (import.meta.env.DEV) {
+                              ~~~
+
+client/src/lib/sessionManager.ts:217:21 - error TS2339: Property 'env' does not exist on type 'ImportMeta'.
+
+217     if (import.meta.env.DEV) {
+                        ~~~
+
+client/src/pages/admin.tsx:141:21 - error TS2339: Property 'env' does not exist on type 'ImportMeta'.
+
+141     if (import.meta.env.DEV) {
+                        ~~~
+
+client/src/pages/admin.tsx:234:33 - error TS2339: Property 'env' does not exist on type 'ImportMeta'.
+
+234   if (!codeSent && !import.meta.env.DEV) {
+                                    ~~~
+
+client/src/pages/donate.tsx:440:28 - error TS2339: Property 'env' does not exist on type 'ImportMeta'.
+
+440               {import.meta.env.DEV && (
+                               ~~~
+
+client/src/pages/subscription.tsx:689:26 - error TS2339: Property 'env' does not exist on type 'ImportMeta'.
+
+689             {import.meta.env.DEV && <StripeDebug />}
+                             ~~~
+
+
+Found 56 errors in 24 files.
+
+Errors  Files
+     2  client/src/App.tsx:109
+     1  client/src/components/ApiKeyManagement.tsx:37
+     1  client/src/components/BasicStripeProvider.tsx:10
+     1  client/src/components/BlogAdmin.tsx:211
+    11  client/src/components/CombinedConsent.tsx:57
+     2  client/src/components/CookieConsent.tsx:9
+     1  client/src/components/ExpressCheckoutForm.tsx:14
+     1  client/src/components/Header.tsx:73
+     1  client/src/components/LoginForm.tsx:40
+     1  client/src/components/SimpleStripeTest.tsx:18
+     1  client/src/components/StripeDebug.tsx:5
+     2  client/src/components/StripeWrapper.tsx:59
+     2  client/src/components/SubscriptionPlans.tsx:56
+     2  client/src/hooks/useCookieConsent.ts:128
+     1  client/src/hooks/useLegalDisclaimer.ts:241
+     1  client/src/hooks/useThemePreference.ts:208
+     1  client/src/lib/api.ts:1047
+     1  client/src/lib/auth-fetch.ts:42
+     4  client/src/lib/csrfManager.ts:75
+     6  client/src/lib/safeDispatchEvent.ts:28
+     9  client/src/lib/sessionManager.ts:63
+     2  client/src/pages/admin.tsx:141
+     1  client/src/pages/donate.tsx:440
+     1  client/src/pages/subscription.tsx:689
