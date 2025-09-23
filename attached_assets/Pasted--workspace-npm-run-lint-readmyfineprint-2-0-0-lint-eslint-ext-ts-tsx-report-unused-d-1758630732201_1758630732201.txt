@@ -1,0 +1,81 @@
+~/workspace$ npm run lint
+
+> readmyfineprint@2.0.0 lint
+> eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 2000 || echo 'Linter warnings detected but not blocking build'
+
+
+Oops! Something went wrong! :(
+
+ESLint: 9.36.0
+
+Error [ERR_MODULE_NOT_FOUND]: Cannot find package '@eslint/js' imported from /home/runner/workspace/eslint.config.mjs
+    at packageResolve (node:internal/modules/esm/resolve:854:9)
+    at moduleResolve (node:internal/modules/esm/resolve:927:18)
+    at defaultResolve (node:internal/modules/esm/resolve:1157:11)
+    at ModuleLoader.defaultResolve (node:internal/modules/esm/loader:390:12)
+    at ModuleLoader.resolve (node:internal/modules/esm/loader:359:25)
+    at ModuleLoader.getModuleJob (node:internal/modules/esm/loader:234:38)
+    at ModuleWrap.<anonymous> (node:internal/modules/esm/module_job:87:39)
+    at link (node:internal/modules/esm/module_job:86:36)
+Linter warnings detected but not blocking build
+~/workspace$ npm run check
+
+> readmyfineprint@2.0.0 check
+> tsc
+
+client/src/App.tsx:291:18 - error TS2339: Property 'listeners' does not exist on type 'EventTarget'.
+
+291             this.listeners = {};
+                     ~~~~~~~~~
+
+client/src/App.tsx:295:23 - error TS2339: Property 'listeners' does not exist on type 'EventTarget'.
+
+295             if (!this.listeners[type]) {
+                          ~~~~~~~~~
+
+client/src/App.tsx:296:20 - error TS2339: Property 'listeners' does not exist on type 'EventTarget'.
+
+296               this.listeners[type] = [];
+                       ~~~~~~~~~
+
+client/src/App.tsx:298:18 - error TS2339: Property 'listeners' does not exist on type 'EventTarget'.
+
+298             this.listeners[type].push(listener);
+                     ~~~~~~~~~
+
+client/src/App.tsx:302:22 - error TS2339: Property 'listeners' does not exist on type 'EventTarget'.
+
+302             if (this.listeners[type]) {
+                         ~~~~~~~~~
+
+client/src/App.tsx:303:34 - error TS2339: Property 'listeners' does not exist on type 'EventTarget'.
+
+303               const index = this.listeners[type].indexOf(listener);
+                                     ~~~~~~~~~
+
+client/src/App.tsx:305:22 - error TS2339: Property 'listeners' does not exist on type 'EventTarget'.
+
+305                 this.listeners[type].splice(index, 1);
+                         ~~~~~~~~~
+
+client/src/App.tsx:311:22 - error TS2339: Property 'listeners' does not exist on type 'EventTarget'.
+
+311             if (this.listeners[event.type]) {
+                         ~~~~~~~~~
+
+client/src/App.tsx:312:20 - error TS2339: Property 'listeners' does not exist on type 'EventTarget'.
+
+312               this.listeners[event.type].forEach((listener: any) => {
+                       ~~~~~~~~~
+
+client/src/components/ApiKeyManagement.tsx:37:49 - error TS2339: Property 'VITE_ENABLE_API_KEYS' does not exist on type 'ImportMetaEnv'.
+
+37 const API_KEY_FEATURE_ENABLED = import.meta.env.VITE_ENABLE_API_KEYS === 'true' || false;
+                                                   ~~~~~~~~~~~~~~~~~~~~
+
+
+Found 10 errors in 2 files.
+
+Errors  Files
+     9  client/src/App.tsx:291
+     1  client/src/components/ApiKeyManagement.tsx:37
