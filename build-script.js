@@ -73,7 +73,7 @@ try {
     });
     console.log('✅ CSS processing completed with local TailwindCSS');
   } catch (localError) {
-    console.log('⚠️ Local TailwindCSS failed, trying npx...');
+    console.warn('⚠️ Local TailwindCSS failed, trying npx...', localError);
     try {
       // Fallback to npx
       execSync(`npx tailwindcss -i ./client/src/index.css -o ./dist/public/styles.css --minify`, {
@@ -81,7 +81,7 @@ try {
       });
       console.log('✅ CSS processing completed with npx TailwindCSS');
     } catch (npxError) {
-      console.log('⚠️ TailwindCSS unavailable, using fallback CSS processor...');
+      console.warn('⚠️ TailwindCSS unavailable, using fallback CSS processor...', npxError);
       // Final fallback - basic CSS processing
       execSync(`node process-css.js`, {
         stdio: 'inherit'
@@ -95,22 +95,19 @@ try {
   
   // Emergency fallback - just copy the CSS file
   try {
-    const fs = await import('fs');
-    const path = await import('path');
-    const { fileURLToPath } = await import('url');
-    const __filename = fileURLToPath(import.meta.url);
-    const __dirname = path.dirname(__filename);
-    
-    if (fs.existsSync('./client/src/index.css')) {
-      fs.copyFileSync('./client/src/index.css', './dist/public/styles.css');
+    const cssSource = path.join(__dirname, 'client', 'src', 'index.css');
+    const cssDestination = path.join(distDir, 'styles.css');
+
+    if (fs.existsSync(cssSource)) {
+      fs.copyFileSync(cssSource, cssDestination);
       console.log('✅ CSS copied as emergency fallback');
     } else {
       // Create minimal CSS if source doesn't exist
-      fs.writeFileSync('./dist/public/styles.css', '/* Fallback CSS */\nbody { font-family: system-ui, sans-serif; margin: 0; padding: 20px; }');
+      fs.writeFileSync(cssDestination, '/* Fallback CSS */\nbody { font-family: system-ui, sans-serif; margin: 0; padding: 20px; }');
       console.log('✅ Minimal CSS created as emergency fallback');
     }
   } catch (fallbackError) {
-    console.error('❌ Even emergency CSS fallback failed:', fallbackError.message);
+    console.error('❌ Even emergency CSS fallback failed:', fallbackError);
     // Don't exit - continue without CSS
     console.log('⚠️ Continuing build without CSS...');
   }

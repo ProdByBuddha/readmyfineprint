@@ -35,5 +35,19 @@ export default [
       'no-useless-escape': 'warn',
       'no-control-regex': 'warn'
     }
+  },
+  {
+    files: ['build-script.js'],
+    languageOptions: {
+      globals: {
+        console: 'readonly',
+        process: 'readonly',
+        __dirname: 'readonly',
+        __filename: 'readonly'
+      }
+    },
+    rules: {
+      'no-console': 'off'
+    }
   }
 ];
