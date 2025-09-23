@@ -48,8 +48,19 @@ const TIER_ICON_CLASS_MAP: Record<string, string> = {
   enterprise: 'text-rose-600 bg-rose-50 dark:text-rose-300 dark:bg-rose-500/10',
 };
 
-export const getTierColor = (tierId: string) =>
-  TIER_ICON_CLASS_MAP[tierId] ?? DEFAULT_ICON_WRAPPER_CLASS;
+export function getTierColor(tierId: string): string {
+  try {
+    if (Object.prototype.hasOwnProperty.call(TIER_ICON_CLASS_MAP, tierId)) {
+      return TIER_ICON_CLASS_MAP[tierId];
+    }
+  } catch (error) {
+    if (import.meta.env.DEV) {
+      console.error('Failed to resolve tier color', tierId, error);
+    }
+  }
+
+  return DEFAULT_ICON_WRAPPER_CLASS;
+}
 
 const SUBSCRIPTION_TIERS: SubscriptionTier[] = [
   {
