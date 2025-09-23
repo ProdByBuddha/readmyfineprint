@@ -21,6 +21,10 @@ interface ImportMeta {
   readonly env: ImportMetaEnv
 }
 
+interface ImportMeta {
+  readonly env: ImportMetaEnv
+}
+
 // EventTarget polyfill for compatibility
 declare global {
   interface Window {
