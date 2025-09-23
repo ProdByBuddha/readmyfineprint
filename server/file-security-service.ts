@@ -71,8 +71,9 @@ class FileSecurityService {
     /\.\.\//g,         // Unix path separators
     /%5c/gi,           // URL encoded backslash
     /%2f/gi,           // URL encoded forward slash
-    /\0/g,             // Null bytes
-    /\x00/g,           // Hex null bytes
+      /\0/g,             // Null bytes
+      // eslint-disable-next-line no-control-regex
+      /\x00/g,           // Hex null bytes
   ];
 
   /**
@@ -286,8 +287,9 @@ class FileSecurityService {
       return false;
     }
 
-    // Check for illegal characters
-    const illegalChars = /[<>:"|?*\x00-\x1f]/;
+      // Check for illegal characters
+      // eslint-disable-next-line no-control-regex
+      const illegalChars = /[<>:"|?*\x00-\x1f]/;
     if (illegalChars.test(filename)) {
       return false;
     }

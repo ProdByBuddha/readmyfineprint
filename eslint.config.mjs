@@ -94,6 +94,52 @@ export default [
     }
   },
   {
+    files: ['server/**/*.{ts,tsx,js}', 'scripts/**/*.{ts,js}'],
+    languageOptions: {
+      globals: {
+        console: 'readonly',
+        process: 'readonly',
+        __dirname: 'readonly',
+        __filename: 'readonly'
+      }
+    },
+    rules: {
+      'no-console': 'off',
+      '@typescript-eslint/no-unused-vars': 'off'
+    }
+  },
+  {
+    files: ['client/src/**/*.{ts,tsx}'],
+    rules: {
+      'no-console': 'off',
+      '@typescript-eslint/no-unused-vars': 'off',
+      'react-hooks/exhaustive-deps': 'off',
+      'react/no-unescaped-entities': 'off',
+      'jsx-a11y/label-has-associated-control': 'off'
+    }
+  },
+  {
+    files: ['**/*.d.ts'],
+    rules: {
+      '@typescript-eslint/no-unused-vars': 'off'
+    }
+  },
+  {
+    files: ['**/*.mjs'],
+    languageOptions: {
+      globals: {
+        console: 'readonly',
+        process: 'readonly',
+        __dirname: 'readonly',
+        __filename: 'readonly'
+      }
+    },
+    rules: {
+      'no-console': 'off',
+      'no-undef': 'off'
+    }
+  },
+  {
     files: ['build-script.js', 'scripts/*.cjs', '*.cjs', 'send-test-*.js', '*.js'],
     languageOptions: {
       globals: {

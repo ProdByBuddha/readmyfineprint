@@ -159,7 +159,8 @@ export class FileValidator {
     }
 
     // Check for dangerous characters
-    const dangerousChars = /[<>:"/\\|?*\x00-\x1f]/;
+      // eslint-disable-next-line no-control-regex
+      const dangerousChars = /[<>:"/\\|?*\x00-\x1f]/;
     if (dangerousChars.test(filename)) {
       return {
         isValid: false,
@@ -369,8 +370,9 @@ export class FileValidator {
    * Sanitize filename by removing dangerous characters
    */
   private static sanitizeFilename(filename: string): string {
-    return filename
-      .replace(/[<>:"/\\|?*\x00-\x1f]/g, '_') // Replace dangerous chars with underscore
+      return filename
+        // eslint-disable-next-line no-control-regex
+        .replace(/[<>:"/\\|?*\x00-\x1f]/g, '_') // Replace dangerous chars with underscore
       .replace(/\.+/g, '.') // Replace multiple dots with single dot
       .replace(/^\./, '_') // Don't allow filenames starting with dot
       .slice(0, this.MAX_FILENAME_LENGTH); // Truncate if too long
