@@ -21,6 +21,7 @@ import { useToast } from '@/hooks/use-toast';
 import { clearSession } from '@/lib/sessionManager';
 import { clearCSRFToken } from '@/lib/csrfManager';
 import { queryClient } from '@/lib/queryClient';
+import { safeDispatchEvent } from '@/lib/safeDispatchEvent';
 import { useTheme } from '@/components/ThemeProvider';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { authFetch } from '@/lib/auth-fetch';
@@ -206,8 +207,8 @@ export function Header() {
     await refetchAuth();
     
     // Trigger auth update event for other components
-    window.dispatchEvent(new Event('authUpdate'));
-    window.dispatchEvent(new CustomEvent('authStateChanged'));
+    safeDispatchEvent('authUpdate');
+    safeDispatchEvent('authStateChanged');
     
     toast({
       title: "Login successful",

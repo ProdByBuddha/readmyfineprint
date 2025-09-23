@@ -16,6 +16,7 @@ import AccountDeletion from '@/components/AccountDeletion';
 import DataExportButton from '@/components/DataExportButton';
 import { getStoredDeviceFingerprint } from '@/utils/deviceFingerprint';
 import { createCustomerPortalSession, reactivateSubscription } from '@/lib/api';
+import { safeDispatchEvent } from '@/lib/safeDispatchEvent';
 // Temporarily disabled TradeSecretProtection due to interference with app functionality
 // import TradeSecretProtection from '@/components/TradeSecretProtection';
 import { useQuery, useMutation } from '@tanstack/react-query';
@@ -157,7 +158,7 @@ export default function SubscriptionPage() {
             // Subscription data will be updated via React Query refetch
             
             // Notify other components of auth state change
-            window.dispatchEvent(new CustomEvent('authStateChanged'));
+            safeDispatchEvent('authStateChanged');
             
             console.log('✅ Subscription token set as httpOnly cookie');
           }

@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Cookie, Shield, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { logConsent } from "@/lib/api";
+import { safeDispatchEvent } from "@/lib/safeDispatchEvent";
 
 interface CookieConsentBannerProps {
   onAccept: () => void;
@@ -44,7 +45,7 @@ export function CookieConsentBanner({ onAccept }: CookieConsentBannerProps) {
       setIsLogging(false);
       setIsVisible(false);
       // Dispatch custom event to notify other components
-      window.dispatchEvent(new CustomEvent('consentChanged'));
+      safeDispatchEvent('consentChanged');
       onAccept();
     }
   };
