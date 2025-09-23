@@ -286,10 +286,8 @@ function App() {
       // Ensure EventTarget is properly available
       if (!window.EventTarget) {
         // Polyfill for EventTarget if needed
-        window.EventTarget = class EventTarget {
-          constructor() {
-            this.listeners = {};
-          }
+        class CustomEventTarget {
+          private listeners: { [key: string]: any[] } = {};
           
           addEventListener(type: string, listener: any) {
             if (!this.listeners[type]) {
@@ -315,7 +313,9 @@ function App() {
             }
             return true;
           }
-        } as any;
+        }
+        
+        (window as any).EventTarget = CustomEventTarget;
       }
     }
   }, []);
