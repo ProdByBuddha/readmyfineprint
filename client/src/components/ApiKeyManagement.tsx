@@ -47,6 +47,36 @@ export default function ApiKeyManagement({ userTier }: ApiKeyManagementProps) {
 
   const hasApiAccess = ['professional', 'business', 'enterprise', 'ultimate'].includes(userTier);
 
+  async function fetchApiKeys() {
+    try {
+      // This would be implemented when the API key system is ready
+      // For now, show placeholder data for enterprise users
+      setApiKeys([
+        {
+          id: '1',
+          name: 'Production API',
+          key: 'rmp_key_1234567890abcdef',
+          createdAt: '2024-01-15',
+          lastUsed: '2024-01-20',
+          permissions: 'full',
+          status: 'active'
+        }
+      ]);
+    } catch (error) {
+      console.error('Error fetching API keys:', error);
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  useEffect(() => {
+    if (hasApiAccess) {
+      void fetchApiKeys();
+    } else {
+      setLoading(false);
+    }
+  }, [hasApiAccess]);
+
   // Hide entire component if feature is not enabled
   if (!API_KEY_FEATURE_ENABLED) {
     return (
@@ -81,36 +111,6 @@ export default function ApiKeyManagement({ userTier }: ApiKeyManagementProps) {
       </Card>
     );
   }
-
-  useEffect(() => {
-    if (hasApiAccess) {
-      fetchApiKeys();
-    } else {
-      setLoading(false);
-    }
-  }, [hasApiAccess]);
-
-  const fetchApiKeys = async () => {
-    try {
-      // This would be implemented when the API key system is ready
-      // For now, show placeholder data for enterprise users
-      setApiKeys([
-        {
-          id: '1',
-          name: 'Production API',
-          key: 'rmp_key_1234567890abcdef',
-          createdAt: '2024-01-15',
-          lastUsed: '2024-01-20',
-          permissions: 'full',
-          status: 'active'
-        }
-      ]);
-    } catch (error) {
-      console.error('Error fetching API keys:', error);
-    } finally {
-      setLoading(false);
-    }
-  };
 
   const createApiKey = async () => {
     if (!newKeyName.trim()) {

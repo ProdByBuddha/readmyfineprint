@@ -121,14 +121,20 @@ const getTierIcon = (tierId: string) => {
   }
 };
 
-const getTierColor = (tierId: string) => {
+const getTierIconStyles = (tierId: string) => {
   switch (tierId) {
-    case 'free': return 'text-gray-600';
-    case 'starter': return 'text-blue-600';
-    case 'professional': return 'text-purple-600';
-    case 'business': return 'text-amber-600'; // Fixed: gold -> amber (valid Tailwind class)
-    case 'enterprise': return 'text-red-600';
-    default: return 'text-gray-600';
+    case 'free':
+      return 'text-gray-600 bg-gray-100 dark:text-gray-100 dark:bg-gray-800/80';
+    case 'starter':
+      return 'text-blue-600 bg-blue-50 dark:text-blue-300 dark:bg-blue-500/10';
+    case 'professional':
+      return 'text-purple-600 bg-purple-50 dark:text-purple-300 dark:bg-purple-500/10';
+    case 'business':
+      return 'text-amber-600 bg-amber-50 dark:text-amber-300 dark:bg-amber-500/10';
+    case 'enterprise':
+      return 'text-red-600 bg-red-50 dark:text-red-300 dark:bg-red-500/10';
+    default:
+      return 'text-gray-600 bg-gray-100 dark:text-gray-100 dark:bg-gray-800/80';
   }
 };
 
@@ -224,11 +230,19 @@ export default function SubscriptionPlans({ currentTier, cancelAtPeriodEnd, onSe
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: index * 0.1 }}
-              className={`relative ${tier.popular ? 'scale-105 z-10' : ''}`}
+              className="relative"
             >
-              <Card className={`h-full flex flex-col relative min-h-[520px] ${
-                tier.popular ? 'border-blue-500 border-2 shadow-xl' : 'border-gray-200'
-              } ${isCurrentTier ? 'ring-2 ring-green-500' : ''} hover:shadow-lg transition-all duration-200`}>
+              <Card
+                className={`h-full flex flex-col relative min-h-[520px] !overflow-visible hover:shadow-lg transition-all duration-200 ${
+                  tier.popular
+                    ? 'border-blue-500 border-2 shadow-xl'
+                    : 'border-gray-200'
+                } ${isCurrentTier
+                  ? 'ring-2 ring-green-500 ring-offset-2 ring-offset-white dark:ring-offset-slate-950'
+                  : tier.popular
+                    ? 'ring-4 ring-blue-200/80 ring-offset-2 ring-offset-white dark:ring-blue-900/40 dark:ring-offset-slate-950'
+                    : ''}`}
+              >
                 {tier.popular && (
                   <div className="absolute -top-3 left-1/2 transform -translate-x-1/2 z-10">
                     <Badge className="bg-blue-500 text-white px-3 py-1">
@@ -246,7 +260,9 @@ export default function SubscriptionPlans({ currentTier, cancelAtPeriodEnd, onSe
                 )}
 
                 <CardHeader className="text-center pb-6 pt-8">
-                  <div className={`mx-auto mb-4 ${getTierColor(tier.id)}`}>
+                  <div
+                    className={`mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full shadow-sm ring-1 ring-black/5 dark:ring-white/10 ${getTierIconStyles(tier.id)}`}
+                  >
                     {getTierIcon(tier.id)}
                   </div>
                   <CardTitle className="text-xl font-bold mb-3">{tier.name}</CardTitle>
@@ -345,7 +361,7 @@ export default function SubscriptionPlans({ currentTier, cancelAtPeriodEnd, onSe
           transition={{ delay: SUBSCRIPTION_TIERS.length * 0.1 }}
           className="relative"
         >
-          <Card className="h-full flex flex-col relative min-h-[520px] border-dashed border-2 border-gray-300 bg-gray-50 dark:bg-gray-800 dark:border-gray-600">
+          <Card className="h-full flex flex-col relative min-h-[520px] !overflow-visible border-dashed border-2 border-gray-300 bg-gray-50 dark:bg-gray-800 dark:border-gray-600">
             <div className="absolute -top-3 left-1/2 transform -translate-x-1/2 z-10">
               <Badge className="bg-orange-500 text-white px-3 py-1">
                 Coming Soon
@@ -353,7 +369,7 @@ export default function SubscriptionPlans({ currentTier, cancelAtPeriodEnd, onSe
             </div>
 
             <CardHeader className="text-center pb-6 pt-8">
-              <div className="mx-auto mb-4 text-orange-500">
+              <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-orange-50 text-orange-500 shadow-sm ring-1 ring-black/5 dark:bg-orange-500/10 dark:text-orange-300 dark:ring-white/10">
                 <svg className="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
                 </svg>
