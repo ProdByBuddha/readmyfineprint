@@ -98,7 +98,7 @@ try {
     });
     logInfo('✅ CSS processing completed with local TailwindCSS');
   } catch (localError) {
-    logWarn('⚠️ Local TailwindCSS failed, trying npx...', localError);
+    console.warn('⚠️ Local TailwindCSS failed, trying npx...', localError);
     try {
       // Fallback to npx
       execSync(`npx tailwindcss -i ./client/src/index.css -o ./dist/public/styles.css --minify`, {
@@ -106,7 +106,7 @@ try {
       });
       logInfo('✅ CSS processing completed with npx TailwindCSS');
     } catch (npxError) {
-      logWarn('⚠️ TailwindCSS unavailable, using fallback CSS processor...', npxError);
+      console.warn('⚠️ TailwindCSS unavailable, using fallback CSS processor...', npxError);
       // Final fallback - basic CSS processing
       execSync(`node process-css.js`, {
         stdio: 'inherit'
@@ -125,14 +125,14 @@ try {
 
     if (fs.existsSync(cssSource)) {
       fs.copyFileSync(cssSource, cssDestination);
-      logInfo('✅ CSS copied as emergency fallback');
+      console.log('✅ CSS copied as emergency fallback');
     } else {
       // Create minimal CSS if source doesn't exist
       fs.writeFileSync(cssDestination, '/* Fallback CSS */\nbody { font-family: system-ui, sans-serif; margin: 0; padding: 20px; }');
-      logInfo('✅ Minimal CSS created as emergency fallback');
+      console.log('✅ Minimal CSS created as emergency fallback');
     }
   } catch (fallbackError) {
-    logError('❌ Even emergency CSS fallback failed:', fallbackError);
+    console.error('❌ Even emergency CSS fallback failed:', fallbackError);
     // Don't exit - continue without CSS
     logWarn('⚠️ Continuing build without CSS...');
   }
