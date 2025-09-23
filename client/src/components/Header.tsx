@@ -517,89 +517,88 @@ export function Header() {
                       <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100">
                       </h2>
                     </div></div>
+                  <SheetClose asChild>
+                    <Link to="/subscription?tab=plans">
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        className="w-full justify-start h-10 transition-all duration-200 active:scale-95"
+                        aria-label="View subscription plans"
+                        data-testid="nav-plans-mobile"
+                        onClick={handleSubscriptionClick}
+                      >
+                        <Crown className="w-4 h-4 mr-3 text-yellow-600 dark:text-yellow-400" aria-hidden="true" />
+                        Plans
+                      </Button>
+                    </Link>
+                  </SheetClose>
+
+                  <SheetClose asChild>
+                    <Link to="/roadmap">
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        className="w-full justify-start h-10 transition-all duration-200 active:scale-95"
+                        aria-label="ReadMyFinePrint Roadmap"
+                        data-testid="nav-roadmap-mobile"
+                      >
+                        <Target className="w-4 h-4 mr-3" aria-hidden="true" />
+                        Roadmap
+                      </Button>
+                    </Link>
+                  </SheetClose>
+
+                  {isAdmin && (
                     <SheetClose asChild>
-                      <Link to="/subscription?tab=plans">
+                      <Link to="/admin">
                         <Button
                           variant="ghost"
                           size="sm"
                           className="w-full justify-start h-10 transition-all duration-200 active:scale-95"
-                          aria-label="View subscription plans"
-                          data-testid="nav-plans-mobile"
-                          onClick={handleSubscriptionClick}
+                          aria-label="Admin Dashboard"
+                          data-testid="nav-admin-mobile"
                         >
-                          <Crown className="w-4 h-4 mr-3 text-yellow-600 dark:text-yellow-400" aria-hidden="true" />
-                          Plans
+                          <Settings className="w-4 h-4 mr-3 text-blue-600 dark:text-blue-400" aria-hidden="true" />
+                          Admin
                         </Button>
                       </Link>
                     </SheetClose>
+                  )}
 
-                    <SheetClose asChild>
-                      <Link to="/roadmap">
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          className="w-full justify-start h-10 transition-all duration-200 active:scale-95"
-                          aria-label="ReadMyFinePrint Roadmap"
-                          data-testid="nav-roadmap-mobile"
-                        >
-                          <Target className="w-4 h-4 mr-3" aria-hidden="true" />
-                          Roadmap
-                        </Button>
-                      </Link>
-                    </SheetClose>
+                  <SheetClose asChild>
+                    <Link to="/donate">
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        className="w-full justify-start h-10 transition-all duration-200 active:scale-95"
+                        aria-label="Support us with a donation"
+                        data-testid="nav-donate-mobile"
+                      >
+                        <Heart className="w-4 h-4 mr-3 text-red-500 dark:text-red-400" aria-hidden="true" />
+                        Donate
+                      </Button>
+                    </Link>
+                  </SheetClose>
 
-                    {isAdmin && (
-                      <SheetClose asChild>
-                        <Link to="/admin">
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            className="w-full justify-start h-10 transition-all duration-200 active:scale-95"
-                            aria-label="Admin Dashboard"
-                            data-testid="nav-admin-mobile"
-                          >
-                            <Settings className="w-4 h-4 mr-3 text-blue-600 dark:text-blue-400" aria-hidden="true" />
-                            Admin
-                          </Button>
-                        </Link>
-                      </SheetClose>
+                  <Button
+                    onClick={() => {
+                      toggleTheme();
+                      setIsMobileMenuOpen(false);
+                    }}
+                    variant="ghost"
+                    size="sm"
+                    className="w-full justify-start h-10 transition-all duration-200 active:scale-95"
+                    aria-label={`Switch to ${theme === "light" ? "dark" : "light"} theme`}
+                    aria-pressed={theme === "dark"}
+                    data-testid="theme-toggle-mobile"
+                  >
+                    {theme === "light" ? (
+                      <Moon className="w-4 h-4 mr-3" aria-hidden="true" />
+                    ) : (
+                      <Sun className="w-4 h-4 mr-3" aria-hidden="true" />
                     )}
-
-                    <SheetClose asChild>
-                      <Link to="/donate">
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          className="w-full justify-start h-10 transition-all duration-200 active:scale-95"
-                          aria-label="Support us with a donation"
-                          data-testid="nav-donate-mobile"
-                        >
-                          <Heart className="w-4 h-4 mr-3 text-red-500 dark:text-red-400" aria-hidden="true" />
-                          Donate
-                        </Button>
-                      </Link>
-                    </SheetClose>
-
-                    <Button
-                      onClick={() => {
-                        toggleTheme();
-                        setIsMobileMenuOpen(false);
-                      }}
-                      variant="ghost"
-                      size="sm"
-                      className="w-full justify-start h-10 transition-all duration-200 active:scale-95"
-                      aria-label={`Switch to ${theme === "light" ? "dark" : "light"} theme`}
-                      aria-pressed={theme === "dark"}
-                      data-testid="theme-toggle-mobile"
-                    >
-                      {theme === "light" ? (
-                        <Moon className="w-4 h-4 mr-3" aria-hidden="true" />
-                      ) : (
-                        <Sun className="w-4 h-4 mr-3" aria-hidden="true" />
-                      )}
-                      {theme === "light" ? "Dark Mode" : "Light Mode"}
-                    </Button>
-                  </div>
+                    {theme === "light" ? "Dark Mode" : "Light Mode"}
+                  </Button>
                 </SheetContent>
               </Sheet>
             </div>
