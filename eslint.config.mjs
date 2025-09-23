@@ -93,7 +93,7 @@ export default [
     }
   },
   {
-    files: ['build-script.js', 'scripts/*.cjs', '*.cjs', 'send-test-*.js'],
+    files: ['build-script.js', 'scripts/*.cjs', '*.cjs', 'send-test-*.js', '*.js'],
     languageOptions: {
       globals: {
         console: 'readonly',
