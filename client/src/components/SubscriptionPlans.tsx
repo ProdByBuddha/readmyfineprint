@@ -41,7 +41,10 @@ interface SubscriptionTier {
     customIntegrations: boolean;
   };
   popular?: boolean;
+  iconWrapperClass: string;
 }
+
+const DEFAULT_ICON_WRAPPER_CLASS = 'text-gray-600 bg-gray-100 dark:text-gray-100 dark:bg-gray-800/80';
 
 const SUBSCRIPTION_TIERS: SubscriptionTier[] = [
   {
