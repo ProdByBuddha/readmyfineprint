@@ -62,52 +62,6 @@ export function getTierColor(tierId: string): string {
   return DEFAULT_ICON_WRAPPER_CLASS;
 }
 
-const DEFAULT_ICON_WRAPPER_CLASS = 'text-gray-600 bg-gray-100 dark:text-gray-100 dark:bg-gray-800/80';
-
-const TIER_ICON_CLASS_MAP: Record<string, string> = {
-  free: DEFAULT_ICON_WRAPPER_CLASS,
-  starter: 'text-blue-600 bg-blue-50 dark:text-blue-300 dark:bg-blue-500/10',
-  professional: 'text-purple-600 bg-purple-50 dark:text-purple-300 dark:bg-purple-500/10',
-  business: 'text-amber-600 bg-amber-50 dark:text-amber-300 dark:bg-amber-500/10',
-  enterprise: 'text-rose-600 bg-rose-50 dark:text-rose-300 dark:bg-rose-500/10',
-};
-
-export function getTierColor(tierId: string): string {
-  try {
-    if (Object.prototype.hasOwnProperty.call(TIER_ICON_CLASS_MAP, tierId)) {
-      return TIER_ICON_CLASS_MAP[tierId];
-    }
-  } catch (error) {
-    if (import.meta.env.DEV) {
-      console.error('Failed to resolve tier color', tierId, error);
-    }
-  }
-
-  return DEFAULT_ICON_WRAPPER_CLASS;
-}
-
-const DEFAULT_ICON_WRAPPER_CLASS = 'text-gray-600 bg-gray-100 dark:text-gray-100 dark:bg-gray-800/80';
-
-const TIER_ICON_CLASS_MAP: Record<string, string> = {
-  free: DEFAULT_ICON_WRAPPER_CLASS,
-  starter: 'text-blue-600 bg-blue-50 dark:text-blue-300 dark:bg-blue-500/10',
-  professional: 'text-purple-600 bg-purple-50 dark:text-purple-300 dark:bg-purple-500/10',
-  business: 'text-amber-600 bg-amber-50 dark:text-amber-300 dark:bg-amber-500/10',
-  enterprise: 'text-rose-600 bg-rose-50 dark:text-rose-300 dark:bg-rose-500/10',
-};
-
-const getTierColor = (tierId: string): string => {
-  if (Object.prototype.hasOwnProperty.call(TIER_ICON_CLASS_MAP, tierId)) {
-    return TIER_ICON_CLASS_MAP[tierId];
-  }
-
-  if (import.meta.env.DEV) {
-    console.warn('Unknown tier id when resolving icon color', tierId);
-  }
-
-  return DEFAULT_ICON_WRAPPER_CLASS;
-};
-
 const SUBSCRIPTION_TIERS: SubscriptionTier[] = [
   {
     id: "free",
