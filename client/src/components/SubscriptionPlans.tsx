@@ -1,14 +1,28 @@
-import { useState, useEffect } from 'react';
-import { motion } from 'framer-motion';
-import { Check, Crown, Zap, Star, Sparkles, AlertTriangle, Target, ArrowRight } from 'lucide-react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
+import { useState, useEffect } from "react";
+import { motion } from "framer-motion";
+import {
+  Check,
+  Crown,
+  Zap,
+  Star,
+  Sparkles,
+  AlertTriangle,
+  Target,
+  ArrowRight,
+} from "lucide-react";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 import { Link } from "react-router-dom";
-import { MailingListModal } from '@/components/MailingListModal';
+import { MailingListModal } from "@/components/MailingListModal";
 // Alert components available if needed for future features
 // import { Alert, AlertDescription } from '@/components/ui/alert';
-
 
 interface SubscriptionTier {
   id: string;
@@ -41,7 +55,7 @@ const SUBSCRIPTION_TIERS: SubscriptionTier[] = [
       "Analysis with GPT-4o-mini",
       "Standard rate limiting (lower priority)",
       "Email support",
-      "Full document insights"
+      "Full document insights",
     ],
     limits: {
       documentsPerMonth: 10, // Individual limit for free tier users
@@ -50,12 +64,13 @@ const SUBSCRIPTION_TIERS: SubscriptionTier[] = [
       advancedAnalysis: false,
       apiAccess: false,
       customIntegrations: false,
-    }
+    },
   },
   {
     id: "starter",
     name: "Starter",
-    description: "For individuals and teams who need faster processing with advanced AI",
+    description:
+      "For individuals and teams who need faster processing with advanced AI",
     model: "gpt-4.1-mini",
     monthlyPrice: 15,
     yearlyPrice: 150,
@@ -63,7 +78,7 @@ const SUBSCRIPTION_TIERS: SubscriptionTier[] = [
       "Enhanced analysis with GPT-4.1-mini",
       "Priority rate limiting (faster processing)",
       "Email support",
-      "Advanced analysis features"
+      "Advanced analysis features",
     ],
     limits: {
       documentsPerMonth: 50, // 50 documents per month
@@ -73,12 +88,13 @@ const SUBSCRIPTION_TIERS: SubscriptionTier[] = [
       apiAccess: false,
       customIntegrations: false,
     },
-    popular: true
+    popular: true,
   },
   {
     id: "professional",
     name: "Professional",
-    description: "For professionals and growing businesses with higher volume needs",
+    description:
+      "For professionals and growing businesses with higher volume needs",
     model: "gpt-4o",
     monthlyPrice: 75,
     yearlyPrice: 750,
@@ -88,7 +104,7 @@ const SUBSCRIPTION_TIERS: SubscriptionTier[] = [
       "Priority email support",
       "Advanced analysis features",
       "Advanced export options (PDF & Data)",
-      "Higher document limits"
+      "Higher document limits",
     ],
     limits: {
       documentsPerMonth: 200,
@@ -97,8 +113,8 @@ const SUBSCRIPTION_TIERS: SubscriptionTier[] = [
       advancedAnalysis: true,
       apiAccess: false,
       customIntegrations: false,
-    }
-  }
+    },
+  },
   // Note: Business and Enterprise tiers are temporarily hidden until features are fully implemented
   // Note: Ultimate tier is not displayed in public plans - it's admin-only
 ];
@@ -106,35 +122,41 @@ const SUBSCRIPTION_TIERS: SubscriptionTier[] = [
 interface SubscriptionPlansProps {
   currentTier?: string;
   cancelAtPeriodEnd?: boolean;
-  onSelectPlan: (tierId: string, billingCycle: 'monthly' | 'yearly') => void;
+  onSelectPlan: (tierId: string, billingCycle: "monthly" | "yearly") => void;
   onReactivate?: () => void;
 }
 
 const getTierIcon = (tierId: string) => {
   switch (tierId) {
-    case 'free': return <Zap className="h-6 w-6" />;
-    case 'starter': return <Star className="h-6 w-6" />;
-    case 'professional': return <Crown className="h-6 w-6" />;
-    case 'business': return <Sparkles className="h-6 w-6" />;
-    case 'enterprise': return <AlertTriangle className="h-6 w-6" />;
-    default: return <Zap className="h-6 w-6" />;
+    case "free":
+      return <Zap className="h-6 w-6" />;
+    case "starter":
+      return <Star className="h-6 w-6" />;
+    case "professional":
+      return <Crown className="h-6 w-6" />;
+    case "business":
+      return <Sparkles className="h-6 w-6" />;
+    case "enterprise":
+      return <AlertTriangle className="h-6 w-6" />;
+    default:
+      return <Zap className="h-6 w-6" />;
   }
 };
 
 const getTierIconStyles = (tierId: string) => {
   switch (tierId) {
-    case 'free':
-      return 'text-gray-600 bg-gray-100 dark:text-gray-100 dark:bg-gray-800/80';
-    case 'starter':
-      return 'text-blue-600 bg-blue-50 dark:text-blue-300 dark:bg-blue-500/10';
-    case 'professional':
-      return 'text-purple-600 bg-purple-50 dark:text-purple-300 dark:bg-purple-500/10';
-    case 'business':
-      return 'text-amber-600 bg-amber-50 dark:text-amber-300 dark:bg-amber-500/10';
-    case 'enterprise':
-      return 'text-red-600 bg-red-50 dark:text-red-300 dark:bg-red-500/10';
+    case "free":
+      return "text-gray-600";
+    case "starter":
+      return "text-blue-600";
+    case "professional":
+      return "text-purple-600";
+    case "business":
+      return "text-amber-600"; // Fixed: gold -> amber (valid Tailwind class)
+    case "enterprise":
+      return "text-red-600";
     default:
-      return 'text-gray-600 bg-gray-100 dark:text-gray-100 dark:bg-gray-800/80';
+      return "text-gray-600";
   }
 };
 
@@ -144,8 +166,15 @@ const calculateSavings = (monthlyPrice: number, yearlyPrice: number) => {
   return Math.round(((annualAtMonthly - yearlyPrice) / annualAtMonthly) * 100);
 };
 
-export default function SubscriptionPlans({ currentTier, cancelAtPeriodEnd, onSelectPlan, onReactivate }: SubscriptionPlansProps) {
-  const [billingCycle, setBillingCycle] = useState<'monthly' | 'yearly'>('monthly');
+export default function SubscriptionPlans({
+  currentTier,
+  cancelAtPeriodEnd,
+  onSelectPlan,
+  onReactivate,
+}: SubscriptionPlansProps) {
+  const [billingCycle, setBillingCycle] = useState<"monthly" | "yearly">(
+    "monthly",
+  );
   const [showMailingListModal, setShowMailingListModal] = useState(false);
   const [userEmail, setUserEmail] = useState<string | null>(null);
 
@@ -153,10 +182,10 @@ export default function SubscriptionPlans({ currentTier, cancelAtPeriodEnd, onSe
   useEffect(() => {
     const checkUserAuth = async () => {
       try {
-        const response = await fetch('/api/user/profile', {
-          credentials: 'include',
+        const response = await fetch("/api/user/profile", {
+          credentials: "include",
         });
-        
+
         if (response.ok) {
           const userData = await response.json();
           if (userData.user?.email) {
@@ -171,7 +200,10 @@ export default function SubscriptionPlans({ currentTier, cancelAtPeriodEnd, onSe
     checkUserAuth();
   }, []);
 
-  const handleSelectPlan = (tierId: string, billingCycle: 'monthly' | 'yearly') => {
+  const handleSelectPlan = (
+    tierId: string,
+    billingCycle: "monthly" | "yearly",
+  ) => {
     // All available tiers are ready for selection
     onSelectPlan(tierId, billingCycle);
   };
@@ -192,26 +224,34 @@ export default function SubscriptionPlans({ currentTier, cancelAtPeriodEnd, onSe
 
         {/* Billing Cycle Toggle */}
         <div className="flex items-center justify-center space-x-2 mb-4">
-          <span className={`text-xs ${billingCycle === 'monthly' ? 'text-gray-900 font-medium' : 'text-gray-500'}`}>
+          <span
+            className={`text-xs ${billingCycle === "monthly" ? "text-gray-900 font-medium" : "text-gray-500"}`}
+          >
             Monthly
           </span>
           <button
-            onClick={() => setBillingCycle(billingCycle === 'monthly' ? 'yearly' : 'monthly')}
+            onClick={() =>
+              setBillingCycle(billingCycle === "monthly" ? "yearly" : "monthly")
+            }
             className={`relative inline-flex h-5 w-9 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 ${
-              billingCycle === 'yearly' ? 'bg-blue-600' : 'bg-gray-200'
+              billingCycle === "yearly" ? "bg-blue-600" : "bg-gray-200"
             }`}
           >
             <span
               className={`inline-block h-3 w-3 transform rounded-full bg-white transition-transform ${
-                billingCycle === 'yearly' ? 'translate-x-5' : 'translate-x-1'
+                billingCycle === "yearly" ? "translate-x-5" : "translate-x-1"
               }`}
             />
           </button>
-          <span className={`text-xs ${billingCycle === 'yearly' ? 'text-gray-900 font-medium' : 'text-gray-500'}`}>
+          <span
+            className={`text-xs ${billingCycle === "yearly" ? "text-gray-900 font-medium" : "text-gray-500"}`}
+          >
             Yearly
           </span>
-          {billingCycle === 'yearly' && (
-            <span className="text-xs text-green-600 font-medium ml-1">Save up to 17%</span>
+          {billingCycle === "yearly" && (
+            <span className="text-xs text-green-600 font-medium ml-1">
+              Save up to 17%
+            </span>
           )}
         </div>
       </div>
@@ -219,8 +259,9 @@ export default function SubscriptionPlans({ currentTier, cancelAtPeriodEnd, onSe
       {/* Plans Grid */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 lg:gap-6">
         {SUBSCRIPTION_TIERS.map((tier, index) => {
-          const price = billingCycle === 'yearly' ? tier.yearlyPrice : tier.monthlyPrice;
-          const displayPrice = billingCycle === 'yearly' ? price / 12 : price;
+          const price =
+            billingCycle === "yearly" ? tier.yearlyPrice : tier.monthlyPrice;
+          const displayPrice = billingCycle === "yearly" ? price / 12 : price;
           const savings = calculateSavings(tier.monthlyPrice, tier.yearlyPrice);
           const isCurrentTier = currentTier === tier.id;
 
@@ -230,21 +271,17 @@ export default function SubscriptionPlans({ currentTier, cancelAtPeriodEnd, onSe
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: index * 0.1 }}
-              className="relative"
+              className={`relative ${tier.popular ? "scale-105 z-10" : ""}`}
             >
               <Card
-                className={`h-full flex flex-col relative min-h-[520px] !overflow-visible hover:shadow-lg transition-all duration-200 ${
+                className={`h-full flex flex-col relative min-h-[520px] ${
                   tier.popular
-                    ? 'border-blue-500 border-2 shadow-xl'
-                    : 'border-gray-200'
-                } ${isCurrentTier
-                  ? 'ring-2 ring-green-500 ring-offset-2 ring-offset-white dark:ring-offset-slate-950'
-                  : tier.popular
-                    ? 'ring-4 ring-blue-200/80 ring-offset-2 ring-offset-white dark:ring-blue-900/40 dark:ring-offset-slate-950'
-                    : ''}`}
+                    ? "border-blue-500 border-2 shadow-xl"
+                    : "border-gray-200"
+                } ${isCurrentTier ? "ring-2 ring-green-500" : ""} hover:shadow-lg transition-all duration-200`}
               >
                 {tier.popular && (
-                  <div className="absolute -top-3 left-1/2 transform -translate-x-1/2 z-10">
+                  <div className="absolute top-4 left-1/2 transform -translate-x-1/2 z-10">
                     <Badge className="bg-blue-500 text-white px-3 py-1">
                       Most Popular
                     </Badge>
@@ -252,20 +289,20 @@ export default function SubscriptionPlans({ currentTier, cancelAtPeriodEnd, onSe
                 )}
 
                 {isCurrentTier && (
-                  <div className="absolute -top-3 right-4 z-10">
+                  <div className="absolute top-4 right-4 z-10">
                     <Badge className="bg-green-500 text-white px-3 py-1">
                       Current Plan
                     </Badge>
                   </div>
                 )}
 
-                <CardHeader className="text-center pb-6 pt-8">
-                  <div
-                    className={`mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full shadow-sm ring-1 ring-black/5 dark:ring-white/10 ${getTierIconStyles(tier.id)}`}
-                  >
+                <CardHeader className="text-center pb-6 pt-10">
+                  <div className={`mx-auto mb-4 ${getTierColor(tier.id)}`}>
                     {getTierIcon(tier.id)}
                   </div>
-                  <CardTitle className="text-xl font-bold mb-3">{tier.name}</CardTitle>
+                  <CardTitle className="text-xl font-bold mb-3">
+                    {tier.name}
+                  </CardTitle>
                   <CardDescription className="text-sm min-h-[3rem] flex items-center justify-center px-3 text-center leading-relaxed">
                     {tier.description}
                   </CardDescription>
@@ -274,7 +311,7 @@ export default function SubscriptionPlans({ currentTier, cancelAtPeriodEnd, onSe
                 <CardContent className="flex-1 flex flex-col pt-2 px-6 pb-8">
                   {/* Pricing */}
                   <div className="text-center mb-8">
-                    {tier.id === 'free' ? (
+                    {tier.id === "free" ? (
                       <div className="text-3xl font-bold mb-2">Free</div>
                     ) : (
                       <>
@@ -284,24 +321,24 @@ export default function SubscriptionPlans({ currentTier, cancelAtPeriodEnd, onSe
                             /month
                           </span>
                         </div>
-                        {billingCycle === 'yearly' && savings > 0 && (
+                        {billingCycle === "yearly" && savings > 0 && (
                           <div className="text-sm text-green-600 font-medium mt-2">
                             Save {savings}% yearly
                           </div>
                         )}
-                        {billingCycle === 'yearly' && (
+                        {billingCycle === "yearly" && (
                           <div className="text-xs text-gray-500 mt-1">
                             ${price} billed annually
                           </div>
                         )}
                       </>
                     )}
-                    
+
                     {/* Document Limit & Model Display */}
                     <div className="mt-4 space-y-2">
                       <div className="text-sm font-medium text-gray-700">
-                        {tier.limits.documentsPerMonth === -1 
-                          ? 'Unlimited documents' 
+                        {tier.limits.documentsPerMonth === -1
+                          ? "Unlimited documents"
                           : `${tier.limits.documentsPerMonth} documents/month`}
                       </div>
                       <div className="text-xs text-gray-500">
@@ -313,9 +350,14 @@ export default function SubscriptionPlans({ currentTier, cancelAtPeriodEnd, onSe
                   {/* Features */}
                   <ul className="space-y-4 mb-8 flex-1">
                     {tier.features.map((feature, idx) => (
-                      <li key={idx} className="flex items-start space-x-3 text-sm">
+                      <li
+                        key={idx}
+                        className="flex items-start space-x-3 text-sm"
+                      >
                         <Check className="h-4 w-4 text-green-500 mt-1 flex-shrink-0" />
-                        <span className="leading-relaxed text-gray-700">{feature}</span>
+                        <span className="leading-relaxed text-gray-700">
+                          {feature}
+                        </span>
                       </li>
                     ))}
                   </ul>
@@ -324,28 +366,43 @@ export default function SubscriptionPlans({ currentTier, cancelAtPeriodEnd, onSe
                   <div className="mt-auto pt-4">
                     <Button
                       className={`w-full py-4 text-base font-medium ${
-                        tier.popular ? 'bg-blue-600 hover:bg-blue-700' : 
-                        (isCurrentTier && cancelAtPeriodEnd) ? 'bg-green-600 hover:bg-green-700 text-white' : ''
+                        tier.popular
+                          ? "bg-blue-600 hover:bg-blue-700"
+                          : isCurrentTier && cancelAtPeriodEnd
+                            ? "bg-green-600 hover:bg-green-700 text-white"
+                            : ""
                       }`}
-                      variant={tier.popular ? 'default' : (isCurrentTier && cancelAtPeriodEnd) ? 'default' : 'outline'}
+                      variant={
+                        tier.popular
+                          ? "default"
+                          : isCurrentTier && cancelAtPeriodEnd
+                            ? "default"
+                            : "outline"
+                      }
                       onClick={() => {
-                        if (isCurrentTier && cancelAtPeriodEnd && onReactivate) {
+                        if (
+                          isCurrentTier &&
+                          cancelAtPeriodEnd &&
+                          onReactivate
+                        ) {
                           onReactivate();
                         } else {
                           handleSelectPlan(tier.id, billingCycle);
                         }
                       }}
-                      disabled={isCurrentTier && tier.id !== 'free' && !cancelAtPeriodEnd}
+                      disabled={
+                        isCurrentTier &&
+                        tier.id !== "free" &&
+                        !cancelAtPeriodEnd
+                      }
                     >
-                      {isCurrentTier && cancelAtPeriodEnd ? (
-                        'Reactivate Plan'
-                      ) : isCurrentTier ? (
-                        'Current Plan'
-                      ) : tier.id === 'free' ? (
-                        'Get Started'
-                      ) : (
-                        `Choose ${tier.name}`
-                      )}
+                      {isCurrentTier && cancelAtPeriodEnd
+                        ? "Reactivate Plan"
+                        : isCurrentTier
+                          ? "Current Plan"
+                          : tier.id === "free"
+                            ? "Get Started"
+                            : `Choose ${tier.name}`}
                     </Button>
                   </div>
                 </CardContent>
@@ -353,7 +410,7 @@ export default function SubscriptionPlans({ currentTier, cancelAtPeriodEnd, onSe
             </motion.div>
           );
         })}
-        
+
         {/* Coming Soon Card */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -361,20 +418,36 @@ export default function SubscriptionPlans({ currentTier, cancelAtPeriodEnd, onSe
           transition={{ delay: SUBSCRIPTION_TIERS.length * 0.1 }}
           className="relative"
         >
-          <Card className="h-full flex flex-col relative min-h-[520px] !overflow-visible border-dashed border-2 border-gray-300 bg-gray-50 dark:bg-gray-800 dark:border-gray-600">
-            <div className="absolute -top-3 left-1/2 transform -translate-x-1/2 z-10">
+
+          <Card className="h-full flex flex-col relative min-h-[520px] border-dashed border-2 border-gray-300 bg-gray-50 dark:bg-gray-800 dark:border-gray-600">
+            <div className="absolute top-4 left-1/2 transform -translate-x-1/2 z-10">
               <Badge className="bg-orange-500 text-white px-3 py-1">
                 Coming Soon
               </Badge>
             </div>
 
-            <CardHeader className="text-center pb-6 pt-8">
-              <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-orange-50 text-orange-500 shadow-sm ring-1 ring-black/5 dark:bg-orange-500/10 dark:text-orange-300 dark:ring-white/10">
-                <svg className="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+            <CardHeader
+              className="text-center pb-6 pt-10
+            "
+            >
+              <div className="mx-auto mb-4 text-orange-500">
+                <svg
+                  className="h-6 w-6"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M12 4v16m8-8H4"
+                  />
                 </svg>
               </div>
-              <CardTitle className="text-xl font-bold text-gray-600 dark:text-gray-300">More Plans</CardTitle>
+              <CardTitle className="text-xl font-bold text-gray-600 dark:text-gray-300">
+                More Plans
+              </CardTitle>
               <CardDescription className="text-sm min-h-[3rem] flex items-center justify-center px-3 text-center leading-relaxed text-gray-500 dark:text-gray-400">
                 Enterprise features in development
               </CardDescription>
@@ -397,31 +470,41 @@ export default function SubscriptionPlans({ currentTier, cancelAtPeriodEnd, onSe
                   <div className="h-4 w-4 rounded-full bg-orange-100 dark:bg-orange-900 flex items-center justify-center mt-1 flex-shrink-0">
                     <div className="h-2 w-2 rounded-full bg-orange-500"></div>
                   </div>
-                  <span className="leading-relaxed text-gray-600 dark:text-gray-300">Team collaboration features</span>
+                  <span className="leading-relaxed text-gray-600 dark:text-gray-300">
+                    Team collaboration features
+                  </span>
                 </li>
                 <li className="flex items-start space-x-3 text-sm">
                   <div className="h-4 w-4 rounded-full bg-orange-100 dark:bg-orange-900 flex items-center justify-center mt-1 flex-shrink-0">
                     <div className="h-2 w-2 rounded-full bg-orange-500"></div>
                   </div>
-                  <span className="leading-relaxed text-gray-600 dark:text-gray-300">API access & integrations</span>
+                  <span className="leading-relaxed text-gray-600 dark:text-gray-300">
+                    API access & integrations
+                  </span>
                 </li>
                 <li className="flex items-start space-x-3 text-sm">
                   <div className="h-4 w-4 rounded-full bg-orange-100 dark:bg-orange-900 flex items-center justify-center mt-1 flex-shrink-0">
                     <div className="h-2 w-2 rounded-full bg-orange-500"></div>
                   </div>
-                  <span className="leading-relaxed text-gray-600 dark:text-gray-300">SSO integration</span>
+                  <span className="leading-relaxed text-gray-600 dark:text-gray-300">
+                    SSO integration
+                  </span>
                 </li>
                 <li className="flex items-start space-x-3 text-sm">
                   <div className="h-4 w-4 rounded-full bg-orange-100 dark:bg-orange-900 flex items-center justify-center mt-1 flex-shrink-0">
                     <div className="h-2 w-2 rounded-full bg-orange-500"></div>
                   </div>
-                  <span className="leading-relaxed text-gray-600 dark:text-gray-300">White-label options</span>
+                  <span className="leading-relaxed text-gray-600 dark:text-gray-300">
+                    White-label options
+                  </span>
                 </li>
                 <li className="flex items-start space-x-3 text-sm">
                   <div className="h-4 w-4 rounded-full bg-orange-100 dark:bg-orange-900 flex items-center justify-center mt-1 flex-shrink-0">
                     <div className="h-2 w-2 rounded-full bg-orange-500"></div>
                   </div>
-                  <span className="leading-relaxed text-gray-600 dark:text-gray-300">Custom deployment</span>
+                  <span className="leading-relaxed text-gray-600 dark:text-gray-300">
+                    Custom deployment
+                  </span>
                 </li>
               </ul>
 
