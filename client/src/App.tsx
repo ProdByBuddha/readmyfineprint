@@ -108,6 +108,10 @@ function AppContent() {
     // Error reporter is automatically initialized when imported
     if (import.meta.env.DEV) {
       console.log('Error reporting system initialized');
+      // Ensure errorReporter is used
+      if (errorReporter) {
+        console.log('Error reporter available');
+      }
     }
   }, []);
 

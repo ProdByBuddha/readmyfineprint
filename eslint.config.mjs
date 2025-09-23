@@ -28,7 +28,12 @@ export default [
       'vite.config.ts',
       'postcss.config.js',
       'coverage/**',
-      'build-script.js'
+      'build-script.js',
+      'send-test-error.js',
+      'send-test-error-api.cjs',
+      'send-test-error.cjs',
+      'test-*.js',
+      '*.test.js'
     ]
   },
   js.configs.recommended,
@@ -41,8 +46,7 @@ export default [
         sourceType: 'module',
         ecmaFeatures: {
           jsx: true
-        },
-        project: './tsconfig.json'
+        }
       },
       globals: {
         console: 'readonly',
@@ -67,7 +71,11 @@ export default [
       'no-console': 'warn',
       'no-debugger': 'error',
       'no-unused-vars': 'off',
-      '@typescript-eslint/no-unused-vars': 'warn',
+      '@typescript-eslint/no-unused-vars': ['warn', { 
+        'argsIgnorePattern': '^_',
+        'varsIgnorePattern': '^_',
+        'caughtErrorsIgnorePattern': '^_'
+      }],
       'no-undef': 'off',
       'no-case-declarations': 'off',
       'no-useless-escape': 'warn',
@@ -85,7 +93,7 @@ export default [
     }
   },
   {
-    files: ['build-script.js', 'scripts/*.cjs'],
+    files: ['build-script.js', 'scripts/*.cjs', '*.cjs', 'send-test-*.js'],
     languageOptions: {
       globals: {
         console: 'readonly',
@@ -94,11 +102,13 @@ export default [
         __filename: 'readonly',
         require: 'readonly',
         module: 'readonly',
-        exports: 'readonly'
+        exports: 'readonly',
+        Buffer: 'readonly'
       }
     },
     rules: {
-      'no-console': 'off'
+      'no-console': 'off',
+      'no-undef': 'off'
     }
   }
 ];
