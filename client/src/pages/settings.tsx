@@ -69,6 +69,14 @@ interface SubscriptionInfo {
   };
 }
 
+interface UserProfileResponse extends SubscriptionInfo {
+  user: UserProfile;
+}
+
+interface UserPreferencesResponse {
+  preferences: UserPreferences;
+}
+
 export default function SettingsPage() {
   const [activeTab, setActiveTab] = useState<string>('account');
   const [showPreferencesDetails, setShowPreferencesDetails] = useState<boolean>(false);
@@ -76,15 +84,29 @@ export default function SettingsPage() {
   const { theme, setTheme } = useTheme();
 
   // Fetch user profile with React Query
-  const { data: userProfile, isLoading: userLoading, error: userError } = useQuery({
+  const { data: userProfile, isLoading: userLoading, error: userError } = useQuery<UserProfileResponse>({
     queryKey: ['/api/user/profile'],
+    queryFn: async (): Promise<UserProfileResponse> => {
+      const response = await sessionFetch('/api/user/profile');
+      if (!response.ok) {
+        throw new Error(`Failed to load profile (${response.status})`);
+      }
+      return response.json() as Promise<UserProfileResponse>;
+    },
     enabled: true,
     staleTime: 5 * 60 * 1000, // 5 minutes
   });
 
   // Fetch user preferences with React Query
-  const { data: preferencesData, isLoading: preferencesLoading, error: preferencesError } = useQuery({
+  const { data: preferencesData, isLoading: preferencesLoading, error: preferencesError } = useQuery<UserPreferencesResponse>({
     queryKey: ['/api/user/preferences'],
+    queryFn: async (): Promise<UserPreferencesResponse> => {
+      const response = await sessionFetch('/api/user/preferences');
+      if (!response.ok) {
+        throw new Error(`Failed to load preferences (${response.status})`);
+      }
+      return response.json() as Promise<UserPreferencesResponse>;
+    },
     enabled: true,
     staleTime: 5 * 60 * 1000, // 5 minutes
   });

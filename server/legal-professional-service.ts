@@ -5,7 +5,7 @@ import { eq } from 'drizzle-orm';
 import { securityLogger } from './security-logger';
 import { emailService } from './email-service';
 
-interface LegalProfessionalProfile {
+export interface LegalProfessionalProfile {
   barAdmission: {
     state: string;
     barNumber: string;

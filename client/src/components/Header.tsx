@@ -13,7 +13,8 @@ import {
   Sun,
   LogOut,
   Menu,
-  Loader2
+  Loader2,
+  Target
 } from 'lucide-react';
 import { SubscriptionLogin } from './SubscriptionLogin';
 import { logout } from '@/lib/api';

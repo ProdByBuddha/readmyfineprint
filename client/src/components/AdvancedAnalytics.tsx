@@ -65,6 +65,30 @@ interface AnalyticsData {
   startDate?: string;
   endDate?: string;
   error?: string;
+  performanceMetrics?: {
+    apiResponseTimes?: Array<{
+      endpoint: string;
+      avgTime: number;
+      p95Time: number;
+      errorRate: number | null;
+    }>;
+    systemMetrics?: Record<string, number | string>;
+  };
+  documentAnalytics?: {
+    totalProcessed?: number;
+    successRate?: number;
+    averageProcessingTime?: number;
+    popularTypes?: Array<{
+      type: string;
+      count: number;
+      percentage: number | null;
+    }>;
+    processingTrends?: Array<{
+      date: string;
+      count: number;
+      avgTime: number | null;
+    }>;
+  };
 }
 
 export default function AdvancedAnalytics() {
@@ -77,22 +101,22 @@ export default function AdvancedAnalytics() {
     return () => clearInterval(timer);
   }, []);
 
-  const { data: analyticsData, isLoading, error } = useQuery({
+  const { data: analyticsData, isLoading, error } = useQuery<AnalyticsData>({
     queryKey: ["/api/admin/analytics-subscription", timeRange],
-    queryFn: async () => {
+    queryFn: async (): Promise<AnalyticsData> => {
       const response = await sessionFetch(`/api/admin/analytics-subscription?timeframe=${timeRange}`, {
         method: 'GET',
-        headers: { 
+        headers: {
           "Content-Type": "application/json",
           "x-dashboard-auto-refresh": "true"
         }
       });
-      
+
       if (!response.ok) {
         throw new Error(`HTTP ${response.status}: ${response.statusText}`);
       }
-      
-      return await response.json();
+
+      return response.json() as Promise<AnalyticsData>;
     },
     refetchInterval: 300000, // Refresh every 5 minutes
     refetchIntervalInBackground: true
@@ -495,32 +519,37 @@ export default function AdvancedAnalytics() {
                 API Response Times
               </h3>
               <div className="space-y-3">
-                {analyticsData?.performanceMetrics?.apiResponseTimes?.map((api) => (
-                  <div key={api.endpoint} className="space-y-2">
-                    <div className="flex items-center justify-between">
-                      <div className="text-sm font-medium text-slate-900 dark:text-slate-100">
-                        {api.endpoint}
-                      </div>
-                      <div className="flex items-center space-x-2">
-                        <Badge variant="outline" className={`text-xs ${api.errorRate > 5 ? 'text-red-600 bg-red-50' : 'text-green-600 bg-green-50'}`}>
-                          {api.errorRate !== null && api.errorRate !== undefined ? api.errorRate.toFixed(1) : '0.0'}% error
-                        </Badge>
-                        <div className="text-sm text-slate-600 dark:text-slate-400">
-                          {api.avgTime}ms avg
+                {analyticsData?.performanceMetrics?.apiResponseTimes?.length ? (
+                  analyticsData.performanceMetrics.apiResponseTimes.map((api) => (
+                    <div key={api.endpoint} className="space-y-2">
+                      <div className="flex items-center justify-between">
+                        <div className="text-sm font-medium text-slate-900 dark:text-slate-100">
+                          {api.endpoint}
+                        </div>
+                        <div className="flex items-center space-x-2">
+                          <Badge
+                            variant="outline"
+                            className={`text-xs ${api.errorRate && api.errorRate > 5 ? 'text-red-600 bg-red-50' : 'text-green-600 bg-green-50'}`}
+                          >
+                            {api.errorRate !== null && api.errorRate !== undefined ? api.errorRate.toFixed(1) : '0.0'}% error
+                          </Badge>
+                          <div className="text-sm text-slate-600 dark:text-slate-400">
+                            {api.avgTime}ms avg
+                          </div>
                         </div>
                       </div>
+                      <div className="w-full bg-slate-200 rounded-full h-2">
+                        <div
+                          className={`h-2 rounded-full ${api.avgTime < 200 ? 'bg-green-500' : api.avgTime < 500 ? 'bg-yellow-500' : 'bg-red-500'}`}
+                          style={{ width: `${Math.min((api.avgTime / 1000) * 100, 100)}%` }}
+                        ></div>
+                      </div>
+                      <div className="text-xs text-slate-500">
+                        P95: {api.p95Time}ms
+                      </div>
                     </div>
-                    <div className="w-full bg-slate-200 rounded-full h-2">
-                      <div 
-                        className={`h-2 rounded-full ${api.avgTime < 200 ? 'bg-green-500' : api.avgTime < 500 ? 'bg-yellow-500' : 'bg-red-500'}`}
-                        style={{ width: `${Math.min((api.avgTime / 1000) * 100, 100)}%` }}
-                      ></div>
-                    </div>
-                    <div className="text-xs text-slate-500">
-                      P95: {api.p95Time}ms
-                    </div>
-                  </div>
-                )) || (
+                  ))
+                ) : (
                   <div className="text-center text-slate-500 py-4">
                     No API performance data available
                   </div>
@@ -534,28 +563,30 @@ export default function AdvancedAnalytics() {
                 System Resources
               </h3>
               <div className="space-y-4">
-                {analyticsData?.performanceMetrics?.systemMetrics && Object.entries(analyticsData.performanceMetrics.systemMetrics).map(([key, value]) => (
-                  <div key={key} className="space-y-2">
-                    <div className="flex items-center justify-between">
-                      <div className="text-sm font-medium text-slate-900 dark:text-slate-100 capitalize">
-                        {key.replace(/([A-Z])/g, ' $1').trim()}
+                {analyticsData?.performanceMetrics?.systemMetrics
+                  ? Object.entries(analyticsData.performanceMetrics.systemMetrics).map(([key, value]) => (
+                      <div key={key} className="space-y-2">
+                        <div className="flex items-center justify-between">
+                          <div className="text-sm font-medium text-slate-900 dark:text-slate-100 capitalize">
+                            {key.replace(/([A-Z])/g, ' $1').trim()}
+                          </div>
+                          <div className="text-sm text-slate-600 dark:text-slate-400">
+                            {typeof value === 'number' ? `${value.toFixed(1)}%` : value}
+                          </div>
+                        </div>
+                        {typeof value === 'number' && (
+                          <Progress
+                            value={value}
+                            className={`h-2 ${value > 80 ? '[&>div]:bg-red-500' : value > 60 ? '[&>div]:bg-yellow-500' : '[&>div]:bg-green-500'}`}
+                          />
+                        )}
                       </div>
-                      <div className="text-sm text-slate-600 dark:text-slate-400">
-                        {typeof value === 'number' ? `${value.toFixed(1)}%` : value}
+                    ))
+                  : (
+                      <div className="text-center text-slate-500 py-4">
+                        No system metrics available
                       </div>
-                    </div>
-                    {typeof value === 'number' && (
-                      <Progress 
-                        value={value} 
-                        className={`h-2 ${value > 80 ? '[&>div]:bg-red-500' : value > 60 ? '[&>div]:bg-yellow-500' : '[&>div]:bg-green-500'}`} 
-                      />
                     )}
-                  </div>
-                )) || (
-                  <div className="text-center text-slate-500 py-4">
-                    No system metrics available
-                  </div>
-                )}
               </div>
             </div>
           </div>

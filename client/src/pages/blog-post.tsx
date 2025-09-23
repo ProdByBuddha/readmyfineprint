@@ -63,7 +63,7 @@ interface BlogPostResponse {
 
 // Version 3.0.0 - Completely redesigned to fix React hooks error
 export default function BlogPostPage() {
-  const [match, params] = useRoute('/blog/:slug');
+  const [match, params] = useRoute<{ slug: string }>('/blog/:slug');
   const slug = params ? params.slug : undefined;
   const [copySuccess, setCopySuccess] = useState(false);
 

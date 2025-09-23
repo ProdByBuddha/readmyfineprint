@@ -214,7 +214,7 @@ Provide practical, actionable insights that help everyday users understand what 
         throw new Error(`Invalid DocumentAnalysis structure from OSS20B: ${errors}`);
       }
       
-      const analysis: DocumentAnalysis = validationResult.data;
+      const analysis = validationResult.data as DocumentAnalysis;
 
       // Debug the parsed analysis
       console.log(`📊 Analysis Results:`);

@@ -8,7 +8,7 @@ import { emailChangeRequestSchema, adminEmailChangeReviewSchema } from "@shared/
 import Stripe from 'stripe';
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
-  apiVersion: '2025-07-30.basil',
+  apiVersion: '2025-08-27.basil',
 });
 
 /**
@@ -25,7 +25,7 @@ async function translateEmailChangeRequestsForAdmin(requests: any[]): Promise<an
         const user = await databaseStorage.getUserByEmail(request.currentEmail);
         if (user?.stripeCustomerId) {
           const customer = await stripe.customers.retrieve(user.stripeCustomerId);
-          if (customer && !customer.deleted && typeof customer.email === 'string') {
+          if (!('deleted' in customer) && typeof customer.email === 'string') {
             translatedRequest.currentEmail = customer.email;
             translatedRequest.pseudonymizedCurrentEmail = request.currentEmail;
           }
@@ -361,7 +361,7 @@ export function registerEmailRecoveryRoutes(app: Express) {
       if (user && user.email?.includes('@subscription.internalusers.email') && user.stripeCustomerId) {
         try {
           const customer = await stripe.customers.retrieve(user.stripeCustomerId);
-          if (customer && !customer.deleted && typeof customer.email === 'string') {
+          if (!('deleted' in customer) && typeof customer.email === 'string') {
             translatedUser = {
               ...user,
               email: customer.email
@@ -414,7 +414,7 @@ export function registerEmailRecoveryRoutes(app: Express) {
       if (user && user.email?.includes('@subscription.internalusers.email') && user.stripeCustomerId) {
         try {
           const customer = await stripe.customers.retrieve(user.stripeCustomerId);
-          if (customer && !customer.deleted && typeof customer.email === 'string') {
+          if (!('deleted' in customer) && typeof customer.email === 'string') {
             translatedUser = {
               ...user,
               email: customer.email
