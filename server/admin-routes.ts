@@ -14,7 +14,7 @@ import crypto from 'crypto';
 import { emailService } from './email-service';
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
-  apiVersion: '2025-07-30.basil',
+  apiVersion: '2025-08-27.basil',
 });
 
 /**
@@ -29,7 +29,7 @@ async function translateEmailsForAdmin(users: any[]): Promise<any[]> {
         // Try to get real email from Stripe using stripeCustomerId
         if (user.stripeCustomerId) {
           const customer = await stripe.customers.retrieve(user.stripeCustomerId);
-          if (customer && !customer.deleted && typeof customer.email === 'string') {
+          if (!('deleted' in customer) && typeof customer.email === 'string') {
             console.log(`📧 Translated ${user.email} -> ${customer.email} for admin view`);
             return {
               ...user,
