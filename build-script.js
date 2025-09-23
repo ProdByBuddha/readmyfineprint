@@ -1,6 +1,7 @@
 import fs from 'fs';
 import path from 'path';
 import { execSync } from 'child_process';
+import process from 'node:process';
 import { fileURLToPath } from 'url';
 import { stdout, stderr, env, exit } from 'node:process';
 import { inspect } from 'node:util';
@@ -38,6 +39,30 @@ const writeLog = (stream, parts) => {
 const logInfo = (...parts) => writeLog(stdout, parts);
 const logWarn = (...parts) => writeLog(stderr, parts);
 const logError = (...parts) => writeLog(stderr, parts);
+
+const formatLogPart = part => {
+  if (part instanceof Error) {
+    return part.stack ?? part.message;
+  }
+
+  if (typeof part === 'object') {
+    try {
+      return JSON.stringify(part);
+    } catch {
+      return String(part);
+    }
+  }
+
+  return String(part);
+};
+
+const writeLine = (stream, ...parts) => {
+  stream.write(`${parts.map(formatLogPart).join(' ')}\n`);
+};
+
+const logInfo = (...parts) => writeLine(process.stdout, ...parts);
+const logWarn = (...parts) => writeLine(process.stdout, ...parts);
+const logError = (...parts) => writeLine(process.stderr, ...parts);
 
 // Import esbuild with fallback handling
 let build;
