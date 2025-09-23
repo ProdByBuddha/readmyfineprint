@@ -16,7 +16,7 @@ import { FileUpload } from "@/components/FileUpload";
 import { AnalysisResults } from "@/components/AnalysisResults";
 import { SampleContracts } from "@/components/SampleContracts";
 import { DocumentHistory } from "@/components/DocumentHistory";
-import { AnalysisProgress } from "@/components/LoadingStates";
+import { AnalysisProgress, type AnalysisProgressProps } from "@/components/LoadingStates";
 import { MobileAppWrapper } from "@/components/MobileAppWrapper";
 import { CookieConsentBanner } from "@/components/CookieConsentBanner";
 import { SecurityQuestionsModal } from "@/components/SecurityQuestionsModal";
@@ -46,7 +46,7 @@ const features = [
   },
   {
     icon: Zap,
-    title: "AI-Powered Insights", 
+    title: "AI-Powered Insights",
     description: "Advanced AI identifies risks, red flags, and opportunities in plain English.",
     testId: "feature-ai"
   },
@@ -64,11 +64,54 @@ const features = [
   }
 ];
 
+type QueueStatusResponse = Awaited<ReturnType<typeof getQueueStatus>>;
+type QueueStatusSnapshot = QueueStatusResponse & { updatedAt: number };
+type AnalysisStage = "preflight" | "queued" | "processing" | "generating";
+
+const createInitialAnalysisDisplay = (): AnalysisProgressProps => ({
+  headline: "Preparing secure analysis",
+  subheadline: "Encrypting upload & calibrating privacy filters...",
+  progressPercent: 18,
+  steps: [
+    {
+      key: "uploaded",
+      label: "Upload Received",
+      status: "pending",
+      description: "Waiting to begin secure processing."
+    },
+    {
+      key: "security",
+      label: "Security Screening",
+      status: "pending",
+      description: "Running zero-trust malware and privacy checks."
+    },
+    {
+      key: "processing",
+      label: "AI Analysis",
+      status: "pending",
+      description: "Clause and risk detection pipeline warming up."
+    },
+    {
+      key: "generating",
+      label: "Report Generation",
+      status: "pending",
+      description: "Summary builder standing by."
+    }
+  ],
+  elapsedSeconds: 0,
+  queueDetails: null,
+  queueStatusMessage: null
+});
+
 export default function Upload() {
   // State management
   const [currentDocumentId, setCurrentDocumentId] = useState<number | null>(null);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [consentRevoked, setConsentRevoked] = useState(false);
+  const [analysisDisplay, setAnalysisDisplay] = useState<AnalysisProgressProps>(() => createInitialAnalysisDisplay());
+  const [queueSnapshot, setQueueSnapshot] = useState<QueueStatusSnapshot | null>(null);
+  const [queueStatusError, setQueueStatusError] = useState<string | null>(null);
+  const [elapsedSeconds, setElapsedSeconds] = useState(0);
 
   // Hooks
   const { toast } = useToast();
@@ -76,12 +119,215 @@ export default function Upload() {
   const { announce } = useAccessibility();
   const containerRef = usePreventFlicker();
   
-  const { 
-    showSecurityQuestionsModal, 
-    handleApiError, 
-    handleSecurityQuestionsComplete, 
-    closeSecurityQuestionsModal 
+  const {
+    showSecurityQuestionsModal,
+    handleApiError,
+    handleSecurityQuestionsComplete,
+    closeSecurityQuestionsModal
   } = useSecurityQuestionsHandler();
+
+  const computeAnalysisDisplay = useCallback((
+    elapsed: number,
+    queue: QueueStatusSnapshot | null,
+    queueError: string | null
+  ): AnalysisProgressProps => {
+    const stage: AnalysisStage = queue && queue.queueLength > 0
+      ? "queued"
+      : elapsed < 3
+        ? "preflight"
+        : elapsed < 12
+          ? "processing"
+          : "generating";
+
+    const steps: AnalysisProgressProps["steps"] = [
+      {
+        key: "uploaded",
+        label: "Upload Received",
+        status: "complete",
+        description: "Document stored in our encrypted workspace."
+      },
+      {
+        key: "security",
+        label: "Security Screening",
+        status: stage === "preflight" ? "active" : "complete",
+        description: stage === "preflight"
+          ? "Running zero-trust malware scans and privacy redaction checks."
+          : "Zero-trust scans cleared — privacy guardrails are active."
+      },
+      {
+        key: "processing",
+        label: "AI Analysis",
+        status: stage === "processing" ? "active" : stage === "generating" ? "complete" : "pending",
+        description: stage === "queued"
+          ? queue
+            ? `Waiting for secure worker (${queue.currentlyProcessing}/${queue.concurrentLimit} in use).`
+            : "Waiting for secure worker allocation."
+          : stage === "processing"
+            ? "Extracting risky clauses, obligations, and unusual fees."
+            : "Standing by to launch the AI review."
+      },
+      {
+        key: "generating",
+        label: "Report Generation",
+        status: stage === "generating" ? "active" : "pending",
+        description: stage === "generating"
+          ? "Formatting summary, recommendations, and compliance checklist."
+          : "Will assemble highlights immediately after analysis."
+      }
+    ];
+
+    const headlineMap: Record<AnalysisStage, string> = {
+      preflight: "Preparing secure workspace",
+      queued: "Queued for priority processing",
+      processing: "AI review in progress",
+      generating: "Writing your summary"
+    };
+
+    let subheadline: string;
+    if (stage === "preflight") {
+      subheadline = "Encrypting your upload, validating file integrity, and calibrating privacy filters.";
+    } else if (stage === "queued") {
+      subheadline = queue
+        ? `Priority queue active — ${queue.queueLength} ahead, ${queue.currentlyProcessing}/${queue.concurrentLimit} workers busy.`
+        : "Priority queue active — holding your place in line.";
+    } else if (stage === "processing") {
+      subheadline = "Reading every clause, scoring risk, and cross-checking compliance baselines.";
+    } else {
+      subheadline = "Stitching together insights, obligations, and negotiation-ready highlights.";
+    }
+
+    let queueDetails: AnalysisProgressProps["queueDetails"] = null;
+    let queueStatusMessage: string | null = queueError ?? null;
+
+    if (queue) {
+      const lastUpdatedSeconds = Math.max(0, Math.round((Date.now() - queue.updatedAt) / 1000));
+      const estimatedWaitSeconds = Math.max(
+        0,
+        stage === "queued"
+          ? queue.queueLength * 12 + 8
+          : queue.userHasRequestInQueue
+            ? 5
+            : 0
+      );
+
+      queueDetails = {
+        queueLength: queue.queueLength,
+        currentlyProcessing: queue.currentlyProcessing,
+        concurrentLimit: queue.concurrentLimit,
+        userHasRequestInQueue: queue.userHasRequestInQueue,
+        estimatedWaitSeconds,
+        lastUpdatedSeconds
+      };
+
+      if (!queueError) {
+        if (stage === "queued") {
+          queueStatusMessage = queue.queueLength > 0
+            ? `Holding your spot — ${queue.queueLength} document${queue.queueLength === 1 ? "" : "s"} ahead.`
+            : "You're next — preparing a secure worker now.";
+        } else if (stage === "processing") {
+          queueStatusMessage = `Your document is processing on ${queue.concurrentLimit} secure workers (${queue.currentlyProcessing} active).`;
+        } else if (stage === "generating") {
+          queueStatusMessage = "Finalizing narrative summary and action items…";
+        }
+      }
+    }
+
+    let progressPercent: number;
+    if (stage === "preflight") {
+      progressPercent = Math.min(45, 18 + elapsed * 9);
+    } else if (stage === "queued") {
+      const waitBoost = Math.min(elapsed, 12);
+      progressPercent = Math.min(62, Math.round(38 + waitBoost * 1.5));
+    } else if (stage === "processing") {
+      progressPercent = Math.min(85, Math.max(60, Math.round(55 + elapsed * 3.5)));
+    } else {
+      progressPercent = Math.min(97, Math.max(86, Math.round(78 + (elapsed - 10) * 2.5)));
+    }
+
+    return {
+      headline: headlineMap[stage],
+      subheadline,
+      progressPercent: Math.min(99, Math.max(12, progressPercent)),
+      steps,
+      elapsedSeconds: Math.max(0, elapsed),
+      queueDetails,
+      queueStatusMessage,
+    };
+  }, []);
+
+  useEffect(() => {
+    if (!isAnalyzing) {
+      setAnalysisDisplay(createInitialAnalysisDisplay());
+      setQueueSnapshot(null);
+      setQueueStatusError(null);
+      setElapsedSeconds(0);
+      return;
+    }
+
+    setAnalysisDisplay(computeAnalysisDisplay(0, queueSnapshot, queueStatusError));
+  }, [computeAnalysisDisplay, isAnalyzing, queueSnapshot, queueStatusError]);
+
+  useEffect(() => {
+    if (!isAnalyzing || typeof window === "undefined") {
+      return;
+    }
+
+    setElapsedSeconds(0);
+
+    const timer = window.setInterval(() => {
+      setElapsedSeconds((seconds) => seconds + 1);
+    }, 1000);
+
+    return () => {
+      window.clearInterval(timer);
+    };
+  }, [isAnalyzing]);
+
+  useEffect(() => {
+    if (!isAnalyzing) {
+      return;
+    }
+
+    let cancelled = false;
+
+    const refreshQueueStatus = async () => {
+      try {
+        const status = await getQueueStatus();
+        if (!cancelled) {
+          setQueueSnapshot({ ...status, updatedAt: Date.now() });
+          setQueueStatusError(null);
+        }
+      } catch (error) {
+        if (!cancelled) {
+          console.warn("Failed to refresh queue status", error);
+          setQueueStatusError("Unable to refresh live queue right now. We'll keep retrying automatically.");
+        }
+      }
+    };
+
+    refreshQueueStatus();
+
+    if (typeof window === "undefined") {
+      return () => {
+        cancelled = true;
+      };
+    }
+
+    const interval = window.setInterval(refreshQueueStatus, 5000);
+
+    return () => {
+      cancelled = true;
+      window.clearInterval(interval);
+    };
+  }, [isAnalyzing]);
+
+  useEffect(() => {
+    if (!isAnalyzing) {
+      return;
+    }
+
+    setAnalysisDisplay(computeAnalysisDisplay(elapsedSeconds, queueSnapshot, queueStatusError));
+  }, [computeAnalysisDisplay, elapsedSeconds, isAnalyzing, queueSnapshot, queueStatusError]);
 
   // Consent management
   useEffect(() => {
@@ -428,7 +674,7 @@ export default function Upload() {
     >
       <h2 id="analysis-progress" className="sr-only">Analysis in Progress</h2>
       <div className="w-full max-w-2xl">
-        <AnalysisProgress />
+        <AnalysisProgress {...analysisDisplay} />
       </div>
     </section>
   );
