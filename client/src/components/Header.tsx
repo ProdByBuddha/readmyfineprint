@@ -243,6 +243,7 @@ export function Header() {
             to="/" 
             aria-label="ReadMyFinePrint - Go to homepage"
             data-testid="logo-link"
+            className="flex items-center"
           >
             <div className="flex items-center space-x-3 cursor-pointer group">
               {/* Logo container with fixed size and overflow hidden */}
@@ -275,7 +276,7 @@ export function Header() {
                 ReadMyFinePrint
               </h1>
               {isMobile && (
-                <h1 className="text-lg font-bold bg-gradient-to-r from-primary to-primary-600 bg-clip-text text-transparent tracking-tight flex items-center">
+                <h1 className="text-lg font-bold bg-gradient-to-r from-primary to-primary-600 bg-clip-text text-transparent tracking-tight">
                   RMFP
                 </h1>
               )}
