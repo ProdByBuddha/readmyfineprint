@@ -290,7 +290,7 @@ export default function SubscriptionPlans({
               >
 
                 {isCurrentTier && (
-                  <div className="absolute top-4 right-4 z-10">
+                  <div className="absolute top-4 left-1/2 transform -translate-x-1/2 z-10">
                     <Badge className="bg-green-500 text-white px-3 py-1">
                       Current Plan
                     </Badge>
