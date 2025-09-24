@@ -121,10 +121,15 @@ export class LocalOss20BProvider implements LLMProvider {
   ];
 
   constructor() {
-    // Default to the local Ollama-compatible endpoint. Allow overrides for advanced setups.
+    // Use remote Ollama server URL. Must be set via LOCAL_LLM_BASE_URL environment variable.
     this.baseUrl = process.env.LOCAL_LLM_BASE_URL || "http://127.0.0.1:11434";
     // Force the OSS20B-compatible model naming so downstream logging is consistent.
     this.defaultModel = process.env.LOCAL_LLM_MODEL || "gpt-oss:20b";
+    
+    if (this.baseUrl === "http://127.0.0.1:11434" && process.env.NODE_ENV === 'production') {
+      console.warn(`⚠️ Using localhost URL in production. Set LOCAL_LLM_BASE_URL to your remote Ollama server URL.`);
+    }
+    
     console.log(`🔧 LocalOSS20BProvider configured with baseUrl: ${this.baseUrl}, model: ${this.defaultModel}`);
   }
 
