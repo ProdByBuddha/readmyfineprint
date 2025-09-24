@@ -44,7 +44,7 @@ class PIIDetector {
       confidence: 0.0,
       method: 'regex'
     };
-    
+
     for (const [entityType, patterns] of Object.entries(this.patterns)) {
       for (const pattern of patterns) {
         let match;
@@ -59,7 +59,7 @@ class PIIDetector {
         }
       }
     }
-    
+
     results.confidence = results.entities.length > 0 ? 0.85 : 0.0;
     return results;
   }
@@ -81,18 +81,18 @@ class LLMServer {
       try {
         const requestData = JSON.parse(body);
         const prompt = requestData.prompt || '';
-        
+
         // Check if this is a detailed analysis request (from local-llm-service)
         const isDetailedAnalysis = prompt.includes('Provide your analysis in this exact JSON format');
-        
+
         if (isDetailedAnalysis) {
           // Extract the text to analyze from the prompt
           const textMatch = prompt.match(/Text to analyze:\s*"""\s*([\s\S]*?)\s*"""/);
           const textToAnalyze = textMatch ? textMatch[1] : prompt;
-          
+
           // Perform enhanced contextual PII analysis
           const analysis = this.analyzeTextForContextualPII(textToAnalyze);
-          
+
           // Create redaction suggestions from detected entities
           const redactionSuggestions = analysis.entities.map(entity => ({
             text: entity.word,
@@ -102,10 +102,10 @@ class LLMServer {
             confidence: entity.confidence,
             context: `Detected ${entity.entity} pattern`
           }));
-          
+
           // Check for attorney-client privilege keywords
           const hasAttorneyClientPrivilege = this.detectAttorneyClientPrivilege(textToAnalyze);
-          
+
           // Create detailed JSON response
           const detailedResponse = {
             hasPII: analysis.entities.length > 0,
@@ -116,7 +116,7 @@ class LLMServer {
               ? `Found ${analysis.entities.length} PII entities using regex pattern matching`
               : 'No PII patterns detected in the text'
           };
-          
+
           const response = {
             model: 'nodejs-pii-detector',
             created_at: new Date().toISOString(),
@@ -124,15 +124,15 @@ class LLMServer {
             done: true,
             analysis: analysis
           };
-          
+
           res.writeHead(200, { 'Content-Type': 'application/json' });
           res.end(JSON.stringify(response));
           return;
         }
-        
+
         // Original simple analysis for other requests
         const analysis = this.detector.analyzeText(prompt);
-        
+
         // Generate response based on analysis
         let responseText;
         if (analysis.entities.length > 0) {
@@ -141,16 +141,16 @@ class LLMServer {
           analysis.entities.forEach(e => {
             entityCounts[e.entity] = (entityCounts[e.entity] || 0) + 1;
           });
-          
+
           const summary = entityTypes.map(type => 
             `${entityCounts[type]} ${type}${entityCounts[type] > 1 ? 's' : ''}`
           ).join(', ');
-          
+
           responseText = `PII detected: ${summary}. Total ${analysis.entities.length} entities found with ${(analysis.confidence * 100).toFixed(0)}% confidence using ${analysis.method} detection.`;
         } else {
           responseText = "No PII detected in the provided text.";
         }
-        
+
         const response = {
           model: 'nodejs-pii-detector',
           created_at: new Date().toISOString(),
@@ -158,10 +158,10 @@ class LLMServer {
           done: true,
           analysis: analysis
         };
-        
+
         res.writeHead(200, { 'Content-Type': 'application/json' });
         res.end(JSON.stringify(response));
-        
+
       } catch (error) {
         res.writeHead(500, { 'Content-Type': 'application/json' });
         res.end(JSON.stringify({ error: error.message }));
@@ -169,17 +169,59 @@ class LLMServer {
     });
   }
 
+  handleChat(req, res) {
+    let body = '';
+    req.on('data', chunk => {
+      body += chunk.toString();
+    });
+
+    req.on('end', () => {
+      try {
+        const requestData = JSON.parse(body);
+        // For now, we'll just use the prompt as the message and return a PII analysis
+        // In a real Ollama chat scenario, you'd process the messages,
+        // potentially call the LLM for a conversational response,
+        // and then perform PII analysis on the LLM's output.
+        const prompt = requestData.messages?.[0]?.content || requestData.prompt || '';
+
+        const analysis = this.detector.analyzeText(prompt);
+        
+        // Simulate a chat response that includes PII analysis
+        const responseText = "I can help with that. Analyzing the text for PII...";
+
+        const response = {
+          model: 'nodejs-pii-detector',
+          created_at: new Date().toISOString(),
+          message: {
+            role: 'assistant',
+            content: responseText
+          },
+          done: true,
+          analysis: analysis
+        };
+
+        res.writeHead(200, { 'Content-Type': 'application/json' });
+        res.end(JSON.stringify(response));
+
+      } catch (error) {
+        res.writeHead(500, { 'Content-Type': 'application/json' });
+        res.end(JSON.stringify({ error: error.message }));
+      }
+    });
+  }
+
+
   handlePull(req, res) {
     // Mock streaming response for model pull
     res.writeHead(200, { 'Content-Type': 'application/json' });
-    
+
     const responses = [
       { status: 'pulling manifest' },
       { status: 'downloading model' },
       { status: 'verifying sha256' },
       { status: 'success' }
     ];
-    
+
     let i = 0;
     const sendNext = () => {
       if (i < responses.length) {
@@ -190,7 +232,7 @@ class LLMServer {
         res.end();
       }
     };
-    
+
     sendNext();
   }
 
@@ -205,7 +247,7 @@ class LLMServer {
         }
       ]
     };
-    
+
     res.writeHead(200, { 'Content-Type': 'application/json' });
     res.end(JSON.stringify(response));
   }
@@ -232,7 +274,7 @@ class LLMServer {
       'legal representation', 'attorney-client', 'legal counsel',
       'law firm', 'litigation', 'legal matter', 'retainer'
     ];
-    
+
     const lowerText = text.toLowerCase();
     return attorneyClientKeywords.some(keyword => lowerText.includes(keyword));
   }
@@ -241,7 +283,7 @@ class LLMServer {
   analyzeTextForContextualPII(text) {
     const analysis = this.detector.analyzeText(text);
     const contextuallyValidatedEntities = [];
-    
+
     // Filter out obvious false positives
     for (const entity of analysis.entities) {
       let isValid = true;
@@ -249,7 +291,7 @@ class LLMServer {
       const surroundingStart = Math.max(0, entity.start - 30);
       const surroundingEnd = Math.min(text.length, entity.end + 30);
       const context = text.substring(surroundingStart, surroundingEnd).toLowerCase();
-      
+
       // Check for form labels and section headers
       if (entity.entity === 'PERSON') {
         // Skip if it looks like a form label
@@ -258,7 +300,7 @@ class LLMServer {
           console.log(`   - Filtering out form label: "${entity.word}"`);
           isValid = false;
         }
-        
+
         // Skip single words that are likely labels
         if (!entity.word.includes(' ') && 
             /^(tenant|landlord|start|end|monthly|late|security|pet|name|date|fee|deposit|rent)$/i.test(entityText)) {
@@ -266,7 +308,7 @@ class LLMServer {
           isValid = false;
         }
       }
-      
+
       // Check for time periods being misidentified as addresses
       if (entity.entity === 'ADDRESS') {
         if (/\b\d+\s+(days?|hours?|minutes?|weeks?|months?|years?)\b/.test(entity.word.toLowerCase()) ||
@@ -275,12 +317,12 @@ class LLMServer {
           isValid = false;
         }
       }
-      
+
       if (isValid) {
         contextuallyValidatedEntities.push(entity);
       }
     }
-    
+
     return {
       ...analysis,
       entities: contextuallyValidatedEntities,
@@ -291,20 +333,22 @@ class LLMServer {
   start() {
     const server = http.createServer((req, res) => {
       const parsedUrl = url.parse(req.url, true);
-      
+
       // Enable CORS
       res.setHeader('Access-Control-Allow-Origin', '*');
       res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
       res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
-      
+
       if (req.method === 'OPTIONS') {
         res.writeHead(200);
         res.end();
         return;
       }
-      
+
       if (req.method === 'POST' && parsedUrl.pathname === '/api/generate') {
         this.handleGenerate(req, res);
+      } else if (req.method === 'POST' && parsedUrl.pathname === '/api/chat') {
+        this.handleChat(req, res);
       } else if (req.method === 'POST' && parsedUrl.pathname === '/api/pull') {
         this.handlePull(req, res);
       } else if (req.method === 'GET' && parsedUrl.pathname === '/api/tags') {

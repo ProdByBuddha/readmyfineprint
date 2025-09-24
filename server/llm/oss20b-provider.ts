@@ -116,8 +116,8 @@ export class LocalOss20BProvider implements LLMProvider {
   private readonly timeout: number = 15000; // 15 second request timeout keeps UI responsive
   private readonly maxRetries: number = 1; // Fail fast and fall back to OpenAI if needed
   private readonly requestTargets: RequestTarget[] = [
-    { kind: 'openai', path: '/v1/chat/completions' },
-    { kind: 'ollama', path: '/api/chat' }
+    { kind: 'ollama', path: '/api/chat' },
+    { kind: 'openai', path: '/v1/chat/completions' }
   ];
 
   constructor() {
