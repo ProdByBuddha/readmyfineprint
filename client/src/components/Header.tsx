@@ -251,12 +251,12 @@ export function Header() {
               <div
                 className={`
                   ${isMobile ? 'w-8 h-8' : 'w-10 h-10'} 
-                  bg-gradient-to-br from-primary/10 to-primary/20 dark:from-primary/20 dark:to-primary/30 
+                  bg-gradient-to-br from-primary/10 to-primary/20 dark:from-slate-800/90 dark:to-slate-900/95 
                   rounded-xl shadow-md group-hover:shadow-lg group-hover:scale-105 transition-all duration-300 ease-out
                   group-active:scale-95 flex items-center justify-center 
-                  flex-none shrink-0 overflow-hidden border border-primary/10 dark:border-primary/20
+                  flex-none shrink-0 overflow-hidden border border-primary/10 dark:border-slate-700/50
                 `}
-              >
+              ></div>
                 <img
                   src="/og-image.png"
                   alt="ReadMyFinePrint Logo"
