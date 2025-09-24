@@ -319,11 +319,11 @@ export function SubscriptionLogin({
               <Button
                 type="button"
                 variant="secondary"
-                className="w-full"
+                className="w-full h-12 min-w-fit flex items-center justify-center"
                 onClick={() => window.location.href = '/subscription?tab=plans'}
                 disabled={loading}
               >
-                <Crown className="mr-2 h-4 w-4 text-yellow-600" />
+                <Crown className="mr-2 h-4 w-4 text-yellow-600 flex-shrink-0" />
                 Subscribe Now
               </Button>
               
