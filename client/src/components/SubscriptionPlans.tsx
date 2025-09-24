@@ -284,9 +284,9 @@ export default function SubscriptionPlans({
                     : 'border-gray-200'
                 } ${isCurrentTier
                   ? 'ring-2 ring-green-500 ring-offset-2 ring-offset-white dark:ring-offset-slate-950'
-                  : tier.popular
-                    ? 'ring-4 ring-blue-200/80 ring-offset-2 ring-offset-white dark:blue-900/40 dark:ring-offset-slate-950'
-                    : ''}`}
+                    : tier.popular
+                      ? 'ring-4 ring-blue-200/80 ring-offset-2 ring-offset-white dark:blue-900/40 dark:ring-offset-slate-950'
+                      : ''}`}
               >
 
                 {isCurrentTier && (
@@ -297,54 +297,72 @@ export default function SubscriptionPlans({
                   </div>
                 )}
 
-                <CardHeader className="items-center text-center pt-10 pb-8 space-y-3">
-                  {tier.popular && (
-                    <Badge className="bg-blue-500 text-white px-3 py-1 shadow-sm">
-                      Most Popular
-                    </Badge>
-                  )}
-                  <div
-                    className={`flex h-12 w-12 items-center justify-center rounded-full shadow-sm ring-1 ring-black/5 dark:ring-white/10 ${getTierColor(tier.id)}`}
-                  >
-                    {getTierIcon(tier.id)}
+                <CardHeader className="pt-10 pb-8">
+                  <div className="flex flex-col items-center text-center gap-3">
+                    <div className="flex h-8 items-center justify-center" aria-hidden={!tier.popular}>
+                      {tier.popular ? (
+                        <Badge className="bg-blue-500 text-white px-3 py-1 shadow-sm">
+                          Most Popular
+                        </Badge>
+                      ) : (
+                        <span className="h-8" />
+                      )}
+                    </div>
+                    <div
+                      className={`flex h-12 w-12 items-center justify-center rounded-full shadow-sm ring-1 ring-black/5 dark:ring-white/10 ${getTierColor(tier.id)}`}
+                    >
+                      {getTierIcon(tier.id)}
+                    </div>
+                    <CardTitle className="text-xl font-bold">{tier.name}</CardTitle>
+                    <CardDescription className="text-sm min-h-[3rem] flex items-center justify-center px-3 text-center leading-relaxed">
+                      {tier.description}
+                    </CardDescription>
                   </div>
-                  <CardTitle className="text-xl font-bold">{tier.name}</CardTitle>
-                  <CardDescription className="text-sm min-h-[3rem] flex items-center justify-center px-3 text-center leading-relaxed">
-                    {tier.description}
-                  </CardDescription>
                 </CardHeader>
 
                 <CardContent className="flex-1 flex flex-col pt-2 px-6 pb-8">
                   {/* Pricing */}
                   <div className="text-center mb-8">
-                    {tier.id === "free" ? (
-                      <div className="text-center mb-6">
-                        <span className="text-3xl font-bold">Free</span>
-                        <span className="text-gray-500 text-sm ml-1">/month</span>
-                      </div>
-                    ) : (
-                      <>
-                        <div className="text-3xl font-bold mb-2">
+                    <div className="flex flex-col items-center">
+                      {tier.id === "free" ? (
+                        <div className="flex flex-col items-center gap-1">
+                          <span className="text-3xl font-bold">Free</span>
+                          <span className="text-gray-500 text-sm">/month</span>
+                        </div>
+                      ) : (
+                        <div className="text-3xl font-bold">
                           ${displayPrice.toFixed(0)}
                           <span className="text-base font-normal text-gray-600">
                             /month
                           </span>
                         </div>
-                        {billingCycle === "yearly" && savings > 0 && (
-                          <div className="text-sm text-green-600 font-medium mt-2">
-                            Save {savings}% yearly
-                          </div>
-                        )}
-                        {billingCycle === "yearly" && (
-                          <div className="text-xs text-gray-500 mt-1">
-                            ${price} billed annually
-                          </div>
-                        )}
-                      </>
-                    )}
+                      )}
+                      <div className="flex flex-col items-center justify-center gap-1 mt-3 min-h-[2.75rem]">
+                        <div
+                          className={`text-sm font-medium ${
+                            billingCycle === "yearly" && tier.id !== "free" && savings > 0
+                              ? 'text-green-600'
+                              : 'text-transparent'
+                          }`}
+                          aria-hidden={!(billingCycle === "yearly" && tier.id !== "free" && savings > 0)}
+                        >
+                          Save {savings}% yearly
+                        </div>
+                        <div
+                          className={`text-xs ${
+                            billingCycle === "yearly" && tier.id !== "free"
+                              ? 'text-gray-500'
+                              : 'text-transparent'
+                          }`}
+                          aria-hidden={!(billingCycle === "yearly" && tier.id !== "free")}
+                        >
+                          ${price} billed annually
+                        </div>
+                      </div>
+                    </div>
 
                     {/* Document Limit & Model Display */}
-                    <div className="mt-4 space-y-2">
+                    <div className="mt-6 space-y-2">
                       <div className="text-sm font-medium text-gray-700">
                         {tier.limits.documentsPerMonth === -1
                           ? "Unlimited documents"
