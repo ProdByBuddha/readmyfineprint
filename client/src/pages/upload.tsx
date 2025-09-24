@@ -356,13 +356,14 @@ export default function Upload() {
     queryKey: ['/api/documents', currentDocumentId],
     queryFn: () => currentDocumentId ? getDocument(currentDocumentId) : null,
     enabled: !!currentDocumentId,
-    staleTime: Infinity,
-    gcTime: Infinity,
-    refetchOnMount: false,
+    staleTime: 0, // Allow immediate refetch when analysis completes
+    gcTime: 5 * 60 * 1000, // 5 minutes cache
+    refetchOnMount: true,
     refetchOnWindowFocus: false,
-    refetchOnReconnect: false,
+    refetchOnReconnect: true,
     notifyOnChangeProps: ['data', 'error'],
     structuralSharing: false,
+    refetchInterval: isAnalyzing ? 2000 : false, // Poll every 2s during analysis
     retry: (failureCount: number, error: unknown) => {
       if (error instanceof Error && error.message.includes('404')) {
         setCurrentDocumentId(null);
@@ -397,8 +398,13 @@ export default function Upload() {
         description: "Your document has been analyzed successfully.",
       });
       
+      // Force update both the individual document and the documents list
       queryClient.setQueryData(['/api/documents', updatedDocument.id], updatedDocument);
+      queryClient.invalidateQueries({ queryKey: ['/api/documents', updatedDocument.id] });
       queryClient.invalidateQueries({ queryKey: ['/api/documents'] });
+      
+      // Force a refetch of the current document to ensure UI updates
+      queryClient.refetchQueries({ queryKey: ['/api/documents', updatedDocument.id] });
     },
     onError: (error: unknown) => {
       setIsAnalyzing(false);
