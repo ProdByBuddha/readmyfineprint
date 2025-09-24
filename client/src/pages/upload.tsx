@@ -543,15 +543,6 @@ export default function Upload() {
       data-testid="hero-section"
     >
       <div className="max-w-5xl mx-auto">
-        <div className="mb-8">
-          <Badge
-            className="mb-6 px-6 py-3 text-sm font-semibold bg-gradient-to-r from-primary/5 to-secondary/5 dark:from-primary/10 dark:to-secondary/10 border-primary/20 dark:border-primary/30 shadow-lg backdrop-blur-sm border"
-            data-testid="hero-badge"
-          >
-            <FileText className="w-4 h-4 mr-2" />
-            AI-Powered Document Analysis
-          </Badge>
-        </div>
 
         <h1
           id="hero-heading"
@@ -635,13 +626,6 @@ export default function Upload() {
       {/* Compact Intro Section */}
       <section className="text-center mb-8" data-testid="upload-intro">
         <div className="max-w-4xl mx-auto">
-          <Badge
-            className="mb-4 px-4 py-2 text-sm font-semibold bg-gradient-to-r from-primary/5 to-secondary/5 dark:from-primary/10 dark:to-secondary/10 border-primary/20 dark:border-primary/30 shadow-lg backdrop-blur-sm border"
-            data-testid="upload-badge"
-          >
-            <FileText className="w-4 h-4 mr-2" />
-            AI-Powered Document Analysis
-          </Badge>
           <h1 className="text-3xl md:text-4xl lg:text-5xl font-black mb-4 leading-tight tracking-tight">
             <span className="bg-gradient-to-r from-primary via-blue-600 to-secondary bg-clip-text text-transparent">
               Upload & Analyze Documents
