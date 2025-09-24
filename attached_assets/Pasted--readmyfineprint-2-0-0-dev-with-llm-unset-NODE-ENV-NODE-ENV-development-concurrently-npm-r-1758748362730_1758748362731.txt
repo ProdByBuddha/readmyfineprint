@@ -1,0 +1,691 @@
+
+> readmyfineprint@2.0.0 dev:with-llm
+> unset NODE_ENV && NODE_ENV=development concurrently "npm run llm:start" "npm run dev"
+
+[0] 
+[0] > readmyfineprint@2.0.0 llm:start
+[0] > node scripts/local-llm-server.cjs
+[0] 
+[1] 
+[1] > readmyfineprint@2.0.0 dev
+[1] > unset NODE_ENV && NODE_ENV=development concurrently "npm run server:dev" "npm run client:dev"
+[1] 
+[0] 🚀 Local LLM server running on port 11434
+[0] 📡 Compatible with Ollama API endpoints
+[0] 🔍 Ready for PII detection requests
+[0] 🛑 Press Ctrl+C to stop
+[1] [1] 
+[1] [1] > readmyfineprint@2.0.0 client:dev
+[1] [1] > node dev-server.js
+[1] [1] 
+[1] [0] 
+[1] [0] > readmyfineprint@2.0.0 server:dev
+[1] [0] > unset NODE_ENV && NODE_ENV=development tsx watch server/index.ts
+[1] [0] 
+[1] [1] 🔄 Frontend serving is now handled by the backend server
+[1] [1] 🎨 Using integrated Vite development server in backend
+[1] [1] 🌐 Visit http://localhost:5000 for the application
+[1] [1] ✨ No separate frontend process needed!
+[1] [0] ⚠️ Consent logging initialized in development mode (database operations will be bypassed)
+[1] [0] Blog Scheduler initialized with config: {
+[1] [0]   enabled: true,
+[1] [0]   postsPerDay: 3,
+[1] [0]   hours: [ 9, 13, 17 ],
+[1] [0]   maxPostsPerHour: 1,
+[1] [0]   timezone: 'America/New_York',
+[1] [0]   minHoursBetweenPosts: 4
+[1] [0] }
+[1] [0] ✅ JWT Secret Manager initialized with versioned secrets
+[1] [0] 📋 Initialized 4 disaster recovery scenarios
+[1] [0] 🔍 Started continuous health monitoring
+[1] [0] 🔑 Using Stripe key: sk_test_51PvUOJ... (test mode: true)
+[1] [0] ⚠️ CSRF Protection initialized in development mode (verification will be bypassed)
+[1] [0] 🚀 Starting ReadMyFinePrint Server...
+[1] [0] 🔍 Validating environment variables...
+[1] [0] ✅ OPENAI_API_KEY: [MASKED]
+[1] [0] ✅ ADMIN_API_KEY: [MASKED]
+[1] [0] ✅ JWT_SECRET: [MASKED]
+[1] [0] ✅ TOKEN_ENCRYPTION_KEY: [MASKED]
+[1] [0] ✅ PASSWORD_PEPPER: [MASKED]
+[1] [0] ✅ ALLOWED_ORIGINS: https://readmyfineprint.com,https://edcf3ef7-a826-...
+[1] [0] ✅ NODE_ENV: development
+[1] [0] ✅ SESSION_ENCRYPTION_KEY: [MASKED]
+[1] [0] ✅ REPLIT_DB_URL: https://kv.replit.com/v0/eyJhbGciOiJIUzUxMiIsImlzc...
+[1] [0] ✅ STRIPE_PUBLIC_KEY: [MASKED]
+[1] [0] ✅ STRIPE_SECRET_KEY: [MASKED]
+[1] [0] ✅ STRIPE_TEST_PUBLIC_KEY: [MASKED]
+[1] [0] ✅ STRIPE_TEST_SECRET_KEY: [MASKED]
+[1] [0] 🔄 Concurrent test/live payment processing enabled
+[1] [0] 
+[1] [0] 📋 Warnings:
+[1] [0]    ⚠️  Optional SECURITY_WEBHOOK_URL not set - Optional webhook URL for security alerts (for external monitoring)
+[1] [0] ✅ Environment validation passed
+[1] [0]    (1 warning)
+[1] [0] 
+[1] [0] 🔧 Environment Configuration:
+[1] [0]    Environment: development
+[1] [0]    OpenAI API: ✅ Configured
+[1] [0]    Admin Auth: ✅ Configured
+[1] [0]    CORS Origins: https://readmyfineprint.com,https://edcf3ef7-a826-4eed-8e04-7a485b2e183a-00-1wyt...
+[1] [0] 
+[1] [0] 🔄 Initializing database connection...
+[1] [0] ✅ Secure JWT Service initialized with refresh token support
+[1] [0] Warning: Indexing all PDF objects
+[1] [0] 🔐 IP address hashed with Argon2id for privacy protection
+[1] [0] 🔐 IP address hashed with Argon2id for privacy protection
+[1] [0] 📅 Backup schedules configured
+[1] [0] ✅ Backup service initialized with automated scheduling
+[1] [0] 🔐 User agent hashed with Argon2id for privacy protection
+[1] [0] 🔐 Security log entry protected with Argon2id hashing
+[1] [0] ℹ️ [SECURITY] SYSTEM | LOW | caf37866 | JWT Secret Manager initialized successfully | initialization
+[1] [0] 🔐 User agent hashed with Argon2id for privacy protection
+[1] [0] 🔐 Security log entry protected with Argon2id hashing
+[1] [0] ℹ️ [SECURITY] SYSTEM | LOW | f15f50b0 | Secure JWT Service initialized | initialization
+[1] [0] 🔐 IP address hashed with Argon2id for privacy protection
+[1] [0] 🔐 User agent hashed with Argon2id for privacy protection
+[1] [0] 🔐 Security log entry protected with Argon2id hashing
+[1] [0] ℹ️ [SECURITY] SYSTEM | LOW | 1f81d322 | Backup service initialized successfully | initialization
+[1] [0] ✅ Email service configured and verified with SMTP (smtp.mail.me.com)
+[1] [0] ✅ Database connected to Replit PostgreSQL
+[1] [0] 🔧 Initializing Enhanced PII Detection with Local LLM...
+[1] [0] 📊 Enhanced PII Detection initialized (regex-only mode, Local LLM disabled)
+[1] [0] ✅ Enhanced PII Detection with Local LLM initialized
+[1] [0] 🔧 Initializing collective free tier user routing...
+[1] [0] ✅ Collective free tier user routing initialized
+[1] [0] ✅ Two-Factor Authentication routes registered
+[1] [0] Failed to setup Vite: Error: Cannot find module 'vite'
+[1] [0] Require stack:
+[1] [0] - /home/runner/workspace/server/vite.ts
+[1] [0]     at Module._resolveFilename (node:internal/modules/cjs/loader:1143:15)
+[1] [0]     at nextResolveSimple (/home/runner/workspace/node_modules/tsx/dist/register-D46fvsV_.cjs:4:1004)
+[1] [0]     at /home/runner/workspace/node_modules/tsx/dist/register-D46fvsV_.cjs:3:2630
+[1] [0]     at /home/runner/workspace/node_modules/tsx/dist/register-D46fvsV_.cjs:3:1542
+[1] [0]     at resolveTsPaths (/home/runner/workspace/node_modules/tsx/dist/register-D46fvsV_.cjs:4:760)
+[1] [0]     at /home/runner/workspace/node_modules/tsx/dist/register-D46fvsV_.cjs:4:1102
+[1] [0]     at m._resolveFilename (file:///home/runner/workspace/node_modules/tsx/dist/register-B7jrtLTO.mjs:1:789)
+[1] [0]     at Function.resolve (node:internal/modules/helpers:190:19)
+[1] [0]     at loadVite (/home/runner/workspace/server/vite.ts:186:32)
+[1] [0]     at setupVite (/home/runner/workspace/server/vite.ts:80:18)
+[1] [0]     at <anonymous> (/home/runner/workspace/server/index.ts:520:7) {
+[1] [0]   code: 'MODULE_NOT_FOUND',
+[1] [0]   requireStack: [ '/home/runner/workspace/server/vite.ts' ]
+[1] [0] }
+[1] [0] Failed to setup Vite: Error: Cannot find module 'vite'
+[1] [0] Require stack:
+[1] [0] - /home/runner/workspace/server/vite.ts
+[1] [0]     at Module._resolveFilename (node:internal/modules/cjs/loader:1143:15)
+[1] [0]     at nextResolveSimple (/home/runner/workspace/node_modules/tsx/dist/register-D46fvsV_.cjs:4:1004)
+[1] [0]     at /home/runner/workspace/node_modules/tsx/dist/register-D46fvsV_.cjs:3:2630
+[1] [0]     at /home/runner/workspace/node_modules/tsx/dist/register-D46fvsV_.cjs:3:1542
+[1] [0]     at resolveTsPaths (/home/runner/workspace/node_modules/tsx/dist/register-D46fvsV_.cjs:4:760)
+[1] [0]     at /home/runner/workspace/node_modules/tsx/dist/register-D46fvsV_.cjs:4:1102
+[1] [0]     at m._resolveFilename (file:///home/runner/workspace/node_modules/tsx/dist/register-B7jrtLTO.mjs:1:789)
+[1] [0]     at Function.resolve (node:internal/modules/helpers:190:19)
+[1] [0]     at loadVite (/home/runner/workspace/server/vite.ts:186:32)
+[1] [0]     at setupVite (/home/runner/workspace/server/vite.ts:80:18)
+[1] [0]     at <anonymous> (/home/runner/workspace/server/index.ts:520:7) {
+[1] [0]   code: 'MODULE_NOT_FOUND',
+[1] [0]   requireStack: [ '/home/runner/workspace/server/vite.ts' ]
+[1] [0] }
+[1] [0] Falling back to static serving
+[1] [0] 9:10:41 PM [express] serving on port 5173 (development fallback)
+[1] [0] 🔄 Initializing database connection...
+[1] [0] ✅ Database connected to Replit PostgreSQL
+[1] [0] [SessionStorage] Session storage tables already exist, skipping creation
+[1] [0] ✅ Distributed session storage initialized
+[1] [0] Starting blog scheduler...
+[1] [0] Scheduled blog posts for 9:00 (America/New_York)
+[1] [0] Scheduled blog posts for 13:00 (America/New_York)
+[1] [0] Scheduled blog posts for 17:00 (America/New_York)
+[1] [0] Blog scheduler started with 4 scheduled jobs
+[1] [0] ✅ Blog scheduler initialized
+[1] [0] Starting view drip service...
+[1] [0] ✅ View drip service initialized
+[1] [0] 
+[1] [0] 🔐 Development Mode: Auto-Admin Login Enabled
+[1] [0] 📧 Admin Email: admin@readmyfineprint.com
+[1] [0] 🌐 Admin URL: http://localhost:5173/admin
+[1] [0] ⚡ No authentication required - just visit the admin page!
+[1] [0] 
+[1] [0] ✨ You are automatically logged in as admin in development mode!
+[1] [0] ⚠️  This is for development only - never use in production!
+[1] [0] 
+[1] [0] 🔒 Security headers set for GET /
+[1] [0] 🔐 IP address hashed with Argon2id for privacy protection
+[1] [0] 🔐 User agent hashed with Argon2id for privacy protection
+[1] [0] 📝 New session logged for client: ef4f4fb6417e5f1ac5be20bf1be24cb7
+[1] [0] 🔐 IP address hashed with Argon2id for privacy protection
+[1] [0] 🔐 User agent hashed with Argon2id for privacy protection
+[1] [0] 🔐 Security log entry protected with Argon2id hashing
+[1] [0] ℹ️ [SECURITY] SESSION_MANAGEMENT | LOW | 0f7e2497 | New session created
+[1] [0] 🔒 Security headers set for GET /
+[1] [0] 🔒 Security headers set for GET /styles.css
+[1] [0] 🔐 IP address hashed with Argon2id for privacy protection
+[1] [0] 🔐 User agent hashed with Argon2id for privacy protection
+[1] [0] 🔒 Security headers set for GET /main.js
+[1] [0] 🔒 Security headers set for GET /styles.css
+[1] [0] 🔐 IP address hashed with Argon2id for privacy protection
+[1] [0] 🔐 User agent hashed with Argon2id for privacy protection
+[1] [0] 📝 New session logged for client: c6bb057d8ab312c5b312e4908e5af5a7
+[1] [0] 🔐 IP address hashed with Argon2id for privacy protection
+[1] [0] 🔒 Security headers set for GET /main.js
+[1] [0] 🔐 User agent hashed with Argon2id for privacy protection
+[1] [0] 🔐 Security log entry protected with Argon2id hashing
+[1] [0] ℹ️ [SECURITY] SESSION_MANAGEMENT | LOW | 28afde49 | New session created
+[1] [0] ✅ Admin user already exists
+[1] [0] 🔒 Security headers set for GET /chunk-DFTBB42E.js
+[1] [0] 🔒 Security headers set for GET /chunk-CKGWJJUU.js
+[1] [0] 🔒 Security headers set for GET /chunk-DKQ4YMZJ.js
+[1] [0] 🔐 IP address hashed with Argon2id for privacy protection
+[1] [0] 🔐 IP address hashed with Argon2id for privacy protection
+[1] [0] 🔒 Security headers set for GET /chunk-6NR2YOK4.js
+[1] [0] 🔐 IP address hashed with Argon2id for privacy protection
+[1] [0] 🔐 User agent hashed with Argon2id for privacy protection
+[1] [0] 🔐 User agent hashed with Argon2id for privacy protection
+[1] [0] 🔐 User agent hashed with Argon2id for privacy protection
+[1] [0] 🔐 IP address hashed with Argon2id for privacy protection
+[1] [0] 🔒 Security headers set for GET /chunk-CKGWJJUU.js
+[1] [0] 🔐 User agent hashed with Argon2id for privacy protection
+[1] [0] 🔒 Security headers set for GET /chunk-DFTBB42E.js
+[1] [0] 🔒 Security headers set for GET /chunk-DKQ4YMZJ.js
+[1] [0] 🔒 Security headers set for GET /chunk-6NR2YOK4.js
+[1] [0] 🔒 Security headers set for GET /chunk-SJDZVBUX.js
+[1] [0] 🔒 Security headers set for GET /chunk-YIUCSM6X.js
+[1] [0] 🔒 Security headers set for GET /chunk-GMPFKSZX.js
+[1] [0] 🔐 IP address hashed with Argon2id for privacy protection
+[1] [0] 🔐 IP address hashed with Argon2id for privacy protection
+[1] [0] 🔐 User agent hashed with Argon2id for privacy protection
+[1] [0] 🔐 IP address hashed with Argon2id for privacy protection
+[1] [0] 🔐 User agent hashed with Argon2id for privacy protection
+[1] [0] 🔒 Security headers set for GET /chunk-SJDZVBUX.js
+[1] [0] 🔐 User agent hashed with Argon2id for privacy protection
+[1] [0] 🔒 Security headers set for GET /chunk-YIUCSM6X.js
+[1] [0] 🔒 Security headers set for GET /chunk-GMPFKSZX.js
+[1] [0] 🔒 Security headers set for GET /chunk-OEAHXXFN.js
+[1] [0] 🔒 Security headers set for GET /chunk-IUQ42ZOA.js
+[1] [0] 🔒 Security headers set for GET /chunk-R4ZYEJ4M.js
+[1] [0] 🔐 IP address hashed with Argon2id for privacy protection
+[1] [0] 🔐 IP address hashed with Argon2id for privacy protection
+[1] [0] 🔐 IP address hashed with Argon2id for privacy protection
+[1] [0] 🔐 User agent hashed with Argon2id for privacy protection
+[1] [0] 📝 New session logged for client: 873a71cf07f704db87bbc3e084488488
+[1] [0] 🔐 User agent hashed with Argon2id for privacy protection
+[1] [0] 🔒 Security headers set for GET /chunk-OEAHXXFN.js
+[1] [0] 🔐 User agent hashed with Argon2id for privacy protection
+[1] [0] 🔐 IP address hashed with Argon2id for privacy protection
+[1] [0] 🔒 Security headers set for GET /chunk-IUQ42ZOA.js
+[1] [0] 🔒 Security headers set for GET /chunk-R4ZYEJ4M.js
+[1] [0] 🔐 User agent hashed with Argon2id for privacy protection
+[1] [0] 🔐 Security log entry protected with Argon2id hashing
+[1] [0] ℹ️ [SECURITY] SESSION_MANAGEMENT | LOW | 240c3527 | New session created
+[1] [0] 🔒 Security headers set for GET /chunk-QL6OUVKL.js
+[1] [0] 🔒 Security headers set for GET /chunk-B5EYUIVB.js
+[1] [0] 🔒 Security headers set for GET /chunk-HYZCSS4K.js
+[1] [0] 🔐 IP address hashed with Argon2id for privacy protection
+[1] [0] 🔐 IP address hashed with Argon2id for privacy protection
+[1] [0] 🔐 IP address hashed with Argon2id for privacy protection
+[1] [0] 🔐 User agent hashed with Argon2id for privacy protection
+[1] [0] 🔒 Security headers set for GET /chunk-QL6OUVKL.js
+[1] [0] 🔐 User agent hashed with Argon2id for privacy protection
+[1] [0] 🔐 User agent hashed with Argon2id for privacy protection
+[1] [0] 🔒 Security headers set for GET /chunk-B5EYUIVB.js
+[1] [0] 🔒 Security headers set for GET /chunk-HYZCSS4K.js
+[1] [0] 🔒 Security headers set for GET /chunk-HY2D543S.js
+[1] [0] 🔒 Security headers set for GET /chunk-TZJLEV6I.js
+[1] [0] 🔒 Security headers set for GET /chunk-IE4LOF55.js
+[1] [0] 🔒 Security headers set for GET /chunk-QUUODQV3.js
+[1] [0] 🔐 IP address hashed with Argon2id for privacy protection
+[1] [0] 🔐 IP address hashed with Argon2id for privacy protection
+[1] [0] 🔐 IP address hashed with Argon2id for privacy protection
+[1] [0] 🔐 IP address hashed with Argon2id for privacy protection
+[1] [0] 🔐 User agent hashed with Argon2id for privacy protection
+[1] [0] 🔐 User agent hashed with Argon2id for privacy protection
+[1] [0] 🔐 User agent hashed with Argon2id for privacy protection
+[1] [0] 🔐 User agent hashed with Argon2id for privacy protection
+[1] [0] 🔒 Security headers set for GET /chunk-IE4LOF55.js
+[1] [0] 🔒 Security headers set for GET /chunk-HY2D543S.js
+[1] [0] 🔒 Security headers set for GET /chunk-TZJLEV6I.js
+[1] [0] 🔒 Security headers set for GET /chunk-QUUODQV3.js
+[1] [0] 🔒 Security headers set for GET /chunk-LC24M4XN.js
+[1] [0] 🔐 IP address hashed with Argon2id for privacy protection
+[1] [0] 🔒 Security headers set for GET /chunk-FI6BCD7S.js
+[1] [0] 🔐 User agent hashed with Argon2id for privacy protection
+[1] [0] 🔐 IP address hashed with Argon2id for privacy protection
+[1] [0] 🔒 Security headers set for GET /chunk-LC24M4XN.js
+[1] [0] 🔐 User agent hashed with Argon2id for privacy protection
+[1] [0] 🔒 Security headers set for GET /chunk-FI6BCD7S.js
+[1] [0] 🔒 Security headers set for GET /chunk-GJJTPA62.js
+[1] [0] 🔒 Security headers set for GET /chunk-LD3GC7TT.js
+[1] [0] 🔒 Security headers set for GET /chunk-7KML65J5.js
+[1] [0] 🔒 Security headers set for GET /chunk-WBTJYQ63.js
+[1] [0] 🔐 IP address hashed with Argon2id for privacy protection
+[1] [0] 🔐 IP address hashed with Argon2id for privacy protection
+[1] [0] 🔐 IP address hashed with Argon2id for privacy protection
+[1] [0] 🔐 User agent hashed with Argon2id for privacy protection
+[1] [0] 🔒 Security headers set for GET /chunk-GJJTPA62.js
+[1] [0] 🔐 IP address hashed with Argon2id for privacy protection
+[1] [0] 🔒 Security headers set for GET /chunk-AILDM3EN.js
+[1] [0] 🔒 Security headers set for GET /chunk-NXMR3K2O.js
+[1] [0] 🔐 User agent hashed with Argon2id for privacy protection
+[1] [0] 🔒 Security headers set for GET /chunk-WBTJYQ63.js
+[1] [0] 🔐 User agent hashed with Argon2id for privacy protection
+[1] [0] 🔐 User agent hashed with Argon2id for privacy protection
+[1] [0] 🔐 IP address hashed with Argon2id for privacy protection
+[1] [0] 🔒 Security headers set for GET /chunk-7KML65J5.js
+[1] [0] 🔒 Security headers set for GET /chunk-LD3GC7TT.js
+[1] [0] 🔐 IP address hashed with Argon2id for privacy protection
+[1] [0] 🔐 User agent hashed with Argon2id for privacy protection
+[1] [0] 🔒 Security headers set for GET /chunk-AILDM3EN.js
+[1] [0] 🔐 User agent hashed with Argon2id for privacy protection
+[1] [0] 🔒 Security headers set for GET /chunk-NXMR3K2O.js
+[1] [0] 🔒 Security headers set for GET /chunk-O776PAHP.js
+[1] [0] 🔐 IP address hashed with Argon2id for privacy protection
+[1] [0] 🔐 User agent hashed with Argon2id for privacy protection
+[1] [0] 🔒 Security headers set for GET /chunk-O776PAHP.js
+[1] [0] 🔒 Security headers set for GET /home-YT26ADNW.js
+[1] [0] 🔒 Security headers set for GET /api/auth/session
+[1] [0] 🔍 Session validation request: {
+[1] [0]   sessionId: 'none',
+[1] [0]   clientSessionId: 'f88c36ed...',
+[1] [0]   cookies: [],
+[1] [0]   headers: {
+[1] [0]     cookie: 'missing',
+[1] [0]     authorization: 'missing',
+[1] [0]     'x-session-id': 'present'
+[1] [0]   }
+[1] [0] }
+[1] [0] 🔍 Checking client session for unauthenticated user...
+[1] [0] ✅ Client session validation successful: f88c36ed...
+[1] [0] 🔒 Security headers set for GET /api/auth/session
+[1] [0] 🔒 Security headers set for GET /api/auth/session
+[1] [0] 🔒 Security headers set for GET /api/auth/session
+[1] [0] 9:10:43 PM [express] GET /api/auth/session 304 in 4ms :: {"authenticated":false,"sessionId":"f88c36e...
+[1] [0] 🔒 Security headers set for GET /api/csrf-token
+[1] [0] 🔍 Direct CSRF token request - sessionId: f88c36edc8067c56745171a853817d82, path: /api/csrf-token, method: GET
+[1] [0] 🔍 Headers: {
+[1] [0]   host: 'edcf3ef7-a826-4eed-8e04-7a485b2e183a-00-1wytaob2mj6u8.kirk.replit.dev',
+[1] [0]   'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36',
+[1] [0]   accept: '*/*',
+[1] [0]   'accept-encoding': 'gzip, deflate, br, zstd',
+[1] [0]   'accept-language': 'en-US,en;q=0.9',
+[1] [0]   'content-type': 'application/json',
+[1] [0]   dnt: '1',
+[1] [0]   'if-none-match': 'W/"49-HOTEMZcpsCPD4bzjZbbKrF+VuH0"',
+[1] [0]   referer: 'https://edcf3ef7-a826-4eed-8e04-7a485b2e183a-00-1wytaob2mj6u8.kirk.replit.dev:5173/',
+[1] [0]   'sec-ch-ua': '"Chromium";v="140", "Not=A?Brand";v="24", "Google Chrome";v="140"',
+[1] [0]   'sec-ch-ua-mobile': '?0',
+[1] [0]   'sec-ch-ua-platform': '"Windows"',
+[1] [0]   'sec-fetch-dest': 'empty',
+[1] [0]   'sec-fetch-mode': 'cors',
+[1] [0]   'sec-fetch-site': 'same-origin',
+[1] [0]   'sec-fetch-storage-access': 'active',
+[1] [0]   'sec-gpc': '1',
+[1] [0]   'x-forwarded-for': '45.49.64.150, 10.82.0.104',
+[1] [0]   'x-forwarded-proto': 'https',
+[1] [0]   'x-replit-user-bio': '',
+[1] [0]   'x-replit-user-id': '',
+[1] [0]   'x-replit-user-name': '',
+[1] [0]   'x-replit-user-profile-image': '',
+[1] [0]   'x-replit-user-roles': '',
+[1] [0]   'x-replit-user-teams': '',
+[1] [0]   'x-replit-user-url': '',
+[1] [0]   'x-session-id': 'f88c36edc8067c56745171a853817d82'
+[1] [0] }
+[1] [0] 🔍 Returning dev-disabled token
+[1] [0] 🔒 Security headers set for GET /api/csrf-token
+[1] [0] 🔒 Security headers set for GET /api/csrf-token
+[1] [0] 🔒 Security headers set for GET /api/csrf-token
+[1] [0] 🔐 IP address hashed with Argon2id for privacy protection
+[1] [0] 🔐 User agent hashed with Argon2id for privacy protection
+[1] [0] 🔒 Security headers set for GET /home-YT26ADNW.js
+[1] [0] 🔒 Security headers set for GET /og-image.png
+[1] [0] 🔐 IP address hashed with Argon2id for privacy protection
+[1] [0] 🔐 User agent hashed with Argon2id for privacy protection
+[1] [0] 🔒 Security headers set for GET /og-image.png
+[1] [0] 🔒 Security headers set for GET /api/auth/session
+[1] [0] 🔍 Session validation request: {
+[1] [0]   sessionId: 'none',
+[1] [0]   clientSessionId: 'f88c36ed...',
+[1] [0]   cookies: [],
+[1] [0]   headers: {
+[1] [0]     cookie: 'missing',
+[1] [0]     authorization: 'missing',
+[1] [0]     'x-session-id': 'present'
+[1] [0]   }
+[1] [0] }
+[1] [0] 🔍 Checking client session for unauthenticated user...
+[1] [0] ✅ Client session validation successful: f88c36ed...
+[1] [0] 🔒 Security headers set for GET /api/auth/session
+[1] [0] 🔒 Security headers set for GET /api/auth/session
+[1] [0] 🔒 Security headers set for GET /api/auth/session
+[1] [0] 9:10:43 PM [express] GET /api/auth/session 304 in 1ms :: {"authenticated":false,"sessionId":"f88c36e...
+[1] [0] 🔒 Security headers set for POST /api/consent/verify
+[1] [0] Consent verification request - IP: 10.82.3.97, UA: Mozilla/5.0 (Windows..., User: none, Session: f88c36edc8067c56745171a853817d82
+[1] [0] ⚠️ Development mode: Bypassing user consent verification
+[1] [0] Consent verification response: true (session: f88c36edc8067c56745171a853817d82)
+[1] [0] 🔒 Security headers set for POST /api/consent/verify
+[1] [0] 🔒 Security headers set for POST /api/consent/verify
+[1] [0] 🔒 Security headers set for POST /api/consent/verify
+[1] [0] 9:10:43 PM [express] POST /api/consent/verify 200 in 5ms :: {"hasConsented":true,"proof":{"user_pseu...
+[1] [0] 🔒 Security headers set for GET /chunk-ME2IMHEG.js
+[1] [0] 🔒 Security headers set for GET /chunk-XSUOEWF2.js
+[1] [0] 🔒 Security headers set for GET /chunk-ONODBNT4.js
+[1] [0] 🔐 IP address hashed with Argon2id for privacy protection
+[1] [0] 🔒 Security headers set for GET /api/auth/session
+[1] [0] 🔍 Session validation request: {
+[1] [0]   sessionId: 'none',
+[1] [0]   clientSessionId: 'f88c36ed...',
+[1] [0]   cookies: [],
+[1] [0]   headers: {
+[1] [0]     cookie: 'missing',
+[1] [0]     authorization: 'missing',
+[1] [0]     'x-session-id': 'present'
+[1] [0]   }
+[1] [0] }
+[1] [0] 🔍 Checking client session for unauthenticated user...
+[1] [0] ✅ Client session validation successful: f88c36ed...
+[1] [0] 🔒 Security headers set for GET /api/auth/session
+[1] [0] 🔒 Security headers set for GET /api/auth/session
+[1] [0] 🔒 Security headers set for GET /api/auth/session
+[1] [0] 9:10:43 PM [express] GET /api/auth/session 304 in 1ms :: {"authenticated":false,"sessionId":"f88c36e...
+[1] [0] 🔐 IP address hashed with Argon2id for privacy protection
+[1] [0] 🔐 User agent hashed with Argon2id for privacy protection
+[1] [0] 🔐 IP address hashed with Argon2id for privacy protection
+[1] [0] 🔒 Security headers set for GET /chunk-ME2IMHEG.js
+[1] [0] 🔐 User agent hashed with Argon2id for privacy protection
+[1] [0] 🔒 Security headers set for GET /chunk-XSUOEWF2.js
+[1] [0] 🔐 User agent hashed with Argon2id for privacy protection
+[1] [0] 🔒 Security headers set for GET /chunk-ONODBNT4.js
+[1] [0] 🔒 Security headers set for GET /api/auth/session
+[1] [0] 🔍 Session validation request: {
+[1] [0]   sessionId: 'none',
+[1] [0]   clientSessionId: 'f88c36ed...',
+[1] [0]   cookies: [],
+[1] [0]   headers: {
+[1] [0]     cookie: 'missing',
+[1] [0]     authorization: 'missing',
+[1] [0]     'x-session-id': 'present'
+[1] [0]   }
+[1] [0] }
+[1] [0] 🔍 Checking client session for unauthenticated user...
+[1] [0] ✅ Client session validation successful: f88c36ed...
+[1] [0] 🔒 Security headers set for GET /api/auth/session
+[1] [0] 🔒 Security headers set for GET /api/auth/session
+[1] [0] 🔒 Security headers set for GET /api/auth/session
+[1] [0] 9:10:43 PM [express] GET /api/auth/session 304 in 1ms :: {"authenticated":false,"sessionId":"f88c36e...
+[1] [0] ✅ JOSE Auth Service initialized with key length: 32 bytes
+[1] [0] 🔐 IP address hashed with Argon2id for privacy protection
+[1] [0] 🔐 User agent hashed with Argon2id for privacy protection
+[1] [0] 🔐 Security log entry protected with Argon2id hashing
+[1] [0] ℹ️ [SECURITY] SYSTEM | LOW | b4080c56 | JOSE Auth Service initialized | initialization
+[1] [0] 🧹 Cleaned up 0 expired refresh tokens and 0 expired revocations
+[1] [0] Session cleanup completed: 0 expired sessions removed
+[1] [0] 🧹 Startup cleanup: 0 expired tokens removed, 0 expired sessions removed
+[1] [0] 🔒 Security headers set for GET /upload-HFNO432K.js
+[1] [0] 🔐 IP address hashed with Argon2id for privacy protection
+[1] [0] 🔐 User agent hashed with Argon2id for privacy protection
+[1] [0] 📝 New session logged for client: de41a5fde088f8d8a42198d4f26a83c5
+[1] [0] 🔒 Security headers set for GET /upload-HFNO432K.js
+[1] [0] 🔐 IP address hashed with Argon2id for privacy protection
+[1] [0] 🔐 User agent hashed with Argon2id for privacy protection
+[1] [0] 🔐 Security log entry protected with Argon2id hashing
+[1] [0] ℹ️ [SECURITY] SESSION_MANAGEMENT | LOW | 28afde49 | New session created
+[1] [0] 🔒 Security headers set for GET /chunk-7BWAF4QY.js
+[1] [0] 🔒 Security headers set for GET /chunk-D4B3UWYB.js
+[1] [0] 🔒 Security headers set for GET /chunk-DUBGXUAY.js
+[1] [0] 🔒 Security headers set for GET /chunk-JZCTHOOY.js
+[1] [0] 🔒 Security headers set for GET /chunk-BJ3ZTVVH.js
+[1] [0] 🔐 IP address hashed with Argon2id for privacy protection
+[1] [0] 🔐 IP address hashed with Argon2id for privacy protection
+[1] [0] 🔐 IP address hashed with Argon2id for privacy protection
+[1] [0] 🔐 User agent hashed with Argon2id for privacy protection
+[1] [0] 🔐 IP address hashed with Argon2id for privacy protection
+[1] [0] 🔐 User agent hashed with Argon2id for privacy protection
+[1] [0] 📝 New session logged for client: caaea2b067d157020b49d2d4d3d9791d
+[1] [0] 🔐 IP address hashed with Argon2id for privacy protection
+[1] [0] 🔒 Security headers set for GET /chunk-7BWAF4QY.js
+[1] [0] 🔒 Security headers set for GET /chunk-DUBGXUAY.js
+[1] [0] 🔐 User agent hashed with Argon2id for privacy protection
+[1] [0] 📝 New session logged for client: b7bdb4ae7ce2d83cad99a3e4f10f6178
+[1] [0] 🔐 User agent hashed with Argon2id for privacy protection
+[1] [0] 🔐 IP address hashed with Argon2id for privacy protection
+[1] [0] 🔒 Security headers set for GET /chunk-D4B3UWYB.js
+[1] [0] 🔒 Security headers set for GET /chunk-BJ3ZTVVH.js
+[1] [0] 🔐 IP address hashed with Argon2id for privacy protection
+[1] [0] 🔐 User agent hashed with Argon2id for privacy protection
+[1] [0] 🔒 Security headers set for GET /chunk-JZCTHOOY.js
+[1] [0] 🔐 User agent hashed with Argon2id for privacy protection
+[1] [0] 🔐 Security log entry protected with Argon2id hashing
+[1] [0] ℹ️ [SECURITY] SESSION_MANAGEMENT | LOW | 240c3527 | New session created
+[1] [0] 🔐 User agent hashed with Argon2id for privacy protection
+[1] [0] 🔐 Security log entry protected with Argon2id hashing
+[1] [0] ℹ️ [SECURITY] SESSION_MANAGEMENT | LOW | 0f7e2497 | New session created
+[1] [0] 🔒 Security headers set for GET /api/documents
+[1] [0] 🔑 GET /api/documents | Session: f88c36edc8067c56745171a853817d82 (EXISTING)
+[1] [0] 🔒 Security headers set for GET /api/documents
+[1] [0] 🔒 Security headers set for GET /api/documents
+[1] [0] 🔒 Security headers set for GET /api/documents
+[1] [0] 9:11:03 PM [express] GET /api/documents 200 in 1ms :: []
+[1] [0] 🔒 Security headers set for GET /api/auth/session
+[1] [0] 🔍 Session validation request: {
+[1] [0]   sessionId: 'none',
+[1] [0]   clientSessionId: 'f88c36ed...',
+[1] [0]   cookies: [],
+[1] [0]   headers: {
+[1] [0]     cookie: 'missing',
+[1] [0]     authorization: 'missing',
+[1] [0]     'x-session-id': 'present'
+[1] [0]   }
+[1] [0] }
+[1] [0] 🔍 Checking client session for unauthenticated user...
+[1] [0] ✅ Client session validation successful: f88c36ed...
+[1] [0] 🔒 Security headers set for GET /api/auth/session
+[1] [0] 🔒 Security headers set for GET /api/auth/session
+[1] [0] 🔒 Security headers set for GET /api/auth/session
+[1] [0] 9:11:03 PM [express] GET /api/auth/session 304 in 2ms :: {"authenticated":false,"sessionId":"f88c36e...
+[1] [0] 🔒 Security headers set for POST /api/documents
+[1] [0] 🔑 POST /api/documents | Session: f88c36edc8067c56745171a853817d82 (EXISTING)
+[1] [0] 🔒 Security headers set for POST /api/documents
+[1] [0] 🔒 Security headers set for POST /api/documents
+[1] [0] 🔒 Security headers set for POST /api/documents
+[1] [0] 9:11:05 PM [express] POST /api/documents 200 in 9ms :: {"id":1,"title":"Sample: Problematic Resident...
+[1] [0] 🔒 Security headers set for GET /api/queue/status
+[1] [0] 🔒 Security headers set for GET /api/queue/status
+[1] [0] 🔒 Security headers set for GET /api/queue/status
+[1] [0] 🔒 Security headers set for GET /api/queue/status
+[1] [0] 9:11:06 PM [express] GET /api/queue/status 200 in 1ms :: {"queueLength":0,"currentlyProcessing":0,"c...
+[1] [0] 🔒 Security headers set for GET /api/documents/1
+[1] [0] 🔑 GET /api/documents/1 | Session: f88c36edc8067c56745171a853817d82 (EXISTING)
+[1] [0] 📖 Get document request: DocumentID=1, SessionID=f88c36edc8067c56745171a853817d82
+[1] [0] 📋 Retrieved document 1: hasAnalysis=false, analysisType=object
+[1] [0] ✅ Document 1 found and returned (GET)
+[1] [0] 📊 Document analysis status: Missing
+[1] [0] 🔒 Security headers set for GET /api/documents/1
+[1] [0] 🔒 Security headers set for GET /api/documents/1
+[1] [0] 🔒 Security headers set for GET /api/documents/1
+[1] [0] 9:11:06 PM [express] GET /api/documents/1 200 in 3ms :: {"id":1,"title":"Sample: Problematic Residen...
+[1] [0] 🔒 Security headers set for GET /api/queue/status
+[1] [0] 🔒 Security headers set for GET /api/queue/status
+[1] [0] 🔒 Security headers set for GET /api/queue/status
+[1] [0] 🔒 Security headers set for GET /api/queue/status
+[1] [0] 9:11:06 PM [express] GET /api/queue/status 200 in 2ms :: {"queueLength":0,"currentlyProcessing":0,"c...
+[1] [0] 🔒 Security headers set for POST /api/documents/1/analyze
+[1] [0] 🔑 POST /api/documents/1/analyze | Session: f88c36edc8067c56745171a853817d82 (EXISTING)
+[1] [0] ⚠️ Development mode: Bypassing user consent verification
+[1] [0] 🔍 Analysis request: DocumentID=1, SessionID=f88c36edc8067c56745171a853817d82
+[1] [0] 📋 Retrieved document 1: hasAnalysis=false, analysisType=object
+[1] [0] 📋 Sample contract detected (Sample: Problematic Residential Lease), skipping consent check
+[1] [0] 📊 No valid subscription token, using session/user-based lookup for: f88c36edc8067c56745171a853817d82
+[1] [0] 📊 Session-based user detected (f88c36edc8067c56745171a853817d82), providing free tier without subscription record
+[1] [0] 📊 Individual anonymous user (f88c36edc8067c56745171a853817d82) usage: 0 documents analyzed this month
+[1] [0] 📊 Rate limiting check for user: anon_fc063885b4d29600 (tier: free)
+[1] [0] 📊 Session-based user detected (anon_fc063885b4d29600), providing free tier without subscription record
+[1] [0] 📊 Individual anonymous user (anon_fc063885b4d29600) usage: 0 documents analyzed this month
+[1] [0] [Priority Queue] Added free tier request (priority: 5). Queue length: 1
+[1] [0] [Priority Queue] Processing free tier request. Currently processing: 1/3
+[1] [0] 📝 Using standard analysis for free tier user f88c36edc8067c56745171a853817d82
+[1] [0] 🤖 Initializing LLM provider: LocalOSS20B (forced)
+[1] [0]    - LOCAL_LLM_MODEL: forcing gpt-oss:20b for local analysis
+[1] [0] 🔧 LocalOSS20BProvider configured with baseUrl: https://genuine-shepherd-decent.ngrok-free.app/, model: gpt-oss:20b
+[1] [0] ✅ LLM provider initialized: LocalOSS20B
+[1] [0] 🤖 Sending to Local OSS20B (gpt-oss:20b):
+[1] [0]    - Document: "Sample: Problematic Residential Lease"
+[1] [0]    - Content length: 7483 characters
+[1] [0]    - Base URL: https://genuine-shepherd-decent.ngrok-free.app/
+[1] [0]    - Original model requested: gpt-4.1-nano (using gpt-oss:20b instead)
+[1] [0]    - Subscription tier: free (advocacy disabled)
+[1] [0]    - Readable character ratio: 93.9%
+[1] [0] 📤 REQUEST STRUCTURE TO OSS20B:
+[1] [0] {
+[1] [0]   "model": "gpt-oss:20b",
+[1] [0]   "messageCount": 2,
+[1] [0]   "temperature": 0.3,
+[1] [0]   "max_tokens": 4000,
+[1] [0]   "stream": false
+[1] [0] }
+[1] [0] 🔄 Attempt 1/1 to call OSS20B via /v1/chat/completions...
+[1] [0] 🔐 IP address hashed with Argon2id for privacy protection
+[1] [0] 🔐 User agent hashed with Argon2id for privacy protection
+[1] [0] 🔐 Security log entry protected with Argon2id hashing
+[1] [0] ℹ️ [SECURITY] API_ACCESS | LOW | 0f7e2497 | Document sent to OSS20B for analysis | /api/documents/*/analyze | {"documentTitle":"Sample: Problematic Residential Lease","service":"OSS20B"}
+[1] [0] ⚠️ Endpoint /v1/chat/completions unavailable (HTTP 405), trying next option...
+[1] [0] 🔄 Attempt 1/1 to call OSS20B via /api/chat...
+[1] [0] ⚠️ Endpoint /api/chat unavailable (HTTP 405), trying next option...
+[1] [0] [LocalOllamaLLM] Circuit breaker failure (1/3): OSS20B request failed after 1 attempts. Last error: HTTP 405
+[1] [0] Error analyzing document with OSS20B: Error: OSS20B request failed after 1 attempts. Last error: HTTP 405
+[1] [0]     at LocalOss20BProvider.makeRequestWithRetry (/home/runner/workspace/server/llm/oss20b-provider.ts:407:11)
+[1] [0]     at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+[1] [0]     at CircuitBreaker.execute (/home/runner/workspace/server/circuit-breaker.ts:66:22)
+[1] [0]     at LocalOss20BProvider.analyzeDocument (/home/runner/workspace/server/llm/oss20b-provider.ts:257:24)
+[1] [0]     at Object.processFunction (/home/runner/workspace/server/routes.ts:1796:20)
+[1] [0]     at PriorityProcessingQueue.processRequest (/home/runner/workspace/server/priority-queue.ts:120:22)
+[1] [0] 🔁 Falling back to OpenAI provider for analysis
+[1] [0] 🤖 Sending to OpenAI (gpt-4.1-nano):
+[1] [0]    - Document: "Sample: Problematic Residential Lease"
+[1] [0]    - Content length: 7483 characters
+[1] [0]    - Subscription tier: free (advocacy disabled)
+[1] [0]    - Content preview (first 500 chars): "RESIDENTIAL LEASE AGREEMENT - PROBLEMATIC VERSION\n\nProperty: 789 Shady Lane, Unit 4C, Apartment Complex, Anywhere, USA 12345\n\nPARTIES: Exploitative Property Management LLC ("Landlord") and [Tenant Name] ("Tenant")\n\nWARNING: This is an example of a PROBLEMATIC lease with many unfavorable terms for educational purposes only.\n\n1. LEASE TERM AND AUTOMATIC RENEWAL\n- Initial Term: 12 months starting January 1, 2025\n- AUTOMATIC RENEWAL: This lease automatically renews for successive 12-month periods un"
+[1] [0]    - Readable character ratio: 93.9%
+[1] [0] 📤 RAW REQUEST PAYLOAD TO OPENAI:
+[1] [0] {
+[1] [0]   "model": "gpt-4.1-nano",
+[1] [0]   "messages": [
+[1] [0]     {
+[1] [0]       "role": "system",
+[1] [0]       "content": "You are a legal document analysis expert who specializes in making complex legal language understandable to everyday users. Always respond with valid JSON."
+[1] [0]     },
+[1] [0]     {
+[1] [0]       "role": "user",
+[1] [0]       "content": "You are a legal document analysis expert. Analyze the following legal document and provide a comprehensive analysis in JSON format.\n\nDocument Title: Sample: Problematic Residential Lease\nDocument Content: RESIDENTIAL LEASE AGREEMENT - PROBLEMATIC VERSION\n\nProperty: 789 Shady Lane, Unit 4C, Apartment Complex, Anywhere, USA 12345\n\nPARTIES: Exploitative Property Management LLC (\"Landlord\") and [Tenant Name] (\"Tenant\")\n\nWARNING: This is an example of a PROBLEMATIC lease with many unfavorable terms for educational purposes only.\n\n1. LEASE TERM AND AUTOMATIC RENEWAL\n- Initial Term: 12 months starting January 1, 2025\n- AUTOMATIC RENEWAL: This lease automatically renews for successive 12-month periods unless Tenant provides 120 days written notice via certified mail. Failure to provide proper notice results in automatic renewal at 25% increased rent.\n- NO EARLY TERMINATION: Tenant cannot terminate lease early under any circumstances, including job loss, medical emergencies, military deployment, or domestic violence situations.\n\n2. RENT AND EXCESSIVE FEES\n- Monthly Rent: $2,800 (subject to immediate increase without notice)\n- Application Fee: $500 (non-refundable even if application denied)\n- Security Deposit: $5,600 (two months rent, fully non-refundable)\n- Pet Deposit: $1,500 per pet (non-refundable, even if no pets)\n- Key Fee: $200 per key (non-refundable)\n- Parking Fee: $300/month (mandatory even if no car)\n- Amenity Fee: $250/month (mandatory for gym/pool access)\n- Technology Fee: $75/month (for basic internet)\n- Trash Fee: $50/month\n- Water/Sewer Fee: $125/month\n- HVAC Maintenance Fee: $100/month\n- Pest Control Fee: $40/month\n- Administrative Fee: $150/month\n- Late Fee: $200 if rent is even 1 day late\n- Returned Check Fee: $150 per occurrence\n- Notice Fee: $100 for any notice received from Tenant\n- Inspection Fee: $75 per month for monthly inspections\n\n3. RENT INCREASES AND PAYMENT TERMS\n- Rent may be increased at any time with only 24 hours notice\n- All fees are subject to immediate increase without notice\n- Rent must be paid by certified check or money order only\n- NO PERSONAL CHECKS, credit cards, or electronic payments accepted\n- Payment must be delivered in person to office between 9 AM - 10 AM on first of month\n- Office closed on weekends and holidays (late fees still apply)\n- Partial payments not accepted under any circumstances\n\n4. EXCESSIVE SECURITY DEPOSIT TERMS\n- Security deposit is NON-REFUNDABLE regardless of condition\n- Additional cleaning fee of $500 automatically deducted\n- Carpet replacement fee of $2,000 automatically charged regardless of condition\n- Paint fee of $1,500 per room automatically charged\n- Any wear whatsoever considered damage requiring full replacement\n- Tenant responsible for all costs even if property improvements made\n\n5. PROPERTY USE RESTRICTIONS\n- Absolutely NO GUESTS allowed without prior written approval (minimum 72 hours notice)\n- Guest approval fee: $100 per guest per night\n- NO overnight guests under any circumstances\n- NO cooking with oil, garlic, or strong spices\n- NO music, television, or talking above whisper level after 8 PM\n- NO use of air conditioning between 6 PM - 8 AM\n- NO opening windows at any time\n- NO rearranging furniture from original positions\n- NO hanging pictures or decorations\n- NO plants or flowers of any kind\n- Mandatory bed time of 10 PM on weekdays, 11 PM weekends\n\n6. LANDLORD ACCESS AND PRIVACY VIOLATIONS\n- Landlord may enter at any time without notice for any reason\n- Tenant must provide copy of all keys to Landlord\n- Landlord may inspect personal belongings at any time\n- Security cameras will be installed in all rooms for \"safety\"\n- Tenant must provide passwords to all devices and social media accounts\n- Landlord may bring prospective tenants/buyers through unit daily\n- No locks may be changed or added by Tenant\n\n7. MAINTENANCE AND REPAIR OBLIGATIONS\n- Tenant responsible for ALL repairs regardless of cause, including:\n  • Structural damage from earthquakes, floods, acts of God\n  • Appliance replacement including refrigerator, stove, washer/dryer\n  • HVAC system repairs and replacement\n  • Roof repairs and replacement\n  • Plumbing including main line blockages\n  • Electrical system including rewiring\n  • Foundation repairs\n  • Pest infestations including termites\n- Tenant must use only Landlord-approved contractors (at premium rates)\n- Emergency repairs require Landlord approval (even for burst pipes/gas leaks)\n- Tenant liable for improvements and upgrades made to property\n\n8. UNCONSCIONABLE LIABILITY AND INSURANCE\n- Tenant liable for unlimited damages to property and other units\n- Tenant must carry $5,000,000 liability insurance naming Landlord as beneficiary\n- Tenant liable for all injuries on entire property premises\n- Tenant responsible for legal fees if anyone sues Landlord about property\n- Landlord has no liability for anything including death or injury\n- Tenant waives all rights to sue Landlord for any reason\n\n9. TERMINATION AND HOLDOVER PENALTIES\n- Only Landlord may terminate lease, Tenant has no termination rights\n- 3-day notice for any violation (including late fees)\n- Holdover rent charged at 500% of monthly rent per day\n- $10,000 penalty for unauthorized vacation of premises\n- Tenant remains liable for rent even after vacating\n- No right to cure any violations\n\n10. ILLEGAL DISCRIMINATION AND HARASSMENT\n- Preference given to tenants of specific religious backgrounds\n- Different rules apply based on tenant's country of origin\n- Pregnant tenants subject to immediate eviction\n- Tenants with service animals charged additional $2,000 monthly fee\n- Background checks include invasive personal questions about medical history\n\n11. UNCONSCIONABLE LEGAL PROVISIONS\n- All disputes must be resolved in arbitration in a remote location 2,000 miles away\n- Tenant pays all Landlord legal fees regardless of outcome\n- Tenant waives all statutory rights and protections\n- This lease governed by laws of fictitious jurisdiction with no tenant protections\n- Any provision deemed illegal simply removed, rest of lease remains fully enforceable\n- Landlord may modify lease terms at any time without notice or consent\n\n12. MISCELLANEOUS EXPLOITATIVE TERMS\n- Tenant grants Landlord power of attorney for all personal decisions\n- Tenant's personal property becomes Landlord's property upon any lease violation\n- Tenant must maintain property insurance that only benefits Landlord\n- All communications with Landlord must be through expensive legal service\n- Tenant responsible for property taxes and all building operating expenses\n- Must pay Landlord's mortgage, insurance, and management company fees\n\n13. MOVE-OUT REQUIREMENTS\n- 180-day advance notice required for move-out\n- Professional cleaning required (Landlord chooses company at $2,500 minimum)\n- All items must be removed except those Landlord wants to keep\n- Tenant must repaint all walls to original color (but Landlord won't specify color)\n- Must replace all light bulbs, batteries in smoke detectors, air filters\n- Carpets must be professionally steam cleaned twice\n- Must pay for complete property inspection by engineer ($5,000)\n\nACKNOWLEDGMENT: By signing below, Tenant acknowledges this lease contains terms that may be illegal, unconscionable, and unenforceable in most jurisdictions. This example is for educational purposes to demonstrate problematic lease provisions.\n\nLANDLORD: Exploitative Property Management LLC\nTENANT: [Tenant Name]\n\nDISCLAIMER: This document contains numerous illegal and unconscionable provisions that would likely be unenforceable. It is provided solely for educational purposes to demonstrate what problematic lease terms look like.\n\nPlease analyze this document and provide a JSON response with the following structure:\n{\n  \"summary\": \"A brief overall summary of the document in plain English\",\n  \"overallRisk\": \"low|moderate|high\",\n  \"keyFindings\": {\n    \"goodTerms\": [\"List of positive or fair terms found\"],\n    \"reviewNeeded\": [\"Terms that require attention but aren't necessarily bad\"],\n    \"redFlags\": [\"Concerning clauses or terms that pose significant risk\"]\n  },\n  \"sections\": [\n    {\n      \"title\": \"Section name (e.g., Payment Terms, Privacy Policy, etc.)\",\n      \"riskLevel\": \"low|moderate|high\",\n      \"summary\": \"Plain English explanation of this section\",\n      \"concerns\": [\"List of specific concerns for this section if any\"]\n    }\n  ]\n}\n\nFocus on:\n- Converting legal jargon to plain English\n- Identifying unfair, unusual, or concerning terms\n- Highlighting automatic renewals, data usage, and liability limitations\n- Explaining payment terms, cancellation policies, and user rights\n- Noting jurisdiction limitations or binding arbitration clauses\n\nProvide practical, actionable insights that help everyday users understand what they're agreeing to."
+[1] [0]     }
+[1] [0]   ],
+[1] [0]   "response_format": {
+[1] [0]     "type": "json_object"
+[1] [0]   },
+[1] [0]   "temperature": 0.3
+[1] [0] }
+[1] [0] 🔐 IP address hashed with Argon2id for privacy protection
+[1] [0] 🔐 User agent hashed with Argon2id for privacy protection
+[1] [0] 🔐 Security log entry protected with Argon2id hashing
+[1] [0] ℹ️ [SECURITY] API_ACCESS | LOW | 0f7e2497 | Document sent to OpenAI for analysis | /api/documents/*/analyze | {"documentTitle":"Sample: Problematic Residential Lease","service":"OpenAI"}
+[1] [0] 🔒 Security headers set for GET /api/queue/status
+[1] [0] 🔒 Security headers set for GET /api/queue/status
+[1] [0] 🔒 Security headers set for GET /api/queue/status
+[1] [0] 🔒 Security headers set for GET /api/queue/status
+[1] [0] 9:11:11 PM [express] GET /api/queue/status 200 in 3ms :: {"queueLength":0,"currentlyProcessing":1,"c...
+[1] [0] 🔒 Security headers set for GET /api/queue/status
+[1] [0] 🔒 Security headers set for GET /api/queue/status
+[1] [0] 🔒 Security headers set for GET /api/queue/status
+[1] [0] 🔒 Security headers set for GET /api/queue/status
+[1] [0] 9:11:16 PM [express] GET /api/queue/status 200 in 2ms :: {"queueLength":0,"currentlyProcessing":1,"c...
+[1] [0] 🔒 Security headers set for GET /api/queue/status
+[1] [0] 🔒 Security headers set for GET /api/queue/status
+[1] [0] 🔒 Security headers set for GET /api/queue/status
+[1] [0] 🔒 Security headers set for GET /api/queue/status
+[1] [0] 9:11:21 PM [express] GET /api/queue/status 200 in 1ms :: {"queueLength":0,"currentlyProcessing":1,"c...
+[1] [0] 🔒 Security headers set for GET /api/queue/status
+[1] [0] 🔒 Security headers set for GET /api/queue/status
+[1] [0] 🔒 Security headers set for GET /api/queue/status
+[1] [0] 🔒 Security headers set for GET /api/queue/status
+[1] [0] 9:11:26 PM [express] GET /api/queue/status 200 in 1ms :: {"queueLength":0,"currentlyProcessing":1,"c...
+[1] [0] 📥 RAW RESPONSE PAYLOAD FROM OPENAI:
+[1] [0] {
+[1] [0]   "id": "chatcmpl-CJR3TgxgX2XIwa52q3siucYZ78EJh",
+[1] [0]   "object": "chat.completion",
+[1] [0]   "created": 1758748267,
+[1] [0]   "model": "gpt-4.1-nano-2025-04-14",
+[1] [0]   "choices": [
+[1] [0]     {
+[1] [0]       "index": 0,
+[1] [0]       "message": {
+[1] [0]         "role": "assistant",
+[1] [0]         "content": "{\n  \"summary\": \"This lease contains numerous unfair, illegal, and overly restrictive terms designed to heavily favor the landlord. It includes automatic rent increases, no early termination rights for tenants, excessive fees, invasive privacy policies, and severe liabilities placed on tenants. Many provisions violate tenant rights and could be unenforceable in most jurisdictions. Overall, it presents a high risk for tenants due to its exploitative clauses and legal overreach.\",\n  \"overallRisk\": \"high\",\n  \"keyFindings\": {\n    \"goodTerms\": [\n      \"Clear property address and parties involved\"\n    ],\n    \"reviewNeeded\": [\n      \"Lease renewal process and notice requirements\",\n      \"Payment methods and fees\"\n    ],\n    \"redFlags\": [\n      \"Automatic rent increases with minimal notice\",\n      \"No early termination rights for tenants\",\n      \"Excessive and non-refundable fees\",\n      \"Landlord access without notice and invasive surveillance\",\n      \"Tenant responsible for all repairs regardless of cause\",\n      \"Unlimited liability and requirement for multi-million dollar insurance\",\n      \"Discriminatory and harassment-promoting clauses\",\n      \"Mandatory arbitration in distant location and legal fee shifting\",\n      \"Tenant waivers of statutory rights and protections\",\n      \"Unreasonable move-out procedures and costs\",\n      \"Illegal clauses such as giving landlord ownership of tenant property upon violation\"\n    ]\n  },\n  \"sections\": [\n    {\n      \"title\": \"Lease Term and Renewal\",\n      \"riskLevel\": \"high\",\n      \"summary\": \"The lease automatically renews every year unless the tenant gives 120 days' written notice, and failure to do so results in a 25% rent increase. The tenant cannot terminate early for any reason.\",\n      \"concerns\": [\n        \"Automatic renewal without tenant consent\",\n        \"Automatic rent increase at renewal\",\n        \"No early termination rights, even in emergencies\"\n      ]\n    },\n    {\n      \"title\": \"Rent and Fees\",\n      \"riskLevel\": \"high\",\n      \"summary\": \"Monthly rent is set at $2,800 but can be increased immediately without notice. There are numerous non-refundable fees, including application, pet, key, parking, amenity, and others, many of which are mandatory regardless of actual use.\",\n      \"concerns\": [\n        \"Unilateral rent increases without notice\",\n        \"Multiple non-refundable fees\",\n        \"Fees for services or amenities not used\",\n        \"Late and returned check fees are very high\"\n      ]\n    },\n    {\n      \"title\": \"Payment Terms\",\n      \"riskLevel\": \"high\",\n      \"summary\": \"Rent must be paid in person with certified check or money order only, with payments due on the first of each month. Partial payments are not accepted, and fees can be increased without notice.\",\n      \"concerns\": [\n        \"Limited payment methods\",\n        \"Strict payment timing\",\n        \"No flexibility for partial payments\"\n      ]\n    },\n    {\n      \"title\": \"Security Deposit and Excessive Charges\",\n      \"riskLevel\": \"high\",\n      \"summary\": \"The security deposit is non-refundable and automatically deducted for cleaning, carpet replacement, and painting, regardless of condition. Tenant is liable for all costs even if improvements are made.\",\n      \"concerns\": [\n        \"Non-refundable deposit\",\n        \"Automatic deductions for damages regardless of actual condition\",\n        \"Tenant responsible for all costs, including improvements\"\n      ]\n    },\n    {\n      \"title\": \"Property Use Restrictions\",\n      \"riskLevel\": \"high\",\n      \"summary\": \"Strict rules prohibit guests, overnight stays, cooking certain foods, making noise after certain hours, opening windows, hanging decorations, or having plants. Guest approval requires 72 hours' notice and fees.\",\n      \"concerns\": [\n        \"Overly restrictive and invasive rules\",\n        \"No overnight guests or open windows\",\n        \"High fees for guests and restrictions on daily activities\"\n      ]\n    },\n    {\n      \"title\": \"Landlord Access and Privacy\",\n      \"riskLevel\": \"high\",\n      \"summary\": \"Landlord can enter the property anytime without notice, install security cameras in all rooms, and demand passwords to devices and social media. Tenant must give copies of all keys.\",\n      \"concerns\": [\n        \"No privacy or notice for entry\",\n        \"Invasive surveillance\",\n        \"Tenant's personal property can be inspected at any time\"\n      ]\n    },\n    {\n      \"title\": \"Maintenance and Repairs\",\n      \"riskLevel\": \"high\",\n      \"summary\": \"Tenant is responsible for all repairs, including major structural and system repairs, regardless of cause. Only approved contractors can be used, and emergency repairs require landlord approval.\",\n      \"concerns\": [\n        \"Tenant bears all repair costs\",\n        \"No exceptions for emergencies\",\n        \"Use of expensive, landlord-approved contractors\"\n      ]\n    },\n    {\n      \"title\": \"Liability and Insurance\",\n      \"riskLevel\": \"high\",\n      \"summary\": \"Tenant is liable for unlimited damages and injuries on the property, must carry $5 million liability insurance naming the landlord, and waives all rights to sue the landlord. The landlord disclaims all liability.\",\n      \"concerns\": [\n        \"Unlimited damages liability\",\n        \"Mandatory high-value insurance\",\n        \"Waiver of legal rights and protections\"\n      ]\n    },\n    {\n      \"title\": \"Termination and Holdover\",\n      \"riskLevel\": \"high\",\n      \"summary\": \"Only the landlord can terminate the lease; tenants have no right to end it early. Violations lead to a 3-day notice and a daily rent penalty of 500%. Moving out without permission incurs a $10,000 fine.\",\n      \"concerns\": [\n        \"No tenant termination rights\",\n        \"Severe penalties for violations and vacating\",\n        \"Liability persists after move-out\"\n      ]\n    },\n    {\n      \"title\": \"Discrimination and Harassment\",\n      \"riskLevel\": \"high\",\n      \"summary\": \"The lease promotes discriminatory practices, favoring certain religious backgrounds, and imposes harsher rules on pregnant tenants and those with service animals, including extra fees and invasive background checks.\",\n      \"concerns\": [\n        \"Illegal discrimination clauses\",\n        \"Harmful treatment of pregnant tenants and service animals\",\n        \"Invasive and discriminatory background checks\"\n      ]\n    },\n    {\n      \"title\": \"Legal and Arbitration Clauses\",\n      \"riskLevel\": \"high\",\n      \"summary\": \"Disputes must be resolved via arbitration in a remote location 2,000 miles away. The tenant pays all legal fees regardless of outcome, and waives many statutory rights. The lease can be modified at any time without notice.\",\n      \"concerns\": [\n        \"Unfair arbitration process\",\n        \"Tenant bears all legal costs\",\n        \"Waiver of statutory rights and protections\",\n        \"Unilateral lease modifications\"\n      ]\n    },\n    {\n      \"title\": \"Miscellaneous Exploitative Terms\",\n      \"riskLevel\": \"high\",\n      \"summary\": \"Tenant grants landlord broad powers, including power of attorney, ownership of personal property upon violation, and requiring property insurance benefits only for the landlord. Communication is restricted to costly legal services.\",\n      \"concerns\": [\n        \"Overreach of landlord authority\",\n        \"Landlord ownership of tenant property\",\n        \"Restrictions on communication and insurance benefits\"\n      ]\n    },\n    {\n      \"title\": \"Move-Out Procedures\",\n      \"riskLevel\": \"high\",\n      \"summary\": \"Tenant must give 180 days' notice, pay for expensive cleaning and inspections, repaint walls without specific color instructions, and replace all light bulbs, batteries, and filters. A costly engineer inspection is required.\",\n      \"concerns\": [\n        \"Very long notice period\",\n        \"High move-out costs and procedures\",\n        \"Unreasonable requirements for cleaning and repairs\"\n      ]\n    }\n  ]\n}",
+[1] [0]         "refusal": null,
+[1] [0]         "annotations": []
+[1] [0]       },
+[1] [0]       "logprobs": null,
+[1] [0]       "finish_reason": "stop"
+[1] [0]     }
+[1] [0]   ],
+[1] [0]   "usage": {
+[1] [0]     "prompt_tokens": 1944,
+[1] [0]     "completion_tokens": 1608,
+[1] [0]     "total_tokens": 3552,
+[1] [0]     "prompt_tokens_details": {
+[1] [0]       "cached_tokens": 0,
+[1] [0]       "audio_tokens": 0
+[1] [0]     },
+[1] [0]     "completion_tokens_details": {
+[1] [0]       "reasoning_tokens": 0,
+[1] [0]       "audio_tokens": 0,
+[1] [0]       "accepted_prediction_tokens": 0,
+[1] [0]       "rejected_prediction_tokens": 0
+[1] [0]     }
+[1] [0]   },
+[1] [0]   "service_tier": "default",
+[1] [0]   "system_fingerprint": "fp_04d3664870"
+[1] [0] }
+[1] [0] 🤖 OpenAI Response received:
+[1] [0]    - Model used: gpt-4.1-nano-2025-04-14
+[1] [0]    - Tokens used: 3552 (input: 1944, output: 1608)
+[1] [0]    - Response length: 7890 characters
+[1] [0] 📊 Analysis Results:
+[1] [0]    - Overall Risk: high
+[1] [0]    - Summary length: 464 chars
+[1] [0]    - Key findings: 3 categories
+[1] [0]    - Sections analyzed: 13
+[1] [0]    - Summary preview: "This lease contains numerous unfair, illegal, and overly restrictive terms designed to heavily favor the landlord. It includes automatic rent increases, no early termination rights for tenants, excess"
+[1] [0] 📊 Routing anonymous usage tracking through collective free tier user with individual tracking
+[1] [0] [Admin Detection] Not admin email: collective.free.tier@internal.system for user: 00000000-0000-0000-0000-000000000001
+[1] [0] [Subscription Enforcement] Valid subscription: Free tier assigned
+[1] [0] ✅ Usage tracked for collective free tier (00000000-0000-0000-0000-000000000001): +1 document, +3552 tokens, +$0.000625
+[1] [0] ✅ Document analysis completed successfully
+[1] [0] ✅ Fallback to OpenAI provider succeeded
+[1] [0] [Priority Queue] Completed free tier request in 21137ms
+[1] [0] 📋 Using standard analysis result
+[1] [0] ✅ Document 1 analysis updated in session f88c36edc8067c56745171a853817d82
+[1] [0] 💾 Saved analysis type: object, keys: summary, overallRisk, keyFindings, sections, userAdvocacy
+[1] [0] ✅ Document 1 analysis completed for free tier user
+[1] [0] 🔒 Security headers set for POST /api/documents/1/analyze
+[1] [0] 🔒 Security headers set for POST /api/documents/1/analyze
+[1] [0] 🔒 Security headers set for POST /api/documents/1/analyze
+[1] [0] 9:11:27 PM [express] POST /api/documents/1/analyze 200 in 21262ms :: {"id":1,"title":"Sample: Proble...
+[1] [0] 🔒 Security headers set for GET /api/documents
+[1] [0] 🔑 GET /api/documents | Session: f88c36edc8067c56745171a853817d82 (EXISTING)
+[1] [0] 🔒 Security headers set for GET /api/documents
+[1] [0] 🔒 Security headers set for GET /api/documents
+[1] [0] 🔒 Security headers set for GET /api/documents
+[1] [0] 9:11:27 PM [express] GET /api/documents 200 in 1ms :: [{"id":1,"title":"Sample: Problematic Resident...
+[1] [0] 🔒 Security headers set for GET /api/documents/1
+[1] [0] 🔑 GET /api/documents/1 | Session: f88c36edc8067c56745171a853817d82 (EXISTING)
+[1] [0] 📖 Get document request: DocumentID=1, SessionID=f88c36edc8067c56745171a853817d82
+[1] [0] 📋 Retrieved document 1: hasAnalysis=true, analysisType=object
+[1] [0] 📋 Analysis keys: summary, overallRisk, keyFindings, sections, userAdvocacy
+[1] [0] ✅ Document 1 found and returned (GET)
+[1] [0] 📊 Document analysis status: Present
+[1] [0] 📊 Analysis type: object, keys: summary, overallRisk, keyFindings, sections, userAdvocacy
+[1] [0] 🔒 Security headers set for GET /api/documents/1
+[1] [0] 🔒 Security headers set for GET /api/documents/1
+[1] [0] 🔒 Security headers set for GET /api/documents/1
+[1] [0] 9:11:27 PM [express] GET /api/documents/1 200 in 3ms :: {"id":1,"title":"Sample: Problematic Residen...
+^C[0] 
