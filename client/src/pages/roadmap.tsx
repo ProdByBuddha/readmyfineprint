@@ -173,7 +173,7 @@ const getTierBadge = (tiers: string[]) => {
     "Business": "bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200",
     "Enterprise": "bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200"
   };
-  
+
   return (
     <div className="flex gap-1 flex-wrap">
       {tiers.map(tier => (
@@ -192,16 +192,7 @@ export default function Roadmap() {
       <div className="max-w-6xl mx-auto pt-8">
         {/* Header Section */}
         <div className="relative text-center mb-12">
-          {/* Back to Donate Button - Top Right */}
-          <div className="absolute top-0 right-0">
-            <Link to="/donate">
-              <Button variant="outline" className="inline-flex items-center">
-                <ArrowLeft className="w-4 h-4 mr-2" />
-                Back to Donate
-              </Button>
-            </Link>
-          </div>
-          
+
           <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-br from-primary/20 to-secondary/20 dark:from-primary/30 dark:to-secondary/30 rounded-full mb-4">
             <Target className="w-8 h-8 text-primary dark:text-primary" />
           </div>
@@ -211,7 +202,7 @@ export default function Roadmap() {
           <p className="text-xl text-gray-600 dark:text-gray-300 max-w-3xl mx-auto mb-6">
             Our commitment to making legal documents more accessible through continuous innovation and feature development.
           </p>
-          
+
           {/* Key Stats */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4 max-w-2xl mx-auto">
             <div className="bg-white dark:bg-gray-800 rounded-lg p-4 border border-gray-200 dark:border-gray-700">
@@ -358,7 +349,7 @@ export default function Roadmap() {
           </CardContent>
         </Card>
 
-        
+
 
         {/* Call to Action */}
         <Card className="mt-12 bg-gradient-to-r from-primary/5 to-secondary/5 dark:from-primary/10 dark:to-secondary/10 border-primary/20 dark:border-primary/30">
@@ -367,7 +358,7 @@ export default function Roadmap() {
               Help Us Build the Future of Legal Tech
             </h3>
             <p className="text-gray-600 dark:text-gray-300 mb-6 max-w-2xl mx-auto">
-              Your donations directly fund the development of these features. Every contribution helps us maintain free access 
+              Your donations directly fund the development of these features. Every contribution helps us maintain free access
               while building the tools that make legal documents more accessible to everyone.
             </p>
             <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center items-center">
@@ -376,10 +367,10 @@ export default function Roadmap() {
                   💝 Support Our Mission
                 </Button>
               </Link>
-              <Button 
-                size="lg" 
-                variant="outline" 
-                className="px-6 sm:px-8 w-full sm:w-auto h-12 text-base sm:text-lg" 
+              <Button
+                size="lg"
+                variant="outline"
+                className="px-6 sm:px-8 w-full sm:w-auto h-12 text-base sm:text-lg"
                 onClick={() => window.open('mailto:admin@readmyfineprint.com?subject=Roadmap%20Feedback', '_blank')}
               >
                 📧 Share Feedback

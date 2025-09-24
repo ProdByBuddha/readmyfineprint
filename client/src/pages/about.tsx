@@ -417,16 +417,16 @@ export default function About() {
                 white-label solutions, multi-language support, and advanced AI capabilities. Our roadmap 
                 focuses on making legal documents even more accessible while maintaining our privacy-first principles.
               </p>
-              <div className="flex flex-col sm:flex-row gap-4 justify-center">
+              <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
                 <Link to="/roadmap">
-                  <Button size="lg" className="px-8" data-testid="button-view-roadmap">
-                    <Target className="w-4 h-4 mr-2" />
-                    View Our Roadmap
+                  <Button size="lg" className="px-8 h-12 min-w-fit flex items-center justify-center" data-testid="button-view-roadmap">
+                    <Target className="w-4 h-4 mr-2 flex-shrink-0" />
+                    View Development Roadmap
                   </Button>
                 </Link>
                 <Link to="/contact">
-                  <Button size="lg" variant="outline" className="px-8" data-testid="button-contact-us">
-                    <Users className="w-4 h-4 mr-2" />
+                  <Button size="lg" variant="outline" className="px-8 h-12 min-w-fit flex items-center justify-center" data-testid="button-contact-us">
+                    <Users className="w-4 h-4 mr-2 flex-shrink-0" />
                     Get in Touch
                   </Button>
                 </Link>

@@ -142,9 +142,8 @@ export default function Home() {
   return (
     <div
       ref={containerRef}
-      className={`relative min-h-screen bg-gradient-to-br from-slate-50 via-white to-blue-50 dark:from-slate-900 dark:via-slate-800 dark:to-blue-950 page-transition overflow-hidden transition-opacity duration-700 ${
-        isLoaded ? "opacity-100" : "opacity-0"
-      }`}
+      className={`relative min-h-screen bg-gradient-to-br from-slate-50 via-white to-blue-50 dark:from-slate-900 dark:via-slate-800 dark:to-blue-950 page-transition overflow-hidden transition-opacity duration-700 ${isLoaded ? "opacity-100" : "opacity-0"
+        }`}
     >
       {/* Background Pattern */}
       <div className="absolute inset-0 bg-grid-pattern opacity-5 dark:opacity-10" />
@@ -451,15 +450,7 @@ export default function Home() {
                   className="text-xl md:text-2xl text-slate-600 dark:text-slate-300 mb-12 max-w-3xl mx-auto leading-relaxed font-light"
                   data-testid="final-cta-description"
                 >
-                  Experience AI-powered document analysis that delivers
-                  <strong className="font-semibold">
-                    instant insights
-                  </strong>{" "}
-                  with
-                  <strong className="font-semibold">
-                    absolute privacy protection
-                  </strong>
-                  .
+                  Experience AI-powered document analysis that delivers instant insights with absolute privacy protection.
                 </p>
                 <div className="flex flex-col sm:flex-row gap-6 justify-center items-center">
                   <Link to="/upload">
@@ -474,8 +465,7 @@ export default function Home() {
                   </Link>
                   <div className="text-center">
                     <div className="text-slate-600 dark:text-slate-400 text-sm font-medium">
-                      🔒 No credit card required • 🚀 Instant setup • ✨
-                      Privacy-first analysis
+                      🔒 No credit card required • 🚀 Instant setup • ✨ Privacy-first analysis
                     </div>
                   </div>
                 </div>
