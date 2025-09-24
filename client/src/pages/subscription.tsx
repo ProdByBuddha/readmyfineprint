@@ -107,20 +107,20 @@ export default function SubscriptionPage() {
   useEffect(() => {
     // Fetch user data first
     fetchUserData();
-    
+
           // Check if this is a successful subscription return
       const urlParams = new URLSearchParams(window.location.search);
       const sessionId = urlParams.get('session_id');
       const success = urlParams.get('success');
       const email = urlParams.get('email');
-      
+
       if (success === 'true' && sessionId) {
         // This is a successful subscription - get the token and set it as cookie
         handleSuccessfulSubscription(sessionId);
       } else {
         fetchSubscriptionData();
       }
-    
+
     // Check for tab parameter in URL to navigate directly to specific tab
     const tabParam = urlParams.get('tab');
     if (tabParam === 'plans') {
@@ -130,7 +130,7 @@ export default function SubscriptionPage() {
       newUrl.searchParams.delete('tab');
       window.history.replaceState({}, document.title, newUrl.pathname + newUrl.search);
     }
-    
+
     // If email parameter is provided, automatically navigate to plans section
     if (email && email.includes('@')) {
       setActiveTab('plans');
@@ -145,7 +145,7 @@ export default function SubscriptionPage() {
     try {
       // Wait a moment for webhook to process
       await new Promise(resolve => setTimeout(resolve, 3000));
-      
+
       // Try to get the subscription token (now stored as httpOnly cookie)
       try {
         const tokenResponse = await fetch(`/api/subscription/token/${sessionId}`, {
@@ -156,20 +156,20 @@ export default function SubscriptionPage() {
           if (success && subscription) {
             // Token is now stored as httpOnly cookie automatically
             // Subscription data will be updated via React Query refetch
-            
+
             // Notify other components of auth state change
             safeDispatchEvent('authStateChanged');
-            
+
             console.log('✅ Subscription token set as httpOnly cookie');
           }
         }
       } catch {
         // No token available yet, fetching subscription data normally
       }
-      
+
       // Fallback to normal subscription fetch
       await fetchSubscriptionData();
-      
+
       // Clear URL parameters
       window.history.replaceState({}, document.title, window.location.pathname);
     } catch (error) {
@@ -684,10 +684,10 @@ export default function SubscriptionPage() {
                 </Alert>
               </motion.div>
             )}
-            
+
             {/* Debug component to see what's happening with Stripe - only in development */}
             {import.meta.env.DEV && <StripeDebug />}
-            
+
             <StripeWrapper>
               <SubscriptionPlans
                 currentTier={subscriptionData.tier.id}
@@ -835,7 +835,7 @@ export default function SubscriptionPage() {
                       <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">
                         Manage your account data and privacy settings. Export your data or delete your account permanently.
                       </p>
-                      
+
                       <div className="space-y-4">
                         <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-4">
                           <div className="flex items-center justify-between">
@@ -849,7 +849,7 @@ export default function SubscriptionPage() {
                           </div>
                         </div>
                       </div>
-                      
+
                       <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-4">
                         <h4 className="text-sm font-semibold text-red-800 dark:text-red-300 mb-2">Delete Account</h4>
                         <p className="text-sm text-red-700 dark:text-red-400 mb-3">
