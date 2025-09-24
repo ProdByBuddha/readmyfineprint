@@ -1771,14 +1771,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
           if (tierValidation.hasAccess) {
             console.log(`🔒 Using PII protection for ${tierValidation.currentTier} tier user ${userId}`);
             return await analyzeDocumentWithPII(
-              document.content, 
-              document.title, 
+              document.content,
+              document.title,
               {
                 ip: analysisIp,
                 userAgent: analysisUserAgent,
                 sessionId: req.sessionId,
                 model: subscriptionData.tier.model,
                 userId: userId,
+                includeAdvocacy: subscriptionData.tier.id !== 'free',
                 piiDetection: {
                   enabled: true, // Always enabled for maximum privacy protection
                   detectNames: true,
@@ -1800,7 +1801,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
                 ip: analysisIp,
                 userAgent: analysisUserAgent,
                 sessionId: req.sessionId,
-                userId: userId
+                userId: userId,
+                subscriptionTierId: subscriptionData.tier.id,
+                includeAdvocacy: subscriptionData.tier.id !== 'free'
               }
             );
           }

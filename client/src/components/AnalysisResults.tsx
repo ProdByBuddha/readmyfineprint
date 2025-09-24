@@ -183,6 +183,25 @@ export function AnalysisResults({ document }: AnalysisResultsProps) {
       console.error('PDF export failed:', error);
 
       // Enhanced fallback to text export with better formatting
+      const advocacyExport = userAdvocacy && totalAdvocacyItems > 0
+        ? `
+ADVOCACY & NEGOTIATION GUIDE
+===========================
+${(userAdvocacy.negotiationStrategies?.length ?? 0) > 0 ? `Negotiation Strategies:
+${(userAdvocacy.negotiationStrategies ?? []).map(term => `• ${term}`).join('\n')}
+
+` : ''}${(userAdvocacy.counterOffers?.length ?? 0) > 0 ? `Counteroffers & Edits:
+${(userAdvocacy.counterOffers ?? []).map(term => `• ${term}`).join('\n')}
+
+` : ''}${(userAdvocacy.fairnessReminders?.length ?? 0) > 0 ? `Fairness Reminders:
+${(userAdvocacy.fairnessReminders ?? []).map(term => `• ${term}`).join('\n')}
+
+` : ''}${(userAdvocacy.leverageOpportunities?.length ?? 0) > 0 ? `Leverage Opportunities:
+${(userAdvocacy.leverageOpportunities ?? []).map(term => `• ${term}`).join('\n')}
+
+` : ''}`
+        : '';
+
       const exportContent = `
 Document Analysis Report
 ========================
@@ -207,6 +226,7 @@ ${analysis.keyFindings.reviewNeeded.map(term => `• ${term}`).join('\n')}
 [X] Red Flags:
 ${analysis.keyFindings.redFlags.map(term => `• ${term}`).join('\n')}
 
+${advocacyExport}
 DETAILED ANALYSIS
 =================
 ${analysis.sections.map((section, index) => `
@@ -245,6 +265,36 @@ Support our mission: ${window.location.origin + '/donate'}
     // Implement logic to trigger a new analysis or redirect
     console.log("New analysis initiated");
     window.location.reload(); // Example: reload to start fresh
+  };
+
+  const hasAdvocacyAccess = ['starter', 'professional', 'business', 'enterprise', 'ultimate'].includes(userTier);
+  const userAdvocacy = analysis.userAdvocacy;
+  const totalAdvocacyItems =
+    (userAdvocacy?.negotiationStrategies?.length ?? 0) +
+    (userAdvocacy?.counterOffers?.length ?? 0) +
+    (userAdvocacy?.fairnessReminders?.length ?? 0) +
+    (userAdvocacy?.leverageOpportunities?.length ?? 0);
+  const renderAdvocacySection = (label: string, items?: string[], accent?: string) => {
+    if (!items || items.length === 0) {
+      return null;
+    }
+
+    return (
+      <div className="bg-white/60 dark:bg-gray-900/60 border border-primary/20 dark:border-primary/30 rounded-lg p-3 sm:p-4 shadow-sm">
+        <h5 className={`font-semibold text-sm mb-2 flex items-center space-x-2 ${accent ?? 'text-primary'}`}>
+          <CheckCircle className={`w-4 h-4 ${accent ? '' : 'text-primary'}`} />
+          <span>{label}</span>
+        </h5>
+        <ul className="space-y-1 text-xs text-gray-700 dark:text-gray-300">
+          {items.map((item, index) => (
+            <li key={`${label}-${index}`} className="flex items-start space-x-2">
+              <span className="w-1.5 h-1.5 rounded-full bg-primary mt-2 flex-shrink-0"></span>
+              <span>{item}</span>
+            </li>
+          ))}
+        </ul>
+      </div>
+    );
   };
 
   return (
@@ -363,6 +413,55 @@ Support our mission: ${window.location.origin + '/donate'}
             </ul>
           </div>
         </div>
+
+        {/* Advocacy & Negotiation Guidance */}
+        {hasAdvocacyAccess ? (
+          <div className="bg-primary/5 dark:bg-primary/10 border border-primary/20 dark:border-primary/40 rounded-lg p-4 sm:p-6 mb-4 sm:mb-6">
+            <div className="flex items-start space-x-3 mb-3">
+              <div className="w-9 h-9 bg-primary text-white rounded-full flex items-center justify-center shadow-sm">
+                <Crown className="w-5 h-5" />
+              </div>
+              <div className="min-w-0 flex-1">
+                <h4 className="text-base sm:text-lg font-semibold text-primary dark:text-primary-foreground">Fair Terms Action Plan</h4>
+                <p className="text-xs sm:text-sm text-gray-700 dark:text-gray-300">
+                  Tailored negotiation ideas and fairness advocacy generated from this analysis.
+                </p>
+              </div>
+            </div>
+
+            {userAdvocacy && totalAdvocacyItems > 0 ? (
+              <div className="grid gap-3 sm:gap-4 md:grid-cols-2">
+                {renderAdvocacySection('Negotiation Strategies', userAdvocacy.negotiationStrategies, 'text-primary')}
+                {renderAdvocacySection('Counteroffers & Edits', userAdvocacy.counterOffers, 'text-primary')}
+                {renderAdvocacySection('Fairness Reminders', userAdvocacy.fairnessReminders, 'text-primary')}
+                {renderAdvocacySection('Leverage Opportunities', userAdvocacy.leverageOpportunities, 'text-primary')}
+              </div>
+            ) : (
+              <p className="text-xs sm:text-sm text-gray-700 dark:text-gray-300">
+                No additional advocacy recommendations were required for this document. Everything already looks balanced.
+              </p>
+            )}
+          </div>
+        ) : (
+          <div className="border border-dashed border-primary/40 dark:border-primary/50 rounded-lg p-4 sm:p-5 mb-4 sm:mb-6 bg-white/60 dark:bg-gray-900/60">
+            <div className="flex items-start space-x-3">
+              <div className="w-9 h-9 rounded-full bg-primary/10 text-primary flex items-center justify-center">
+                <Lock className="w-5 h-5" />
+              </div>
+              <div className="min-w-0 flex-1">
+                <h4 className="text-sm sm:text-base font-semibold text-gray-900 dark:text-white mb-1">Advocacy guidance requires Starter tier</h4>
+                <p className="text-xs sm:text-sm text-gray-700 dark:text-gray-300">
+                  Upgrade to the Starter plan or above to unlock counteroffers, negotiation angles, and fairness advocacy tailored to your documents.
+                </p>
+                <div className="mt-3">
+                  <Button size="sm" variant="outline" className="border-primary text-primary hover:bg-primary/10" onClick={() => window.location.assign('/pricing')}>
+                    Explore Starter Benefits
+                  </Button>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
 
         {/* Detailed Breakdown */}
         <div className="space-y-3 sm:space-y-4">

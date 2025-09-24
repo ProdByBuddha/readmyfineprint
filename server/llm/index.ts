@@ -1,5 +1,4 @@
 import type { LLMProvider } from "./provider";
-import { OpenAIProvider } from "./openai-provider";
 import { LocalOss20BProvider } from "./oss20b-provider";
 
 export class LLMFactory {
@@ -13,18 +12,10 @@ export class LLMFactory {
       return this.instance;
     }
 
-    // Check LOCAL_LLM_MODEL for gpt-oss:20b to use local OSS20B provider
-    const localModel = process.env.LOCAL_LLM_MODEL;
-    const useLocalOss20b = localModel === "gpt-oss:20b";
-    
-    console.log(`🤖 Initializing LLM provider: ${useLocalOss20b ? 'LocalOSS20B' : 'OpenAI'}`);
-    console.log(`   - LOCAL_LLM_MODEL: ${localModel || 'not set'}`);
+    console.log("🤖 Initializing LLM provider: LocalOSS20B (forced)");
+    console.log("   - LOCAL_LLM_MODEL: forcing gpt-oss:20b for local analysis");
 
-    if (useLocalOss20b) {
-      this.instance = new LocalOss20BProvider();
-    } else {
-      this.instance = new OpenAIProvider();
-    }
+    this.instance = new LocalOss20BProvider();
 
     console.log(`✅ LLM provider initialized: ${this.instance.name}`);
     return this.instance;

@@ -7,8 +7,20 @@ const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY
 });
 
-export async function analyzeDocument(content: string, title: string, ip?: string, userAgent?: string, sessionId?: string, model: string = "gpt-4o", userId?: string): Promise<DocumentAnalysis> {
+export async function analyzeDocument(
+  content: string,
+  title: string,
+  ip?: string,
+  userAgent?: string,
+  sessionId?: string,
+  model: string = "gpt-4o",
+  userId?: string,
+  extras: { includeAdvocacy?: boolean; subscriptionTierId?: string } = {}
+): Promise<DocumentAnalysis> {
   try {
+    const tierId = extras.subscriptionTierId || 'free';
+    const shouldIncludeAdvocacy = (extras.includeAdvocacy ?? false) || tierId !== 'free';
+
     // Log OpenAI API usage for audit purposes
     if (ip && userAgent && sessionId) {
       securityLogger.logOpenAIUsage(ip, userAgent, sessionId, title);
@@ -18,6 +30,7 @@ export async function analyzeDocument(content: string, title: string, ip?: strin
     console.log(`🤖 Sending to OpenAI (${model}):`);
     console.log(`   - Document: "${title}"`);
     console.log(`   - Content length: ${content.length} characters`);
+    console.log(`   - Subscription tier: ${tierId} (advocacy ${shouldIncludeAdvocacy ? 'enabled' : 'disabled'})`);
     console.log(`   - Content preview (first 500 chars): "${content.substring(0, 500).replace(/\n/g, '\\n')}"`);
     
     // Check if content seems to be garbled or has extraction issues
@@ -28,38 +41,47 @@ export async function analyzeDocument(content: string, title: string, ip?: strin
       console.log(`⚠️ WARNING: Content appears to have low readability (${(readableRatio * 100).toFixed(1)}% readable chars)`);
     }
 
+    const responseStructureLines = [
+      "\"summary\": \"A brief overall summary of the document in plain English\"",
+      "\"overallRisk\": \"low|moderate|high\"",
+      "\"keyFindings\": {\n    \"goodTerms\": [\"List of positive or fair terms found\"],\n    \"reviewNeeded\": [\"Terms that require attention but aren't necessarily bad\"],\n    \"redFlags\": [\"Concerning clauses or terms that pose significant risk\"]\n  }",
+      "\"sections\": [\n    {\n      \"title\": \"Section name (e.g., Payment Terms, Privacy Policy, etc.)\",\n      \"riskLevel\": \"low|moderate|high\",\n      \"summary\": \"Plain English explanation of this section\",\n      \"concerns\": [\"List of specific concerns for this section if any\"]\n    }\n  ]"
+    ];
+
+    if (shouldIncludeAdvocacy) {
+      responseStructureLines.push("\"userAdvocacy\": {\n    \"negotiationStrategies\": [\"Step-by-step negotiation moves that protect the user's interests\"],\n    \"counterOffers\": [\"Specific counter-proposals or edits to request for greater fairness\"],\n    \"fairnessReminders\": [\"Rights, oversight, or integrity principles the user can cite\"],\n    \"leverageOpportunities\": [\"Moments where the user can request concessions or more transparency\"]\n  }");
+    }
+
+    const responseStructure = `{
+  ${responseStructureLines.join(',\n  ')}
+}`;
+
+    const focusTopics = [
+      'Converting legal jargon to plain English',
+      'Identifying unfair, unusual, or concerning terms',
+      'Highlighting automatic renewals, data usage, and liability limitations',
+      'Explaining payment terms, cancellation policies, and user rights',
+      'Noting jurisdiction limitations or binding arbitration clauses'
+    ];
+
+    if (shouldIncludeAdvocacy) {
+      focusTopics.push('Equipping the user with negotiation strategies, counteroffers, and fairness advocacy they can confidently raise');
+    }
+
+    const focusGuidance = focusTopics.map(topic => `- ${topic}`).join('\n');
+
     const prompt = `You are a legal document analysis expert. Analyze the following legal document and provide a comprehensive analysis in JSON format.
 
 Document Title: ${title}
 Document Content: ${content}
 
 Please analyze this document and provide a JSON response with the following structure:
-{
-  "summary": "A brief overall summary of the document in plain English",
-  "overallRisk": "low|moderate|high",
-  "keyFindings": {
-    "goodTerms": ["List of positive or fair terms found"],
-    "reviewNeeded": ["Terms that require attention but aren't necessarily bad"],
-    "redFlags": ["Concerning clauses or terms that pose significant risk"]
-  },
-  "sections": [
-    {
-      "title": "Section name (e.g., Payment Terms, Privacy Policy, etc.)",
-      "riskLevel": "low|moderate|high",
-      "summary": "Plain English explanation of this section",
-      "concerns": ["List of specific concerns for this section if any"]
-    }
-  ]
-}
+${responseStructure}
 
 Focus on:
-- Converting legal jargon to plain English
-- Identifying unfair, unusual, or concerning terms
-- Highlighting automatic renewals, data usage, liability limitations
-- Explaining payment terms, cancellation policies, and user rights
-- Noting jurisdiction limitations or binding arbitration clauses
+${focusGuidance}
 
-Provide practical, actionable insights that help everyday users understand what they're agreeing to.`;
+Provide practical, actionable insights that help everyday users understand what they're agreeing to.${shouldIncludeAdvocacy ? ' When offering advocacy guidance, champion the user\'s fairness, integrity, and leverage with respectful, concrete recommendations.' : ''}`;
 
     const requestPayload = {
       model: model,
@@ -119,6 +141,18 @@ Provide practical, actionable insights that help everyday users understand what 
       throw new Error("Invalid analysis structure received from OpenAI");
     }
 
+    const normalizedAnalysis: DocumentAnalysis = {
+      ...analysis,
+      userAdvocacy: shouldIncludeAdvocacy
+        ? normalizeUserAdvocacy(analysis.userAdvocacy)
+        : undefined
+    };
+
+    if (shouldIncludeAdvocacy && normalizedAnalysis.userAdvocacy) {
+      const advocacy = normalizedAnalysis.userAdvocacy;
+      console.log(`   - Advocacy guidance: ${advocacy.negotiationStrategies.length + advocacy.counterOffers.length + advocacy.fairnessReminders.length + advocacy.leverageOpportunities.length} items`);
+    }
+
     // Track usage if userId is provided
     if (userId && response.usage) {
       const { subscriptionService } = await import("./subscription-service");
@@ -130,9 +164,18 @@ Provide practical, actionable insights that help everyday users understand what 
     }
 
     console.log(`✅ Document analysis completed successfully`);
-    return analysis;
+    return normalizedAnalysis;
   } catch (error) {
     console.error("Error analyzing document:", error);
     throw new Error(`Document analysis failed: ${error instanceof Error ? error.message : 'Unknown error'}`);
   }
+}
+
+function normalizeUserAdvocacy(advocacy?: DocumentAnalysis['userAdvocacy']): DocumentAnalysis['userAdvocacy'] {
+  return {
+    negotiationStrategies: advocacy?.negotiationStrategies?.filter(Boolean) ?? [],
+    counterOffers: advocacy?.counterOffers?.filter(Boolean) ?? [],
+    fairnessReminders: advocacy?.fairnessReminders?.filter(Boolean) ?? [],
+    leverageOpportunities: advocacy?.leverageOpportunities?.filter(Boolean) ?? []
+  };
 }
