@@ -8,6 +8,8 @@ export interface LLMAnalysisOptions {
   userAgent?: string;
   sessionId?: string;
   userId?: string;
+  subscriptionTierId?: string;
+  includeAdvocacy?: boolean;
 }
 
 export interface LLMProvider {

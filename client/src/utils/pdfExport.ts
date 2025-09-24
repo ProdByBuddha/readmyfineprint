@@ -361,6 +361,36 @@ export class AnalysisPDFExporter {
     this.currentY += 0.3; // Spacing between finding sections
   }
 
+  private addAdvocacyGuidance(analysis: DocumentAnalysis): void {
+    const advocacy = analysis.userAdvocacy;
+    if (!advocacy) {
+      return;
+    }
+
+    const sections = [
+      { title: 'Negotiation Strategies', items: advocacy.negotiationStrategies ?? [], colors: { text: [59, 130, 246], bg: [239, 246, 255] } },
+      { title: 'Counteroffers & Edits', items: advocacy.counterOffers ?? [], colors: { text: [59, 130, 246], bg: [239, 246, 255] } },
+      { title: 'Fairness Reminders', items: advocacy.fairnessReminders ?? [], colors: { text: [59, 130, 246], bg: [239, 246, 255] } },
+      { title: 'Leverage Opportunities', items: advocacy.leverageOpportunities ?? [], colors: { text: [59, 130, 246], bg: [239, 246, 255] } }
+    ].filter(section => section.items.length > 0);
+
+    if (sections.length === 0) {
+      return;
+    }
+
+    this.addNewPageIfNeeded(1.5);
+
+    this.doc.setTextColor(15, 23, 42);
+    this.doc.setFontSize(16);
+    this.doc.setFont('helvetica', 'bold');
+    this.doc.text('ADVOCACY & NEGOTIATION GUIDE', this.leftMargin, this.currentY);
+    this.currentY += 0.6;
+
+    sections.forEach(section => {
+      this.addFindingsSection(section.title, section.items, section.colors.text, section.colors.bg);
+    });
+  }
+
   private addDetailedSections(analysis: DocumentAnalysis): void {
     this.addNewPageIfNeeded(0.8);
 
@@ -611,6 +641,9 @@ export class AnalysisPDFExporter {
 
       // Add key findings
       this.addKeyFindings(analysis);
+
+      // Add advocacy guidance if available
+      this.addAdvocacyGuidance(analysis);
 
       // Add detailed sections
       this.addDetailedSections(analysis);

@@ -693,6 +693,13 @@ export interface Document {
   createdAt: Date;
 }
 
+export interface DocumentAdvocacy {
+  negotiationStrategies: string[];
+  counterOffers: string[];
+  fairnessReminders: string[];
+  leverageOpportunities: string[];
+}
+
 export interface DocumentAnalysis {
   summary: string;
   overallRisk: 'low' | 'moderate' | 'high';
@@ -707,6 +714,7 @@ export interface DocumentAnalysis {
     summary: string;
     concerns?: string[];
   }>;
+  userAdvocacy?: DocumentAdvocacy;
 }
 
 // PII Redaction Interfaces

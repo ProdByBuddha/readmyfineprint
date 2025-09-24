@@ -17,14 +17,15 @@ export interface AnalysisWithPII {
 }
 
 export async function analyzeDocumentWithPII(
-  content: string, 
-  title: string, 
+  content: string,
+  title: string,
   options: {
     ip?: string;
     userAgent?: string;
     sessionId?: string;
     model?: string;
     userId?: string;
+    includeAdvocacy?: boolean;
     piiDetection?: {
       enabled: boolean;
       detectNames?: boolean;
@@ -42,12 +43,13 @@ export async function analyzeDocumentWithPII(
     sessionId,
     model = "gpt-4o",
     userId,
-    piiDetection = { 
+    piiDetection = {
       enabled: true, // Always enabled for maximum privacy protection
       useEnhancedDetection: true, // Default to enhanced multi-pass detection
       aggressiveMode: true // Default to aggressive mode for maximum privacy
     },
-    enablePayloadHashing = true // Default to enabled for complete forensic traceability
+    enablePayloadHashing = true, // Default to enabled for complete forensic traceability
+    includeAdvocacy = false
   } = options;
 
   try {
@@ -174,6 +176,35 @@ export async function analyzeDocumentWithPII(
       console.log(`⚠️ WARNING: Content appears to have low readability (${(readableRatio * 100).toFixed(1)}% readable chars)`);
     }
 
+    const responseStructureLines = [
+      "\"summary\": \"A brief overall summary of the document in plain English\"",
+      "\"overallRisk\": \"low|moderate|high\"",
+      "\"keyFindings\": {\n    \"goodTerms\": [\"List of positive or fair terms found\"],\n    \"reviewNeeded\": [\"Terms that require attention but aren't necessarily bad\"],\n    \"redFlags\": [\"Concerning clauses or terms that pose significant risk\"]\n  }",
+      "\"sections\": [\n    {\n      \"title\": \"Section name (e.g., Payment Terms, Privacy Policy, etc.)\",\n      \"riskLevel\": \"low|moderate|high\",\n      \"summary\": \"Plain English explanation of this section\",\n      \"concerns\": [\"List of specific concerns for this section if any\"]\n    }\n  ]"
+    ];
+
+    if (includeAdvocacy) {
+      responseStructureLines.push("\"userAdvocacy\": {\n    \"negotiationStrategies\": [\"Step-by-step negotiation moves the user can take to balance the agreement\"],\n    \"counterOffers\": [\"Specific counter-proposals or edits to request that improve fairness or clarity\"],\n    \"fairnessReminders\": [\"Rights, oversight requirements, or consumer protections the user can reference\"],\n    \"leverageOpportunities\": [\"Moments in the agreement where the user can ask for concessions or more transparency\"]\n  }");
+    }
+
+    const responseStructure = `{
+  ${responseStructureLines.join(',\n  ')}
+}`;
+
+    const focusLines = [
+      '1. Identifying unfair, one-sided, or potentially problematic clauses',
+      '2. Highlighting terms that could be costly or restrictive',
+      '3. Finding any language that might be confusing or misleading',
+      '4. Noting important deadlines, obligations, or requirements',
+      '5. Assessing the overall fairness and balance of the agreement'
+    ];
+
+    if (includeAdvocacy) {
+      focusLines.push('6. Equipping the user with counteroffers, negotiation language, and fairness safeguards that champion their rights');
+    }
+
+    const focusGuidance = focusLines.join('\n');
+
     // Build the prompt with PII instructions if needed
     let prompt = `You are a legal document analysis expert. Analyze the following legal document and provide a comprehensive analysis in JSON format.
 
@@ -181,9 +212,6 @@ Document Title: ${title}`;
 
     // Add PII handling instructions if redactions were made
     if (redactionInfo.hasRedactions && piiDetectionResult) {
-      const instructionMethod = piiDetection.useEnhancedDetection ? 
-        'generateOpenAIInstructions' : 'generateOpenAIInstructions';
-      
       prompt += `\n\n${piiDetectionService.generateOpenAIInstructions(piiDetectionResult.redactionMap)}`;
     }
 
@@ -192,32 +220,12 @@ Document Title: ${title}`;
 Document Content: ${analysisContent}
 
 Please analyze this document and provide a JSON response with the following structure:
-{
-  "summary": "A brief overall summary of the document in plain English",
-  "overallRisk": "low|moderate|high",
-  "keyFindings": {
-    "goodTerms": ["List of positive or fair terms found"],
-    "reviewNeeded": ["Terms that require attention but aren't necessarily bad"],
-    "redFlags": ["Concerning clauses or terms that pose significant risk"]
-  },
-  "sections": [
-    {
-      "title": "Section name (e.g., Payment Terms, Privacy Policy, etc.)",
-      "riskLevel": "low|moderate|high",
-      "summary": "Plain English explanation of this section",
-      "concerns": ["List of specific concerns for this section if any"]
-    }
-  ]
-}
+${responseStructure}
 
 Focus on:
-1. Identifying unfair, one-sided, or potentially problematic clauses
-2. Highlighting terms that could be costly or restrictive
-3. Finding any language that might be confusing or misleading
-4. Noting important deadlines, obligations, or requirements
-5. Assessing the overall fairness and balance of the agreement
+${focusGuidance}
 
-Provide practical, actionable insights that help users understand what they're agreeing to.`;
+Provide practical, actionable insights that help users understand what they're agreeing to.${includeAdvocacy ? ' When offering advocacy guidance, be concrete, respectful, and focused on fairness so the user can confidently negotiate improvements.' : ''}`;
 
     // Prepare API request payload for hashing
     const apiRequestPayload = {
@@ -283,12 +291,12 @@ Provide practical, actionable insights that help users understand what they're a
       if (!parsed.summary || !parsed.overallRisk || !parsed.keyFindings || !parsed.sections) {
         throw new Error("Invalid response structure from OpenAI");
       }
-      
+
       analysisData = parsed as DocumentAnalysis;
     } catch (parseError) {
       console.error("Failed to parse OpenAI response as JSON:", parseError);
       console.log("Raw response:", response);
-      
+
       // Fallback analysis
       analysisData = {
         summary: "Analysis completed, but there was an issue parsing the detailed results. The document has been processed.",
@@ -303,8 +311,18 @@ Provide practical, actionable insights that help users understand what they're a
           riskLevel: "moderate" as const,
           summary: "Document analysis was completed but detailed parsing failed.",
           concerns: ["Response parsing error - manual review recommended"]
-        }]
+        }],
+        userAdvocacy: includeAdvocacy ? normalizeUserAdvocacy() : undefined
       };
+    }
+
+    if (includeAdvocacy) {
+      analysisData = {
+        ...analysisData,
+        userAdvocacy: normalizeUserAdvocacy(analysisData.userAdvocacy)
+      };
+    } else if (analysisData.userAdvocacy) {
+      analysisData = { ...analysisData, userAdvocacy: undefined };
     }
 
     // Restore PII in the analysis if redactions were made
@@ -457,7 +475,24 @@ function restorePIIInAnalysis(analysis: DocumentAnalysis, redactionMap: Map<stri
       riskLevel: section.riskLevel,
       summary: restoreInString(section.summary),
       concerns: section.concerns ? restoreInArray(section.concerns) : undefined
-    }))
+    })),
+    userAdvocacy: analysis.userAdvocacy
+      ? {
+          negotiationStrategies: restoreInArray(analysis.userAdvocacy.negotiationStrategies ?? []),
+          counterOffers: restoreInArray(analysis.userAdvocacy.counterOffers ?? []),
+          fairnessReminders: restoreInArray(analysis.userAdvocacy.fairnessReminders ?? []),
+          leverageOpportunities: restoreInArray(analysis.userAdvocacy.leverageOpportunities ?? [])
+        }
+      : undefined
+  };
+}
+
+function normalizeUserAdvocacy(advocacy?: DocumentAnalysis['userAdvocacy']): DocumentAnalysis['userAdvocacy'] {
+  return {
+    negotiationStrategies: advocacy?.negotiationStrategies?.filter(Boolean) ?? [],
+    counterOffers: advocacy?.counterOffers?.filter(Boolean) ?? [],
+    fairnessReminders: advocacy?.fairnessReminders?.filter(Boolean) ?? [],
+    leverageOpportunities: advocacy?.leverageOpportunities?.filter(Boolean) ?? []
   };
 }
 
