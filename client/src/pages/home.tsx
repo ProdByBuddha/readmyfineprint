@@ -436,9 +436,7 @@ export default function Home() {
           >
             <Card className="p-12 md:p-16 bg-gradient-to-br from-primary/10 via-secondary/10 to-emerald-600/10 dark:from-primary/20 dark:via-secondary/20 dark:to-emerald-600/20 border-0 shadow-2xl backdrop-blur-xl">
               <CardContent className="p-0">
-                <div className="mb-8">
-                  <div className="inline-flex items-center gap-3 px-6 py-3 bg-white/50 dark:bg-slate-800/50 rounded-full backdrop-blur-md border border-white/20 dark:border-slate-700/30"></div>
-                </div>
+                
                 <h2 className="text-4xl md:text-5xl lg:text-6xl font-black text-slate-900 dark:text-white mb-6 leading-tight">
                   Ready to Transform
                   <br />
