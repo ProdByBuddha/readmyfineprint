@@ -469,14 +469,14 @@ export default function DonatePage() {
           </Alert>
           
           <div className="grid gap-3">
-            {/* World Chain */}
+            {/* Worldchain */}
             <div className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-800 rounded-lg">
               <div className="flex items-center gap-3">
                 <div className="w-8 h-8 bg-blue-100 dark:bg-blue-900 rounded-full flex items-center justify-center">
                   <span className="text-xs font-bold text-blue-600 dark:text-blue-400">WC</span>
                 </div>
                 <div className="flex-1">
-                  <div className="font-medium text-sm">World Chain</div>
+                  <div className="font-medium text-sm">Worldchain</div>
                   <div className="text-xs text-gray-500 mb-1">
                     Supports: WLD, USDC, WBTC, WETH, uSOL, uDOGE, uXRP only
                   </div>
