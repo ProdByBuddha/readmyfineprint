@@ -1,0 +1,90 @@
+[1] [0] Error analyzing document: RateLimitError: 429 You exceeded your current quota, please check your plan and billing details. For more information on this error, read the docs: https://platform.openai.com/docs/guides/error-codes/api-errors.
+[1] [0]     at Function.generate (/home/runner/workspace/node_modules/openai/src/core/error.ts:96:14)
+[1] [0]     at OpenAI.makeStatusError (/home/runner/workspace/node_modules/openai/src/client.ts:463:28)
+[1] [0]     at OpenAI.makeRequest (/home/runner/workspace/node_modules/openai/src/client.ts:713:24)
+[1] [0]     at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+[1] [0]     at analyzeDocument (/home/runner/workspace/server/openai.ts:106:22)
+[1] [0]     at OpenAIProvider.analyzeDocument (/home/runner/workspace/server/llm/openai-provider.ts:22:12)
+[1] [0]     at LocalOss20BProvider.fallbackToOpenAI (/home/runner/workspace/server/llm/oss20b-provider.ts:560:22)
+[1] [0]     at LocalOss20BProvider.analyzeDocument (/home/runner/workspace/server/llm/oss20b-provider.ts:338:36)
+[1] [0]     at Object.processFunction (/home/runner/workspace/server/routes.ts:1796:20)
+[1] [0]     at PriorityProcessingQueue.processRequest (/home/runner/workspace/server/priority-queue.ts:120:22) {
+[1] [0]   status: 429,
+[1] [0]   headers: HeadersList {
+[1] [0]     cookies: [
+[1] [0]       '__cf_bm=7NI5E.RzC7zyaSoQlu5aBqSyojJUs0uPB9pfF6F.Vy4-1758678070-1.0.1.1-1il74w5QHuemmszfAQEsGS.6W2Lp7Fh_U0lrSEIhBaYAlj0iKeVJ.juD0EcuwQodtuaySE9BPbB9aWPAKWA6HhGrWeaYMDblATPEibxH98o; path=/; expires=Wed, 24-Sep-25 02:11:10 GMT; domain=.api.openai.com; HttpOnly; Secure; SameSite=None',
+[1] [0]       '_cfuvid=NUMN8zhN7cE9D_v2yBnBHOcyEYlMKYdyfz.2qzVFK5I-1758678070735-0.0.1.1-604800000; path=/; domain=.api.openai.com; HttpOnly; Secure; SameSite=None'
+[1] [0]     ],
+[1] [0]     [Symbol(headers map)]: Map(15) {
+[1] [0]       'date' => [Object],
+[1] [0]       'content-type' => [Object],
+[1] [0]       'content-length' => [Object],
+[1] [0]       'connection' => [Object],
+[1] [0]       'vary' => [Object],
+[1] [0]       'x-request-id' => [Object],
+[1] [0]       'x-envoy-upstream-service-time' => [Object],
+[1] [0]       'x-openai-proxy-wasm' => [Object],
+[1] [0]       'cf-cache-status' => [Object],
+[1] [0]       'set-cookie' => [Object],
+[1] [0]       'strict-transport-security' => [Object],
+[1] [0]       'x-content-type-options' => [Object],
+[1] [0]       'server' => [Object],
+[1] [0]       'cf-ray' => [Object],
+[1] [0]       'alt-svc' => [Object]
+[1] [0]     },
+[1] [0]     [Symbol(headers map sorted)]: [
+[1] [0]       [Array], [Array], [Array],
+[1] [0]       [Array], [Array], [Array],
+[1] [0]       [Array], [Array], [Array],
+[1] [0]       [Array], [Array], [Array],
+[1] [0]       [Array], [Array], [Array],
+[1] [0]       [Array]
+[1] [0]     ]
+[1] [0]   },
+[1] [0]   requestID: 'req_bbf9d69104054af5b2ec6b1d9a40c87c',
+[1] [0]   error: {
+[1] [0]     message: 'You exceeded your current quota, please check your plan and billing details. For more information on this error, read the docs: https://platform.openai.com/docs/guides/error-codes/api-errors.',
+[1] [0]     type: 'insufficient_quota',
+[1] [0]     param: null,
+[1] [0]     code: 'insufficient_quota'
+[1] [0]   },
+[1] [0]   code: 'insufficient_quota',
+[1] [0]   param: null,
+[1] [0]   type: 'insufficient_quota'
+[1] [0] }
+[1] [0] ❌ Fallback to OpenAI provider failed: Error: Document analysis failed: 429 You exceeded your current quota, please check your plan and billing details. For more information on this error, read the docs: https://platform.openai.com/docs/guides/error-codes/api-errors.
+[1] [0]     at analyzeDocument (/home/runner/workspace/server/openai.ts:170:11)
+[1] [0]     at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+[1] [0]     at OpenAIProvider.analyzeDocument (/home/runner/workspace/server/llm/openai-provider.ts:22:12)
+[1] [0]     at LocalOss20BProvider.fallbackToOpenAI (/home/runner/workspace/server/llm/oss20b-provider.ts:560:22)
+[1] [0]     at LocalOss20BProvider.analyzeDocument (/home/runner/workspace/server/llm/oss20b-provider.ts:338:36)
+[1] [0]     at Object.processFunction (/home/runner/workspace/server/routes.ts:1796:20)
+[1] [0]     at PriorityProcessingQueue.processRequest (/home/runner/workspace/server/priority-queue.ts:120:22)
+[1] [0] [Priority Queue] Error processing free tier request: Error: Document analysis failed after OSS20B error. OSS20B request failed after 1 attempts. Last error: HTTP 404 | Fallback error: Document analysis failed: 429 You exceeded your current quota, please check your plan and billing details. For more information on this error, read the docs: https://platform.openai.com/docs/guides/error-codes/api-errors.
+[1] [0]     at LocalOss20BProvider.analyzeDocument (/home/runner/workspace/server/llm/oss20b-provider.ts:349:17)
+[1] [0]     at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+[1] [0]     at Object.processFunction (/home/runner/workspace/server/routes.ts:1796:20)
+[1] [0]     at PriorityProcessingQueue.processRequest (/home/runner/workspace/server/priority-queue.ts:120:22)
+[1] [0] Error analyzing document: Error: Document analysis failed after OSS20B error. OSS20B request failed after 1 attempts. Last error: HTTP 404 | Fallback error: Document analysis failed: 429 You exceeded your current quota, please check your plan and billing details. For more information on this error, read the docs: https://platform.openai.com/docs/guides/error-codes/api-errors.
+[1] [0]     at LocalOss20BProvider.analyzeDocument (/home/runner/workspace/server/llm/oss20b-provider.ts:349:17)
+[1] [0]     at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+[1] [0]     at Object.processFunction (/home/runner/workspace/server/routes.ts:1796:20)
+[1] [0]     at PriorityProcessingQueue.processRequest (/home/runner/workspace/server/priority-queue.ts:120:22)
+[1] [0] 🔒 Security headers set for POST /api/documents/1/analyze
+[1] [0] 🔒 Security headers set for POST /api/documents/1/analyze
+[1] [0] 🔒 Security headers set for POST /api/documents/1/analyze
+[1] [0] 1:41:10 AM [express] POST /api/documents/1/analyze 500 in 6600ms :: {"error":"Document analysis fail...
+[1] [0] 🔒 Security headers set for GET /api/user/subscription
+[1] [0] 🔐 IP address hashed with Argon2id for privacy protection
+[1] [0] 🔐 User agent hashed with Argon2id for privacy protection
+[1] [0] 📝 New session logged for client: cf0e6f222667fcf77fbdbf309e128563
+[1] [0] 📊 Session-based user detected (anonymous), providing free tier without subscription record
+[1] [0] 📊 Individual anonymous user (anonymous) usage: 0 documents analyzed this month
+[1] [0] 🔒 Security headers set for GET /api/user/subscription
+[1] [0] 🔒 Security headers set for GET /api/user/subscription
+[1] [0] 🔒 Security headers set for GET /api/user/subscription
+[1] [0] 1:41:10 AM [express] GET /api/user/subscription 200 in 7ms :: {"tier":{"id":"free","name":"Free","de...
+[1] [0] 🔐 IP address hashed with Argon2id for privacy protection
+[1] [0] 🔐 User agent hashed with Argon2id for privacy protection
+[1] [0] 🔐 Security log entry protected with Argon2id hashing
+[1] [0] ℹ️ [SECURITY] SESSION_MANAGEMENT | LOW | 0602ea1c | New session created
