@@ -26,7 +26,11 @@ export class OpenAIProvider implements LLMProvider {
       userAgent,
       sessionId,
       model,
-      userId
+      userId,
+      {
+        includeAdvocacy: options.includeAdvocacy,
+        subscriptionTierId: options.subscriptionTierId
+      }
     );
   }
 
