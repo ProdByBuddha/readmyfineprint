@@ -1,0 +1,41 @@
+👤 Anonymous user detected - skipping security questions check
+Failed to fetch dynamically imported module: https://edcf3ef7-a826-4eed-8e04-7a485b2e183a-00-1wytaob2mj6u8.kirk.replit.dev:5173/home-YM4U2BHD.js
+🔴 [ErrorBoundary] ========== ERROR CAUGHT ==========
+🔴 [ErrorBoundary] Raw error: 
+TypeError {}
+
+🔴 [ErrorBoundary] Error type: object
+🔴 [ErrorBoundary] Is empty object: true
+🔴 [ErrorBoundary] Error toString: TypeError: Failed to fetch dynamically imported module: https://edcf3ef7-a826-4eed-8e04-7a485b2e183a-00-1wytaob2mj6u8.kirk.replit.dev:5173/home-YM4U2BHD.js
+🔴 [ErrorBoundary] Error message: Failed to fetch dynamically imported module: https://edcf3ef7-a826-4eed-8e04-7a485b2e183a-00-1wytaob2mj6u8.kirk.replit.dev:5173/home-YM4U2BHD.js
+🔴 [ErrorBoundary] Error stack: TypeError: Failed to fetch dynamically imported module: https://edcf3ef7-a826-4eed-8e04-7a485b2e183a-00-1wytaob2mj6u8.kirk.replit.dev:5173/home-YM4U2BHD.js
+🔴 [ErrorBoundary] Normalized error: 
+TypeError {}
+
+🔴 [ErrorBoundary] Component stack: 
+    at Lazy
+    at Ht (https://edcf3ef7-a826-4eed-8e04-7a485b2e183a-00-1wytaob2mj6u8.kirk.replit.dev:5173/chunk-6NR2YOK4.js:3:3282)
+    at Vt (https://edcf3ef7-a826-4eed-8e04-7a485b2e183a-00-1wytaob2mj6u8.kirk.replit.dev:5173/chunk-6NR2YOK4.js:3:7214)
+    at Suspense
+    at Ia
+    at div
+    at io (https://edcf3ef7-a826-4eed-8e04-7a485b2e183a-00-1wytaob2mj6u8.kirk.replit.dev:5173/main.js:13:16287)
+    at main
+    at div
+    at _a (https://edcf3ef7-a826-4eed-8e04-7a485b2e183a-00-1wytaob2mj6u8.kirk.replit.dev:5173/main.js:13:20367)
+    at vt (https://edcf3ef7-a826-4eed-8e04-7a485b2e183a-00-1wytaob2mj6u8.kirk.replit.dev:5173/chunk-SJDZVBUX.js:1:18080)
+    at B (https://edcf3ef7-a826-4eed-8e04-7a485b2e183a-00-1wytaob2mj6u8.kirk.replit.dev:5173/chunk-QL6OUVKL.js:1:276)
+    at t (https://edcf3ef7-a826-4eed-8e04-7a485b2e183a-00-1wytaob2mj6u8.kirk.replit.dev:5173/main.js:1:23709)
+    at d (https://edcf3ef7-a826-4eed-8e04-7a485b2e183a-00-1wytaob2mj6u8.kirk.replit.dev:5173/chunk-LC24M4XN.js:1:583)
+    at Ur (https://edcf3ef7-a826-4eed-8e04-7a485b2e183a-00-1wytaob2mj6u8.kirk.replit.dev:5173/main.js:1:15777)
+    at S (https://edcf3ef7-a826-4eed-8e04-7a485b2e183a-00-1wytaob2mj6u8.kirk.replit.dev:5173/chunk-DKQ4YMZJ.js:1:3154)
+    at ks (https://edcf3ef7-a826-4eed-8e04-7a485b2e183a-00-1wytaob2mj6u8.kirk.replit.dev:5173/chunk-7KML65J5.js:1:35574)
+    at Re (https://edcf3ef7-a826-4eed-8e04-7a485b2e183a-00-1wytaob2mj6u8.kirk.replit.dev:5173/chunk-6NR2YOK4.js:3:6384)
+    at wr (https://edcf3ef7-a826-4eed-8e04-7a485b2e183a-00-1wytaob2mj6u8.kirk.replit.dev:5173/chunk-6NR2YOK4.js:3:15820)
+    at Ma
+🔴 [ErrorBoundary] Error keys: 
+Array []
+
+🔴 [ErrorBoundary] Error constructor: TypeError
+🔴 [ErrorBoundary] Error JSON: {}
+🔴 [ErrorBoundary] ==================================
