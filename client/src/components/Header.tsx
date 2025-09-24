@@ -256,7 +256,7 @@ export function Header() {
                   group-active:scale-95 flex items-center justify-center 
                   flex-none shrink-0 overflow-hidden border border-primary/10 dark:border-slate-700/50
                 `}
-              ></div>
+              >
                 <img
                   src="/og-image.png"
                   alt="ReadMyFinePrint Logo"
