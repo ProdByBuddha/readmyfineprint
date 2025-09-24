@@ -3,6 +3,7 @@ import fs from "fs";
 import path from "path";
 import { type Server } from "http";
 import { createRequire } from "module";
+import { pathToFileURL } from "url";
 
 // Helper function to apply all security headers consistently
 function applySecurityHeaders(res: express.Response) {
@@ -76,8 +77,7 @@ export function log(message: string, source = "express") {
 export async function setupVite(app: Express, server: Server) {
   try {
     // Use a basic vite config for development
-    const require = createRequire(import.meta.url);
-    const vite = require("vite");
+    const vite = await loadVite();
     const { createServer: createViteServer, createLogger } = vite;
 
     const serverOptions = {
@@ -146,6 +146,36 @@ export async function setupVite(app: Express, server: Server) {
     console.error("Failed to setup Vite:", error);
     throw error;
   }
+}
+
+async function loadVite() {
+  try {
+    // Dynamically import Vite first — this works when the tsx resolver can
+    // locate the package normally in node_modules.
+    return await import("vite");
+  } catch (error) {
+    if (isModuleNotFoundError(error)) {
+      // In some development environments tsx intercepts bare specifiers and
+      // fails to fall back to Node's resolution algorithm. When that happens we
+      // manually resolve the installed package using createRequire and then
+      // import it via a file URL so we bypass the intercepted resolution step.
+      const require = createRequire(import.meta.url);
+      const vitePath = require.resolve("vite");
+
+      return import(pathToFileURL(vitePath).href);
+    }
+
+    throw error;
+  }
+}
+
+function isModuleNotFoundError(error: unknown): error is NodeJS.ErrnoException {
+  return (
+    typeof error === "object" &&
+    error !== null &&
+    "code" in error &&
+    (error as { code?: unknown }).code === "ERR_MODULE_NOT_FOUND"
+  );
 }
 
 export function serveStatic(app: Express) {
