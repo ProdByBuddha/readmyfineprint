@@ -2,6 +2,8 @@ import type { DocumentAnalysis } from "@shared/schema";
 import type { LLMProvider, LLMAnalysisOptions } from "./provider";
 import { securityLogger } from "../security-logger";
 import { z } from "zod";
+import type { CircuitBreaker } from "../circuit-breaker";
+import { CircuitBreakerFactory, CircuitState } from "../circuit-breaker";
 
 // Zod schema for runtime validation of DocumentAnalysis response
 const DocumentAdvocacySchema = z.object({
@@ -116,20 +118,17 @@ export class LocalOss20BProvider implements LLMProvider {
   private readonly timeout: number = 15000; // 15 second request timeout keeps UI responsive
   private readonly maxRetries: number = 1; // Fail fast and fall back to OpenAI if needed
   private readonly requestTargets: RequestTarget[] = [
-    { kind: 'ollama', path: '/api/chat' },
-    { kind: 'openai', path: '/v1/chat/completions' }
+    { kind: 'openai', path: '/v1/chat/completions' },
+    { kind: 'ollama', path: '/api/chat' }
   ];
+  private readonly ollamaCircuitBreaker: CircuitBreaker;
 
   constructor() {
-    // Use remote Ollama server URL. Must be set via LOCAL_LLM_BASE_URL environment variable.
+    // Default to the local Ollama-compatible endpoint. Allow overrides for advanced setups.
     this.baseUrl = process.env.LOCAL_LLM_BASE_URL || "http://127.0.0.1:11434";
     // Force the OSS20B-compatible model naming so downstream logging is consistent.
     this.defaultModel = process.env.LOCAL_LLM_MODEL || "gpt-oss:20b";
-    
-    if (this.baseUrl === "http://127.0.0.1:11434" && process.env.NODE_ENV === 'production') {
-      console.warn(`⚠️ Using localhost URL in production. Set LOCAL_LLM_BASE_URL to your remote Ollama server URL.`);
-    }
-    
+    this.ollamaCircuitBreaker = CircuitBreakerFactory.createApiCircuitBreaker("LocalOllamaLLM");
     console.log(`🔧 LocalOSS20BProvider configured with baseUrl: ${this.baseUrl}, model: ${this.defaultModel}`);
   }
 
@@ -251,7 +250,13 @@ Provide practical, actionable insights that help everyday users understand what 
         console.log(JSON.stringify(safePayload, null, 2));
       }
 
-      const response = await this.makeRequestWithRetry(requestPayload);
+      if (this.ollamaCircuitBreaker.getState() === CircuitState.OPEN) {
+        console.warn("⚠️ Local Ollama circuit breaker is OPEN – skipping direct request");
+      }
+
+      const response = await this.ollamaCircuitBreaker.execute(() =>
+        this.makeRequestWithRetry(requestPayload)
+      );
 
       // Development-only: Log response structure (no content)
       if (process.env.NODE_ENV === 'development') {
@@ -638,6 +643,11 @@ Provide practical, actionable insights that help everyday users understand what 
   }
 
   async isAvailable(): Promise<boolean> {
+    if (this.ollamaCircuitBreaker.getState() === CircuitState.OPEN) {
+      console.warn("⚠️ OSS20B circuit breaker is OPEN – reporting service as unavailable");
+      return false;
+    }
+
     try {
       console.log(`🔍 Checking OSS20B availability at ${this.baseUrl}...`);
 
