@@ -110,16 +110,39 @@ export async function setupVite(app: Express, server: Server) {
         ...viteLogger,
         error: (msg: string, options?: any) => {
           viteLogger.error(msg, options);
-          process.exit(1);
+          // Don't exit on Vite errors in development
+          if (process.env.NODE_ENV !== 'development') {
+            process.exit(1);
+          }
         },
       },
-      server: serverOptions,
+      server: {
+        ...serverOptions,
+        fs: {
+          allow: ['..'],
+        },
+        origin: process.env.REPL_SLUG ? `https://${process.env.REPL_SLUG}.${process.env.REPL_OWNER}.repl.co` : undefined,
+      },
       appType: "custom",
+      optimizeDeps: {
+        force: true,
+      },
     });
 
+    // Use Vite's middleware for all requests
     app.use(viteServer.middlewares);
-    app.use("/*path", async (req, res, next) => {
+    
+    // Fallback handler for SPA routes (but not API routes or static assets)
+    app.use("*", async (req, res, next) => {
       const url = req.originalUrl;
+
+      // Skip API routes and static assets
+      if (url.startsWith('/api/') || 
+          url.includes('.') && !url.endsWith('.html') ||
+          url.startsWith('/@') ||
+          url.startsWith('/node_modules/')) {
+        return next();
+      }
 
       try {
         const clientTemplate = path.resolve(
