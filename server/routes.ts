@@ -59,10 +59,10 @@ function getFallbackCookies(req: any): Record<string, string> {
   if (req.cookies && typeof req.cookies === 'object') {
     return req.cookies;
   }
-  
+
   const cookies: Record<string, string> = {};
   const cookieHeader = req.headers.cookie;
-  
+
   if (cookieHeader) {
     cookieHeader.split(';').forEach((cookie: string) => {
       const parts = cookie.trim().split('=');
@@ -77,7 +77,7 @@ function getFallbackCookies(req: any): Record<string, string> {
       }
     });
   }
-  
+
   return cookies;
 }
 
@@ -94,11 +94,11 @@ export function isStaging(req?: any): boolean {
   if (process.env.NODE_ENV === 'staging') {
     return true;
   }
-  
+
   // Production mode on Replit (legacy staging detection)
   const isReplit = process.env.REPL_ID || req?.get('host')?.includes('replit.dev') || req?.get('host')?.includes('kirk.replit.dev');
   const isProduction = process.env.NODE_ENV === 'production';
-  
+
   return isProduction && isReplit;
 }
 
@@ -110,7 +110,7 @@ export function getCookieSettings(req?: any) {
   const isDevelopment = process.env.NODE_ENV === 'development';
   const isExplicitStaging = process.env.NODE_ENV === 'staging';
   const stagingMode = isStaging(req);
-  
+
   return {
     httpOnly: true,
     secure: !isDevelopment && !stagingMode, // false for dev and staging, true for production
@@ -129,11 +129,11 @@ function getClientBaseUrl(req: any): string {
   if (process.env.NODE_ENV === 'production') {
     return 'https://readmyfineprint.com';
   }
-  
+
   // Check if we're in a Replit environment
   const isReplit = process.env.REPL_ID || req.get('host')?.includes('replit.dev') || req.get('host')?.includes('kirk.replit.dev');
   const host = req.get('host');
-  
+
   let baseUrl;
   if (process.env.NODE_ENV === 'development' && !isReplit) {
     // In local development only, point to the Vite dev server
@@ -145,7 +145,7 @@ function getClientBaseUrl(req: any): string {
       .split(',')
       .find(origin => origin.includes('replit.dev') || origin.includes('kirk.replit.dev'))
       ?.trim();
-    
+
     if (replitDomain) {
       baseUrl = replitDomain;
     } else {
@@ -156,7 +156,7 @@ function getClientBaseUrl(req: any): string {
     // In staging or other environments, use the same protocol and host as the request
     baseUrl = `${req.protocol}://${host}`;
   }
-  
+
   if (process.env.NODE_ENV !== 'production') {
     console.log(`🔍 getClientBaseUrl() -> ${baseUrl} (isReplit: ${isReplit}, host: ${host}, NODE_ENV: ${process.env.NODE_ENV})`);
   }
@@ -165,20 +165,20 @@ function getClientBaseUrl(req: any): string {
 
 async function findUserByEmailWithEntanglement(email: string): Promise<any> {
   console.log(`🔍 Looking up user for email: ${email}`);
-  
+
   // First try direct lookup (works for both real emails stored as-is and pseudonymized emails)
   let user = await databaseStorage.getUserByEmail(email);
   if (user) {
     console.log(`✅ Found user by direct email lookup`);
     return user;
   }
-  
+
   // If not found and email doesn't look pseudonymized, create pseudonym and try lookup
   if (!email.includes('@subscription.internalusers.email')) {
     try {
       const pseudonymizedEmail = await createPseudonymizedEmail(email);
       console.log(`🔗 Generated pseudonym: ${email} -> ${pseudonymizedEmail}`);
-      
+
       user = await databaseStorage.getUserByEmail(pseudonymizedEmail);
       if (user) {
         console.log(`✅ Found user by pseudonymized email lookup`);
@@ -192,7 +192,7 @@ async function findUserByEmailWithEntanglement(email: string): Promise<any> {
     // This is more expensive but handles edge cases
     try {
       const allUsers = await databaseStorage.getUsers({ page: 1, limit: 1000, sortBy: 'createdAt', sortOrder: 'desc' });
-      
+
       for (const potentialUser of allUsers.users) {
         if (potentialUser.email && !potentialUser.email.includes('@subscription.internalusers.email')) {
           // This user has a real email, check if it matches our pseudonym
@@ -207,7 +207,7 @@ async function findUserByEmailWithEntanglement(email: string): Promise<any> {
       console.error('❌ Failed reverse email entanglement lookup:', error);
     }
   }
-  
+
   console.log(`❌ No user found for email: ${email}`);
   return null;
 }
@@ -240,7 +240,7 @@ async function ensureCustomerPortalConfiguration(stripeInstance: Stripe): Promis
   // Determine environment based on NODE_ENV instead of API host
   const cacheKey = process.env.NODE_ENV === 'development' ? 'test' : 'live';
   const cached = portalConfigCache.get(cacheKey);
-  
+
   // Return cached config if still valid
   if (cached && Date.now() - cached.timestamp < CACHE_DURATION) {
     return;
@@ -249,10 +249,10 @@ async function ensureCustomerPortalConfiguration(stripeInstance: Stripe): Promis
   try {
     // Check if any configurations exist
     const configurations = await stripeInstance.billingPortal.configurations.list({ limit: 1 });
-    
+
     if (configurations.data.length === 0) {
       console.log(`Creating default Customer Portal configuration for ${cacheKey} mode`);
-      
+
       // Create default configuration
       const config = await stripeInstance.billingPortal.configurations.create({
         business_profile: {
@@ -325,12 +325,12 @@ const upload = multer({
 // Enhanced PDF text extraction using pdf-parse with smart configuration selection
 async function extractPdfText(buffer: Buffer): Promise<string> {
   console.log(`🔍 Starting PDF extraction (buffer size: ${buffer.length} bytes)`);
-  
+
   // Check if PDF is problematic by doing a quick parse test
   const isProblematicPdf = await checkIfProblematicPdf(buffer);
-  
+
   let configsToTry: any[];
-  
+
   if (isProblematicPdf) {
     console.log(`⚠️ Detected problematic PDF, using tolerant configurations`);
     // For problematic PDFs: normalize text config first, then minimal config
@@ -367,28 +367,28 @@ async function extractPdfText(buffer: Buffer): Promise<string> {
       const configType = isProblematicPdf 
         ? (i === 0 ? 'normalize text' : 'minimal') 
         : (i === 0 ? 'preserve structure' : 'normalize text');
-      
+
       console.log(`📄 Trying ${configType} configuration (${i + 1}/${configsToTry.length})`);
       const data = await pdfParse(buffer, configsToTry[i]);
-      
+
       console.log(`📄 PDF-parse results (${configType}):`);
       console.log(`   - Pages: ${data.numpages}`);
       console.log(`   - Text length: ${data.text.length} characters`);
-      
+
       if (data.text && data.text.trim().length >= 50) {
         // Check if the text contains readable content (not just PDF structures)
         const readableContent = data.text.replace(/[^\w\s]/g, '').trim();
         const readableRatio = readableContent.length / data.text.length;
-        
+
         if (readableRatio > 0.3) { // At least 30% readable characters
           console.log(`✅ PDF text extraction successful with ${configType} config (${data.text.length} chars, ${Math.round(readableRatio * 100)}% readable)`);
-          
+
           // Clean up the extracted text
           let cleanText = data.text
             .replace(/\n\s*\n/g, '\n') // Remove multiple newlines
             .replace(/\s+/g, ' ') // Normalize whitespace
             .trim();
-          
+
           return cleanText;
         } else {
           console.log(`⚠️ ${configType}: Text not readable enough (${Math.round(readableRatio * 100)}% readable)`);
@@ -396,7 +396,7 @@ async function extractPdfText(buffer: Buffer): Promise<string> {
       } else {
         console.log(`⚠️ ${configType}: Text too short (${data.text?.length || 0} chars)`);
       }
-      
+
     } catch (error) {
       const configType = isProblematicPdf 
         ? (i === 0 ? 'normalize text' : 'minimal') 
@@ -414,7 +414,7 @@ async function checkIfProblematicPdf(buffer: Buffer): Promise<boolean> {
   try {
     // Quick test with minimal config to see if PDF has structural issues
     const testData = await pdfParse(buffer, { max: 1 }); // Only parse first page for test
-    
+
     // Check for common signs of problematic PDFs
     const pdfString = buffer.toString('latin1');
     const hasWarningIndicators = 
@@ -422,7 +422,7 @@ async function checkIfProblematicPdf(buffer: Buffer): Promise<boolean> {
       pdfString.includes('Unterminated string') ||
       pdfString.includes('End of file') ||
       buffer.length < 5000; // Very small PDFs are often problematic
-    
+
     return hasWarningIndicators;
   } catch (error) {
     // If quick test fails, definitely problematic
@@ -435,13 +435,13 @@ async function checkIfProblematicPdf(buffer: Buffer): Promise<boolean> {
 async function extractPdfTextBasic(buffer: Buffer): Promise<string> {
   try {
     console.log(`🔧 Using enhanced basic PDF extraction (fallback method)`);
-    
+
     let extractedText = '';
 
     // Convert buffer to string with different encodings to handle various PDF formats
     const encodings = ['latin1', 'utf8', 'ascii', 'binary'];
     let pdfString = '';
-    
+
     for (const encoding of encodings) {
       try {
         pdfString = buffer.toString(encoding as BufferEncoding);
@@ -482,10 +482,10 @@ async function extractPdfTextBasic(buffer: Buffer): Promise<string> {
                              match.match(/"([^"]+)"/) ||
                              match.match(/'([^']+)'/);
             /* eslint-enable no-useless-escape */
-          
+
           if (textMatch && textMatch[1]) {
             const rawText = textMatch[1];
-            
+
             // Enhanced PDF text escape sequence decoding
             const decodedText = rawText
               .replace(/\\n/g, '\n')
@@ -523,19 +523,19 @@ async function extractPdfTextBasic(buffer: Buffer): Promise<string> {
     // Approach 2: Look for plaintext content in uncompressed PDF streams
     if (extractedText.trim().length < 50) {
       console.log(`🔄 Trying uncompressed stream content extraction`);
-      
+
       // Look for content between stream markers (uncompressed streams)
       const streamPattern = /stream\s*([\s\S]*?)\s*endstream/gi;
       let streamMatch;
-      
+
       while ((streamMatch = streamPattern.exec(pdfString)) !== null) {
         const streamContent = streamMatch[1];
-        
+
         // Skip obviously compressed or binary streams
         if (streamContent.includes('\u0000') || streamContent.length < streamContent.replace(/[^\x20-\x7E]/g, '').length * 0.5) {
           continue;
         }
-        
+
         // Look for readable text in stream content with more flexible patterns
           // eslint-disable-next-line no-useless-escape
           const readableChunks = streamContent.match(/[a-zA-Z0-9\s.,!?;:()\[\]{}'"%-]{3,}/g);
@@ -554,11 +554,11 @@ async function extractPdfTextBasic(buffer: Buffer): Promise<string> {
     // Approach 3: Look for text in PDF object definitions
     if (extractedText.trim().length < 50) {
       console.log(`🔄 Trying PDF object text extraction`);
-      
+
       // Look for text in object definitions
       const objectPattern = /obj[\s\S]*?\/Contents\s*\[([\s\S]*?)\]/gi;
       let objMatch;
-      
+
       while ((objMatch = objectPattern.exec(pdfString)) !== null) {
         const content = objMatch[1];
         // Extract readable strings from object content
@@ -577,17 +577,17 @@ async function extractPdfTextBasic(buffer: Buffer): Promise<string> {
     // Approach 4: Direct text search with improved patterns
     if (extractedText.trim().length < 30) {
       console.log(`🔄 Trying enhanced direct text pattern matching`);
-      
+
       // Look for sequences of readable characters
         // eslint-disable-next-line no-useless-escape
         const textSequences = pdfString.match(/[a-zA-Z][a-zA-Z0-9\s.,!?;:()\[\]{}'"%-]{4,50}[a-zA-Z0-9]/g);
-      
+
       if (textSequences && textSequences.length > 5) {
         const meaningfulSequences = textSequences.filter(seq => {
           const wordCount = seq.split(/\s+/).filter(w => w.length > 1).length;
           return wordCount >= 2 && seq.length > 5;
         });
-        
+
         if (meaningfulSequences.length > 0) {
           extractedText = meaningfulSequences.slice(0, 100).join(' ');
         }
@@ -613,7 +613,7 @@ async function extractPdfTextBasic(buffer: Buffer): Promise<string> {
     if (extractedText.length < 20 || (extractedText.match(/[a-zA-Z]/g) || []).length / extractedText.length < 0.2) {
       console.log(`❌ Enhanced extraction: Text too short or not readable enough`);
       console.log(`📝 Extracted preview: "${extractedText.substring(0, 200)}"`);
-      
+
       return "This PDF contains complex formatting or may be image-based. Try these alternatives:\n\n" +
              "• Copy and paste text directly from your PDF viewer\n" +
              "• Convert to Word (.docx) format using an online converter\n" +
@@ -624,9 +624,9 @@ async function extractPdfTextBasic(buffer: Buffer): Promise<string> {
 
     console.log(`✅ Enhanced extraction successful (${extractedText.length} chars)`);
     console.log(`📝 First 200 characters: "${extractedText.substring(0, 200)}"`);
-    
+
     return extractedText;
-    
+
   } catch (error) {
     console.error('🚫 Enhanced basic PDF extraction error:', error);
     return "PDF processing encountered an error. Please try:\n\n" +
@@ -674,7 +674,7 @@ async function extractTextFromFile(buffer: Buffer, mimetype: string, filename: s
     console.log(`   - Word count: ~${extractedText.split(/\s+/).length} words`);
     console.log(`   - First 300 chars: "${extractedText.substring(0, 300).replace(/\n/g, '\\n')}"`);
     console.log(`   - Last 200 chars: "${extractedText.substring(Math.max(0, extractedText.length - 200)).replace(/\n/g, '\\n')}"`);
-    
+
     if (extractedText.length < 100) {
       console.log(`⚠️ WARNING: Extracted text is very short (${extractedText.length} chars) - this may affect analysis quality`);
     }
@@ -687,19 +687,19 @@ async function extractTextFromFile(buffer: Buffer, mimetype: string, filename: s
 }
 
 export async function registerRoutes(app: Express): Promise<Server> {
-  
+
   // Error tracking middleware for disaster recovery
   app.use((req, res, next) => {
     const originalSend = res.send;
-    
+
     res.send = function(body: any) {
       // Track request completion
       const isError = res.statusCode >= 400;
       disasterRecoveryService.trackRequest(isError);
-      
+
       return originalSend.call(this, body);
     };
-    
+
     next();
   });
 
@@ -707,26 +707,26 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.use((err: any, req: any, res: any, next: any) => {
     // Track error
     disasterRecoveryService.trackRequest(true);
-    
+
     console.error('Unhandled error:', err);
-    
+
     if (!res.headersSent) {
       res.status(500).json({ 
         success: false, 
         error: 'Internal server error' 
       });
     }
-    
+
     next(err);
   });
-  
+
   // CSP violation reporting endpoint
   app.post('/api/security/csp-report', (req, res) => {
     const { ip, userAgent } = getClientInfo(req);
-    
+
     try {
       const cspReport = req.body;
-      
+
       // Log CSP violation for security monitoring
       securityLogger.logSecurityEvent({
         eventType: SecurityEventType.AUTHENTICATION,
@@ -743,9 +743,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
           lineNumber: cspReport['csp-report']?.['line-number']
         }
       });
-      
+
       console.log('🛡️ CSP Violation Report:', cspReport);
-      
+
       // Send to external security monitoring if configured
       if (process.env.SECURITY_WEBHOOK_URL) {
         fetch(process.env.SECURITY_WEBHOOK_URL, {
@@ -760,7 +760,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
           })
         }).catch(err => console.log('Security webhook failed:', err));
       }
-      
+
       res.status(204).send(); // No content response for CSP reports
     } catch (error) {
       console.error('CSP report processing error:', error);
@@ -772,7 +772,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.post('/api/errors/report', async (req, res) => {
     try {
       const { ip, userAgent } = getClientInfo(req);
-      
+
       const errorData = {
         errorType: req.body.errorType || 'frontend',
         severity: req.body.severity || 'medium',
@@ -791,7 +791,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       } as UserError;
 
       await errorReportingService.reportError(errorData);
-      
+
       res.json({ success: true, message: 'Error reported successfully' });
     } catch (error) {
       console.error('Failed to report error:', error);
@@ -822,10 +822,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
       try {
         const adminEmail = 'admin@readmyfineprint.com';
         const adminId = 'dev-admin-001';
-        
+
         // Find or create admin user
         let adminUser = await databaseStorage.getUserByEmail(adminEmail);
-        
+
         if (!adminUser) {
           // Create admin user WITHOUT password - not needed in dev
           adminUser = await databaseStorage.createUser({
@@ -835,7 +835,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
             // No password field - using email verification in production
           });
         }
-        
+
         // Ensure we have a valid admin user
         if (!adminUser) {
           throw new Error('Admin user not found or created');
@@ -850,7 +850,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
           deviceFingerprint: 'dev-admin'
         });
         const token = subscriptionToken;
-        
+
         // Store session in database
         const { postgresqlSessionStorage } = await import('./postgresql-session-storage');
         const sessionId = crypto.randomUUID();
@@ -872,10 +872,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
           ...getCookieSettings(req),
           maxAge: 7 * 24 * 60 * 60 * 1000 // 7 days
         });
-        
+
         console.log('🔐 Development auto-login successful for admin@readmyfineprint.com');
         console.log('⚡ No authentication required - dev mode bypass active');
-        
+
         res.json({
           message: "Auto-login successful (development mode)",
           user: {
@@ -903,7 +903,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       } catch (error) {
         dbHealthy = false;
       }
-      
+
       const healthStatus = {
         status: 'healthy',
         timestamp: new Date().toISOString(),
@@ -923,7 +923,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       // Overall health check
       const isHealthy = dbHealthy;
-      
+
       res.status(isHealthy ? 200 : 503).json(healthStatus);
     } catch (error) {
       res.status(503).json({
@@ -940,11 +940,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const { db } = await import('./db');
       const { sql } = await import('drizzle-orm');
       const { users, userSubscriptions } = await import('../shared/schema');
-      
+
       // Get basic metrics using raw SQL for simplicity
       const [totalUsersResult] = await db.execute(sql`SELECT COUNT(*) as count FROM users`);
       const [activeSubscriptionsResult] = await db.execute(sql`SELECT COUNT(*) as count FROM user_subscriptions WHERE status = 'active'`);
-      
+
       const metrics = {
         totalUsers: totalUsersResult.count?.toString() || '0',
         activeSubscriptions: activeSubscriptionsResult.count?.toString() || '0',
@@ -952,7 +952,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         securityEvents: 0, // Can be implemented later
         timestamp: new Date().toISOString()
       };
-      
+
       res.json(metrics);
     } catch (error) {
       console.error('Error fetching admin metrics:', error);
@@ -975,7 +975,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       } catch (error) {
         dbHealthy = false;
       }
-      
+
       const systemHealth = {
         database: {
           status: dbHealthy ? 'healthy' : 'unhealthy',
@@ -1001,7 +1001,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         },
         uptime: process.uptime()
       };
-      
+
       res.json(systemHealth);
     } catch (error) {
       console.error('Error fetching system health:', error);
@@ -1014,17 +1014,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const { db } = await import('./db');
       const { sql } = await import('drizzle-orm');
-      
+
       // Get activity statistics using raw SQL
       const yesterday = new Date();
       yesterday.setDate(yesterday.getDate() - 1);
-      
+
       const lastWeek = new Date();
       lastWeek.setDate(lastWeek.getDate() - 7);
-      
+
       const [newUsersLast24h] = await db.execute(sql`SELECT COUNT(*) as count FROM users WHERE created_at >= ${yesterday.toISOString()}`);
       const [newUsersLast7d] = await db.execute(sql`SELECT COUNT(*) as count FROM users WHERE created_at >= ${lastWeek.toISOString()}`);
-      
+
       const activity = {
         newUsersLast24h: newUsersLast24h.count?.toString() || '0',
         newUsersLast7d: newUsersLast7d.count?.toString() || '0',
@@ -1033,7 +1033,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         documentsAnalyzedLast7d: 0, // Can be enhanced when document table exists
         timestamp: new Date().toISOString()
       };
-      
+
       res.json(activity);
     } catch (error) {
       console.error('Error fetching activity stats:', error);
@@ -1045,30 +1045,30 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.post('/api/document/analyze', optionalUserAuth, async (req: any, res) => {
     try {
       const { content, filename } = req.body;
-      
+
       if (!content) {
         return res.status(400).json({ error: 'Content is required' });
       }
-      
+
       // Get user subscription for rate limiting
       const subscriptionData = req.user?.id 
         ? await subscriptionService.getUserSubscriptionDetails(req.user.id)
         : { tier: { id: 'free', model: 'gpt-4o-mini', limits: { documentsPerMonth: 10 } } };
-      
+
       // ENFORCE RATE LIMITING BASED ON TIER
       const currentMonth = new Date().toISOString().slice(0, 7); // YYYY-MM format
       const userId = req.user?.id || req.sessionId || 'anonymous';
-      
+
       // Get current month usage from database/storage
       const { collectiveUserService } = await import('./collective-user-service');
-      
+
       // Check if user has exceeded their monthly limit
       const monthlyLimit = subscriptionData.tier.limits?.documentsPerMonth || 10;
-      
+
       // Use proper user tracking for free tier rate limiting with consistent identifier
       const simpleDeviceFingerprint = req.headers['x-device-fingerprint'] as string;
       const simpleClientIp = req.ip || req.socket.remoteAddress || 'unknown';
-      
+
       // Create consistent user identifier for rate limiting (same approach as main endpoint)
       let simpleRateLimitUserId: string;
       if (req.user?.id && req.user.id !== "anonymous") {
@@ -1082,12 +1082,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
           .substring(0, 16);
         simpleRateLimitUserId = `anon_${simpleAnonymousIdentifier}`;
       }
-      
+
       console.log(`📊 Simple endpoint rate limiting check for user: ${simpleRateLimitUserId} (tier: ${subscriptionData.tier.id})`);
-      
+
       // Get current subscription data with usage tracking for this specific user
       const currentSubscriptionData = await subscriptionService.getUserSubscriptionWithUsage(simpleRateLimitUserId);
-      
+
       // Check if user can analyze another document
       if (currentSubscriptionData.tier.limits.documentsPerMonth !== -1) {
         if (currentSubscriptionData.usage.documentsAnalyzed >= currentSubscriptionData.tier.limits.documentsPerMonth) {
@@ -1100,7 +1100,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
           });
         }
       }
-      
+
       // Track usage for rate limiting (increment document analysis count) with consistent user ID
       await subscriptionService.trackUsage(
         simpleRateLimitUserId, // Use the same identifier as rate limiting check
@@ -1112,10 +1112,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
           ipAddress: simpleClientIp
         }
       );
-      
+
       // Get updated usage after tracking
       const updatedSubscriptionData = await subscriptionService.getUserSubscriptionWithUsage(simpleRateLimitUserId);
-      
+
       // Mock analysis for testing purposes
       const mockAnalysis = {
         summary: `Analysis of ${filename || 'document'}: This is a ${updatedSubscriptionData.tier.id} tier analysis. Usage: ${updatedSubscriptionData.usage.documentsAnalyzed}/${updatedSubscriptionData.tier.limits.documentsPerMonth}`,
@@ -1137,7 +1137,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
           remainingDocuments: updatedSubscriptionData.tier.limits.documentsPerMonth - updatedSubscriptionData.usage.documentsAnalyzed
         }
       };
-      
+
       res.json({
         id: Math.floor(Math.random() * 1000),
         title: filename || 'Test Document',
@@ -1160,11 +1160,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.post('/api/stripe/create-checkout-session', optionalUserAuth, async (req: any, res) => {
     try {
       const { priceId, tierId } = req.body;
-      
+
       if (!priceId || !tierId) {
         return res.status(400).json({ error: 'priceId and tierId are required' });
       }
-      
+
       // For testing purposes, return mock session data
       if (process.env.NODE_ENV === 'development') {
         res.json({
@@ -1209,7 +1209,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const ip = req.ip || req.connection.remoteAddress || 'unknown';
       const userAgent = req.get('User-Agent') || 'unknown';
       const userId = req.user?.id; // Get user ID if authenticated
-      
+
       // Get session ID from multiple sources for consistency
       let sessionId = req.sessionId;
       if (!sessionId) {
@@ -1222,12 +1222,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
       console.log(`Consent verification request - IP: ${ip}, UA: ${userAgent?.substring(0, 20)}..., User: ${userId || 'none'}, Session: ${sessionId || 'none'}`);
 
       const proof = await consentLogger.verifyUserConsent(ip, userAgent, userId, sessionId);
-      
+
       const response = {
         hasConsented: !!proof,
         proof: proof || null
       };
-      
+
       console.log(`Consent verification response: ${response.hasConsented} (session: ${sessionId || 'none'})`);
       res.json(response);
     } catch (error) {
@@ -1411,15 +1411,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       let originalSessionId = null;
       let isSampleDocument = false;
-      
+
       if (!document) {
         console.log(`🔍 Document ${documentId} not found in current session, searching across all sessions for client ${clientFingerprint}`);
-        
+
         // Try to find the document across all sessions - prioritize any document match first
         const allSessions = storage.getAllSessions();
         let foundDocument = null;
         let foundSessionId = null;
-        
+
         for (const [sessionId, sessionData] of allSessions) {
           const sessionDoc = await storage.getDocument(sessionId, documentId);
           if (sessionDoc) {
@@ -1438,7 +1438,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
             }
           }
         }
-        
+
         if (foundDocument) {
           if (isSampleDocument) {
             console.log(`📋 Found sample contract ${documentId} in session ${foundSessionId}, making accessible to current session`);
@@ -1487,21 +1487,21 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       // Check consent for analysis - skip for sample contracts and admin users
       const { ip, userAgent } = getClientInfo(req);
-      
+
       // Skip consent check for admin users
       const adminKey = process.env.ADMIN_API_KEY;
       const providedKey = req.headers['x-admin-key'] as string;
       const adminToken = req.headers['x-admin-token'] as string;
-      
+
       // Check if user is admin via subscription token
       let isAdmin = false;
-      
+
       // Check for admin subscription token (try cookie first, then header)
       let adminSubscriptionToken = req.cookies?.subscriptionToken;
       if (!adminSubscriptionToken) {
         adminSubscriptionToken = req.headers['x-subscription-token'] as string;
       }
-      
+
       if (adminSubscriptionToken) {
         try {
           const { joseTokenService } = await import('./jose-token-service');
@@ -1521,10 +1521,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
           console.error('Error checking admin status via subscription token:', error);
         }
       }
-      
+
       // Also check traditional admin authentication
       const isTraditionalAdmin = adminKey && providedKey === adminKey && adminToken;
-      
+
       if (!isAdmin && !isTraditionalAdmin) {
         // Skip consent for sample contracts (now that we have the document)
         const isSampleContract = document && document.title && [
@@ -1532,16 +1532,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
           'residential lease', 'employment agreement', 'nda',
           'service agreement', 'rental agreement'
         ].some(keyword => document.title.toLowerCase().includes(keyword.toLowerCase()));
-        
-        
+
+
         if (!isSampleContract) {
           try {
             // Get user ID for consent verification
             const userId = req.user?.id;
-            
+
             // Check for valid consent for non-sample analysis
             const consentProof = await consentLogger.verifyUserConsent(ip, userAgent, userId);
-            
+
             if (!consentProof) {
               securityLogger.logSecurityEvent({
                 eventType: SecurityEventType.SECURITY_VIOLATION,
@@ -1551,7 +1551,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
                 userAgent,
                 endpoint: req.path
               });
-              
+
               return res.status(403).json({
                 error: 'Consent required for document analysis',
                 message: 'You must accept our terms and conditions to analyze your own documents',
@@ -1584,10 +1584,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
       let userId = req.user?.id;
       let authenticatedUser = null;
       let subscriptionData;
-      
+
       // Try to get subscription token from httpOnly cookie first (more secure)
       let subscriptionToken = req.cookies?.subscriptionToken;
-      
+
       // Fallback to header for backward compatibility (will be deprecated)
       if (!subscriptionToken) {
         subscriptionToken = req.headers['x-subscription-token'] as string;
@@ -1595,19 +1595,19 @@ export async function registerRoutes(app: Express): Promise<Server> {
           console.log(`⚠️ Using deprecated header-based subscription token (migrate to cookies)`);
         }
       }
-      
+
       if (subscriptionToken) {
         console.log(`🔑 Found subscription token in analysis request: ${subscriptionToken.slice(0, 16)}...`);
-        
+
         // Validate subscription token and get user data
         const deviceFingerprint = req.headers['x-device-fingerprint'] as string;
-        
+
         subscriptionData = await subscriptionService.validateSubscriptionToken(
           subscriptionToken, 
           deviceFingerprint, 
           clientIp
         );
-        
+
         if (subscriptionData) {
           // Extract actual user ID from token validation
           const { joseTokenService } = await import('./jose-token-service');
@@ -1620,7 +1620,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
           console.warn(`❌ Invalid subscription token provided: ${subscriptionToken.slice(0, 16)}...`);
         }
       }
-      
+
       // If no valid subscription token, try to resolve session to user
       if (!subscriptionData) {
         // Try to resolve session ID to user ID (same logic as /api/user/subscription)
@@ -1631,23 +1631,23 @@ export async function registerRoutes(app: Express): Promise<Server> {
             sessionId = cookieMatch[1];
           }
         }
-        
+
         if (!userId && sessionId) {
           try {
             const { postgresqlSessionStorage } = await import('./postgresql-session-storage');
             const token = await postgresqlSessionStorage.getTokenBySession(sessionId);
-            
+
             if (token) {
               const { joseTokenService } = await import('./jose-token-service');
               const tokenData = await joseTokenService.validateSubscriptionToken(token);
-              
+
               if (tokenData && tokenData.userId) {
                 const { databaseStorage } = await import('./storage');
                 authenticatedUser = await databaseStorage.getUser(tokenData.userId);
-                
+
                 if (authenticatedUser) {
                   userId = authenticatedUser.id;
-                  console.log(`✅ Analysis session authenticated as: ${authenticatedUser.email}`);
+                  console.log(`✅ Session authenticated as: ${authenticatedUser.email}`);
                 }
               }
             }
@@ -1655,7 +1655,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
             console.log('Error resolving session to user for analysis:', sessionError);
           }
         }
-        
+
         // Fall back to session ID if no user found
         const finalUserId: string = userId || req.sessionId || "anonymous";
         console.log(`📊 No valid subscription token, using session/user-based lookup for: ${finalUserId}`);
@@ -1667,7 +1667,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Use device fingerprint + IP as consistent identifier for anonymous users
       const deviceFingerprint = req.headers['x-device-fingerprint'] as string;
       const rateLimitClientIp = req.ip || req.socket.remoteAddress || 'unknown';
-      
+
       // Create consistent user identifier for rate limiting
       let rateLimitUserId: string;
       if (userId && userId !== "anonymous" && userId.length !== 32) {
@@ -1681,12 +1681,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
           .substring(0, 16);
         rateLimitUserId = `anon_${anonymousIdentifier}`;
       }
-      
+
       console.log(`📊 Rate limiting check for user: ${rateLimitUserId} (tier: ${subscriptionData.tier.id})`);
-      
+
       // Get current subscription data with usage tracking for this specific user
       const userSpecificSubscriptionData = await subscriptionService.getUserSubscriptionWithUsage(rateLimitUserId);
-      
+
       if (userSpecificSubscriptionData.tier.limits.documentsPerMonth !== -1) {
         if (userSpecificSubscriptionData.usage.documentsAnalyzed >= userSpecificSubscriptionData.tier.limits.documentsPerMonth) {
           return res.status(429).json({
@@ -1714,11 +1714,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       // Check for test mode to skip OpenAI calls
       const isTestMode = req.headers['x-skip-openai'] === 'true' || req.body?.skipOpenAI === true || req.body?.testMode === true;
-      
+
       if (isTestMode) {
         console.log(`🧪 Test mode enabled - skipping OpenAI analysis for document ${documentId}`);
-        
-        // Create a mock analysis result for testing
+
+        // Create a mock analysis result for testing rate limiting
         const mockAnalysis = {
           summary: `This is a mock analysis for testing rate limiting on the ${subscriptionData.tier.id} tier. Document: ${document.title}`,
           keyPoints: [
@@ -1761,7 +1761,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Check if user has Professional tier for PII redaction features
       const { validateProfessionalAccess } = await import('./tier-validation.js');
       const tierValidation = await validateProfessionalAccess(userId);
-      
+
       // Process document analysis through priority queue with conditional PII protection
       const analysisResult = await priorityQueue.addToQueue(
         userId,
@@ -1843,6 +1843,22 @@ export async function registerRoutes(app: Express): Promise<Server> {
         }
       }
 
+      // Track usage for rate limiting with proper user identifier (skip for sample contracts)
+      if (!isSampleContract) {
+        await subscriptionService.trackUsage(
+          rateLimitUserId, // Use the same identifier as rate limiting check
+          analysis.tokenUsage || 1500,
+          subscriptionData.tier.model,
+          {
+            sessionId: req.sessionId,
+            deviceFingerprint: clientFingerprint,
+            ipAddress: clientInfo.ip
+          }
+        );
+      } else {
+        console.log(`📋 Skipping usage tracking for sample contract: ${document.title}`);
+      }
+
       console.log(`✅ Document ${documentId} analysis completed for ${subscriptionData.tier.id} tier user`);
       res.json(updatedDocument);
     } catch (error) {
@@ -1874,7 +1890,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.get("/api/user/subscription", optionalUserAuth, async (req, res) => {
     try {
       let subscriptionData;
-      
+
       // Manual cookie parsing fallback (same as /api/auth/session)
       const cookies = getFallbackCookies(req);
       let sessionId = cookies.sessionId;
@@ -1884,11 +1900,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
           sessionId = cookieMatch[1];
         }
       }
-      
+
       // Check for subscription token first (for persistent subscription access)
       // Try httpOnly cookie first (more secure)
       let subscriptionToken = cookies.subscriptionToken;
-      
+
       // Fallback to header for backward compatibility
       if (!subscriptionToken) {
         subscriptionToken = req.headers['x-subscription-token'] as string;
@@ -1896,18 +1912,18 @@ export async function registerRoutes(app: Express): Promise<Server> {
           console.log(`⚠️ Using deprecated header-based subscription token (migrate to cookies)`);
         }
       }
-      
+
       if (subscriptionToken) {
         // Get device fingerprint and client IP for security validation
         const deviceFingerprint = req.headers['x-device-fingerprint'] as string;
         const clientIp = req.ip || req.socket.remoteAddress || 'unknown';
-        
+
         subscriptionData = await subscriptionService.validateSubscriptionToken(
           subscriptionToken, 
           deviceFingerprint, 
           clientIp
         );
-        
+
         if (subscriptionData) {
           // Token is valid - ensure it's stored as httpOnly cookie
           res.cookie('subscriptionToken', subscriptionToken, {
@@ -1922,25 +1938,25 @@ export async function registerRoutes(app: Express): Promise<Server> {
           });
         }
       }
-      
+
       // Enhanced user resolution logic (replicating /api/auth/session)
       let userId = req.user?.id;
       let authenticatedUser = null;
-      
+
       // If we don't have req.user but have a sessionId, do the same lookup as /api/auth/session
       if (!userId && sessionId) {
         try {
           const { postgresqlSessionStorage } = await import('./postgresql-session-storage');
           const token = await postgresqlSessionStorage.getTokenBySession(sessionId);
-          
+
           if (token) {
             const { joseTokenService } = await import('./jose-token-service');
             const tokenData = await joseTokenService.validateSubscriptionToken(token);
-            
+
             if (tokenData && tokenData.userId) {
               const { databaseStorage } = await import('./storage');
               authenticatedUser = await databaseStorage.getUser(tokenData.userId);
-              
+
               if (authenticatedUser) {
                 userId = authenticatedUser.id;
                 console.log(`✅ Session authenticated as: ${authenticatedUser.email}`);
@@ -1951,17 +1967,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
           console.log('Error resolving session to user:', sessionError);
         }
       }
-      
+
       // Fallback to sessionId or anonymous - ensure userId is never undefined
       if (!userId) {
         userId = sessionId || "anonymous";
       }
-      
+
       // TypeScript safety: ensure userId is always a string
       const finalUserId: string = userId || "anonymous";
-      
+
       subscriptionData = await subscriptionService.getUserSubscriptionWithUsage(finalUserId);
-      
+
       res.json(subscriptionData);
     } catch (error) {
       console.error("Error fetching user subscription:", error);
@@ -1979,7 +1995,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       if (!token || !reason) {
         return res.status(400).json({ error: 'Token and reason are required' });
       }
-      
+
       const success = await subscriptionService.revokeSubscriptionToken(token, reason);
       if (success) {
         res.json({ success: true, message: 'Token revoked successfully' });
@@ -1999,7 +2015,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       if (!userId || !reason) {
         return res.status(400).json({ error: 'User ID and reason are required' });
       }
-      
+
       const revokedCount = await subscriptionService.revokeAllUserTokens(userId, reason);
       res.json({ 
         success: true, 
@@ -2036,7 +2052,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const { secureJWTService } = await import('./secure-jwt-service');
       const results = await secureJWTService.cleanupExpiredTokens();
-      
+
       res.json({
         success: true,
         message: 'Token cleanup completed',
@@ -2067,7 +2083,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       // Get user's subscription data
       const subscriptionData = await subscriptionService.getUserSubscriptionWithUsage(user.id);
-      
+
       // Allow login if user has any subscription (active, inactive, expired) for account management
       if (!subscriptionData.subscription) {
         return res.status(404).json({ 
@@ -2075,7 +2091,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
           code: 'NO_SUBSCRIPTION'
         });
       }
-      
+
       // Allow inactive/expired subscriptions to login for account management
       // Users with inactive subscriptions can login to renew or manage their account
       const allowedStatuses = ['active', 'inactive', 'past_due', 'canceled'];
@@ -2090,7 +2106,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Generate verification code
       const deviceFingerprint = req.headers['x-device-fingerprint'] as string || 'unknown';
       const clientIp = getClientInfo(req).ip;
-      
+
       const codeResult = await emailVerificationService.generateCode(
         email,
         deviceFingerprint,
@@ -2104,12 +2120,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Send verification code via email
       try {
         const emailSent = await sendVerificationEmail(email, codeResult.code!);
-        
+
         if (!emailSent) {
           console.error('Failed to send verification email to:', email);
           return res.status(500).json({ error: 'Failed to send verification code' });
         }
-        
+
         console.log(`📧 Verification code sent to ${email}`);
       } catch (emailError) {
         console.error('Failed to send verification email:', emailError);
@@ -2161,11 +2177,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       // Code verified! Now complete the login
       let user = await findUserByEmailWithEntanglement(email);
-      
+
       // Check if this is an admin email
       const adminEmails = ['admin@readmyfineprint.com', 'prodbybuddha@icloud.com'];
       const isAdminEmail = adminEmails.includes(email);
-      
+
       if (!user) {
         // If user doesn't exist and it's an admin email, create the admin user
         if (isAdminEmail) {
@@ -2181,21 +2197,21 @@ export async function registerRoutes(app: Express): Promise<Server> {
           return res.status(404).json({ error: 'User not found' });
         }
       }
-      
+
       // Mark email as verified if this is their first successful verification
       // Also ensure admin users have the isAdmin flag set
       const updateData: any = { lastLoginAt: new Date() };
-      
+
       if (!user.emailVerified) {
         updateData.emailVerified = true;
         console.log(`✅ Email verified for user: ${email}`);
       }
-      
+
       if (isAdminEmail && !user.isAdmin) {
         updateData.isAdmin = true;
         console.log(`🔐 Admin flag set for admin user: ${email}`);
       }
-      
+
       await databaseStorage.updateUser(user.id, updateData);
 
       // Get user's subscription data for response
@@ -2247,7 +2263,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
         // Don't set domain - let browser handle it for better compatibility
       };
-      
+
       res.cookie('sessionId', sessionId, cookieOptions);
 
       res.json({
@@ -2279,13 +2295,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const cookies = getFallbackCookies(req);
       let sessionId = cookies.sessionId;
       const clientSessionId = req.headers['x-session-id'] as string;
-      
+
       // Manual cookie parsing fallback for Replit proxy environment
       if (!sessionId && req.headers.cookie) {
         console.log(`🍪 Cookie-parser failed, trying manual parsing...`);
         console.log(`🍪 Raw cookie header:`, req.headers.cookie.substring(0, 100) + '...');
         console.log(`🍪 Parsed cookies:`, JSON.stringify(cookies));
-        
+
         // Try manual parsing as fallback
         const cookieMatch = req.headers.cookie.match(/sessionId=([^;]+)/);
         if (cookieMatch) {
@@ -2293,7 +2309,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
           console.log(`🍪 Manual parse found sessionId:`, sessionId.substring(0, 8) + '...');
         }
       }
-      
+
       console.log(`🔍 Session validation request:`, {
         sessionId: sessionId ? `${sessionId.slice(0, 8)}...` : 'none',
         clientSessionId: clientSessionId ? `${clientSessionId.slice(0, 8)}...` : 'none',
@@ -2304,11 +2320,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
           'x-session-id': req.headers['x-session-id'] ? 'present' : 'missing'
         }
       });
-      
+
       // Check for JWT authenticated user first (optionalUserAuth middleware sets req.user)
       if (req.user) {
         console.log(`✅ JWT authentication successful for user: ${req.user.email}`);
-        
+
         return res.json({
           authenticated: true,
           user: {
@@ -2317,7 +2333,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
           }
         });
       }
-      
+
       // Check for JWT token in authorization header as fallback
       const authHeader = req.headers.authorization;
       if (authHeader && authHeader.startsWith('Bearer ')) {
@@ -2326,13 +2342,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
           const token = authHeader.substring(7);
           const { joseAuthService } = await import('./jose-auth-service');
           const validation = await joseAuthService.validateAccessToken(token);
-          
+
           if (validation.valid && validation.payload) {
             const user = await databaseStorage.getUser(validation.payload.userId);
-            
+
             if (user) {
               console.log(`✅ Direct JWT authentication successful for user: ${user.email}`);
-              
+
               return res.json({
                 authenticated: true,
                 user: {
@@ -2342,26 +2358,26 @@ export async function registerRoutes(app: Express): Promise<Server> {
               });
             }
           }
-          
+
           console.log('❌ Direct JWT validation failed:', validation.error);
         } catch (jwtError) {
           console.log('❌ Direct JWT validation error:', jwtError instanceof Error ? jwtError.message : 'Unknown error');
         }
       }
-      
+
       // Check for authenticated user session (sessionId cookie)
       if (sessionId) {
         console.log('🔍 Checking authenticated user session...');
-        
+
         // Get token from database
         const { postgresqlSessionStorage } = await import('./postgresql-session-storage');
         const token = await postgresqlSessionStorage.getTokenBySession(sessionId);
-        
+
         console.log(`🔍 Token lookup result:`, {
           found: !!token,
           tokenPrefix: token ? `${token.slice(0, 16)}...` : 'none'
         });
-        
+
         if (!token) {
           console.log('❌ No token found for session');
           return res.status(401).json({ error: 'Invalid session', authenticated: false });
@@ -2372,16 +2388,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
         const { joseTokenService } = await import('./jose-token-service');
         const tokenData = await joseTokenService.validateSubscriptionToken(token);
         const tokenValidation = { valid: !!tokenData, payload: tokenData };
-        
+
         console.log(`🔍 Token validation result:`, {
           valid: tokenValidation.valid,
           userId: tokenValidation.payload?.userId || 'none',
           tierId: tokenValidation.payload?.tierId || 'none'
         });
-        
+
         if (!tokenValidation.valid) {
           console.log('❌ Token validation failed');
-          
+
           // Clean up invalid token from database to prevent repeated validation attempts
           try {
             await postgresqlSessionStorage.removeSessionToken(sessionId);
@@ -2389,7 +2405,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
           } catch (cleanupError) {
             console.error('⚠️ Failed to clean up invalid token:', cleanupError);
           }
-          
+
           return res.status(401).json({ error: 'Invalid token', authenticated: false });
         }
 
@@ -2400,20 +2416,20 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
         // Get user data
         const user = await databaseStorage.getUser(tokenValidation.payload.userId);
-        
+
         console.log(`🔍 User lookup result:`, {
           found: !!user,
           email: user?.email || 'none',
           isAdmin: user?.isAdmin || false
         });
-        
+
         if (!user) {
           console.log('❌ User not found');
           return res.status(401).json({ error: 'User not found', authenticated: false });
         }
 
         console.log(`✅ Session validation successful for ${user.email}`);
-        
+
         return res.json({
           authenticated: true,
           user: {
@@ -2422,22 +2438,22 @@ export async function registerRoutes(app: Express): Promise<Server> {
           }
         });
       }
-      
+
       // Check for client session (x-session-id header) - unauthenticated user
       if (clientSessionId) {
         console.log('🔍 Checking client session for unauthenticated user...');
-        
+
         // For unauthenticated users, we just confirm the session exists
         // The session was created by the session middleware in index.ts
         console.log(`✅ Client session validation successful: ${clientSessionId.slice(0, 8)}...`);
-        
+
         return res.json({
           authenticated: false,
           sessionId: clientSessionId,
           message: 'Valid client session (unauthenticated)'
         });
       }
-      
+
       // No session found at all
       console.log('❌ No session ID found in cookies or headers');
       return res.status(401).json({ 
@@ -2445,7 +2461,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         authenticated: false,
         message: 'No sessionId cookie or x-session-id header found'
       });
-      
+
     } catch (error) {
       console.error('Session validation error:', error);
       res.status(500).json({ error: 'Session validation failed', authenticated: false });
@@ -2456,14 +2472,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.post("/api/auth/refresh", async (req, res) => {
     try {
       const { refreshToken } = req.body;
-      
+
       if (!refreshToken) {
         return res.status(400).json({ error: 'Refresh token is required' });
       }
-      
+
       const { ip, userAgent } = getClientInfo(req);
       const result = await refreshAccessToken(refreshToken, { ip, userAgent });
-      
+
       if (result) {
         res.json({
           tokens: {
@@ -2485,23 +2501,23 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const { sessionId } = req.params;
       console.log(`🔍 Token retrieval request for session: ${sessionId}`);
-      
+
       // Get token by checkout session ID
       const token = await subscriptionService.getTokenBySession(sessionId);
       console.log(`🔑 Token lookup result: ${token ? `${token.slice(0, 8)}...` : 'not found'}`);
-      
+
       if (token) {
         // Validate the token exists and return subscription data
         const subscriptionData = await subscriptionService.validateSubscriptionToken(token);
         if (subscriptionData) {
           console.log(`✅ Token validation successful for session: ${sessionId}`);
-          
+
           // Set the subscription token as an httpOnly cookie for security
           res.cookie('subscriptionToken', token, {
             ...getCookieSettings(req),
             maxAge: 7 * 24 * 60 * 60 * 1000 // 7 days
           });
-          
+
           res.json({ 
             success: true,
             subscription: subscriptionData
@@ -2512,13 +2528,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
         }
       } else {
         console.warn(`❌ No token found for session: ${sessionId}`);
-        
+
         // For failed token retrieval, try to check if the Stripe session exists and is paid
         try {
           const useTestMode = process.env.NODE_ENV === 'development';
           const stripeInstance = getStripeInstance(useTestMode);
           const stripeSession = await stripeInstance.checkout.sessions.retrieve(sessionId);
-          
+
           if (stripeSession.payment_status === 'paid' && stripeSession.mode === 'subscription') {
             console.log(`💳 Found paid Stripe session but no token - webhook may not have processed yet`);
             res.status(202).json({ 
@@ -2553,7 +2569,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       });
 
       const { tierId, billingCycle } = checkoutSchema.parse(req.body);
-      
+
       // Get tier information
       const tier = getTierById(tierId);
       if (!tier) {
@@ -2562,7 +2578,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       // Calculate price based on billing cycle
       const price = billingCycle === 'yearly' ? tier.yearlyPrice : tier.monthlyPrice;
-      
+
       // For subscription checkout, we should NOT use an authenticated user's ID
       // This allows creating new subscriptions for new users or switching accounts
       // The webhook will handle creating/finding the user based on the email provided in Stripe
@@ -2629,11 +2645,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Check for subscription token authentication first
       const subscriptionToken = req.headers['x-subscription-token'] as string;
       const deviceFingerprint = req.headers['x-device-fingerprint'] as string;
-      
+
       if (subscriptionToken) {
         const clientIp = getClientInfo(req).ip;
         subscriptionData = await subscriptionService.validateSubscriptionToken(subscriptionToken, deviceFingerprint, clientIp);
-        
+
         if (subscriptionData && subscriptionData.subscription) {
           userId = subscriptionData.subscription.userId;
         } else {
@@ -2684,13 +2700,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       let userId = req.user?.id || req.sessionId || "anonymous";
       let subscriptionData;
-      
+
       console.log(`[Downgrade] Initial userId: ${userId}, sessionId: ${req.sessionId}, user: ${req.user ? 'authenticated' : 'not authenticated'}`);
-      
+
       // Check for subscription token authentication first
       // Try httpOnly cookie first (more secure)
       let subscriptionToken = req.cookies?.subscriptionToken;
-      
+
       // Fallback to header for backward compatibility
       if (!subscriptionToken) {
         subscriptionToken = req.headers['x-subscription-token'] as string;
@@ -2698,16 +2714,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
           console.log(`⚠️ Using deprecated header-based subscription token (migrate to cookies)`);
         }
       }
-      
+
       const deviceFingerprint = req.headers['x-device-fingerprint'] as string;
-      
+
       console.log(`[Downgrade] Headers - subscription token: ${subscriptionToken ? 'present' : 'missing'}, device fingerprint: ${deviceFingerprint ? 'present' : 'missing'}`);
-      
+
       if (subscriptionToken) {
         console.log(`[Downgrade] Attempting subscription token authentication`);
         const clientIp = getClientInfo(req).ip;
         subscriptionData = await subscriptionService.validateSubscriptionToken(subscriptionToken, deviceFingerprint, clientIp);
-        
+
         if (subscriptionData && subscriptionData.subscription) {
           // Extract user ID from validated subscription
           userId = subscriptionData.subscription.userId;
@@ -2726,12 +2742,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
           });
         }
       }
-      
+
       // Get user's current subscription (use already fetched data if available)
       const currentSubscription = subscriptionData || await subscriptionService.getUserSubscriptionWithUsage(userId);
-      
+
       console.log(`[Downgrade] User ${userId} subscription status: ${currentSubscription.subscription ? 'has subscription' : 'no subscription'}, tier: ${currentSubscription.tier.id}`);
-      
+
       if (!currentSubscription.subscription) {
         return res.status(400).json({ 
           error: "No active subscription found to downgrade. You are already on the free tier." 
@@ -2778,11 +2794,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       let userId = req.user?.id || req.sessionId || "anonymous";
       let subscriptionData;
-      
+
       // Check for subscription token authentication first
       // Try httpOnly cookie first (more secure)
       let subscriptionToken = req.cookies?.subscriptionToken;
-      
+
       // Fallback to header for backward compatibility
       if (!subscriptionToken) {
         subscriptionToken = req.headers['x-subscription-token'] as string;
@@ -2790,13 +2806,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
           console.log(`⚠️ Using deprecated header-based subscription token (migrate to cookies)`);
         }
       }
-      
+
       const deviceFingerprint = req.headers['x-device-fingerprint'] as string;
-      
+
       if (subscriptionToken) {
         const clientIp = getClientInfo(req).ip;
         subscriptionData = await subscriptionService.validateSubscriptionToken(subscriptionToken, deviceFingerprint, clientIp);
-        
+
         if (subscriptionData && subscriptionData.subscription) {
           userId = subscriptionData.subscription.userId;
         } else {
@@ -2812,10 +2828,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
           });
         }
       }
-      
+
       // Get user's current subscription
       const currentSubscription = subscriptionData || await subscriptionService.getUserSubscriptionWithUsage(userId);
-      
+
       if (!currentSubscription.subscription || !currentSubscription.subscription.stripeCustomerId) {
         return res.status(400).json({ 
           error: "No active subscription found. Please subscribe to a plan first." 
@@ -2850,15 +2866,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       let userId = req.user?.id || req.sessionId || "anonymous";
       let subscriptionData;
-      
+
       // Check for subscription token authentication first
       const subscriptionToken = req.headers['x-subscription-token'] as string;
       const deviceFingerprint = req.headers['x-device-fingerprint'] as string;
-      
+
       if (subscriptionToken) {
         const clientIp = getClientInfo(req).ip;
         subscriptionData = await subscriptionService.validateSubscriptionToken(subscriptionToken, deviceFingerprint, clientIp);
-        
+
         if (subscriptionData && subscriptionData.subscription) {
           userId = subscriptionData.subscription.userId;
         } else {
@@ -2874,10 +2890,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
           });
         }
       }
-      
+
       // Get user's current subscription
       const currentSubscription = subscriptionData || await subscriptionService.getUserSubscriptionWithUsage(userId);
-      
+
       if (!currentSubscription.subscription || !currentSubscription.subscription.stripeSubscriptionId) {
         return res.status(400).json({ 
           error: "No subscription found to reactivate." 
@@ -2983,15 +2999,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       let originalSessionId = null;
       let isSampleDocument = false;
-      
+
       if (!document) {
         console.log(`🔍 Document ${documentId} not found in current session, searching across all sessions for client ${getClientFingerprint}`);
-        
+
         // Try to find the document across all sessions - prioritize any document match first
         const allSessions = storage.getAllSessions();
         let foundDocument = null;
         let foundSessionId = null;
-        
+
         for (const [sessionId, sessionData] of allSessions) {
           const sessionDoc = await storage.getDocument(sessionId, documentId);
           if (sessionDoc) {
@@ -3010,7 +3026,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
             }
           }
         }
-        
+
         if (foundDocument) {
           if (isSampleDocument) {
             console.log(`📋 Found sample contract ${documentId} in session ${foundSessionId}, making accessible to current session`);
@@ -3146,7 +3162,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.clearCookie('sessionId', {
         ...getCookieSettings(req)
       });
-      
+
       // Clear all possible cookies
       res.clearCookie('subscriptionToken', {
         ...getCookieSettings(req)
@@ -3392,7 +3408,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
         case 'checkout.session.completed':
           const checkoutSession = event.data.object;
-          
+
           console.log(`📝 Webhook checkout.session.completed received${isTestMode ? ' (TEST)' : ''}:`);
           console.log(`   Session ID: ${checkoutSession.id}`);
           console.log(`   Mode: ${checkoutSession.mode}`);
@@ -3400,35 +3416,35 @@ export async function registerRoutes(app: Express): Promise<Server> {
           console.log(`   Subscription ID: ${checkoutSession.subscription}`);
           console.log(`   Customer ID: ${checkoutSession.customer}`);
           console.log(`   Metadata:`, checkoutSession.metadata);
-          
+
           // Handle both subscription and one-time payment checkouts
           if (checkoutSession.mode === 'subscription' && checkoutSession.subscription) {
             console.log(`🎉 Processing subscription checkout${isTestMode ? ' (TEST)' : ''}: ${checkoutSession.id}`);
-            
+
             // Extract metadata from the checkout session
             const { tierId, billingCycle, userId } = checkoutSession.metadata || {};
             const stripeCustomerId = checkoutSession.customer;
             const stripeSubscriptionId = checkoutSession.subscription;
-            
+
             console.log(`📋 Extracted data: tierId=${tierId}, userId=${userId}, customerId=${stripeCustomerId}, subscriptionId=${stripeSubscriptionId}`);
-            
+
             if (tierId && userId && stripeCustomerId && stripeSubscriptionId) {
               try {
                 console.log(`🚀 Starting subscription creation process...`);
                 // Create or get user for this subscription
                 let actualUserId = userId;
-                
+
                 // Check if user exists in database, create if needed
                 if (userId === 'anonymous' || userId.startsWith('session_')) {
                   // Anonymous/session user - create a proper user account
                   let customerEmail = `subscriber_${stripeCustomerId}@subscription.internal`;
-                  
+
                   try {
                     // Get customer details from Stripe to capture real email
                     const useTestMode = process.env.NODE_ENV === 'development';
                     const stripeInstance = getStripeInstance(useTestMode);
                     const customer = await stripeInstance.customers.retrieve(stripeCustomerId as string);
-                    
+
                     if (!('deleted' in customer) && customer.email) {
                       customerEmail = customer.email;
                       console.log(`📧 Captured customer email for multi-device access: ${customerEmail}`);
@@ -3436,30 +3452,30 @@ export async function registerRoutes(app: Express): Promise<Server> {
                   } catch (emailError) {
                     console.warn('Could not retrieve customer email from Stripe:', emailError instanceof Error ? emailError.message : String(emailError));
                   }
-                  
+
                   actualUserId = await subscriptionService.createSubscriptionUser({
                     stripeCustomerId: stripeCustomerId as string,
                     tierId,
                     email: customerEmail, // Real email if available, sanitized otherwise
                     source: 'stripe_checkout'
                   });
-                  
+
                   console.log(`👤 Created subscription user: ${actualUserId} for customer ${stripeCustomerId}`);
                 } else {
                   // For existing authenticated users, verify they exist in database
                   const existingUser = await databaseStorage.getUser(userId);
-                  
+
                   if (!existingUser) {
                     console.log(`👤 User ${userId} not found in database, creating subscription user`);
-                    
+
                     // User doesn't exist, create them with customer email if available
                     let customerEmail = `subscriber_${stripeCustomerId}@subscription.internal`;
-                    
+
                     try {
                       const useTestMode = process.env.NODE_ENV === 'development';
                       const stripeInstance = getStripeInstance(useTestMode);
                       const customer = await stripeInstance.customers.retrieve(stripeCustomerId as string);
-                      
+
                       if (!('deleted' in customer) && customer.email) {
                         customerEmail = customer.email;
                         console.log(`📧 Using customer email for missing user: ${customerEmail}`);
@@ -3467,21 +3483,21 @@ export async function registerRoutes(app: Express): Promise<Server> {
                     } catch (emailError) {
                       console.warn('Could not retrieve customer email from Stripe:', emailError instanceof Error ? emailError.message : String(emailError));
                     }
-                    
+
                     actualUserId = await subscriptionService.createSubscriptionUser({
                       stripeCustomerId: stripeCustomerId as string,
                       tierId,
                       email: customerEmail,
                       source: 'stripe_checkout_missing_user'
                     });
-                    
+
                     console.log(`👤 Created missing user: ${actualUserId} for customer ${stripeCustomerId}`);
                   } else {
                     actualUserId = userId;
                     console.log(`👤 Using existing user: ${actualUserId} for subscription`);
                   }
                 }
-                
+
                 // Create the subscription record
                 const subscription = await subscriptionService.createStripeSubscription({
                   userId: actualUserId,
@@ -3495,11 +3511,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
                 // Generate a persistent subscription access token
                 // Note: Device fingerprint not available in webhook context
                 const subscriptionToken = await subscriptionService.generateSubscriptionToken(actualUserId, subscription.id);
-                
+
                 // Store mapping from checkout session to token for frontend retrieval
                 console.log(`💾 Storing session token mapping...`);
                 await subscriptionService.storeSessionToken(checkoutSession.id, subscriptionToken, actualUserId);
-                
+
                 // Verify the token was stored correctly
                 console.log(`🔍 Verifying token storage...`);
                 const storedToken = await subscriptionService.getTokenBySession(checkoutSession.id);
@@ -3508,13 +3524,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
                 } else {
                   console.error(`❌ Token storage failed: No token found after storage attempt`);
                 }
-                
+
                 console.log(`✅ Subscription created successfully:`);
                 console.log(`   User ID: ${actualUserId}`);
                 console.log(`   Subscription ID: ${subscription.id}`);
                 console.log(`   Token: ${subscriptionToken.slice(0, 8)}...`);
                 console.log(`   Checkout Session: ${checkoutSession.id}`);
-                
+
                 // Log security event
                 securityLogger.logSecurityEvent({
                   eventType: "API_ACCESS" as any,
@@ -3552,12 +3568,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
             }
           } else if (checkoutSession.mode === 'payment' && checkoutSession.metadata?.type === 'donation') {
             console.log(`💰 Processing donation checkout${isTestMode ? ' (TEST)' : ''}: ${checkoutSession.id}`);
-            
+
             // Send donation thank you email
             try {
               const amount = (checkoutSession.amount_total || 0) / 100; // Convert from cents
               const customerEmail = checkoutSession.customer_details?.email;
-              
+
               if (customerEmail) {
                 await emailService.sendDonationThankYou({
                   customerEmail: customerEmail,
@@ -3582,7 +3598,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         case 'customer.subscription.updated':
           const updatedSubscription = event.data.object as any; // Type assertion for webhook data
           const customerId = updatedSubscription.customer;
-          
+
           try {
             await subscriptionService.syncStripeSubscription({
               stripeSubscriptionId: updatedSubscription.id,
@@ -3592,7 +3608,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
               currentPeriodEnd: new Date(updatedSubscription.current_period_end * 1000),
               cancelAtPeriodEnd: updatedSubscription.cancel_at_period_end
             });
-            
+
             console.log(`🔄 Subscription updated${isTestMode ? ' (TEST)' : ''}: ${updatedSubscription.id}`);
           } catch (error) {
             console.error('Error syncing subscription update:', error);
@@ -3601,7 +3617,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
         case 'customer.subscription.deleted':
           const canceledSubscription = event.data.object as any; // Type assertion for webhook data
-          
+
           try {
             await subscriptionService.syncStripeSubscription({
               stripeSubscriptionId: canceledSubscription.id,
@@ -3611,7 +3627,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
               currentPeriodEnd: new Date(canceledSubscription.current_period_end * 1000),
               cancelAtPeriodEnd: true
             });
-            
+
             console.log(`❌ Subscription canceled${isTestMode ? ' (TEST)' : ''}: ${canceledSubscription.id}`);
           } catch (error) {
             console.error('Error syncing subscription cancellation:', error);
@@ -3684,7 +3700,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const { ip, userAgent } = getClientInfo(req);
       const adminKey = process.env.ADMIN_API_KEY;
       const providedKey = req.headers['x-admin-key'] as string;
-      
+
       // Simple API key authentication for monitoring
       if (!adminKey || providedKey !== adminKey) {
         securityLogger.logSecurityEvent({
@@ -3697,9 +3713,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
         });
         return res.status(401).json({ error: 'Invalid monitoring credentials' });
       }
-      
+
       const testResult = await emailService.testEmailConfiguration();
-      
+
       res.json({
         configured: testResult,
         testEmailSent: false, // Monitoring endpoint doesn't send test emails
@@ -3720,7 +3736,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const { ip, userAgent } = getClientInfo(req);
       const adminKey = process.env.ADMIN_API_KEY;
       const providedKey = req.headers['authorization']?.replace('Bearer ', '');
-      
+
       // Simple API key authentication for monitoring
       if (!adminKey || providedKey !== adminKey) {
         securityLogger.logSecurityEvent({
@@ -3733,19 +3749,19 @@ export async function registerRoutes(app: Express): Promise<Server> {
         });
         return res.status(401).json({ error: 'Invalid monitoring credentials' });
       }
-      
+
       const { to, subject, text, html } = req.body;
-      
+
       // Validate required fields
       if (!to || !subject || !text) {
         return res.status(400).json({ 
           error: 'Missing required fields: to, subject, text are required' 
         });
       }
-      
+
       // Send the alert email
       const sent = await emailService.sendEmail({ to, subject, text, html });
-      
+
       if (sent) {
         console.log(`📧 Monitoring alert email sent to ${to}`);
         res.json({ success: true, message: 'Alert email sent successfully' });
@@ -3799,7 +3815,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const baseUrl = getClientBaseUrl(req);
       const successUrl = validatedData.success_url || `${baseUrl}/donate?success=true&amount=${amount}`;
       const cancelUrl = validatedData.cancel_url || `${baseUrl}/donate?canceled=true`;
-      
+
       console.log(`💰 Creating donation checkout session:`);
       console.log(`   Base URL: ${baseUrl}`);
       console.log(`   Success URL: ${successUrl}`);
@@ -3890,40 +3906,40 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   // Register user management routes
   registerUserRoutes(app);
-  
+
   // Register admin routes
   registerAdminRoutes(app);
-  
+
   // Register email recovery routes
   registerEmailRecoveryRoutes(app);
-  
+
   // Register 2FA routes
   registerTwoFactorRoutes(app);
-  
+
   // Register TOTP routes
   registerTotpRoutes(app);
-  
+
   // Register tier security routes
   registerTierSecurityRoutes(app);
-  
+
   // Register CCPA compliance routes
   registerCcpaRoutes(app);
-  
+
   // Register age verification routes
   registerAgeVerificationRoutes(app);
-  
+
   // Register legal professional routes
   registerLegalProfessionalRoutes(app);
-  
+
   // Register hybrid analysis routes
   registerHybridRoutes(app);
-  
+
   // Register user preferences routes
   registerUserPreferencesRoutes(app);
-  
+
   // Register security questions routes
   registerSecurityQuestionsRoutes(app);
-  
+
   // Register blog routes
   app.use('/api/blog', blogRoutes);
 
@@ -3932,21 +3948,21 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const { vCardService } = await import('./vcard-service.js');
       const userAgent = req.get('User-Agent');
-      
+
       const { vcard, filename, version } = await vCardService.generateContactCardForClient(userAgent);
-      
+
       // Set appropriate headers for vCard download
       res.setHeader('Content-Type', 'text/vcard; charset=utf-8');
       res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);
       res.setHeader('Cache-Control', 'public, max-age=3600'); // Cache for 1 hour
       res.setHeader('X-VCard-Version', version);
-      
+
       // Optional: Add custom headers for debugging
       if (process.env.NODE_ENV === 'development') {
         res.setHeader('X-User-Agent', userAgent || 'unknown');
         res.setHeader('X-VCard-Type', version);
       }
-      
+
       res.send(vcard);
     } catch (error) {
       console.error('Error generating contact card:', error);
@@ -3960,9 +3976,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const { vCardService } = await import('./vcard-service.js');
       const userAgent = req.get('User-Agent');
       const format = req.query.format as string; // 'v2', 'v3', 'v4', or 'auto'
-      
+
       let result;
-      
+
       if (format === 'v2') {
         const vcard = await vCardService.generateCompatibleContactCard();
         result = { vcard, filename: 'ReadMyFinePrint-v2.vcf', version: '2.1' };
@@ -3975,9 +3991,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
       } else {
         result = await vCardService.generateContactCardForClient(userAgent);
       }
-      
+
       const { download } = req.query;
-      
+
       if (download === 'true') {
         // Serve as downloadable file
         res.setHeader('Content-Type', 'text/vcard; charset=utf-8');
@@ -4003,7 +4019,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.get('/subscription', (req, res) => {
     // Check if we're in a Replit environment (even during development)
     const isReplit = process.env.REPL_ID || req.get('host')?.includes('replit.dev') || req.get('host')?.includes('kirk.replit.dev');
-    
+
     if (process.env.NODE_ENV === 'development' && !isReplit) {
       // In local development only, redirect to the client dev server (Vite on port 5173)
       const clientUrl = `http://localhost:5173/subscription${req.url.includes('?') ? req.url.substring(req.url.indexOf('?')) : ''}`;
@@ -4038,7 +4054,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.post("/api/mailing-list/signup", requireConsent, async (req: any, res: any) => {
     try {
       const clientInfo = getClientInfo(req);
-      
+
       // Validate input
       const signupData = z.object({
         email: z.string().email(),
@@ -4076,7 +4092,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
             alreadySubscribed: true 
           });
         }
-        
+
         // If unsubscribed, reactivate
         if (existingEntry[0].status === 'unsubscribed') {
           await db
@@ -4112,7 +4128,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       // Create new mailing list entry
       const unsubscribeToken = crypto.randomBytes(32).toString('hex');
-      
+
       const newEntry: InsertMailingList = {
         email: signupData.email,
         userId: userId,
@@ -4130,18 +4146,18 @@ export async function registerRoutes(app: Express): Promise<Server> {
       try {
         const clientBaseUrl = getClientBaseUrl(req);
         const unsubscribeUrl = `${clientBaseUrl}/unsubscribe?token=${unsubscribeToken}`;
-        
+
         await emailService.sendEmail({
           to: signupData.email,
           subject: 'ReadMyFinePrint - Mailing List Confirmation',
           html: `
             <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
               <h2 style="color: #2563eb; text-align: center;">Welcome to ReadMyFinePrint!</h2>
-              
+
               <div style="background: #f8fafc; border-radius: 8px; padding: 20px; margin: 20px 0;">
                 <h3 style="margin-top: 0; color: #1e40af;">✅ Subscription Confirmed</h3>
                 <p>You've successfully subscribed to receive notifications about our <strong>${signupData.subscriptionType.replace('_', ' ')}</strong> features.</p>
-                
+
                 <div style="background: #dbeafe; border: 1px solid #3b82f6; border-radius: 6px; padding: 15px; margin: 15px 0;">
                   <p style="margin: 0; color: #1e40af;"><strong>What to expect:</strong></p>
                   <ul style="margin: 10px 0; color: #1e40af;">
@@ -4152,7 +4168,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
                   </ul>
                 </div>
               </div>
-              
+
               <div style="background: #f0f9ff; border-radius: 8px; padding: 20px; margin: 20px 0;">
                 <h3 style="margin-top: 0; color: #0369a1;">🚀 Coming Soon</h3>
                 <p>We're working hard to bring you exciting new features including:</p>
@@ -4164,22 +4180,22 @@ export async function registerRoutes(app: Express): Promise<Server> {
                 </ul>
                 <p>You'll be among the first to know when these features become available!</p>
               </div>
-              
+
               <div style="text-align: center; margin: 30px 0;">
                 <a href="${clientBaseUrl}/roadmap" style="background: #2563eb; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; display: inline-block;">
                   View Development Roadmap
                 </a>
               </div>
-              
+
               <hr style="border: none; border-top: 1px solid #e5e7eb; margin: 30px 0;">
-              
+
               <div style="background: #fef3c7; border: 1px solid #f59e0b; border-radius: 6px; padding: 15px; margin: 20px 0;">
                 <p style="margin: 0; color: #92400e; font-size: 14px;">
                   <strong>Privacy Notice:</strong> We respect your privacy and will never share your email address with third parties. 
                   You can unsubscribe at any time using the link below.
                 </p>
               </div>
-              
+
               <div style="text-align: center; color: #6b7280; font-size: 12px; margin-top: 30px;">
                 <p>You're receiving this email because you signed up for ReadMyFinePrint notifications.</p>
                 <p>
@@ -4213,7 +4229,7 @@ To unsubscribe: ${unsubscribeUrl}
 ReadMyFinePrint | Privacy-First AI-Powered Contract Analysis
           `
         });
-        
+
         console.log(`📧 Confirmation email sent to ${signupData.email}`);
       } catch (emailError) {
         console.error('Failed to send confirmation email:', emailError);
@@ -4240,7 +4256,7 @@ ReadMyFinePrint | Privacy-First AI-Powered Contract Analysis
 
     } catch (error) {
       console.error('Mailing list signup error:', error);
-      
+
       if (error instanceof z.ZodError) {
         return res.status(400).json({ 
           success: false, 
@@ -4248,7 +4264,7 @@ ReadMyFinePrint | Privacy-First AI-Powered Contract Analysis
           details: error.errors 
         });
       }
-      
+
       res.status(500).json({ 
         success: false, 
         error: 'Failed to subscribe to mailing list' 
@@ -4260,7 +4276,7 @@ ReadMyFinePrint | Privacy-First AI-Powered Contract Analysis
   app.get("/api/mailing-list/unsubscribe", async (req: any, res: any) => {
     try {
       const token = req.query.token as string;
-      
+
       if (!token) {
         return res.status(400).json({ 
           success: false, 
@@ -4311,11 +4327,11 @@ ReadMyFinePrint | Privacy-First AI-Powered Contract Analysis
           html: `
             <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
               <h2 style="color: #dc2626; text-align: center;">Unsubscribe Confirmed</h2>
-              
+
               <div style="background: #fef2f2; border-radius: 8px; padding: 20px; margin: 20px 0;">
                 <h3 style="margin-top: 0; color: #dc2626;">✅ Successfully Unsubscribed</h3>
                 <p>You have been successfully unsubscribed from our <strong>${mailingListEntry.subscriptionType.replace('_', ' ')}</strong> mailing list.</p>
-                
+
                 <div style="background: #fee2e2; border: 1px solid #fca5a5; border-radius: 6px; padding: 15px; margin: 15px 0;">
                   <p style="margin: 0; color: #dc2626;"><strong>What this means:</strong></p>
                   <ul style="margin: 10px 0; color: #dc2626;">
@@ -4326,26 +4342,26 @@ ReadMyFinePrint | Privacy-First AI-Powered Contract Analysis
                   </ul>
                 </div>
               </div>
-              
+
               <div style="background: #f0f9ff; border-radius: 8px; padding: 20px; margin: 20px 0;">
                 <h3 style="margin-top: 0; color: #0369a1;">We're Sorry to See You Go</h3>
                 <p>We respect your decision and hope you'll consider subscribing again in the future if our features become relevant to your needs.</p>
-                
+
                 <div style="text-align: center; margin: 20px 0;">
                   <a href="${getClientBaseUrl(req)}/roadmap" style="background: #2563eb; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; display: inline-block;">
-                    View What We're Building
+                    View Development Roadmap
                   </a>
                 </div>
               </div>
-              
+
               <hr style="border: none; border-top: 1px solid #e5e7eb; margin: 30px 0;">
-              
+
               <div style="background: #f3f4f6; border-radius: 6px; padding: 15px; margin: 20px 0;">
                 <p style="margin: 0; color: #374151; font-size: 14px;">
                   <strong>Changed your mind?</strong> You can always resubscribe by visiting our subscription page and entering your email again.
                 </p>
               </div>
-              
+
               <div style="text-align: center; color: #6b7280; font-size: 12px; margin-top: 30px;">
                 <p>This is a confirmation that you've been unsubscribed from ReadMyFinePrint notifications.</p>
                 <p>ReadMyFinePrint | Privacy-First AI-Powered Contract Analysis</p>
@@ -4372,7 +4388,7 @@ Changed your mind? You can always resubscribe by visiting our subscription page 
 ReadMyFinePrint | Privacy-First AI-Powered Contract Analysis
           `
         });
-        
+
         console.log(`📧 Unsubscribe confirmation email sent to ${mailingListEntry.email}`);
       } catch (emailError) {
         console.error('Failed to send unsubscribe confirmation email:', emailError);
@@ -4402,7 +4418,7 @@ ReadMyFinePrint | Privacy-First AI-Powered Contract Analysis
 
     } catch (error) {
       console.error('Mailing list unsubscribe error:', error);
-      
+
       res.status(500).json({ 
         success: false, 
         error: 'Failed to unsubscribe from mailing list' 
@@ -4415,7 +4431,7 @@ ReadMyFinePrint | Privacy-First AI-Powered Contract Analysis
     try {
       const systemHealth = await disasterRecoveryService.checkSystemHealth();
       const currentErrorRate = disasterRecoveryService.getCurrentErrorRate();
-      
+
       res.json({
         success: true,
         systemHealth,
