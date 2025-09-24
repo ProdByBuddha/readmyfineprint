@@ -28,11 +28,11 @@ import { useCombinedConsent } from "@/components/CombinedConsent";
 import { useSecurityQuestionsHandler } from "@/hooks/useSecurityQuestionsHandler";
 
 // API functions
-import { 
-  analyzeDocument, 
-  getDocument, 
-  createDocument, 
-  getQueueStatus 
+import {
+  analyzeDocument,
+  getDocument,
+  createDocument,
+  getQueueStatus
 } from "@/lib/api";
 import type { Document } from "@shared/schema";
 
@@ -118,7 +118,7 @@ export default function Upload() {
   const { isAccepted: consentAccepted } = useCombinedConsent();
   const { announce } = useAccessibility();
   const containerRef = usePreventFlicker();
-  
+
   const {
     showSecurityQuestionsModal,
     handleApiError,
@@ -397,18 +397,18 @@ export default function Upload() {
         title: "Analysis complete",
         description: "Your document has been analyzed successfully.",
       });
-      
+
       // Force update both the individual document and the documents list
       queryClient.setQueryData(['/api/documents', updatedDocument.id], updatedDocument);
       queryClient.invalidateQueries({ queryKey: ['/api/documents', updatedDocument.id] });
       queryClient.invalidateQueries({ queryKey: ['/api/documents'] });
-      
+
       // Force a refetch of the current document to ensure UI updates
       queryClient.refetchQueries({ queryKey: ['/api/documents', updatedDocument.id] });
     },
     onError: (error: unknown) => {
       setIsAnalyzing(false);
-      
+
       if (!handleApiError(error)) {
         const errorMessage = error instanceof Error ? error.message : "Failed to analyze document";
         announce(`Analysis failed: ${errorMessage}`, "assertive");
@@ -424,7 +424,7 @@ export default function Upload() {
   // Event handlers
   const handleDocumentCreated = useCallback(async (documentId: number) => {
     setCurrentDocumentId(documentId);
-    
+
     if (consentRevoked && !consentAccepted) {
       announce("Cannot analyze documents while consent is revoked", "assertive");
       toast({
@@ -434,7 +434,7 @@ export default function Upload() {
       });
       return;
     }
-    
+
     if (!consentAccepted) {
       console.log('Document analysis requires consent, triggering consent modal');
       safeDispatchEvent('consentRequired', {
@@ -448,10 +448,10 @@ export default function Upload() {
       });
       return;
     }
-    
+
     setIsAnalyzing(true);
     announce("Starting document analysis", "polite");
-    
+
     try {
       await analyzeDocumentMutation.mutateAsync(documentId);
     } catch (error) {
@@ -462,7 +462,7 @@ export default function Upload() {
   const handleDocumentSelect = useStableCallback((documentId: number | null) => {
     setCurrentDocumentId(documentId);
     setIsAnalyzing(false);
-    
+
     if (documentId) {
       announce("Document selected from history", "polite");
     }
@@ -483,11 +483,11 @@ export default function Upload() {
     if (!consentAccepted) {
       const message = "Please accept the terms and privacy policy to process any documents, including sample contracts.";
       announce(message, "assertive");
-      
+
       safeDispatchEvent('consentRequired', {
         detail: { reason: 'Sample contract processing requires consent' },
       });
-      
+
       toast({
         title: "Consent Required",
         description: message,
@@ -498,23 +498,23 @@ export default function Upload() {
 
     try {
       console.log("Creating sample document:", title);
-      
-      const document = await createDocument({ 
-        title: `Sample: ${title}`, 
-        content 
+
+      const document = await createDocument({
+        title: `Sample: ${title}`,
+        content
       });
-      
+
       console.log("Sample document created:", document);
       await handleDocumentCreated(document.id);
     } catch (error) {
       console.error("Error with sample contract:", error);
-      
+
       if (handleApiError(error)) {
         return;
       }
-      
+
       let errorMessage = "Failed to process sample contract";
-      
+
       if (error instanceof Error) {
         if (error.message.includes("<!DOCTYPE") || error.message.includes("not valid JSON")) {
           errorMessage = "Server error occurred. Please refresh the page and try again.";
@@ -524,7 +524,7 @@ export default function Upload() {
           errorMessage = error.message;
         }
       }
-      
+
       announce(`Sample contract processing failed: ${errorMessage}`, "assertive");
       toast({
         title: "Sample contract failed",
@@ -536,15 +536,15 @@ export default function Upload() {
 
   // Render hero section
   const renderHeroSection = () => (
-    <section 
-      className="text-center mb-16 animate-fade-in-scale" 
-      role="banner" 
+    <section
+      className="text-center mb-16 animate-fade-in-scale"
+      role="banner"
       aria-labelledby="hero-heading"
       data-testid="hero-section"
     >
       <div className="max-w-5xl mx-auto">
         <div className="mb-8">
-          <Badge 
+          <Badge
             className="mb-6 px-6 py-3 text-sm font-semibold bg-gradient-to-r from-primary/5 to-secondary/5 dark:from-primary/10 dark:to-secondary/10 border-primary/20 dark:border-primary/30 shadow-lg backdrop-blur-sm border"
             data-testid="hero-badge"
           >
@@ -553,8 +553,8 @@ export default function Upload() {
           </Badge>
         </div>
 
-        <h1 
-          id="hero-heading" 
+        <h1
+          id="hero-heading"
           className="text-5xl md:text-6xl lg:text-7xl font-black mb-8 leading-[0.9] tracking-tight"
           data-testid="hero-title"
         >
@@ -566,8 +566,8 @@ export default function Upload() {
             Document Analysis
           </span>
         </h1>
-        
-        <p 
+
+        <p
           className="text-xl md:text-2xl lg:text-3xl text-slate-700 dark:text-slate-300 mb-12 max-w-4xl mx-auto leading-relaxed font-light"
           data-testid="hero-description"
         >
@@ -577,15 +577,15 @@ export default function Upload() {
         {/* Features Grid */}
         <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8 mt-16" data-testid="features-grid">
           {features.map((feature, index) => (
-            <Card 
+            <Card
               key={feature.testId}
               className="group text-center p-8 hover:shadow-2xl transition-all duration-500 hover:-translate-y-2 bg-white/70 dark:bg-slate-800/70 backdrop-blur-xl border-0 shadow-xl hover:shadow-primary/10"
               data-testid={feature.testId}
             >
               <CardContent className="p-0">
                 <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-primary/10 to-secondary/10 dark:from-primary/20 dark:to-secondary/20 flex items-center justify-center mx-auto mb-6 group-hover:scale-110 transition-transform duration-300">
-                  <feature.icon 
-                    className="w-8 h-8 text-primary" 
+                  <feature.icon
+                    className="w-8 h-8 text-primary"
                     aria-hidden="true"
                   />
                 </div>
@@ -601,9 +601,9 @@ export default function Upload() {
         </div>
 
         {/* Privacy Notice */}
-        <Card 
-          className="max-w-4xl mx-auto mt-16 p-8 bg-gradient-to-r from-emerald-50/80 via-teal-50/60 to-blue-50/80 dark:from-emerald-950/30 dark:via-teal-950/20 dark:to-blue-950/30 border-0 shadow-2xl backdrop-blur-lg" 
-          role="alert" 
+        <Card
+          className="max-w-4xl mx-auto mt-16 p-8 bg-gradient-to-r from-emerald-50/80 via-teal-50/60 to-blue-50/80 dark:from-emerald-950/30 dark:via-teal-950/20 dark:to-blue-950/30 border-0 shadow-2xl backdrop-blur-lg"
+          role="alert"
           aria-labelledby="privacy-notice"
           data-testid="privacy-notice"
         >
@@ -617,8 +617,8 @@ export default function Upload() {
                   🔐 Strong Security & Privacy
                 </h3>
                 <p className="text-emerald-700 dark:text-emerald-300 leading-relaxed text-lg">
-                  Your documents are processed with <strong>strong encryption</strong> and our proprietary 
-                  privacy-preserving AI. <strong className="text-emerald-800 dark:text-emerald-200">Zero permanent storage</strong> — 
+                  Your documents are processed with <strong>strong encryption</strong> and our proprietary
+                  privacy-preserving AI. <strong className="text-emerald-800 dark:text-emerald-200">Zero permanent storage</strong> —
                   confidentiality with immediate deletion after analysis.
                 </p>
               </div>
@@ -635,7 +635,7 @@ export default function Upload() {
       {/* Compact Intro Section */}
       <section className="text-center mb-8" data-testid="upload-intro">
         <div className="max-w-4xl mx-auto">
-          <Badge 
+          <Badge
             className="mb-4 px-4 py-2 text-sm font-semibold bg-gradient-to-r from-primary/5 to-secondary/5 dark:from-primary/10 dark:to-secondary/10 border-primary/20 dark:border-primary/30 shadow-lg backdrop-blur-sm border"
             data-testid="upload-badge"
           >
@@ -648,8 +648,8 @@ export default function Upload() {
             </span>
           </h1>
           <p className="text-lg md:text-xl text-slate-700 dark:text-slate-300 mb-6 max-w-3xl mx-auto leading-relaxed">
-            Get instant AI-powered analysis of contracts, agreements, and legal documents with 
-            <span className="font-semibold text-primary"> strong security</span> and 
+            Get instant AI-powered analysis of contracts, agreements, and legal documents with
+            <span className="font-semibold text-primary"> strong security</span> and
             <span className="font-semibold text-secondary"> privacy protection</span>.
           </p>
         </div>
@@ -669,9 +669,6 @@ export default function Upload() {
       {!hasSubscription() && (
         <section aria-labelledby="samples-section" data-testid="sample-contracts-section" className="mt-20">
           <div className="text-center mb-12">
-            <Badge className="mb-6 px-4 py-2 bg-gradient-to-r from-orange-500/10 to-red-600/10 text-orange-600 dark:text-orange-400 border-orange-500/20">
-              Sample Analysis
-            </Badge>
             <h2 className="text-4xl md:text-5xl font-black text-slate-900 dark:text-white mb-6 leading-tight">
               Try Our Sample
               <br />
@@ -680,7 +677,7 @@ export default function Upload() {
               </span>
             </h2>
             <p className="text-xl md:text-2xl text-slate-600 dark:text-slate-300 max-w-4xl mx-auto leading-relaxed font-light">
-              Get started instantly with these <strong className="font-semibold text-primary">example contracts</strong>. Perfect for understanding 
+              Get started instantly with these <strong className="font-semibold text-primary">example contracts</strong>. Perfect for understanding
               how our AI analysis works before uploading your own documents.
             </p>
           </div>
@@ -695,9 +692,9 @@ export default function Upload() {
 
   // Render analysis progress
   const renderAnalysisProgress = () => (
-    <section 
-      aria-labelledby="analysis-progress" 
-      aria-live="polite" 
+    <section
+      aria-labelledby="analysis-progress"
+      aria-live="polite"
       className="animate-fade-in-scale flex items-center justify-center min-h-[60vh]"
       data-testid="analysis-progress-section"
     >
@@ -710,8 +707,8 @@ export default function Upload() {
 
   // Render results section
   const renderResults = () => (
-    <section 
-      aria-labelledby="analysis-results" 
+    <section
+      aria-labelledby="analysis-results"
       className="animate-fade-in-scale space-y-8"
       data-testid="analysis-results-section"
     >
@@ -724,8 +721,8 @@ export default function Upload() {
                 <CheckCircle className="w-8 h-8 text-primary" />
               </div>
               <div>
-                <h2 
-                  id="analysis-results" 
+                <h2
+                  id="analysis-results"
                   className="text-3xl md:text-4xl font-black text-slate-900 dark:text-white mb-2 leading-tight"
                   data-testid="results-title"
                 >
@@ -740,7 +737,7 @@ export default function Upload() {
                 </Badge>
               </div>
             </div>
-            
+
             <Button
               onClick={handleNewAnalysis}
               size="lg"
@@ -763,9 +760,9 @@ export default function Upload() {
 
   // Render loading state
   const renderLoadingState = () => (
-    <section 
-      aria-labelledby="loading-document" 
-      aria-live="polite" 
+    <section
+      aria-labelledby="loading-document"
+      aria-live="polite"
       className="flex justify-center items-center py-12"
       data-testid="document-loading-section"
     >
@@ -778,8 +775,8 @@ export default function Upload() {
   );
 
   return (
-    <div 
-      ref={containerRef} 
+    <div
+      ref={containerRef}
       className="relative min-h-screen bg-gradient-to-br from-slate-50 via-white to-blue-50 dark:from-slate-900 dark:via-slate-800 dark:to-blue-950"
       data-testid="upload-page"
     >
@@ -788,17 +785,17 @@ export default function Upload() {
       <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-secondary/5" />
       {/* Temporarily disabled TradeSecretProtection due to interference with app functionality */}
       {/* <TradeSecretProtection /> */}
-      
+
       <MobileAppWrapper>
         {/* Cookie Consent Banner */}
         {!consentAccepted && (
-          <CookieConsentBanner 
+          <CookieConsentBanner
             onAccept={() => {
               // The event listener will trigger the update
-            }} 
+            }}
           />
         )}
-        
+
         <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 lg:py-12 pb-20">
           {/* Document History - Always show if documents exist */}
           <section aria-label="Document history" className="animate-fade-in-scale mb-8">
@@ -827,7 +824,7 @@ export default function Upload() {
           </main>
         </div>
       </MobileAppWrapper>
-      
+
       {/* Security Questions Modal */}
       <SecurityQuestionsModal
         isOpen={showSecurityQuestionsModal}
