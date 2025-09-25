@@ -1843,6 +1843,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
         }
       }
 
+      // Check if this is a sample contract to skip usage tracking
+      const isSampleContract = document && document.title && [
+        'sample', 'example', 'demo', 'template',
+        'residential lease', 'employment agreement', 'nda',
+        'service agreement', 'rental agreement'
+      ].some(keyword => document.title.toLowerCase().includes(keyword.toLowerCase()));
+
       // Track usage for rate limiting with proper user identifier (skip for sample contracts)
       if (!isSampleContract) {
         await subscriptionService.trackUsage(
