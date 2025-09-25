@@ -463,7 +463,7 @@ export default function Upload() {
     } catch (error) {
       console.error("Analysis error:", error);
     }
-  }, [analyzeDocumentMutation.mutateAsync, announce, consentAccepted, consentRevoked, toast]);
+  });
 
   const handleDocumentSelect = useStableCallback((documentId: number | null) => {
     setCurrentDocumentId(documentId);

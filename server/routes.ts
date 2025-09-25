@@ -1065,28 +1065,28 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Check if this is a sample contract analysis
       const isSimpleSampleContract = req.body?.isSampleContract === true || req.headers['x-sample-contract'] === 'true';
 
+      // Use proper user tracking for free tier rate limiting with consistent identifier
+      const simpleDeviceFingerprint = req.headers['x-device-fingerprint'] as string;
+      const simpleClientIp = req.ip || req.socket.remoteAddress || 'unknown';
+
+      // Create consistent user identifier for rate limiting (same approach as main endpoint)
+      let simpleRateLimitUserId: string;
+      if (req.user?.id && req.user.id !== "anonymous") {
+        // Authenticated user - use actual user ID
+        simpleRateLimitUserId = req.user.id;
+      } else {
+        // Anonymous user - use device fingerprint + IP hash for consistency
+        const simpleAnonymousIdentifier = crypto.createHash('sha256')
+          .update(`${simpleDeviceFingerprint || 'unknown'}:${simpleClientIp}`)
+          .digest('hex')
+          .substring(0, 16);
+        simpleRateLimitUserId = `anon_${simpleAnonymousIdentifier}`;
+      }
+
       // Only do rate limiting and usage tracking for non-sample contracts
       if (!isSimpleSampleContract) {
         // Check if user has exceeded their monthly limit
         const monthlyLimit = subscriptionData.tier.limits?.documentsPerMonth || 10;
-
-        // Use proper user tracking for free tier rate limiting with consistent identifier
-        const simpleDeviceFingerprint = req.headers['x-device-fingerprint'] as string;
-        const simpleClientIp = req.ip || req.socket.remoteAddress || 'unknown';
-
-        // Create consistent user identifier for rate limiting (same approach as main endpoint)
-        let simpleRateLimitUserId: string;
-        if (req.user?.id && req.user.id !== "anonymous") {
-          // Authenticated user - use actual user ID
-          simpleRateLimitUserId = req.user.id;
-        } else {
-          // Anonymous user - use device fingerprint + IP hash for consistency
-          const simpleAnonymousIdentifier = crypto.createHash('sha256')
-            .update(`${simpleDeviceFingerprint || 'unknown'}:${simpleClientIp}`)
-            .digest('hex')
-            .substring(0, 16);
-          simpleRateLimitUserId = `anon_${simpleAnonymousIdentifier}`;
-        }
 
         console.log(`📊 Simple endpoint rate limiting check for user: ${simpleRateLimitUserId} (tier: ${subscriptionData.tier.id})`);
 
@@ -1121,7 +1121,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         console.log(`📋 Skipping usage tracking for sample contract analysis (simple endpoint)`);
       }
 
-      // Get updated usage after tracking
+      // Get updated usage after tracking (use the same user ID as rate limiting check)
       const updatedSubscriptionData = await subscriptionService.getUserSubscriptionWithUsage(simpleRateLimitUserId);
 
       // Mock analysis for testing purposes
