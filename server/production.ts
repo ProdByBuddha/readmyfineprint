@@ -33,7 +33,10 @@ const envConfig = validateEnvironmentOrExit();
 logEnvironmentStatus();
 
 const app = express();
-const PORT = parseInt(process.env.PORT || '5000');
+// Use Replit's assigned PORT or fallback to production default
+  const assignedPort = Number(process.env.PORT) || 5000;
+  const tryPorts = [assignedPort, 5000, 3000];
+const PORT = tryPorts[0];
 
 async function startProductionServer() {
   // Run database migrations check
