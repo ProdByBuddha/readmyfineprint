@@ -379,6 +379,12 @@ export default function Upload() {
     mutationFn: async (params: { documentId: number; isSampleContract?: boolean }) => {
       const { documentId, isSampleContract = false } = params;
 
+      // Get session and device info
+      const { getGlobalSessionId } = await import('@/lib/sessionManager');
+      const { generateDeviceFingerprint } = await import('@/utils/deviceFingerprint');
+      const sessionId = getGlobalSessionId();
+      const deviceFingerprint = generateDeviceFingerprint();
+
       const response = await fetch(`/api/documents/${documentId}/analyze`, {
         method: 'POST',
         headers: {
@@ -386,7 +392,6 @@ export default function Upload() {
           'X-Session-ID': sessionId,
           'X-Device-Fingerprint': deviceFingerprint,
           'X-Sample-Contract': isSampleContract ? 'true' : 'false',
-          ...(csrfToken && { 'X-CSRF-Token': csrfToken }),
         },
         body: JSON.stringify({ isSampleContract }),
         credentials: 'include',
@@ -458,7 +463,7 @@ export default function Upload() {
     } catch (error) {
       console.error("Analysis error:", error);
     }
-  }, [analyzeDocumentMutation, announce, consentAccepted, consentRevoked, toast]);
+  }, [analyzeDocumentMutation.mutateAsync, announce, consentAccepted, consentRevoked, toast]);
 
   const handleDocumentSelect = useStableCallback((documentId: number | null) => {
     setCurrentDocumentId(documentId);

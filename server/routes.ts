@@ -1496,88 +1496,49 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Check consent for analysis - skip for sample contracts and admin users
       const { ip, userAgent } = getClientInfo(req);
 
-      // Skip consent check for admin users
-      const adminKey = process.env.ADMIN_API_KEY;
-      const providedKey = req.headers['x-admin-key'] as string;
-      const adminToken = req.headers['x-admin-token'] as string;
+      // Skip consent for sample contracts (now that we have the document)
+      const isSampleContract = document && document.title && [
+        'sample', 'example', 'demo', 'template',
+        'residential lease', 'employment agreement', 'nda',
+        'service agreement', 'rental agreement'
+      ].some(keyword => document.title.toLowerCase().includes(keyword.toLowerCase()));
 
-      // Check if user is admin via subscription token
-      let isAdmin = false;
 
-      // Check for admin subscription token (try cookie first, then header)
-      let adminSubscriptionToken = req.cookies?.subscriptionToken;
-      if (!adminSubscriptionToken) {
-        adminSubscriptionToken = req.headers['x-subscription-token'] as string;
-      }
-
-      if (adminSubscriptionToken) {
+      if (!isSampleContract) {
         try {
-          const { joseTokenService } = await import('./jose-token-service');
-          const tokenData = await joseTokenService.validateSubscriptionToken(adminSubscriptionToken);
-          if (tokenData) {
-            if (!tokenData.userId) {
-              console.warn('🔍 Admin token validation successful but userId is undefined:', tokenData);
-            }
-            const user = await databaseStorage.getUser(tokenData.userId);
-            const adminEmails = ['admin@readmyfineprint.com', 'prodbybuddha@icloud.com'];
-            isAdmin = !!(user && adminEmails.includes(user.email));
-            if (isAdmin && user) {
-              console.log(`🔑 Admin user ${user.email} bypassing consent check for analysis`);
-            }
-          }
-        } catch (error) {
-          console.error('Error checking admin status via subscription token:', error);
-        }
-      }
+          // Get user ID for consent verification
+          const userId = req.user?.id;
 
-      // Also check traditional admin authentication
-      const isTraditionalAdmin = adminKey && providedKey === adminKey && adminToken;
+          // Check for valid consent for non-sample analysis
+          const consentProof = await consentLogger.verifyUserConsent(ip, userAgent, userId);
 
-      if (!isAdmin && !isTraditionalAdmin) {
-        // Skip consent for sample contracts (now that we have the document)
-        const isSampleContract = document && document.title && [
-          'sample', 'example', 'demo', 'template',
-          'residential lease', 'employment agreement', 'nda',
-          'service agreement', 'rental agreement'
-        ].some(keyword => document.title.toLowerCase().includes(keyword.toLowerCase()));
+          if (!consentProof) {
+            securityLogger.logSecurityEvent({
+              eventType: SecurityEventType.SECURITY_VIOLATION,
+              severity: SecuritySeverity.HIGH,
+              message: `Analysis denied - no valid consent found for ${req.path}`,
+              ip,
+              userAgent,
+              endpoint: req.path
+            });
 
-
-        if (!isSampleContract) {
-          try {
-            // Get user ID for consent verification
-            const userId = req.user?.id;
-
-            // Check for valid consent for non-sample analysis
-            const consentProof = await consentLogger.verifyUserConsent(ip, userAgent, userId);
-
-            if (!consentProof) {
-              securityLogger.logSecurityEvent({
-                eventType: SecurityEventType.SECURITY_VIOLATION,
-                severity: SecuritySeverity.HIGH,
-                message: `Analysis denied - no valid consent found for ${req.path}`,
-                ip,
-                userAgent,
-                endpoint: req.path
-              });
-
-              return res.status(403).json({
-                error: 'Consent required for document analysis',
-                message: 'You must accept our terms and conditions to analyze your own documents',
-                code: 'CONSENT_REQUIRED',
-                requiresConsent: true
-              });
-            }
-          } catch (consentError) {
-            console.error('Error checking consent for analysis:', consentError);
-            return res.status(500).json({
-              error: 'Unable to verify consent',
-              message: 'Please try again or contact support',
-              code: 'CONSENT_VERIFICATION_ERROR'
+            return res.status(403).json({
+              error: 'Consent required for document analysis',
+              message: 'You must accept our terms and conditions to analyze your own documents',
+              code: 'CONSENT_REQUIRED',
+              requiresConsent: true
             });
           }
-        } else {
-          console.log(`📋 Sample contract detected (${document.title}), skipping consent check`);
+        } catch (consentError) {
+          console.error('Error checking consent for analysis:', consentError);
+          return res.status(500).json({
+            error: 'Unable to verify consent',
+            message: 'Please try again or contact support',
+            code: 'CONSENT_VERIFICATION_ERROR'
+          });
         }
+      } else {
+        console.log(`📋 Sample contract detected (${document.title}), skipping consent check`);
       }
 
       if (document.analysis) {
@@ -1631,7 +1592,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       // If no valid subscription token, try to resolve session to user
       if (!subscriptionData) {
-        // Try to resolve session ID to user ID (same logic as /api/user/subscription)
+        // Try to resolve session ID to user ID (same logic as /api/auth/session)
         let sessionId = req.cookies?.sessionId;
         if (!sessionId && req.headers.cookie) {
           const cookieMatch = req.headers.cookie.match(/sessionId=([^;]+)/);
@@ -1720,6 +1681,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Add estimated wait time to response for user feedback
       const estimatedWaitTime = priorityQueue.getEstimatedWaitTime(subscriptionData.tier.id);
 
+      // Check if user has Professional tier for PII redaction features
+      const { validateProfessionalAccess } = await import('./tier-validation.js');
+      const tierValidation = await validateProfessionalAccess(userId);
+
       // Check for test mode to skip OpenAI calls
       const isTestMode = req.headers['x-skip-openai'] === 'true' || req.body?.skipOpenAI === true || req.body?.testMode === true;
 
@@ -1765,10 +1730,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
         console.log(`✅ Mock analysis completed for ${subscriptionData.tier.id} tier user (test mode)`);
         return res.json(updatedDocument);
       }
-
-      // Check if user has Professional tier for PII redaction features
-      const { validateProfessionalAccess } = await import('./tier-validation.js');
-      const tierValidation = await validateProfessionalAccess(userId);
 
       // Process document analysis through priority queue with conditional PII protection
       const analysisResult = await priorityQueue.addToQueue(
@@ -1850,9 +1811,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
           console.warn(`⚠️ Failed to sync analysis back to original session ${originalSessionId}:`, syncError instanceof Error ? syncError.message : String(syncError));
         }
       }
-
-      // Check if this is a sample contract analysis (passed via request body or header)
-      const isSampleContract = req.body?.isSampleContract === true || req.headers['x-sample-contract'] === 'true';
 
       // Track usage for rate limiting with proper user identifier (skip for sample contracts)
       if (!isSampleContract) {
@@ -2595,7 +2553,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // The webhook will handle creating/finding the user based on the email provided in Stripe
       const userId = req.sessionId || "anonymous";
 
-      // Auto-detect test mode based on development environment
+      // Auto-detect test mode
       const useTestMode = process.env.NODE_ENV === 'development';
       const stripeInstance = getStripeInstance(useTestMode);
 
