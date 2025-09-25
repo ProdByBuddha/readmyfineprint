@@ -159,6 +159,7 @@ export class JOSETokenService {
           tierId: payload.tierId,
           retry: false
         });
+        
       }
 
       console.log(`✅ Valid JOSE subscription token for user ${payload.userId}, tier: ${payload.tierId}`);
@@ -310,6 +311,7 @@ export class JOSETokenService {
     for (const legacyAudience of legacyAudiences) {
       try {
         const payload = await this.verifySubscriptionToken(token, legacyAudience);
+        
         return { payload, matchedAudience: legacyAudience, legacyMode: 'fallback-audience' };
       } catch (error) {
         if (this.isAudienceError(error)) {
@@ -326,6 +328,7 @@ export class JOSETokenService {
     if (!hasAudienceClaim) {
       try {
         const payload = await this.verifySubscriptionToken(token);
+
         return { payload, legacyMode: 'no-audience' };
       } catch (error) {
         if (this.isAudienceError(error)) {
