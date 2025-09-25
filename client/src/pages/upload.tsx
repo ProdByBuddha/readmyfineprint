@@ -440,7 +440,7 @@ export default function Upload() {
 
   // Event handlers
   const handleDocumentCreated = useStableCallback(async (documentId: number, isSample: boolean = false) => {
-    if (!consentAccepted || consentRevoked) {
+    if ((!consentAccepted || consentRevoked) && !isSample) {
       const message = "Consent is required for document analysis. Please accept the terms and privacy policy.";
       announce(message, "assertive");
 
@@ -491,22 +491,6 @@ export default function Upload() {
   }, []);
 
   const handleSampleContract = useCallback(async (title: string, content: string) => {
-    if (!consentAccepted) {
-      const message = "Please accept the terms and privacy policy to process any documents, including sample contracts.";
-      announce(message, "assertive");
-
-      safeDispatchEvent('consentRequired', {
-        detail: { reason: 'Sample contract processing requires consent' },
-      });
-
-      toast({
-        title: "Consent Required",
-        description: message,
-        variant: "destructive",
-      });
-      return;
-    }
-
     try {
       console.log("Creating sample document:", title);
 
@@ -678,7 +662,7 @@ export default function Upload() {
           </div>
           <SampleContracts
             onSelectContract={handleSampleContract}
-            disabled={false}
+            disabled={isAnalyzing}
           />
         </section>
       )}

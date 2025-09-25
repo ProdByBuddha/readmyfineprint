@@ -19,8 +19,105 @@ export function AnalysisResults({ document }: AnalysisResultsProps) {
   const [exportQuality, setExportQuality] = useState<'standard' | 'high'>('high');
   const [userTier, setUserTier] = useState<string>('free');
   const [hasProfessionalAccess, setHasProfessionalAccess] = useState(false);
-  const analysis = document.analysis as DocumentAnalysis;
   const { toast } = useToast();
+
+  const rawAnalysis = document.analysis as unknown;
+
+  const parsedAnalysis = useMemo<Partial<DocumentAnalysis> | null>(() => {
+    if (!rawAnalysis) {
+      return null;
+    }
+
+    if (typeof rawAnalysis === 'string') {
+      try {
+        const json = JSON.parse(rawAnalysis) as Partial<DocumentAnalysis>;
+        return json && typeof json === 'object' ? json : null;
+      } catch (error) {
+        console.error('Failed to parse analysis JSON:', error);
+        return null;
+      }
+    }
+
+    if (typeof rawAnalysis === 'object') {
+      return rawAnalysis as Partial<DocumentAnalysis>;
+    }
+
+    return null;
+  }, [rawAnalysis]);
+
+  const analysis = useMemo((): DocumentAnalysis => {
+    const fallbackRisk: DocumentAnalysis['overallRisk'] = 'moderate';
+
+    const ensureStringArray = (value: unknown): string[] =>
+      Array.isArray(value)
+        ? value
+            .filter((item): item is string => typeof item === 'string')
+            .map(item => item.trim())
+            .filter(item => item.length > 0)
+        : [];
+
+    const normalizeRisk = (risk: unknown): DocumentAnalysis['overallRisk'] => {
+      if (risk === 'low' || risk === 'moderate' || risk === 'high') {
+        return risk;
+      }
+      return fallbackRisk;
+    };
+
+    if (!parsedAnalysis) {
+      return {
+        summary: 'Analysis data is unavailable. Please try again or contact support.',
+        overallRisk: fallbackRisk,
+        keyFindings: {
+          goodTerms: [],
+          reviewNeeded: [],
+          redFlags: [],
+        },
+        sections: [],
+        userAdvocacy: undefined,
+      };
+    }
+
+    const normalizedSections = Array.isArray(parsedAnalysis.sections)
+      ? parsedAnalysis.sections
+          .filter((section): section is Partial<DocumentAnalysis['sections'][number]> =>
+            !!section && typeof section === 'object'
+          )
+          .map(section => ({
+            title: typeof section.title === 'string' && section.title.trim().length > 0
+              ? section.title
+              : 'Untitled Section',
+            riskLevel: normalizeRisk(section.riskLevel),
+            summary: typeof section.summary === 'string' && section.summary.trim().length > 0
+              ? section.summary
+              : 'No summary provided for this section.',
+            concerns: ensureStringArray(section.concerns),
+          }))
+      : [];
+
+    const normalizedAdvocacy = parsedAnalysis.userAdvocacy && typeof parsedAnalysis.userAdvocacy === 'object'
+      ? {
+          negotiationStrategies: ensureStringArray(parsedAnalysis.userAdvocacy.negotiationStrategies),
+          counterOffers: ensureStringArray(parsedAnalysis.userAdvocacy.counterOffers),
+          fairnessReminders: ensureStringArray(parsedAnalysis.userAdvocacy.fairnessReminders),
+          leverageOpportunities: ensureStringArray(parsedAnalysis.userAdvocacy.leverageOpportunities),
+        }
+      : undefined;
+
+    return {
+      summary:
+        typeof parsedAnalysis.summary === 'string' && parsedAnalysis.summary.trim().length > 0
+          ? parsedAnalysis.summary
+          : 'No summary available for this analysis.',
+      overallRisk: normalizeRisk(parsedAnalysis.overallRisk),
+      keyFindings: {
+        goodTerms: ensureStringArray(parsedAnalysis.keyFindings?.goodTerms),
+        reviewNeeded: ensureStringArray(parsedAnalysis.keyFindings?.reviewNeeded),
+        redFlags: ensureStringArray(parsedAnalysis.keyFindings?.redFlags),
+      },
+      sections: normalizedSections,
+      userAdvocacy: normalizedAdvocacy,
+    };
+  }, [parsedAnalysis]);
 
   // Check user's tier on component mount
   useEffect(() => {
@@ -112,7 +209,7 @@ export function AnalysisResults({ document }: AnalysisResultsProps) {
     }
   };
 
-  if (!analysis) {
+  if (!parsedAnalysis) {
     return (
       <Card className="p-8">
         <CardContent className="text-center space-y-4">
