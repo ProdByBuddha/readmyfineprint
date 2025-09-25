@@ -131,85 +131,19 @@ const SUBSCRIPTION_TIERS: SubscriptionTier[] = [
       "Smartest non-reasoning model",
       "1M token context window",
       "Priority processing",
-      "Priority email & chat support",
+      "Priority email support",
       "Advanced analysis features",
-      "API access (200 calls/month)",
-      "Custom integrations",
-      "Advanced export options",
-      "Usage analytics dashboard",
+      "Higher document limits",
     ],
     limits: {
       documentsPerMonth: 200,
       tokensPerDocument: 1000000, // GPT-4.1 context window
       prioritySupport: true,
       advancedAnalysis: true,
-      apiAccess: true,
-      customIntegrations: true,
+      apiAccess: false,
+      customIntegrations: false,
     },
     iconWrapperClass: 'text-purple-600 bg-purple-50 dark:text-purple-300 dark:bg-purple-500/10',
-  },
-  {
-    id: "business",
-    name: "Business",
-    description:
-      "For businesses requiring advanced GPT-5 capabilities",
-    model: "gpt-5-mini",
-    monthlyPrice: 199,
-    yearlyPrice: 1990,
-    features: [
-      "Advanced analysis with GPT-5 Mini",
-      "Faster, cost-efficient version of GPT-5",
-      "Superior performance for well-defined tasks",
-      "Fastest processing priority",
-      "24/7 priority support",
-      "Full API access (unlimited)",
-      "Custom integrations & webhooks",
-      "White-label options",
-      "Advanced analytics & reporting",
-      "Team collaboration features",
-      "SSO integration",
-    ],
-    limits: {
-      documentsPerMonth: 500,
-      tokensPerDocument: 1000000, // GPT-5 Mini context window
-      prioritySupport: true,
-      advancedAnalysis: true,
-      apiAccess: true,
-      customIntegrations: true,
-    },
-    iconWrapperClass: 'text-amber-600 bg-amber-50 dark:text-amber-300 dark:bg-amber-500/10',
-  },
-  {
-    id: "enterprise",
-    name: "Enterprise",
-    description:
-      "For large organizations requiring the best AI capabilities",
-    model: "gpt-5",
-    monthlyPrice: 999,
-    yearlyPrice: 9990,
-    features: [
-      "Premium analysis with GPT-5",
-      "Best model for coding and agentic tasks",
-      "Unmatched performance across domains",
-      "Dedicated account manager",
-      "24/7 premium support & SLA",
-      "Full API access with higher limits",
-      "Custom model fine-tuning options",
-      "Complete white-label solution",
-      "Advanced security & compliance",
-      "Custom deployment options",
-      "Training & onboarding",
-      "Custom contract terms",
-    ],
-    limits: {
-      documentsPerMonth: 1000,
-      tokensPerDocument: 1000000, // GPT-5 context window
-      prioritySupport: true,
-      advancedAnalysis: true,
-      apiAccess: true,
-      customIntegrations: true,
-    },
-    iconWrapperClass: 'text-rose-600 bg-rose-50 dark:text-rose-300 dark:bg-rose-500/10',
   }
   // Note: Ultimate tier is not displayed in public plans - it's admin-only
 ];
@@ -284,7 +218,7 @@ export default function SubscriptionPlans({
     setShowMailingListModal(true);
   };
 
-  // All tiers are now available for selection
+  // Only show currently implemented tiers (Business and Enterprise coming soon)
   const availableTiers = SUBSCRIPTION_TIERS;
 
   return (
@@ -330,7 +264,7 @@ export default function SubscriptionPlans({
 
       {/* Plans Grid */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 lg:gap-6">
-        {SUBSCRIPTION_TIERS.map((tier, index) => {
+        {availableTiers.map((tier, index) => {
           const price =
             billingCycle === "yearly" ? tier.yearlyPrice : tier.monthlyPrice;
           const displayPrice = billingCycle === "yearly" ? price / 12 : price;
