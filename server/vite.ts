@@ -131,7 +131,7 @@ export async function setupVite(app: Express, server: Server) {
 
     // Use Vite's middleware for all requests
     app.use(viteServer.middlewares);
-    
+
     // Fallback handler for SPA routes (but not API routes or static assets)
     app.use("*", async (req, res, next) => {
       const url = req.originalUrl;
@@ -274,7 +274,7 @@ export function serveStatic(app: Express) {
   );
 
   // fall through to index.html for non-API routes - with security headers
-  app.get("/*", (req, res) => {
+  app.get("*", (req, res) => {
     // Don't intercept API routes
     if (req.path.startsWith("/api/")) {
       return res.status(404).json({ error: "API endpoint not found" });
