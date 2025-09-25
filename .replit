@@ -9,7 +9,7 @@ packages = ["imagemagick", "python311Packages.transformers", "python311Packages.
 [deployment]
 deploymentTarget = "autoscale"
 build = ["sh", "-c", "npm run deploy:replit"]
-run = ["npm", "run", "start"]
+run = ["sh", "-c", "npm run start"]
 
 [env]
 START_MONITORING = "true"
