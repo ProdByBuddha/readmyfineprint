@@ -178,7 +178,7 @@ export function FileUpload({ onDocumentCreated, disabled = false, consentAccepte
         {!consentAccepted && (
           <div className="mb-6 p-4 bg-amber-50 dark:bg-amber-950/20 border border-amber-200 dark:border-amber-800 rounded-lg">
             <p className="text-sm text-amber-800 dark:text-amber-200">
-              <strong>Consent Required:</strong> To analyze documents or paste text, please accept the terms and privacy policy using the banner at the bottom of the page.
+              <strong>Consent Required:</strong> Accept our cookie and privacy terms using the banner at the bottom of the page to enable uploads and text analysis. Your choice will be remembered for future sessions.
             </p>
           </div>
         )}

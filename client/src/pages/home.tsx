@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback, type MouseEvent } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -34,11 +34,33 @@ import { useCombinedConsent } from "@/components/CombinedConsent";
 import { CookieConsentBanner } from "@/components/CookieConsentBanner";
 import { generateFAQSchema, updateSEO } from "@/lib/seo";
 import { Link } from "react-router-dom";
+import { useToast } from "@/hooks/use-toast";
+import { safeDispatchEvent } from "@/lib/safeDispatchEvent";
 
 export default function Home() {
   const { isAccepted: consentAccepted } = useCombinedConsent();
   const containerRef = usePreventFlicker();
   const [isLoaded, setIsLoaded] = useState<boolean>(false);
+  const { toast } = useToast();
+
+  const handleStartAnalysisClick = useCallback(
+    (event: MouseEvent<HTMLAnchorElement | HTMLButtonElement>) => {
+      if (!consentAccepted) {
+        event.preventDefault();
+        toast({
+          title: "Consent required",
+          description:
+            "Accept our cookie and privacy terms using the banner below to unlock document analysis.",
+          variant: "destructive",
+        });
+
+        safeDispatchEvent("consentRequired", {
+          detail: { reason: "Document analysis requires consent" },
+        });
+      }
+    },
+    [consentAccepted, toast]
+  );
 
   useEffect(() => {
     setIsLoaded(true);
@@ -204,16 +226,27 @@ export default function Home() {
 
             {/* Call to Action */}
             <div className="flex flex-col sm:flex-row gap-6 justify-center items-center mb-16">
-              <Link to="/upload" data-testid="upload-button-link">
+              <Link
+                to="/upload"
+                data-testid="upload-button-link"
+                onClick={handleStartAnalysisClick}
+                aria-disabled={!consentAccepted}
+              >
                 <Button
-                  className="group bg-gradient-to-r from-primary via-blue-600 to-primary hover:from-primary/90 hover:via-blue-600/90 hover:to-primary/90 text-white px-12 py-5 text-xl font-bold shadow-2xl hover:shadow-primary/25 transition-all duration-500 transform hover:-translate-y-1 hover:scale-105"
+                  className="group bg-gradient-to-r from-primary via-blue-600 to-primary hover:from-primary/90 hover:via-blue-600/90 hover:to-primary/90 text-white px-12 py-5 text-xl font-bold shadow-2xl hover:shadow-primary/25 transition-all duration-500 transform hover:-translate-y-1 hover:scale-105 disabled:opacity-60 disabled:cursor-not-allowed"
                   data-testid="upload-button"
+                  disabled={!consentAccepted}
                 >
                   <Shield className="w-6 h-6 mr-3 group-hover:rotate-12 transition-transform duration-300" />
                   Start Free Analysis
                   <ArrowRight className="w-6 h-6 ml-3 group-hover:translate-x-1 transition-transform duration-300" />
                 </Button>
               </Link>
+              {!consentAccepted && (
+                <p className="text-sm text-amber-700 dark:text-amber-300" role="alert">
+                  Accept cookies and terms to enable document analysis features.
+                </p>
+              )}
             </div>
           </section>
 

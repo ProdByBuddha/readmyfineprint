@@ -29,6 +29,28 @@ export function useCombinedConsent() {
   const [isCheckingConsent, setIsCheckingConsent] = useState(true);
   const [forceUpdate, setForceUpdate] = useState(0);
 
+  // Prime the consent state with any stored preferences to avoid making
+  // returning users re-accept before the async checks finish.
+  useEffect(() => {
+    try {
+      const locallyAccepted =
+        localStorage.getItem('cookie-consent-accepted') === 'true' &&
+        localStorage.getItem('readmyfineprint-disclaimer-accepted') === 'true';
+
+      if (locallyAccepted) {
+        setIsAccepted(true);
+        setIsCheckingConsent(false);
+        globalConsentState = {
+          status: true,
+          timestamp: Date.now(),
+          sessionId: getGlobalSessionId()
+        };
+      }
+    } catch (error) {
+      console.warn('Failed to read stored consent preference:', error);
+    }
+  }, []);
+
   // Use the new database-backed hooks
   const { accepted: legalAccepted, loading: legalLoading } = useLegalDisclaimer();
   const { isAccepted: cookieAccepted, loading: cookieLoading } = useCookieConsent();
