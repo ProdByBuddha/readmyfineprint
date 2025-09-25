@@ -404,17 +404,17 @@ export default function Upload() {
 
       return response.json();
     },
-    onSuccess: (updatedDocument: Document) => {
-      // Update cache FIRST before setting isAnalyzing to false
+    onSuccess: async (updatedDocument: Document) => {
+      // Update cache FIRST with the exact same key format as the query
       queryClient.setQueryData(['/api/documents', updatedDocument.id], updatedDocument);
-      queryClient.invalidateQueries({ queryKey: ['/api/documents', updatedDocument.id] });
+      
+      // Invalidate the documents list to show updated analysis status
       queryClient.invalidateQueries({ queryKey: ['/api/documents'] });
 
-      // Force a refetch of the current document to ensure UI updates
-      queryClient.refetchQueries({ queryKey: ['/api/documents', updatedDocument.id] });
+      // Wait for invalidation to complete before changing UI state
+      await queryClient.invalidateQueries({ queryKey: ['/api/documents', updatedDocument.id] });
 
-      // Only AFTER cache is updated, set isAnalyzing to false to trigger render
-      setIsAnalyzing(false);
+      // UI updates and notifications
       announce("Document analysis completed successfully", "polite");
       toast({
         title: "Analysis complete",
@@ -422,8 +422,6 @@ export default function Upload() {
       });
     },
     onError: (error: unknown) => {
-      setIsAnalyzing(false);
-
       if (!handleApiError(error)) {
         const errorMessage = error instanceof Error ? error.message : "Failed to analyze document";
         announce(`Analysis failed: ${errorMessage}`, "assertive");
@@ -433,6 +431,10 @@ export default function Upload() {
           variant: "destructive",
         });
       }
+    },
+    onSettled: () => {
+      // Ensure isAnalyzing is reset in both success and error cases
+      setIsAnalyzing(false);
     },
   });
 
