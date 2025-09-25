@@ -130,9 +130,36 @@ export class JOSETokenService {
       const { payload, matchedAudience, legacyMode } = validationResult;
 
       if (legacyMode === 'fallback-audience' && matchedAudience) {
-        console.warn(`⚠️ Accepted subscription token with legacy audience "${matchedAudience}". Token regeneration recommended.`);
+        console.warn(
+          `⚠️ Accepted subscription token with legacy audience "${matchedAudience}". Token regeneration recommended.`
+        );
+        this.logLegacyCompatibilityEvent({
+          mode: legacyMode,
+          matchedAudience,
+          userId: payload.userId,
+          tierId: payload.tierId,
+          retry: false
+        });
       } else if (legacyMode === 'no-audience') {
         console.warn('⚠️ Accepted subscription token without audience claim (legacy compatibility).');
+        this.logLegacyCompatibilityEvent({
+          mode: legacyMode,
+          userId: payload.userId,
+          tierId: payload.tierId,
+          retry: false
+        });
+      } else if (legacyMode === 'unexpected-audience' && matchedAudience) {
+        console.warn(
+          `⚠️ Accepted subscription token with unexpected audience "${matchedAudience}" (compatibility mode).`
+        );
+        this.logLegacyCompatibilityEvent({
+          mode: legacyMode,
+          matchedAudience,
+          userId: payload.userId,
+          tierId: payload.tierId,
+          retry: false
+        });
+        
       }
 
       console.log(`✅ Valid JOSE subscription token for user ${payload.userId}, tier: ${payload.tierId}`);
@@ -156,9 +183,35 @@ export class JOSETokenService {
         const { payload, matchedAudience, legacyMode } = retryResult;
 
         if (legacyMode === 'fallback-audience' && matchedAudience) {
-          console.warn(`⚠️ Accepted subscription token with legacy audience "${matchedAudience}" after re-initialization.`);
+          console.warn(
+            `⚠️ Accepted subscription token with legacy audience "${matchedAudience}" after re-initialization.`
+          );
+          this.logLegacyCompatibilityEvent({
+            mode: legacyMode,
+            matchedAudience,
+            userId: payload.userId,
+            tierId: payload.tierId,
+            retry: true
+          });
         } else if (legacyMode === 'no-audience') {
           console.warn('⚠️ Accepted legacy subscription token without audience claim after re-initialization.');
+          this.logLegacyCompatibilityEvent({
+            mode: legacyMode,
+            userId: payload.userId,
+            tierId: payload.tierId,
+            retry: true
+          });
+        } else if (legacyMode === 'unexpected-audience' && matchedAudience) {
+          console.warn(
+            `⚠️ Accepted subscription token with unexpected audience "${matchedAudience}" after re-initialization.`
+          );
+          this.logLegacyCompatibilityEvent({
+            mode: legacyMode,
+            matchedAudience,
+            userId: payload.userId,
+            tierId: payload.tierId,
+            retry: true
+          });
         }
 
         console.log(`✅ JOSE token validation successful after re-initialization for user ${payload.userId}`);
@@ -182,6 +235,39 @@ export class JOSETokenService {
     return typeof audience === 'string' ? audience : 'missing';
   }
 
+  private logLegacyCompatibilityEvent(params: {
+    mode: 'fallback-audience' | 'no-audience' | 'unexpected-audience';
+    matchedAudience?: string;
+    userId?: string;
+    tierId?: string;
+    retry: boolean;
+  }): void {
+    const { mode, matchedAudience, userId, tierId, retry } = params;
+
+    const message =
+      mode === 'fallback-audience'
+        ? 'Accepted subscription token using legacy audience value'
+        : mode === 'no-audience'
+          ? 'Accepted subscription token without audience claim'
+          : 'Accepted subscription token with unexpected audience value';
+
+    securityLogger.logSecurityEvent({
+      eventType: SecurityEventType.SECURITY_VIOLATION,
+      severity: SecuritySeverity.MEDIUM,
+      message,
+      ip: 'system',
+      userAgent: 'jose-token-service',
+      endpoint: retry ? 'token-validation-retry' : 'token-validation',
+      details: {
+        mode,
+        matchedAudience,
+        userId,
+        tierId,
+        retry
+      }
+    });
+  }
+
   private async verifySubscriptionToken(
     token: string,
     audience?: string
@@ -203,7 +289,11 @@ export class JOSETokenService {
   private async attemptValidateSubscriptionToken(
     token: string,
     decodedInfo?: Partial<SubscriptionTokenPayload> | null
-  ): Promise<{ payload: SubscriptionTokenPayload; matchedAudience?: string; legacyMode?: 'fallback-audience' | 'no-audience' }> {
+  ): Promise<{
+    payload: SubscriptionTokenPayload;
+    matchedAudience?: string;
+    legacyMode?: 'fallback-audience' | 'no-audience' | 'unexpected-audience';
+  }> {
     const primaryAudience = 'subscription';
     const legacyAudiences = ['subscription_token', 'subscription-token', 'subscriptionToken', 'api'];
 
@@ -221,7 +311,7 @@ export class JOSETokenService {
     for (const legacyAudience of legacyAudiences) {
       try {
         const payload = await this.verifySubscriptionToken(token, legacyAudience);
-        console.warn(`⚠️ Subscription token audience fallback used: "${legacyAudience}".`);
+        
         return { payload, matchedAudience: legacyAudience, legacyMode: 'fallback-audience' };
       } catch (error) {
         if (this.isAudienceError(error)) {
@@ -238,7 +328,7 @@ export class JOSETokenService {
     if (!hasAudienceClaim) {
       try {
         const payload = await this.verifySubscriptionToken(token);
-        console.warn('⚠️ Subscription token validated without audience claim (legacy token).');
+
         return { payload, legacyMode: 'no-audience' };
       } catch (error) {
         if (this.isAudienceError(error)) {
@@ -249,12 +339,18 @@ export class JOSETokenService {
       }
     }
 
-    if (lastAudienceError) {
-      throw lastAudienceError;
-    }
-
     const formattedAudience = this.formatAudienceClaim(audienceClaim);
-    throw new Error(`Subscription token validation failed due to unexpected audience claim: ${formattedAudience}`);
+
+    try {
+      const payload = await this.verifySubscriptionToken(token);
+      return { payload, matchedAudience: formattedAudience, legacyMode: 'unexpected-audience' };
+    } catch (error) {
+      if (lastAudienceError) {
+        throw lastAudienceError;
+      }
+
+      throw new Error(`Subscription token validation failed due to unexpected audience claim: ${formattedAudience}`);
+    }
   }
 
   /**
