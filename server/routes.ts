@@ -1210,39 +1210,60 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Verify user consent (for proving specific user consent)
-  app.post("/api/consent/verify", optionalUserAuth, async (req: any, res) => {
+  const handleConsentVerification = async (req: any, res: any) => {
     try {
       // Use consistent IP/UA extraction method as in logConsent
       const ip = req.ip || req.connection.remoteAddress || 'unknown';
       const userAgent = req.get('User-Agent') || 'unknown';
-      const userId = req.user?.id; // Get user ID if authenticated
+
+      // Allow user ID from auth middleware or query fallback for backwards compatibility
+      let userId = req.user?.id as string | undefined;
+      if (!userId && typeof req.query?.userId === 'string') {
+        userId = req.query.userId;
+      }
 
       // Get session ID from multiple sources for consistency
-      let sessionId = req.sessionId;
+      let sessionId = req.sessionId as string | undefined;
       if (!sessionId) {
         sessionId = req.headers['x-session-id'] as string;
       }
       if (!sessionId && req.cookies?.sessionId) {
         sessionId = req.cookies.sessionId;
       }
+      if (!sessionId && typeof req.query?.sessionId === 'string') {
+        sessionId = req.query.sessionId;
+      }
 
-      console.log(`Consent verification request - IP: ${ip}, UA: ${userAgent?.substring(0, 20)}..., User: ${userId || 'none'}, Session: ${sessionId || 'none'}`);
+      console.log(`Consent verification request - IP: ${ip}, UA: ${userAgent?.substring(0, 20)}..., User: ${userId || "none"}, Session: ${sessionId || "none"}`);
 
       const proof = await consentLogger.verifyUserConsent(ip, userAgent, userId, sessionId);
+      const hasConsented = !!proof;
 
       const response = {
-        hasConsented: !!proof,
+        hasConsented,
+        verified: hasConsented,
+        message: hasConsented ? "Consent verified successfully" : "Consent not found",
+        sessionId: sessionId || null,
         proof: proof || null
       };
 
-      console.log(`Consent verification response: ${response.hasConsented} (session: ${sessionId || 'none'})`);
+      console.log(`Consent verification response: ${response.hasConsented} (session: ${sessionId || "none"})`);
       res.json(response);
     } catch (error) {
       console.error("Error verifying consent:", error);
-      res.json({ hasConsented: false, proof: null, error: "Verification failed" });
+      res.status(500).json({
+        hasConsented: false,
+        verified: false,
+        proof: null,
+        message: "Consent verification failed",
+        error: "Verification failed"
+      });
     }
-  });
+  };
+
+  // Verify user consent (for proving specific user consent)
+  app.post("/api/consent/verify", optionalUserAuth, handleConsentVerification);
+  app.get("/api/consent/verify", optionalUserAuth, handleConsentVerification);
 
   // Verify consent by token (for users to verify their own consent)
   app.post("/api/consent/verify-token", async (req, res) => {
