@@ -1,12 +1,12 @@
 import type { SubscriptionTier } from "@shared/schema";
 
-// Current OpenAI API Pricing (August 2025)
+// Current OpenAI API Pricing (September 2025)
 // GPT-4.1 Nano: $0.08 input, $0.32 output per 1M tokens (fastest & cheapest)
-// GPT-4.1 Mini: $0.15 input, $0.60 output per 1M tokens (83% cheaper than GPT-4.1, beats GPT-4o)
-// GPT-4.1: $3.00 input, $10.00 output per 1M tokens (1M context, flagship)
-// GPT-4o: $3.00 input, $10.00 output per 1M tokens (multimodal)
-// o3-mini: $1.00 input, $4.00 output per 1M tokens (cost-efficient reasoning)
-// o3: $15.00 input, $60.00 output per 1M tokens (maximum reasoning capability)
+// GPT-4.1 Mini: $0.15 input, $0.60 output per 1M tokens (smaller, faster version of GPT-4.1)
+// GPT-4.1: $3.00 input, $10.00 output per 1M tokens (smartest non-reasoning model)
+// GPT-5 Nano: $0.25 input, $1.00 output per 1M tokens (fastest, most cost-efficient GPT-5)
+// GPT-5 Mini: $2.50 input, $10.00 output per 1M tokens (faster, cost-efficient GPT-5)
+// GPT-5: $15.00 input, $60.00 output per 1M tokens (best model for coding and agentic tasks)
 
 /**
  * Calculate cost per document analysis based on:
@@ -50,13 +50,13 @@ export const SUBSCRIPTION_TIERS: SubscriptionTier[] = [
     id: "starter",
     name: "Starter",
     description: "For individuals and teams who need enhanced AI with superior performance",
-    model: "gpt-4o", // Latest flagship multimodal model
+    model: "gpt-4.1-mini", // Smaller, faster version of GPT-4.1
     monthlyPrice: 12, // Optimized pricing: $6.75 cost + 78% margin
     yearlyPrice: 120, // Save $24 per year
     features: [
-      "Enhanced analysis with GPT-4o",
-      "Latest flagship multimodal AI",
-      "1M token context window",
+      "Enhanced analysis with GPT-4.1 Mini",
+      "Smaller, faster version of GPT-4.1",
+      "High-quality document analysis",
       "Priority processing",
       "Email support"
     ],
@@ -70,23 +70,23 @@ export const SUBSCRIPTION_TIERS: SubscriptionTier[] = [
     },
     popular: true,
     modelCosts: {
-      inputTokenCost: 3.00,
-      outputTokenCost: 10.00,
+      inputTokenCost: 0.15,
+      outputTokenCost: 0.60,
       estimatedTokensPerDocument: 3500,
-      costPerDocument: 0.021, // (2000 * 3.00 + 1500 * 10.00) / 1,000,000
+      costPerDocument: 0.00135, // (2000 * 0.15 + 1500 * 0.60) / 1,000,000
     }
   },
   {
     id: "professional",
     name: "Professional",
     description: "For professionals who need flagship AI with advanced reasoning",
-    model: "o3-mini", // Cost-efficient reasoning model
+    model: "gpt-4.1", // Smartest non-reasoning model
     monthlyPrice: 49, // $27 cost + 81% margin
     yearlyPrice: 490, // 2 months free
     features: [
-      "Premium analysis with o3-mini",
-      "Advanced reasoning capabilities",
-      "200K token context window",
+      "Premium analysis with GPT-4.1",
+      "Smartest non-reasoning model",
+      "1M token context window",
       "Priority processing",
       "Priority email & chat support",
       "Advanced analysis features",
@@ -97,30 +97,30 @@ export const SUBSCRIPTION_TIERS: SubscriptionTier[] = [
     ],
     limits: {
       documentsPerMonth: 200, // $27 monthly cost to provide
-      tokensPerDocument: 200000, // o3-mini context window
+      tokensPerDocument: 1000000, // GPT-4.1 context window
       prioritySupport: true,
       advancedAnalysis: true,
       apiAccess: true,
       customIntegrations: true,
     },
     modelCosts: {
-      inputTokenCost: 1.00,
-      outputTokenCost: 4.00,
+      inputTokenCost: 3.00,
+      outputTokenCost: 10.00,
       estimatedTokensPerDocument: 3500,
-      costPerDocument: 0.008, // (2000 * 1.00 + 1500 * 4.00) / 1,000,000
+      costPerDocument: 0.021, // (2000 * 3.00 + 1500 * 10.00) / 1,000,000
     }
   },
   {
     id: "business",
     name: "Business",
-    description: "For businesses requiring maximum reasoning capability",
-    model: "o3", // Maximum reasoning capability
+    description: "For businesses requiring advanced GPT-5 capabilities",
+    model: "gpt-5-mini", // Faster, cost-efficient version of GPT-5
     monthlyPrice: 199, // $75 cost + 165% margin
     yearlyPrice: 1990, // 2 months free
     features: [
-      "Maximum reasoning with o3",
-      "Most advanced AI reasoning available",
-      "Complex problem solving",
+      "Advanced analysis with GPT-5 Mini",
+      "Faster, cost-efficient version of GPT-5",
+      "Superior performance for well-defined tasks",
       "Fastest processing priority",
       "24/7 priority support",
       "Full API access (unlimited)",
@@ -132,31 +132,31 @@ export const SUBSCRIPTION_TIERS: SubscriptionTier[] = [
     ],
     limits: {
       documentsPerMonth: 500, // $75 monthly cost to provide
-      tokensPerDocument: 200000, // o3 context window
+      tokensPerDocument: 1000000, // GPT-5 Mini context window
       prioritySupport: true,
       advancedAnalysis: true,
       apiAccess: true,
       customIntegrations: true,
     },
     modelCosts: {
-      inputTokenCost: 15.00,
-      outputTokenCost: 60.00,
+      inputTokenCost: 2.50,
+      outputTokenCost: 10.00,
       estimatedTokensPerDocument: 3500,
-      costPerDocument: 0.12, // (2000 * 15.00 + 1500 * 60.00) / 1,000,000
+      costPerDocument: 0.02, // (2000 * 2.50 + 1500 * 10.00) / 1,000,000
     },
     popular: false
   },
   {
     id: "enterprise",
     name: "Enterprise",
-    description: "For large organizations requiring maximum reasoning capability",
-    model: "o3", // Maximum reasoning capability available
+    description: "For large organizations requiring the best AI capabilities",
+    model: "gpt-5", // The best model for coding and agentic tasks across domains
     monthlyPrice: 999, // $180 cost + 455% margin for enterprise features
     yearlyPrice: 9990, // 2 months free
     features: [
-      "Maximum reasoning with o3",
-      "Most advanced AI reasoning capability",
-      "Complex problem solving",
+      "Premium analysis with GPT-5",
+      "Best model for coding and agentic tasks",
+      "Unmatched performance across domains",
       "Dedicated account manager",
       "24/7 premium support & SLA",
       "Full API access with higher limits",
@@ -169,7 +169,7 @@ export const SUBSCRIPTION_TIERS: SubscriptionTier[] = [
     ],
     limits: {
       documentsPerMonth: 1000, // $180 monthly cost to provide
-      tokensPerDocument: 200000, // o3 context window
+      tokensPerDocument: 1000000, // GPT-5 context window
       prioritySupport: true,
       advancedAnalysis: true,
       apiAccess: true,
@@ -187,7 +187,7 @@ export const SUBSCRIPTION_TIERS: SubscriptionTier[] = [
     id: "ultimate",
     name: "Ultimate",
     description: "Admin-only tier with unlimited access for system administration",
-    model: "o3", // Maximum reasoning capability for admin use
+    model: "gpt-5", // Best model for admin use
     monthlyPrice: 0, // No cost for admin tier
     yearlyPrice: 0,
     features: [

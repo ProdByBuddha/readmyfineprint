@@ -760,7 +760,7 @@ export const SubscriptionTierSchema = z.object({
   id: z.string(),
   name: z.string(),
   description: z.string(),
-  model: z.enum(['gpt-3.5-turbo', 'gpt-4o-mini', 'gpt-4.1-nano', 'gpt-4.1-mini', 'gpt-4.1', 'gpt-4o', 'gpt-4-turbo', 'o1-preview', 'o1-mini', 'o3-mini', 'o3']),
+  model: z.enum(['gpt-3.5-turbo', 'gpt-4o-mini', 'gpt-4.1-nano', 'gpt-4.1-mini', 'gpt-4.1', 'gpt-4o', 'gpt-4-turbo', 'o1-preview', 'o1-mini', 'o3-mini', 'o3', 'gpt-5-nano', 'gpt-5-mini', 'gpt-5', 'gpt-5-codex', 'o3-deep-research', 'o4-mini-deep-research', 'o3-pro', 'o4-mini']),
   monthlyPrice: z.number().min(0),
   yearlyPrice: z.number().min(0),
   features: z.array(z.string()),
