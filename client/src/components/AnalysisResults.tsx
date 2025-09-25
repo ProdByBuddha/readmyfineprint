@@ -259,8 +259,6 @@ Support our mission: ${window.location.origin + '/donate'}
     }
   };
 
-  // Dummy function to satisfy the build process if currentDocument is not defined
-  const currentDocument = document; 
   const handleNewAnalysis = () => {
     // Implement logic to trigger a new analysis or redirect
     console.log("New analysis initiated");
@@ -323,200 +321,199 @@ Support our mission: ${window.location.origin + '/donate'}
 
           {/* Analysis Results Component */}
           <h2 id="analysis-results" className="sr-only">Analysis Results</h2>
-          {currentDocument && <AnalysisResults document={currentDocument} />}
-        </section>
 
-        {/* PII Redaction Information */}
-        {document.redactionInfo && (
-          <PIIRedactionInfoComponent 
-            redactionInfo={document.redactionInfo} 
-            className="mb-4 sm:mb-5"
-          />
-        )}
+          {/* PII Redaction Information */}
+          {document.redactionInfo && (
+            <PIIRedactionInfoComponent
+              redactionInfo={document.redactionInfo}
+              className="mb-4 sm:mb-5"
+            />
+          )}
 
-        {/* PII Detection Feedback */}
-        {piiDetections.length > 0 && (
-          <PiiDetectionFeedback
-            detections={piiDetections}
-            documentType="contract"
-            onFeedbackSubmit={handlePiiFeedback}
-            className="mb-4 sm:mb-5"
-          />
-        )}
+          {/* PII Detection Feedback */}
+          {piiDetections.length > 0 && (
+            <PiiDetectionFeedback
+              detections={piiDetections}
+              documentType="contract"
+              onFeedbackSubmit={handlePiiFeedback}
+              className="mb-4 sm:mb-5"
+            />
+          )}
 
-        {/* Overall Assessment */}
-        <div className="bg-gradient-to-r from-secondary/10 to-primary/10 rounded-lg p-3 sm:p-4 mb-4 sm:mb-5">
-          <div className="flex items-start space-x-3 mb-2 sm:mb-3">
-            <div className="w-7 h-7 sm:w-8 sm:h-8 bg-secondary rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
-              {getRiskIcon(analysis.overallRisk)}
-            </div>
-            <div className="min-w-0 flex-1">
-              <h4 className="text-base font-semibold text-gray-900 dark:text-white">Overall Assessment</h4>
-              <p className="text-xs text-gray-600 dark:text-gray-300">
-                Risk Level:{" "}
-                <span className={`font-medium ${
-                  analysis.overallRisk === 'low' ? 'text-secondary dark:text-secondary' :
-                  analysis.overallRisk === 'moderate' ? 'text-warning dark:text-warning' : 'text-danger dark:text-danger'
-                }`}>
-                  {analysis.overallRisk.charAt(0).toUpperCase() + analysis.overallRisk.slice(1)}
-                </span>
-              </p>
-            </div>
-          </div>
-          <p className="text-sm text-gray-700 dark:text-gray-300 leading-relaxed">{analysis.summary}</p>
-        </div>
-
-        {/* Key Findings Grid */}
-        <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4 mb-4 sm:mb-6">
-          <div className="bg-secondary/5 dark:bg-secondary/10 border border-secondary/20 dark:border-secondary/30 rounded-lg p-3 sm:p-4">
-            <div className="flex items-center space-x-2 mb-2">
-              <ThumbsUp className="text-secondary w-4 h-4 flex-shrink-0" />
-              <h4 className="font-semibold text-gray-900 dark:text-white text-sm">Good Terms</h4>
-            </div>
-            <ul className="space-y-1 text-xs text-gray-700 dark:text-gray-300">
-              {analysis.keyFindings.goodTerms.map((term, index) => (
-                <li key={index} className="flex items-start space-x-2">
-                  <span className="w-1.5 h-1.5 bg-secondary rounded-full mt-2 flex-shrink-0"></span>
-                  <span>{term}</span>
-                </li>
-              ))}
-            </ul>
-          </div>
-
-          <div className="bg-warning/5 dark:bg-warning/10 border border-warning/20 dark:border-warning/30 rounded-lg p-3 sm:p-4">
-            <div className="flex items-center space-x-2 mb-2">
-              <AlertTriangle className="text-warning w-4 h-4 flex-shrink-0" />
-              <h4 className="font-semibold text-gray-900 dark:text-white text-sm">Review Needed</h4>
-            </div>
-            <ul className="space-y-1 text-xs text-gray-700 dark:text-gray-300">
-              {analysis.keyFindings.reviewNeeded.map((term, index) => (
-                <li key={index} className="flex items-start space-x-2">
-                  <span className="w-1.5 h-1.5 bg-warning rounded-full mt-2 flex-shrink-0"></span>
-                  <span>{term}</span>
-                </li>
-              ))}
-            </ul>
-          </div>
-
-          <div className="bg-danger/5 dark:bg-danger/10 border border-danger/20 dark:border-danger/30 rounded-lg p-3 sm:p-4">
-            <div className="flex items-center space-x-2 mb-2">
-              <XCircle className="text-danger w-4 h-4 flex-shrink-0" />
-              <h4 className="font-semibold text-gray-900 dark:text-white text-sm">Red Flags</h4>
-            </div>
-            <ul className="space-y-1 text-xs text-gray-700 dark:text-gray-300">
-              {analysis.keyFindings.redFlags.map((term, index) => (
-                <li key={index} className="flex items-start space-x-2">
-                  <span className="w-1.5 h-1.5 bg-danger rounded-full mt-2 flex-shrink-0"></span>
-                  <span>{term}</span>
-                </li>
-              ))}
-            </ul>
-          </div>
-        </div>
-
-        {/* Advocacy & Negotiation Guidance */}
-        {hasAdvocacyAccess ? (
-          <div className="bg-primary/5 dark:bg-primary/10 border border-primary/20 dark:border-primary/40 rounded-lg p-4 sm:p-6 mb-4 sm:mb-6">
-            <div className="flex items-start space-x-3 mb-3">
-              <div className="w-9 h-9 bg-primary text-white rounded-full flex items-center justify-center shadow-sm">
-                <Crown className="w-5 h-5" />
+          {/* Overall Assessment */}
+          <div className="bg-gradient-to-r from-secondary/10 to-primary/10 rounded-lg p-3 sm:p-4 mb-4 sm:mb-5">
+            <div className="flex items-start space-x-3 mb-2 sm:mb-3">
+              <div className="w-7 h-7 sm:w-8 sm:h-8 bg-secondary rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
+                {getRiskIcon(analysis.overallRisk)}
               </div>
               <div className="min-w-0 flex-1">
-                <h4 className="text-base sm:text-lg font-semibold text-primary dark:text-primary-foreground">Fair Terms Action Plan</h4>
-                <p className="text-xs sm:text-sm text-gray-700 dark:text-gray-300">
-                  Tailored negotiation ideas and fairness advocacy generated from this analysis.
-                </p>
-              </div>
-            </div>
-
-            {userAdvocacy && totalAdvocacyItems > 0 ? (
-              <div className="grid gap-3 sm:gap-4 md:grid-cols-2">
-                {renderAdvocacySection('Negotiation Strategies', userAdvocacy.negotiationStrategies, 'text-primary')}
-                {renderAdvocacySection('Counteroffers & Edits', userAdvocacy.counterOffers, 'text-primary')}
-                {renderAdvocacySection('Fairness Reminders', userAdvocacy.fairnessReminders, 'text-primary')}
-                {renderAdvocacySection('Leverage Opportunities', userAdvocacy.leverageOpportunities, 'text-primary')}
-              </div>
-            ) : (
-              <p className="text-xs sm:text-sm text-gray-700 dark:text-gray-300">
-                No additional advocacy recommendations were required for this document. Everything already looks balanced.
-              </p>
-            )}
-          </div>
-        ) : (
-          <div className="border border-dashed border-primary/40 dark:border-primary/50 rounded-lg p-4 sm:p-5 mb-4 sm:mb-6 bg-white/60 dark:bg-gray-900/60">
-            <div className="flex items-start space-x-3">
-              <div className="w-9 h-9 rounded-full bg-primary/10 text-primary flex items-center justify-center">
-                <Lock className="w-5 h-5" />
-              </div>
-              <div className="min-w-0 flex-1">
-                <h4 className="text-sm sm:text-base font-semibold text-gray-900 dark:text-white mb-1">Advocacy guidance requires Starter tier</h4>
-                <p className="text-xs sm:text-sm text-gray-700 dark:text-gray-300">
-                  Upgrade to the Starter plan or above to unlock counteroffers, negotiation angles, and fairness advocacy tailored to your documents.
-                </p>
-                <div className="mt-3">
-                  <Button size="sm" variant="outline" className="border-primary text-primary hover:bg-primary/10" onClick={() => window.location.assign('/pricing')}>
-                    Explore Starter Benefits
-                  </Button>
-                </div>
-              </div>
-            </div>
-          </div>
-        )}
-
-        {/* Detailed Breakdown */}
-        <div className="space-y-3 sm:space-y-4">
-          <h4 className="text-lg font-semibold text-gray-900 dark:text-white border-b border-gray-200 dark:border-gray-700 pb-2">
-            Detailed Breakdown
-          </h4>
-
-          {analysis.sections.map((section, index) => (
-            <div key={index} className="border border-gray-200 dark:border-gray-700 rounded-lg overflow-hidden">
-              <div className="bg-gray-50 dark:bg-gray-800 px-3 sm:px-4 py-2 sm:py-3 border-b border-gray-200 dark:border-gray-700">
-                <div className="flex items-start sm:items-center justify-between gap-2">
-                  <h5 className="font-semibold text-gray-900 dark:text-white text-sm line-clamp-2 flex-1 min-w-0">{section.title}</h5>
-                  <Badge className={`${getRiskColor(section.riskLevel)} text-[10px] px-1.5 py-0.5 flex-shrink-0`}>
-                    {section.riskLevel.charAt(0).toUpperCase() + section.riskLevel.slice(1)}
-                  </Badge>
-                </div>
-              </div>
-              <div className="p-3 sm:p-4 bg-white dark:bg-gray-900">
-                <div className="mb-2 sm:mb-3">
-                  <h6 className="font-medium text-gray-900 dark:text-white mb-1 text-xs">Plain English Summary:</h6>
-                  <p className="text-gray-700 dark:text-gray-300 text-xs leading-relaxed">{section.summary}</p>
-                </div>
-                {section.concerns && section.concerns.length > 0 && (
-                  <div className={`border-l-4 p-2 sm:p-3 rounded-r ${
-                    section.riskLevel === 'high' ? 'bg-danger/5 dark:bg-danger/10 border-danger' :
-                    section.riskLevel === 'moderate' ? 'bg-warning/5 dark:bg-warning/10 border-warning' :
-                    'bg-secondary/5 dark:bg-secondary/10 border-secondary'
+                <h4 className="text-base font-semibold text-gray-900 dark:text-white">Overall Assessment</h4>
+                <p className="text-xs text-gray-600 dark:text-gray-300">
+                  Risk Level:{" "}
+                  <span className={`font-medium ${
+                    analysis.overallRisk === 'low' ? 'text-secondary dark:text-secondary' :
+                    analysis.overallRisk === 'moderate' ? 'text-warning dark:text-warning' : 'text-danger dark:text-danger'
                   }`}>
-                    <div className="flex items-start space-x-2">
-                      <div className="flex-shrink-0 mt-0.5">
-                        {getRiskIcon(section.riskLevel)}
-                      </div>
-                      <div className="min-w-0 flex-1">
-                        <p className={`font-medium text-xs mb-1 ${
-                          section.riskLevel === 'high' ? 'text-danger dark:text-danger' :
-                          section.riskLevel === 'moderate' ? 'text-warning dark:text-warning' :
-                          'text-secondary dark:text-secondary'
-                        }`}>
-                          {section.riskLevel === 'high' ? 'Important Concern:' :
-                           section.riskLevel === 'moderate' ? 'Important Note:' :
-                           'Good to Know:'}
-                        </p>
-                        <ul className="text-gray-700 dark:text-gray-300 text-xs space-y-0.5">
-                          {section.concerns.map((concern, concernIndex) => (
-                            <li key={concernIndex} className="leading-relaxed">• {concern}</li>
-                          ))}
-                        </ul>
+                    {analysis.overallRisk.charAt(0).toUpperCase() + analysis.overallRisk.slice(1)}
+                  </span>
+                </p>
+              </div>
+            </div>
+            <p className="text-sm text-gray-700 dark:text-gray-300 leading-relaxed">{analysis.summary}</p>
+          </div>
+
+          {/* Key Findings Grid */}
+          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4 mb-4 sm:mb-6">
+            <div className="bg-secondary/5 dark:bg-secondary/10 border border-secondary/20 dark:border-secondary/30 rounded-lg p-3 sm:p-4">
+              <div className="flex items-center space-x-2 mb-2">
+                <ThumbsUp className="text-secondary w-4 h-4 flex-shrink-0" />
+                <h4 className="font-semibold text-gray-900 dark:text-white text-sm">Good Terms</h4>
+              </div>
+              <ul className="space-y-1 text-xs text-gray-700 dark:text-gray-300">
+                {analysis.keyFindings.goodTerms.map((term, index) => (
+                  <li key={index} className="flex items-start space-x-2">
+                    <span className="w-1.5 h-1.5 bg-secondary rounded-full mt-2 flex-shrink-0"></span>
+                    <span>{term}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+
+            <div className="bg-warning/5 dark:bg-warning/10 border border-warning/20 dark:border-warning/30 rounded-lg p-3 sm:p-4">
+              <div className="flex items-center space-x-2 mb-2">
+                <AlertTriangle className="text-warning w-4 h-4 flex-shrink-0" />
+                <h4 className="font-semibold text-gray-900 dark:text-white text-sm">Review Needed</h4>
+              </div>
+              <ul className="space-y-1 text-xs text-gray-700 dark:text-gray-300">
+                {analysis.keyFindings.reviewNeeded.map((term, index) => (
+                  <li key={index} className="flex items-start space-x-2">
+                    <span className="w-1.5 h-1.5 bg-warning rounded-full mt-2 flex-shrink-0"></span>
+                    <span>{term}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+
+            <div className="bg-danger/5 dark:bg-danger/10 border border-danger/20 dark:border-danger/30 rounded-lg p-3 sm:p-4">
+              <div className="flex items-center space-x-2 mb-2">
+                <XCircle className="text-danger w-4 h-4 flex-shrink-0" />
+                <h4 className="font-semibold text-gray-900 dark:text-white text-sm">Red Flags</h4>
+              </div>
+              <ul className="space-y-1 text-xs text-gray-700 dark:text-gray-300">
+                {analysis.keyFindings.redFlags.map((term, index) => (
+                  <li key={index} className="flex items-start space-x-2">
+                    <span className="w-1.5 h-1.5 bg-danger rounded-full mt-2 flex-shrink-0"></span>
+                    <span>{term}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          </div>
+
+          {/* Advocacy & Negotiation Guidance */}
+          {hasAdvocacyAccess ? (
+            <div className="bg-primary/5 dark:bg-primary/10 border border-primary/20 dark:border-primary/40 rounded-lg p-4 sm:p-6 mb-4 sm:mb-6">
+              <div className="flex items-start space-x-3 mb-3">
+                <div className="w-9 h-9 bg-primary text-white rounded-full flex items-center justify-center shadow-sm">
+                  <Crown className="w-5 h-5" />
+                </div>
+                <div className="min-w-0 flex-1">
+                  <h4 className="text-base sm:text-lg font-semibold text-primary dark:text-primary-foreground">Fair Terms Action Plan</h4>
+                  <p className="text-xs sm:text-sm text-gray-700 dark:text-gray-300">
+                    Tailored negotiation ideas and fairness advocacy generated from this analysis.
+                  </p>
+                </div>
+              </div>
+
+              {userAdvocacy && totalAdvocacyItems > 0 ? (
+                <div className="grid gap-3 sm:gap-4 md:grid-cols-2">
+                  {renderAdvocacySection('Negotiation Strategies', userAdvocacy.negotiationStrategies, 'text-primary')}
+                  {renderAdvocacySection('Counteroffers & Edits', userAdvocacy.counterOffers, 'text-primary')}
+                  {renderAdvocacySection('Fairness Reminders', userAdvocacy.fairnessReminders, 'text-primary')}
+                  {renderAdvocacySection('Leverage Opportunities', userAdvocacy.leverageOpportunities, 'text-primary')}
+                </div>
+              ) : (
+                <p className="text-xs sm:text-sm text-gray-700 dark:text-gray-300">
+                  No additional advocacy recommendations were required for this document. Everything already looks balanced.
+                </p>
+              )}
+            </div>
+          ) : (
+            <div className="border border-dashed border-primary/40 dark:border-primary/50 rounded-lg p-4 sm:p-5 mb-4 sm:mb-6 bg-white/60 dark:bg-gray-900/60">
+              <div className="flex items-start space-x-3">
+                <div className="w-9 h-9 rounded-full bg-primary/10 text-primary flex items-center justify-center">
+                  <Lock className="w-5 h-5" />
+                </div>
+                <div className="min-w-0 flex-1">
+                  <h4 className="text-sm sm:text-base font-semibold text-gray-900 dark:text-white mb-1">Advocacy guidance requires Starter tier</h4>
+                  <p className="text-xs sm:text-sm text-gray-700 dark:text-gray-300">
+                    Upgrade to the Starter plan or above to unlock counteroffers, negotiation angles, and fairness advocacy tailored to your documents.
+                  </p>
+                  <div className="mt-3">
+                    <Button size="sm" variant="outline" className="border-primary text-primary hover:bg-primary/10" onClick={() => window.location.assign('/pricing')}>
+                      Explore Starter Benefits
+                    </Button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Detailed Breakdown */}
+          <div className="space-y-3 sm:space-y-4">
+            <h4 className="text-lg font-semibold text-gray-900 dark:text-white border-b border-gray-200 dark:border-gray-700 pb-2">
+              Detailed Breakdown
+            </h4>
+
+            {analysis.sections.map((section, index) => (
+              <div key={index} className="border border-gray-200 dark:border-gray-700 rounded-lg overflow-hidden">
+                <div className="bg-gray-50 dark:bg-gray-800 px-3 sm:px-4 py-2 sm:py-3 border-b border-gray-200 dark:border-gray-700">
+                  <div className="flex items-start sm:items-center justify-between gap-2">
+                    <h5 className="font-semibold text-gray-900 dark:text-white text-sm line-clamp-2 flex-1 min-w-0">{section.title}</h5>
+                    <Badge className={`${getRiskColor(section.riskLevel)} text-[10px] px-1.5 py-0.5 flex-shrink-0`}>
+                      {section.riskLevel.charAt(0).toUpperCase() + section.riskLevel.slice(1)}
+                    </Badge>
+                  </div>
+                </div>
+                <div className="p-3 sm:p-4 bg-white dark:bg-gray-900">
+                  <div className="mb-2 sm:mb-3">
+                    <h6 className="font-medium text-gray-900 dark:text-white mb-1 text-xs">Plain English Summary:</h6>
+                    <p className="text-gray-700 dark:text-gray-300 text-xs leading-relaxed">{section.summary}</p>
+                  </div>
+                  {section.concerns && section.concerns.length > 0 && (
+                    <div className={`border-l-4 p-2 sm:p-3 rounded-r ${
+                      section.riskLevel === 'high' ? 'bg-danger/5 dark:bg-danger/10 border-danger' :
+                      section.riskLevel === 'moderate' ? 'bg-warning/5 dark:bg-warning/10 border-warning' :
+                      'bg-secondary/5 dark:bg-secondary/10 border-secondary'
+                    }`}>
+                      <div className="flex items-start space-x-2">
+                        <div className="flex-shrink-0 mt-0.5">
+                          {getRiskIcon(section.riskLevel)}
+                        </div>
+                        <div className="min-w-0 flex-1">
+                          <p className={`font-medium text-xs mb-1 ${
+                            section.riskLevel === 'high' ? 'text-danger dark:text-danger' :
+                            section.riskLevel === 'moderate' ? 'text-warning dark:text-warning' :
+                            'text-secondary dark:text-secondary'
+                          }`}>
+                            {section.riskLevel === 'high' ? 'Important Concern:' :
+                             section.riskLevel === 'moderate' ? 'Important Note:' :
+                             'Good to Know:'}
+                          </p>
+                          <ul className="text-gray-700 dark:text-gray-300 text-xs space-y-0.5">
+                            {section.concerns.map((concern, concernIndex) => (
+                              <li key={concernIndex} className="leading-relaxed">• {concern}</li>
+                            ))}
+                          </ul>
+                        </div>
                       </div>
                     </div>
-                  </div>
-                )}
+                  )}
+                </div>
               </div>
-            </div>
-          ))}
-        </div>
+            ))}
+          </div>
+        </section>
       </CardContent>
     </Card>
   );
