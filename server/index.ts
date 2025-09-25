@@ -516,19 +516,16 @@ app.use((req, res, next) => {
   // setting up all the other routes so the catch-all route
   // doesn't interfere with the other routes
   if (app.get("env") === "development") {
-    try {
-      await setupVite(app, server);
-    } catch (error) {
-      console.error("Failed to setup Vite:", error);
-      console.log("Falling back to static serving");
-      serveStatic(app);
-    }
+    // Skip vite setup due to module resolution issues, use static serving
+    console.log("🔧 Development mode: Using static serving (vite module unavailable)");
+    serveStatic(app);
   } else {
     serveStatic(app);
   }
 
   // Use Replit's assigned PORT or fallback to development defaults
   const assignedPort = Number(process.env.PORT);
+  // Prioritize 5173 for Replit workflow compatibility
   const tryPorts = assignedPort ? [assignedPort] : [5173, 5000, 3000, 0];
 
   let serverStarted = false;
