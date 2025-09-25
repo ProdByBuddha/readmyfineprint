@@ -41,7 +41,7 @@ app.use(developmentServerProtection);
 // Manual cookie parsing middleware (more reliable than cookie-parser in Replit)
 app.use((req, res, next) => {
   req.cookies = {};
-  
+
   if (req.headers.cookie) {
     req.headers.cookie.split(';').forEach(cookie => {
       const parts = cookie.trim().split('=');
@@ -57,14 +57,14 @@ app.use((req, res, next) => {
       }
     });
   }
-  
+
   next();
 });
 
 // Enhanced security middleware - block only critical sensitive files
 app.use((req, res, next) => {
   const path = req.path.toLowerCase();
-  
+
   // Block only the most critical sensitive files - be very specific
   const criticalBlockedPaths = [
     '/.env', '/.env.local', '/.env.production', '/.env.development', '/.env.test',
@@ -73,7 +73,7 @@ app.use((req, res, next) => {
     '/server/db.ts', '/server/env-validation.ts', '/drizzle.config.ts',
     '/node_modules/', '/.git/', '/database.db', '/db.sqlite'
   ];
-  
+
   // Check for exact matches or directory traversal attempts
   const isBlocked = criticalBlockedPaths.some(blocked => {
     if (blocked.endsWith('/')) {
@@ -81,7 +81,7 @@ app.use((req, res, next) => {
     }
     return path === blocked;
   });
-  
+
   if (isBlocked) {
     // Log security attempt
     const { ip, userAgent } = getClientInfo(req);
@@ -94,11 +94,11 @@ app.use((req, res, next) => {
       endpoint: req.path,
       details: { blockedPath: req.path }
     });
-    
+
     res.status(404).json({ error: 'Not Found' });
     return;
   }
-  
+
   next();
 });
 
@@ -269,14 +269,14 @@ async function initializeSessionStorage() {
     await initializeDatabase();
     const { db } = await import('./db');
     const { DistributedSessionStorage } = await import('./distributed-session-storage');
-    
+
     sessionStorage = await DistributedSessionStorage.initialize(db, {
       defaultTTL: 2 * 60 * 60 * 1000, // 2 hours
       cleanupInterval: 15 * 60 * 1000, // 15 minutes
       maxSessionsPerUser: 5,
       enableCleanup: true
     });
-    
+
     console.log('✅ Distributed session storage initialized');
   } catch (error) {
     console.error('⚠️ Failed to initialize distributed session storage:', error);
@@ -302,7 +302,7 @@ app.use(async (req: any, res, next) => {
       try {
         const ipHash = await hashIpAddress(ip);
         const userAgentHash = await hashUserAgent(userAgent);
-        
+
         await sessionStorage.createSession(
           sessionId,
           { created: new Date(), lastActivity: new Date() },
@@ -362,7 +362,7 @@ app.get('/api/csrf-token', (req: any, res) => {
   const sessionId = req.sessionId || req.headers['x-session-id'];
   console.log(`🔍 Direct CSRF token request - sessionId: ${sessionId}, path: ${req.path}, method: ${req.method}`);
   console.log(`🔍 Headers:`, req.headers);
-  
+
   if (process.env.NODE_ENV === 'staging') {
     // In staging, return a proper token
     if (sessionId) {
@@ -372,7 +372,7 @@ app.get('/api/csrf-token', (req: any, res) => {
       return res.json({ csrfToken: token });
     }
   }
-  
+
   // Fallback for development or when no session
   console.log(`🔍 Returning dev-disabled token`);
   const csrfToken = 'dev-disabled';
@@ -387,9 +387,9 @@ app.get('/api/csrf-token', (req: any, res) => {
 app.use(provideCsrfToken);
 app.use(verifyCsrfToken);
 
-app.use((req, res, next) => {
+app.use((err: any, _req: Request, res: Response, _next: NextFunction) => {
   const start = Date.now();
-  const path = req.path;
+  const path = _req.path;
   let capturedJsonResponse: Record<string, any> | undefined = undefined;
 
   const originalResJson = res.json;
@@ -401,7 +401,7 @@ app.use((req, res, next) => {
   res.on("finish", () => {
     const duration = Date.now() - start;
     if (path.startsWith("/api")) {
-      let logLine = `${req.method} ${path} ${res.statusCode} in ${duration}ms`;
+      let logLine = `${_req.method} ${path} ${res.statusCode} in ${duration}ms`;
       if (capturedJsonResponse) {
         logLine += ` :: ${JSON.stringify(capturedJsonResponse)}`;
       }
@@ -414,7 +414,7 @@ app.use((req, res, next) => {
     }
   });
 
-  next();
+  _next();
 });
 
 (async () => {
@@ -429,7 +429,7 @@ app.use((req, res, next) => {
       console.log('⚠️ Continuing in development mode despite database issues');
     }
   }
-  
+
   // Initialize Enhanced PII Detection with Local LLM
   console.log('🔧 Initializing Enhanced PII Detection with Local LLM...');
   try {
@@ -440,7 +440,7 @@ app.use((req, res, next) => {
     console.warn('⚠️ Warning: Failed to initialize Enhanced PII Detection:', error);
     // Don't fail server startup for this
   }
-  
+
   // Ensure collective free tier user exists for anonymous traffic routing
   console.log('🔧 Initializing collective free tier user routing...');
   try {
@@ -468,7 +468,7 @@ app.use((req, res, next) => {
       } catch (error) {
         dbHealthy = false;
       }
-      
+
       const healthStatus = {
         status: 'healthy',
         timestamp: new Date().toISOString(),
@@ -488,7 +488,7 @@ app.use((req, res, next) => {
 
       // Overall health check
       const isHealthy = dbHealthy;
-      
+
       res.status(isHealthy ? 200 : 503).json(healthStatus);
     } catch (error) {
       res.status(503).json({
@@ -538,10 +538,10 @@ app.use((req, res, next) => {
         }, async () => {
           const actualPort = (serverInstance.address() as any)?.port || port;
           log(`serving on port ${actualPort}${assignedPort ? ' (Replit assigned)' : ' (development fallback)'}`);
-          
+
           // Initialize distributed session storage after server starts
           await initializeSessionStorage();
-          
+
           // Start blog scheduler if enabled
           try {
             blogScheduler.start();
@@ -557,23 +557,23 @@ app.use((req, res, next) => {
           } catch (error) {
             console.warn('⚠️ View drip service failed to start:', error);
           }
-          
+
           // Auto-login as admin in development mode
           if (process.env.NODE_ENV === 'development') {
             try {
               const adminEmail = 'admin@readmyfineprint.com';
-              
+
               console.log('\n🔐 Development Mode: Auto-Admin Login Enabled');
               console.log('📧 Admin Email:', adminEmail);
               console.log('🌐 Admin URL: http://localhost:' + actualPort + '/admin');
               console.log('⚡ No authentication required - just visit the admin page!');
               console.log('\n✨ You are automatically logged in as admin in development mode!');
               console.log('⚠️  This is for development only - never use in production!\n');
-              
+
               // Create admin user if doesn't exist (no password needed)
               const { databaseStorage } = await import('./storage');
               const existingAdmin = await databaseStorage.getUserByEmail(adminEmail);
-              
+
               if (!existingAdmin) {
                 // Create admin user WITHOUT password
                 await databaseStorage.createUser({
@@ -585,13 +585,13 @@ app.use((req, res, next) => {
               } else {
                 console.log('✅ Admin user already exists');
               }
-              
+
             } catch (error) {
               console.warn('⚠️ Auto-admin setup note:', error instanceof Error ? error.message : 'Unknown error');
               console.log('💡 This is normal in mock database mode - admin access still works!');
             }
           }
-          
+
           serverStarted = true;
           resolve();
         });
