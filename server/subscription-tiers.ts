@@ -50,12 +50,12 @@ export const SUBSCRIPTION_TIERS: SubscriptionTier[] = [
     id: "starter",
     name: "Starter",
     description: "For individuals and teams who need enhanced AI with superior performance",
-    model: "gpt-4.1-mini", // Beats GPT-4o at 83% lower cost
+    model: "gpt-4o", // Latest flagship multimodal model
     monthlyPrice: 12, // Optimized pricing: $6.75 cost + 78% margin
     yearlyPrice: 120, // Save $24 per year
     features: [
-      "Enhanced analysis with GPT-4.1 Mini",
-      "Beats GPT-4o performance at lower cost",
+      "Enhanced analysis with GPT-4o",
+      "Latest flagship multimodal AI",
       "1M token context window",
       "Priority processing",
       "Email support"
@@ -70,23 +70,23 @@ export const SUBSCRIPTION_TIERS: SubscriptionTier[] = [
     },
     popular: true,
     modelCosts: {
-      inputTokenCost: 0.15,
-      outputTokenCost: 0.60,
+      inputTokenCost: 3.00,
+      outputTokenCost: 10.00,
       estimatedTokensPerDocument: 3500,
-      costPerDocument: 0.00135, // (2000 * 0.15 + 1500 * 0.60) / 1,000,000
+      costPerDocument: 0.021, // (2000 * 3.00 + 1500 * 10.00) / 1,000,000
     }
   },
   {
     id: "professional",
     name: "Professional",
     description: "For professionals who need flagship AI with advanced reasoning",
-    model: "gpt-4.1", // Latest flagship with 1M context
+    model: "o3-mini", // Cost-efficient reasoning model
     monthlyPrice: 49, // $27 cost + 81% margin
     yearlyPrice: 490, // 2 months free
     features: [
-      "Premium analysis with GPT-4.1",
-      "Latest flagship AI model",
-      "1M token context window",
+      "Premium analysis with o3-mini",
+      "Advanced reasoning capabilities",
+      "200K token context window",
       "Priority processing",
       "Priority email & chat support",
       "Advanced analysis features",
@@ -97,41 +97,6 @@ export const SUBSCRIPTION_TIERS: SubscriptionTier[] = [
     ],
     limits: {
       documentsPerMonth: 200, // $27 monthly cost to provide
-      tokensPerDocument: 1000000, // GPT-4.1 full context
-      prioritySupport: true,
-      advancedAnalysis: true,
-      apiAccess: true,
-      customIntegrations: true,
-    },
-    modelCosts: {
-      inputTokenCost: 3.00,
-      outputTokenCost: 10.00,
-      estimatedTokensPerDocument: 3500,
-      costPerDocument: 0.021, // (2000 * 3.00 + 1500 * 10.00) / 1,000,000
-    }
-  },
-  {
-    id: "business",
-    name: "Business",
-    description: "For businesses requiring advanced reasoning with cost efficiency",
-    model: "o3-mini", // Cost-efficient reasoning for complex analysis
-    monthlyPrice: 199, // $75 cost + 165% margin
-    yearlyPrice: 1990, // 2 months free
-    features: [
-      "Advanced reasoning with o3-mini",
-      "STEM-optimized analysis",
-      "Complex reasoning capabilities",
-      "Fastest processing priority",
-      "24/7 priority support",
-      "Full API access (unlimited)",
-      "Custom integrations & webhooks",
-      "White-label options",
-      "Advanced analytics & reporting",
-      "Team collaboration features",
-      "SSO integration"
-    ],
-    limits: {
-      documentsPerMonth: 500, // $75 monthly cost to provide
       tokensPerDocument: 200000, // o3-mini context window
       prioritySupport: true,
       advancedAnalysis: true,
@@ -143,6 +108,41 @@ export const SUBSCRIPTION_TIERS: SubscriptionTier[] = [
       outputTokenCost: 4.00,
       estimatedTokensPerDocument: 3500,
       costPerDocument: 0.008, // (2000 * 1.00 + 1500 * 4.00) / 1,000,000
+    }
+  },
+  {
+    id: "business",
+    name: "Business",
+    description: "For businesses requiring maximum reasoning capability",
+    model: "o3", // Maximum reasoning capability
+    monthlyPrice: 199, // $75 cost + 165% margin
+    yearlyPrice: 1990, // 2 months free
+    features: [
+      "Maximum reasoning with o3",
+      "Most advanced AI reasoning available",
+      "Complex problem solving",
+      "Fastest processing priority",
+      "24/7 priority support",
+      "Full API access (unlimited)",
+      "Custom integrations & webhooks",
+      "White-label options",
+      "Advanced analytics & reporting",
+      "Team collaboration features",
+      "SSO integration"
+    ],
+    limits: {
+      documentsPerMonth: 500, // $75 monthly cost to provide
+      tokensPerDocument: 200000, // o3 context window
+      prioritySupport: true,
+      advancedAnalysis: true,
+      apiAccess: true,
+      customIntegrations: true,
+    },
+    modelCosts: {
+      inputTokenCost: 15.00,
+      outputTokenCost: 60.00,
+      estimatedTokensPerDocument: 3500,
+      costPerDocument: 0.12, // (2000 * 15.00 + 1500 * 60.00) / 1,000,000
     },
     popular: false
   },
