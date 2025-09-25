@@ -151,8 +151,12 @@ async function startProductionServer() {
   const staticPath = path.join(__dirname, '../dist/public');
   app.use(express.static(staticPath));
 
-  // Serve index.html for all other routes (SPA fallback)
-  app.get('/*', (req, res) => {
+  // Serve index.html for all other non-API routes (SPA fallback)
+  app.get('*', (req: Request, res: Response, next: NextFunction) => {
+    if (req.path.startsWith('/api/')) {
+      return next();
+    }
+
     const indexPath = path.join(staticPath, 'index.html');
 
     // Check if index.html exists
