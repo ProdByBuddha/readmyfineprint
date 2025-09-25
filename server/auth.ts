@@ -64,6 +64,99 @@ declare global {
   }
 }
 
+/**
+ * Unified token validation that handles both access and subscription tokens
+ * Detects token type and routes to appropriate validation method
+ */
+async function validateTokenUnified(token: string): Promise<{ userId: string; tierId?: string; tier?: string; email?: string } | null> {
+  try {
+    // First, extract token payload to determine type without full validation
+    const parts = token.split('.');
+    if (parts.length !== 3) {
+      console.log('❌ Invalid token format - not a JWT');
+      return null;
+    }
+
+    const payload = JSON.parse(Buffer.from(parts[1], 'base64url').toString()) as any;
+    const tokenType = payload.tokenType;
+
+    console.log(`🔍 Token validation - detected tokenType: ${tokenType}, audience: ${payload.aud}`);
+
+    if (tokenType === 'access') {
+      // This is an access token, validate using JOSE auth service
+      const { joseAuthService } = await import('./jose-auth-service');
+      const validation = await joseAuthService.validateAccessToken(token, payload.aud || 'api');
+      
+      if (validation.valid && validation.payload) {
+        console.log(`✅ Access token validation successful for user: ${validation.payload.userId}`);
+        return {
+          userId: validation.payload.userId,
+          email: validation.payload.email,
+          // For access tokens, we don't have tier info directly, so we'll need to look it up
+        };
+      } else {
+        console.log(`❌ Access token validation failed: ${validation.error}`);
+        return null;
+      }
+    } else if (tokenType === 'subscription') {
+      // This is a subscription token, validate using JOSE token service
+      const { joseTokenService } = await import('./jose-token-service');
+      const subscriptionData = await joseTokenService.validateSubscriptionToken(token);
+      
+      if (subscriptionData) {
+        console.log(`✅ Subscription token validation successful for user: ${subscriptionData.userId}`);
+        return {
+          userId: subscriptionData.userId,
+          tierId: subscriptionData.tierId,
+          tier: subscriptionData.tier,
+        };
+      } else {
+        console.log('❌ Subscription token validation failed');
+        return null;
+      }
+    } else {
+      // Unknown token type, try both validation methods as fallback
+      console.log(`⚠️ Unknown token type: ${tokenType}, trying fallback validation`);
+      
+      // Try subscription token validation first
+      try {
+        const { joseTokenService } = await import('./jose-token-service');
+        const subscriptionData = await joseTokenService.validateSubscriptionToken(token);
+        if (subscriptionData) {
+          console.log(`✅ Fallback subscription token validation successful`);
+          return {
+            userId: subscriptionData.userId,
+            tierId: subscriptionData.tierId,
+            tier: subscriptionData.tier,
+          };
+        }
+      } catch (subError) {
+        console.log('❌ Fallback subscription token validation failed');
+      }
+
+      // Try access token validation as final fallback
+      try {
+        const { joseAuthService } = await import('./jose-auth-service');
+        const validation = await joseAuthService.validateAccessToken(token, payload.aud || 'api');
+        if (validation.valid && validation.payload) {
+          console.log(`✅ Fallback access token validation successful`);
+          return {
+            userId: validation.payload.userId,
+            email: validation.payload.email,
+          };
+        }
+      } catch (accessError) {
+        console.log('❌ Fallback access token validation failed');
+      }
+      
+      return null;
+    }
+  } catch (error) {
+    console.error('❌ Unified token validation error:', error instanceof Error ? error.message : 'Unknown error');
+    return null;
+  }
+}
+
 // Simple admin authentication middleware
 export async function requireAdminAuth(req: Request, res: Response, next: NextFunction) {
   const { ip, userAgent } = getClientInfo(req);
@@ -206,32 +299,28 @@ export async function optionalUserAuth(req: Request, res: Response, next: NextFu
           const sessionToken = await postgresqlSessionStorage.getTokenBySession(sessionId);
 
           if (sessionToken) {
-            const { joseTokenService } = await import('./jose-token-service');
             try {
-              // Try validating as a subscription token
-              const subscriptionData = await joseTokenService.validateSubscriptionToken(sessionToken);
-              if (subscriptionData && subscriptionData.userId) {
-                const user = await databaseStorage.getUser(subscriptionData.userId);
+              // Try validating using unified validation that handles both token types
+              const tokenData = await validateTokenUnified(sessionToken);
+              if (tokenData && tokenData.userId) {
+                const user = await databaseStorage.getUser(tokenData.userId);
                 if (user) {
                   req.user = {
                     id: user.id,
                     email: user.email,
                   };
-                  console.log(`🔑 User authenticated via session (subscription token): ${user.email} (${user.id})`);
+                  console.log(`🔑 User authenticated via session token: ${user.email} (${user.id})`);
                 }
               }
-            } catch (subscriptionError) {
-              console.log('Session token validation failed as subscription token:', subscriptionError instanceof Error ? subscriptionError.message : 'Unknown error');
-              // If subscription token validation fails, the token is invalid or expired.
-              // We should NOT attempt to validate it as an access token since session tokens are subscription tokens.
-              // Clean up the invalid token and proceed without authentication.
+            } catch (sessionTokenError) {
+              console.log('Session token validation failed:', sessionTokenError instanceof Error ? sessionTokenError.message : 'Unknown error');
+              // If token validation fails, clean up the invalid token
               try {
                 await postgresqlSessionStorage.removeSessionToken(sessionId);
                 console.log('🧹 Cleaned up invalid session token from database');
               } catch (cleanupError) {
                 console.error('⚠️ Failed to clean up invalid session token:', cleanupError);
               }
-              // Don't attempt any further validation - proceed without user authentication
             }
           }
         } catch (sessionError) {
@@ -345,9 +434,8 @@ export async function requireAdminViaSubscription(req: Request, res: Response, n
       });
     }
 
-    // Validate the subscription token using the new JOSE token service
-    const { joseTokenService } = await import('./jose-token-service');
-    const tokenData = await joseTokenService.validateSubscriptionToken(adminSubscriptionToken);
+    // Validate the token using unified validation that handles both access and subscription tokens
+    const tokenData = await validateTokenUnified(adminSubscriptionToken);
 
     if (!tokenData || !tokenData.userId) {
       securityLogger.logFailedAuth(ip, userAgent, 'Invalid subscription token', req.path);
