@@ -117,30 +117,52 @@ export class JOSETokenService {
    */
   async validateSubscriptionToken(token: string): Promise<SubscriptionTokenPayload | null> {
     await this.ensureInitialized();
+
+    const decodedInfo = await this.extractTokenInfo(token);
+    const currentSecret = jwtSecretManager.getCurrentSecret();
+
+    console.log(`🔍 JOSE token validation - token prefix: ${token.slice(0, 30)}...`);
+    console.log(`🔍 JOSE token validation - using secret key length: ${this.secretKey.length} bytes`);
+    console.log(`🔍 Current JWT secret version: ${currentSecret.version}`);
+
     try {
-      console.log(`🔍 JOSE token validation - token prefix: ${token.slice(0, 30)}...`);
-      console.log(`🔍 JOSE token validation - using secret key length: ${this.secretKey.length} bytes`);
-      
-      // Get current secret info for debugging
-      const currentSecret = jwtSecretManager.getCurrentSecret();
-      console.log(`🔍 Current JWT secret version: ${currentSecret.version}`);
-      
-      const { payload } = await jwtVerify(token, this.secretKey, {
-        issuer: 'readmyfineprint',
-        audience: 'subscription',
-      });
+      const validationResult = await this.attemptValidateSubscriptionToken(token, decodedInfo);
+      const { payload, matchedAudience, legacyMode } = validationResult;
 
-      const subscriptionPayload = payload as SubscriptionTokenPayload;
-
-      // Verify it's a subscription token
-      if (subscriptionPayload.tokenType !== 'subscription') {
-        console.warn('Invalid token type');
-        return null;
+      if (legacyMode === 'fallback-audience' && matchedAudience) {
+        console.warn(
+          `⚠️ Accepted subscription token with legacy audience "${matchedAudience}". Token regeneration recommended.`
+        );
+        this.logLegacyCompatibilityEvent({
+          mode: legacyMode,
+          matchedAudience,
+          userId: payload.userId,
+          tierId: payload.tierId,
+          retry: false
+        });
+      } else if (legacyMode === 'no-audience') {
+        console.warn('⚠️ Accepted subscription token without audience claim (legacy compatibility).');
+        this.logLegacyCompatibilityEvent({
+          mode: legacyMode,
+          userId: payload.userId,
+          tierId: payload.tierId,
+          retry: false
+        });
+      } else if (legacyMode === 'unexpected-audience' && matchedAudience) {
+        console.warn(
+          `⚠️ Accepted subscription token with unexpected audience "${matchedAudience}" (compatibility mode).`
+        );
+        this.logLegacyCompatibilityEvent({
+          mode: legacyMode,
+          matchedAudience,
+          userId: payload.userId,
+          tierId: payload.tierId,
+          retry: false
+        });
       }
 
-      // Additional validation can go here
-      console.log(`✅ Valid JOSE subscription token for user ${subscriptionPayload.userId}, tier: ${subscriptionPayload.tierId}`);
-      return subscriptionPayload;
+      console.log(`✅ Valid JOSE subscription token for user ${payload.userId}, tier: ${payload.tierId}`);
+      return payload;
     } catch (error) {
       console.error('❌ JOSE token validation failed:', error instanceof Error ? error.message : 'Unknown error');
       console.error('❌ Token being validated:', token.slice(0, 50) + '...');
@@ -148,28 +170,183 @@ export class JOSETokenService {
         length: this.secretKey.length,
         keyPrefix: Buffer.from(this.secretKey.slice(0, 4)).toString('hex')
       });
-      
-      // Try to re-initialize and validate again as a fallback
+      console.error('❌ Token audience claim:', this.formatAudienceClaim(decodedInfo?.aud));
+
       console.log('🔄 Attempting token validation with fresh initialization...');
+
       try {
         this.initialized = false;
         await this.ensureInitialized();
-        
-        const { payload } = await jwtVerify(token, this.secretKey, {
-          issuer: 'readmyfineprint',
-          audience: 'subscription',
-        });
-        
-        const subscriptionPayload = payload as SubscriptionTokenPayload;
-        if (subscriptionPayload.tokenType === 'subscription') {
-          console.log(`✅ JOSE token validation successful after re-initialization for user ${subscriptionPayload.userId}`);
-          return subscriptionPayload;
+
+        const retryResult = await this.attemptValidateSubscriptionToken(token, decodedInfo);
+        const { payload, matchedAudience, legacyMode } = retryResult;
+
+        if (legacyMode === 'fallback-audience' && matchedAudience) {
+          console.warn(
+            `⚠️ Accepted subscription token with legacy audience "${matchedAudience}" after re-initialization.`
+          );
+          this.logLegacyCompatibilityEvent({
+            mode: legacyMode,
+            matchedAudience,
+            userId: payload.userId,
+            tierId: payload.tierId,
+            retry: true
+          });
+        } else if (legacyMode === 'no-audience') {
+          console.warn('⚠️ Accepted legacy subscription token without audience claim after re-initialization.');
+          this.logLegacyCompatibilityEvent({
+            mode: legacyMode,
+            userId: payload.userId,
+            tierId: payload.tierId,
+            retry: true
+          });
+        } else if (legacyMode === 'unexpected-audience' && matchedAudience) {
+          console.warn(
+            `⚠️ Accepted subscription token with unexpected audience "${matchedAudience}" after re-initialization.`
+          );
+          this.logLegacyCompatibilityEvent({
+            mode: legacyMode,
+            matchedAudience,
+            userId: payload.userId,
+            tierId: payload.tierId,
+            retry: true
+          });
         }
+
+        console.log(`✅ JOSE token validation successful after re-initialization for user ${payload.userId}`);
+        return payload;
       } catch (retryError) {
         console.error('❌ Token validation failed even after re-initialization:', retryError instanceof Error ? retryError.message : 'Unknown error');
       }
-      
+
       return null;
+    }
+  }
+
+  private isAudienceError(error: unknown): error is Error {
+    return error instanceof Error && /"aud"|audience/i.test(error.message);
+  }
+
+  private formatAudienceClaim(audience: unknown): string {
+    if (Array.isArray(audience)) {
+      return audience.join(', ');
+    }
+    return typeof audience === 'string' ? audience : 'missing';
+  }
+
+  private logLegacyCompatibilityEvent(params: {
+    mode: 'fallback-audience' | 'no-audience' | 'unexpected-audience';
+    matchedAudience?: string;
+    userId?: string;
+    tierId?: string;
+    retry: boolean;
+  }): void {
+    const { mode, matchedAudience, userId, tierId, retry } = params;
+
+    const message =
+      mode === 'fallback-audience'
+        ? 'Accepted subscription token using legacy audience value'
+        : mode === 'no-audience'
+          ? 'Accepted subscription token without audience claim'
+          : 'Accepted subscription token with unexpected audience value';
+
+    securityLogger.logSecurityEvent({
+      eventType: SecurityEventType.SECURITY_VIOLATION,
+      severity: SecuritySeverity.MEDIUM,
+      message,
+      ip: 'system',
+      userAgent: 'jose-token-service',
+      endpoint: retry ? 'token-validation-retry' : 'token-validation',
+      details: {
+        mode,
+        matchedAudience,
+        userId,
+        tierId,
+        retry
+      }
+    });
+  }
+
+  private async verifySubscriptionToken(
+    token: string,
+    audience?: string
+  ): Promise<SubscriptionTokenPayload> {
+    const verificationOptions = audience
+      ? { issuer: 'readmyfineprint', audience }
+      : { issuer: 'readmyfineprint' };
+
+    const { payload } = await jwtVerify(token, this.secretKey, verificationOptions);
+    const subscriptionPayload = payload as SubscriptionTokenPayload;
+
+    if (subscriptionPayload.tokenType !== 'subscription') {
+      throw new Error('Invalid subscription token type');
+    }
+
+    return subscriptionPayload;
+  }
+
+  private async attemptValidateSubscriptionToken(
+    token: string,
+    decodedInfo?: Partial<SubscriptionTokenPayload> | null
+  ): Promise<{
+    payload: SubscriptionTokenPayload;
+    matchedAudience?: string;
+    legacyMode?: 'fallback-audience' | 'no-audience' | 'unexpected-audience';
+  }> {
+    const primaryAudience = 'subscription';
+    const legacyAudiences = ['subscription_token', 'subscription-token', 'subscriptionToken', 'api'];
+
+    try {
+      const payload = await this.verifySubscriptionToken(token, primaryAudience);
+      return { payload, matchedAudience: primaryAudience };
+    } catch (error) {
+      if (!this.isAudienceError(error)) {
+        throw error;
+      }
+    }
+
+    let lastAudienceError: Error | null = null;
+
+    for (const legacyAudience of legacyAudiences) {
+      try {
+        const payload = await this.verifySubscriptionToken(token, legacyAudience);
+        return { payload, matchedAudience: legacyAudience, legacyMode: 'fallback-audience' };
+      } catch (error) {
+        if (this.isAudienceError(error)) {
+          lastAudienceError = error;
+          continue;
+        }
+        throw error;
+      }
+    }
+
+    const audienceClaim = decodedInfo?.aud;
+    const hasAudienceClaim = typeof audienceClaim !== 'undefined' && !(Array.isArray(audienceClaim) && audienceClaim.length === 0);
+
+    if (!hasAudienceClaim) {
+      try {
+        const payload = await this.verifySubscriptionToken(token);
+        return { payload, legacyMode: 'no-audience' };
+      } catch (error) {
+        if (this.isAudienceError(error)) {
+          lastAudienceError = error;
+        } else {
+          throw error;
+        }
+      }
+    }
+
+    const formattedAudience = this.formatAudienceClaim(audienceClaim);
+
+    try {
+      const payload = await this.verifySubscriptionToken(token);
+      return { payload, matchedAudience: formattedAudience, legacyMode: 'unexpected-audience' };
+    } catch (error) {
+      if (lastAudienceError) {
+        throw lastAudienceError;
+      }
+
+      throw new Error(`Subscription token validation failed due to unexpected audience claim: ${formattedAudience}`);
     }
   }
 
