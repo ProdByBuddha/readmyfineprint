@@ -1,12 +1,12 @@
 import type { SubscriptionTier } from "@shared/schema";
 
-// Current OpenAI API Pricing (September 2025)
+// Current OpenAI API Pricing (September 2025) - Updated Real Models
 // GPT-4.1 Nano: $0.08 input, $0.32 output per 1M tokens (fastest & cheapest)
 // GPT-4.1 Mini: $0.15 input, $0.60 output per 1M tokens (smaller, faster version of GPT-4.1)
 // GPT-4.1: $3.00 input, $10.00 output per 1M tokens (smartest non-reasoning model)
-// GPT-5 Nano: $0.25 input, $1.00 output per 1M tokens (fastest, most cost-efficient GPT-5)
-// GPT-5 Mini: $2.50 input, $10.00 output per 1M tokens (faster, cost-efficient GPT-5)
-// GPT-5: $15.00 input, $60.00 output per 1M tokens (best model for coding and agentic tasks)
+// GPT-5 Nano: $0.50 input, $2.00 output per 1M tokens (fastest, most cost-efficient GPT-5)
+// GPT-5 Mini: $5.00 input, $20.00 output per 1M tokens (faster, cost-efficient GPT-5)
+// GPT-5: $30.00 input, $120.00 output per 1M tokens (best model for coding and agentic tasks)
 
 /**
  * Calculate cost per document analysis based on:
@@ -139,10 +139,10 @@ export const SUBSCRIPTION_TIERS: SubscriptionTier[] = [
       customIntegrations: true,
     },
     modelCosts: {
-      inputTokenCost: 2.50,
-      outputTokenCost: 10.00,
+      inputTokenCost: 5.00,
+      outputTokenCost: 20.00,
       estimatedTokensPerDocument: 3500,
-      costPerDocument: 0.02, // (2000 * 2.50 + 1500 * 10.00) / 1,000,000
+      costPerDocument: 0.04, // (2000 * 5.00 + 1500 * 20.00) / 1,000,000
     },
     popular: false
   },
@@ -176,10 +176,10 @@ export const SUBSCRIPTION_TIERS: SubscriptionTier[] = [
       customIntegrations: true,
     },
     modelCosts: {
-      inputTokenCost: 15.00,
-      outputTokenCost: 60.00,
+      inputTokenCost: 30.00,
+      outputTokenCost: 120.00,
       estimatedTokensPerDocument: 3500,
-      costPerDocument: 0.12, // (2000 * 15.00 + 1500 * 60.00) / 1,000,000
+      costPerDocument: 0.24, // (2000 * 30.00 + 1500 * 120.00) / 1,000,000
     },
     popular: false
   },
