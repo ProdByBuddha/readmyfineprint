@@ -79,7 +79,7 @@ export function AnalysisResults({ document }: AnalysisResultsProps) {
 
     const normalizedSections = Array.isArray(parsedAnalysis.sections)
       ? parsedAnalysis.sections
-          .filter((section): section is Partial<DocumentAnalysis['sections'][number]> =>
+          .filter((section): section is DocumentAnalysis['sections'][number] =>
             !!section && typeof section === 'object'
           )
           .map(section => ({
