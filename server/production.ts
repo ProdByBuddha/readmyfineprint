@@ -152,7 +152,7 @@ async function startProductionServer() {
   app.use(express.static(staticPath));
 
   // Serve index.html for all other non-API routes (SPA fallback)
-  app.get('*', (req: Request, res: Response, next: NextFunction) => {
+  app.get('/*', (req: Request, res: Response, next: NextFunction) => {
     if (req.path.startsWith('/api/')) {
       return next();
     }
