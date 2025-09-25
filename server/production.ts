@@ -33,8 +33,8 @@ const envConfig = validateEnvironmentOrExit();
 logEnvironmentStatus();
 
 const app = express();
-// Use port 5000 for production deployment
-const PORT = 5000;
+// Respect the port provided by the hosting platform (Cloud Run, Replit, etc.)
+const PORT = Number(process.env.PORT) || 5173;
 
 async function startProductionServer() {
   // Run database migrations check
@@ -151,8 +151,12 @@ async function startProductionServer() {
   const staticPath = path.join(__dirname, '../dist/public');
   app.use(express.static(staticPath));
 
-  // Serve index.html for all other routes (SPA fallback)
-  app.get('/*path', (req, res) => {
+  // Serve index.html for all other non-API routes (SPA fallback)
+  app.get(/^\/(?!api\/).*/, (req: Request, res: Response, next: NextFunction) => {
+    if (req.method !== 'GET') {
+      return next();
+    }
+
     const indexPath = path.join(staticPath, 'index.html');
 
     // Check if index.html exists
@@ -165,30 +169,40 @@ async function startProductionServer() {
     res.sendFile(indexPath);
   });
 
-  // Initialize collective free tier user
-  await subscriptionService.ensureCollectiveFreeUserExists();
-
-  // Start tier assignment monitoring
-  tierAssignmentMonitor.startPeriodicMonitoring(30); // Check every 30 minutes
-
-  // Initial admin tier check
-  setTimeout(async () => {
-    try {
-      console.log('🔍 [Startup] Running initial admin tier verification...');
-      const results = await tierAssignmentMonitor.checkAllAdminTierAssignments();
-      if (results.issuesFound > 0) {
-        console.warn(`⚠️ [Startup] Found ${results.issuesFound} admin tier assignment issues that need attention`);
-      } else {
-        console.log('✅ [Startup] All admin tier assignments verified correct');
-      }
-    } catch (error) {
-      console.error('Error during startup tier verification:', error);
-    }
-  }, 5000); // Wait 5 seconds after startup
-
-  console.log(`📋 Production server running on http://0.0.0.0:${PORT}`);
-  app.listen(PORT, '0.0.0.0', () => {
+  const server = app.listen(PORT, '0.0.0.0', () => {
     console.log(`📋 Production server running on http://0.0.0.0:${PORT}`);
+
+    // Initialize collective free tier user after the server is listening
+    subscriptionService.ensureCollectiveFreeUserExists()
+      .then(() => {
+        console.log('✅ Collective free user verified after startup');
+      })
+      .catch((error) => {
+        console.error('❌ Failed to verify collective free user after startup:', error);
+      });
+
+    // Start tier assignment monitoring once the server is healthy
+    tierAssignmentMonitor.startPeriodicMonitoring(30); // Check every 30 minutes
+
+    // Initial admin tier check (non-blocking)
+    setTimeout(async () => {
+      try {
+        console.log('🔍 [Startup] Running initial admin tier verification...');
+        const results = await tierAssignmentMonitor.checkAllAdminTierAssignments();
+        if (results.issuesFound > 0) {
+          console.warn(`⚠️ [Startup] Found ${results.issuesFound} admin tier assignment issues that need attention`);
+        } else {
+          console.log('✅ [Startup] All admin tier assignments verified correct');
+        }
+      } catch (error) {
+        console.error('Error during startup tier verification:', error);
+      }
+    }, 5000); // Wait 5 seconds after startup
+  });
+
+  server.on('error', (error) => {
+    console.error('❌ Server failed to start:', error);
+    process.exit(1);
   });
 }
 

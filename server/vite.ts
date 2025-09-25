@@ -274,10 +274,9 @@ export function serveStatic(app: Express) {
   );
 
   // fall through to index.html for non-API routes - with security headers
-  app.get("/*path", (req, res) => {
-    // Don't intercept API routes
-    if (req.path.startsWith("/api/")) {
-      return res.status(404).json({ error: "API endpoint not found" });
+  app.get(/^\/(?!api\/).*/, (req, res, next) => {
+    if (req.method !== "GET") {
+      return next();
     }
 
     applySecurityHeaders(res);

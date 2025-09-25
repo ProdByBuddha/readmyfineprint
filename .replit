@@ -189,8 +189,8 @@ task = "shell.exec"
 args = "npm run version:deploy"
 
 [[ports]]
-localPort = 5173
-externalPort = 5173
+localPort = 5000
+externalPort = 5000
 
 [[ports]]
 localPort = 11434
