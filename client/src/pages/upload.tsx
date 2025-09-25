@@ -405,20 +405,21 @@ export default function Upload() {
       return response.json();
     },
     onSuccess: (updatedDocument: Document) => {
-      setIsAnalyzing(false);
-      announce("Document analysis completed successfully", "polite");
-      toast({
-        title: "Analysis complete",
-        description: "Your document has been analyzed successfully.",
-      });
-
-      // Force update both the individual document and the documents list
+      // Update cache FIRST before setting isAnalyzing to false
       queryClient.setQueryData(['/api/documents', updatedDocument.id], updatedDocument);
       queryClient.invalidateQueries({ queryKey: ['/api/documents', updatedDocument.id] });
       queryClient.invalidateQueries({ queryKey: ['/api/documents'] });
 
       // Force a refetch of the current document to ensure UI updates
       queryClient.refetchQueries({ queryKey: ['/api/documents', updatedDocument.id] });
+
+      // Only AFTER cache is updated, set isAnalyzing to false to trigger render
+      setIsAnalyzing(false);
+      announce("Document analysis completed successfully", "polite");
+      toast({
+        title: "Analysis complete",
+        description: "Your document has been analyzed successfully.",
+      });
     },
     onError: (error: unknown) => {
       setIsAnalyzing(false);
