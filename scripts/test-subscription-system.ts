@@ -59,11 +59,11 @@ class SubscriptionSystemTester {
 
     // Test 2: Verify model progression
     const expectedModels = {
-      free: 'gpt-4o-mini',
-      starter: 'gpt-4.1-mini',
-      professional: 'gpt-4o',
-      business: 'gpt-4-turbo',
-      enterprise: 'o1-preview'
+      free: 'gpt-4.1-nano',
+      starter: 'gpt-4o',
+      professional: 'o3-mini',
+      business: 'o3',
+      enterprise: 'o3'
     };
 
     for (const [tierId, expectedModel] of Object.entries(expectedModels)) {
@@ -88,10 +88,10 @@ class SubscriptionSystemTester {
     // Test 3: Verify pricing structure
     const expectedPricing = {
       free: { monthly: 0, yearly: 0 },
-      starter: { monthly: 15, yearly: 150 },
-      professional: { monthly: 75, yearly: 750 },
-      business: { monthly: 250, yearly: 2500 },
-      enterprise: { monthly: 500, yearly: 5000 }
+      starter: { monthly: 12, yearly: 120 },
+      professional: { monthly: 49, yearly: 490 },
+      business: { monthly: 199, yearly: 1990 },
+      enterprise: { monthly: 999, yearly: 9990 }
     };
 
     for (const [tierId, expectedPrices] of Object.entries(expectedPricing)) {
@@ -118,8 +118,8 @@ class SubscriptionSystemTester {
 
     // Test 4: Verify document limits
     const expectedLimits = {
-      free: -1,        // unlimited
-      starter: -1,     // unlimited
+      free: 10,        // 10 docs/month for revenue model
+      starter: 50,     // 50 docs/month for revenue model
       professional: 200,
       business: 500,
       enterprise: 1000
@@ -251,11 +251,11 @@ class SubscriptionSystemTester {
     console.log('\n💰 Testing Model Cost Calculations...');
     
     const expectedCosts = {
-      free: 0.00084,      // GPT-4o-mini
-      starter: 0.00135,   // GPT-4.1-mini
-      professional: 0.02, // GPT-4o
-      business: 0.065,    // GPT-4-turbo
-      enterprise: 0.12    // o1-preview
+      free: 0.00064,      // GPT-4.1-nano
+      starter: 0.021,     // GPT-4o
+      professional: 0.008, // o3-mini
+      business: 0.12,     // o3
+      enterprise: 0.12    // o3
     };
 
     for (const [tierId, expectedCost] of Object.entries(expectedCosts)) {
