@@ -107,6 +107,7 @@ export default function Upload() {
   // State management
   const [currentDocumentId, setCurrentDocumentId] = useState<number | null>(null);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
+  const [isSampleContract, setIsSampleContract] = useState(false);
   const [consentRevoked, setConsentRevoked] = useState(false);
   const [analysisDisplay, setAnalysisDisplay] = useState<AnalysisProgressProps>(() => createInitialAnalysisDisplay());
   const [queueSnapshot, setQueueSnapshot] = useState<QueueStatusSnapshot | null>(null);
@@ -375,20 +376,28 @@ export default function Upload() {
 
   // Document analysis mutation
   const analyzeDocumentMutation = useMutation({
-    mutationFn: async (documentId: number) => {
-      try {
-        const queueStatus = await getQueueStatus();
-        if (queueStatus.queueLength > 0) {
-          toast({
-            title: "Document queued for analysis",
-            description: `Your document is in the processing queue. ${queueStatus.queueLength} documents ahead of you.`,
-          });
-        }
-      } catch (error) {
-        console.warn("Could not get queue status:", error);
+    mutationFn: async (params: { documentId: number; isSampleContract?: boolean }) => {
+      const { documentId, isSampleContract = false } = params;
+
+      const response = await fetch(`/api/documents/${documentId}/analyze`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-Session-ID': sessionId,
+          'X-Device-Fingerprint': deviceFingerprint,
+          'X-Sample-Contract': isSampleContract ? 'true' : 'false',
+          ...(csrfToken && { 'X-CSRF-Token': csrfToken }),
+        },
+        body: JSON.stringify({ isSampleContract }),
+        credentials: 'include',
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData.error || `HTTP ${response.status}: ${response.statusText}`);
       }
 
-      return analyzeDocument(documentId);
+      return response.json();
     },
     onSuccess: (updatedDocument: Document) => {
       setIsAnalyzing(false);
@@ -422,38 +431,30 @@ export default function Upload() {
   });
 
   // Event handlers
-  const handleDocumentCreated = useCallback(async (documentId: number) => {
-    setCurrentDocumentId(documentId);
+  const handleDocumentCreated = useStableCallback(async (documentId: number, isSample: boolean = false) => {
+    if (!consentAccepted || consentRevoked) {
+      const message = "Consent is required for document analysis. Please accept the terms and privacy policy.";
+      announce(message, "assertive");
 
-    if (consentRevoked && !consentAccepted) {
-      announce("Cannot analyze documents while consent is revoked", "assertive");
-      toast({
-        title: "Consent Required",
-        description: "Please accept our terms and conditions to analyze documents",
-        variant: "destructive",
-      });
-      return;
-    }
-
-    if (!consentAccepted) {
-      console.log('Document analysis requires consent, triggering consent modal');
       safeDispatchEvent('consentRequired', {
         detail: { reason: 'Document analysis requires consent' },
       });
-      announce("Please accept our terms to analyze documents", "polite");
+
       toast({
         title: "Consent Required",
-        description: "Please accept our terms and conditions before analyzing any documents",
+        description: message,
         variant: "destructive",
       });
       return;
     }
 
+    setCurrentDocumentId(documentId);
     setIsAnalyzing(true);
-    announce("Starting document analysis", "polite");
+    setIsSampleContract(isSample);
+    announce(`${isSample ? 'Sample contract' : 'Document'} uploaded successfully. Starting analysis...`, "polite");
 
     try {
-      await analyzeDocumentMutation.mutateAsync(documentId);
+      await analyzeDocumentMutation.mutateAsync({ documentId, isSampleContract: isSample });
     } catch (error) {
       console.error("Analysis error:", error);
     }
@@ -462,6 +463,7 @@ export default function Upload() {
   const handleDocumentSelect = useStableCallback((documentId: number | null) => {
     setCurrentDocumentId(documentId);
     setIsAnalyzing(false);
+    setIsSampleContract(false); // Reset sample contract flag when selecting from history
 
     if (documentId) {
       announce("Document selected from history", "polite");
@@ -471,6 +473,7 @@ export default function Upload() {
   const handleNewAnalysis = useCallback(() => {
     setCurrentDocumentId(null);
     setIsAnalyzing(false);
+    setIsSampleContract(false); // Reset sample contract flag
     announce("Starting new document analysis", "polite");
   }, [announce]);
 
@@ -505,7 +508,7 @@ export default function Upload() {
       });
 
       console.log("Sample document created:", document);
-      await handleDocumentCreated(document.id);
+      await handleDocumentCreated(document.id, true); // Pass true for isSampleContract
     } catch (error) {
       console.error("Error with sample contract:", error);
 

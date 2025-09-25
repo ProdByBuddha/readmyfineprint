@@ -1062,56 +1062,64 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Get current month usage from database/storage
       const { collectiveUserService } = await import('./collective-user-service');
 
-      // Check if user has exceeded their monthly limit
-      const monthlyLimit = subscriptionData.tier.limits?.documentsPerMonth || 10;
+      // Check if this is a sample contract analysis
+      const isSimpleSampleContract = req.body?.isSampleContract === true || req.headers['x-sample-contract'] === 'true';
 
-      // Use proper user tracking for free tier rate limiting with consistent identifier
-      const simpleDeviceFingerprint = req.headers['x-device-fingerprint'] as string;
-      const simpleClientIp = req.ip || req.socket.remoteAddress || 'unknown';
+      // Only do rate limiting and usage tracking for non-sample contracts
+      if (!isSimpleSampleContract) {
+        // Check if user has exceeded their monthly limit
+        const monthlyLimit = subscriptionData.tier.limits?.documentsPerMonth || 10;
 
-      // Create consistent user identifier for rate limiting (same approach as main endpoint)
-      let simpleRateLimitUserId: string;
-      if (req.user?.id && req.user.id !== "anonymous") {
-        // Authenticated user - use actual user ID
-        simpleRateLimitUserId = req.user.id;
+        // Use proper user tracking for free tier rate limiting with consistent identifier
+        const simpleDeviceFingerprint = req.headers['x-device-fingerprint'] as string;
+        const simpleClientIp = req.ip || req.socket.remoteAddress || 'unknown';
+
+        // Create consistent user identifier for rate limiting (same approach as main endpoint)
+        let simpleRateLimitUserId: string;
+        if (req.user?.id && req.user.id !== "anonymous") {
+          // Authenticated user - use actual user ID
+          simpleRateLimitUserId = req.user.id;
+        } else {
+          // Anonymous user - use device fingerprint + IP hash for consistency
+          const simpleAnonymousIdentifier = crypto.createHash('sha256')
+            .update(`${simpleDeviceFingerprint || 'unknown'}:${simpleClientIp}`)
+            .digest('hex')
+            .substring(0, 16);
+          simpleRateLimitUserId = `anon_${simpleAnonymousIdentifier}`;
+        }
+
+        console.log(`📊 Simple endpoint rate limiting check for user: ${simpleRateLimitUserId} (tier: ${subscriptionData.tier.id})`);
+
+        // Get current subscription data with usage tracking for this specific user
+        const currentSubscriptionData = await subscriptionService.getUserSubscriptionWithUsage(simpleRateLimitUserId);
+
+        // Check if user can analyze another document
+        if (currentSubscriptionData.tier.limits.documentsPerMonth !== -1) {
+          if (currentSubscriptionData.usage.documentsAnalyzed >= currentSubscriptionData.tier.limits.documentsPerMonth) {
+            return res.status(429).json({
+              error: `Monthly document limit reached (${currentSubscriptionData.tier.limits.documentsPerMonth} documents for ${currentSubscriptionData.tier.id} tier)`,
+              limit: currentSubscriptionData.tier.limits.documentsPerMonth,
+              used: currentSubscriptionData.usage.documentsAnalyzed,
+              resetDate: currentSubscriptionData.usage.resetDate,
+              upgradeRequired: currentSubscriptionData.tier.id === 'free'
+            });
+          }
+        }
+
+        // Track usage for rate limiting (increment document analysis count) with consistent user ID
+        await subscriptionService.trackUsage(
+          simpleRateLimitUserId, // Use the same identifier as rate limiting check
+          1500, // Mock token usage
+          currentSubscriptionData.tier.model,
+          {
+            sessionId: req.sessionId,
+            deviceFingerprint: simpleDeviceFingerprint || 'unknown',
+            ipAddress: simpleClientIp
+          }
+        );
       } else {
-        // Anonymous user - use device fingerprint + IP hash for consistency
-        const simpleAnonymousIdentifier = crypto.createHash('sha256')
-          .update(`${simpleDeviceFingerprint || 'unknown'}:${simpleClientIp}`)
-          .digest('hex')
-          .substring(0, 16);
-        simpleRateLimitUserId = `anon_${simpleAnonymousIdentifier}`;
+        console.log(`📋 Skipping usage tracking for sample contract analysis (simple endpoint)`);
       }
-
-      console.log(`📊 Simple endpoint rate limiting check for user: ${simpleRateLimitUserId} (tier: ${subscriptionData.tier.id})`);
-
-      // Get current subscription data with usage tracking for this specific user
-      const currentSubscriptionData = await subscriptionService.getUserSubscriptionWithUsage(simpleRateLimitUserId);
-
-      // Check if user can analyze another document
-      if (currentSubscriptionData.tier.limits.documentsPerMonth !== -1) {
-        if (currentSubscriptionData.usage.documentsAnalyzed >= currentSubscriptionData.tier.limits.documentsPerMonth) {
-          return res.status(429).json({
-            error: `Monthly document limit reached (${currentSubscriptionData.tier.limits.documentsPerMonth} documents for ${currentSubscriptionData.tier.id} tier)`,
-            limit: currentSubscriptionData.tier.limits.documentsPerMonth,
-            used: currentSubscriptionData.usage.documentsAnalyzed,
-            resetDate: currentSubscriptionData.usage.resetDate,
-            upgradeRequired: currentSubscriptionData.tier.id === 'free'
-          });
-        }
-      }
-
-      // Track usage for rate limiting (increment document analysis count) with consistent user ID
-      await subscriptionService.trackUsage(
-        simpleRateLimitUserId, // Use the same identifier as rate limiting check
-        1500, // Mock token usage
-        currentSubscriptionData.tier.model,
-        {
-          sessionId: req.sessionId,
-          deviceFingerprint: simpleDeviceFingerprint || 'unknown',
-          ipAddress: simpleClientIp
-        }
-      );
 
       // Get updated usage after tracking
       const updatedSubscriptionData = await subscriptionService.getUserSubscriptionWithUsage(simpleRateLimitUserId);
@@ -1843,12 +1851,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
         }
       }
 
-      // Check if this is a sample contract to skip usage tracking
-      const isSampleContract = document && document.title && [
-        'sample', 'example', 'demo', 'template',
-        'residential lease', 'employment agreement', 'nda',
-        'service agreement', 'rental agreement'
-      ].some(keyword => document.title.toLowerCase().includes(keyword.toLowerCase()));
+      // Check if this is a sample contract analysis (passed via request body or header)
+      const isSampleContract = req.body?.isSampleContract === true || req.headers['x-sample-contract'] === 'true';
 
       // Track usage for rate limiting with proper user identifier (skip for sample contracts)
       if (!isSampleContract) {
