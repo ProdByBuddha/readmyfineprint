@@ -5,11 +5,40 @@ import { TouchScrollContainer } from "@/components/TouchScrollContainer";
 import { Cookie, Shield, CheckCircle, AlertCircle, Info } from "lucide-react";
 import { useCombinedConsent } from "@/components/CombinedConsent";
 import { useLocation, useNavigate } from "react-router-dom";
+import { useState, useEffect } from "react";
 
 export default function Cookies() {
-  const { isAccepted, acceptAll, revokeConsent } = useCombinedConsent();
+  const { isAccepted, acceptAll, revokeConsent, isCheckingConsent } = useCombinedConsent();
   const location = useLocation();
   const navigate = useNavigate();
+  const [isLoading, setIsLoading] = useState(true);
+
+  // Allow page to load even if consent checking is in progress
+  useEffect(() => {
+    // Give the consent system time to initialize, but don't block the page
+    const timer = setTimeout(() => {
+      setIsLoading(false);
+    }, 1000);
+
+    return () => clearTimeout(timer);
+  }, []);
+
+  // If still loading, show loading state
+  if (isLoading && isCheckingConsent) {
+    return (
+      <TouchScrollContainer className="h-full bg-gray-50 dark:bg-gray-900">
+        <div className="container mx-auto px-4 py-8 max-w-4xl">
+          <div className="text-center">
+            <Cookie className="h-12 w-12 text-primary mx-auto mb-4 animate-pulse" />
+            <h1 className="text-3xl font-bold mb-2">Loading Cookie Settings...</h1>
+            <p className="text-lg text-muted-foreground">
+              Please wait while we load your preferences
+            </p>
+          </div>
+        </div>
+      </TouchScrollContainer>
+    );
+  }
 
   const handleAcceptAndReturn = () => {
     acceptAll();
@@ -31,7 +60,9 @@ export default function Cookies() {
         <Card className={`mb-6 ${isAccepted ? 'border-green-200 bg-green-50 dark:bg-green-950/20' : 'border-blue-200 bg-blue-50 dark:bg-blue-950/20'}`}>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-              {isAccepted ? (
+              {isCheckingConsent ? (
+                <Cookie className="h-5 w-5 text-gray-600 animate-pulse" />
+              ) : isAccepted ? (
                 <CheckCircle className="h-5 w-5 text-green-600" />
               ) : (
                 <Cookie className="h-5 w-5 text-blue-600" />
@@ -39,7 +70,9 @@ export default function Cookies() {
               Your Cookie Preferences
             </CardTitle>
             <CardDescription>
-              {isAccepted 
+              {isCheckingConsent 
+                ? "Checking your current cookie preferences..."
+                : isAccepted 
                 ? "You have accepted our essential cookies and can use all features." 
                 : "Accept cookies to enable document analysis and full functionality."
               }
@@ -64,13 +97,15 @@ export default function Cookies() {
               </div>
 
               <div className="flex gap-3 pt-4">
-                {!isAccepted && (
+                {isCheckingConsent ? (
+                  <Button disabled className="bg-gray-400 flex-1">
+                    Checking Status...
+                  </Button>
+                ) : !isAccepted ? (
                   <Button onClick={handleAcceptAndReturn} className="bg-blue-600 hover:bg-blue-700 flex-1">
                     Accept All & Continue
                   </Button>
-                )}
-
-                {isAccepted && (
+                ) : (
                   <>
                     <Button onClick={() => navigate('/')} variant="outline" className="flex-1">
                       Return Home

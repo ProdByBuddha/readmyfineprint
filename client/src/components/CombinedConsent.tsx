@@ -29,27 +29,59 @@ export function useCombinedConsent() {
   const [isCheckingConsent, setIsCheckingConsent] = useState(true);
   const [forceUpdate, setForceUpdate] = useState(0);
 
-  // Prime the consent state with any stored preferences to avoid making
-  // returning users re-accept before the async checks finish.
-  useEffect(() => {
+  // Check current consent status
+  const checkConsentStatus = useCallback(async () => {
+    setIsCheckingConsent(true);
     try {
-      const locallyAccepted =
-        localStorage.getItem('cookie-consent-accepted') === 'true' &&
-        localStorage.getItem('readmyfineprint-disclaimer-accepted') === 'true';
-
-      if (locallyAccepted) {
+      // In development mode, automatically accept
+      if (import.meta.env.DEV) {
+        console.log('⚠️ Development mode: Auto-accepting consent');
         setIsAccepted(true);
         setIsCheckingConsent(false);
-        globalConsentState = {
-          status: true,
-          timestamp: Date.now(),
-          sessionId: getGlobalSessionId()
-        };
+        return;
+      }
+
+      // Check local storage first for immediate response
+      const localConsent = localStorage.getItem('cookie-consent-accepted') === 'true';
+      const localDisclaimer = localStorage.getItem('readmyfineprint-disclaimer-accepted') === 'true';
+
+      if (localConsent && localDisclaimer) {
+        setIsAccepted(true);
+        setIsCheckingConsent(false);
+        return;
+      }
+
+      // If not in localStorage, check with server (for logged-in users)
+      // But don't let this block the UI for too long
+      const timeoutPromise = new Promise((_, reject) => 
+        setTimeout(() => reject(new Error('Consent check timeout')), 3000)
+      );
+
+      const fetchPromise = sessionFetch('/api/consent/verify', {
+        method: 'GET',
+        credentials: 'include'
+      });
+
+      const response = await Promise.race([fetchPromise, timeoutPromise]) as Response;
+
+      if (response.ok) {
+        const result = await response.json();
+        setIsAccepted(result.verified || false);
+      } else {
+        setIsAccepted(false);
       }
     } catch (error) {
-      console.warn('Failed to read stored consent preference:', error);
+      console.warn('Error checking consent status (non-blocking):', error);
+      // Don't block the user - default to false but allow page to continue
+      setIsAccepted(false);
+    } finally {
+      setIsCheckingConsent(false);
     }
   }, []);
+
+  useEffect(() => {
+    checkConsentStatus();
+  }, [checkConsentStatus, forceUpdate]);
 
   // Use the new database-backed hooks
   const { accepted: legalAccepted, loading: legalLoading } = useLegalDisclaimer();
@@ -357,7 +389,7 @@ export function useCombinedConsent() {
 export function CombinedConsent({ onAccept }: CombinedConsentProps) {
   const [isOpen, setIsOpen] = useState(true);
   const [isLogging, setIsLogging] = useState(false);
-  
+
   // Use the individual consent hooks to ensure proper state synchronization
   const { acceptDisclaimer } = useLegalDisclaimer();
   const { acceptAllCookies } = useCookieConsent();
