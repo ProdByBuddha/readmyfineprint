@@ -359,41 +359,32 @@ export function useCombinedConsent() {
 export function CombinedConsent({ onAccept }: CombinedConsentProps) {
   const [isOpen, setIsOpen] = useState(true);
   const [isLogging, setIsLogging] = useState(false);
+  
+  // Use the individual consent hooks to ensure proper state synchronization
+  const { acceptDisclaimer } = useLegalDisclaimer();
+  const { acceptAllCookies } = useCookieConsent();
 
   const handleAccept = async () => {
-    // Set logging state but keep modal open
     setIsLogging(true);
 
     try {
-      const sessionId = getGlobalSessionId();
-      console.log(`Logging consent with session: ${sessionId.substring(0, 16)}...`);
+      console.log('Accepting combined consent through individual hooks...');
 
-      // Log consent to database using session fetch with client session ID
-      const response = await sessionFetch('/api/consent', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          ip: 'client-side-consent',
-          userAgent: navigator.userAgent,
-          termsVersion: '1.0',
-        }),
-      });
-
-      const result = await response.json();
-      if (!result.success) {
-        console.warn('Consent logging failed:', result.message);
-        setIsLogging(false);
-        return;
-      }
+      // Accept both legal disclaimer and cookies using their respective hooks
+      // This ensures localStorage and all states are properly synchronized
+      await Promise.all([
+        acceptDisclaimer(),
+        acceptAllCookies()
+      ]);
 
       // Close modal and call onAccept
       setIsOpen(false);
       onAccept();
 
+      console.log('Combined consent accepted successfully');
+
     } catch (error) {
-      console.warn('Consent logging failed:', error);
+      console.warn('Failed to accept combined consent:', error);
       setIsLogging(false);
       return;
     } finally {

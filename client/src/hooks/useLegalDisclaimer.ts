@@ -237,7 +237,15 @@ export function useLegalDisclaimer() {
   // Initialize on mount
   useEffect(() => {
     const initialize = async () => {
-      // In development, wait for auto-login to complete before initializing
+      // In development mode, use simplified initialization without authentication checks
+      if (import.meta.env.DEV || import.meta.env.MODE === 'development') {
+        console.log('⚠️ Development mode: Using localStorage for legal disclaimer');
+        const localAccepted = localStorage.getItem('readmyfineprint-disclaimer-accepted') === 'true';
+        setState(prev => ({ ...prev, accepted: localAccepted, loading: false }));
+        return;
+      }
+
+      // In production, wait for auto-login to complete before initializing
       if (import.meta.env.DEV) {
         // Wait for auto-login to finish
         let attempts = 0;

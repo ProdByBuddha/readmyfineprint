@@ -124,12 +124,13 @@ export function useCookieConsent() {
 
   // Initialize cookie consent
   const initializeCookieConsent = useCallback(async () => {
-    // Skip initialization in development mode
+    // In development mode, still check localStorage but with simplified logic
     if (import.meta.env.DEV || import.meta.env.MODE === 'development') {
-      console.log('⚠️ Development mode: Auto-accepting cookies');
+      console.log('⚠️ Development mode: Using localStorage for cookie consent');
+      const { accepted, settings } = getLocalStorageConsent();
       setState({
-        settings: { necessary: true, analytics: true, marketing: true },
-        isAccepted: true,
+        settings,
+        isAccepted: accepted,
         loading: false,
         error: null
       });
