@@ -18,7 +18,6 @@ import { SampleContracts } from "@/components/SampleContracts";
 import { DocumentHistory } from "@/components/DocumentHistory";
 import { AnalysisProgress, type AnalysisProgressProps } from "@/components/LoadingStates";
 import { MobileAppWrapper } from "@/components/MobileAppWrapper";
-import { CookieConsentBanner } from "@/components/CookieConsentBanner";
 import { SecurityQuestionsModal } from "@/components/SecurityQuestionsModal";
 // Temporarily disabled TradeSecretProtection due to interference with app functionality
 // import TradeSecretProtection from "@/components/TradeSecretProtection";
@@ -766,14 +765,6 @@ export default function Upload() {
       {/* <TradeSecretProtection /> */}
 
       <MobileAppWrapper>
-        {/* Cookie Consent Banner */}
-        {!consentAccepted && (
-          <CookieConsentBanner
-            onAccept={() => {
-              // The event listener will trigger the update
-            }}
-          />
-        )}
 
         <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 lg:py-12 pb-20">
           {/* Document History - Always show if documents exist */}

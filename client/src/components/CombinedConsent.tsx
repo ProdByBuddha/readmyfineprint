@@ -75,12 +75,10 @@ export function useCombinedConsent() {
   }, [legalAccepted, cookieAccepted, legalLoading, cookieLoading]);
 
   const checkConsent = useCallback(async () => {
-    // Check if we're in development mode and bypass consent checking
+    // In development mode, rely on the individual hooks and localStorage instead of API calls
     if (import.meta.env.DEV || import.meta.env.MODE === 'development') {
-      console.log('⚠️ Development mode: Bypassing consent verification');
-      setIsAccepted(true);
-      setIsCheckingConsent(false);
-      globalConsentState = { status: true, timestamp: Date.now() };
+      console.log('⚠️ Development mode: Using hooks-based consent verification');
+      // Don't override the state here - let the individual hooks manage it via localStorage
       return;
     }
 

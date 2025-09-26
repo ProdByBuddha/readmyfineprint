@@ -31,7 +31,6 @@ import { usePreventFlicker } from "@/hooks/usePreventFlicker";
 // import TradeSecretProtection from "@/components/TradeSecretProtection";
 import { MobileAppWrapper } from "@/components/MobileAppWrapper";
 import { useCombinedConsent } from "@/components/CombinedConsent";
-import { CookieConsentBanner } from "@/components/CookieConsentBanner";
 import { generateFAQSchema, updateSEO } from "@/lib/seo";
 import { Link } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
@@ -174,14 +173,6 @@ export default function Home() {
       {/* Temporarily disabled TradeSecretProtection due to interference with app functionality */}
       {/* <TradeSecretProtection /> */}
       <MobileAppWrapper>
-        {/* Cookie Consent Banner */}
-        {!consentAccepted && (
-          <CookieConsentBanner
-            onAccept={() => {
-              // The event listener in the hook will trigger the update
-            }}
-          />
-        )}
 
         <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 lg:py-12">
           {/* Hero Section */}
