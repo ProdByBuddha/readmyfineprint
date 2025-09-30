@@ -17,14 +17,16 @@ interface EmailData {
   text?: string;
 }
 
+type EmailProvider = 'sendgrid' | 'smtp' | 'none';
+
 class EmailService {
   private transporter: nodemailer.Transporter | null = null;
-  private useSendGrid = false;
-  private useSmtp = false;
+  private provider: EmailProvider = 'none';
   private isConfigured = false;
   private lastHealthCheck: Date | null = null;
   private lastHealthStatus: boolean = false;
   private healthCheckCacheDuration = 5 * 60 * 1000; // 5 minutes
+  private fromAddress: string = '';
 
   constructor() {
     this.initializeTransporter();
@@ -32,69 +34,137 @@ class EmailService {
 
   private initializeTransporter() {
     try {
-      const { SENDGRID_API_KEY, SMTP_HOST, SMTP_PORT = '587', SMTP_USER, SMTP_PASS } = process.env;
+      const { 
+        SENDGRID_API_KEY, 
+        SMTP_HOST, 
+        SMTP_PORT = '587', 
+        SMTP_USER, 
+        SMTP_PASS,
+        EMAIL_FROM,
+        SECURITY_EMAIL_FROM,
+        FROM_EMAIL
+      } = process.env;
 
-      // Priority 1: SendGrid (recommended for production)
+      // Determine from address (with fallback chain)
+      this.fromAddress = EMAIL_FROM || SECURITY_EMAIL_FROM || FROM_EMAIL || 'noreply@readmyfineprint.com';
+
+      // Priority 1: SendGrid (for high-volume production)
       if (SENDGRID_API_KEY && SENDGRID_API_KEY.trim().length > 0) {
         try {
           sgMail.setApiKey(SENDGRID_API_KEY);
-          this.useSendGrid = true;
+          this.provider = 'sendgrid';
           this.isConfigured = true;
           console.log('✅ Email service configured with SendGrid');
+          console.log(`✅ Using sender address: ${this.fromAddress}`);
           
           // Test SendGrid connectivity
           this.testSendGridConnection().then(success => {
             if (!success) {
               console.warn('⚠️ SendGrid API key may be invalid or inactive');
               this.isConfigured = false;
-              this.useSendGrid = false;
+              this.provider = 'none';
             }
           });
           return;
         } catch (error) {
           console.error('❌ Failed to initialize SendGrid:', error);
-          this.useSendGrid = false;
+          this.provider = 'none';
         }
       }
 
-      // Priority 2: SMTP fallback
+      // Priority 2: SMTP (recommended for most use cases)
       if (SMTP_USER && SMTP_PASS) {
-        this.transporter = nodemailer.createTransport({
-          host: SMTP_HOST || 'smtp.sendgrid.net',
+        // Configure SMTP with smart defaults for common providers
+        let smtpConfig: any = {
+          host: SMTP_HOST || 'smtp.mail.me.com', // Default to iCloud SMTP
           port: parseInt(SMTP_PORT),
-          secure: false,
+          secure: false, // Use STARTTLS
           auth: {
             user: SMTP_USER,
             pass: SMTP_PASS,
           },
           tls: {
-            rejectUnauthorized: false
+            rejectUnauthorized: false // More compatible with various SMTP providers
           }
-        });
+        };
 
-        this.useSmtp = true;
+        // Apply provider-specific optimizations
+        if (SMTP_HOST?.includes('mail.me.com')) {
+          // iCloud SMTP optimizations
+          smtpConfig.tls.rejectUnauthorized = true; // iCloud supports proper TLS
+          smtpConfig.tls.minVersion = 'TLSv1.2';
+          console.log('🍎 Configuring for iCloud SMTP');
+        } else if (SMTP_HOST?.includes('gmail.com')) {
+          // Gmail SMTP optimizations
+          smtpConfig.host = 'smtp.gmail.com';
+          console.log('📧 Configuring for Gmail SMTP');
+        }
+
+        this.transporter = nodemailer.createTransporter(smtpConfig);
+        this.provider = 'smtp';
         
         // Test the connection before marking as configured
         this.transporter.verify()
           .then(() => {
             this.isConfigured = true;
-            console.log(`✅ Email service configured with SMTP (${SMTP_HOST || 'smtp.sendgrid.net'})`);
+            const providerName = SMTP_HOST?.includes('mail.me.com') ? 'iCloud SMTP' : 
+                               SMTP_HOST?.includes('gmail.com') ? 'Gmail SMTP' : 
+                               `SMTP (${SMTP_HOST})`;
+            console.log(`✅ Email service configured with ${providerName}`);
+            console.log(`✅ Using sender address: ${this.fromAddress}`);
           })
           .catch((error) => {
             console.warn(`⚠️ SMTP verification failed: ${error.message}`);
+            this.logSmtpError(error, SMTP_HOST || 'smtp.mail.me.com');
             console.warn('Email service will be disabled. Check SMTP credentials.');
             this.isConfigured = false;
-            this.useSmtp = false;
+            this.provider = 'none';
             this.transporter = null;
           });
         return;
       }
 
       console.log('⚠️ Email service not configured - missing environment variables');
-      console.log('Required: SENDGRID_API_KEY (recommended) or SMTP_USER + SMTP_PASS');
+      console.log('Recommended: SMTP_USER + SMTP_PASS (iCloud SMTP)');
+      console.log('          or SENDGRID_API_KEY (SendGrid)');
+      console.log('📖 See docs/setup/EMAIL_SETUP.md for setup guide');
     } catch (error) {
       console.error('❌ Failed to initialize email service:', error);
     }
+  }
+
+  /**
+   * Log detailed SMTP-specific errors with helpful suggestions
+   */
+  private logSmtpError(error: any, host: string) {
+    console.error('\n=== SMTP Error Details ===');
+    
+    if (error.code === 'ECONNREFUSED') {
+      console.error('❌ Connection refused - Check SMTP server and port');
+      if (host.includes('mail.me.com')) {
+        console.error('💡 iCloud SMTP: Ensure port 587 is used and not blocked');
+      } else if (host.includes('gmail.com')) {
+        console.error('💡 Gmail SMTP: Try port 587 or 465 (SSL)');
+      }
+    } else if (error.code === 'ETIMEDOUT') {
+      console.error('❌ Connection timeout - Network or firewall issue');
+      console.error('💡 Verify your network allows outbound SMTP connections');
+    } else if (error.code === 'EAUTH') {
+      console.error('❌ Authentication failed - Invalid credentials');
+      if (host.includes('mail.me.com')) {
+        console.error('💡 iCloud: Use App-Specific Password, not your iCloud password');
+        console.error('💡 Generate one at: appleid.apple.com → Security → App-Specific Passwords');
+      } else if (host.includes('gmail.com')) {
+        console.error('💡 Gmail: Use App Password, not your Google account password');
+        console.error('💡 Enable 2FA first, then create App Password in Google Account settings');
+      }
+    } else if (error.responseCode === 535) {
+      console.error('❌ Authentication credentials invalid');
+      console.error('💡 Double-check SMTP_USER and SMTP_PASS are correct');
+    }
+    
+    console.error('📖 See docs/setup/ICLOUD_SMTP_SETUP.md for detailed setup guide');
+    console.error('===============================\n');
   }
 
   /**
@@ -125,9 +195,9 @@ class EmailService {
     }
 
     try {
-      if (this.useSendGrid) {
+      if (this.provider === 'sendgrid') {
         return await this.sendWithSendGrid(emailData);
-      } else if (this.useSmtp && this.transporter) {
+      } else if (this.provider === 'smtp' && this.transporter) {
         return await this.sendWithSmtp(emailData);
       } else {
         console.error('❌ No email provider configured');
@@ -147,11 +217,11 @@ class EmailService {
       const msg = {
         to: emailData.to,
         from: {
-          email: 'admin@readmyfineprint.com',
+          email: this.fromAddress,
           name: 'ReadMyFinePrint'
         },
         replyTo: {
-          email: 'admin@readmyfineprint.com',
+          email: this.fromAddress,
           name: 'ReadMyFinePrint Support'
         },
         subject: emailData.subject,
@@ -162,7 +232,8 @@ class EmailService {
       await sgMail.send(msg);
       console.log('✅ Email sent successfully via SendGrid:', {
         recipient: emailData.to,
-        subject: emailData.subject
+        subject: emailData.subject,
+        from: this.fromAddress
       });
       return true;
     } catch (error: any) {
@@ -186,11 +257,11 @@ class EmailService {
       const mailOptions = {
         from: {
           name: 'ReadMyFinePrint',
-          address: 'admin@readmyfineprint.com'
+          address: this.fromAddress
         },
         replyTo: {
           name: 'ReadMyFinePrint Support',
-          address: 'admin@readmyfineprint.com'
+          address: this.fromAddress
         },
         to: emailData.to,
         subject: emailData.subject,
@@ -199,14 +270,15 @@ class EmailService {
       };
 
       const result = await this.transporter!.sendMail(mailOptions);
-      console.log('✅ Email sent successfully via SMTP:', {
+      console.log(`✅ Email sent successfully via SMTP:`, {
         messageId: result.messageId,
         recipient: emailData.to,
-        subject: emailData.subject
+        subject: emailData.subject,
+        from: this.fromAddress
       });
       return true;
-    } catch (error) {
-      console.error('❌ SMTP send failed:', error);
+    } catch (error: any) {
+      console.error(`❌ SMTP send failed:`, error);
       return false;
     }
   }
@@ -430,7 +502,7 @@ If you have any questions, please contact us at admin@readmyfineprint.com
     }
 
     try {
-      if (this.useSendGrid) {
+      if (this.provider === 'sendgrid') {
         const isHealthy = await this.testSendGridConnection();
         if (isHealthy) {
           console.log('✅ SendGrid configuration test successful');
@@ -438,9 +510,9 @@ If you have any questions, please contact us at admin@readmyfineprint.com
           console.error('❌ SendGrid configuration test failed');
         }
         return isHealthy;
-      } else if (this.useSmtp && this.transporter) {
+      } else if (this.provider === 'smtp' && this.transporter) {
         await this.transporter.verify();
-        console.log('✅ SMTP configuration test successful');
+        console.log(`✅ SMTP configuration test successful`);
         return true;
       }
       return false;
@@ -455,7 +527,8 @@ If you have any questions, please contact us at admin@readmyfineprint.com
    */
   async getHealthStatus(): Promise<{ 
     isConfigured: boolean; 
-    provider: string; 
+    provider: EmailProvider; 
+    fromAddress: string;
     isHealthy: boolean;
     lastChecked: Date | null;
   }> {
@@ -465,7 +538,8 @@ If you have any questions, please contact us at admin@readmyfineprint.com
         (now.getTime() - this.lastHealthCheck.getTime()) < this.healthCheckCacheDuration) {
       return {
         isConfigured: this.isConfigured,
-        provider: this.useSendGrid ? 'sendgrid' : this.useSmtp ? 'smtp' : 'none',
+        provider: this.provider,
+        fromAddress: this.fromAddress,
         isHealthy: this.lastHealthStatus,
         lastChecked: this.lastHealthCheck
       };
@@ -478,7 +552,8 @@ If you have any questions, please contact us at admin@readmyfineprint.com
 
     return {
       isConfigured: this.isConfigured,
-      provider: this.useSendGrid ? 'sendgrid' : this.useSmtp ? 'smtp' : 'none',
+      provider: this.provider,
+      fromAddress: this.fromAddress,
       isHealthy,
       lastChecked: now
     };

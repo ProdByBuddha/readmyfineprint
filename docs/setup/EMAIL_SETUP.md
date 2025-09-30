@@ -2,61 +2,110 @@
 
 This guide explains how to configure email functionality to automatically send thank you emails after successful Stripe donations.
 
-**Note**: The email service automatically uses the same SMTP configuration as your security alert system, so if you already have security emails working, donation emails will work too!
+## 🚀 Quick Start
+
+For production deployments, we **recommend using iCloud SMTP** for reliable email delivery. See the [iCloud SMTP Setup Guide](./ICLOUD_SMTP_SETUP.md) for detailed instructions.
 
 ## Email Service Options
 
-### Option 1: Use Existing Security SMTP (Recommended)
+The email service supports multiple providers with automatic priority:
 
-If you already have security alerts configured, the donation emails will automatically use the same SMTP settings:
+### Option 1: iCloud SMTP (Recommended for Production)
+
+**Best for**: Production deployments with Apple/iCloud account
+
+✅ **Benefits**:
+- **Reliable**: Apple's email infrastructure
+- **Free**: No cost with iCloud account
+- **Secure**: TLS 1.2+ encryption
+- **Simple**: Standard SMTP configuration
+- **Flexible**: Works with any sender domain
+
+**Quick Setup**:
 
 ```bash
-# These are the same variables used for security alerts
-SMTP_USER=your-icloud-email@icloud.com  # or other SMTP email
+# iCloud SMTP Configuration
+SMTP_HOST=smtp.mail.me.com
+SMTP_PORT=587
+SMTP_USER=your-apple-id@icloud.com
 SMTP_PASS=your-app-specific-password
-SMTP_HOST=smtp.mail.me.com              # defaults to iCloud SMTP
-SMTP_PORT=587                           # defaults to 587
-SECURITY_EMAIL_FROM=your-email@icloud.com  # used as sender for donations too
+
+# Sender address
+EMAIL_FROM=noreply@readmyfineprint.com
 ```
 
-### Option 2: Gmail (Alternative for Development)
+**Requirements**:
+1. ✅ iCloud account
+2. ✅ 2-Factor Authentication enabled
+3. ✅ App-Specific Password generated
 
-1. **Enable 2-Factor Authentication** on your Gmail account
-2. **Generate an App Password**:
-   - Go to Google Account settings
-   - Security → 2-Step Verification → App passwords
-   - Generate a new app password for "Mail"
-3. **Add environment variables**:
-   ```bash
-   GMAIL_USER=your-email@gmail.com
-   GMAIL_APP_PASSWORD=your-16-character-app-password
-   ```
+📖 **[Complete iCloud SMTP Setup Guide →](./ICLOUD_SMTP_SETUP.md)**
 
-### Option 3: Custom SMTP Server
+### Option 2: SendGrid (Alternative for High-Volume)
 
-Add these environment variables:
+**Best for**: High-volume email sending (10k+ emails/day)
+
+```bash
+SENDGRID_API_KEY=your_sendgrid_api_key
+EMAIL_FROM=noreply@readmyfineprint.com
+```
+
+**Benefits**: API-based, high deliverability, detailed analytics
+
+### Option 3: Other SMTP Providers
+
+**Best for**: Using an existing SMTP service
+
+**Note**: If you already have security alerts configured, donation emails will automatically use the same SMTP settings.
+
 ```bash
 SMTP_HOST=your-smtp-server.com
 SMTP_PORT=587
 SMTP_USER=your-smtp-username
 SMTP_PASS=your-smtp-password
+EMAIL_FROM=your-email@example.com
 ```
 
-Common SMTP providers:
-- **iCloud**: smtp.mail.me.com (Port 587) - Default
-- **SendGrid**: smtp.sendgrid.net (Port 587)
+**Common SMTP Providers**:
+- **Gmail**: smtp.gmail.com (Port 587) - Requires App Password, development only
 - **Mailgun**: smtp.mailgun.org (Port 587)
 - **AWS SES**: email-smtp.region.amazonaws.com (Port 587)
+- **Postmark**: smtp.postmarkapp.com (Port 587)
 
-## Optional Configuration
+**Gmail Setup** (development/testing only):
+1. Enable 2-Factor Authentication on Google Account
+2. Generate App Password: Google Account → Security → App passwords
+3. Set `SMTP_USER=your-email@gmail.com` and `SMTP_PASS=app-password`
+4. Note: Gmail has daily sending limits (500 emails/day)
+
+## Provider Selection Priority
+
+The system automatically selects the best available provider:
+
+1. **SendGrid** - If `SENDGRID_API_KEY` is set
+2. **SMTP** (iCloud, Gmail, etc.) - If `SMTP_USER` and `SMTP_PASS` are set
+
+## Configuration Variables
+
+### Sender Address (Required)
 
 ```bash
-# Custom sender email (uses SECURITY_EMAIL_FROM first, then falls back to others)
-SECURITY_EMAIL_FROM=your-email@icloud.com  # Primary sender (shared with security alerts)
-FROM_EMAIL=noreply@readmyfineprint.com     # Fallback sender
+# Primary sender address (required for all providers)
+EMAIL_FROM=noreply@readmyfineprint.com
 
+# Legacy fallbacks (deprecated, use EMAIL_FROM instead)
+# SECURITY_EMAIL_FROM=your-email@icloud.com
+# FROM_EMAIL=noreply@readmyfineprint.com
+```
+
+### Optional Configuration
+
+```bash
 # Default recipient if customer email is not available
 DEFAULT_DONATION_EMAIL=admin@readmyfineprint.com
+
+# Admin email for system notifications
+ADMIN_EMAIL=admin@readmyfineprint.com
 ```
 
 ## Testing Email Configuration
@@ -65,8 +114,30 @@ Once configured, you can test the email service:
 
 ```bash
 # Make a POST request to test endpoint (admin auth required)
-curl -X POST http://localhost:8080/api/test-email \
-  -H "Authorization: Bearer your-admin-token"
+curl -X POST http://localhost:5000/api/test-email \
+  -H "Authorization: Bearer your-admin-token" \
+  -H "Content-Type: application/json"
+```
+
+**Expected Response:**
+```json
+{
+  "success": true,
+  "configured": true,
+  "testEmailSent": true,
+  "provider": "smtp",
+  "fromAddress": "noreply@readmyfineprint.com",
+  "isHealthy": true,
+  "message": "Test email sent successfully"
+}
+```
+
+**Check Application Logs:**
+```
+🍎 Configuring for iCloud SMTP
+✅ Email service configured with iCloud SMTP
+✅ Using sender address: noreply@readmyfineprint.com
+✅ Email sent successfully via SMTP
 ```
 
 ## Email Features
@@ -87,27 +158,87 @@ curl -X POST http://localhost:8080/api/test-email \
 - Errors in email sending don't affect payment processing
 - Logs all email attempts for debugging
 
-## Security Notes
+## Security & Best Practices
 
-- Never commit email credentials to version control
-- Use environment variables for all sensitive configuration
-- Gmail App Passwords are safer than regular passwords
-- SMTP connections use TLS encryption by default
+### Security
+- ✅ Never commit email credentials to version control
+- ✅ Use environment variables for all sensitive configuration
+- ✅ Always use App-Specific Passwords (never regular account passwords)
+- ✅ Enable 2-Factor Authentication on email accounts
+- ✅ Rotate credentials regularly
+- ✅ Use TLS/STARTTLS for encrypted connections
+
+### Deliverability
+- ✅ Use a reputable SMTP provider (iCloud, SendGrid, etc.)
+- ✅ Configure SPF and DKIM DNS records for your domain
+- ✅ Use a consistent sender address
+- ✅ Implement proper unsubscribe handling
+- ✅ Maintain clean recipient lists (remove bounces)
+- ✅ Monitor bounce rates and spam reports
 
 ## Troubleshooting
 
-### Email Not Sending
+### General Email Issues
+
+### iCloud SMTP Issues
+
+For detailed iCloud troubleshooting, see **[iCloud SMTP Setup Guide](./ICLOUD_SMTP_SETUP.md#troubleshooting)**.
+
+**Common issues**:
+- **Authentication failed**: Must use App-Specific Password, not iCloud password
+- **Connection timeout**: Check firewall allows port 587 outbound
+- **Sender rejected**: Verify sender email is valid
+
+### General Email Issues
+
+**Email Not Sending:**
 1. Check environment variables are set correctly
-2. Verify SMTP credentials with your provider
-3. Check server logs for error messages
-4. Test with the `/api/test-email` endpoint
+2. Verify SMTP credentials (use app-specific passwords)
+3. Check application logs for detailed errors
+4. Test with `/api/test-email` endpoint
+5. Ensure 2FA is enabled and app password is generated
 
-### Gmail Issues
-- Ensure 2FA is enabled on your Google account
-- Use App Password, not your regular Gmail password
-- Check that "Less secure app access" is not blocking the connection
+**Wrong Provider Selected:**
 
-### SMTP Issues
+Check logs to see which provider initialized:
+```bash
+# iCloud SMTP
+🍎 Configuring for iCloud SMTP
+✅ Email service configured with iCloud SMTP
+
+# SendGrid
+✅ Email service configured with SendGrid
+
+# Generic SMTP
+✅ Email service configured with SMTP (smtp.example.com)
+```
+
+**SendGrid Issues:**
+- Verify API key is valid and not expired
+- Check SendGrid account status and limits
+- Ensure sender domain is verified in SendGrid
+
+**Generic SMTP Issues:**
 - Verify SMTP server hostname and port
-- Check if your hosting provider blocks outbound SMTP
-- Ensure credentials are correct with your SMTP provider
+- Check if hosting provider blocks outbound SMTP
+- Ensure credentials are correct
+- Try port 2525 if 587 is blocked
+
+**Gmail Development Issues:**
+- Ensure 2FA is enabled
+- Use App Password, not regular password
+- Check Google Account security settings
+
+## Additional Resources
+
+- 📖 **[iCloud SMTP Setup Guide](./ICLOUD_SMTP_SETUP.md)** - Comprehensive production setup
+- 🔧 **[Environment Variables Reference](../../.env.example)** - All configuration options
+- 📬 **[Email Templates](../../server/email-service.ts)** - Customize email content
+
+## Support
+
+For email configuration help:
+1. Check application logs for detailed error messages
+2. Review provider-specific guides above
+3. Test with `/api/test-email` endpoint
+4. Contact support: admin@readmyfineprint.com

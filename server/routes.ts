@@ -3648,6 +3648,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Test email configuration (admin only)
   app.post("/api/test-email", requireAdminAuth, async (req, res) => {
     try {
+      // Get comprehensive health status
+      const healthStatus = await emailService.getHealthStatus();
       const testResult = await emailService.testEmailConfiguration();
 
       if (testResult) {
@@ -3665,13 +3667,19 @@ export async function registerRoutes(app: Express): Promise<Server> {
           success: true,
           configured: true,
           testEmailSent,
+          provider: healthStatus.provider,
+          fromAddress: healthStatus.fromAddress,
+          isHealthy: healthStatus.isHealthy,
+          lastChecked: healthStatus.lastChecked,
           message: testEmailSent ? 'Test email sent successfully' : 'Email service configured but test email failed'
         });
       } else {
         res.json({
           success: false,
           configured: false,
-          message: 'Email service not configured. Please set SMTP or Gmail environment variables.'
+          provider: healthStatus.provider,
+          fromAddress: healthStatus.fromAddress || 'not configured',
+          message: 'Email service not configured. Please set MailChannels, SendGrid, or SMTP environment variables.'
         });
       }
     } catch (error) {
@@ -3704,10 +3712,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(401).json({ error: 'Invalid monitoring credentials' });
       }
 
+      const healthStatus = await emailService.getHealthStatus();
       const testResult = await emailService.testEmailConfiguration();
 
       res.json({
         configured: testResult,
+        provider: healthStatus.provider,
+        fromAddress: healthStatus.fromAddress,
+        isHealthy: healthStatus.isHealthy,
         testEmailSent: false, // Monitoring endpoint doesn't send test emails
         message: testResult ? 'Email service is configured' : 'Email service not configured'
       });
