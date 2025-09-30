@@ -1531,7 +1531,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
           const userId = req.user?.id;
 
           // Check for valid consent for non-sample analysis
-          const consentProof = await consentLogger.verifyUserConsent(ip, userAgent, userId);
+          const consentProof = await consentLogger.verifyUserConsent(ip, userAgent, userId, req.sessionId);
 
           if (!consentProof) {
             securityLogger.logSecurityEvent({
