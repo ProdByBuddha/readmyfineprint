@@ -1,4 +1,5 @@
 import nodemailer from 'nodemailer';
+import sgMail from '@sendgrid/mail';
 
 interface DonationEmailData {
   amount: number;
@@ -18,7 +19,12 @@ interface EmailData {
 
 class EmailService {
   private transporter: nodemailer.Transporter | null = null;
+  private useSendGrid = false;
+  private useSmtp = false;
   private isConfigured = false;
+  private lastHealthCheck: Date | null = null;
+  private lastHealthStatus: boolean = false;
+  private healthCheckCacheDuration = 5 * 60 * 1000; // 5 minutes
 
   constructor() {
     this.initializeTransporter();
@@ -26,48 +32,86 @@ class EmailService {
 
   private initializeTransporter() {
     try {
-      // Use the same SMTP configuration as security alerts (prioritized)
-      const {
-        SMTP_HOST = 'smtp.mail.me.com', // Default to iCloud SMTP like security system
-        SMTP_PORT = '587',
-        SMTP_USER,
-        SMTP_PASS,
-      } = process.env;
+      const { SENDGRID_API_KEY, SMTP_HOST, SMTP_PORT = '587', SMTP_USER, SMTP_PASS } = process.env;
 
-      // Primary: Use existing security SMTP configuration
+      // Priority 1: SendGrid (recommended for production)
+      if (SENDGRID_API_KEY && SENDGRID_API_KEY.trim().length > 0) {
+        try {
+          sgMail.setApiKey(SENDGRID_API_KEY);
+          this.useSendGrid = true;
+          this.isConfigured = true;
+          console.log('✅ Email service configured with SendGrid');
+          
+          // Test SendGrid connectivity
+          this.testSendGridConnection().then(success => {
+            if (!success) {
+              console.warn('⚠️ SendGrid API key may be invalid or inactive');
+              this.isConfigured = false;
+              this.useSendGrid = false;
+            }
+          });
+          return;
+        } catch (error) {
+          console.error('❌ Failed to initialize SendGrid:', error);
+          this.useSendGrid = false;
+        }
+      }
+
+      // Priority 2: SMTP fallback
       if (SMTP_USER && SMTP_PASS) {
         this.transporter = nodemailer.createTransport({
-          host: SMTP_HOST,
+          host: SMTP_HOST || 'smtp.sendgrid.net',
           port: parseInt(SMTP_PORT),
-          secure: false, // true for 465, false for other ports
+          secure: false,
           auth: {
             user: SMTP_USER,
             pass: SMTP_PASS,
           },
           tls: {
-            rejectUnauthorized: false // Same as security system for compatibility
+            rejectUnauthorized: false
           }
         });
 
+        this.useSmtp = true;
+        
         // Test the connection before marking as configured
         this.transporter.verify()
           .then(() => {
             this.isConfigured = true;
-            console.log(`✅ Email service configured and verified with SMTP (${SMTP_HOST})`);
+            console.log(`✅ Email service configured with SMTP (${SMTP_HOST || 'smtp.sendgrid.net'})`);
           })
           .catch((error) => {
             console.warn(`⚠️ SMTP verification failed: ${error.message}`);
             console.warn('Email service will be disabled. Check SMTP credentials.');
             this.isConfigured = false;
+            this.useSmtp = false;
             this.transporter = null;
           });
         return;
       }
 
       console.log('⚠️ Email service not configured - missing environment variables');
-      console.log('Required: SMTP_USER, SMTP_PASS (using same config as security alerts');
+      console.log('Required: SENDGRID_API_KEY (recommended) or SMTP_USER + SMTP_PASS');
     } catch (error) {
       console.error('❌ Failed to initialize email service:', error);
+    }
+  }
+
+  /**
+   * Test SendGrid API connectivity
+   */
+  private async testSendGridConnection(): Promise<boolean> {
+    try {
+      // SendGrid validation: try to get API key info
+      const response = await fetch('https://api.sendgrid.com/v3/scopes', {
+        headers: {
+          'Authorization': `Bearer ${process.env.SENDGRID_API_KEY}`
+        }
+      });
+      return response.ok;
+    } catch (error) {
+      console.error('SendGrid connectivity test failed:', error);
+      return false;
     }
   }
 
@@ -81,6 +125,64 @@ class EmailService {
     }
 
     try {
+      if (this.useSendGrid) {
+        return await this.sendWithSendGrid(emailData);
+      } else if (this.useSmtp && this.transporter) {
+        return await this.sendWithSmtp(emailData);
+      } else {
+        console.error('❌ No email provider configured');
+        return false;
+      }
+    } catch (error) {
+      console.error('❌ Failed to send email:', error);
+      return false;
+    }
+  }
+
+  /**
+   * Send email via SendGrid
+   */
+  private async sendWithSendGrid(emailData: EmailData): Promise<boolean> {
+    try {
+      const msg = {
+        to: emailData.to,
+        from: {
+          email: 'admin@readmyfineprint.com',
+          name: 'ReadMyFinePrint'
+        },
+        replyTo: {
+          email: 'admin@readmyfineprint.com',
+          name: 'ReadMyFinePrint Support'
+        },
+        subject: emailData.subject,
+        text: emailData.text || emailData.html.replace(/<[^>]*>/g, ''),
+        html: emailData.html,
+      };
+
+      await sgMail.send(msg);
+      console.log('✅ Email sent successfully via SendGrid:', {
+        recipient: emailData.to,
+        subject: emailData.subject
+      });
+      return true;
+    } catch (error: any) {
+      console.error('❌ SendGrid send failed:', {
+        message: error.message,
+        code: error.code,
+        response: error.response?.body
+      });
+      
+      // If SendGrid fails, mark service as unhealthy
+      this.isConfigured = false;
+      return false;
+    }
+  }
+
+  /**
+   * Send email via SMTP
+   */
+  private async sendWithSmtp(emailData: EmailData): Promise<boolean> {
+    try {
       const mailOptions = {
         from: {
           name: 'ReadMyFinePrint',
@@ -93,25 +195,24 @@ class EmailService {
         to: emailData.to,
         subject: emailData.subject,
         html: emailData.html,
-        text: emailData.text || emailData.html.replace(/<[^>]*>/g, ''), // Strip HTML as fallback
+        text: emailData.text || emailData.html.replace(/<[^>]*>/g, ''),
       };
 
       const result = await this.transporter!.sendMail(mailOptions);
-      console.log('✅ Email sent successfully:', {
+      console.log('✅ Email sent successfully via SMTP:', {
         messageId: result.messageId,
         recipient: emailData.to,
         subject: emailData.subject
       });
-
       return true;
     } catch (error) {
-      console.error('❌ Failed to send email:', error);
+      console.error('❌ SMTP send failed:', error);
       return false;
     }
   }
 
   async sendDonationThankYou(data: DonationEmailData): Promise<boolean> {
-    if (!this.isConfigured || !this.transporter) {
+    if (!this.isConfigured) {
       console.log('⚠️ Email service not configured, skipping thank you email');
       return false;
     }
@@ -123,30 +224,12 @@ class EmailService {
       const recipientEmail = customerEmail;
       const recipientName = customerName || 'Valued Supporter';
 
-      const mailOptions = {
-        from: {
-          name: 'ReadMyFinePrint',
-          address: 'admin@readmyfineprint.com'
-        },
-        replyTo: {
-          name: 'ReadMyFinePrint Support',
-          address: 'admin@readmyfineprint.com'
-        },
+      return await this.sendEmail({
         to: recipientEmail,
         subject: '🙏 Thank you for your generous donation!',
         html: this.generateThankYouEmailHTML(data),
         text: this.generateThankYouEmailText(data),
-      };
-
-      const result = await this.transporter.sendMail(mailOptions);
-      console.log('✅ Thank you email sent successfully:', {
-        messageId: result.messageId,
-        recipient: recipientEmail,
-        amount: `${currency.toUpperCase()} ${amount.toFixed(2)}`,
-        paymentIntentId
       });
-
-      return true;
     } catch (error) {
       console.error('❌ Failed to send thank you email:', error);
       return false;
@@ -338,19 +421,67 @@ If you have any questions, please contact us at admin@readmyfineprint.com
     `;
   }
 
+  /**
+   * Test email configuration and return detailed status
+   */
   async testEmailConfiguration(): Promise<boolean> {
-    if (!this.isConfigured || !this.transporter) {
+    if (!this.isConfigured) {
       return false;
     }
 
     try {
-      await this.transporter.verify();
-      console.log('✅ Email configuration test successful');
-      return true;
+      if (this.useSendGrid) {
+        const isHealthy = await this.testSendGridConnection();
+        if (isHealthy) {
+          console.log('✅ SendGrid configuration test successful');
+        } else {
+          console.error('❌ SendGrid configuration test failed');
+        }
+        return isHealthy;
+      } else if (this.useSmtp && this.transporter) {
+        await this.transporter.verify();
+        console.log('✅ SMTP configuration test successful');
+        return true;
+      }
+      return false;
     } catch (error) {
       console.error('❌ Email configuration test failed:', error);
       return false;
     }
+  }
+
+  /**
+   * Get email service health status (with caching)
+   */
+  async getHealthStatus(): Promise<{ 
+    isConfigured: boolean; 
+    provider: string; 
+    isHealthy: boolean;
+    lastChecked: Date | null;
+  }> {
+    // Use cached result if recent
+    const now = new Date();
+    if (this.lastHealthCheck && 
+        (now.getTime() - this.lastHealthCheck.getTime()) < this.healthCheckCacheDuration) {
+      return {
+        isConfigured: this.isConfigured,
+        provider: this.useSendGrid ? 'sendgrid' : this.useSmtp ? 'smtp' : 'none',
+        isHealthy: this.lastHealthStatus,
+        lastChecked: this.lastHealthCheck
+      };
+    }
+
+    // Perform fresh health check
+    const isHealthy = await this.testEmailConfiguration();
+    this.lastHealthCheck = now;
+    this.lastHealthStatus = isHealthy;
+
+    return {
+      isConfigured: this.isConfigured,
+      provider: this.useSendGrid ? 'sendgrid' : this.useSmtp ? 'smtp' : 'none',
+      isHealthy,
+      lastChecked: now
+    };
   }
 }
 

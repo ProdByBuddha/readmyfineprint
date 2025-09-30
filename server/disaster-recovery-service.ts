@@ -8,6 +8,7 @@ import path from 'path';
 // import { ensureDbInitialized } from './db'; // Not needed with original db setup
 import { securityLogger, SecurityEventType, SecuritySeverity } from './security-logger';
 import { backupService } from './backup-service';
+import { emailService } from './email-service';
 
 interface DisasterScenario {
   id: string;
@@ -76,9 +77,9 @@ interface SystemHealth {
     backupIntegrity: boolean;
   };
   external: {
-    openai: boolean;
-    stripe: boolean;
-    email: boolean;
+    openai: { configured: boolean; healthy: boolean };
+    stripe: { configured: boolean; healthy: boolean };
+    email: { configured: boolean; healthy: boolean };
   };
 }
 
@@ -473,41 +474,57 @@ export class DisasterRecoveryService {
    */
   private async checkExternalServices(): Promise<SystemHealth['external']> {
     const services = {
-      openai: false,
-      stripe: false,
-      email: false
+      openai: { configured: false, healthy: false },
+      stripe: { configured: false, healthy: false },
+      email: { configured: false, healthy: false }
     };
 
     // Test OpenAI API
-    try {
-      if (process.env.OPENAI_API_KEY) {
+    const hasOpenAI = !!process.env.OPENAI_API_KEY;
+    services.openai.configured = hasOpenAI;
+    if (hasOpenAI) {
+      try {
         const response = await fetch('https://api.openai.com/v1/models', {
           headers: {
             'Authorization': `Bearer ${process.env.OPENAI_API_KEY}`
-          }
+          },
+          signal: AbortSignal.timeout(5000) // 5 second timeout
         });
-        services.openai = response.ok;
+        services.openai.healthy = response.ok;
+      } catch (error) {
+        services.openai.healthy = false;
+        console.warn('⚠️ OpenAI API health check failed:', error instanceof Error ? error.message : 'Unknown error');
       }
-    } catch (error) {
-      services.openai = false;
     }
 
     // Test Stripe API
-    try {
-      if (process.env.STRIPE_SECRET_KEY) {
-        const response = await fetch('https://api.stripe.com/v1/payment_methods', {
+    const hasStripe = !!process.env.STRIPE_SECRET_KEY;
+    services.stripe.configured = hasStripe;
+    if (hasStripe) {
+      try {
+        const response = await fetch('https://api.stripe.com/v1/balance', {
           headers: {
             'Authorization': `Bearer ${process.env.STRIPE_SECRET_KEY}`
-          }
+          },
+          signal: AbortSignal.timeout(5000) // 5 second timeout
         });
-        services.stripe = response.status === 200 || response.status === 401; // 401 is expected without proper auth
+        services.stripe.healthy = response.ok;
+      } catch (error) {
+        services.stripe.healthy = false;
+        console.warn('⚠️ Stripe API health check failed:', error instanceof Error ? error.message : 'Unknown error');
       }
-    } catch (error) {
-      services.stripe = false;
     }
 
-    // Email service is always considered healthy if configured
-    services.email = !!(process.env.SENDGRID_API_KEY || process.env.SMTP_HOST);
+    // Test Email service (SendGrid or SMTP)
+    try {
+      const emailHealth = await emailService.getHealthStatus();
+      services.email.configured = emailHealth.isConfigured;
+      services.email.healthy = emailHealth.isHealthy;
+    } catch (error) {
+      services.email.configured = !!(process.env.SENDGRID_API_KEY || process.env.SMTP_HOST);
+      services.email.healthy = false;
+      console.warn('⚠️ Email service health check failed:', error instanceof Error ? error.message : 'Unknown error');
+    }
 
     return services;
   }
@@ -516,7 +533,7 @@ export class DisasterRecoveryService {
    * Evaluate health and trigger recovery if needed
    */
   private async evaluateHealth(health: SystemHealth): Promise<void> {
-    // Database failure
+    // Database failure - CRITICAL
     if (health.database.status === 'failed') {
       await this.triggerRecovery('database_corruption', 'automated_health_check');
     }
@@ -527,14 +544,30 @@ export class DisasterRecoveryService {
       // Could trigger storage cleanup procedures
     }
 
-    // External services degraded
-    const failedServices = Object.entries(health.external)
-      .filter(([_, status]) => !status)
-      .map(([service, _]) => service);
+    // External services - distinguish between "not configured" and "configured but failing"
+    const configuredButFailing: string[] = [];
+    const notConfigured: string[] = [];
+    
+    Object.entries(health.external).forEach(([service, status]) => {
+      if (status.configured && !status.healthy) {
+        configuredButFailing.push(service);
+      } else if (!status.configured) {
+        notConfigured.push(service);
+      }
+    });
 
-    if (failedServices.length > 0) {
-      console.warn(`⚠️ External services degraded: ${failedServices.join(', ')}`);
-      await this.triggerRecovery('service_degradation', 'automated_health_check');
+    // Only log warning for unconfigured services, don't trigger recovery
+    if (notConfigured.length > 0) {
+      console.log(`ℹ️ External services not configured: ${notConfigured.join(', ')}`);
+    }
+
+    // Only trigger recovery if configured services are actually failing
+    if (configuredButFailing.length > 0) {
+      console.warn(`⚠️ Configured external services failing: ${configuredButFailing.join(', ')}`);
+      // Only trigger recovery for critical services or multiple failures
+      if (configuredButFailing.length >= 2 || configuredButFailing.includes('stripe')) {
+        await this.triggerRecovery('service_degradation', 'automated_health_check');
+      }
     }
   }
 

@@ -1834,18 +1834,35 @@ async function checkDatabaseHealth(): Promise<{ status: string; latency?: number
   }
 }
 
-async function checkEmailServiceHealth(): Promise<{ status: string; error?: string }> {
+async function checkEmailServiceHealth(): Promise<{ status: string; error?: string; provider?: string }> {
   try {
-    // Check if email service is configured
-    const hasEmailConfig = !!(process.env.SMTP_USER && process.env.SMTP_PASS);
-    return { 
-      status: hasEmailConfig ? 'healthy' : 'warning',
-      error: hasEmailConfig ? undefined : 'SMTP not configured'
+    const healthStatus = await emailService.getHealthStatus();
+    
+    if (!healthStatus.isConfigured) {
+      return {
+        status: 'warning',
+        error: 'Email service not configured',
+        provider: 'none'
+      };
+    }
+    
+    if (!healthStatus.isHealthy) {
+      return {
+        status: 'unhealthy',
+        error: `${healthStatus.provider} connection failed`,
+        provider: healthStatus.provider
+      };
+    }
+    
+    return {
+      status: 'healthy',
+      provider: healthStatus.provider
     };
   } catch (error) {
     return { 
       status: 'unhealthy', 
-      error: error instanceof Error ? error.message : 'Unknown error' 
+      error: error instanceof Error ? error.message : 'Unknown error',
+      provider: 'unknown'
     };
   }
 }
