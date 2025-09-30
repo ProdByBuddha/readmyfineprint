@@ -224,7 +224,7 @@ const getStripeInstance = (useTestMode: boolean = false) => {
 
   console.log(`🔑 Using Stripe key: ${secretKey.substring(0, 15)}... (test mode: ${useTestMode})`);
   return new Stripe(secretKey, {
-    apiVersion: '2024-12-18.acacia',
+    apiVersion: '2025-08-27.basil',
   });
 };
 
