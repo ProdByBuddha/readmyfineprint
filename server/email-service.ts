@@ -100,7 +100,7 @@ class EmailService {
           console.log('📧 Configuring for Gmail SMTP');
         }
 
-        this.transporter = nodemailer.createTransporter(smtpConfig);
+        this.transporter = nodemailer.createTransport(smtpConfig);
         this.provider = 'smtp';
         
         // Test the connection before marking as configured
