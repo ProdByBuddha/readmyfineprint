@@ -12,10 +12,16 @@ export interface FeatureFlags {
   workspaces: boolean;
   // Activity Feed & Audit Trail
   activity: boolean;
+  // Document Annotations
+  annotations: boolean;
+  // Usage Analytics Dashboard
+  usage: boolean;
   // Realtime Collaboration (WebSocket)
   realtime: boolean;
   // Organization-scoped API Keys
   orgApiKeys: boolean;
+  // Advocacy guidance in document analysis
+  advocacy: boolean;
 }
 
 /**
@@ -25,8 +31,11 @@ const DEFAULT_FLAGS: FeatureFlags = {
   organizations: process.env.ENABLE_ORGANIZATIONS === 'true',
   workspaces: process.env.ENABLE_WORKSPACES === 'true',
   activity: process.env.ENABLE_ACTIVITY === 'true',
+  annotations: process.env.ENABLE_ANNOTATIONS === 'true',
+  usage: process.env.ENABLE_USAGE === 'true',
   realtime: process.env.ENABLE_REALTIME === 'true',
-  orgApiKeys: process.env.ENABLE_ORG_API_KEYS === 'true',
+  orgApiKeys: process.env.ENABLE_ORG_API_KEYS !== 'false',
+  advocacy: process.env.ENABLE_ADVOCACY !== 'false',
 };
 
 /**
@@ -34,6 +43,11 @@ const DEFAULT_FLAGS: FeatureFlags = {
  * Maps to tier IDs in subscription-tiers.ts
  */
 export const TEAM_COLLABORATION_TIERS = ['professional', 'business', 'enterprise', 'ultimate'];
+
+/**
+ * Subscription tiers that unlock advocacy guidance in analyses
+ */
+export const ADVOCACY_ACCESS_TIERS = ['starter', 'professional', 'business', 'enterprise', 'ultimate'];
 
 /**
  * Default seat limits per tier for organizations
@@ -74,6 +88,13 @@ export function isFeatureEnabled(feature: keyof FeatureFlags): boolean {
  */
 export function hasTeamCollaborationAccess(tierId: string): boolean {
   return TEAM_COLLABORATION_TIERS.includes(tierId);
+}
+
+/**
+ * Check if a subscription tier has access to advocacy guidance
+ */
+export function hasAdvocacyAccess(tierId: string): boolean {
+  return ADVOCACY_ACCESS_TIERS.includes(tierId);
 }
 
 /**

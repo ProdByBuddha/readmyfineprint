@@ -1,213 +1,259 @@
-import { useState, useEffect } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { useEffect, useMemo, useState } from 'react';
+import {
+  Alert,
+  AlertDescription,
+  AlertTitle,
+} from '@/components/ui/alert';
+import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Badge } from '@/components/ui/badge';
-import { Alert, AlertDescription } from '@/components/ui/alert';
-import { 
-  Key, 
-  Plus, 
-  Copy, 
-  Eye, 
-  EyeOff, 
-  Trash2, 
-  Settings, 
-  Crown,
-  AlertCircle,
-  CheckCircle
-} from 'lucide-react';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 import { useToast } from '@/hooks/use-toast';
+import { useOrganizations } from '@/hooks/useTeamManagement';
+import {
+  useCreateOrgApiKey,
+  useOrgApiKeys,
+  useRevokeOrgApiKey,
+} from '@/hooks/useApiKeys';
+import {
+  AlertCircle,
+  Check,
+  Copy,
+  Key,
+  Loader2,
+  Plus,
+  Shield,
+  Trash2,
+} from 'lucide-react';
 
-interface ApiKey {
-  id: string;
-  name: string;
-  key: string;
-  createdAt: string;
-  lastUsed: string | null;
-  permissions: 'read' | 'full';
-  status: 'active' | 'revoked';
-}
+const ALLOWED_TIERS = ['professional', 'business', 'enterprise', 'ultimate'];
+const API_KEY_FEATURE_ENABLED = import.meta.env.VITE_ENABLE_API_KEYS !== 'false';
+const DEFAULT_SCOPE = 'documents.read';
+
+const SCOPE_OPTIONS = [
+  { value: 'documents.read', label: 'Read organization documents' },
+  { value: 'documents.manage', label: 'Manage documents & annotations' },
+];
 
 interface ApiKeyManagementProps {
   userTier: string;
 }
 
-// Feature flag for API key management - can be controlled via environment variable
-const API_KEY_FEATURE_ENABLED = import.meta.env.VITE_ENABLE_API_KEYS === 'true' || false;
-
 export default function ApiKeyManagement({ userTier }: ApiKeyManagementProps) {
-  const [apiKeys, setApiKeys] = useState<ApiKey[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [showCreateForm, setShowCreateForm] = useState(false);
-  const [newKeyName, setNewKeyName] = useState('');
-  const [newKeyPermissions, setNewKeyPermissions] = useState<'read' | 'full'>('read');
-  const [visibleKeys, setVisibleKeys] = useState<Set<string>>(new Set());
   const { toast } = useToast();
+  const { data: orgsData, isLoading: orgsLoading, error: orgsError } = useOrganizations();
+  const organizations = orgsData?.organizations ?? [];
+  const adminOrganizations = useMemo(
+    () => organizations.filter((org) => org.role === 'admin'),
+    [organizations],
+  );
 
-  const hasApiAccess = ['professional', 'business', 'enterprise', 'ultimate'].includes(userTier);
-
-  async function fetchApiKeys() {
-    try {
-      // This would be implemented when the API key system is ready
-      // For now, show placeholder data for enterprise users
-      setApiKeys([
-        {
-          id: '1',
-          name: 'Production API',
-          key: 'rmp_key_1234567890abcdef',
-          createdAt: '2024-01-15',
-          lastUsed: '2024-01-20',
-          permissions: 'full',
-          status: 'active'
-        }
-      ]);
-    } catch (error) {
-      console.error('Error fetching API keys:', error);
-    } finally {
-      setLoading(false);
-    }
-  }
+  const [selectedOrgId, setSelectedOrgId] = useState<string | null>(null);
+  const [showCreateDialog, setShowCreateDialog] = useState(false);
+  const [newKeyName, setNewKeyName] = useState('');
+  const [selectedScope, setSelectedScope] = useState<string>(DEFAULT_SCOPE);
+  const [rateLimitOverride, setRateLimitOverride] = useState<string>('');
+  const [generatedSecret, setGeneratedSecret] = useState<string | null>(null);
 
   useEffect(() => {
-    if (hasApiAccess) {
-      void fetchApiKeys();
-    } else {
-      setLoading(false);
+    if (!selectedOrgId && adminOrganizations.length > 0) {
+      setSelectedOrgId(adminOrganizations[0].id);
     }
-  }, [hasApiAccess]);
+  }, [adminOrganizations, selectedOrgId]);
 
-  // Hide entire component if feature is not enabled
-  if (!API_KEY_FEATURE_ENABLED) {
-    return (
-      <Card data-testid="api-feature-disabled-card">
-        <CardHeader>
-          <CardTitle className="flex items-center space-x-2">
-            <Key className="h-5 w-5" />
-            <span>API Access</span>
-            <Crown className="h-4 w-4 text-orange-500" />
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <Alert data-testid="alert-api-feature-coming-soon">
-            <Settings className="h-4 w-4" />
-            <AlertDescription>
-              <div className="space-y-2">
-                <p className="font-medium">API Access Coming Soon</p>
-                <p>We're working on bringing you comprehensive API access with:</p>
-                <ul className="list-disc list-inside space-y-1 text-sm mt-2">
-                  <li>Secure API key generation and management</li>
-                  <li>Fine-grained permission controls</li>
-                  <li>Usage analytics and rate limiting</li>
-                  <li>Comprehensive API documentation</li>
-                </ul>
-                <p className="text-sm text-muted-foreground mt-3">
-                  Stay tuned for updates! This feature will be available to Professional tier and above.
-                </p>
-              </div>
-            </AlertDescription>
-          </Alert>
-        </CardContent>
-      </Card>
-    );
-  }
+  const { data: apiKeysData, isLoading: keysLoading, error: apiKeysError } = useOrgApiKeys(selectedOrgId);
+  const createApiKeyMutation = useCreateOrgApiKey(selectedOrgId);
+  const revokeApiKeyMutation = useRevokeOrgApiKey(selectedOrgId);
 
-  const createApiKey = async () => {
+  const hasApiAccess = ALLOWED_TIERS.includes(userTier);
+  const apiKeys = apiKeysData?.apiKeys ?? [];
+
+  const handleCreateApiKey = async () => {
+    if (!selectedOrgId) {
+      toast({
+        title: 'Organization required',
+        description: 'Select an organization before creating an API key.',
+        variant: 'destructive',
+      });
+      return;
+    }
+
     if (!newKeyName.trim()) {
       toast({
-        title: "Name Required",
-        description: "Please enter a name for the API key",
-        variant: "destructive"
+        title: 'Name required',
+        description: 'Provide a friendly name for the API key.',
+        variant: 'destructive',
       });
       return;
     }
 
     try {
-      // This would be implemented when the API key system is ready
-      toast({
-        title: "Coming Soon",
-        description: "API key creation will be available in a future update",
+      const result = await createApiKeyMutation.mutateAsync({
+        name: newKeyName.trim(),
+        scopes: [selectedScope],
+        rateLimitOverride: rateLimitOverride ? Number(rateLimitOverride) : undefined,
       });
-      setShowCreateForm(false);
+
+      setGeneratedSecret(result.secret);
+      setShowCreateDialog(false);
       setNewKeyName('');
-    } catch (error) {
-      console.error('Error creating API key:', error);
+      setRateLimitOverride('');
+      setSelectedScope(DEFAULT_SCOPE);
+
       toast({
-        title: "Creation Failed",
-        description: "Failed to create API key. Please try again.",
-        variant: "destructive"
+        title: 'API key created',
+        description: 'Copy the key now. It will not be shown again.',
+      });
+    } catch (error) {
+      toast({
+        title: 'Creation failed',
+        description: error instanceof Error ? error.message : 'Unable to create API key.',
+        variant: 'destructive',
       });
     }
   };
 
-  const copyToClipboard = (text: string) => {
-    navigator.clipboard.writeText(text);
-    toast({
-      title: "Copied",
-      description: "API key copied to clipboard",
-    });
-  };
+  const handleRevokeApiKey = async (apiKeyId: string) => {
+    if (!selectedOrgId) return;
 
-  const toggleKeyVisibility = (keyId: string) => {
-    const newVisibleKeys = new Set(visibleKeys);
-    if (newVisibleKeys.has(keyId)) {
-      newVisibleKeys.delete(keyId);
-    } else {
-      newVisibleKeys.add(keyId);
+    const confirmed = window.confirm('Revoke this API key? This action cannot be undone.');
+    if (!confirmed) {
+      return;
     }
-    setVisibleKeys(newVisibleKeys);
-  };
 
-  const revokeApiKey = async (keyId: string) => {
-    if (window.confirm('Are you sure you want to revoke this API key? This action cannot be undone.')) {
-      try {
-        // This would be implemented when the API key system is ready
-        toast({
-          title: "Coming Soon",
-          description: "API key revocation will be available in a future update",
-        });
-      } catch (error) {
-        console.error('Error revoking API key:', error);
-        toast({
-          title: "Revocation Failed",
-          description: "Failed to revoke API key. Please try again.",
-          variant: "destructive"
-        });
-      }
+    try {
+      await revokeApiKeyMutation.mutateAsync({ apiKeyId });
+      toast({
+        title: 'API key revoked',
+        description: 'The key is no longer usable.',
+      });
+    } catch (error) {
+      toast({
+        title: 'Revocation failed',
+        description: error instanceof Error ? error.message : 'Unable to revoke API key.',
+        variant: 'destructive',
+      });
     }
   };
+
+  const copySecret = async (secret: string) => {
+    try {
+      await navigator.clipboard.writeText(secret);
+      toast({
+        title: 'Copied to clipboard',
+        description: 'Store the key in a secure password manager.',
+      });
+    } catch (error) {
+      toast({
+        title: 'Copy failed',
+        description: 'Unable to copy API key to clipboard.',
+        variant: 'destructive',
+      });
+    }
+  };
+
+  if (!API_KEY_FEATURE_ENABLED) {
+    return (
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <Key className="h-5 w-5" />
+            API Access
+            <Badge variant="outline" className="text-orange-500 border-orange-200">
+              Coming Soon
+            </Badge>
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <Alert>
+            <AlertTitle>Preparing secure API access</AlertTitle>
+            <AlertDescription>
+              We are finalizing the API key management experience. Enterprise subscribers will receive early access notifications.
+            </AlertDescription>
+          </Alert>
+        </CardContent>
+      </Card>
+    );
+  }
 
   if (!hasApiAccess) {
     return (
       <Card data-testid="api-access-upgrade-card">
         <CardHeader>
-          <CardTitle className="flex items-center space-x-2">
+          <CardTitle className="flex items-center gap-2">
             <Key className="h-5 w-5" />
-            <span>API Access</span>
-            <Crown className="h-4 w-4 text-orange-500" />
+            API Access
+            <Badge variant="outline" className="text-orange-500 border-orange-200">Upgrade</Badge>
           </CardTitle>
         </CardHeader>
         <CardContent>
-          <Alert data-testid="alert-api-access-required">
-            <Crown className="h-4 w-4 text-orange-500" />
+          <Alert>
+            <AlertTitle>Professional tier required</AlertTitle>
             <AlertDescription>
-              <div className="space-y-2">
-                <p className="font-medium">Professional Tier Required</p>
-                <p>API access is available for Professional tier and above. Upgrade your subscription to:</p>
-                <ul className="list-disc list-inside space-y-1 text-sm">
-                  <li>Generate and manage API keys</li>
-                  <li>Integrate document analysis into your applications</li>
-                  <li>Access usage analytics and rate limiting</li>
-                  <li>Get comprehensive API documentation</li>
-                </ul>
-                <Button 
-                  className="mt-3"
-                  onClick={() => window.location.href = '/subscription?tab=plans'}
-                  data-testid="button-upgrade-for-api"
-                >
-                  Upgrade to Professional
-                </Button>
-              </div>
+              API key management is available for Professional plans and above. Upgrade to generate secure tokens, monitor usage, and configure custom rate limits.
+            </AlertDescription>
+          </Alert>
+          <Button className="mt-4" onClick={() => (window.location.href = '/subscription?tab=plans')}>
+            View subscription plans
+          </Button>
+        </CardContent>
+      </Card>
+    );
+  }
+
+  if (orgsLoading) {
+    return (
+      <Card>
+        <CardContent className="flex items-center gap-2 p-6">
+          <Loader2 className="h-5 w-5 animate-spin" />
+          <span>Loading organizations…</span>
+        </CardContent>
+      </Card>
+    );
+  }
+
+  if (orgsError) {
+    return (
+      <Card>
+        <CardContent className="p-6">
+          <Alert variant="destructive">
+            <AlertTitle>Unable to load organizations</AlertTitle>
+            <AlertDescription>{orgsError instanceof Error ? orgsError.message : 'Unknown error'}</AlertDescription>
+          </Alert>
+        </CardContent>
+      </Card>
+    );
+  }
+
+  if (adminOrganizations.length === 0) {
+    return (
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <Shield className="h-5 w-5" />
+            Administrator access required
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <Alert>
+            <AlertDescription>
+              API keys can be managed by organization administrators. Ask an admin to grant you access or generate keys on your behalf.
             </AlertDescription>
           </Alert>
         </CardContent>
@@ -215,196 +261,212 @@ export default function ApiKeyManagement({ userTier }: ApiKeyManagementProps) {
     );
   }
 
-  if (loading) {
-    return (
-      <Card>
-        <CardContent className="p-6">
-          <div className="flex items-center space-x-2">
-            <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-primary"></div>
-            <span>Loading API keys...</span>
-          </div>
-        </CardContent>
-      </Card>
-    );
-  }
+  const currentOrg = adminOrganizations.find((org) => org.id === selectedOrgId) ?? adminOrganizations[0];
 
   return (
     <div className="space-y-6">
       <Card data-testid="api-key-management-card">
         <CardHeader>
-          <div className="flex items-center justify-between">
-            <CardTitle className="flex items-center space-x-2">
-              <Key className="h-5 w-5" />
-              <span>API Key Management</span>
-              <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200">
-                {userTier.charAt(0).toUpperCase() + userTier.slice(1)}
-              </Badge>
-            </CardTitle>
-            <Button 
-              onClick={() => setShowCreateForm(true)}
-              className="flex items-center space-x-2"
-              data-testid="button-create-api-key"
-            >
-              <Plus className="h-4 w-4" />
-              <span>Create Key</span>
-            </Button>
+          <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+            <div>
+              <CardTitle className="flex items-center gap-2">
+                <Key className="h-5 w-5" />
+                API Key Management
+              </CardTitle>
+              <CardDescription>
+                Generate and revoke organization-scoped API keys. Keys are shown only once when created.
+              </CardDescription>
+            </div>
+            <div className="flex items-center gap-3">
+              <div className="flex items-center gap-2">
+                <Label htmlFor="api-key-org-select" className="text-sm font-medium">
+                  Organization
+                </Label>
+                <Select
+                  value={currentOrg?.id ?? ''}
+                  onValueChange={(value) => setSelectedOrgId(value)}
+                  defaultValue={currentOrg?.id}
+                >
+                  <SelectTrigger id="api-key-org-select" className="min-w-[200px]">
+                    <SelectValue placeholder="Select organization" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {adminOrganizations.map((org) => (
+                      <SelectItem key={org.id} value={org.id}>
+                        {org.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              <Button onClick={() => setShowCreateDialog(true)} className="flex items-center gap-2">
+                <Plus className="h-4 w-4" />
+                Create key
+              </Button>
+            </div>
           </div>
         </CardHeader>
         <CardContent className="space-y-4">
-          <Alert data-testid="alert-api-coming-soon">
-            <Settings className="h-4 w-4" />
-            <AlertDescription>
-              <strong>Coming Soon:</strong> Full API key management is currently in development. 
-              This interface shows the planned functionality for Professional tier and above.
-            </AlertDescription>
-          </Alert>
-
-          {showCreateForm && (
-            <Card className="border-dashed" data-testid="card-create-api-key">
-              <CardContent className="p-4">
-                <div className="space-y-4">
-                  <div>
-                    <Label htmlFor="key-name">API Key Name</Label>
-                    <Input
-                      id="key-name"
-                      value={newKeyName}
-                      onChange={(e) => setNewKeyName(e.target.value)}
-                      placeholder="e.g., Production API, Development Key"
-                      data-testid="input-api-key-name"
-                    />
-                  </div>
-                  <div>
-                    <Label htmlFor="key-permissions">Permissions</Label>
-                    <select
-                      id="key-permissions"
-                      value={newKeyPermissions}
-                      onChange={(e) => setNewKeyPermissions(e.target.value as 'read' | 'full')}
-                      className="w-full p-2 border rounded-md"
-                      data-testid="select-api-key-permissions"
-                    >
-                      <option value="read">Read Only</option>
-                      <option value="full">Full Access</option>
-                    </select>
-                  </div>
-                  <div className="flex space-x-2">
-                    <Button onClick={createApiKey} data-testid="button-confirm-create-key">
-                      Create Key
-                    </Button>
-                    <Button 
-                      variant="outline" 
-                      onClick={() => setShowCreateForm(false)}
-                      data-testid="button-cancel-create-key"
-                    >
-                      Cancel
-                    </Button>
-                  </div>
+          {generatedSecret && (
+            <Alert>
+              <AlertTitle className="flex items-center gap-2">
+                <Check className="h-4 w-4 text-green-600" />
+                New API key created
+              </AlertTitle>
+              <AlertDescription>
+                <p className="mb-2 text-sm">Copy this key now. It will not be displayed again.</p>
+                <div className="flex items-center gap-2">
+                  <code className="rounded bg-muted px-2 py-1 font-mono text-sm">{generatedSecret}</code>
+                  <Button size="sm" variant="outline" onClick={() => copySecret(generatedSecret)}>
+                    <Copy className="mr-1 h-4 w-4" /> Copy
+                  </Button>
+                  <Button size="sm" variant="ghost" onClick={() => setGeneratedSecret(null)}>
+                    Dismiss
+                  </Button>
                 </div>
-              </CardContent>
-            </Card>
+              </AlertDescription>
+            </Alert>
           )}
 
-          <div className="space-y-3">
-            {apiKeys.length === 0 ? (
-              <div className="text-center py-8 text-gray-600 dark:text-gray-300" data-testid="text-no-api-keys">
-                <Key className="h-12 w-12 mx-auto mb-3 opacity-50" />
-                <p>No API keys created yet</p>
-                <p className="text-sm">Create your first API key to get started</p>
-              </div>
-            ) : (
-              apiKeys.map((apiKey) => (
-                <Card key={apiKey.id} className="border-l-4 border-l-green-500" data-testid={`api-key-card-${apiKey.id}`}>
-                  <CardContent className="p-4">
-                    <div className="flex items-center justify-between">
-                      <div className="space-y-1">
-                        <div className="flex items-center space-x-2">
-                          <h4 className="font-medium" data-testid={`text-api-key-name-${apiKey.id}`}>{apiKey.name}</h4>
-                          <Badge variant={apiKey.permissions === 'full' ? 'default' : 'secondary'}>
-                            {apiKey.permissions === 'full' ? 'Full Access' : 'Read Only'}
-                          </Badge>
-                          <Badge variant={apiKey.status === 'active' ? 'default' : 'destructive'}>
-                            {apiKey.status === 'active' ? 'Active' : 'Revoked'}
-                          </Badge>
-                        </div>
-                        <div className="flex items-center space-x-4 text-sm text-gray-600 dark:text-gray-300">
-                          <span>Created: {new Date(apiKey.createdAt).toLocaleDateString()}</span>
-                          <span>
-                            Last used: {apiKey.lastUsed ? new Date(apiKey.lastUsed).toLocaleDateString() : 'Never'}
-                          </span>
-                        </div>
-                        <div className="flex items-center space-x-2 mt-2">
-                          <code className="bg-muted px-2 py-1 rounded text-sm font-mono">
-                            {visibleKeys.has(apiKey.id) ? apiKey.key : '••••••••••••••••••••'}
-                          </code>
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={() => toggleKeyVisibility(apiKey.id)}
-                            data-testid={`button-toggle-visibility-${apiKey.id}`}
-                          >
-                            {visibleKeys.has(apiKey.id) ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-                          </Button>
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={() => copyToClipboard(apiKey.key)}
-                            data-testid={`button-copy-key-${apiKey.id}`}
-                          >
-                            <Copy className="h-4 w-4" />
-                          </Button>
-                        </div>
+          {keysLoading ? (
+            <div className="flex items-center gap-2">
+              <Loader2 className="h-5 w-5 animate-spin" />
+              <span>Loading API keys…</span>
+            </div>
+          ) : apiKeysError ? (
+            <Alert variant="destructive">
+              <AlertTitle>Unable to load API keys</AlertTitle>
+              <AlertDescription>
+                {apiKeysError instanceof Error ? apiKeysError.message : 'Unknown error occurred.'}
+              </AlertDescription>
+            </Alert>
+          ) : apiKeys.length === 0 ? (
+            <div className="rounded-lg border border-dashed p-6 text-center text-sm text-muted-foreground">
+              <AlertCircle className="mx-auto mb-2 h-6 w-6" />
+              <p>No API keys created yet.</p>
+              <p>Create your first key to integrate with the Read My Fine Print API.</p>
+            </div>
+          ) : (
+            <div className="space-y-3">
+              {apiKeys.map((apiKey) => (
+                <Card key={apiKey.id} className="border-l-4 border-l-primary/60">
+                  <CardContent className="flex flex-col gap-3 p-4 sm:flex-row sm:items-center sm:justify-between">
+                    <div className="space-y-2">
+                      <div className="flex flex-wrap items-center gap-2">
+                        <h4 className="font-semibold">{apiKey.name}</h4>
+                        <Badge variant={apiKey.status === 'active' ? 'default' : 'secondary'}>
+                          {apiKey.status === 'active' ? 'Active' : 'Revoked'}
+                        </Badge>
+                        <Badge variant="outline">{formatScopeLabel(apiKey.scopes)}</Badge>
                       </div>
-                      <div className="flex space-x-2">
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => revokeApiKey(apiKey.id)}
-                          className="text-destructive hover:text-destructive"
-                          data-testid={`button-revoke-key-${apiKey.id}`}
-                        >
-                          <Trash2 className="h-4 w-4" />
-                        </Button>
+                      <div className="flex flex-wrap gap-4 text-sm text-muted-foreground">
+                        <span>Created {new Date(apiKey.createdAt).toLocaleString()}</span>
+                        <span>
+                          Last used{' '}
+                          {apiKey.lastUsedAt ? new Date(apiKey.lastUsedAt).toLocaleString() : 'Never'}
+                        </span>
+                        {apiKey.rateLimitOverride ? (
+                          <span>Rate limit override: {apiKey.rateLimitOverride} requests/minute</span>
+                        ) : null}
                       </div>
+                      <div className="flex items-center gap-2">
+                        <code className="rounded bg-muted px-2 py-1 font-mono text-sm">
+                          {maskSecret(apiKey.prefix)}
+                        </code>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        className="text-destructive"
+                        onClick={() => handleRevokeApiKey(apiKey.id)}
+                        disabled={apiKey.status === 'revoked' || revokeApiKeyMutation.isPending}
+                      >
+                        <Trash2 className="mr-1 h-4 w-4" />
+                        Revoke
+                      </Button>
                     </div>
                   </CardContent>
                 </Card>
-              ))
-            )}
-          </div>
+              ))}
+            </div>
+          )}
         </CardContent>
       </Card>
 
-      <Card data-testid="api-usage-card">
-        <CardHeader>
-          <CardTitle>API Usage & Documentation</CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <Alert>
-            <CheckCircle className="h-4 w-4" />
-            <AlertDescription>
-              <strong>Coming Soon:</strong> Comprehensive API documentation, usage analytics, 
-              and rate limiting information will be available here.
-            </AlertDescription>
-          </Alert>
-          
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-center">
-            <div className="p-4 bg-muted rounded-lg">
-              <h4 className="font-medium">Rate Limit</h4>
-              <p className="text-2xl font-bold text-green-600">1000/hour</p>
-              <p className="text-sm text-gray-600 dark:text-gray-300">Based on {userTier} tier</p>
+      <Dialog open={showCreateDialog} onOpenChange={setShowCreateDialog}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Create API key</DialogTitle>
+            <DialogDescription>
+              Provide a friendly name and select the scope. The generated key inherits your organization permissions.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4 py-2">
+            <div className="space-y-2">
+              <Label htmlFor="api-key-name">Key name</Label>
+              <Input
+                id="api-key-name"
+                placeholder="e.g. Production integration"
+                value={newKeyName}
+                onChange={(event) => setNewKeyName(event.target.value)}
+              />
             </div>
-            <div className="p-4 bg-muted rounded-lg">
-              <h4 className="font-medium">This Month</h4>
-              <p className="text-2xl font-bold">0</p>
-              <p className="text-sm text-gray-600 dark:text-gray-300">API calls made</p>
+            <div className="space-y-2">
+              <Label htmlFor="api-key-scope">Permissions</Label>
+              <Select value={selectedScope} onValueChange={setSelectedScope}>
+                <SelectTrigger id="api-key-scope">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  {SCOPE_OPTIONS.map((option) => (
+                    <SelectItem key={option.value} value={option.value}>
+                      {option.label}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
             </div>
-            <div className="p-4 bg-muted rounded-lg">
-              <h4 className="font-medium">Success Rate</h4>
-              <p className="text-2xl font-bold text-green-600">-</p>
-              <p className="text-sm text-gray-600 dark:text-gray-300">No data yet</p>
+            <div className="space-y-2">
+              <Label htmlFor="api-key-rate-limit">Custom rate limit (requests per minute)</Label>
+              <Input
+                id="api-key-rate-limit"
+                type="number"
+                placeholder="Optional"
+                value={rateLimitOverride}
+                onChange={(event) => setRateLimitOverride(event.target.value)}
+                min={1}
+              />
             </div>
           </div>
-        </CardContent>
-      </Card>
+          <DialogFooter className="gap-2">
+            <Button variant="outline" onClick={() => setShowCreateDialog(false)}>
+              Cancel
+            </Button>
+            <Button onClick={handleCreateApiKey} disabled={createApiKeyMutation.isPending}>
+              {createApiKeyMutation.isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+              Create key
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
+}
+
+function maskSecret(prefix: string): string {
+  return `${prefix}•••••••••••••`;
+}
+
+function formatScopeLabel(scopes: string[]): string {
+  if (scopes.length === 0) {
+    return 'Read';
+  }
+
+  if (scopes.includes('documents.manage')) {
+    return 'Full access';
+  }
+
+  return 'Read only';
 }

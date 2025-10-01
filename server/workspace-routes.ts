@@ -274,7 +274,8 @@ router.patch(
 
       const workspace = await workspaceService.updateWorkspace(
         workspaceId,
-        validation.data
+        validation.data,
+        req.user!.id
       );
 
       return res.json({ workspace });
@@ -301,7 +302,10 @@ router.delete(
     try {
       const workspaceId = req.params.workspaceId;
 
-      const result = await workspaceService.deleteWorkspace(workspaceId);
+      const result = await workspaceService.deleteWorkspace(
+        workspaceId,
+        req.user!.id
+      );
 
       return res.json(result);
     } catch (error: any) {
@@ -405,7 +409,8 @@ router.patch(
       const member = await workspaceService.updateWorkspaceMemberRole(
         workspaceId,
         userId,
-        validation.data.role
+        validation.data.role,
+        req.user!.id
       );
 
       return res.json({ member });
@@ -432,7 +437,11 @@ router.delete(
     try {
       const { workspaceId, userId } = req.params;
 
-      const result = await workspaceService.removeWorkspaceMember(workspaceId, userId);
+      const result = await workspaceService.removeWorkspaceMember(
+        workspaceId,
+        userId,
+        req.user!.id
+      );
 
       return res.json(result);
     } catch (error: any) {
@@ -526,7 +535,8 @@ router.delete(
 
       const result = await workspaceService.unshareDocumentFromWorkspace(
         workspaceId,
-        parseInt(documentId, 10)
+        parseInt(documentId, 10),
+        req.user!.id
       );
 
       return res.json(result);

@@ -1,6 +1,7 @@
 import OpenAI from "openai";
 import type { DocumentAnalysis, PIIRedactionInfo } from "@shared/schema";
 import { securityLogger } from "./security-logger";
+import { hasAdvocacyAccess, isFeatureEnabled } from "./feature-flags";
 import { piiDetectionService, type PIIDetectionResult } from "./pii-detection";
 import { enhancedPiiDetectionService } from "./enhanced-pii-detection";
 import { piiEntanglementService } from "./pii-entanglement-service";
@@ -26,6 +27,7 @@ export async function analyzeDocumentWithPII(
     model?: string;
     userId?: string;
     includeAdvocacy?: boolean;
+    subscriptionTierId?: string;
     piiDetection?: {
       enabled: boolean;
       detectNames?: boolean;
@@ -49,10 +51,16 @@ export async function analyzeDocumentWithPII(
       aggressiveMode: true // Default to aggressive mode for maximum privacy
     },
     enablePayloadHashing = true, // Default to enabled for complete forensic traceability
-    includeAdvocacy = false
+    includeAdvocacy,
+    subscriptionTierId
   } = options;
 
   try {
+    const tierId = subscriptionTierId ?? 'free';
+    const allowAdvocacy = isFeatureEnabled('advocacy') && hasAdvocacyAccess(tierId);
+    const requestedAdvocacy = includeAdvocacy !== undefined ? includeAdvocacy : true;
+    const shouldIncludeAdvocacy = allowAdvocacy && requestedAdvocacy;
+
     const processingStart = performance.now();
     const stageTimings: Record<string, number> = {};
 
@@ -183,7 +191,7 @@ export async function analyzeDocumentWithPII(
       "\"sections\": [\n    {\n      \"title\": \"Section name (e.g., Payment Terms, Privacy Policy, etc.)\",\n      \"riskLevel\": \"low|moderate|high\",\n      \"summary\": \"Plain English explanation of this section\",\n      \"concerns\": [\"List of specific concerns for this section if any\"]\n    }\n  ]"
     ];
 
-    if (includeAdvocacy) {
+    if (shouldIncludeAdvocacy) {
       responseStructureLines.push("\"userAdvocacy\": {\n    \"negotiationStrategies\": [\"Step-by-step negotiation moves the user can take to balance the agreement\"],\n    \"counterOffers\": [\"Specific counter-proposals or edits to request that improve fairness or clarity\"],\n    \"fairnessReminders\": [\"Rights, oversight requirements, or consumer protections the user can reference\"],\n    \"leverageOpportunities\": [\"Moments in the agreement where the user can ask for concessions or more transparency\"]\n  }");
     }
 
@@ -199,7 +207,7 @@ export async function analyzeDocumentWithPII(
       '5. Assessing the overall fairness and balance of the agreement'
     ];
 
-    if (includeAdvocacy) {
+    if (shouldIncludeAdvocacy) {
       focusLines.push('6. Equipping the user with counteroffers, negotiation language, and fairness safeguards that champion their rights');
     }
 
@@ -225,7 +233,7 @@ ${responseStructure}
 Focus on:
 ${focusGuidance}
 
-Provide practical, actionable insights that help users understand what they're agreeing to.${includeAdvocacy ? ' When offering advocacy guidance, be concrete, respectful, and focused on fairness so the user can confidently negotiate improvements.' : ''}`;
+Provide practical, actionable insights that help users understand what they're agreeing to.${shouldIncludeAdvocacy ? ' When offering advocacy guidance, be concrete, respectful, and focused on fairness so the user can confidently negotiate improvements.' : ''}`;
 
     // Prepare API request payload for hashing
     const apiRequestPayload = {
@@ -312,14 +320,14 @@ Provide practical, actionable insights that help users understand what they're a
           summary: "Document analysis was completed but detailed parsing failed.",
           concerns: ["Response parsing error - manual review recommended"]
         }],
-        userAdvocacy: includeAdvocacy ? normalizeUserAdvocacy() : undefined
+        userAdvocacy: shouldIncludeAdvocacy ? normalizeUserAdvocacy() : undefined
       };
     }
 
-    if (includeAdvocacy) {
+    if (shouldIncludeAdvocacy) {
       analysisData = {
         ...analysisData,
-        userAdvocacy: normalizeUserAdvocacy(analysisData.userAdvocacy)
+        userAdvocacy: shouldIncludeAdvocacy ? normalizeUserAdvocacy(analysisData.userAdvocacy) : undefined
       };
     } else if (analysisData.userAdvocacy) {
       analysisData = { ...analysisData, userAdvocacy: undefined };

@@ -13,6 +13,8 @@ import {
   users 
 } from '@shared/schema';
 import { eq, and, sql, inArray } from 'drizzle-orm';
+import { logActivityEvent } from './activity-service';
+import { incrementOrgUsage } from './usage-service';
 
 export interface CreateWorkspaceInput {
   orgId: string;
@@ -41,6 +43,30 @@ export interface ShareDocumentInput {
   workspaceId: string;
   documentId: number;
   addedByUserId: string;
+}
+
+async function recordWorkspaceActivity(event: {
+  orgId: string;
+  workspaceId: string;
+  userId?: string;
+  action: string;
+  subjectType: string;
+  subjectId: string;
+  metadata?: Record<string, unknown>;
+}) {
+  try {
+    await logActivityEvent({
+      orgId: event.orgId,
+      workspaceId: event.workspaceId,
+      userId: event.userId,
+      action: event.action,
+      subjectType: event.subjectType,
+      subjectId: event.subjectId,
+      metadata: event.metadata,
+    });
+  } catch (error) {
+    console.error('Failed to record workspace activity event', error);
+  }
 }
 
 /**
@@ -111,6 +137,26 @@ export async function createWorkspace(input: CreateWorkspaceInput) {
       role: 'owner',
       addedByUserId: null,
     });
+
+  await recordWorkspaceActivity({
+    orgId,
+    workspaceId: workspace.id,
+    userId: createdByUserId,
+    action: 'workspace.created',
+    subjectType: 'workspace',
+    subjectId: workspace.id,
+    metadata: {
+      name,
+      visibility,
+      isDefault: Boolean(isDefault),
+    },
+  });
+
+  try {
+    await incrementOrgUsage(orgId, { analysesCount: 1 });
+  } catch (error) {
+    console.error('Failed to record workspace usage metrics', error);
+  }
 
   return workspace;
 }
@@ -264,7 +310,11 @@ export async function listWorkspacesByOrg(orgId: string, userId: string) {
 /**
  * Update workspace
  */
-export async function updateWorkspace(workspaceId: string, input: UpdateWorkspaceInput) {
+export async function updateWorkspace(
+  workspaceId: string,
+  input: UpdateWorkspaceInput,
+  updatedByUserId: string
+) {
   const { name, description, visibility, isDefault } = input;
 
   // Get workspace to check if it exists
@@ -305,16 +355,34 @@ export async function updateWorkspace(workspaceId: string, input: UpdateWorkspac
     .where(eq(workspaces.id, workspaceId))
     .returning();
 
+  const changeEntries: [string, unknown][] = [];
+  if (name !== undefined) changeEntries.push(['name', name]);
+  if (description !== undefined) changeEntries.push(['description', description]);
+  if (visibility !== undefined) changeEntries.push(['visibility', visibility]);
+  if (isDefault !== undefined) changeEntries.push(['isDefault', isDefault]);
+
+  await recordWorkspaceActivity({
+    orgId: existing[0].orgId,
+    workspaceId,
+    userId: updatedByUserId,
+    action: 'workspace.updated',
+    subjectType: 'workspace',
+    subjectId: workspaceId,
+    metadata: {
+      changes: Object.fromEntries(changeEntries),
+    },
+  });
+
   return updated;
 }
 
 /**
  * Delete workspace (soft delete)
  */
-export async function deleteWorkspace(workspaceId: string) {
+export async function deleteWorkspace(workspaceId: string, deletedByUserId: string) {
   const [deleted] = await db
     .update(workspaces)
-    .set({ 
+    .set({
       archivedAt: new Date(),
       updatedAt: new Date()
     })
@@ -327,6 +395,18 @@ export async function deleteWorkspace(workspaceId: string) {
   if (!deleted) {
     throw new Error('Workspace not found');
   }
+
+  await recordWorkspaceActivity({
+    orgId: deleted.orgId,
+    workspaceId,
+    userId: deletedByUserId,
+    action: 'workspace.archived',
+    subjectType: 'workspace',
+    subjectId: workspaceId,
+    metadata: {
+      archivedAt: deleted.archivedAt,
+    },
+  });
 
   return { success: true, workspaceId };
 }
@@ -390,6 +470,21 @@ export async function addWorkspaceMember(input: AddWorkspaceMemberInput) {
     })
     .returning();
 
+  const workspaceRecord = workspace[0];
+
+  await recordWorkspaceActivity({
+    orgId: workspaceRecord.orgId,
+    workspaceId,
+    userId: addedByUserId,
+    action: 'workspace.member.added',
+    subjectType: 'workspace_member',
+    subjectId: `${workspaceId}:${userId}`,
+    metadata: {
+      targetUserId: userId,
+      role,
+    },
+  });
+
   return member;
 }
 
@@ -421,8 +516,27 @@ export async function listWorkspaceMembers(workspaceId: string) {
 export async function updateWorkspaceMemberRole(
   workspaceId: string,
   userId: string,
-  role: 'owner' | 'editor' | 'commenter' | 'viewer'
+  role: 'owner' | 'editor' | 'commenter' | 'viewer',
+  updatedByUserId: string
 ) {
+  const existingMembership = await db
+    .select({
+      workspaceId: workspaceMembers.workspaceId,
+      orgId: workspaces.orgId,
+      currentRole: workspaceMembers.role,
+    })
+    .from(workspaceMembers)
+    .innerJoin(workspaces, eq(workspaceMembers.workspaceId, workspaces.id))
+    .where(and(
+      eq(workspaceMembers.workspaceId, workspaceId),
+      eq(workspaceMembers.userId, userId)
+    ))
+    .limit(1);
+
+  if (existingMembership.length === 0) {
+    throw new Error('Member not found');
+  }
+
   const [updated] = await db
     .update(workspaceMembers)
     .set({ role })
@@ -432,9 +546,19 @@ export async function updateWorkspaceMemberRole(
     ))
     .returning();
 
-  if (!updated) {
-    throw new Error('Member not found');
-  }
+  await recordWorkspaceActivity({
+    orgId: existingMembership[0].orgId,
+    workspaceId,
+    userId: updatedByUserId,
+    action: 'workspace.member.role_updated',
+    subjectType: 'workspace_member',
+    subjectId: `${workspaceId}:${userId}`,
+    metadata: {
+      targetUserId: userId,
+      previousRole: existingMembership[0].currentRole,
+      newRole: role,
+    },
+  });
 
   return updated;
 }
@@ -442,7 +566,28 @@ export async function updateWorkspaceMemberRole(
 /**
  * Remove member from workspace
  */
-export async function removeWorkspaceMember(workspaceId: string, userId: string) {
+export async function removeWorkspaceMember(
+  workspaceId: string,
+  userId: string,
+  removedByUserId: string
+) {
+  const membership = await db
+    .select({
+      orgId: workspaces.orgId,
+      role: workspaceMembers.role,
+    })
+    .from(workspaceMembers)
+    .innerJoin(workspaces, eq(workspaceMembers.workspaceId, workspaces.id))
+    .where(and(
+      eq(workspaceMembers.workspaceId, workspaceId),
+      eq(workspaceMembers.userId, userId)
+    ))
+    .limit(1);
+
+  if (membership.length === 0) {
+    throw new Error('Member not found');
+  }
+
   // Check if user is the last owner
   const owners = await db
     .select()
@@ -452,7 +597,7 @@ export async function removeWorkspaceMember(workspaceId: string, userId: string)
       eq(workspaceMembers.role, 'owner')
     ));
 
-  if (owners.length === 1 && owners[0].userId === userId) {
+  if (membership[0].role === 'owner' && owners.length === 1 && owners[0].userId === userId) {
     throw new Error('Cannot remove the last owner of the workspace');
   }
 
@@ -467,6 +612,19 @@ export async function removeWorkspaceMember(workspaceId: string, userId: string)
   if (deleted.length === 0) {
     throw new Error('Member not found');
   }
+
+  await recordWorkspaceActivity({
+    orgId: membership[0].orgId,
+    workspaceId,
+    userId: removedByUserId,
+    action: 'workspace.member.removed',
+    subjectType: 'workspace_member',
+    subjectId: `${workspaceId}:${userId}`,
+    metadata: {
+      targetUserId: userId,
+      previousRole: membership[0].role,
+    },
+  });
 
   return { success: true };
 }
@@ -515,6 +673,26 @@ export async function shareDocumentToWorkspace(input: ShareDocumentInput) {
     })
     .returning();
 
+  const workspaceRecord = workspace[0];
+
+  await recordWorkspaceActivity({
+    orgId: workspaceRecord.orgId,
+    workspaceId,
+    userId: addedByUserId,
+    action: 'workspace.document.shared',
+    subjectType: 'workspace_document',
+    subjectId: `${workspaceId}:${documentId}`,
+    metadata: {
+      documentId,
+    },
+  });
+
+  try {
+    await incrementOrgUsage(workspaceRecord.orgId, { apiCallsCount: 1 });
+  } catch (error) {
+    console.error('Failed to record document sharing usage metrics', error);
+  }
+
   return shared;
 }
 
@@ -539,7 +717,24 @@ export async function listWorkspaceDocuments(workspaceId: string) {
 /**
  * Unshare document from workspace
  */
-export async function unshareDocumentFromWorkspace(workspaceId: string, documentId: number) {
+export async function unshareDocumentFromWorkspace(
+  workspaceId: string,
+  documentId: number,
+  removedByUserId: string
+) {
+  const workspace = await db
+    .select({ orgId: workspaces.orgId })
+    .from(workspaces)
+    .where(and(
+      eq(workspaces.id, workspaceId),
+      sql`${workspaces.archivedAt} IS NULL`
+    ))
+    .limit(1);
+
+  if (workspace.length === 0) {
+    throw new Error('Workspace not found');
+  }
+
   const deleted = await db
     .delete(documentsToWorkspaces)
     .where(and(
@@ -551,6 +746,18 @@ export async function unshareDocumentFromWorkspace(workspaceId: string, document
   if (deleted.length === 0) {
     throw new Error('Document not found in workspace');
   }
+
+  await recordWorkspaceActivity({
+    orgId: workspace[0].orgId,
+    workspaceId,
+    userId: removedByUserId,
+    action: 'workspace.document.unshared',
+    subjectType: 'workspace_document',
+    subjectId: `${workspaceId}:${documentId}`,
+    metadata: {
+      documentId,
+    },
+  });
 
   return { success: true };
 }

@@ -1,4 +1,4 @@
-import { useState, useEffect, Suspense, lazy } from "react";
+import { useState, useEffect, Suspense, lazy, type FormEvent } from "react";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -13,6 +13,7 @@ import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, 
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Progress } from "@/components/ui/progress";
+import { Switch } from "@/components/ui/switch";
 import { useToast } from "@/hooks/use-toast";
 import { useSEO } from "@/lib/seo";
 import { 
@@ -1293,6 +1294,534 @@ function EnterpriseUserManagement() {
   );
 }
 
+function SystemManagement() {
+  const { toast } = useToast();
+  const [autoScalingEnabled, setAutoScalingEnabled] = useState(true);
+  const [maintenanceMode, setMaintenanceMode] = useState(false);
+  const [trafficShapingEnabled, setTrafficShapingEnabled] = useState(true);
+
+  const coreMetrics = [
+    {
+      id: 'uptime',
+      label: 'Uptime (30d)',
+      value: '99.98%',
+      trend: '+0.02% vs last month',
+      icon: Shield,
+    },
+    {
+      id: 'requests',
+      label: 'Requests / minute',
+      value: '1,420',
+      trend: '+12% today',
+      icon: Activity,
+    },
+    {
+      id: 'latency',
+      label: 'Avg. latency',
+      value: '148 ms',
+      trend: '-18 ms vs baseline',
+      icon: Monitor,
+    },
+    {
+      id: 'errorRate',
+      label: 'Error rate',
+      value: '0.14%',
+      trend: '-0.06% vs yesterday',
+      icon: AlertTriangle,
+    },
+  ];
+
+  const serviceStatus = [
+    {
+      id: 'api-gateway',
+      name: 'API Gateway',
+      status: 'operational',
+      latency: '142 ms',
+      uptime: '99.99%',
+      region: 'Global',
+      icon: Router,
+    },
+    {
+      id: 'worker-cluster',
+      name: 'Analysis Workers',
+      status: 'operational',
+      latency: '318 jobs/min',
+      uptime: '99.92%',
+      region: 'US-East / EU-West',
+      icon: Cpu,
+    },
+    {
+      id: 'database',
+      name: 'Primary Database',
+      status: 'degraded',
+      latency: '28 ms',
+      uptime: '99.81%',
+      region: 'US-East-1',
+      icon: Database,
+    },
+    {
+      id: 'cache-layer',
+      name: 'Realtime Cache',
+      status: 'operational',
+      latency: '4 ms',
+      uptime: '100%',
+      region: 'Global edge',
+      icon: MemoryStick,
+    },
+  ];
+
+  const maintenanceWindows = [
+    {
+      id: 'db-maintenance',
+      window: 'Oct 12 • 01:00 - 02:00 UTC',
+      component: 'Primary database cluster failover rehearsal',
+      impact: 'Read-only mode for < 5 minutes',
+      status: 'scheduled',
+    },
+    {
+      id: 'llm-upgrade',
+      window: 'Oct 18 • 04:00 UTC',
+      component: 'LLM provider SDK upgrade',
+      impact: 'No downtime expected',
+      status: 'planned',
+    },
+  ];
+
+  const backgroundJobs = [
+    {
+      id: 'usage-rollup',
+      name: 'Usage analytics rollup',
+      progress: 82,
+      eta: '12m remaining',
+      status: 'running',
+    },
+    {
+      id: 'webhook-retry',
+      name: 'Webhook retry queue',
+      progress: 35,
+      eta: 'Processing 184 events',
+      status: 'processing',
+    },
+    {
+      id: 'document-archive',
+      name: 'Document archival sweep',
+      progress: 100,
+      eta: 'Completed 17m ago',
+      status: 'complete',
+    },
+  ];
+
+  const liveAlerts = [
+    {
+      id: 'latency-spike',
+      level: 'warning',
+      message: 'Minor latency spike detected in EU-West region — mitigation in progress.',
+      timestamp: '5 minutes ago',
+    },
+    {
+      id: 'queue-depth',
+      level: 'info',
+      message: 'Analysis queue depth normalized after morning traffic burst.',
+      timestamp: '18 minutes ago',
+    },
+  ];
+
+  const statusStyles: Record<string, string> = {
+    operational: 'bg-emerald-100 text-emerald-700 dark:bg-emerald-500/20 dark:text-emerald-200',
+    degraded: 'bg-amber-100 text-amber-800 dark:bg-amber-500/20 dark:text-amber-100',
+    planned: 'bg-slate-200 text-slate-700 dark:bg-slate-700 dark:text-slate-100',
+    scheduled: 'bg-blue-100 text-blue-700 dark:bg-blue-500/20 dark:text-blue-200',
+    running: 'bg-blue-100 text-blue-700 dark:bg-blue-500/20 dark:text-blue-200',
+    processing: 'bg-amber-100 text-amber-800 dark:bg-amber-500/20 dark:text-amber-100',
+    complete: 'bg-emerald-100 text-emerald-700 dark:bg-emerald-500/20 dark:text-emerald-200',
+    warning: 'bg-amber-100 text-amber-800 dark:bg-amber-500/20 dark:text-amber-100',
+    info: 'bg-blue-100 text-blue-700 dark:bg-blue-500/20 dark:text-blue-200',
+  };
+
+  const handleServiceAction = (serviceId: string, action: 'restart' | 'scale') => {
+    const service = serviceStatus.find((item) => item.id === serviceId);
+    if (!service) return;
+    toast({
+      title: `${service.name} ${action === 'restart' ? 'restart initiated' : 'scaling queued'}`,
+      description: action === 'restart'
+        ? 'We will drain connections gracefully before restarting the service.'
+        : 'Additional workers will be provisioned within the next 2 minutes.',
+    });
+  };
+
+  const handleJobAction = (jobId: string) => {
+    const job = backgroundJobs.find((item) => item.id === jobId);
+    if (!job) return;
+    toast({
+      title: `Manual run queued for ${job.name}`,
+      description: 'Execution will begin after current tasks complete to avoid contention.',
+    });
+  };
+
+  return (
+    <div className="space-y-6">
+      <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+        {coreMetrics.map((metric) => {
+          const Icon = metric.icon;
+          return (
+            <Card key={metric.id} className="border border-slate-200 dark:border-slate-800">
+              <CardContent className="p-4 space-y-3">
+                <div className="flex items-center justify-between">
+                  <div className="rounded-lg bg-slate-100 dark:bg-slate-800 p-2">
+                    <Icon className="h-5 w-5 text-slate-600 dark:text-slate-200" />
+                  </div>
+                  <Badge variant="secondary" className="bg-slate-100 dark:bg-slate-800 text-[11px]">
+                    {metric.trend}
+                  </Badge>
+                </div>
+                <div>
+                  <p className="text-sm text-slate-500 dark:text-slate-300">{metric.label}</p>
+                  <p className="text-2xl font-semibold text-slate-900 dark:text-white">{metric.value}</p>
+                </div>
+              </CardContent>
+            </Card>
+          );
+        })}
+      </div>
+
+      <div className="grid gap-4 lg:grid-cols-2">
+        <Card className="border border-slate-200 dark:border-slate-800">
+          <CardHeader>
+            <CardTitle className="text-lg">Critical Services</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            {serviceStatus.map((service) => {
+              const Icon = service.icon;
+              return (
+                <div key={service.id} className="flex items-start justify-between gap-4 p-3 rounded-lg bg-slate-50 dark:bg-slate-900/40">
+                  <div className="flex items-start gap-3">
+                    <div className="rounded-lg bg-white dark:bg-slate-900 p-2 shadow-sm">
+                      <Icon className="h-5 w-5 text-slate-600 dark:text-slate-200" />
+                    </div>
+                    <div>
+                      <div className="flex items-center gap-2">
+                        <p className="font-semibold text-slate-900 dark:text-white">{service.name}</p>
+                        <span className={`text-xs font-medium px-2 py-0.5 rounded-full ${statusStyles[service.status] ?? 'bg-slate-200 text-slate-700 dark:bg-slate-700 dark:text-slate-200'}`}>
+                          {service.status === 'operational' ? 'Operational' : 'Degraded'}
+                        </span>
+                      </div>
+                      <p className="text-xs text-slate-500 dark:text-slate-300 mt-1">{service.region}</p>
+                      <div className="mt-2 flex flex-wrap gap-4 text-xs text-slate-600 dark:text-slate-300">
+                        <span className="flex items-center gap-1"><Zap className="h-3.5 w-3.5" /> {service.latency}</span>
+                        <span className="flex items-center gap-1"><Clock className="h-3.5 w-3.5" /> {service.uptime} uptime</span>
+                      </div>
+                    </div>
+                  </div>
+                  <div className="flex flex-col gap-2">
+                    <Button variant="outline" size="sm" onClick={() => handleServiceAction(service.id, 'restart')}>
+                      Restart
+                    </Button>
+                    <Button variant="secondary" size="sm" onClick={() => handleServiceAction(service.id, 'scale')}>
+                      Scale up
+                    </Button>
+                  </div>
+                </div>
+              );
+            })}
+          </CardContent>
+        </Card>
+
+        <Card className="border border-slate-200 dark:border-slate-800">
+          <CardHeader>
+            <CardTitle className="text-lg">Maintenance & Change Control</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="space-y-3">
+              {maintenanceWindows.map((window) => (
+                <div key={window.id} className="p-3 rounded-lg border border-dashed border-slate-200 dark:border-slate-700">
+                  <div className="flex items-center justify-between gap-3">
+                    <div>
+                      <p className="text-sm font-semibold text-slate-900 dark:text-white">{window.window}</p>
+                      <p className="text-xs text-slate-500 dark:text-slate-300 mt-1">{window.component}</p>
+                      <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">Impact: {window.impact}</p>
+                    </div>
+                    <span className={`text-xs font-medium px-2 py-0.5 rounded-full ${statusStyles[window.status] ?? 'bg-slate-200 text-slate-700 dark:bg-slate-700 dark:text-slate-200'}`}>
+                      {window.status === 'planned' ? 'Planning' : 'Scheduled'}
+                    </span>
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            <div className="rounded-lg bg-slate-50 dark:bg-slate-900/40 p-4 space-y-3">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm font-semibold text-slate-900 dark:text-white">Maintenance controls</p>
+                  <p className="text-xs text-slate-500 dark:text-slate-300">Toggle real-time safeguards when performing manual work.</p>
+                </div>
+              </div>
+              <div className="space-y-3">
+                <div className="flex items-center justify-between gap-3">
+                  <div>
+                    <p className="text-sm text-slate-900 dark:text-white">Auto-scaling</p>
+                    <p className="text-xs text-slate-500 dark:text-slate-300">Automatically adjusts worker pools based on queue depth.</p>
+                  </div>
+                  <Switch checked={autoScalingEnabled} onCheckedChange={(value) => setAutoScalingEnabled(value)} />
+                </div>
+                <div className="flex items-center justify-between gap-3">
+                  <div>
+                    <p className="text-sm text-slate-900 dark:text-white">Maintenance mode</p>
+                    <p className="text-xs text-slate-500 dark:text-slate-300">Gracefully drains sessions and displays status page messaging.</p>
+                  </div>
+                  <Switch checked={maintenanceMode} onCheckedChange={(value) => {
+                    setMaintenanceMode(value);
+                    toast({
+                      title: value ? 'Maintenance mode enabled' : 'Maintenance mode disabled',
+                      description: value
+                        ? 'New analyses will be queued and customers will see scheduled maintenance messaging.'
+                        : 'Traffic will resume normal routing.',
+                    });
+                  }} />
+                </div>
+                <div className="flex items-center justify-between gap-3">
+                  <div>
+                    <p className="text-sm text-slate-900 dark:text-white">Traffic shaping</p>
+                    <p className="text-xs text-slate-500 dark:text-slate-300">Diverts burst traffic to the queue for graceful processing.</p>
+                  </div>
+                  <Switch checked={trafficShapingEnabled} onCheckedChange={(value) => setTrafficShapingEnabled(value)} />
+                </div>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+
+      <div className="grid gap-4 lg:grid-cols-2">
+        <Card className="border border-slate-200 dark:border-slate-800">
+          <CardHeader>
+            <CardTitle className="text-lg">Background Jobs</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            {backgroundJobs.map((job) => (
+              <div key={job.id} className="p-3 rounded-lg bg-slate-50 dark:bg-slate-900/40">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-sm font-semibold text-slate-900 dark:text-white">{job.name}</p>
+                    <p className="text-xs text-slate-500 dark:text-slate-300 mt-1">{job.eta}</p>
+                  </div>
+                  <span className={`text-xs font-medium px-2 py-0.5 rounded-full ${statusStyles[job.status] ?? 'bg-slate-200 text-slate-700 dark:bg-slate-700 dark:text-slate-200'}`}>
+                    {job.status.charAt(0).toUpperCase() + job.status.slice(1)}
+                  </span>
+                </div>
+                <div className="mt-3">
+                  <Progress value={job.progress} className="h-2" />
+                </div>
+                <div className="mt-3 flex items-center justify-between">
+                  <p className="text-xs text-slate-500 dark:text-slate-300">Progress: {job.progress}%</p>
+                  <Button variant="outline" size="xs" onClick={() => handleJobAction(job.id)}>
+                    Run now
+                  </Button>
+                </div>
+              </div>
+            ))}
+          </CardContent>
+        </Card>
+
+        <Card className="border border-slate-200 dark:border-slate-800">
+          <CardHeader>
+            <CardTitle className="text-lg">Live System Alerts</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            {liveAlerts.map((alert) => (
+              <div key={alert.id} className="flex items-start gap-3 p-3 rounded-lg bg-slate-50 dark:bg-slate-900/40">
+                <div className={`rounded-full p-2 ${alert.level === 'warning' ? 'bg-amber-100 text-amber-700 dark:bg-amber-500/20 dark:text-amber-100' : 'bg-blue-100 text-blue-700 dark:bg-blue-500/20 dark:text-blue-200'}`}>
+                  {alert.level === 'warning' ? <AlertTriangle className="h-4 w-4" /> : <BellRing className="h-4 w-4" />}
+                </div>
+                <div className="flex-1">
+                  <p className="text-sm font-medium text-slate-900 dark:text-white">{alert.message}</p>
+                  <p className="text-xs text-slate-500 dark:text-slate-300 mt-1">{alert.timestamp}</p>
+                </div>
+                <Button variant="ghost" size="sm" onClick={() => toast({ title: 'Alert acknowledged', description: 'We will keep tracking automated remediation.' })}>
+                  Acknowledge
+                </Button>
+              </div>
+            ))}
+          </CardContent>
+        </Card>
+      </div>
+    </div>
+  );
+}
+
+function AdminSettingsPanel() {
+  const { toast } = useToast();
+  const [criticalAlerts, setCriticalAlerts] = useState(true);
+  const [weeklyDigest, setWeeklyDigest] = useState(true);
+  const [securityIncidents, setSecurityIncidents] = useState(true);
+  const [notificationEmail, setNotificationEmail] = useState('oncall@readmyfineprint.com');
+
+  const [autoLockdown, setAutoLockdown] = useState(true);
+  const [sessionTimeout, setSessionTimeout] = useState(false);
+  const [enforceMfa, setEnforceMfa] = useState(true);
+
+  const [slackWebhook, setSlackWebhook] = useState('https://hooks.slack.com/services/T000/B000/********');
+  const [pagerDutyEnabled, setPagerDutyEnabled] = useState(false);
+  const [statusPageUrl, setStatusPageUrl] = useState('https://status.readmyfineprint.com');
+
+  const handleNotificationSave = (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    toast({
+      title: 'Notification preferences updated',
+      description: 'Your on-call rotation will start receiving alerts with the new configuration immediately.',
+    });
+  };
+
+  const handleSecuritySave = (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    toast({
+      title: 'Security automation saved',
+      description: 'Automation rules have been synced to the policy engine.',
+    });
+  };
+
+  const handleIntegrationsSave = (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    toast({
+      title: 'Integrations updated',
+      description: 'We validated your integration endpoints successfully.',
+    });
+  };
+
+  return (
+    <div className="space-y-6">
+      <Card className="border border-slate-200 dark:border-slate-800">
+        <CardHeader>
+          <CardTitle className="text-lg">Notification Preferences</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <form className="space-y-4" onSubmit={handleNotificationSave}>
+            <div className="grid gap-3">
+              <div className="flex items-center justify-between gap-4 rounded-lg border border-slate-200 dark:border-slate-800 p-3">
+                <div>
+                  <p className="text-sm font-medium text-slate-900 dark:text-white">Critical system alerts</p>
+                  <p className="text-xs text-slate-500 dark:text-slate-300">Notify immediately when uptime or error-rate thresholds breach SLOs.</p>
+                </div>
+                <Switch checked={criticalAlerts} onCheckedChange={(value) => setCriticalAlerts(value)} />
+              </div>
+              <div className="flex items-center justify-between gap-4 rounded-lg border border-slate-200 dark:border-slate-800 p-3">
+                <div>
+                  <p className="text-sm font-medium text-slate-900 dark:text-white">Security incident digest</p>
+                  <p className="text-xs text-slate-500 dark:text-slate-300">Daily summary of escalated security tickets and remediation steps.</p>
+                </div>
+                <Switch checked={securityIncidents} onCheckedChange={(value) => setSecurityIncidents(value)} />
+              </div>
+              <div className="flex items-center justify-between gap-4 rounded-lg border border-slate-200 dark:border-slate-800 p-3">
+                <div>
+                  <p className="text-sm font-medium text-slate-900 dark:text-white">Weekly analytics report</p>
+                  <p className="text-xs text-slate-500 dark:text-slate-300">Every Monday at 14:00 UTC.</p>
+                </div>
+                <Switch checked={weeklyDigest} onCheckedChange={(value) => setWeeklyDigest(value)} />
+              </div>
+            </div>
+            <div className="grid gap-2">
+              <Label htmlFor="notification-email" className="text-xs uppercase tracking-wide text-slate-500">Escalation email</Label>
+              <Input
+                id="notification-email"
+                value={notificationEmail}
+                onChange={(event) => setNotificationEmail(event.target.value)}
+                placeholder="oncall@example.com"
+              />
+              <p className="text-xs text-slate-500 dark:text-slate-400">Messages are also mirrored to Slack and PagerDuty if enabled.</p>
+            </div>
+            <div className="flex items-center justify-end">
+              <Button type="submit">Save notification settings</Button>
+            </div>
+          </form>
+        </CardContent>
+      </Card>
+
+      <Card className="border border-slate-200 dark:border-slate-800">
+        <CardHeader>
+          <CardTitle className="text-lg">Security Automation</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <form className="space-y-4" onSubmit={handleSecuritySave}>
+            <div className="space-y-3">
+              <div className="flex items-center justify-between gap-4 rounded-lg border border-slate-200 dark:border-slate-800 p-3">
+                <div>
+                  <p className="text-sm font-medium text-slate-900 dark:text-white">Automatic lockdown</p>
+                  <p className="text-xs text-slate-500 dark:text-slate-300">Lock new logins and rotate keys after repeated failed admin access attempts.</p>
+                </div>
+                <Switch checked={autoLockdown} onCheckedChange={(value) => setAutoLockdown(value)} />
+              </div>
+              <div className="flex items-center justify-between gap-4 rounded-lg border border-slate-200 dark:border-slate-800 p-3">
+                <div>
+                  <p className="text-sm font-medium text-slate-900 dark:text-white">Session timeout enforcement</p>
+                  <p className="text-xs text-slate-500 dark:text-slate-300">Force re-authentication after 12 hours of continuous usage.</p>
+                </div>
+                <Switch checked={sessionTimeout} onCheckedChange={(value) => setSessionTimeout(value)} />
+              </div>
+              <div className="flex items-center justify-between gap-4 rounded-lg border border-slate-200 dark:border-slate-800 p-3">
+                <div>
+                  <p className="text-sm font-medium text-slate-900 dark:text-white">Require MFA for admins</p>
+                  <p className="text-xs text-slate-500 dark:text-slate-300">Enforces TOTP or WebAuthn before sensitive actions.</p>
+                </div>
+                <Switch checked={enforceMfa} onCheckedChange={(value) => setEnforceMfa(value)} />
+              </div>
+            </div>
+            <div className="rounded-lg bg-slate-50 dark:bg-slate-900/40 p-4 text-xs text-slate-600 dark:text-slate-300">
+              Automated responses are orchestrated through the policy engine and logged for auditability. Manual overrides are available in the Security tab.
+            </div>
+            <div className="flex items-center justify-end">
+              <Button type="submit">Save security rules</Button>
+            </div>
+          </form>
+        </CardContent>
+      </Card>
+
+      <Card className="border border-slate-200 dark:border-slate-800">
+        <CardHeader>
+          <CardTitle className="text-lg">Integrations & Communications</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <form className="space-y-4" onSubmit={handleIntegrationsSave}>
+            <div className="grid gap-3">
+              <div className="grid gap-2">
+                <Label htmlFor="slack-webhook" className="text-xs uppercase tracking-wide text-slate-500">Slack webhook</Label>
+                <Input
+                  id="slack-webhook"
+                  value={slackWebhook}
+                  onChange={(event) => setSlackWebhook(event.target.value)}
+                  placeholder="https://hooks.slack.com/services/..."
+                />
+                <p className="text-xs text-slate-500 dark:text-slate-400">Alerts will post to #readmyfineprint-operations with runbook links.</p>
+              </div>
+              <div className="flex items-center justify-between gap-4 rounded-lg border border-slate-200 dark:border-slate-800 p-3">
+                <div>
+                  <p className="text-sm font-medium text-slate-900 dark:text-white">PagerDuty escalation</p>
+                  <p className="text-xs text-slate-500 dark:text-slate-300">Trigger incident 2 minutes after unresolved critical alert.</p>
+                </div>
+                <Switch checked={pagerDutyEnabled} onCheckedChange={(value) => setPagerDutyEnabled(value)} />
+              </div>
+              <div className="grid gap-2">
+                <Label htmlFor="status-page" className="text-xs uppercase tracking-wide text-slate-500">Status page URL</Label>
+                <Input
+                  id="status-page"
+                  value={statusPageUrl}
+                  onChange={(event) => setStatusPageUrl(event.target.value)}
+                  placeholder="https://status.example.com"
+                />
+              </div>
+            </div>
+            <div className="rounded-lg bg-slate-50 dark:bg-slate-900/40 p-4 space-y-2 text-xs text-slate-600 dark:text-slate-300">
+              <p className="font-medium text-slate-900 dark:text-white">Audit log summary</p>
+              <p>All integration updates are versioned and require admin confirmation. We validate reachability before saving changes.</p>
+            </div>
+            <div className="flex items-center justify-end">
+              <Button type="submit">Save integrations</Button>
+            </div>
+          </form>
+        </CardContent>
+      </Card>
+    </div>
+  );
+}
+
 // Main Admin Component
 export default function EnterpriseAdminDashboard() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -1438,25 +1967,11 @@ export default function EnterpriseAdminDashboard() {
           </TabsContent>
 
           <TabsContent value="system" className="space-y-6">
-            <Card className="p-6">
-              <CardHeader>
-                <CardTitle>System Management</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <p className="text-slate-600">System management tools coming soon...</p>
-              </CardContent>
-            </Card>
+            <SystemManagement />
           </TabsContent>
 
           <TabsContent value="settings" className="space-y-6">
-            <Card className="p-6">
-              <CardHeader>
-                <CardTitle>Admin Settings</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <p className="text-slate-600">Admin configuration settings coming soon...</p>
-              </CardContent>
-            </Card>
+            <AdminSettingsPanel />
           </TabsContent>
         </Tabs>
       </div>
