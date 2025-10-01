@@ -126,7 +126,7 @@ For security issues, vulnerabilities, or concerns:
 - User consent management
 
 ### Corporate Structure:
-- Service Provider: Nexus Integrated Technologies
+- Service Provider: Coleman Creative LLC
 - Jurisdiction: California, United States
 - Proprietary software protection
 - Trade secret compliance

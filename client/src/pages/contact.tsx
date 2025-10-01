@@ -331,7 +331,7 @@ export default function Contact() {
               <CardContent className="space-y-3">
                 <div>
                   <h4 className="font-medium text-gray-900 dark:text-white">Business Name</h4>
-                  <p className="text-sm text-gray-600 dark:text-gray-400">Nexus Integrated Technologies</p>
+                  <p className="text-sm text-gray-600 dark:text-gray-400">Coleman Creative LLC</p>
                   <p className="text-sm text-gray-600 dark:text-gray-400">(DBA ReadMyFinePrint)</p>
                 </div>
                 <div>

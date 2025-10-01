@@ -1,6 +1,6 @@
 # ReadMyFinePrint Documentation
 
-**Comprehensive documentation for the ReadMyFinePrint platform - a privacy-first AI-powered contract analysis service by Nexus Integrated Technologies.**
+**Comprehensive documentation for the ReadMyFinePrint platform - a privacy-first AI-powered contract analysis service.**
 
 ## 📚 Documentation Structure
 
@@ -97,7 +97,7 @@ This documentation is maintained by the ReadMyFinePrint development team. For qu
 
 ## 🏢 Corporate Information
 
-- **Service Provider**: Nexus Integrated Technologies (DBA ReadMyFinePrint)
+- **Service Provider**: Coleman Creative LLC (DBA ReadMyFinePrint)
 - **Jurisdiction**: California, United States
 - **Service**: AI-Powered Contract Analysis Platform
 - **License**: Proprietary software (see LICENSE file)
