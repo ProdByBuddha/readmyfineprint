@@ -10,6 +10,8 @@ export class EmailVerificationService {
   private readonly MAX_ATTEMPTS = 3;
   private readonly RATE_LIMIT_WINDOW = 60000; // 1 minute
   private readonly MAX_CODES_PER_WINDOW = 3;
+  private recentEmailSends = new Map<string, number>();
+  private readonly EMAIL_DEBOUNCE_MS = 2000; // 2 seconds debounce to prevent duplicate emails
 
   /**
    * Generate a 6-digit verification code
@@ -112,6 +114,18 @@ export class EmailVerificationService {
           error: 'Too many verification codes requested. Please wait before requesting another.'
         };
       }
+      // Debounce email sends to prevent duplicates within a short time window
+      const now = Date.now();
+      const lastSendTime = this.recentEmailSends.get(email) || 0;
+      if (now - lastSendTime < this.EMAIL_DEBOUNCE_MS) {
+        console.log(`⚠️ Duplicate email send prevented for ${email} (debounce active)`);
+        return {
+          success: false,
+          error: 'A verification code was just sent. Please wait a moment before requesting another.'
+        };
+      }
+      this.recentEmailSends.set(email, now);
+
 
       const code = this.generateVerificationCode();
       const expiresAt = new Date(Date.now() + this.CODE_EXPIRY_MINUTES * 60 * 1000);
@@ -279,6 +293,14 @@ export class EmailVerificationService {
       const oneHourAgo = new Date(now.getTime() - 60 * 60 * 1000);
       const deletedRateLimit = await db.delete(emailVerificationRateLimit)
         .where(lt(emailVerificationRateLimit.windowStart, oneHourAgo));
+      
+      // Clean up old email send timestamps (older than 5 minutes)
+      const fiveMinutesAgo = now.getTime() - 5 * 60 * 1000;
+      for (const [email, timestamp] of this.recentEmailSends.entries()) {
+        if (timestamp < fiveMinutesAgo) {
+          this.recentEmailSends.delete(email);
+        }
+      }
       
       console.log('🧹 Expired verification codes and rate limit records cleaned up');
     } catch (error) {

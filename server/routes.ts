@@ -2169,7 +2169,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       let user = await findUserByEmailWithEntanglement(email);
 
       // Check if this is an admin email
-      const adminEmails = ['admin@readmyfineprint.com', 'prodbybuddha@icloud.com'];
+      const adminEmails = ['admin@readmyfineprint.com'];
       const isAdminEmail = adminEmails.includes(email);
 
       if (!user) {

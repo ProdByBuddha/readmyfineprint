@@ -770,7 +770,7 @@ export class SubscriptionService {
         return false;
       }
 
-      const adminEmails = ['admin@readmyfineprint.com', 'prodbybuddha@icloud.com'];
+      const adminEmails = ['admin@readmyfineprint.com'];
       const isAdmin = adminEmails.includes(user.email);
       
       if (isAdmin) {

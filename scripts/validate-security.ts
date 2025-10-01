@@ -307,7 +307,7 @@ class SecurityValidator {
       );
 
       // Check admin email restrictions
-      const adminEmails = ['admin@readmyfineprint.com', 'prodbybuddha@icloud.com'];
+      const adminEmails = ['admin@readmyfineprint.com'];
       if (adminEmails.length === 2) {
         this.addCheck(
           'Admin Email Restrictions',
