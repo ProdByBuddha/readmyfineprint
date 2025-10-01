@@ -1,428 +1,274 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import {
-  AlertTriangle,
-  Scale,
-  Shield,
-  FileText,
-  Globe,
-  Clock,
-  DollarSign,
-} from "lucide-react";
 
 export function TermsOfService() {
   return (
-    <div className="max-w-4xl mx-auto p-6 space-y-8">
-      <div className="text-center mb-8">
-        <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">
+    <Card className="max-w-4xl mx-auto">
+      <CardHeader>
+        <CardTitle className="text-3xl font-bold text-center">
           Terms of Service
-        </h1>
-        <p className="text-gray-600 dark:text-gray-300">
-          Last updated: {new Date().toLocaleDateString()}
+        </CardTitle>
+        <p className="text-center text-muted-foreground mt-2">
+          Last Updated: October 1, 2025
         </p>
-      </div>
-
-      <Card className="border-amber-200 bg-amber-50 dark:bg-amber-950/20 dark:border-amber-800">
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <AlertTriangle className="w-5 h-5 text-amber-600" />
-            Important Notice
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <p className="text-amber-800 dark:text-amber-200">
-            <strong>
-              ReadMyFinePrint is NOT a substitute for professional legal advice.
-            </strong>{" "}
-            This tool provides AI-powered document analysis for informational
-            purposes only. Always consult with a qualified attorney for legal
-            matters.
+      </CardHeader>
+      <CardContent className="prose dark:prose-invert max-w-none space-y-6">
+        
+        <section>
+          <h2 className="text-2xl font-semibold mt-8 mb-4">1. Agreement to Terms</h2>
+          <p>
+            By creating an account or using ReadMyFinePrint (the "Services"), you agree to these Terms of Service ("Terms"). 
+            If you do not agree, you may not use the Services.
           </p>
-        </CardContent>
-      </Card>
+        </section>
 
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <FileText className="w-5 h-5 text-blue-600" />
-            Service Description
-          </CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <div>
-            <h4 className="font-semibold text-gray-900 dark:text-white mb-2">
-              What We Provide
-            </h4>
-            <ul className="list-disc list-inside space-y-1 text-gray-700 dark:text-gray-300">
-              <li>AI-powered document analysis and summarization</li>
-              <li>Plain English explanations of legal document content</li>
-              <li>Risk assessment and key findings identification</li>
-              <li>User accounts and subscription management</li>
-              <li>Multi-device access with secure authentication</li>
-              <li>Security questions setup for enhanced account protection</li>
-              <li>Email recovery and account management services</li>
-              <li>
-                Session-based document processing with automatic PII protection (documents not permanently
-                stored)
-              </li>
-              <li>Enterprise-grade PII detection and redaction for maximum privacy protection</li>
-              <li>Secure payment processing through Stripe</li>
-            </ul>
-          </div>
-          <div>
-            <h4 className="font-semibold text-gray-900 dark:text-white mb-2">
-              What We Don't Provide
-            </h4>
-            <ul className="list-disc list-inside space-y-1 text-gray-700 dark:text-gray-300">
-              <li>Legal advice or professional legal opinions</li>
-              <li>Binding legal interpretations</li>
-              <li>Guarantees of document completeness or accuracy</li>
-              <li>Professional attorney-client relationships</li>
-              <li>Permanent storage of your document content</li>
-              <li>Guarantee of uninterrupted service availability</li>
-            </ul>
-          </div>
-        </CardContent>
-      </Card>
-
-      <div className="grid md:grid-cols-2 gap-6">
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Scale className="w-5 h-5 text-purple-600" />
-              Your Responsibilities
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-3">
-            <div>
-              <h4 className="font-semibold text-gray-900 dark:text-white">
-                Account Security
-              </h4>
-              <p className="text-sm text-gray-600 dark:text-gray-400">
-                Keep your account credentials secure. Set up security questions when 
-                prompted for enhanced account protection. Report any unauthorized 
-                access immediately.
-              </p>
-            </div>
-            <div>
-              <h4 className="font-semibold text-gray-900 dark:text-white">
-                Document Security
-              </h4>
-              <p className="text-sm text-gray-600 dark:text-gray-400">
-                Our service automatically detects and protects PII in your documents. 
-                However, you should still exercise caution with highly confidential documents.
-              </p>
-            </div>
-            <div>
-              <h4 className="font-semibold text-gray-900 dark:text-white">
-                Payment Obligations
-              </h4>
-              <p className="text-sm text-gray-600 dark:text-gray-400">
-                Pay subscription fees on time. Cancel subscriptions before
-                renewal to avoid charges.
-              </p>
-            </div>
-            <div>
-              <h4 className="font-semibold text-gray-900 dark:text-white">
-                Appropriate Use
-              </h4>
-              <p className="text-sm text-gray-600 dark:text-gray-400">
-                Use the service for legitimate document analysis purposes only.
-                Respect usage limits.
-              </p>
-            </div>
-            <div>
-              <h4 className="font-semibold text-gray-900 dark:text-white">
-                Legal Consultation
-              </h4>
-              <p className="text-sm text-gray-600 dark:text-gray-400">
-                Consult qualified legal professionals for important legal
-                decisions.
-              </p>
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Shield className="w-5 h-5 text-green-600" />
-              Limitation of Liability
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-3">
-            <div>
-              <h4 className="font-semibold text-gray-900 dark:text-white">
-                Service Limitations
-              </h4>
-              <p className="text-sm text-gray-600 dark:text-gray-400">
-                AI analysis may contain errors or omissions. Results are not
-                guaranteed to be complete or accurate.
-              </p>
-            </div>
-            <div>
-              <h4 className="font-semibold text-gray-900 dark:text-white">
-                Payment Processing
-              </h4>
-              <p className="text-sm text-gray-600 dark:text-gray-400">
-                Payment issues are handled by Stripe. We are not liable for
-                payment processing errors.
-              </p>
-            </div>
-            <div>
-              <h4 className="font-semibold text-gray-900 dark:text-white">
-                Data Security
-              </h4>
-              <p className="text-sm text-gray-600 dark:text-gray-400">
-                While we implement security measures, we cannot guarantee
-                absolute security of your data.
-              </p>
-            </div>
-            <div>
-              <h4 className="font-semibold text-gray-900 dark:text-white">
-                Hold Harmless
-              </h4>
-              <p className="text-sm text-gray-600 dark:text-gray-400">
-                You agree to hold Nexus Integrated Technologies (DBA ReadMyFinePrint) harmless from any decisions
-                made based on our analysis.
-              </p>
-            </div>
-            <div>
-              <h4 className="font-semibold text-gray-900 dark:text-white">
-                Maximum Liability
-              </h4>
-              <p className="text-sm text-gray-600 dark:text-gray-400">
-                Our liability is limited to the amount paid for the service in
-                the last 12 months.
-              </p>
-            </div>
-          </CardContent>
-        </Card>
-      </div>
-
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Clock className="w-5 h-5 text-orange-600" />
-            Service Architecture
-          </CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <div>
-            <h4 className="font-semibold text-gray-900 dark:text-white mb-2">
-              Document Processing
-            </h4>
-            <p className="text-gray-700 dark:text-gray-300 mb-3">
-              Document analysis operates on a session-based model. Your
-              documents and analysis results are:
-            </p>
-            <ul className="list-disc list-inside space-y-1 text-gray-600 dark:text-gray-400">
-              <li>Automatically scanned for PII before AI processing</li>
-              <li>Processed temporarily during your browser session with privacy protection</li>
-              <li>Automatically deleted when you refresh the page</li>
-              <li>Not stored permanently on our servers</li>
-              <li>Isolated to your specific browser session</li>
-            </ul>
-          </div>
-          <div>
-            <h4 className="font-semibold text-gray-900 dark:text-white mb-2">
-              Account Services
-            </h4>
-            <p className="text-gray-700 dark:text-gray-300 mb-3">
-              User accounts and subscription data are stored securely for
-              service delivery:
-            </p>
-            <ul className="list-disc list-inside space-y-1 text-gray-600 dark:text-gray-400">
-              <li>Account information stored for subscription management</li>
-              <li>Usage data tracked for billing and analytics</li>
-              <li>Multi-device authentication tokens managed securely</li>
-              <li>Email recovery and account management available</li>
-            </ul>
-          </div>
-          <div>
-            <h4 className="font-semibold text-gray-900 dark:text-white mb-2">
-              Third-Party Services
-            </h4>
-            <p className="text-gray-700 dark:text-gray-300 mb-3">
-              We integrate with trusted third-party services:
-            </p>
-            <ul className="list-disc list-inside space-y-1 text-gray-600 dark:text-gray-400">
-              <li>
-                <strong>OpenAI:</strong> Document analysis processing with automatic PII redaction (only anonymized content sent, subject
-                to OpenAI&apos;s terms)
-              </li>
-              <li>
-                <strong>Stripe:</strong> Payment processing and billing
-                management
-              </li>
-              <li>
-                <strong>Email Services:</strong> Account verification and
-                notifications
-              </li>
-            </ul>
-          </div>
-        </CardContent>
-      </Card>
-
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <DollarSign className="w-5 h-5 text-green-600" />
-            Subscription Terms & Billing
-          </CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <div>
-            <h4 className="font-semibold text-gray-900 dark:text-white mb-2">
-              Subscription Plans
-            </h4>
-            <ul className="list-disc list-inside space-y-1 text-gray-600 dark:text-gray-400">
-              <li>Free tier with limited monthly document analysis</li>
-              <li>
-                Paid subscription plans with increased limits and features
-              </li>
-              <li>
-                Subscription details and pricing available on our pricing page
-              </li>
-              <li>Plans subject to change with reasonable notice</li>
-            </ul>
-          </div>
-          <div>
-            <h4 className="font-semibold text-gray-900 dark:text-white mb-2">
-              Billing & Payments
-            </h4>
-            <ul className="list-disc list-inside space-y-1 text-gray-600 dark:text-gray-400">
-              <li>Subscriptions billed automatically through Stripe</li>
-              <li>Charges processed at the beginning of each billing cycle</li>
-              <li>Failed payments may result in service suspension</li>
-              <li>Refunds handled according to our refund policy</li>
-            </ul>
-          </div>
-          <div>
-            <h4 className="font-semibold text-gray-900 dark:text-white mb-2">
-              Cancellation
-            </h4>
-            <ul className="list-disc list-inside space-y-1 text-gray-600 dark:text-gray-400">
-              <li>Cancel subscriptions at any time through your account</li>
-              <li>
-                Service continues until the end of the current billing period
-              </li>
-              <li>No partial refunds for unused time</li>
-              <li>
-                Account data retained for reasonable period after cancellation
-              </li>
-            </ul>
-          </div>
-        </CardContent>
-      </Card>
-
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Globe className="w-5 h-5 text-indigo-600" />
-            Acceptable Use Policy
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="grid md:grid-cols-2 gap-4">
-            <div>
-              <h4 className="font-semibold text-green-700 dark:text-green-400 mb-2">
-                ✅ Permitted Uses
-              </h4>
-              <ul className="list-disc list-inside space-y-1 text-sm text-gray-600 dark:text-gray-400">
-                <li>Personal document review and analysis</li>
-                <li>Business contract analysis</li>
-                <li>Educational and research purposes</li>
-                <li>General legal document understanding</li>
-                <li>Account sharing within reasonable organizational use</li>
-              </ul>
-            </div>
-            <div>
-              <h4 className="font-semibold text-red-700 dark:text-red-400 mb-2">
-                ❌ Prohibited Uses
-              </h4>
-              <ul className="list-disc list-inside space-y-1 text-sm text-gray-600 dark:text-gray-400">
-                <li>Illegal or fraudulent activities</li>
-                <li>
-                  Uploading others' confidential documents without permission
-                </li>
-                <li>Attempting to reverse-engineer or hack the service</li>
-                <li>Overloading, disrupting, or abusing the service</li>
-                <li>Creating multiple accounts to circumvent usage limits</li>
-                <li>Sharing account credentials inappropriately</li>
-                <li>Payment fraud or chargebacks abuse</li>
-              </ul>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
-
-      <Card>
-        <CardHeader>
-          <CardTitle>Service Availability & Modifications</CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <div>
-            <h4 className="font-semibold text-gray-900 dark:text-white mb-2">
-              Service Availability
-            </h4>
-            <p className="text-gray-700 dark:text-gray-300">
-              We strive to provide reliable service but do not guarantee
-              uninterrupted availability. The service may be temporarily
-              unavailable for maintenance or updates.
-            </p>
-          </div>
-          <div>
-            <h4 className="font-semibold text-gray-900 dark:text-white mb-2">
-              Terms Updates
-            </h4>
-            <p className="text-gray-700 dark:text-gray-300">
-              We may update these terms periodically. Continued use of the
-              service constitutes acceptance of any modifications.
-            </p>
-          </div>
-        </CardContent>
-      </Card>
-
-      <Card className="border-red-200 bg-red-50 dark:bg-red-950/20 dark:border-red-800">
-        <CardContent className="pt-6">
-          <h4 className="font-semibold text-red-900 dark:text-red-200 mb-2">
-            Disclaimer of Warranties
-          </h4>
-          <p className="text-red-800 dark:text-red-300 text-sm">
-            THIS SERVICE IS PROVIDED "AS IS" WITHOUT WARRANTIES OF ANY KIND. WE
-            DISCLAIM ALL WARRANTIES, EXPRESS OR IMPLIED, INCLUDING WARRANTIES OF
-            MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, AND
-            NON-INFRINGEMENT. USE AT YOUR OWN RISK.
+        <section>
+          <h2 className="text-2xl font-semibold mt-8 mb-4">2. No Legal Advice</h2>
+          <p>
+            The Services provide automated document analysis for <strong>informational purposes only</strong>. 
+            ReadMyFinePrint is not a law firm, does not offer legal advice, and no attorney–client relationship 
+            is created by using the Services. You should consult qualified legal counsel before relying on any analysis 
+            provided by the Services.
           </p>
-        </CardContent>
-      </Card>
+        </section>
 
-      <Card className="border-blue-200 bg-blue-50 dark:bg-blue-950/20 dark:border-blue-800">
-        <CardContent className="pt-6">
-          <h4 className="font-semibold text-blue-900 dark:text-blue-200 mb-2">
-            Contact & Governing Law
-          </h4>
-          <p className="text-blue-800 dark:text-blue-300 text-sm">
-            These terms are governed by the laws of the State of California, United States. 
-            For questions about these terms, please contact us through our support channels at{" "}
-            <a href="mailto:admin@readmyfineprint.com">
-              admin@readmyfineprint.com
-            </a>
-            . By using ReadMyFinePrint, you agree to these terms and conditions.
-          </p>
-          <div className="mt-4 text-xs text-blue-700 dark:text-blue-400">
-            <p>
-              <strong>Service Provider:</strong> Nexus Integrated Technologies (DBA ReadMyFinePrint)
-            </p>
-            <p>
-              <strong>Registered Address:</strong> California, United States
-            </p>
-            <p>
-              <strong>Service:</strong> ReadMyFinePrint - AI-Powered Contract Analysis Platform
+        <section>
+          <h2 className="text-2xl font-semibold mt-8 mb-4">3. Disclaimer of Warranties</h2>
+          <div className="bg-yellow-50 dark:bg-yellow-900/20 border-2 border-yellow-400 dark:border-yellow-600 p-6 rounded-lg my-4">
+            <p className="font-bold text-lg mb-2">CONSPICUOUS NOTICE:</p>
+            <p className="uppercase font-semibold">
+              TO THE MAXIMUM EXTENT PERMITTED BY LAW, THE SERVICES AND ALL OUTPUTS ARE PROVIDED "AS IS" AND 
+              "AS AVAILABLE." WE DISCLAIM ALL WARRANTIES—EXPRESS, IMPLIED OR STATUTORY—INCLUDING IMPLIED WARRANTIES 
+              OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, NON‑INFRINGEMENT, AND ACCURACY OF OUTPUTS.
             </p>
           </div>
-        </CardContent>
-      </Card>
-    </div>
+          <p>
+            We do not warrant that the Services will be uninterrupted, secure, or error-free, or that any defects 
+            will be corrected. You use the Services at your own risk.
+          </p>
+        </section>
+
+        <section>
+          <h2 className="text-2xl font-semibold mt-8 mb-4">4. Limitation of Liability</h2>
+          <div className="bg-red-50 dark:bg-red-900/20 border-2 border-red-400 dark:border-red-600 p-6 rounded-lg my-4">
+            <p className="font-bold text-lg mb-2">CONSPICUOUS NOTICE:</p>
+            <p className="uppercase font-semibold">
+              TO THE MAXIMUM EXTENT PERMITTED BY LAW, READMYFINEPRINT, ITS AFFILIATES AND PROVIDERS ARE NOT LIABLE 
+              FOR ANY INDIRECT, INCIDENTAL, SPECIAL, CONSEQUENTIAL, EXEMPLARY OR PUNITIVE DAMAGES OR FOR ANY LOSS 
+              OF PROFITS, BUSINESS, GOODWILL OR DATA. OUR TOTAL AGGREGATE LIABILITY FOR ALL CLAIMS RELATING TO THE 
+              SERVICES WILL NOT EXCEED (A) THE AMOUNTS PAID BY YOU TO US IN THE 12 MONTHS BEFORE THE EVENT GIVING 
+              RISE TO LIABILITY, OR (B) USD $100 IF YOU USE A FREE TIER.
+            </p>
+          </div>
+          <p>
+            <strong>Carve-outs:</strong> Nothing in this clause limits liability that cannot be limited by law, 
+            including liability for fraud, willful misconduct or, where applicable, death or personal injury caused 
+            by negligence.
+          </p>
+          <p className="mt-2">
+            <strong>Payment Processing:</strong> Payment processing is handled by Stripe, Inc. Any issues with 
+            payment processing, including failed transactions, billing disputes, or payment errors, are subject 
+            to Stripe's terms and conditions. ReadMyFinePrint is not liable for payment processing issues.
+          </p>
+        </section>
+
+        <section>
+          <h2 className="text-2xl font-semibold mt-8 mb-4">5. User Indemnity</h2>
+          <p>
+            You agree to indemnify, defend, and hold harmless ReadMyFinePrint and its affiliates, officers, 
+            directors, employees, and agents from and against any third-party claims, liabilities, damages, 
+            losses, and expenses (including reasonable attorneys' fees) arising out of:
+          </p>
+          <ul className="list-disc pl-6 mt-2 space-y-1">
+            <li>Content you upload to the Services;</li>
+            <li>Your misuse of the Services in violation of law or these Terms;</li>
+            <li>Your violation of any third-party rights; or</li>
+            <li>Your breach of these Terms.</li>
+          </ul>
+        </section>
+
+        <section>
+          <h2 className="text-2xl font-semibold mt-8 mb-4">6. AI-Specific Acknowledgements</h2>
+          <p>
+            The Services employ advanced personally identifiable information (PII) detection and redaction technology. 
+            However, <strong>detection may not be perfect</strong>:
+          </p>
+          <ul className="list-disc pl-6 mt-2 space-y-2">
+            <li>
+              The enhanced PII detector returns redaction maps and can compute hashed matches of detected PII 
+              for analytics purposes.
+            </li>
+            <li>
+              The zero-PII analyzer may still produce warnings when residual PII risk remains after redaction.
+            </li>
+            <li>
+              You acknowledge that you must independently review AI output and that PII may still be sent to 
+              third-party model providers as redacted placeholders.
+            </li>
+            <li>
+              You should not upload documents containing highly sensitive information if you cannot accept 
+              the risk of potential exposure.
+            </li>
+          </ul>
+        </section>
+
+        <section>
+          <h2 className="text-2xl font-semibold mt-8 mb-4">7. Third-Party Services</h2>
+          <p>
+            The Services integrate with third-party providers:
+          </p>
+          <ul className="list-disc pl-6 mt-2 space-y-2">
+            <li>
+              <strong>Document Analysis:</strong> Performed by third-party AI model providers (e.g., OpenAI) 
+              using redacted text. Third-party providers may retain API inputs and outputs for up to 30 days, 
+              or longer under legal hold.
+            </li>
+            <li>
+              <strong>Payment Processing:</strong> Handled by Stripe, Inc. We never store payment card numbers; 
+              all payment data is processed securely by Stripe.
+            </li>
+            <li>
+              <strong>Authentication & Security:</strong> TOTP (Time-based One-Time Password) secrets and backup 
+              codes are encrypted and stored securely. TOTP events are logged with hashed IP addresses and 
+              user-agent data for security auditing. Security questions (where still available) are hashed 
+              using Argon2.
+            </li>
+          </ul>
+        </section>
+
+        <section>
+          <h2 className="text-2xl font-semibold mt-8 mb-4">8. User Responsibilities</h2>
+          <p>You agree to:</p>
+          <ul className="list-disc pl-6 mt-2 space-y-1">
+            <li>Provide accurate account information;</li>
+            <li>Maintain the security of your account credentials;</li>
+            <li>Not upload content that violates any law or third-party rights;</li>
+            <li>Not attempt to circumvent security measures or rate limits;</li>
+            <li>Not use the Services for any fraudulent or unlawful purpose;</li>
+            <li>Not reverse engineer, decompile, or attempt to extract source code from the Services.</li>
+          </ul>
+        </section>
+
+        <section>
+          <h2 className="text-2xl font-semibold mt-8 mb-4">9. Subscription Tiers & Billing</h2>
+          <p>
+            ReadMyFinePrint offers multiple subscription tiers with different features and rate limits. 
+            Billing is handled monthly or annually as selected. Subscriptions automatically renew unless 
+            cancelled before the renewal date. You may cancel at any time through your account settings.
+          </p>
+          <p className="mt-2">
+            Failed payments may result in downgrade to a free tier. We will notify you of payment failures 
+            and provide opportunities to update payment information before downgrading your account.
+          </p>
+        </section>
+
+        <section>
+          <h2 className="text-2xl font-semibold mt-8 mb-4">10. Account Termination</h2>
+          <p>
+            We may suspend or terminate your account if you violate these Terms, engage in fraudulent activity, 
+            or for any other reason at our discretion. You may delete your account at any time through your 
+            account settings. Upon termination:
+          </p>
+          <ul className="list-disc pl-6 mt-2 space-y-1">
+            <li>Your access to the Services will be revoked immediately;</li>
+            <li>Document content in memory will be deleted when your session expires (30 minutes of inactivity);</li>
+            <li>Usage logs and security logs will be retained as described in our Privacy Policy;</li>
+            <li>No refunds will be provided for partial subscription periods.</li>
+          </ul>
+        </section>
+
+        <section>
+          <h2 className="text-2xl font-semibold mt-8 mb-4">11. Modifications to Terms</h2>
+          <p>
+            We may update these Terms from time to time. <strong>Material changes</strong> (such as changes to 
+            arbitration provisions, liability limitations, or pricing) will require your re-consent via 
+            click-through acceptance. We will notify you of such changes by:
+          </p>
+          <ul className="list-disc pl-6 mt-2 space-y-1">
+            <li>Email to your registered address; and/or</li>
+            <li>Prominent in-app notice.</li>
+          </ul>
+          <p className="mt-2">
+            <strong>Continued use alone does not constitute acceptance of material changes.</strong> For 
+            non-material changes (such as clarifications or updates to reflect new features), we will update 
+            the "Last Updated" date at the top of this page.
+          </p>
+        </section>
+
+        <section>
+          <h2 className="text-2xl font-semibold mt-8 mb-4">12. Governing Law & Dispute Resolution</h2>
+          <p>
+            These Terms are governed by the laws of the State of California, United States, excluding its 
+            conflict of laws principles.
+          </p>
+          
+          <h3 className="text-xl font-semibold mt-4 mb-2">Arbitration (U.S. Consumers)</h3>
+          <p>
+            Any dispute arising from these Terms or the Services shall be resolved through binding individual 
+            arbitration in accordance with the American Arbitration Association's Consumer Arbitration Rules, 
+            except:
+          </p>
+          <ul className="list-disc pl-6 mt-2 space-y-1">
+            <li>You may bring claims in small claims court if they qualify;</li>
+            <li>Either party may seek injunctive relief in court for intellectual property violations.</li>
+          </ul>
+          
+          <h3 className="text-xl font-semibold mt-4 mb-2">Class Action Waiver</h3>
+          <div className="bg-blue-50 dark:bg-blue-900/20 border-2 border-blue-400 dark:border-blue-600 p-4 rounded-lg my-3">
+            <p className="font-semibold">
+              YOU AND READMYFINEPRINT AGREE THAT DISPUTES WILL BE RESOLVED ON AN INDIVIDUAL BASIS ONLY. 
+              YOU WAIVE ANY RIGHT TO PARTICIPATE IN A CLASS ACTION, CLASS ARBITRATION, OR REPRESENTATIVE 
+              ACTION.
+            </p>
+          </div>
+          
+          <h3 className="text-xl font-semibold mt-4 mb-2">Opt-Out</h3>
+          <p>
+            You may opt out of arbitration within 30 days of first accepting these Terms by sending written 
+            notice to: legal@readmyfineprint.com with the subject line "Arbitration Opt-Out" and including 
+            your name and email address.
+          </p>
+        </section>
+
+        <section>
+          <h2 className="text-2xl font-semibold mt-8 mb-4">13. Miscellaneous</h2>
+          
+          <h3 className="text-xl font-semibold mt-4 mb-2">Entire Agreement</h3>
+          <p>
+            These Terms, together with our Privacy Policy and Cookie Policy, constitute the entire agreement 
+            between you and ReadMyFinePrint regarding the Services.
+          </p>
+          
+          <h3 className="text-xl font-semibold mt-4 mb-2">Severability</h3>
+          <p>
+            If any provision of these Terms is found to be unenforceable, the remaining provisions will 
+            remain in full force and effect.
+          </p>
+          
+          <h3 className="text-xl font-semibold mt-4 mb-2">Assignment</h3>
+          <p>
+            You may not assign or transfer these Terms without our prior written consent. We may assign 
+            these Terms in connection with a merger, acquisition, or sale of assets.
+          </p>
+          
+          <h3 className="text-xl font-semibold mt-4 mb-2">Waiver</h3>
+          <p>
+            Our failure to enforce any provision of these Terms does not constitute a waiver of that provision 
+            or any other provision.
+          </p>
+        </section>
+
+        <section>
+          <h2 className="text-2xl font-semibold mt-8 mb-4">14. Contact Information</h2>
+          <p>
+            If you have questions about these Terms, please contact us at:
+          </p>
+          <div className="bg-gray-100 dark:bg-gray-800 p-4 rounded-lg mt-3">
+            <p>Email: <a href="mailto:legal@readmyfineprint.com" className="text-blue-600 dark:text-blue-400 hover:underline">legal@readmyfineprint.com</a></p>
+            <p>Website: <a href="https://readmyfineprint.com" className="text-blue-600 dark:text-blue-400 hover:underline">https://readmyfineprint.com</a></p>
+          </div>
+        </section>
+
+      </CardContent>
+    </Card>
   );
 }

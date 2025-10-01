@@ -186,9 +186,9 @@ export default function Cookies() {
               <div className="space-y-2">
                 <h4 className="font-medium text-green-600">What we DO</h4>
                 <ul className="text-sm space-y-1">
-                  <li>✓ Store documents temporarily during analysis</li>
-                  <li>✓ Use session-based storage only</li>
-                  <li>✓ Clear all data when you refresh the page</li>
+                  <li>✓ Store documents in memory during your active session</li>
+                  <li>✓ Use memory-only storage (never saved to disk)</li>
+                  <li>✓ Clear session data after 30 minutes of inactivity</li>
                   <li>✓ Encrypt all communications</li>
                   <li>✓ Respect your privacy choices</li>
                 </ul>

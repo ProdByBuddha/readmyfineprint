@@ -1,268 +1,290 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Cookie, CheckCircle, X, Shield } from "lucide-react";
-import { useCombinedConsent } from "@/components/CombinedConsent";
 
 export function CookiePolicy() {
-  const { isAccepted, acceptAll, revokeConsent } = useCombinedConsent();
-
   return (
-    <div className="max-w-4xl mx-auto p-6 space-y-8">
-      <div className="text-center mb-8">
-        <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">Cookie Policy</h1>
-        <p className="text-gray-600 dark:text-gray-300">
-          Last updated: {new Date().toLocaleDateString()}
+    <Card className="max-w-4xl mx-auto">
+      <CardHeader>
+        <CardTitle className="text-3xl font-bold text-center">
+          Cookie & Device Fingerprint Policy
+        </CardTitle>
+        <p className="text-center text-muted-foreground mt-2">
+          Last Updated: October 1, 2025
         </p>
-      </div>
-
-      <Card className="border-blue-200 bg-blue-50 dark:bg-blue-950/20 dark:border-blue-800">
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Cookie className="w-5 h-5 text-blue-600" />
-            Simple Cookie Approach
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <p className="text-gray-700 dark:text-gray-300">
-            ReadMyFinePrint uses a minimal, privacy-first approach to cookies. We only use
-            <strong> essential cookies</strong> required for basic functionality. No tracking,
-            no analytics, no advertising cookies.
+      </CardHeader>
+      <CardContent className="prose dark:prose-invert max-w-none space-y-6">
+        
+        <section>
+          <h2 className="text-2xl font-semibold mt-8 mb-4">Introduction</h2>
+          <p>
+            This Cookie Policy explains how ReadMyFinePrint uses cookies, device fingerprints, and similar 
+            technologies when you use our Services. By using the Services, you consent to the use of cookies 
+            and device fingerprints as described in this policy.
           </p>
-        </CardContent>
-      </Card>
+        </section>
 
-      <div className="grid md:grid-cols-2 gap-6">
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <CheckCircle className="w-5 h-5 text-green-600" />
-              Cookies We Use
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-4">
-              <div className="border rounded-lg p-4">
-                <div className="flex justify-between items-start mb-2">
-                  <h4 className="font-semibold text-gray-900 dark:text-white">consent-accepted</h4>
-                  <span className="text-xs bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-300 px-2 py-1 rounded">Essential</span>
-                </div>
-                <p className="text-sm text-gray-600 dark:text-gray-400 mb-2">
-                  Remembers that you&apos;ve accepted our legal disclaimer and cookie policy.
-                </p>
-                <div className="text-xs text-gray-500 dark:text-gray-500">
-                  <strong>Duration:</strong> Persistent • <strong>Type:</strong> First-party
-                </div>
-              </div>
+        <section>
+          <h2 className="text-2xl font-semibold mt-8 mb-4">What Are Cookies?</h2>
+          <p>
+            Cookies are small text files stored on your device (computer, tablet, or mobile phone) when you 
+            visit a website. They help websites remember your preferences and improve your experience.
+          </p>
+        </section>
 
-              <div className="border rounded-lg p-4">
-                <div className="flex justify-between items-start mb-2">
-                  <h4 className="font-semibold text-gray-900 dark:text-white">app-session-id</h4>
-                  <span className="text-xs bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-300 px-2 py-1 rounded">Essential</span>
-                </div>
-                <p className="text-sm text-gray-600 dark:text-gray-400 mb-2">
-                  Manages your browser session for document processing and temporary storage.
-                </p>
-                <div className="text-xs text-gray-500 dark:text-gray-500">
-                  <strong>Duration:</strong> Session only • <strong>Type:</strong> First-party
-                </div>
-              </div>
-
-              <div className="border rounded-lg p-4">
-                <div className="flex justify-between items-start mb-2">
-                  <h4 className="font-semibold text-gray-900 dark:text-white">subscriptionToken</h4>
-                  <span className="text-xs bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-300 px-2 py-1 rounded">Functional</span>
-                </div>
-                <p className="text-sm text-gray-600 dark:text-gray-400 mb-2">
-                  Authenticates your user account and manages subscription access across devices.
-                </p>
-                <div className="text-xs text-gray-500 dark:text-gray-500">
-                  <strong>Duration:</strong> 30 days • <strong>Type:</strong> First-party
-                </div>
-              </div>
-
-              <div className="border rounded-lg p-4">
-                <div className="flex justify-between items-start mb-2">
-                  <h4 className="font-semibold text-gray-900 dark:text-white">theme-preference</h4>
-                  <span className="text-xs bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-300 px-2 py-1 rounded">Essential</span>
-                </div>
-                <p className="text-sm text-gray-600 dark:text-gray-400 mb-2">
-                  Saves your dark/light mode preference for a better user experience.
-                </p>
-                <div className="text-xs text-gray-500 dark:text-gray-500">
-                  <strong>Duration:</strong> Persistent • <strong>Type:</strong> First-party
-                </div>
-              </div>
-
-              <div className="border rounded-lg p-4">
-                <div className="flex justify-between items-start mb-2">
-                  <h4 className="font-semibold text-gray-900 dark:text-white">cookie-preferences</h4>
-                  <span className="text-xs bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-300 px-2 py-1 rounded">Essential</span>
-                </div>
-                <p className="text-sm text-gray-600 dark:text-gray-400 mb-2">
-                  Remembers your cookie consent choices and preferences.
-                </p>
-                <div className="text-xs text-gray-500 dark:text-gray-500">
-                  <strong>Duration:</strong> 1 year • <strong>Type:</strong> First-party
-                </div>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Shield className="w-5 h-5 text-orange-600" />
-              Third-Party Cookies
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-4">
-              <div className="border rounded-lg p-4">
-                <div className="flex justify-between items-start mb-2">
-                  <h4 className="font-semibold text-gray-900 dark:text-white">Stripe Payment Processing</h4>
-                  <span className="text-xs bg-orange-100 dark:bg-orange-900/30 text-orange-800 dark:text-orange-300 px-2 py-1 rounded">Required</span>
-                </div>
-                <p className="text-sm text-gray-600 dark:text-gray-400 mb-2">
-                  Stripe uses cookies for secure payment processing and fraud prevention when you make purchases.
-                </p>
-                <div className="text-xs text-gray-500 dark:text-gray-500">
-                  <strong>Purpose:</strong> Payment security • <strong>Provider:</strong> Stripe Inc.
-                </div>
-              </div>
-
-              <div className="border rounded-lg p-4">
-                <div className="flex justify-between items-start mb-2">
-                  <h4 className="font-semibold text-gray-900 dark:text-white">Development Environment</h4>
-                  <span className="text-xs bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 px-2 py-1 rounded">Dev Only</span>
-                </div>
-                <p className="text-sm text-gray-600 dark:text-gray-400 mb-2">
-                  Replit development environment cookies (only in development mode, not in production).
-                </p>
-                <div className="text-xs text-gray-500 dark:text-gray-500">
-                  <strong>Purpose:</strong> Development tools • <strong>Provider:</strong> Replit
-                </div>
-              </div>
-
-              <div className="mt-4">
-                <h4 className="font-semibold text-red-700 dark:text-red-400 mb-2">❌ What We DON'T Use</h4>
-                <div className="grid grid-cols-2 gap-2 text-sm text-gray-600 dark:text-gray-400">
-                  <div className="flex items-center gap-2">
-                    <X className="w-3 h-3 text-red-600" />
-                    <span>Tracking cookies</span>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <X className="w-3 h-3 text-red-600" />
-                    <span>Advertising cookies</span>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <X className="w-3 h-3 text-red-600" />
-                    <span>Analytics cookies</span>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <X className="w-3 h-3 text-red-600" />
-                    <span>Social media cookies</span>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <X className="w-3 h-3 text-red-600" />
-                    <span>Cross-site tracking</span>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <X className="w-3 h-3 text-red-600" />
-                    <span>Behavioral profiling</span>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-      </div>
-
-      <Card>
-        <CardHeader>
-          <CardTitle>Your Cookie Preferences</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="flex items-center justify-between p-4 bg-gray-50 dark:bg-gray-800 rounded-lg">
-            <div>
-              <h4 className="font-semibold text-gray-900 dark:text-white mb-1">
-                Cookie Consent Status
-              </h4>
-              <p className="text-sm text-gray-600 dark:text-gray-400">
-                {isAccepted
-                  ? "You have accepted essential cookies"
-                  : "You have not yet accepted cookies"
-                }
-              </p>
-            </div>
-            <div className="flex gap-2">
-              {!isAccepted ? (
-                <Button onClick={acceptAll} className="bg-green-600 hover:bg-green-700">
-                  Accept All
-                </Button>
-              ) : (
-                <Button onClick={revokeConsent} variant="outline">
-                  Reset Preferences
-                </Button>
-              )}
-            </div>
+        <section>
+          <h2 className="text-2xl font-semibold mt-8 mb-4">Essential Cookies We Use</h2>
+          <p>
+            We use minimal cookies that are <strong>necessary for core functionality</strong>. These cookies 
+            cannot be disabled without affecting the Services.
+          </p>
+          
+          <div className="overflow-x-auto mt-4">
+            <table className="min-w-full border-collapse border border-gray-300 dark:border-gray-700">
+              <thead>
+                <tr className="bg-gray-100 dark:bg-gray-800">
+                  <th className="border border-gray-300 dark:border-gray-700 px-4 py-2 text-left">Cookie Name</th>
+                  <th className="border border-gray-300 dark:border-gray-700 px-4 py-2 text-left">Purpose</th>
+                  <th className="border border-gray-300 dark:border-gray-700 px-4 py-2 text-left">Duration</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td className="border border-gray-300 dark:border-gray-700 px-4 py-2 font-mono text-sm">consent-accepted</td>
+                  <td className="border border-gray-300 dark:border-gray-700 px-4 py-2">
+                    Stores whether you accepted the legal disclaimer and consent banner.
+                  </td>
+                  <td className="border border-gray-300 dark:border-gray-700 px-4 py-2">
+                    Persistent (until you delete it)
+                  </td>
+                </tr>
+                <tr>
+                  <td className="border border-gray-300 dark:border-gray-700 px-4 py-2 font-mono text-sm">app-session-id</td>
+                  <td className="border border-gray-300 dark:border-gray-700 px-4 py-2">
+                    Manages your document session in memory and ensures documents are processed only 
+                    within your session. Essential for security and document handling.
+                  </td>
+                  <td className="border border-gray-300 dark:border-gray-700 px-4 py-2">
+                    Session-based (expires after 30 minutes of inactivity, regardless of page refreshes)
+                  </td>
+                </tr>
+                <tr>
+                  <td className="border border-gray-300 dark:border-gray-700 px-4 py-2 font-mono text-sm">sessionId</td>
+                  <td className="border border-gray-300 dark:border-gray-700 px-4 py-2">
+                    Authenticates your account and provides access to your subscription features.
+                  </td>
+                  <td className="border border-gray-300 dark:border-gray-700 px-4 py-2">
+                    30 days
+                  </td>
+                </tr>
+                <tr>
+                  <td className="border border-gray-300 dark:border-gray-700 px-4 py-2 font-mono text-sm">theme-preference</td>
+                  <td className="border border-gray-300 dark:border-gray-700 px-4 py-2">
+                    Stores your dark/light mode selection for a consistent visual experience.
+                  </td>
+                  <td className="border border-gray-300 dark:border-gray-700 px-4 py-2">
+                    Persistent
+                  </td>
+                </tr>
+                <tr>
+                  <td className="border border-gray-300 dark:border-gray-700 px-4 py-2 font-mono text-sm">cookie-preferences</td>
+                  <td className="border border-gray-300 dark:border-gray-700 px-4 py-2">
+                    Records your cookie consent choices (essential, analytics, marketing preferences).
+                  </td>
+                  <td className="border border-gray-300 dark:border-gray-700 px-4 py-2">
+                    1 year
+                  </td>
+                </tr>
+              </tbody>
+            </table>
           </div>
-        </CardContent>
-      </Card>
+        </section>
 
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Shield className="w-5 h-5 text-purple-600" />
-            Cookie Security
-          </CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <div>
-            <h4 className="font-semibold text-gray-900 dark:text-white mb-2">Security Measures</h4>
-            <ul className="list-disc list-inside space-y-1 text-gray-700 dark:text-gray-300">
-              <li>All cookies are marked as Secure when served over HTTPS</li>
-              <li>Session cookies expire when you close your browser</li>
-              <li>No sensitive information is stored in cookies</li>
-              <li>Cookies are only accessible to our domain</li>
+        <section>
+          <h2 className="text-2xl font-semibold mt-8 mb-4">Device Fingerprints & Hashed IPs</h2>
+          <p>
+            For fraud prevention and security, we collect technical information beyond cookies:
+          </p>
+          
+          <h3 className="text-xl font-semibold mt-4 mb-2">Device Fingerprints</h3>
+          <p>
+            A device fingerprint is a unique identifier created by combining various characteristics of your 
+            browser and device, such as:
+          </p>
+          <ul className="list-disc pl-6 mt-2 space-y-1">
+            <li>Browser type and version</li>
+            <li>Operating system</li>
+            <li>Screen resolution</li>
+            <li>Installed fonts</li>
+            <li>Timezone</li>
+            <li>Language preferences</li>
+          </ul>
+          <p className="mt-3">
+            <strong>Why we use device fingerprints:</strong>
+          </p>
+          <ul className="list-disc pl-6 mt-2 space-y-1">
+            <li>Detect suspicious activity (e.g., multiple accounts from the same device)</li>
+            <li>Prevent bot attacks and automated abuse</li>
+            <li>Enforce rate limits fairly</li>
+            <li>Identify session hijacking attempts</li>
+          </ul>
+          <p className="mt-3">
+            <strong>We do NOT use device fingerprints for:</strong>
+          </p>
+          <ul className="list-disc pl-6 mt-2 space-y-1">
+            <li>Advertising or cross-site tracking</li>
+            <li>Building user profiles for marketing</li>
+            <li>Sharing with third parties for their own purposes</li>
+          </ul>
+
+          <h3 className="text-xl font-semibold mt-4 mb-2">Hashed IP Addresses</h3>
+          <p>
+            We hash (cryptographically transform) your IP address and user-agent string before logging them. 
+            This means:
+          </p>
+          <ul className="list-disc pl-6 mt-2 space-y-1">
+            <li>Your actual IP address is not stored in our logs</li>
+            <li>We can still detect patterns of abuse from the same source</li>
+            <li>The hash cannot be reversed to reveal your IP address</li>
+          </ul>
+          <p className="mt-3">
+            Hashed IPs and device fingerprints are retained for <strong>90 days</strong> for security auditing 
+            and fraud detection.
+          </p>
+        </section>
+
+        <section>
+          <h2 className="text-2xl font-semibold mt-8 mb-4">Third-Party Cookies</h2>
+          <p>
+            We integrate with <strong>Stripe</strong> for payment processing. Stripe may set cookies to:
+          </p>
+          <ul className="list-disc pl-6 mt-2 space-y-1">
+            <li>Detect fraudulent transactions</li>
+            <li>Manage payment sessions</li>
+            <li>Provide secure checkout</li>
+          </ul>
+          <p className="mt-3">
+            These cookies are <strong>necessary for billing</strong> and cannot be disabled if you use paid 
+            subscription features. For more information, see <a href="https://stripe.com/privacy" target="_blank" rel="noopener noreferrer" className="text-blue-600 dark:text-blue-400 hover:underline">Stripe's Privacy Policy</a>.
+          </p>
+        </section>
+
+        <section>
+          <h2 className="text-2xl font-semibold mt-8 mb-4">What We Don't Use</h2>
+          <div className="bg-green-50 dark:bg-green-900/20 border-l-4 border-green-500 dark:border-green-600 p-4">
+            <p className="font-semibold">✅ Your Privacy is Protected:</p>
+            <ul className="list-disc pl-6 mt-2 space-y-1">
+              <li>❌ No advertising or tracking cookies</li>
+              <li>❌ No social media cookies</li>
+              <li>❌ No third-party analytics cookies (e.g., Google Analytics)</li>
+              <li>❌ No cross-site tracking</li>
+              <li>❌ No behavioral profiling for marketing</li>
             </ul>
           </div>
-          <div>
-            <h4 className="font-semibold text-gray-900 dark:text-white mb-2">Browser Controls</h4>
-            <p className="text-gray-700 dark:text-gray-300 text-sm">
-              You can control cookies through your browser settings. However, disabling essential
-              cookies may affect the functionality of ReadMyFinePrint. Most browsers allow you to:
-            </p>
-            <ul className="list-disc list-inside mt-2 space-y-1 text-sm text-gray-600 dark:text-gray-400">
-              <li>View and delete cookies</li>
-              <li>Block cookies from specific sites</li>
-              <li>Block third-party cookies</li>
-              <li>Clear cookies when browser closes</li>
-            </ul>
-          </div>
-        </CardContent>
-      </Card>
+        </section>
 
-      <Card className="border-blue-200 bg-blue-50 dark:bg-blue-950/20 dark:border-blue-800">
-        <CardContent className="pt-6">
-          <h4 className="font-semibold text-blue-900 dark:text-blue-200 mb-2">
-            Questions About Cookies?
-          </h4>
-          <p className="text-blue-800 dark:text-blue-300 text-sm">
-            Our cookie policy is designed to be simple and transparent. We believe in using
-            only what&apos;s necessary for a great user experience. If you have questions about
-            our cookie practices, please contact us through our support channels at <a href="mailto:admin@readmyfineprint.com">admin@readmyfineprint.com</a>.
+        <section>
+          <h2 className="text-2xl font-semibold mt-8 mb-4">Browser Controls</h2>
+          <p>
+            You have control over cookies and tracking technologies through your browser settings:
           </p>
-          <div className="mt-4 text-xs text-blue-700 dark:text-blue-400">
-            <p>
-              <strong>Cookie Controller:</strong> Nexus Integrated Technologies (DBA ReadMyFinePrint)
-            </p>
-            <p>
-              <strong>Service:</strong> ReadMyFinePrint - AI-Powered Contract Analysis
+          
+          <h3 className="text-xl font-semibold mt-4 mb-2">Managing Cookies</h3>
+          <ul className="list-disc pl-6 mt-2 space-y-2">
+            <li>
+              <strong>Chrome:</strong> Settings → Privacy and Security → Cookies and other site data
+            </li>
+            <li>
+              <strong>Firefox:</strong> Settings → Privacy & Security → Cookies and Site Data
+            </li>
+            <li>
+              <strong>Safari:</strong> Preferences → Privacy → Manage Website Data
+            </li>
+            <li>
+              <strong>Edge:</strong> Settings → Privacy, search, and services → Cookies and site permissions
+            </li>
+          </ul>
+
+          <h3 className="text-xl font-semibold mt-4 mb-2">Blocking Third-Party Tracking</h3>
+          <p>Most modern browsers offer enhanced tracking protection:</p>
+          <ul className="list-disc pl-6 mt-2 space-y-1">
+            <li><strong>Chrome:</strong> Enable "Send a 'Do Not Track' request"</li>
+            <li><strong>Firefox:</strong> Enhanced Tracking Protection (enabled by default)</li>
+            <li><strong>Safari:</strong> Intelligent Tracking Prevention (enabled by default)</li>
+            <li><strong>Edge:</strong> Tracking prevention (enabled by default)</li>
+          </ul>
+
+          <h3 className="text-xl font-semibold mt-4 mb-2">Browser Extensions</h3>
+          <p>
+            You can install privacy-focused browser extensions like:
+          </p>
+          <ul className="list-disc pl-6 mt-2 space-y-1">
+            <li>Privacy Badger</li>
+            <li>uBlock Origin</li>
+            <li>DuckDuckGo Privacy Essentials</li>
+          </ul>
+
+          <h3 className="text-xl font-semibold mt-4 mb-2">Private/Incognito Mode</h3>
+          <p>
+            Using private/incognito browsing mode prevents cookies from persisting after you close your browser. 
+            However, session functionality will be limited.
+          </p>
+
+          <div className="bg-yellow-50 dark:bg-yellow-900/20 border-l-4 border-yellow-400 dark:border-yellow-600 p-4 mt-4">
+            <p className="font-semibold">⚠️ Important:</p>
+            <p className="mt-1">
+              Disabling essential cookies will limit the functionality of the Services. You may not be able to 
+              log in, manage subscriptions, or analyze documents if essential cookies are blocked.
             </p>
           </div>
-        </CardContent>
-      </Card>
-    </div>
+        </section>
+
+        <section>
+          <h2 className="text-2xl font-semibold mt-8 mb-4">Global Privacy Control (GPC)</h2>
+          <p>
+            We recognize and honor the <strong>Global Privacy Control (GPC)</strong> signal. GPC is a browser 
+            setting that allows you to automatically opt out of data sales and certain tracking.
+          </p>
+          <p className="mt-2">
+            To enable GPC:
+          </p>
+          <ul className="list-disc pl-6 mt-2 space-y-1">
+            <li>Use a browser that supports GPC (e.g., Firefox, Brave, DuckDuckGo)</li>
+            <li>Enable the GPC setting in your browser's privacy preferences</li>
+            <li>The signal will be sent automatically to websites that support it</li>
+          </ul>
+          <p className="mt-3">
+            <strong>Note:</strong> Since we do not sell personal data or use tracking cookies for advertising, 
+            the GPC signal has minimal impact on your experience with ReadMyFinePrint. However, we respect and 
+            honor this signal as required by law.
+          </p>
+        </section>
+
+        <section>
+          <h2 className="text-2xl font-semibold mt-8 mb-4">Changes to This Policy</h2>
+          <p>
+            We may update this Cookie Policy from time to time to reflect changes in our practices or legal 
+            requirements. We will notify you of significant changes by:
+          </p>
+          <ul className="list-disc pl-6 mt-2 space-y-1">
+            <li>Updating the "Last Updated" date at the top of this page</li>
+            <li>Displaying an in-app notice for material changes</li>
+          </ul>
+          <p className="mt-2">
+            We encourage you to review this policy periodically.
+          </p>
+        </section>
+
+        <section>
+          <h2 className="text-2xl font-semibold mt-8 mb-4">Contact Us</h2>
+          <p>
+            If you have questions about our use of cookies or device fingerprints, please contact us:
+          </p>
+          <div className="bg-gray-100 dark:bg-gray-800 p-4 rounded-lg mt-3">
+            <p><strong>Email:</strong> <a href="mailto:privacy@readmyfineprint.com" className="text-blue-600 dark:text-blue-400 hover:underline">privacy@readmyfineprint.com</a></p>
+            <p><strong>Website:</strong> <a href="https://readmyfineprint.com" className="text-blue-600 dark:text-blue-400 hover:underline">https://readmyfineprint.com</a></p>
+          </div>
+        </section>
+
+      </CardContent>
+    </Card>
   );
 }
