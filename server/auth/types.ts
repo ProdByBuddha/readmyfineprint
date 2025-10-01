@@ -10,7 +10,7 @@ declare global {
     }
     
     interface Request {
-      user?: User;
+      user?: { id: string; email: string; };
       orgId?: string;
       orgRole?: string;
       workspaceId?: string;

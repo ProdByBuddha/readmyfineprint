@@ -33,12 +33,13 @@ const DEFAULT_FLAGS: FeatureFlags = {
  * Subscription tiers that have access to team collaboration features
  * Maps to tier IDs in subscription-tiers.ts
  */
-export const TEAM_COLLABORATION_TIERS = ['business', 'enterprise', 'ultimate'];
+export const TEAM_COLLABORATION_TIERS = ['professional', 'business', 'enterprise', 'ultimate'];
 
 /**
  * Default seat limits per tier for organizations
  */
 export const DEFAULT_SEAT_LIMITS: Record<string, number> = {
+  professional: 5,
   business: 10,
   enterprise: 50,
   ultimate: -1, // unlimited
@@ -48,6 +49,7 @@ export const DEFAULT_SEAT_LIMITS: Record<string, number> = {
  * API rate limits per organization tier (requests per minute)
  */
 export const ORG_RATE_LIMITS: Record<string, number> = {
+  professional: 200,
   business: 300,
   enterprise: 1000,
   ultimate: 2000,
@@ -101,7 +103,7 @@ export function checkOrganizationAccess(userTierId: string): { error?: string; u
 
   if (!hasTeamCollaborationAccess(userTierId)) {
     return {
-      error: 'Organizations are available for Business, Enterprise, and Ultimate plans.',
+      error: 'Organizations are available for Professional, Business, Enterprise, and Ultimate plans.',
       upgradeUrl: '/subscription',
     };
   }

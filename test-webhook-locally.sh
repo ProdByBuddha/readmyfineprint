@@ -1,0 +1,16 @@
+#!/bin/bash
+
+echo "To test webhooks locally:"
+echo ""
+echo "1. Start your local server on port 3000 (or your dev port)"
+echo "2. Run: stripe listen --forward-to localhost:3000/api/stripe-webhook"
+echo "3. Copy the webhook signing secret from the output"
+echo "4. Temporarily update your .env with that secret"
+echo "5. Run: stripe trigger customer.subscription.created"
+echo ""
+echo "The 'stripe listen' command creates a temporary signing secret"
+echo "that's different from your production webhook secret."
+echo ""
+echo "For production testing, you need to:"
+echo "1. Configure the webhook in Stripe Dashboard"
+echo "2. Use the signing secret from the Dashboard in your .env"

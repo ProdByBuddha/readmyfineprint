@@ -1,325 +1,294 @@
-import crypto from 'crypto';
+/**
+ * Invitation Service
+ * Handles organization invitation creation, validation, and acceptance
+ */
+
 import { db } from './db';
-import { organizationInvitations, organizationUsers, organizations } from '../shared/schema';
-import { eq, and, isNull, gt } from 'drizzle-orm';
-import { sendInvitationEmail } from './email-service';
+import { organizationInvitations, organizationUsers, organizations, users } from '@shared/schema';
+import { eq, and, sql } from 'drizzle-orm';
+import crypto from 'crypto';
 
-const TOKEN_LENGTH = 32;
-const PREFIX_LENGTH = 8;
-const EXPIRY_DAYS = 7;
-
-// Server secret for HMAC - should be in environment variable
-const getServerSecret = (): string => {
-  const secret = process.env.INVITATION_SECRET || process.env.SESSION_SECRET;
-  if (!secret) {
-    throw new Error('INVITATION_SECRET or SESSION_SECRET must be set');
-  }
-  return secret;
-};
-
-// Generate a secure random token
-const generateToken = (): { token: string; tokenHash: string; tokenPrefix: string } => {
-  const token = crypto.randomBytes(TOKEN_LENGTH).toString('base64url');
-  const tokenHash = crypto
-    .createHmac('sha256', getServerSecret())
-    .update(token)
-    .digest('hex');
-  const tokenPrefix = token.substring(0, PREFIX_LENGTH);
-  
-  return { token, tokenHash, tokenPrefix };
-};
-
-// Hash a token for lookup
-const hashToken = (token: string): string => {
-  return crypto
-    .createHmac('sha256', getServerSecret())
-    .update(token)
-    .digest('hex');
-};
-
-export interface CreateInvitationParams {
+export interface CreateInvitationInput {
   orgId: string;
   email: string;
   role: 'admin' | 'member' | 'viewer';
-  inviterUserId: string;
-  inviterName: string;
+  invitedByUserId: string;
 }
 
-export interface InvitationResult {
-  id: string;
-  token: string; // Only returned once at creation
-  email: string;
-  role: string;
-  expiresAt: Date;
+export interface AcceptInvitationInput {
+  token: string;
+  userId: string;
 }
 
-export const invitationService = {
-  /**
-   * Create a new invitation
-   * Enforces seat limits and prevents duplicate active invitations
-   */
-  async createInvitation(params: CreateInvitationParams): Promise<InvitationResult> {
-    const { orgId, email, role, inviterUserId, inviterName } = params;
+/**
+ * Generate secure invitation token
+ * Returns both the token and its hash for storage
+ */
+function generateInvitationToken(): { token: string; tokenHash: string; tokenPrefix: string } {
+  // Generate random token
+  const token = crypto.randomBytes(32).toString('hex');
+  
+  // Hash the token for storage
+  const tokenHash = crypto.createHash('sha256').update(token).digest('hex');
+  
+  // Store first 8 characters for lookup
+  const tokenPrefix = token.substring(0, 8);
+  
+  return { token, tokenHash, tokenPrefix };
+}
 
-    // Check if organization exists and get seat limit
-    const [org] = await db
-      .select()
-      .from(organizations)
-      .where(and(
-        eq(organizations.id, orgId),
-        isNull(organizations.deleted_at)
-      ))
-      .limit(1);
+/**
+ * Hash a token for comparison
+ */
+function hashToken(token: string): string {
+  return crypto.createHash('sha256').update(token).digest('hex');
+}
 
-    if (!org) {
-      throw new Error('Organization not found');
-    }
+/**
+ * Create a new organization invitation
+ */
+export async function createInvitation(input: CreateInvitationInput) {
+  const { orgId, email, role, invitedByUserId } = input;
 
-    // Check seat limits
-    if (org.seat_limit !== null) {
-      const [currentMembers] = await db
-        .select({ count: db.raw<number>('count(*)::int') })
-        .from(organizationUsers)
-        .where(and(
-          eq(organizationUsers.org_id, orgId),
-          eq(organizationUsers.status, 'active')
-        ));
+  // Verify organization exists
+  const [org] = await db
+    .select()
+    .from(organizations)
+    .where(and(
+      eq(organizations.id, orgId),
+      sql`${organizations.deletedAt} IS NULL`
+    ))
+    .limit(1);
 
-      const [pendingInvitations] = await db
-        .select({ count: db.raw<number>('count(*)::int') })
-        .from(organizationInvitations)
-        .where(and(
-          eq(organizationInvitations.org_id, orgId),
-          isNull(organizationInvitations.accepted_at),
-          isNull(organizationInvitations.revoked_at),
-          gt(organizationInvitations.expires_at, new Date())
-        ));
+  if (!org) {
+    throw new Error('Organization not found');
+  }
 
-      const totalSeats = (currentMembers.count || 0) + (pendingInvitations.count || 0);
-      
-      if (totalSeats >= org.seat_limit) {
-        throw new Error('Seat limit reached. Please upgrade your plan or remove members.');
-      }
-    }
+  // Check if user is already a member
+  const existingMember = await db
+    .select()
+    .from(organizationUsers)
+    .where(and(
+      eq(organizationUsers.orgId, orgId),
+      sql`${organizationUsers.userId} IN (SELECT id FROM ${users} WHERE email = ${email})`
+    ))
+    .limit(1);
 
-    // Check for existing active invitation
-    const existingInvitation = await db
-      .select()
-      .from(organizationInvitations)
-      .where(and(
-        eq(organizationInvitations.org_id, orgId),
-        eq(organizationInvitations.email, email.toLowerCase()),
-        isNull(organizationInvitations.accepted_at),
-        isNull(organizationInvitations.revoked_at),
-        gt(organizationInvitations.expires_at, new Date())
-      ))
-      .limit(1);
+  if (existingMember.length > 0) {
+    throw new Error('User is already a member of this organization');
+  }
 
-    if (existingInvitation.length > 0) {
-      throw new Error('An active invitation already exists for this email');
-    }
+  // Check if there's already a pending invitation
+  const existingInvitation = await db
+    .select()
+    .from(organizationInvitations)
+    .where(and(
+      eq(organizationInvitations.orgId, orgId),
+      eq(organizationInvitations.email, email),
+      sql`${organizationInvitations.acceptedAt} IS NULL`,
+      sql`${organizationInvitations.revokedAt} IS NULL`,
+      sql`${organizationInvitations.expiresAt} > NOW()`
+    ))
+    .limit(1);
 
-    // Generate token
-    const { token, tokenHash, tokenPrefix } = generateToken();
-    const expiresAt = new Date();
-    expiresAt.setDate(expiresAt.getDate() + EXPIRY_DAYS);
+  if (existingInvitation.length > 0) {
+    throw new Error('There is already a pending invitation for this email');
+  }
 
-    // Create invitation
-    const [invitation] = await db
-      .insert(organizationInvitations)
-      .values({
-        org_id: orgId,
-        email: email.toLowerCase(),
-        role,
-        inviter_user_id: inviterUserId,
-        token_hash: tokenHash,
-        token_prefix: tokenPrefix,
-        expires_at: expiresAt,
-      })
-      .returning();
+  // Check seat limit
+  const memberCount = await db
+    .select({ count: sql<number>`COUNT(*)` })
+    .from(organizationUsers)
+    .where(and(
+      eq(organizationUsers.orgId, orgId),
+      eq(organizationUsers.status, 'active')
+    ));
 
-    // Send invitation email
-    const acceptUrl = `${process.env.APP_URL || 'http://localhost:3000'}/invitations/${token}/accept`;
-    
-    await sendInvitationEmail({
-      to: email,
-      inviterName,
-      orgName: org.name,
+  const currentSeats = Number(memberCount[0]?.count || 0);
+  const seatLimit = org.seatLimit;
+
+  if (seatLimit && seatLimit > 0 && currentSeats >= seatLimit) {
+    throw new Error(`Organization has reached its seat limit of ${seatLimit} members`);
+  }
+
+  // Generate invitation token
+  const { token, tokenHash, tokenPrefix } = generateInvitationToken();
+
+  // Set expiration to 7 days from now
+  const expiresAt = new Date();
+  expiresAt.setDate(expiresAt.getDate() + 7);
+
+  // Create invitation
+  const [invitation] = await db
+    .insert(organizationInvitations)
+    .values({
+      orgId,
+      email,
       role,
-      acceptUrl,
+      inviterUserId: invitedByUserId,
+      tokenHash,
+      tokenPrefix,
       expiresAt,
-    });
+    })
+    .returning();
 
-    return {
-      id: invitation.id,
-      token, // Only returned once
-      email: invitation.email,
-      role: invitation.role,
-      expiresAt: invitation.expires_at,
-    };
-  },
+  return {
+    invitation,
+    token, // Return plain token only once for email
+  };
+}
 
-  /**
-   * List pending invitations for an organization
-   */
-  async listInvitations(orgId: string) {
-    const invitations = await db
-      .select({
-        id: organizationInvitations.id,
-        email: organizationInvitations.email,
-        role: organizationInvitations.role,
-        inviter_user_id: organizationInvitations.inviter_user_id,
-        created_at: organizationInvitations.created_at,
-        expires_at: organizationInvitations.expires_at,
-        token_prefix: organizationInvitations.token_prefix,
-      })
-      .from(organizationInvitations)
-      .where(and(
-        eq(organizationInvitations.org_id, orgId),
-        isNull(organizationInvitations.accepted_at),
-        isNull(organizationInvitations.revoked_at),
-        gt(organizationInvitations.expires_at, new Date())
-      ))
-      .orderBy(organizationInvitations.created_at);
+/**
+ * Get invitation by token
+ */
+export async function getInvitationByToken(token: string) {
+  const tokenHash = hashToken(token);
+  const tokenPrefix = token.substring(0, 8);
 
-    return invitations;
-  },
+  const [invitation] = await db
+    .select()
+    .from(organizationInvitations)
+    .where(and(
+      eq(organizationInvitations.tokenPrefix, tokenPrefix),
+      eq(organizationInvitations.tokenHash, tokenHash),
+      sql`${organizationInvitations.acceptedAt} IS NULL`,
+      sql`${organizationInvitations.revokedAt} IS NULL`,
+      sql`${organizationInvitations.expiresAt} > NOW()`
+    ))
+    .limit(1);
 
-  /**
-   * Revoke an invitation
-   */
-  async revokeInvitation(invitationId: string, orgId: string): Promise<void> {
-    const result = await db
-      .update(organizationInvitations)
-      .set({ revoked_at: new Date() })
-      .where(and(
-        eq(organizationInvitations.id, invitationId),
-        eq(organizationInvitations.org_id, orgId),
-        isNull(organizationInvitations.accepted_at),
-        isNull(organizationInvitations.revoked_at)
-      ))
-      .returning();
+  return invitation;
+}
 
-    if (result.length === 0) {
-      throw new Error('Invitation not found or already processed');
-    }
-  },
+/**
+ * Accept an invitation
+ */
+export async function acceptInvitation(input: AcceptInvitationInput) {
+  const { token, userId } = input;
 
-  /**
-   * Accept an invitation
-   * Validates token, checks expiry, verifies email match, creates org membership
-   */
-  async acceptInvitation(token: string, userId: string, userEmail: string): Promise<{ orgId: string; role: string }> {
-    const tokenHash = hashToken(token);
+  // Get invitation
+  const invitation = await getInvitationByToken(token);
 
-    // Find invitation
-    const [invitation] = await db
-      .select()
-      .from(organizationInvitations)
-      .where(and(
-        eq(organizationInvitations.token_hash, tokenHash),
-        isNull(organizationInvitations.accepted_at),
-        isNull(organizationInvitations.revoked_at),
-        gt(organizationInvitations.expires_at, new Date())
-      ))
-      .limit(1);
+  if (!invitation) {
+    throw new Error('Invalid or expired invitation');
+  }
 
-    if (!invitation) {
-      throw new Error('Invalid or expired invitation token');
-    }
+  // Verify the user's email matches the invitation
+  const [user] = await db
+    .select()
+    .from(users)
+    .where(eq(users.id, userId))
+    .limit(1);
 
-    // Verify email match (case-insensitive)
-    if (invitation.email.toLowerCase() !== userEmail.toLowerCase()) {
-      throw new Error('This invitation was sent to a different email address');
-    }
+  if (!user) {
+    throw new Error('User not found');
+  }
 
-    // Check if user is already a member
-    const existingMember = await db
-      .select()
-      .from(organizationUsers)
-      .where(and(
-        eq(organizationUsers.org_id, invitation.org_id),
-        eq(organizationUsers.user_id, userId)
-      ))
-      .limit(1);
+  if (user.email.toLowerCase() !== invitation.email.toLowerCase()) {
+    throw new Error('This invitation was sent to a different email address');
+  }
 
-    if (existingMember.length > 0) {
-      throw new Error('You are already a member of this organization');
-    }
+  // Check if user is already a member
+  const existingMember = await db
+    .select()
+    .from(organizationUsers)
+    .where(and(
+      eq(organizationUsers.orgId, invitation.orgId),
+      eq(organizationUsers.userId, userId)
+    ))
+    .limit(1);
 
-    // Check seat limit one more time
-    const [org] = await db
-      .select()
-      .from(organizations)
-      .where(eq(organizations.id, invitation.org_id))
-      .limit(1);
+  if (existingMember.length > 0) {
+    throw new Error('You are already a member of this organization');
+  }
 
-    if (org?.seat_limit !== null) {
-      const [currentMembers] = await db
-        .select({ count: db.raw<number>('count(*)::int') })
-        .from(organizationUsers)
-        .where(and(
-          eq(organizationUsers.org_id, invitation.org_id),
-          eq(organizationUsers.status, 'active')
-        ));
+  // Add user to organization
+  await db.insert(organizationUsers).values({
+    orgId: invitation.orgId,
+    userId,
+    role: invitation.role,
+    invitedByUserId: invitation.inviterUserId,
+    status: 'active',
+    joinedAt: new Date(),
+  });
 
-      if ((currentMembers.count || 0) >= org.seat_limit) {
-        throw new Error('Organization has reached its seat limit');
-      }
-    }
+  // Mark invitation as accepted
+  await db
+    .update(organizationInvitations)
+    .set({ acceptedAt: new Date() })
+    .where(eq(organizationInvitations.id, invitation.id));
 
-    // Create organization membership
-    await db.insert(organizationUsers).values({
-      org_id: invitation.org_id,
-      user_id: userId,
-      role: invitation.role,
-      status: 'active',
-      invited_by_user_id: invitation.inviter_user_id,
-      joined_at: new Date(),
-      last_seen_at: new Date(),
-    });
+  return {
+    orgId: invitation.orgId,
+    role: invitation.role,
+  };
+}
 
-    // Mark invitation as accepted
-    await db
-      .update(organizationInvitations)
-      .set({ accepted_at: new Date() })
-      .where(eq(organizationInvitations.id, invitation.id));
+/**
+ * List pending invitations for an organization
+ */
+export async function listOrganizationInvitations(orgId: string) {
+  const invitations = await db
+    .select()
+    .from(organizationInvitations)
+    .where(and(
+      eq(organizationInvitations.orgId, orgId),
+      sql`${organizationInvitations.acceptedAt} IS NULL`,
+      sql`${organizationInvitations.revokedAt} IS NULL`
+    ))
+    .orderBy(sql`${organizationInvitations.createdAt} DESC`);
 
-    return {
-      orgId: invitation.org_id,
-      role: invitation.role,
-    };
-  },
+  return invitations;
+}
 
-  /**
-   * Get invitation details by token (for preview before accepting)
-   */
-  async getInvitationByToken(token: string) {
-    const tokenHash = hashToken(token);
+/**
+ * Revoke an invitation
+ */
+export async function revokeInvitation(invitationId: string) {
+  const [invitation] = await db
+    .update(organizationInvitations)
+    .set({ revokedAt: new Date() })
+    .where(and(
+      eq(organizationInvitations.id, invitationId),
+      sql`${organizationInvitations.acceptedAt} IS NULL`,
+      sql`${organizationInvitations.revokedAt} IS NULL`
+    ))
+    .returning();
 
-    const result = await db
-      .select({
-        id: organizationInvitations.id,
-        email: organizationInvitations.email,
-        role: organizationInvitations.role,
-        org_id: organizationInvitations.org_id,
-        org_name: organizations.name,
-        expires_at: organizationInvitations.expires_at,
-      })
-      .from(organizationInvitations)
-      .innerJoin(organizations, eq(organizationInvitations.org_id, organizations.id))
-      .where(and(
-        eq(organizationInvitations.token_hash, tokenHash),
-        isNull(organizationInvitations.accepted_at),
-        isNull(organizationInvitations.revoked_at),
-        gt(organizationInvitations.expires_at, new Date())
-      ))
-      .limit(1);
+  if (!invitation) {
+    throw new Error('Invitation not found or already processed');
+  }
 
-    if (result.length === 0) {
-      return null;
-    }
+  return invitation;
+}
 
-    return result[0];
-  },
-};
+/**
+ * Get invitation with organization details
+ */
+export async function getInvitationDetails(token: string) {
+  const invitation = await getInvitationByToken(token);
+
+  if (!invitation) {
+    return null;
+  }
+
+  // Get organization details
+  const [org] = await db
+    .select()
+    .from(organizations)
+    .where(eq(organizations.id, invitation.orgId))
+    .limit(1);
+
+  // Get inviter details
+  const [inviter] = await db
+    .select({ email: users.email })
+    .from(users)
+    .where(eq(users.id, invitation.inviterUserId))
+    .limit(1);
+
+  return {
+    invitation,
+    organization: org,
+    inviter,
+  };
+}

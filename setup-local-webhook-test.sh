@@ -1,0 +1,21 @@
+#!/bin/bash
+
+echo "==================================="
+echo "Local Webhook Testing Setup"
+echo "==================================="
+echo ""
+echo "The Stripe CLI generated this temporary secret:"
+echo "whsec_97fb4c87601b6f905c3bff73bce59e9b870874222b666ba1cb1b524378d29a69"
+echo ""
+echo "Your current .env has:"
+grep STRIPE_WEBHOOK_SECRET .env | head -1
+echo ""
+echo "To test locally, you need to:"
+echo "1. Backup your current webhook secret"
+echo "2. Temporarily update .env with the test secret"
+echo "3. Start your dev server"
+echo "4. Run stripe listen in another terminal"
+echo "5. Trigger test events"
+echo "6. Restore your production secret when done"
+echo ""
+echo "Would you like to proceed? (This will modify .env temporarily)"

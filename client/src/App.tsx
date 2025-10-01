@@ -5,7 +5,7 @@ import { Toaster } from "./components/ui/toaster";
 import { TooltipProvider } from "./components/ui/tooltip";
 import { ThemeProvider } from "./components/ThemeProvider";
 import { ErrorBoundary } from "./components/ErrorBoundary";
-import { CookieConsent, CombinedConsent } from "./components/CombinedConsent";
+import { CombinedConsent } from "./components/CombinedConsent";
 import { Header } from "./components/Header";
 import { Footer } from "./components/Footer";
 import { ScrollToTop } from "./components/ScrollToTop";
@@ -46,6 +46,7 @@ const SettingsPage = lazy(() => import("./pages/settings"));
 const ContactPage = lazy(() => import("./pages/contact"));
 const AboutPage = lazy(() => import("./pages/about"));
 const NotFound = lazy(() => import("./pages/not-found"));
+const InvitePage = lazy(() => import("./pages/invite"));
 
 // Loading component for suspense
 const PageLoader = () => (
@@ -74,6 +75,7 @@ function AppRouter() {
         <Route path="/unsubscribe" element={<UnsubscribePage />} />
         <Route path="/settings" element={<SettingsPage />} />
         <Route path="/contact" element={<ContactPage />} />
+        <Route path="/invite/:token" element={<InvitePage />} />
         <Route path="/about" element={<AboutPage />} />
         <Route path="*" element={<NotFound />} />
       </Routes>
@@ -274,7 +276,6 @@ function AppContent() {
         <Footer />
       </div>
       <Toaster />
-      <CookieConsent />
       {showConsentModal && (
         <CombinedConsent onAccept={handleConsentAccepted} />
       )}

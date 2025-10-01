@@ -13,7 +13,8 @@ import {
   ChevronRight,
   Save,
   Eye,
-  EyeOff
+  EyeOff,
+  Users
 } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -30,6 +31,7 @@ import { useTheme } from '@/components/ThemeProvider';
 import { UserSecuritySettings } from '@/components/UserSecuritySettings';
 import DataExportButton from '@/components/DataExportButton';
 import AccountDeletion from '@/components/AccountDeletion';
+import { TeamManagement } from '@/components/TeamManagement';
 import { Link } from 'wouter';
 import { useQuery, useMutation } from '@tanstack/react-query';
 import { queryClient } from '@/lib/queryClient';
@@ -212,7 +214,7 @@ export default function SettingsPage() {
         </motion.div>
 
         <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-8">
-          <TabsList className="grid w-full grid-cols-6 lg:max-w-4xl mx-auto bg-white/70 dark:bg-slate-800/70 backdrop-blur-xl border-0 shadow-lg p-2 rounded-2xl">
+          <TabsList className="grid w-full grid-cols-7 lg:max-w-5xl mx-auto bg-white/70 dark:bg-slate-800/70 backdrop-blur-xl border-0 shadow-lg p-2 rounded-2xl">
             <TabsTrigger value="account" className="text-xs sm:text-sm" data-testid="tab-account">
               <User className="h-4 w-4 mr-1" />
               <span className="hidden sm:inline">Account</span>
@@ -220,6 +222,10 @@ export default function SettingsPage() {
             <TabsTrigger value="security" className="text-xs sm:text-sm" data-testid="tab-security">
               <Shield className="h-4 w-4 mr-1" />
               <span className="hidden sm:inline">Security</span>
+            </TabsTrigger>
+            <TabsTrigger value="team" className="text-xs sm:text-sm" data-testid="tab-team">
+              <Users className="h-4 w-4 mr-1" />
+              <span className="hidden sm:inline">Team</span>
             </TabsTrigger>
             <TabsTrigger value="privacy" className="text-xs sm:text-sm" data-testid="tab-privacy">
               <Lock className="h-4 w-4 mr-1" />
@@ -359,6 +365,17 @@ export default function SettingsPage() {
               transition={{ delay: 0.1 }}
             >
               <UserSecuritySettings />
+            </motion.div>
+          </TabsContent>
+
+          {/* Team Management Tab */}
+          <TabsContent value="team" className="space-y-6">
+            <motion.div
+              initial={{ opacity: 0, x: -20 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ delay: 0.1 }}
+            >
+              <TeamManagement />
             </motion.div>
           </TabsContent>
 

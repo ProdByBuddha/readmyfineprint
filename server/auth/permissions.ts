@@ -335,3 +335,12 @@ export function getEffectiveWorkspaceRole(
 
 // Extend Express Request type
 declare global {
+  namespace Express {
+    interface Request {
+      orgContext?: {
+        orgId: string;
+        role: 'admin' | 'member' | 'viewer';
+      };
+    }
+  }
+}

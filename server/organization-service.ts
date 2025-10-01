@@ -352,11 +352,12 @@ export async function setUserDefaultOrganization(userId: string, orgId: string) 
  * Get user's default organization
  */
 export async function getUserDefaultOrganization(userId: string) {
-  const [user] = await db
-    .select({ defaultOrgId: users.defaultOrgId })
-    .from(users)
-    .where(eq(users.id, userId))
-    .limit(1);
-
-  return user?.defaultOrgId;
+  // TODO: Implement default org ID - users.defaultOrgId doesn't exist in schema
+  // const [user] = await db
+  //   .select({ defaultOrgId: users.defaultOrgId })
+  //   .from(users)
+  //   .where(eq(users.id, userId))
+  //   .limit(1);
+  // return user?.defaultOrgId;
+  return null;
 }

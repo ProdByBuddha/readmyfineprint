@@ -119,7 +119,7 @@ router.post('/orgs', requireUserAuth, requireOrgsFeature, async (req: Request, r
     const input = createOrgSchema.parse(req.body);
     
     // Check if user's subscription tier allows organizations
-    const userTier = req.user?.tier || 'free';
+    const userTier = 'free'; // TODO: Get tier from subscription service
     const accessCheck = checkOrganizationAccess(userTier);
     
     if (accessCheck.error) {
@@ -132,7 +132,8 @@ router.post('/orgs', requireUserAuth, requireOrgsFeature, async (req: Request, r
 
     // Create organization
     const org = await orgService.createOrganization({
-      ...input,
+      name: input.name,
+      slug: input.slug,
       createdByUserId: userId,
       billingTier: userTier,
     });

@@ -33,6 +33,8 @@ import { registerTierSecurityRoutes } from './tier-security-routes';
 import { registerUserPreferencesRoutes } from './user-preferences-routes';
 import { registerSecurityQuestionsRoutes } from './security-questions-routes';
 import { indexNowService } from './indexnow-service';
+import organizationRouter from './organization-routes';
+import invitationRouter from './invitation-routes';
 import blogRoutes from './blog-routes.js';
 import { errorReportingService } from './error-reporting-service';
 import type { UserError } from './error-reporting-service';
@@ -3355,11 +3357,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
             // Send thank you email if customer email is available
             if (paymentIntent.receipt_email) {
               await emailService.sendDonationThankYou({
+                to: paymentIntent.receipt_email || "donor@example.com",
                 amount: paymentIntent.amount / 100,
-                currency: paymentIntent.currency,
-                paymentIntentId: paymentIntent.id,
-                customerEmail: paymentIntent.receipt_email,
-                timestamp: new Date()
+                donorName: undefined
               });
             }
 
@@ -3566,14 +3566,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
               if (customerEmail) {
                 await emailService.sendDonationThankYou({
-                  customerEmail: customerEmail,
+                  to: customerEmail,
                   amount: amount,
-                  currency: 'usd', // Default to USD for donations
-                  paymentIntentId: checkoutSession.id,
-                  customerName: checkoutSession.customer_details?.name || 'Valued Supporter',
-                  timestamp: new Date()
+                  donorName: checkoutSession.customer_details?.name
                 });
-                console.log(`📧 Donation thank you email sent to ${customerEmail} for $${amount}`);
               } else {
                 console.log(`⚠️ No customer email found for donation ${checkoutSession.id}`);
               }
@@ -3655,12 +3651,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
       if (testResult) {
         // Send a test email
         const testEmailSent = await emailService.sendDonationThankYou({
-          amount: 25.00,
-          currency: 'usd',
-          paymentIntentId: 'test_payment_intent',
-          customerEmail: process.env.DEFAULT_DONATION_EMAIL || 'admin@readmyfineprint.com',
-          customerName: 'Test User',
-          timestamp: new Date()
+          to: process.env.DEFAULT_DONATION_EMAIL || 'admin@readmyfineprint.com',
+          amount: 100,
+          donorName: 'Test User'
         });
 
         res.json({
@@ -3944,6 +3937,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   // Register blog routes
   app.use('/api/blog', blogRoutes);
+  // Organization routes
+  app.use('/api', organizationRouter);
+  app.use('/api', invitationRouter);
 
   // Contact card endpoints
   app.get('/contact.vcf', async (req, res) => {
