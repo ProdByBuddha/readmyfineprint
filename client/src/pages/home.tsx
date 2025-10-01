@@ -35,6 +35,7 @@ import { generateFAQSchema, updateSEO } from "@/lib/seo";
 import { Link } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
 import { safeDispatchEvent } from "@/lib/safeDispatchEvent";
+import { CookieConsentBanner } from "@/components/CookieConsentBanner";
 
 export default function Home() {
   const { isAccepted: consentAccepted, isCheckingConsent } = useCombinedConsent();
