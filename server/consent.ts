@@ -314,8 +314,6 @@ class ConsentLogger {
           .limit(1);
       } catch (dbError) {
         console.error('Database error during consent verification:', dbError);
-        // Cache negative result temporarily to avoid repeated DB errors
-        this.consentCache.set(cacheKey, { result: null, timestamp: now });
         return null;
       }
 
@@ -340,9 +338,14 @@ class ConsentLogger {
         };
       }
 
-      // Cache the result
-      this.consentCache.set(cacheKey, { result, timestamp: now });
-      console.log(`Consent verification result for ${userPseudonym}: ${!!result} ${result ? `(ID: ${result.consent_id})` : ''}`);
+      // Only cache positive results (when consent is found)
+      // This prevents caching "no consent" which would block newly accepted consent
+      if (result) {
+        this.consentCache.set(cacheKey, { result, timestamp: now });
+        console.log(`Consent verification result for ${userPseudonym}: true (ID: ${result.consent_id}) [CACHED]`);
+      } else {
+        console.log(`Consent verification result for ${userPseudonym}: false (not caching negative result)`);
+      }
       return result;
 
     } catch (error) {

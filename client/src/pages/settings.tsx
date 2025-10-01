@@ -14,7 +14,8 @@ import {
   Save,
   Eye,
   EyeOff,
-  Users
+  Users,
+  Folder
 } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -32,6 +33,7 @@ import { UserSecuritySettings } from '@/components/UserSecuritySettings';
 import DataExportButton from '@/components/DataExportButton';
 import AccountDeletion from '@/components/AccountDeletion';
 import { TeamManagement } from '@/components/TeamManagement';
+import { WorkspaceManagement } from '@/components/WorkspaceManagement';
 import { Link } from 'wouter';
 import { useQuery, useMutation } from '@tanstack/react-query';
 import { queryClient } from '@/lib/queryClient';
@@ -226,6 +228,10 @@ export default function SettingsPage() {
             <TabsTrigger value="team" className="text-xs sm:text-sm" data-testid="tab-team">
               <Users className="h-4 w-4 mr-1" />
               <span className="hidden sm:inline">Team</span>
+            <TabsTrigger value="workspaces" className="text-xs sm:text-sm" data-testid="tab-workspaces">
+              <Folder className="h-4 w-4 mr-1" />
+              <span className="hidden sm:inline">Workspaces</span>
+            </TabsTrigger>
             </TabsTrigger>
             <TabsTrigger value="privacy" className="text-xs sm:text-sm" data-testid="tab-privacy">
               <Lock className="h-4 w-4 mr-1" />
@@ -376,6 +382,17 @@ export default function SettingsPage() {
               transition={{ delay: 0.1 }}
             >
               <TeamManagement />
+            </motion.div>
+          </TabsContent>
+
+          {/* Workspaces Tab */}
+          <TabsContent value="workspaces" className="space-y-6">
+            <motion.div
+              initial={{ opacity: 0, x: -20 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ delay: 0.1 }}
+            >
+              <WorkspaceManagement />
             </motion.div>
           </TabsContent>
 

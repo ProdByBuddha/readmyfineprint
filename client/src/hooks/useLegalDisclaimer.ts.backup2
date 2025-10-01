@@ -7,42 +7,15 @@ interface LegalDisclaimerState {
   error: string | null;
 }
 
-// Helper function to get initial state synchronously in dev mode
-const getInitialState = (): LegalDisclaimerState => {
-  // In development mode, initialize immediately from localStorage
-  if (import.meta.env.DEV || import.meta.env.MODE === 'development') {
-    try {
-      const accepted = localStorage.getItem('readmyfineprint-disclaimer-accepted') === 'true';
-      console.log('⚠️ Development mode: Initializing legal disclaimer synchronously', { accepted });
-      
-      return {
-        accepted,
-        loading: false, // Not loading in dev mode!
-        error: null
-      };
-    } catch {
-      // Fallback to default on any error
-    }
-  }
-  
-  // Production mode: start in loading state
-  return {
+export function useLegalDisclaimer() {
+  const [state, setState] = useState<LegalDisclaimerState>({
     accepted: false,
     loading: true,
     error: null
-  };
-};
-
-export function useLegalDisclaimer() {
-  const [state, setState] = useState<LegalDisclaimerState>(getInitialState);
+  });
 
   // Check if user is authenticated (either regular user or subscription session)
   const isAuthenticated = useCallback(async () => {
-    // Skip in dev mode
-    if (import.meta.env.DEV || import.meta.env.MODE === 'development') {
-      return false;
-    }
-
     try {
       // First check for subscription token (subscription-only sessions)
       const hasSubscriptionToken = document.cookie.includes('subscriptionToken') || 
@@ -82,15 +55,12 @@ export function useLegalDisclaimer() {
       }
       return false;
     }
+   
+
   }, []);
 
   // Load disclaimer acceptance from database
   const loadFromDatabase = useCallback(async () => {
-    // Skip in dev mode
-    if (import.meta.env.DEV || import.meta.env.MODE === 'development') {
-      return null;
-    }
-
     try {
       const response = await sessionFetch('/api/user/preferences/legal-disclaimer', {
         method: 'GET',
@@ -116,16 +86,12 @@ export function useLegalDisclaimer() {
       }
       return null;
     }
+   
+
   }, []);
 
   // Save disclaimer acceptance to database
   const saveToDatabase = useCallback(async (accepted: boolean) => {
-    // Skip in dev mode
-    if (import.meta.env.DEV || import.meta.env.MODE === 'development') {
-      console.log('⚠️ Development mode: Skipping database save for legal disclaimer');
-      return true; // Pretend it worked
-    }
-
     try {
       const response = await sessionFetch('/api/user/preferences/legal-disclaimer', {
         method: 'POST',
@@ -137,23 +103,28 @@ export function useLegalDisclaimer() {
       });
 
       if (!response.ok) {
+        if (response.status === 429) {
+          // Rate limited - this is not critical, just log and continue
+          console.log('Rate limited saving disclaimer to database, saved to localStorage only');
+          return true; // Return true so we don't show an error to the user
+        } else if (response.status === 401) {
+          // Unauthorized - expected for subscription-only sessions
+          return true; // Return true so we don't show an error to the user
+        }
         throw new Error('Failed to save legal disclaimer to database');
       }
-
+      
       return true;
     } catch (error) {
       console.warn('Failed to save legal disclaimer to database:', error);
       return false;
     }
+   
+
   }, []);
 
+  // Initialize disclaimer state
   const initializeDisclaimer = useCallback(async () => {
-    // In development mode, we've already initialized synchronously - skip async init entirely
-    if (import.meta.env.DEV || import.meta.env.MODE === 'development') {
-      console.log('⚠️ Development mode: Skipping async initialization (already done synchronously)');
-      return;
-    }
-
     // Prevent multiple simultaneous initializations
     if (state.loading) {
       return;
@@ -214,29 +185,26 @@ export function useLegalDisclaimer() {
     localStorage.setItem('readmyfineprint-disclaimer-accepted', 'true');
     localStorage.setItem('readmyfineprint-disclaimer-date', acceptanceDate);
     
-    // Only try database in production
-    if (!(import.meta.env.DEV || import.meta.env.MODE === 'development')) {
-      try {
-        const authenticated = await isAuthenticated();
+    try {
+      const authenticated = await isAuthenticated();
+      
+      if (authenticated) {
+        // Also save to database for authenticated users
+        const saved = await saveToDatabase(true);
         
-        if (authenticated) {
-          // Also save to database for authenticated users
-          const saved = await saveToDatabase(true);
-          
-          if (!saved) {
-            setState(prev => ({ 
-              ...prev, 
-              error: 'Failed to sync disclaimer acceptance to database'
-            }));
-          }
+        if (!saved) {
+          setState(prev => ({ 
+            ...prev, 
+            error: 'Failed to sync disclaimer acceptance to database'
+          }));
         }
-      } catch (error) {
-        console.warn('Failed to save disclaimer acceptance:', error);
-        setState(prev => ({ 
-          ...prev, 
-          error: 'Disclaimer saved locally but failed to sync to database'
-        }));
       }
+    } catch (error) {
+      console.warn('Failed to save disclaimer acceptance:', error);
+      setState(prev => ({ 
+        ...prev, 
+        error: 'Disclaimer saved locally but failed to sync to database'
+      }));
     }
   }, [isAuthenticated, saveToDatabase]);
 
@@ -249,39 +217,42 @@ export function useLegalDisclaimer() {
     localStorage.removeItem('readmyfineprint-disclaimer-accepted');
     localStorage.removeItem('readmyfineprint-disclaimer-date');
     
-    // Only try database in production
-    if (!(import.meta.env.DEV || import.meta.env.MODE === 'development')) {
-      try {
-        const authenticated = await isAuthenticated();
+    try {
+      const authenticated = await isAuthenticated();
+      
+      if (authenticated) {
+        // Also update database for authenticated users
+        const saved = await saveToDatabase(false);
         
-        if (authenticated) {
-          // Also update database for authenticated users
-          const saved = await saveToDatabase(false);
-          
-          if (!saved) {
-            setState(prev => ({ 
-              ...prev, 
-              error: 'Failed to sync disclaimer revocation to database'
-            }));
-          }
+        if (!saved) {
+          setState(prev => ({ 
+            ...prev, 
+            error: 'Failed to sync disclaimer revocation to database'
+          }));
         }
-      } catch (error) {
-        console.warn('Failed to revoke disclaimer:', error);
-        setState(prev => ({ 
-          ...prev, 
-          error: 'Disclaimer revoked locally but failed to sync to database'
-        }));
       }
+    } catch (error) {
+      console.warn('Failed to revoke disclaimer:', error);
+      setState(prev => ({ 
+        ...prev, 
+        error: 'Disclaimer revoked locally but failed to sync to database'
+      }));
     }
   }, [isAuthenticated, saveToDatabase]);
 
   // Initialize on mount
   useEffect(() => {
-    // In dev mode, initialization already happened synchronously
-    // Only run async initialization in production
-    if (!(import.meta.env.DEV || import.meta.env.MODE === 'development')) {
+    const initialize = async () => {
+      // In development mode, use simplified initialization without authentication checks
+      if (import.meta.env.DEV || import.meta.env.MODE === 'development') {
+        console.log('⚠️ Development mode: Using localStorage for legal disclaimer');
+        const localAccepted = localStorage.getItem('readmyfineprint-disclaimer-accepted') === 'true';
+        setState(prev => ({ ...prev, accepted: localAccepted, loading: false }));
+        return;
+      }
+
       // In production, wait for auto-login to complete before initializing
-      const initialize = async () => {
+      if (import.meta.env.DEV) {
         // Wait for auto-login to finish
         let attempts = 0;
         while ((window as any).isAutoLoginInProgress && attempts < 50) {
@@ -290,21 +261,18 @@ export function useLegalDisclaimer() {
         }
         // Give additional time for session to be established
         await new Promise(resolve => setTimeout(resolve, 500));
-        
-        initializeDisclaimer();
-      };
+      }
       
-      initialize();
-    }
+      initializeDisclaimer();
+    };
+    
+    initialize();
+   
+
   }, []);
 
-  // Listen for authentication changes - but skip in dev mode
+  // Listen for authentication changes
   useEffect(() => {
-    // Skip entirely in dev mode
-    if (import.meta.env.DEV || import.meta.env.MODE === 'development') {
-      return;
-    }
-
     let debounceTimeout: NodeJS.Timeout;
     
     const handleAuthChange = () => {
@@ -323,7 +291,9 @@ export function useLegalDisclaimer() {
       window.removeEventListener('authStateChanged', handleAuthChange);
       window.removeEventListener('authUpdate', handleAuthChange);
     };
-  }, [initializeDisclaimer]);
+   
+
+  }, []);
 
   return {
     accepted: state.accepted,
@@ -332,4 +302,4 @@ export function useLegalDisclaimer() {
     acceptDisclaimer,
     revokeDisclaimer
   };
-}
+} 

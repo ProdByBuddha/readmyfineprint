@@ -1,6 +1,5 @@
 import crypto from 'crypto';
 import { piiProtectionService } from './pii-protection-service';
-import { shouldLog } from './log-config';
 
 // Security event types
 export enum SecurityEventType {
@@ -124,11 +123,7 @@ class SecurityLogger {
       // Format log message based on severity (using original IP for console logs during migration)
       const logMessage = this.formatLogMessage(fullEvent);
 
-      // Determine if we should log based on event type and configuration
-      const shouldLogEvent = this.shouldLogEvent(fullEvent);
-
-      // Log to console with appropriate level only if enabled
-      if (shouldLogEvent) {
+      // Log to console with appropriate level
       switch (fullEvent.severity) {
         case SecuritySeverity.CRITICAL:
           console.error(logMessage);
@@ -142,7 +137,6 @@ class SecurityLogger {
         case SecuritySeverity.LOW:
           console.info(logMessage);
           break;
-      }
       }
 
       // In production, you might want to send to external logging service
@@ -176,11 +170,7 @@ class SecurityLogger {
     // Format log message based on severity
     const logMessage = this.formatLogMessage(fullEvent);
 
-      // Determine if we should log based on event type and configuration
-      const shouldLogEvent = this.shouldLogEvent(fullEvent);
-
-    // Log to console with appropriate level only if enabled
-      if (shouldLogEvent) {
+    // Log to console with appropriate level
     switch (fullEvent.severity) {
       case SecuritySeverity.CRITICAL:
         console.error(logMessage);
@@ -195,7 +185,6 @@ class SecurityLogger {
         console.info(logMessage);
         break;
     }
-      }
 
     // In production, you might want to send to external logging service
     if (process.env.NODE_ENV === 'production') {
@@ -204,33 +193,6 @@ class SecurityLogger {
   }
 
   /**
-   * Determine if an event should be logged based on configuration
-   */
-  private shouldLogEvent(event: SecurityEvent): boolean {
-    // Always log critical security events
-    if (event.severity === SecuritySeverity.CRITICAL || event.severity === SecuritySeverity.HIGH) {
-      return shouldLog('security');
-    }
-
-    // Check specific event types
-    switch (event.eventType) {
-      case SecurityEventType.SESSION_MANAGEMENT:
-        return shouldLog('sessionLogging');
-      case SecurityEventType.AUTHENTICATION:
-      case SecurityEventType.AUTHORIZATION:
-        return shouldLog('authTokenValidation');
-      case SecurityEventType.ERROR:
-        return shouldLog('errors');
-      case SecurityEventType.API_ACCESS:
-      case SecurityEventType.USER_ACTIVITY:
-        return shouldLog('apiRequests');
-      default:
-        // For other events, respect the security log setting
-        return shouldLog('security');
-    }
-  }
-
-    /**
    * Get emoji prefix for log severity
    */
   private getLogPrefix(severity: SecuritySeverity): string {

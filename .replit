@@ -4,7 +4,7 @@ hidden = [".config", ".git", "generated-icon.png", "node_modules", "dist"]
 
 [nix]
 channel = "stable-24_05"
-packages = ["imagemagick", "python311Packages.transformers", "python311Packages.torch", "python311Packages.tokenizers", "lsof", "podman", "docker", "systemd", "nodejs", "stripe-cli"]
+packages = ["docker", "imagemagick", "lsof", "nodejs", "podman", "python311Packages.tokenizers", "python311Packages.torch", "python311Packages.transformers", "stripe-cli", "systemd"]
 
 [deployment]
 deploymentTarget = "autoscale"
@@ -39,13 +39,13 @@ args = "npm run dev"
 waitForPort = 5173
 
 [[workflows.workflow]]
-name = "Start Dev + PII LLM"
+name = "Start Dev "
 mode = "sequential"
 author = 30822729
 
 [[workflows.workflow.tasks]]
 task = "shell.exec"
-args = "npm run dev:with-llm"
+args = "npm run dev"
 
 [[workflows.workflow]]
 name = "Test Blog"
@@ -195,6 +195,7 @@ externalPort = 5000
 [[ports]]
 localPort = 5173
 externalPort = 5173
+exposeLocalhost = true
 
 [[ports]]
 localPort = 11434

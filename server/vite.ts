@@ -133,7 +133,7 @@ export async function setupVite(app: Express, server: Server) {
     app.use(viteServer.middlewares);
 
     // Fallback handler for SPA routes (but not API routes or static assets)
-    app.use("*", async (req, res, next) => {
+    app.use(async (req, res, next) => {
       const url = req.originalUrl;
 
       // Skip API routes and static assets

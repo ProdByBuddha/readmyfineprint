@@ -35,6 +35,7 @@ import { registerSecurityQuestionsRoutes } from './security-questions-routes';
 import { indexNowService } from './indexnow-service';
 import organizationRouter from './organization-routes';
 import invitationRouter from './invitation-routes';
+import workspaceRouter from './workspace-routes';
 import blogRoutes from './blog-routes.js';
 import { errorReportingService } from './error-reporting-service';
 import type { UserError } from './error-reporting-service';
@@ -3944,6 +3945,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Organization routes
   app.use('/api', organizationRouter);
   app.use('/api', invitationRouter);
+  app.use('/api', workspaceRouter);
 
   // Contact card endpoints
   app.get('/contact.vcf', async (req, res) => {

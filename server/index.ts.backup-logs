@@ -13,7 +13,6 @@ import { provideCsrfToken, verifyCsrfToken } from "./csrf-protection";
 import { enhancedCorsProtection, requestSizeProtection, developmentServerProtection } from "./security-middleware";
 import { hashIpAddress, hashUserAgent } from "./argon2";
 import crypto from "crypto";
-import { shouldLog, isViteRequest, isStaticFile, isApiRequest } from "./log-config";
 
 // Validate environment variables before starting the server
 console.log('🚀 Starting ReadMyFinePrint Server...');
@@ -62,22 +61,6 @@ app.use((req, res, next) => {
   next();
 });
 
-// Request logging filter - reduce noise from Vite HMR and static files
-app.use((req, res, next) => {
-  const path = req.path;
-  
-  // Skip logging for Vite HMR requests and static files in development
-  if (process.env.NODE_ENV === 'development') {
-    const skipLogging = isViteRequest(path) || isStaticFile(path);
-    if (skipLogging) {
-      (req as any).skipLogging = true;
-    }
-  }
-  
-  next();
-});
-
-
 // Enhanced security middleware - block only critical sensitive files
 app.use((req, res, next) => {
   const path = req.path.toLowerCase();
@@ -102,7 +85,7 @@ app.use((req, res, next) => {
   if (isBlocked) {
     // Log security attempt
     const { ip, userAgent } = getClientInfo(req);
-    if (shouldLog('security')) { securityLogger.logSecurityEvent({
+    securityLogger.logSecurityEvent({
       eventType: "ACCESS_ATTEMPT" as any,
       severity: "HIGH" as any,
       message: `Blocked access attempt to sensitive path: ${req.path}`,
@@ -110,7 +93,7 @@ app.use((req, res, next) => {
       userAgent,
       endpoint: req.path,
       details: { blockedPath: req.path }
-    }); }
+    });
 
     res.status(404).json({ error: 'Not Found' });
     return;
@@ -338,7 +321,7 @@ app.use(async (req: any, res, next) => {
     const lastClientSession = recentSessions.get(clientKey);
 
     if (!lastClientSession || (now - lastClientSession) > SESSION_LOG_COOLDOWN) {
-      if (shouldLog('sessionLogging')) { securityLogger.logSessionCreated(ip, userAgent, sessionId); }
+      securityLogger.logSessionCreated(ip, userAgent, sessionId);
       recentSessions.set(clientKey, now);
       // Only log session creation in development mode to reduce noise
       if (process.env.NODE_ENV === 'development' || process.env.SESSION_DEBUG === 'true') {
