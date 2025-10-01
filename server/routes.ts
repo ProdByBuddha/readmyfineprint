@@ -1533,8 +1533,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
           const userId = req.user?.id;
 
           // Check for valid consent for non-sample analysis
-          const consentProof = await consentLogger.verifyUserConsent(ip, userAgent, userId, req.sessionId);
-
+          // Get session ID with fallback to header
+          let sessionId = req.sessionId;
+          if (!sessionId) {
+            sessionId = req.headers['x-session-id'] as string;
+          }
+          const consentProof = await consentLogger.verifyUserConsent(ip, userAgent, userId, sessionId);
           if (!consentProof) {
             securityLogger.logSecurityEvent({
               eventType: SecurityEventType.SECURITY_VIOLATION,
