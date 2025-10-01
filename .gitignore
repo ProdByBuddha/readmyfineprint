@@ -31,6 +31,8 @@ auth.json
 *apikey*
 *api_key*
 *api-key*
+!server/api-key-service.ts
+!server/api-key-routes.ts
 *token*
 *secret*
 *password*

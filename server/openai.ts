@@ -1,6 +1,7 @@
 import OpenAI from "openai";
 import type { DocumentAnalysis } from "@shared/schema";
 import { securityLogger } from "./security-logger";
+import { hasAdvocacyAccess, isFeatureEnabled } from "./feature-flags";
 
 // the newest OpenAI model is "gpt-4o" which was released May 13, 2024. do not change this unless explicitly requested by the user
 const openai = new OpenAI({
@@ -19,7 +20,9 @@ export async function analyzeDocument(
 ): Promise<DocumentAnalysis> {
   try {
     const tierId = extras.subscriptionTierId || 'free';
-    const shouldIncludeAdvocacy = (extras.includeAdvocacy ?? false) || tierId !== 'free';
+    const allowAdvocacy = isFeatureEnabled('advocacy') && hasAdvocacyAccess(tierId);
+    const requestedAdvocacy = extras.includeAdvocacy !== undefined ? extras.includeAdvocacy : true;
+    const shouldIncludeAdvocacy = allowAdvocacy && requestedAdvocacy;
 
     // Log OpenAI API usage for audit purposes
     if (ip && userAgent && sessionId) {

@@ -10,6 +10,9 @@ import { submitPiiDetectionFeedback } from "@/lib/api";
 import { useToast } from "@/hooks/use-toast";
 import { useState, useMemo, useEffect } from "react";
 
+const ADVOCACY_FEATURE_ENABLED = import.meta.env.VITE_ENABLE_ADVOCACY !== 'false';
+const ADVOCACY_ACCESS_TIERS = ['starter', 'professional', 'business', 'enterprise', 'ultimate'];
+
 interface AnalysisResultsProps {
   document: Document;
 }
@@ -362,7 +365,7 @@ Support our mission: ${window.location.origin + '/donate'}
     window.location.reload(); // Example: reload to start fresh
   };
 
-  const hasAdvocacyAccess = ['starter', 'professional', 'business', 'enterprise', 'ultimate'].includes(userTier);
+  const hasAdvocacyAccess = ADVOCACY_FEATURE_ENABLED && ADVOCACY_ACCESS_TIERS.includes(userTier);
   const userAdvocacy = analysis.userAdvocacy;
   const totalAdvocacyItems =
     (userAdvocacy?.negotiationStrategies?.length ?? 0) +

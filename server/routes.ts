@@ -36,6 +36,10 @@ import { indexNowService } from './indexnow-service';
 import organizationRouter from './organization-routes';
 import invitationRouter from './invitation-routes';
 import workspaceRouter from './workspace-routes';
+import activityRouter from './activity-routes';
+import annotationRouter from './annotation-routes';
+import usageRouter from './usage-routes';
+import apiKeyRouter from './api-key-routes';
 import blogRoutes from './blog-routes.js';
 import { errorReportingService } from './error-reporting-service';
 import type { UserError } from './error-reporting-service';
@@ -54,6 +58,7 @@ import { mailingList, insertMailingListSchema, type InsertMailingList } from '@s
 import { eq, and } from 'drizzle-orm';
 import { db } from './db';
 import { disasterRecoveryService } from './disaster-recovery-service';
+import { hasAdvocacyAccess, isFeatureEnabled } from './feature-flags';
 
 /**
  * Fallback cookie parsing function for when req.cookies is undefined
@@ -1759,6 +1764,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.json(updatedDocument);
       }
 
+      const allowAdvocacy = isFeatureEnabled('advocacy') && hasAdvocacyAccess(subscriptionData.tier.id);
+
       // Process document analysis through priority queue with conditional PII protection
       const analysisResult = await priorityQueue.addToQueue(
         userId,
@@ -1776,7 +1783,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
                 sessionId: req.sessionId,
                 model: subscriptionData.tier.model,
                 userId: userId,
-                includeAdvocacy: subscriptionData.tier.id !== 'free',
+                includeAdvocacy: allowAdvocacy,
+                subscriptionTierId: subscriptionData.tier.id,
                 piiDetection: {
                   enabled: true, // Always enabled for maximum privacy protection
                   detectNames: true,
@@ -1800,7 +1808,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
                 sessionId: req.sessionId,
                 userId: userId,
                 subscriptionTierId: subscriptionData.tier.id,
-                includeAdvocacy: subscriptionData.tier.id !== 'free'
+                includeAdvocacy: allowAdvocacy
               }
             );
           }
@@ -3946,6 +3954,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.use('/api', organizationRouter);
   app.use('/api', invitationRouter);
   app.use('/api', workspaceRouter);
+  app.use('/api', annotationRouter);
+  app.use('/api', usageRouter);
+  app.use('/api', apiKeyRouter);
+  app.use('/api', activityRouter);
 
   // Contact card endpoints
   app.get('/contact.vcf', async (req, res) => {

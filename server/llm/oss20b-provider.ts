@@ -1,6 +1,7 @@
 import type { DocumentAnalysis } from "@shared/schema";
 import type { LLMProvider, LLMAnalysisOptions } from "./provider";
 import { securityLogger } from "../security-logger";
+import { hasAdvocacyAccess, isFeatureEnabled } from "../feature-flags";
 import { z } from "zod";
 import type { CircuitBreaker } from "../circuit-breaker";
 import { CircuitBreakerFactory, CircuitState } from "../circuit-breaker";
@@ -146,13 +147,15 @@ export class LocalOss20BProvider implements LLMProvider {
       sessionId,
       userId,
       subscriptionTierId,
-      includeAdvocacy = false
+      includeAdvocacy
     } = options;
 
     // Always use the local model name, regardless of what OpenAI model name was passed
     const localModel = this.defaultModel;
     const tierId = subscriptionTierId || 'free';
-    const shouldIncludeAdvocacy = includeAdvocacy || tierId !== 'free';
+    const allowAdvocacy = isFeatureEnabled('advocacy') && hasAdvocacyAccess(tierId);
+    const requestedAdvocacy = includeAdvocacy !== undefined ? includeAdvocacy : true;
+    const shouldIncludeAdvocacy = allowAdvocacy && requestedAdvocacy;
 
     try {
       // Log usage for audit purposes

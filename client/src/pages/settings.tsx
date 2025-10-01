@@ -1,12 +1,14 @@
 import { useState } from 'react';
 import { motion } from 'framer-motion';
-import { 
-  User, 
-  Shield, 
-  Lock, 
-  Palette, 
-  Bell, 
-  CreditCard, 
+import {
+  Activity,
+  BarChart3,
+  User,
+  Shield,
+  Lock,
+  Palette,
+  Bell,
+  CreditCard,
   Key,
   Download,
   Settings as SettingsIcon,
@@ -15,7 +17,8 @@ import {
   Eye,
   EyeOff,
   Users,
-  Folder
+  Folder,
+  MessageCircle
 } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -34,6 +37,10 @@ import DataExportButton from '@/components/DataExportButton';
 import AccountDeletion from '@/components/AccountDeletion';
 import { TeamManagement } from '@/components/TeamManagement';
 import { WorkspaceManagement } from '@/components/WorkspaceManagement';
+import { ActivityFeed } from '@/components/ActivityFeed';
+import { AnnotationsPanel } from '@/components/AnnotationsPanel';
+import { UsageDashboard } from '@/components/UsageDashboard';
+import ApiKeyManagement from '@/components/ApiKeyManagement';
 import { Link } from 'wouter';
 import { useQuery, useMutation } from '@tanstack/react-query';
 import { queryClient } from '@/lib/queryClient';
@@ -216,7 +223,7 @@ export default function SettingsPage() {
         </motion.div>
 
         <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-8">
-          <TabsList className="grid w-full grid-cols-7 lg:max-w-5xl mx-auto bg-white/70 dark:bg-slate-800/70 backdrop-blur-xl border-0 shadow-lg p-2 rounded-2xl">
+          <TabsList className="grid w-full grid-cols-12 lg:max-w-5xl mx-auto bg-white/70 dark:bg-slate-800/70 backdrop-blur-xl border-0 shadow-lg p-2 rounded-2xl">
             <TabsTrigger value="account" className="text-xs sm:text-sm" data-testid="tab-account">
               <User className="h-4 w-4 mr-1" />
               <span className="hidden sm:inline">Account</span>
@@ -228,10 +235,26 @@ export default function SettingsPage() {
             <TabsTrigger value="team" className="text-xs sm:text-sm" data-testid="tab-team">
               <Users className="h-4 w-4 mr-1" />
               <span className="hidden sm:inline">Team</span>
+            </TabsTrigger>
             <TabsTrigger value="workspaces" className="text-xs sm:text-sm" data-testid="tab-workspaces">
               <Folder className="h-4 w-4 mr-1" />
               <span className="hidden sm:inline">Workspaces</span>
             </TabsTrigger>
+            <TabsTrigger value="activity" className="text-xs sm:text-sm" data-testid="tab-activity">
+              <Activity className="h-4 w-4 mr-1" />
+              <span className="hidden sm:inline">Activity</span>
+            </TabsTrigger>
+            <TabsTrigger value="usage" className="text-xs sm:text-sm" data-testid="tab-usage">
+              <BarChart3 className="h-4 w-4 mr-1" />
+              <span className="hidden sm:inline">Usage</span>
+            </TabsTrigger>
+            <TabsTrigger value="api-keys" className="text-xs sm:text-sm" data-testid="tab-api-keys">
+              <Key className="h-4 w-4 mr-1" />
+              <span className="hidden sm:inline">API Keys</span>
+            </TabsTrigger>
+            <TabsTrigger value="annotations" className="text-xs sm:text-sm" data-testid="tab-annotations">
+              <MessageCircle className="h-4 w-4 mr-1" />
+              <span className="hidden sm:inline">Annotations</span>
             </TabsTrigger>
             <TabsTrigger value="privacy" className="text-xs sm:text-sm" data-testid="tab-privacy">
               <Lock className="h-4 w-4 mr-1" />
@@ -393,6 +416,50 @@ export default function SettingsPage() {
               transition={{ delay: 0.1 }}
             >
               <WorkspaceManagement />
+            </motion.div>
+          </TabsContent>
+
+          {/* Activity Insights Tab */}
+          <TabsContent value="activity" className="space-y-6">
+            <motion.div
+              initial={{ opacity: 0, x: -20 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ delay: 0.1 }}
+            >
+              <ActivityFeed />
+            </motion.div>
+          </TabsContent>
+
+          {/* Usage Analytics Tab */}
+          <TabsContent value="usage" className="space-y-6">
+            <motion.div
+              initial={{ opacity: 0, x: -20 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ delay: 0.1 }}
+            >
+              <UsageDashboard />
+            </motion.div>
+          </TabsContent>
+
+          {/* API Keys Tab */}
+          <TabsContent value="api-keys" className="space-y-6">
+            <motion.div
+              initial={{ opacity: 0, x: -20 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ delay: 0.1 }}
+            >
+              <ApiKeyManagement userTier={subscription?.tier.id ?? 'free'} />
+            </motion.div>
+          </TabsContent>
+
+          {/* Annotations Tab */}
+          <TabsContent value="annotations" className="space-y-6">
+            <motion.div
+              initial={{ opacity: 0, x: -20 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ delay: 0.1 }}
+            >
+              <AnnotationsPanel />
             </motion.div>
           </TabsContent>
 
