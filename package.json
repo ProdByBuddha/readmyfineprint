@@ -96,7 +96,9 @@
     "version:deploy": "node scripts/set-major-version.cjs 2.0.0 && git add package.json CHANGELOG.md && git commit -m 'chore: prepare v2.0.0 for production deployment' || true",
     "postversion": "git push && git push --tags",
     "staging:create-user": "tsx scripts/create-staging-user.ts",
-    "staging:add-subscription": "tsx scripts/add-staging-subscription.ts"
+    "staging:add-subscription": "tsx scripts/add-staging-subscription.ts",
+    "db:migrate:orgs": "tsx scripts/add-organization-tables.ts",
+    "db:migrate:workspaces": "tsx scripts/add-workspace-tables.ts"
   },
   "dependencies": {
     "@axe-core/react": "^4.10.2",
@@ -203,7 +205,7 @@
     "react-router-dom": "^7.6.3",
     "recharts": "^2.15.2",
     "simple-icons": "^15.2.0",
-    "stripe": "^18.2.1",
+    "stripe": "^18.5.0",
     "tailwind-merge": "^2.6.0",
     "tailwindcss": "^3.4.17",
     "tailwindcss-animate": "^1.0.7",

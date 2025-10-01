@@ -73,7 +73,7 @@ export function SimpleStripeTest() {
           </div>
         ))}
         {isLoading && (
-          <div className="text-blue-600 dark:text-blue-400">
+          <div className="text-blue-600 dark:text-blue-300">
             ⏳ Running tests...
           </div>
         )}

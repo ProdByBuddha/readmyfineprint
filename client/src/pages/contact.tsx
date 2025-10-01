@@ -254,7 +254,7 @@ export default function Contact() {
           <CardContent className="p-6">
             <div className="flex items-center justify-center gap-6 flex-wrap">
               <div className="flex items-center gap-2">
-                <Clock className="w-5 h-5 text-blue-600 dark:text-blue-400" />
+                <Clock className="w-5 h-5 text-blue-600 dark:text-blue-300" />
                 <span className="text-sm font-medium text-blue-900 dark:text-blue-200">Fast Response Times</span>
               </div>
               <div className="flex items-center gap-2">
@@ -291,7 +291,7 @@ export default function Contact() {
                   >
                     <CardContent className="p-4">
                       <div className="flex items-start gap-3">
-                        <div className={`w-10 h-10 rounded-lg flex items-center justify-center bg-gray-100 dark:bg-gray-800`}>
+                        <div className={`w-10 h-10 rounded-lg flex items-center justify-center bg-gray-100 dark:bg-gray-700`}>
                           <IconComponent className={`w-5 h-5 ${channel.color}`} />
                         </div>
                         <div className="flex-1">
@@ -488,7 +488,7 @@ export default function Contact() {
                     <AlertDescription className="text-xs">
                       Your contact information will be used only to respond to your inquiry. 
                       We never share personal information with third parties. See our{' '}
-                      <a href="/privacy" className="text-blue-600 dark:text-blue-400 hover:underline">
+                      <a href="/privacy" className="text-blue-600 dark:text-blue-300 hover:underline">
                         Privacy Policy
                       </a>{' '}
                       for details.
@@ -533,7 +533,7 @@ export default function Contact() {
                         Prefer email? You can also contact us directly at{' '}
                         <a 
                           href={`mailto:${selectedChannel.email}`}
-                          className="text-blue-600 dark:text-blue-400 hover:underline font-mono"
+                          className="text-blue-600 dark:text-blue-300 hover:underline font-mono"
                         >
                           {selectedChannel.email}
                         </a>

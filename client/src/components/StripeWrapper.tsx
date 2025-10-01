@@ -194,7 +194,7 @@ export function StripeWrapper({ children }: StripeWrapperProps) {
             <span>Loading secure payment processor...</span>
           </div>
           {retryCount > 0 && (
-            <div className="text-center mt-2 text-sm text-muted-foreground">
+            <div className="text-center mt-2 text-sm text-gray-600 dark:text-gray-300">
               Retry attempt {retryCount}/3...
             </div>
           )}

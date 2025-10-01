@@ -159,7 +159,7 @@ const getStatusIcon = (status: string) => {
     case "completed":
       return <CheckCircle className="w-5 h-5 text-green-600 dark:text-green-400" />;
     case "in-progress":
-      return <Clock className="w-5 h-5 text-blue-600 dark:text-blue-400" />;
+      return <Clock className="w-5 h-5 text-blue-600 dark:text-blue-300" />;
     case "planned":
       return <Target className="w-5 h-5 text-purple-600 dark:text-purple-400" />;
     default:
@@ -210,7 +210,7 @@ export default function Roadmap() {
               <div className="text-sm text-gray-600 dark:text-gray-400">Features Completed</div>
             </div>
             <div className="bg-white dark:bg-gray-800 rounded-lg p-4 border border-gray-200 dark:border-gray-700">
-              <div className="text-2xl font-bold text-blue-600 dark:text-blue-400">2</div>
+              <div className="text-2xl font-bold text-blue-600 dark:text-blue-300">2</div>
               <div className="text-sm text-gray-600 dark:text-gray-400">In Development</div>
             </div>
             <div className="bg-white dark:bg-gray-800 rounded-lg p-4 border border-gray-200 dark:border-gray-700">

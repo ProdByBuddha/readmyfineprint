@@ -170,29 +170,29 @@ export function AdminSecurityOverview({ adminToken }: { adminToken: string }) {
 
   const getRiskColor = (riskLevel: string) => {
     switch (riskLevel) {
-      case 'low': return 'text-green-600 bg-green-100 dark:bg-green-900/20';
-      case 'medium': return 'text-yellow-600 bg-yellow-100 dark:bg-yellow-900/20';
-      case 'high': return 'text-red-600 bg-red-100 dark:bg-red-900/20';
-      default: return 'text-gray-600 bg-gray-100 dark:bg-gray-900/20';
+      case 'low': return 'text-green-600 bg-green-100 dark:bg-green-900/30';
+      case 'medium': return 'text-yellow-600 bg-yellow-100 dark:bg-yellow-900/30';
+      case 'high': return 'text-red-600 bg-red-100 dark:bg-red-900/30';
+      default: return 'text-gray-600 bg-gray-100 dark:bg-gray-900/30';
     }
   };
 
   const getTierColor = (tier: string) => {
     switch (tier) {
-      case 'free': return 'bg-gray-100 text-gray-800 dark:bg-gray-900/20 dark:text-gray-300';
-      case 'starter': return 'bg-blue-100 text-blue-800 dark:bg-blue-900/20 dark:text-blue-300';
-      case 'professional': return 'bg-purple-100 text-purple-800 dark:bg-purple-900/20 dark:text-purple-300';
-      case 'business': return 'bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-300';
-      case 'enterprise': return 'bg-orange-100 text-orange-800 dark:bg-orange-900/20 dark:text-orange-300';
-      case 'ultimate': return 'bg-pink-100 text-pink-800 dark:bg-pink-900/20 dark:text-pink-300';
-      default: return 'bg-gray-100 text-gray-800 dark:bg-gray-900/20 dark:text-gray-300';
+      case 'free': return 'bg-gray-100 text-gray-800 dark:bg-gray-900/30 dark:text-gray-300';
+      case 'starter': return 'bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300';
+      case 'professional': return 'bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-300';
+      case 'business': return 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300';
+      case 'enterprise': return 'bg-orange-100 text-orange-800 dark:bg-orange-900/30 dark:text-orange-300';
+      case 'ultimate': return 'bg-pink-100 text-pink-800 dark:bg-pink-900/30 dark:text-pink-300';
+      default: return 'bg-gray-100 text-gray-800 dark:bg-gray-900/30 dark:text-gray-300';
     }
   };
 
   if (loading) {
     return (
       <Card>
-        <CardContent className="p-6">
+        <CardContent className=" dark:text-gray-100p-6">
           <div className="flex items-center space-x-2">
             <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-primary"></div>
             <span>Loading security overview...</span>
@@ -223,7 +223,7 @@ export function AdminSecurityOverview({ adminToken }: { adminToken: string }) {
       <div className="flex items-center justify-between">
         <div>
           <h2 className="text-3xl font-bold">Security Compliance Overview</h2>
-          <p className="text-muted-foreground">Monitor user security compliance across all subscription tiers</p>
+          <p className="text-gray-600 dark:text-gray-300">Monitor user security compliance across all subscription tiers</p>
         </div>
         <div className="flex items-center space-x-2">
           <Button onClick={exportSecurityReport} variant="outline" size="sm">
@@ -260,7 +260,7 @@ export function AdminSecurityOverview({ adminToken }: { adminToken: string }) {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold text-green-600">{stats.compliantUsers.toLocaleString()}</div>
-            <div className="text-xs text-muted-foreground">{stats.compliancePercentage}% of total</div>
+            <div className="text-xs text-gray-600 dark:text-gray-300">{stats.compliancePercentage}% of total</div>
           </CardContent>
         </Card>
 
@@ -273,7 +273,7 @@ export function AdminSecurityOverview({ adminToken }: { adminToken: string }) {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold text-orange-600">{stats.nonCompliantUsers.toLocaleString()}</div>
-            <div className="text-xs text-muted-foreground">{(100 - stats.compliancePercentage).toFixed(1)}% of total</div>
+            <div className="text-xs text-gray-600 dark:text-gray-300">{(100 - stats.compliancePercentage).toFixed(1)}% of total</div>
           </CardContent>
         </Card>
 
@@ -305,7 +305,7 @@ export function AdminSecurityOverview({ adminToken }: { adminToken: string }) {
             {stats.tierBreakdown.map((tierData) => (
               <div key={tierData.tier} className="flex items-center justify-between p-3 border rounded-lg">
                 <div className="flex items-center space-x-3">
-                  <Crown className="h-4 w-4 text-muted-foreground" />
+                  <Crown className="h-4 w-4 text-gray-600 dark:text-gray-300" />
                   <Badge variant="outline" className={getTierColor(tierData.tier)}>
                     {tierData.tier.charAt(0).toUpperCase() + tierData.tier.slice(1)}
                   </Badge>
@@ -340,7 +340,7 @@ export function AdminSecurityOverview({ adminToken }: { adminToken: string }) {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div className="flex items-center justify-between p-3 border rounded-lg">
               <div className="flex items-center space-x-2">
-                <Key className="h-4 w-4 text-muted-foreground" />
+                <Key className="h-4 w-4 text-gray-600 dark:text-gray-300" />
                 <span className="text-sm">Security Questions</span>
               </div>
               <span className="font-medium">{stats.securityFeatureUsage.securityQuestions}%</span>
@@ -348,7 +348,7 @@ export function AdminSecurityOverview({ adminToken }: { adminToken: string }) {
             
             <div className="flex items-center justify-between p-3 border rounded-lg">
               <div className="flex items-center space-x-2">
-                <Smartphone className="h-4 w-4 text-muted-foreground" />
+                <Smartphone className="h-4 w-4 text-gray-600 dark:text-gray-300" />
                 <span className="text-sm">Two-Factor Auth</span>
               </div>
               <span className="font-medium">{stats.securityFeatureUsage.twoFactorAuth}%</span>
@@ -356,7 +356,7 @@ export function AdminSecurityOverview({ adminToken }: { adminToken: string }) {
             
             <div className="flex items-center justify-between p-3 border rounded-lg">
               <div className="flex items-center space-x-2">
-                <Mail className="h-4 w-4 text-muted-foreground" />
+                <Mail className="h-4 w-4 text-gray-600 dark:text-gray-300" />
                 <span className="text-sm">Backup Email</span>
               </div>
               <span className="font-medium">{stats.securityFeatureUsage.backupEmail}%</span>
@@ -371,7 +371,7 @@ export function AdminSecurityOverview({ adminToken }: { adminToken: string }) {
           <CardTitle>User Security Details</CardTitle>
           <div className="flex flex-wrap gap-4">
             <div className="flex items-center space-x-2">
-              <Search className="h-4 w-4 text-muted-foreground" />
+              <Search className="h-4 w-4 text-gray-600 dark:text-gray-300" />
               <Input
                 placeholder="Search users..."
                 value={search}
@@ -452,7 +452,7 @@ export function AdminSecurityOverview({ adminToken }: { adminToken: string }) {
                       {user.riskScore}%
                     </span>
                   </TableCell>
-                  <TableCell className="text-sm text-muted-foreground">
+                  <TableCell className="text-sm text-gray-600 dark:text-gray-300">
                     {user.lastSecurityUpdate}
                   </TableCell>
                 </TableRow>
@@ -461,7 +461,7 @@ export function AdminSecurityOverview({ adminToken }: { adminToken: string }) {
           </Table>
           
           {filteredUsers.length === 0 && (
-            <div className="text-center py-6 text-muted-foreground">
+            <div className="text-center py-6 text-gray-600 dark:text-gray-300">
               No users found matching the current filters.
             </div>
           )}

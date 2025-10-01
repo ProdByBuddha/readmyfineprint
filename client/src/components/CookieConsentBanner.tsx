@@ -111,7 +111,7 @@ export function CookieConsentBanner({ onAccept }: CookieConsentBannerProps) {
       <div className="max-w-6xl mx-auto p-4">
         <div className="flex flex-col sm:flex-row items-start gap-4">
           <div className="flex items-center gap-2 sm:mt-1">
-            <Cookie className="w-5 h-5 text-blue-600 dark:text-blue-400 flex-shrink-0" />
+            <Cookie className="w-5 h-5 text-blue-600 dark:text-blue-300 flex-shrink-0" />
             <Shield className="w-5 h-5 text-green-600 dark:text-green-400 flex-shrink-0" />
           </div>
           

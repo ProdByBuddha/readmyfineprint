@@ -531,7 +531,7 @@ export default function SubscriptionPage() {
                 animate={{ opacity: 1, x: 0 }}
                 transition={{ delay: 0.3 }}
               >
-                <Card className="border-green-200 bg-green-50 dark:bg-green-900/20">
+                <Card className="border-green-200 bg-green-50 dark:bg-green-900/30" dark:text-gray-100>
                   <CardHeader>
                     <CardTitle className="flex items-center space-x-2 text-green-800 dark:text-green-200">
                       <Download className="h-5 w-5" />
@@ -597,13 +597,13 @@ export default function SubscriptionPage() {
                   </div>
 
                   <div className="grid grid-cols-2 gap-4">
-                    <div className="text-center p-3 bg-blue-50 dark:bg-blue-900/30 rounded-lg">
+                    <div className="text-center p-3 bg-blue-50 dark:bg-blue-900/30 rounded-lg" dark:text-gray-100>
                       <div className="text-xl font-semibold text-blue-600">
                         {subscriptionData.usage.tokensUsed.toLocaleString()}
                       </div>
                       <div className="text-sm text-gray-600 dark:text-gray-300">Tokens Used</div>
                     </div>
-                    <div className="text-center p-3 bg-green-50 dark:bg-green-900/30 rounded-lg">
+                    <div className="text-center p-3 bg-green-50 dark:bg-green-900/30 rounded-lg" dark:text-gray-100>
                       <div className="text-xl font-semibold text-green-600">
                         ${subscriptionData.usage.cost.toFixed(4)}
                       </div>
@@ -622,7 +622,7 @@ export default function SubscriptionPage() {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.3 }}
               >
-                <Alert className="bg-blue-50 dark:bg-blue-900/30 border-blue-200 dark:border-blue-800">
+                <Alert className="bg-blue-50 dark:bg-blue-900/30 border-blue-200 dark:border-blue-800" dark:text-gray-100>
                   <TrendingUp className="h-4 w-4" />
                   <AlertDescription>
                     <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
@@ -662,7 +662,7 @@ export default function SubscriptionPage() {
                 animate={{ opacity: 1, y: 0 }}
                 className="mb-6"
               >
-                <Alert className="bg-green-50 dark:bg-green-900/30 border-green-200 dark:border-green-800">
+                <Alert className="bg-green-50 dark:bg-green-900/30 border-green-200 dark:border-green-800" dark:text-gray-100>
                   <LogIn className="h-4 w-4" />
                   <AlertDescription>
                     <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
@@ -780,7 +780,7 @@ export default function SubscriptionPage() {
                       )}
                       {subscriptionData.subscription?.cancelAtPeriodEnd && (
                         <div className="flex-1 space-y-3">
-                          <div className="text-center py-2 px-4 bg-orange-50 dark:bg-orange-900/20 text-orange-700 dark:text-orange-300 rounded-md border border-orange-200 dark:border-orange-800">
+                          <div className="text-center py-2 px-4 bg-orange-50 dark:bg-orange-900/30 text-orange-700 dark:text-orange-300 rounded-md border border-orange-200 dark:border-orange-800" dark:text-gray-100>
                             <span className="text-sm font-medium">Subscription Canceled</span>
                             <p className="text-xs mt-1">Access until end of billing period</p>
                           </div>
@@ -823,7 +823,7 @@ export default function SubscriptionPage() {
                       <div>
                         <label className="text-sm font-medium text-gray-700 dark:text-gray-300">Account Status</label>
                         <div className="mt-1 p-3 bg-gray-50 dark:bg-gray-800 rounded-md">
-                          <Badge variant="default" className="bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-300">
+                          <Badge variant="default" className="bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300" dark:text-gray-100>
                             Active
                           </Badge>
                         </div>
@@ -837,7 +837,7 @@ export default function SubscriptionPage() {
                       </p>
 
                       <div className="space-y-4">
-                        <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-4">
+                        <div className="bg-blue-50 dark:bg-blue-900/30 border border-blue-200 dark:border-blue-800 rounded-lg p-4" dark:text-gray-100>
                           <div className="flex items-center justify-between">
                             <div>
                               <h4 className="font-medium text-blue-900 dark:text-blue-100 mb-1">Download Your Data</h4>
@@ -850,7 +850,7 @@ export default function SubscriptionPage() {
                         </div>
                       </div>
 
-                      <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-4">
+                      <div className="bg-red-50 dark:bg-red-900/30 border border-red-200 dark:border-red-800 rounded-lg p-4" dark:text-gray-100>
                         <h4 className="text-sm font-semibold text-red-800 dark:text-red-300 mb-2">Delete Account</h4>
                         <p className="text-sm text-red-700 dark:text-red-400 mb-3">
                           Permanently delete your account and all associated data. Financial records will be retained for compliance.

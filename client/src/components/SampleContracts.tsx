@@ -385,7 +385,7 @@ export function SampleContracts({ onSelectContract, disabled = false }: SampleCo
         ))}
       </div>
 
-      <div className="text-center mt-8 p-6 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
+      <div className="text-center mt-8 p-6 bg-blue-50 dark:bg-blue-900/30 rounded-lg" dark:text-gray-100>
         <h4 className="font-semibold text-gray-900 dark:text-white mb-2">
           Why Use Sample Contracts?
         </h4>

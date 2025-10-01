@@ -77,7 +77,7 @@ export function LegalDisclaimer({ onAccept }: LegalDisclaimerProps) {
         <div className="bg-gradient-to-b from-white to-gray-50 dark:from-gray-900 dark:to-gray-950 rounded-xl overflow-hidden">
           <DialogHeader className="px-4 py-2.5 border-b border-gray-200 dark:border-gray-700 bg-white/80 dark:bg-gray-900/80 backdrop-blur-sm">
             <DialogTitle className="flex items-center gap-2 text-sm font-semibold text-gray-900 dark:text-gray-100">
-              <div className="p-1 bg-amber-100 dark:bg-amber-900/30 rounded-lg">
+              <div className="p-1 bg-amber-100 dark:bg-amber-900/30 rounded-lg" dark:text-gray-100>
                 <AlertTriangle className="text-amber-600 dark:text-amber-400 h-3.5 w-3.5" />
               </div>
               Legal Consent Required

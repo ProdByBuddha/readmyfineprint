@@ -1214,3 +1214,383 @@ export const insertContentGenerationSchema = createInsertSchema(contentGeneratio
   updatedAt: true,
 });
 
+
+// ============================================
+// Team Collaboration Schema (Q1 Roadmap)
+// ============================================
+
+// Enums for organization roles and statuses
+export const orgRoleEnum = ['admin', 'member', 'viewer'] as const;
+export const orgUserStatusEnum = ['active', 'invited', 'suspended'] as const;
+
+// Organizations Table
+export const organizations = pgTable('organizations', {
+  id: uuid('id').primaryKey().defaultRandom(),
+  name: text('name').notNull(),
+  slug: text('slug').unique().notNull(),
+  billingTier: text('billing_tier').notNull().default('business'),
+  stripeCustomerId: text('stripe_customer_id').unique(),
+  stripeSubscriptionId: text('stripe_subscription_id').unique(),
+  seatLimit: integer('seat_limit'), // NULL means use default for tier
+  createdByUserId: uuid('created_by_user_id').notNull().references(() => users.id, { onDelete: 'restrict' }),
+  createdAt: timestamp('created_at').notNull().defaultNow(),
+  updatedAt: timestamp('updated_at').notNull().defaultNow(),
+  deletedAt: timestamp('deleted_at'),
+});
+
+// Organization Users (Membership) Table
+export const organizationUsers = pgTable('organization_users', {
+  orgId: uuid('org_id').notNull().references(() => organizations.id, { onDelete: 'restrict' }),
+  userId: uuid('user_id').notNull().references(() => users.id, { onDelete: 'restrict' }),
+  role: text('role').notNull().default('member'), // 'admin', 'member', 'viewer'
+  status: text('status').notNull().default('active'), // 'active', 'invited', 'suspended'
+  invitedByUserId: uuid('invited_by_user_id').references(() => users.id, { onDelete: 'set null' }),
+  joinedAt: timestamp('joined_at'),
+  lastSeenAt: timestamp('last_seen_at'),
+  createdAt: timestamp('created_at').notNull().defaultNow(),
+}, (table) => ({
+  pk: { name: 'organization_users_pkey', columns: [table.orgId, table.userId] }
+}));
+
+// Organization Invitations Table
+export const organizationInvitations = pgTable('organization_invitations', {
+  id: uuid('id').primaryKey().defaultRandom(),
+  orgId: uuid('org_id').notNull().references(() => organizations.id, { onDelete: 'cascade' }),
+  email: text('email').notNull(),
+  role: text('role').notNull().default('member'),
+  inviterUserId: uuid('inviter_user_id').notNull().references(() => users.id, { onDelete: 'cascade' }),
+  tokenHash: text('token_hash').notNull().unique(),
+  tokenPrefix: text('token_prefix').notNull(),
+  expiresAt: timestamp('expires_at').notNull(),
+  acceptedAt: timestamp('accepted_at'),
+  revokedAt: timestamp('revoked_at'),
+  createdAt: timestamp('created_at').notNull().defaultNow(),
+});
+
+// Organization Daily Usage Tracking
+export const orgUsageDaily = pgTable('org_usage_daily', {
+  orgId: uuid('org_id').notNull().references(() => organizations.id, { onDelete: 'cascade' }),
+  date: text('date').notNull(), // DATE type as text 'YYYY-MM-DD'
+  tokensUsed: integer('tokens_used').notNull().default(0),
+  analysesCount: integer('analyses_count').notNull().default(0),
+  annotationsCount: integer('annotations_count').notNull().default(0),
+  apiCallsCount: integer('api_calls_count').notNull().default(0),
+}, (table) => ({
+  pk: { name: 'org_usage_daily_pkey', columns: [table.orgId, table.date] }
+}));
+
+// Organization API Keys
+export const orgApiKeys = pgTable('org_api_keys', {
+  id: uuid('id').primaryKey().defaultRandom(),
+  orgId: uuid('org_id').notNull().references(() => organizations.id, { onDelete: 'cascade' }),
+  name: text('name').notNull(),
+  keyHash: text('key_hash').notNull().unique(),
+  prefix: text('prefix').notNull(),
+  scopes: text('scopes').notNull().default('["documents.read"]'), // JSON array stored as text
+  rateLimitOverride: integer('rate_limit_override'),
+  createdByUserId: uuid('created_by_user_id').notNull().references(() => users.id, { onDelete: 'restrict' }),
+  lastUsedAt: timestamp('last_used_at'),
+  createdAt: timestamp('created_at').notNull().defaultNow(),
+  revokedAt: timestamp('revoked_at'),
+});
+
+// Relations for Organizations
+export const organizationsRelations = relations(organizations, ({ one, many }) => ({
+  createdBy: one(users, {
+    fields: [organizations.createdByUserId],
+    references: [users.id],
+  }),
+  members: many(organizationUsers),
+  invitations: many(organizationInvitations),
+  usage: many(orgUsageDaily),
+  apiKeys: many(orgApiKeys),
+}));
+
+export const organizationUsersRelations = relations(organizationUsers, ({ one }) => ({
+  organization: one(organizations, {
+    fields: [organizationUsers.orgId],
+    references: [organizations.id],
+  }),
+  user: one(users, {
+    fields: [organizationUsers.userId],
+    references: [users.id],
+  }),
+  invitedBy: one(users, {
+    fields: [organizationUsers.invitedByUserId],
+    references: [users.id],
+  }),
+}));
+
+export const organizationInvitationsRelations = relations(organizationInvitations, ({ one }) => ({
+  organization: one(organizations, {
+    fields: [organizationInvitations.orgId],
+    references: [organizations.id],
+  }),
+  inviter: one(users, {
+    fields: [organizationInvitations.inviterUserId],
+    references: [users.id],
+  }),
+}));
+
+// TypeScript Types
+export type Organization = typeof organizations.$inferSelect;
+export type InsertOrganization = typeof organizations.$inferInsert;
+
+export type OrganizationUser = typeof organizationUsers.$inferSelect;
+export type InsertOrganizationUser = typeof organizationUsers.$inferInsert;
+
+export type OrganizationInvitation = typeof organizationInvitations.$inferSelect;
+export type InsertOrganizationInvitation = typeof organizationInvitations.$inferInsert;
+
+export type OrgUsageDaily = typeof orgUsageDaily.$inferSelect;
+export type InsertOrgUsageDaily = typeof orgUsageDaily.$inferInsert;
+
+export type OrgApiKey = typeof orgApiKeys.$inferSelect;
+export type InsertOrgApiKey = typeof orgApiKeys.$inferInsert;
+// Zod Schemas for validation
+export const insertOrganizationSchema = createInsertSchema(organizations).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+  deletedAt: true,
+}).extend({
+  name: z.string().min(1).max(100),
+  slug: z.string().min(1).max(50).regex(/^[a-z0-9-]+$/),
+  billingTier: z.enum(['business', 'enterprise', 'ultimate']),
+  seatLimit: z.number().int().positive().optional(),
+});
+
+export const insertOrganizationUserSchema = createInsertSchema(organizationUsers).omit({
+  createdAt: true,
+}).extend({
+  role: z.enum(orgRoleEnum),
+  status: z.enum(orgUserStatusEnum),
+});
+
+export const insertOrganizationInvitationSchema = createInsertSchema(organizationInvitations).omit({
+  id: true,
+  tokenHash: true,
+  tokenPrefix: true,
+  createdAt: true,
+  acceptedAt: true,
+  revokedAt: true,
+}).extend({
+  email: z.string().email(),
+  role: z.enum(orgRoleEnum),
+});
+
+export const insertOrgApiKeySchema = createInsertSchema(orgApiKeys).omit({
+  id: true,
+  keyHash: true,
+  prefix: true,
+  createdAt: true,
+  lastUsedAt: true,
+  revokedAt: true,
+}).extend({
+  name: z.string().min(1).max(100),
+  scopes: z.string(),
+  rateLimitOverride: z.number().int().positive().optional(),
+});
+
+// ============================================
+// Workspace and Collaboration Schema
+// ============================================
+
+// Enums for workspace roles and visibility
+export const workspaceVisibilityEnum = ['org', 'private'] as const;
+export const workspaceRoleEnum = ['owner', 'editor', 'commenter', 'viewer'] as const;
+
+// Workspaces Table
+export const workspaces = pgTable('workspaces', {
+  id: uuid('id').primaryKey().defaultRandom(),
+  orgId: uuid('org_id').notNull().references(() => organizations.id, { onDelete: 'cascade' }),
+  name: text('name').notNull(),
+  description: text('description'),
+  isDefault: boolean('is_default').notNull().default(false),
+  visibility: text('visibility').notNull().default('org'), // 'org' or 'private'
+  createdByUserId: uuid('created_by_user_id').notNull().references(() => users.id, { onDelete: 'restrict' }),
+  createdAt: timestamp('created_at').notNull().defaultNow(),
+  updatedAt: timestamp('updated_at').notNull().defaultNow(),
+  archivedAt: timestamp('archived_at'),
+});
+
+// Workspace Members Table
+export const workspaceMembers = pgTable('workspace_members', {
+  workspaceId: uuid('workspace_id').notNull().references(() => workspaces.id, { onDelete: 'cascade' }),
+  userId: uuid('user_id').notNull().references(() => users.id, { onDelete: 'cascade' }),
+  role: text('role').notNull().default('viewer'), // 'owner', 'editor', 'commenter', 'viewer'
+  addedByUserId: uuid('added_by_user_id').references(() => users.id, { onDelete: 'set null' }),
+  createdAt: timestamp('created_at').notNull().defaultNow(),
+}, (table) => ({
+  pk: { name: 'workspace_members_pkey', columns: [table.workspaceId, table.userId] }
+}));
+
+// Documents to Workspaces Junction Table
+export const documentsToWorkspaces = pgTable('documents_to_workspaces', {
+  documentId: integer('document_id').notNull(),
+  workspaceId: uuid('workspace_id').notNull().references(() => workspaces.id, { onDelete: 'cascade' }),
+  addedByUserId: uuid('added_by_user_id').notNull().references(() => users.id, { onDelete: 'restrict' }),
+  createdAt: timestamp('created_at').notNull().defaultNow(),
+}, (table) => ({
+  pk: { name: 'documents_to_workspaces_pkey', columns: [table.documentId, table.workspaceId] }
+}));
+
+// Activity Events Table
+export const activityEvents = pgTable('activity_events', {
+  id: uuid('id').primaryKey().defaultRandom(),
+  orgId: uuid('org_id').notNull().references(() => organizations.id, { onDelete: 'cascade' }),
+  workspaceId: uuid('workspace_id').references(() => workspaces.id, { onDelete: 'cascade' }),
+  userId: uuid('user_id').references(() => users.id, { onDelete: 'set null' }),
+  action: text('action').notNull(), // e.g., 'org.created', 'workspace.member.added'
+  subjectType: text('subject_type').notNull(), // e.g., 'organization', 'workspace', 'document'
+  subjectId: text('subject_id').notNull(),
+  metadata: text('metadata').notNull().default('{}'), // JSON stored as text
+  createdAt: timestamp('created_at').notNull().defaultNow(),
+});
+
+// Annotation Threads Table
+export const annotationThreads = pgTable('annotation_threads', {
+  id: uuid('id').primaryKey().defaultRandom(),
+  orgId: uuid('org_id').notNull().references(() => organizations.id, { onDelete: 'cascade' }),
+  workspaceId: uuid('workspace_id').notNull().references(() => workspaces.id, { onDelete: 'cascade' }),
+  documentId: integer('document_id').notNull(),
+  anchor: text('anchor').notNull(), // JSON anchor data stored as text
+  isResolved: boolean('is_resolved').notNull().default(false),
+  createdByUserId: uuid('created_by_user_id').notNull().references(() => users.id, { onDelete: 'restrict' }),
+  createdAt: timestamp('created_at').notNull().defaultNow(),
+  resolvedAt: timestamp('resolved_at'),
+});
+
+// Annotation Comments Table
+export const annotationComments = pgTable('annotation_comments', {
+  id: uuid('id').primaryKey().defaultRandom(),
+  threadId: uuid('thread_id').notNull().references(() => annotationThreads.id, { onDelete: 'cascade' }),
+  userId: uuid('user_id').notNull().references(() => users.id, { onDelete: 'restrict' }),
+  body: text('body').notNull(),
+  createdAt: timestamp('created_at').notNull().defaultNow(),
+  editedAt: timestamp('edited_at'),
+  deletedAt: timestamp('deleted_at'),
+});
+
+// Relations for Workspaces
+export const workspacesRelations = relations(workspaces, ({ one, many }) => ({
+  organization: one(organizations, {
+    fields: [workspaces.orgId],
+    references: [organizations.id],
+  }),
+  createdBy: one(users, {
+    fields: [workspaces.createdByUserId],
+    references: [users.id],
+  }),
+  members: many(workspaceMembers),
+  documents: many(documentsToWorkspaces),
+  activities: many(activityEvents),
+  annotationThreads: many(annotationThreads),
+}));
+
+export const workspaceMembersRelations = relations(workspaceMembers, ({ one }) => ({
+  workspace: one(workspaces, {
+    fields: [workspaceMembers.workspaceId],
+    references: [workspaces.id],
+  }),
+  user: one(users, {
+    fields: [workspaceMembers.userId],
+    references: [users.id],
+  }),
+  addedBy: one(users, {
+    fields: [workspaceMembers.addedByUserId],
+    references: [users.id],
+  }),
+}));
+
+export const annotationThreadsRelations = relations(annotationThreads, ({ one, many }) => ({
+  organization: one(organizations, {
+    fields: [annotationThreads.orgId],
+    references: [organizations.id],
+  }),
+  workspace: one(workspaces, {
+    fields: [annotationThreads.workspaceId],
+    references: [workspaces.id],
+  }),
+  createdBy: one(users, {
+    fields: [annotationThreads.createdByUserId],
+    references: [users.id],
+  }),
+  comments: many(annotationComments),
+}));
+
+export const annotationCommentsRelations = relations(annotationComments, ({ one }) => ({
+  thread: one(annotationThreads, {
+    fields: [annotationComments.threadId],
+    references: [annotationThreads.id],
+  }),
+  user: one(users, {
+    fields: [annotationComments.userId],
+    references: [users.id],
+  }),
+}));
+
+// TypeScript Types
+export type Workspace = typeof workspaces.$inferSelect;
+export type InsertWorkspace = typeof workspaces.$inferInsert;
+
+export type WorkspaceMember = typeof workspaceMembers.$inferSelect;
+export type InsertWorkspaceMember = typeof workspaceMembers.$inferInsert;
+
+export type DocumentToWorkspace = typeof documentsToWorkspaces.$inferSelect;
+export type InsertDocumentToWorkspace = typeof documentsToWorkspaces.$inferInsert;
+
+export type ActivityEvent = typeof activityEvents.$inferSelect;
+export type InsertActivityEvent = typeof activityEvents.$inferInsert;
+
+export type AnnotationThread = typeof annotationThreads.$inferSelect;
+export type InsertAnnotationThread = typeof annotationThreads.$inferInsert;
+
+export type AnnotationComment = typeof annotationComments.$inferSelect;
+export type InsertAnnotationComment = typeof annotationComments.$inferInsert;
+
+// Zod Schemas for validation
+export const insertWorkspaceSchema = createInsertSchema(workspaces).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+  archivedAt: true,
+}).extend({
+  name: z.string().min(1).max(200),
+  description: z.string().max(1000).optional(),
+  visibility: z.enum(workspaceVisibilityEnum),
+});
+
+export const insertWorkspaceMemberSchema = createInsertSchema(workspaceMembers).omit({
+  createdAt: true,
+}).extend({
+  role: z.enum(workspaceRoleEnum),
+});
+
+export const insertActivityEventSchema = createInsertSchema(activityEvents).omit({
+  id: true,
+  createdAt: true,
+}).extend({
+  action: z.string().min(1).max(100),
+  subjectType: z.string().min(1).max(50),
+  subjectId: z.string().min(1).max(100),
+  metadata: z.string(), // JSON string
+});
+
+export const insertAnnotationThreadSchema = createInsertSchema(annotationThreads).omit({
+  id: true,
+  createdAt: true,
+  resolvedAt: true,
+}).extend({
+  anchor: z.string(), // JSON string
+  documentId: z.number().int().positive(),
+});
+
+export const insertAnnotationCommentSchema = createInsertSchema(annotationComments).omit({
+  id: true,
+  createdAt: true,
+  editedAt: true,
+  deletedAt: true,
+}).extend({
+  body: z.string().min(1).max(10000),
+});

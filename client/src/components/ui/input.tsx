@@ -43,7 +43,7 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
           variantStyles[variant],
           sizeStyles[inputSize],
           stateStyles,
-          "text-foreground placeholder:text-muted-foreground",
+          "text-foreground placeholder:text-gray-600 dark:text-gray-300",
           className
         )}
         ref={ref}

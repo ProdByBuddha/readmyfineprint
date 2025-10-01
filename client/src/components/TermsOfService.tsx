@@ -7,11 +7,11 @@ export function TermsOfService() {
         <CardTitle className="text-3xl font-bold text-center">
           Terms of Service
         </CardTitle>
-        <p className="text-center text-muted-foreground mt-2">
+        <p className="text-center text-gray-600 dark:text-gray-300 mt-2">
           Last Updated: October 1, 2025
         </p>
       </CardHeader>
-      <CardContent className="prose dark:prose-invert max-w-none space-y-6">
+      <CardContent className="prose prose-gray dark:prose-invert dark:text-gray-200 max-w-none space-y-6">
         
         <section>
           <h2 className="text-2xl font-semibold mt-8 mb-4">1. Agreement to Terms</h2>
@@ -33,7 +33,7 @@ export function TermsOfService() {
 
         <section>
           <h2 className="text-2xl font-semibold mt-8 mb-4">3. Disclaimer of Warranties</h2>
-          <div className="bg-yellow-50 dark:bg-yellow-900/20 border-2 border-yellow-400 dark:border-yellow-600 p-6 rounded-lg my-4">
+          <div className="bg-yellow-50 dark:bg-yellow-900/30 border-2 border-yellow-400 dark:border-yellow-500 dark:text-gray-100 p-6 rounded-lg my-4" dark:text-gray-100>
             <p className="font-bold text-lg mb-2">CONSPICUOUS NOTICE:</p>
             <p className="uppercase font-semibold">
               TO THE MAXIMUM EXTENT PERMITTED BY LAW, THE SERVICES AND ALL OUTPUTS ARE PROVIDED "AS IS" AND 
@@ -49,7 +49,7 @@ export function TermsOfService() {
 
         <section>
           <h2 className="text-2xl font-semibold mt-8 mb-4">4. Limitation of Liability</h2>
-          <div className="bg-red-50 dark:bg-red-900/20 border-2 border-red-400 dark:border-red-600 p-6 rounded-lg my-4">
+          <div className="bg-red-50 dark:bg-red-900/30 border-2 border-red-400 dark:border-red-500 dark:text-gray-100 p-6 rounded-lg my-4" dark:text-gray-100>
             <p className="font-bold text-lg mb-2">CONSPICUOUS NOTICE:</p>
             <p className="uppercase font-semibold">
               TO THE MAXIMUM EXTENT PERMITTED BY LAW, READMYFINEPRINT, ITS AFFILIATES AND PROVIDERS ARE NOT LIABLE 
@@ -213,7 +213,7 @@ export function TermsOfService() {
           </ul>
           
           <h3 className="text-xl font-semibold mt-4 mb-2">Class Action Waiver</h3>
-          <div className="bg-blue-50 dark:bg-blue-900/20 border-2 border-blue-400 dark:border-blue-600 p-4 rounded-lg my-3">
+          <div className="bg-blue-50 dark:bg-blue-900/30 border-2 border-blue-400 dark:border-blue-500 dark:text-gray-100 p-4 rounded-lg my-3" dark:text-gray-100>
             <p className="font-semibold">
               YOU AND READMYFINEPRINT AGREE THAT DISPUTES WILL BE RESOLVED ON AN INDIVIDUAL BASIS ONLY. 
               YOU WAIVE ANY RIGHT TO PARTICIPATE IN A CLASS ACTION, CLASS ARBITRATION, OR REPRESENTATIVE 
@@ -262,9 +262,9 @@ export function TermsOfService() {
           <p>
             If you have questions about these Terms, please contact us at:
           </p>
-          <div className="bg-gray-100 dark:bg-gray-800 p-4 rounded-lg mt-3">
-            <p>Email: <a href="mailto:legal@readmyfineprint.com" className="text-blue-600 dark:text-blue-400 hover:underline">legal@readmyfineprint.com</a></p>
-            <p>Website: <a href="https://readmyfineprint.com" className="text-blue-600 dark:text-blue-400 hover:underline">https://readmyfineprint.com</a></p>
+          <div className="bg-gray-100 dark:bg-gray-700 p-4 rounded-lg mt-3">
+            <p>Email: <a href="mailto:legal@readmyfineprint.com" className="text-blue-600 dark:text-blue-300 hover:underline">legal@readmyfineprint.com</a></p>
+            <p>Website: <a href="https://readmyfineprint.com" className="text-blue-600 dark:text-blue-300 hover:underline">https://readmyfineprint.com</a></p>
           </div>
         </section>
 

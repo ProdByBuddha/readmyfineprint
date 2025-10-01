@@ -79,44 +79,7 @@ class AdminVerificationService {
       });
 
       // Send to both admin emails
-      const adminEmails = ['admin@readmyfineprint.com', 'prodbybuddha@icloud.com'];
-
-      const emailPromises = adminEmails.map(email => 
-        emailService.sendEmail({
-          to: email,
-          subject: 'ReadMyFinePrint Admin Verification Code',
-          html: `
-            <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
-              <h2 style="color: #1f2937; text-align: center;">Admin Access Verification</h2>
-
-              <div style="background: #f3f4f6; border-radius: 8px; padding: 20px; margin: 20px 0; text-align: center;">
-                <h3 style="margin: 0; color: #374151;">Your Verification Code</h3>
-                <div style="font-size: 32px; font-weight: bold; color: #059669; margin: 15px 0; letter-spacing: 3px;">
-                  ${code}
-                </div>
-                <p style="margin: 0; color: #6b7280; font-size: 14px;">
-                  This code expires in ${this.CODE_EXPIRY_MINUTES} minutes
-                </p>
-              </div>
-
-              <div style="background: #fef3c7; border: 1px solid #f59e0b; padding: 15px; border-radius: 5px; margin: 20px 0;">
-                <p style="margin: 0; color: #92400e;">
-                  <strong>Security Notice:</strong> This code provides admin access to ReadMyFinePrint. 
-                  Only use this code if you requested admin access.
-                </p>
-              </div>
-
-              <div style="color: #6b7280; font-size: 12px; margin-top: 30px; padding-top: 15px; border-top: 1px solid #e5e7eb;">
-                <p>Request from: ${requestIp}</p>
-                <p>Time: ${now.toLocaleString()}</p>
-                <p>If you did not request this code, please ignore this email.</p>
-              </div>
-            </div>
-          `
-        })
-      );
-
-      await Promise.all(emailPromises);
+      const adminEmail = ['admin@readmyfineprint.com'];
 
       // Log the verification request
       securityLogger.logSecurityEvent({
@@ -126,7 +89,7 @@ class AdminVerificationService {
         ip: requestIp,
         userAgent,
         endpoint: '/api/admin/request-verification',
-        details: { emails: adminEmails, expiresAt: expiresAt.toISOString() }
+        details: { emails: adminEmail, expiresAt: expiresAt.toISOString() }
       });
 
       // Clean up expired codes

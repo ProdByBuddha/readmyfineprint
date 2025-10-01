@@ -426,11 +426,11 @@ export function CombinedConsent({ onAccept }: CombinedConsentProps) {
 
   return (
     <Dialog open={isOpen} onOpenChange={undefined}>
-      <DialogContent className="max-w-sm p-4 rounded-xl bg-white dark:bg-gray-900 border dark:border-gray-700" hideCloseButton>
+      <DialogContent className="max-w-sm p-4 rounded-xl bg-white dark:bg-gray-800 border dark:border-gray-700" hideCloseButton>
         <DialogHeader className="text-center mb-3">
           <div className="flex items-center justify-center gap-2 mb-2">
             <Shield className="w-4 h-4 text-primary" />
-            <Cookie className="w-4 h-4 text-blue-600 dark:text-blue-400" />
+            <Cookie className="w-4 h-4 text-blue-600 dark:text-blue-300" />
             <AlertTriangle className="w-4 h-4 text-amber-600 dark:text-amber-400" />
           </div>
           <DialogTitle className="text-lg font-bold text-gray-900 dark:text-gray-100">Privacy & Terms</DialogTitle>
@@ -470,11 +470,11 @@ export function CombinedConsent({ onAccept }: CombinedConsentProps) {
           </Button>
 
           <div className="mt-2 text-[10px] text-center sm:text-left text-gray-500 dark:text-gray-400">
-            <a href="/privacy" className="text-blue-600 dark:text-blue-400 hover:underline">Privacy Policy</a>
+            <a href="/privacy" className="text-blue-600 dark:text-blue-300 hover:underline">Privacy Policy</a>
             <span className="mx-1">•</span>
-            <a href="/terms" className="text-blue-600 dark:text-blue-400 hover:underline">Terms of Service</a>
+            <a href="/terms" className="text-blue-600 dark:text-blue-300 hover:underline">Terms of Service</a>
             <span className="mx-1">•</span>
-            <a href="/cookies" className="text-blue-600 dark:text-blue-400 hover:underline">Cookie Policy</a>
+            <a href="/cookies" className="text-blue-600 dark:text-blue-300 hover:underline">Cookie Policy</a>
           </div>
         </div>
       </DialogContent>
@@ -515,7 +515,7 @@ export function CookieConsent() {
       <div className="max-w-6xl mx-auto px-3 py-2">
         <div className="flex items-center gap-3">
           <div className="flex items-center gap-1.5">
-            <Cookie className="w-4 h-4 text-blue-600 dark:text-blue-400 flex-shrink-0" />
+            <Cookie className="w-4 h-4 text-blue-600 dark:text-blue-300 flex-shrink-0" />
             <Shield className="w-4 h-4 text-green-600 dark:text-green-400 flex-shrink-0" />
           </div>
           <div className="flex-1 min-w-0">
@@ -545,11 +545,11 @@ export function CookieConsent() {
         </div>
 
           <div className="mt-2 text-[10px] text-center sm:text-left text-gray-500 dark:text-gray-400">
-            <a href="/privacy" className="text-blue-600 dark:text-blue-400 hover:underline">Privacy Policy</a>
+            <a href="/privacy" className="text-blue-600 dark:text-blue-300 hover:underline">Privacy Policy</a>
             <span className="mx-1">•</span>
-            <a href="/terms" className="text-blue-600 dark:text-blue-400 hover:underline">Terms of Service</a>
+            <a href="/terms" className="text-blue-600 dark:text-blue-300 hover:underline">Terms of Service</a>
             <span className="mx-1">•</span>
-            <a href="/cookies" className="text-blue-600 dark:text-blue-400 hover:underline">Cookie Policy</a>
+            <a href="/cookies" className="text-blue-600 dark:text-blue-300 hover:underline">Cookie Policy</a>
           </div>
         </div>
     </div>

@@ -143,10 +143,10 @@ export const SocialShare = ({
           onClick={handleCopyLink}
           className={`flex items-center justify-center h-12 w-full transition-colors ${
             copied
-              ? 'bg-green-50 border-green-200 text-green-700 dark:bg-green-900/20 dark:border-green-700 dark:text-green-400'
+              ? 'bg-green-50 border-green-200 text-green-700 dark:bg-green-900/30 dark:border-green-700 dark:text-green-400'
               : 'hover:bg-gray-50 hover:border-gray-200 dark:hover:bg-gray-800'
           }`}
-          title={copied ? "Copied!" : "Copy Link"}
+          title={copied ? " dark:text-gray-100Copied!" : "Copy Link"}
         >
           <span className="text-xs font-medium">
             {copied ? "Copied!" : "Copy Link"}

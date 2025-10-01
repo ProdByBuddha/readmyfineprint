@@ -114,7 +114,7 @@ export function NetworkFallbackDonation({ onRetryStripe, stripeError }: NetworkF
             <div className="text-center space-y-4">
               <div className="flex justify-center">
                 <div className="w-16 h-16 bg-blue-100 dark:bg-blue-900 rounded-full flex items-center justify-center">
-                  <CreditCard className="w-8 h-8 text-blue-600 dark:text-blue-400" />
+                  <CreditCard className="w-8 h-8 text-blue-600 dark:text-blue-300" />
                 </div>
               </div>
               <div>

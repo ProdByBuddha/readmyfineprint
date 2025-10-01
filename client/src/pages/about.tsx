@@ -203,7 +203,7 @@ export default function About() {
         <Card className="mb-12 bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-950 dark:to-indigo-950 border-blue-200 dark:border-blue-800">
           <CardContent className="p-8">
             <div className="text-center">
-              <Target className="w-12 h-12 text-blue-600 dark:text-blue-400 mx-auto mb-4" />
+              <Target className="w-12 h-12 text-blue-600 dark:text-blue-300 mx-auto mb-4" />
               <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-6">Our Mission</h2>
               <p className="text-lg text-gray-700 dark:text-gray-300 max-w-4xl mx-auto leading-relaxed">
                 <strong>To democratize legal understanding</strong> by providing AI-powered document analysis 
@@ -457,7 +457,7 @@ export default function About() {
 
           <Card className="border-blue-200 bg-blue-50 dark:bg-blue-950/20 dark:border-blue-800">
             <CardContent className="p-6 text-center">
-              <Building className="w-12 h-12 text-blue-600 dark:text-blue-400 mx-auto mb-4" />
+              <Building className="w-12 h-12 text-blue-600 dark:text-blue-300 mx-auto mb-4" />
               <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-3">
                 Enterprise Solutions
               </h3>
@@ -487,7 +487,7 @@ export default function About() {
             <div className="flex flex-wrap justify-center gap-4 text-sm">
               <a 
                 href="mailto:admin@readmyfineprint.com" 
-                className="text-blue-600 dark:text-blue-400 hover:underline flex items-center gap-1"
+                className="text-blue-600 dark:text-blue-300 hover:underline flex items-center gap-1"
               >
                 <Mail className="w-4 h-4" />
                 General: admin@readmyfineprint.com

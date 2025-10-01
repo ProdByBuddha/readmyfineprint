@@ -55,12 +55,12 @@ export function SecurityQuestionsModal({
   // Mobile version - Full screen
   if (isMobile) {
     return (
-      <div className="fixed inset-0 z-50 bg-white dark:bg-gray-900">
-        <div className="flex flex-col h-full bg-white dark:bg-gray-900">
+      <div className="fixed inset-0 z-50 bg-white dark:bg-gray-800">
+        <div className="flex flex-col h-full bg-white dark:bg-gray-800">
           {/* Header */}
-          <div className="flex items-center justify-between p-4 border-b bg-white dark:bg-gray-900 border-gray-200 dark:border-gray-700">
+          <div className="flex items-center justify-between p-4 border-b bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700">
             <div className="flex items-center space-x-3">
-              <div className="flex h-8 w-8 items-center justify-center rounded-full bg-orange-100 dark:bg-orange-900/20">
+              <div className="flex h-8 w-8 items-center justify-center rounded-full bg-orange-100 dark:bg-orange-900/30" dark:text-gray-100>
                 <Shield className="h-4 w-4 text-orange-600 dark:text-orange-400" />
               </div>
               <h2 className="text-lg font-semibold text-gray-900 dark:text-white">{title}</h2>
@@ -68,7 +68,7 @@ export function SecurityQuestionsModal({
             {allowClose && onClose && (
               <button
                 onClick={onClose}
-                className="p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg"
+                className="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg"
               >
                 <X className="h-5 w-5 text-gray-900 dark:text-white" />
               </button>
@@ -76,7 +76,7 @@ export function SecurityQuestionsModal({
           </div>
 
           {/* Content */}
-          <div className="flex-1 overflow-y-auto p-4 space-y-4 bg-white dark:bg-gray-900">
+          <div className="flex-1 overflow-y-auto p-4 space-y-4 bg-white dark:bg-gray-800">
             <p className="text-sm text-gray-600 dark:text-gray-300">{description}</p>
 
             {!allowClose && (
@@ -118,7 +118,7 @@ export function SecurityQuestionsModal({
         onEscapeKeyDown={allowClose ? undefined : (e) => e.preventDefault()}
       >
         <DialogHeader className="text-center">
-          <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-orange-100 dark:bg-orange-900/20">
+          <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-orange-100 dark:bg-orange-900/30" dark:text-gray-100>
             <Shield className="h-6 w-6 text-orange-600 dark:text-orange-400" />
           </div>
           <DialogTitle className="text-xl font-semibold">{title}</DialogTitle>

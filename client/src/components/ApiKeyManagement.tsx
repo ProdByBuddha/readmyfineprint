@@ -305,7 +305,7 @@ export default function ApiKeyManagement({ userTier }: ApiKeyManagementProps) {
 
           <div className="space-y-3">
             {apiKeys.length === 0 ? (
-              <div className="text-center py-8 text-muted-foreground" data-testid="text-no-api-keys">
+              <div className="text-center py-8 text-gray-600 dark:text-gray-300" data-testid="text-no-api-keys">
                 <Key className="h-12 w-12 mx-auto mb-3 opacity-50" />
                 <p>No API keys created yet</p>
                 <p className="text-sm">Create your first API key to get started</p>
@@ -325,7 +325,7 @@ export default function ApiKeyManagement({ userTier }: ApiKeyManagementProps) {
                             {apiKey.status === 'active' ? 'Active' : 'Revoked'}
                           </Badge>
                         </div>
-                        <div className="flex items-center space-x-4 text-sm text-muted-foreground">
+                        <div className="flex items-center space-x-4 text-sm text-gray-600 dark:text-gray-300">
                           <span>Created: {new Date(apiKey.createdAt).toLocaleDateString()}</span>
                           <span>
                             Last used: {apiKey.lastUsed ? new Date(apiKey.lastUsed).toLocaleDateString() : 'Never'}
@@ -390,17 +390,17 @@ export default function ApiKeyManagement({ userTier }: ApiKeyManagementProps) {
             <div className="p-4 bg-muted rounded-lg">
               <h4 className="font-medium">Rate Limit</h4>
               <p className="text-2xl font-bold text-green-600">1000/hour</p>
-              <p className="text-sm text-muted-foreground">Based on {userTier} tier</p>
+              <p className="text-sm text-gray-600 dark:text-gray-300">Based on {userTier} tier</p>
             </div>
             <div className="p-4 bg-muted rounded-lg">
               <h4 className="font-medium">This Month</h4>
               <p className="text-2xl font-bold">0</p>
-              <p className="text-sm text-muted-foreground">API calls made</p>
+              <p className="text-sm text-gray-600 dark:text-gray-300">API calls made</p>
             </div>
             <div className="p-4 bg-muted rounded-lg">
               <h4 className="font-medium">Success Rate</h4>
               <p className="text-2xl font-bold text-green-600">-</p>
-              <p className="text-sm text-muted-foreground">No data yet</p>
+              <p className="text-sm text-gray-600 dark:text-gray-300">No data yet</p>
             </div>
           </div>
         </CardContent>

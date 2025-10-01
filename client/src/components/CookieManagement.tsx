@@ -136,7 +136,7 @@ export function CookieManagement({ trigger, className }: CookieManagementProps) 
       <DialogTrigger asChild>
         {trigger || defaultTrigger}
       </DialogTrigger>
-      <DialogContent className="max-w-md bg-white dark:bg-gray-900 border dark:border-gray-700">
+      <DialogContent className="max-w-md bg-white dark:bg-gray-800 border dark:border-gray-700">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2 text-gray-900 dark:text-gray-100">
             <Shield className="w-5 h-5 text-primary" />
@@ -158,8 +158,8 @@ export function CookieManagement({ trigger, className }: CookieManagementProps) 
                 isCheckingConsent 
                   ? "bg-gray-100 text-gray-600 dark:bg-gray-700 dark:text-gray-400"
                   : localIsAccepted
-                  ? "bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400"
-                  : "bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-400"
+                  ? "bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400" dark:text-gray-100
+                  : "bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-400" dark:text-gray-100
               }`}>
                 {isCheckingConsent && <Loader2 className="w-3 h-3 animate-spin" />}
                 {isCheckingConsent ? "Checking" : localIsAccepted ? "Active" : "Inactive"}

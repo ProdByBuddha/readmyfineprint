@@ -285,13 +285,13 @@ export default function SettingsPage() {
                   
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
                     <div>
-                      <Label className="text-muted-foreground">Account Created</Label>
+                      <Label className="text-gray-600 dark:text-gray-300">Account Created</Label>
                       <p className="font-medium" data-testid="text-created-at">
                         {new Date(user.createdAt).toLocaleDateString()}
                       </p>
                     </div>
                     <div>
-                      <Label className="text-muted-foreground">Last Login</Label>
+                      <Label className="text-gray-600 dark:text-gray-300">Last Login</Label>
                       <p className="font-medium" data-testid="text-last-login">
                         {user.lastLoginAt 
                           ? new Date(user.lastLoginAt).toLocaleDateString()
@@ -331,7 +331,7 @@ export default function SettingsPage() {
                         <h3 className="text-lg font-semibold" data-testid="text-tier-name">
                           {subscription.tier.name}
                         </h3>
-                        <p className="text-muted-foreground" data-testid="text-tier-price">
+                        <p className="text-gray-600 dark:text-gray-300" data-testid="text-tier-price">
                           {subscription.tier.monthlyPrice === 0 
                             ? 'Free Plan' 
                             : `$${subscription.tier.monthlyPrice}/month`
@@ -383,7 +383,7 @@ export default function SettingsPage() {
                       <div className="flex items-center justify-between">
                         <div>
                           <Label className="text-base font-medium">Cookie Consent</Label>
-                          <p className="text-sm text-muted-foreground">
+                          <p className="text-sm text-gray-600 dark:text-gray-300">
                             Manage your cookie preferences
                           </p>
                         </div>
@@ -564,7 +564,7 @@ export default function SettingsPage() {
                 </CardHeader>
                 <CardContent className="text-center py-8">
                   <div className="space-y-4">
-                    <p className="text-muted-foreground">
+                    <p className="text-gray-600 dark:text-gray-300">
                       Manage your subscription, billing history, and payment methods
                     </p>
                     <Link href="/subscription">

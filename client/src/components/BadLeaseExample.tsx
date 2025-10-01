@@ -176,7 +176,7 @@ export function BadLeaseExample({ onSelectContract, disabled = false }: BadLease
         </CardHeader>
         <CardContent>
           <div className="space-y-4">
-            <div className="bg-red-100 dark:bg-red-900/30 p-4 rounded-lg">
+            <div className="bg-red-100 dark:bg-red-900/30 p-4 rounded-lg" dark:text-gray-100>
               <h4 className="font-semibold text-red-900 dark:text-red-200 mb-2">
                 ⚠️ WARNING: Educational Purpose Only
               </h4>

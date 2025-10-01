@@ -124,27 +124,27 @@ export function UserSecuritySettings() {
 
   const getScoreColor = (level: string) => {
     switch (level) {
-      case 'excellent': return 'text-green-600 bg-green-100 dark:bg-green-900/20';
-      case 'strong': return 'text-blue-600 bg-blue-100 dark:bg-blue-900/20';
-      case 'moderate': return 'text-yellow-600 bg-yellow-100 dark:bg-yellow-900/20';
-      case 'weak': return 'text-red-600 bg-red-100 dark:bg-red-900/20';
-      default: return 'text-gray-600 bg-gray-100 dark:bg-gray-900/20';
+      case 'excellent': return 'text-green-600 bg-green-100 dark:bg-green-900/30';
+      case 'strong': return 'text-blue-600 bg-blue-100 dark:bg-blue-900/30';
+      case 'moderate': return 'text-yellow-600 bg-yellow-100 dark:bg-yellow-900/30';
+      case 'weak': return 'text-red-600 bg-red-100 dark:bg-red-900/30';
+      default: return 'text-gray-600 bg-gray-100 dark:bg-gray-900/30';
     }
   };
 
   const getPriorityColor = (priority: string) => {
     switch (priority) {
-      case 'required': return 'bg-red-100 text-red-800 border-red-200 dark:bg-red-900/20 dark:text-red-300';
-      case 'recommended': return 'bg-yellow-100 text-yellow-800 border-yellow-200 dark:bg-yellow-900/20 dark:text-yellow-300';
-      case 'optional': return 'bg-blue-100 text-blue-800 border-blue-200 dark:bg-blue-900/20 dark:text-blue-300';
-      default: return 'bg-gray-100 text-gray-800 border-gray-200 dark:bg-gray-900/20 dark:text-gray-300';
+      case 'required': return 'bg-red-100 text-red-800 border-red-200 dark:bg-red-900/30 dark:text-red-300';
+      case 'recommended': return 'bg-yellow-100 text-yellow-800 border-yellow-200 dark:bg-yellow-900/30 dark:text-yellow-300';
+      case 'optional': return 'bg-blue-100 text-blue-800 border-blue-200 dark:bg-blue-900/30 dark:text-blue-300';
+      default: return 'bg-gray-100 text-gray-800 border-gray-200 dark:bg-gray-900/30 dark:text-gray-300';
     }
   };
 
   if (loading) {
     return (
       <Card>
-        <CardContent className="p-6">
+        <CardContent className=" dark:text-gray-100p-6">
           <div className="flex items-center space-x-2">
             <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-primary"></div>
             <span>Loading security settings...</span>
@@ -210,7 +210,7 @@ export function UserSecuritySettings() {
                 style={{ width: `${securityScore.percentage}%` }}
               ></div>
             </div>
-            <div className="text-xs text-muted-foreground">
+            <div className="text-xs text-gray-600 dark:text-gray-300">
               {securityScore.score} of {securityScore.maxScore} security points
             </div>
           </div>
@@ -240,7 +240,7 @@ export function UserSecuritySettings() {
               <h4 className="font-medium text-sm">Your Tier Requirements:</h4>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-sm">
                 <div className="flex items-center space-x-2">
-                  <Key className="h-4 w-4 text-muted-foreground" />
+                  <Key className="h-4 w-4 text-gray-600 dark:text-gray-300" />
                   <span>
                     Security Questions: {securityStatus.securityQuestionCount}/{securityStatus.requirements.minSecurityQuestions} required
                   </span>
@@ -252,31 +252,31 @@ export function UserSecuritySettings() {
                 </div>
                 
                 <div className="flex items-center space-x-2">
-                  <Smartphone className="h-4 w-4 text-muted-foreground" />
+                  <Smartphone className="h-4 w-4 text-gray-600 dark:text-gray-300" />
                   <span>Two-Factor Auth: {securityStatus.requirements.requireTwoFactor ? 'Required' : 'Optional'}</span>
                   {securityStatus.twoFactorEnabled ? (
                     <CheckCircle className="h-3 w-3 text-green-600" />
                   ) : securityStatus.requirements.requireTwoFactor ? (
                     <AlertCircle className="h-3 w-3 text-orange-600" />
                   ) : (
-                    <span className="text-xs text-muted-foreground">(Optional)</span>
+                    <span className="text-xs text-gray-600 dark:text-gray-300">(Optional)</span>
                   )}
                 </div>
 
                 <div className="flex items-center space-x-2">
-                  <Mail className="h-4 w-4 text-muted-foreground" />
+                  <Mail className="h-4 w-4 text-gray-600 dark:text-gray-300" />
                   <span>Backup Email: {securityStatus.requirements.requireBackupEmail ? 'Required' : 'Optional'}</span>
                   {securityStatus.backupEmailSet ? (
                     <CheckCircle className="h-3 w-3 text-green-600" />
                   ) : securityStatus.requirements.requireBackupEmail ? (
                     <AlertCircle className="h-3 w-3 text-orange-600" />
                   ) : (
-                    <span className="text-xs text-muted-foreground">(Optional)</span>
+                    <span className="text-xs text-gray-600 dark:text-gray-300">(Optional)</span>
                   )}
                 </div>
 
                 <div className="flex items-center space-x-2">
-                  <Settings className="h-4 w-4 text-muted-foreground" />
+                  <Settings className="h-4 w-4 text-gray-600 dark:text-gray-300" />
                   <span>Custom Questions: {tierFeatures.customQuestions ? 'Available' : 'Not Available'}</span>
                 </div>
               </div>
@@ -305,7 +305,7 @@ export function UserSecuritySettings() {
               {recommendations.length === 0 ? (
                 <div className="text-center py-6">
                   <CheckCircle className="h-12 w-12 text-green-600 mx-auto mb-3" />
-                  <p className="text-sm text-muted-foreground">
+                  <p className="text-sm text-gray-600 dark:text-gray-300">
                     Excellent! You've completed all security recommendations for your tier.
                   </p>
                 </div>
@@ -425,7 +425,7 @@ export function UserSecuritySettings() {
               <div className="space-y-3">
                 <div className="flex items-center justify-between p-3 border rounded-lg">
                   <div className="flex items-center space-x-3">
-                    <Mail className="h-4 w-4 text-muted-foreground" />
+                    <Mail className="h-4 w-4 text-gray-600 dark:text-gray-300" />
                     <span className="text-sm">Email Account Recovery</span>
                   </div>
                   <Badge variant="outline">Available</Badge>
@@ -434,7 +434,7 @@ export function UserSecuritySettings() {
                 {securityStatus.securityQuestionCount > 0 && (
                   <div className="flex items-center justify-between p-3 border rounded-lg">
                     <div className="flex items-center space-x-3">
-                      <Key className="h-4 w-4 text-muted-foreground" />
+                      <Key className="h-4 w-4 text-gray-600 dark:text-gray-300" />
                       <span className="text-sm">Security Question Recovery</span>
                     </div>
                     <Badge variant="outline">Available</Badge>
@@ -444,7 +444,7 @@ export function UserSecuritySettings() {
                 {securityStatus.twoFactorEnabled && (
                   <div className="flex items-center justify-between p-3 border rounded-lg">
                     <div className="flex items-center space-x-3">
-                      <Smartphone className="h-4 w-4 text-muted-foreground" />
+                      <Smartphone className="h-4 w-4 text-gray-600 dark:text-gray-300" />
                       <span className="text-sm">Two-Factor Recovery</span>
                     </div>
                     <Badge variant="outline">Available</Badge>
@@ -454,7 +454,7 @@ export function UserSecuritySettings() {
                 {securityStatus.requirements.requireAdminApproval && (
                   <div className="flex items-center justify-between p-3 border rounded-lg">
                     <div className="flex items-center space-x-3">
-                      <Crown className="h-4 w-4 text-muted-foreground" />
+                      <Crown className="h-4 w-4 text-gray-600 dark:text-gray-300" />
                       <span className="text-sm">Admin-Assisted Recovery</span>
                     </div>
                     <Badge variant="outline">Enterprise Feature</Badge>

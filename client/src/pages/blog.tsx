@@ -633,7 +633,7 @@ export default function BlogPage() {
                                   <Badge 
                                     key={tagIndex} 
                                     variant="outline" 
-                                    className="text-xs hover:bg-gray-100 dark:hover:bg-gray-800"
+                                    className="text-xs hover:bg-gray-100 dark:hover:bg-gray-700"
                                     data-testid={`tag-${tag.toLowerCase().replace(/\s+/g, '-')}`}
                                   >
                                     {tag}

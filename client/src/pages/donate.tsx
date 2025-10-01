@@ -473,7 +473,7 @@ export default function DonatePage() {
             <div className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-800 rounded-lg">
               <div className="flex items-center gap-3">
                 <div className="w-8 h-8 bg-blue-100 dark:bg-blue-900 rounded-full flex items-center justify-center">
-                  <span className="text-xs font-bold text-blue-600 dark:text-blue-400">WC</span>
+                  <span className="text-xs font-bold text-blue-600 dark:text-blue-300">WC</span>
                 </div>
                 <div className="flex-1">
                   <div className="font-medium text-sm">Worldchain</div>
@@ -501,7 +501,7 @@ export default function DonatePage() {
             <div className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-800 rounded-lg">
               <div className="flex items-center gap-3">
                 <div className="w-8 h-8 bg-blue-100 dark:bg-blue-900 rounded-full flex items-center justify-center">
-                  <span className="text-xs font-bold text-blue-600 dark:text-blue-400">EVM</span>
+                  <span className="text-xs font-bold text-blue-600 dark:text-blue-300">EVM</span>
                 </div>
                 <div className="flex-1">
                   <div className="font-medium text-sm">EVM Compatible Chains</div>
@@ -582,7 +582,7 @@ export default function DonatePage() {
             <div className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-800 rounded-lg">
               <div className="flex items-center gap-3">
                 <div className="w-8 h-8 bg-blue-100 dark:bg-blue-900 rounded-full flex items-center justify-center">
-                  <span className="text-xs font-bold text-blue-600 dark:text-blue-400">ADA</span>
+                  <span className="text-xs font-bold text-blue-600 dark:text-blue-300">ADA</span>
                 </div>
                 <div className="flex-1">
                   <div className="font-medium text-sm">Cardano</div>

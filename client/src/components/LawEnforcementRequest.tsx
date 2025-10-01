@@ -117,7 +117,7 @@ const LawEnforcementRequest: React.FC<LawEnforcementRequestProps> = ({ adminToke
           </DialogDescription>
         </DialogHeader>
 
-        <Alert className="border-orange-200 bg-orange-50 dark:bg-orange-900/20">
+        <Alert className="border-orange-200 bg-orange-50 dark:bg-orange-900/30" dark:text-gray-100>
           <AlertTriangle className="h-4 w-4 text-orange-600" />
           <AlertDescription className="text-orange-800 dark:text-orange-200">
             <strong>Legal Authorization Required:</strong> Only process requests with proper legal documentation (court orders, warrants, subpoenas, etc.).
@@ -240,7 +240,7 @@ const LawEnforcementRequest: React.FC<LawEnforcementRequestProps> = ({ adminToke
           </Card>
 
           <div className="flex items-center justify-between pt-4">
-            <div className="flex items-center space-x-2 text-sm text-muted-foreground">
+            <div className="flex items-center space-x-2 text-sm text-gray-600 dark:text-gray-300">
               <FileText className="h-4 w-4" />
               <span>Request will be logged for audit</span>
             </div>

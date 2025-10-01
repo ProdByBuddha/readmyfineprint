@@ -7,11 +7,11 @@ export function PrivacyPolicy() {
         <CardTitle className="text-3xl font-bold text-center">
           Privacy Policy
         </CardTitle>
-        <p className="text-center text-muted-foreground mt-2">
+        <p className="text-center text-gray-600 dark:text-gray-300 mt-2">
           Last Updated: October 1, 2025
         </p>
       </CardHeader>
-      <CardContent className="prose dark:prose-invert max-w-none space-y-6">
+      <CardContent className="prose prose-gray dark:prose-invert dark:text-gray-200 max-w-none space-y-6">
         
         <section>
           <h2 className="text-2xl font-semibold mt-8 mb-4">Introduction</h2>
@@ -24,7 +24,7 @@ export function PrivacyPolicy() {
 
         <section>
           <h2 className="text-2xl font-semibold mt-8 mb-4">Notice at Collection (California)</h2>
-          <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-300 dark:border-blue-700 p-4 rounded-lg">
+          <div className="bg-blue-50 dark:bg-blue-900/30 border border-blue-300 dark:border-blue-600 dark:text-gray-100 p-4 rounded-lg" dark:text-gray-100>
             <p className="font-semibold mb-2">For California Residents:</p>
             <p>
               We collect the following categories of personal information:
@@ -55,46 +55,46 @@ export function PrivacyPolicy() {
           <h2 className="text-2xl font-semibold mt-8 mb-4">What We Collect & Why</h2>
           
           <div className="overflow-x-auto">
-            <table className="min-w-full border-collapse border border-gray-300 dark:border-gray-700 mt-4">
+            <table className="min-w-full border-collapse border border-gray-300 dark:border-gray-600 mt-4">
               <thead>
-                <tr className="bg-gray-100 dark:bg-gray-800">
-                  <th className="border border-gray-300 dark:border-gray-700 px-4 py-2 text-left">Category</th>
-                  <th className="border border-gray-300 dark:border-gray-700 px-4 py-2 text-left">Examples & Purpose</th>
+                <tr className="bg-gray-100 dark:bg-gray-700">
+                  <th className="border border-gray-300 dark:border-gray-600 px-4 py-2 text-left">Category</th>
+                  <th className="border border-gray-300 dark:border-gray-600 px-4 py-2 text-left">Examples & Purpose</th>
                 </tr>
               </thead>
               <tbody>
                 <tr>
-                  <td className="border border-gray-300 dark:border-gray-700 px-4 py-2 font-semibold">Account Information</td>
-                  <td className="border border-gray-300 dark:border-gray-700 px-4 py-2">
+                  <td className="border border-gray-300 dark:border-gray-600 px-4 py-2 font-semibold">Account Information</td>
+                  <td className="border border-gray-300 dark:border-gray-600 px-4 py-2">
                     Your email and username; hashed answers to security questions (Argon2); encrypted TOTP 
                     secrets and backup codes. Used for account creation, authentication, and recovery.
                   </td>
                 </tr>
                 <tr>
-                  <td className="border border-gray-300 dark:border-gray-700 px-4 py-2 font-semibold">Payment & Subscription Data</td>
-                  <td className="border border-gray-300 dark:border-gray-700 px-4 py-2">
+                  <td className="border border-gray-300 dark:border-gray-600 px-4 py-2 font-semibold">Payment & Subscription Data</td>
+                  <td className="border border-gray-300 dark:border-gray-600 px-4 py-2">
                     Stripe customer ID, subscription tier, and billing history. Payment card details are 
                     processed solely by Stripe; we never store card numbers.
                   </td>
                 </tr>
                 <tr>
-                  <td className="border border-gray-300 dark:border-gray-700 px-4 py-2 font-semibold">Document & Usage Metrics</td>
-                  <td className="border border-gray-300 dark:border-gray-700 px-4 py-2">
+                  <td className="border border-gray-300 dark:border-gray-600 px-4 py-2 font-semibold">Document & Usage Metrics</td>
+                  <td className="border border-gray-300 dark:border-gray-600 px-4 py-2">
                     Document token counts, analysis requests, and results. Used for billing and to improve 
                     accuracy. Raw document content is processed in memory and redacted before being sent to 
                     model providers.
                   </td>
                 </tr>
                 <tr>
-                  <td className="border border-gray-300 dark:border-gray-700 px-4 py-2 font-semibold">Security & Technical Data</td>
-                  <td className="border border-gray-300 dark:border-gray-700 px-4 py-2">
+                  <td className="border border-gray-300 dark:border-gray-600 px-4 py-2 font-semibold">Security & Technical Data</td>
+                  <td className="border border-gray-300 dark:border-gray-600 px-4 py-2">
                     Session IDs, hashed IP addresses, device fingerprints, and logs of authentication attempts. 
                     Used for fraud detection, rate limiting, and security auditing.
                   </td>
                 </tr>
                 <tr>
-                  <td className="border border-gray-300 dark:border-gray-700 px-4 py-2 font-semibold">Hashed PII & Analytics</td>
-                  <td className="border border-gray-300 dark:border-gray-700 px-4 py-2">
+                  <td className="border border-gray-300 dark:border-gray-600 px-4 py-2 font-semibold">Hashed PII & Analytics</td>
+                  <td className="border border-gray-300 dark:border-gray-600 px-4 py-2">
                     Some detectors compute Argon2 hashes of detected PII and analytics summaries for risk 
                     scoring. Used to improve detection accuracy and monitor system health. Raw PII is never 
                     stored.
@@ -132,7 +132,7 @@ export function PrivacyPolicy() {
               available AI models.
             </li>
           </ul>
-          <div className="bg-yellow-50 dark:bg-yellow-900/20 border-l-4 border-yellow-400 dark:border-yellow-600 p-4 mt-4">
+          <div className="bg-yellow-50 dark:bg-yellow-900/30 border-l-4 border-yellow-400 dark:border-yellow-500 dark:text-gray-100 p-4 mt-4" dark:text-gray-100>
             <p className="font-semibold">⚠️ Important:</p>
             <p className="mt-1">
               You should not upload documents containing highly sensitive information if you cannot accept 
@@ -266,7 +266,7 @@ export function PrivacyPolicy() {
 
           <h3 className="text-xl font-semibold mt-4 mb-2">How to Exercise Your Rights</h3>
           <p>
-            Email us at <a href="mailto:privacy@readmyfineprint.com" className="text-blue-600 dark:text-blue-400 hover:underline">privacy@readmyfineprint.com</a> with 
+            Email us at <a href="mailto:privacy@readmyfineprint.com" className="text-blue-600 dark:text-blue-300 hover:underline">privacy@readmyfineprint.com</a> with 
             your request. We will respond within the time period required by applicable law (typically 30-45 days).
           </p>
         </section>
@@ -313,11 +313,11 @@ export function PrivacyPolicy() {
           <p>
             If you have questions about this Privacy Policy or our privacy practices, please contact us:
           </p>
-          <div className="bg-gray-100 dark:bg-gray-800 p-4 rounded-lg mt-3">
-            <p><strong>Email:</strong> <a href="mailto:privacy@readmyfineprint.com" className="text-blue-600 dark:text-blue-400 hover:underline">privacy@readmyfineprint.com</a></p>
-            <p><strong>Website:</strong> <a href="https://readmyfineprint.com" className="text-blue-600 dark:text-blue-400 hover:underline">https://readmyfineprint.com</a></p>
+          <div className="bg-gray-100 dark:bg-gray-700 p-4 rounded-lg mt-3">
+            <p><strong>Email:</strong> <a href="mailto:privacy@readmyfineprint.com" className="text-blue-600 dark:text-blue-300 hover:underline">privacy@readmyfineprint.com</a></p>
+            <p><strong>Website:</strong> <a href="https://readmyfineprint.com" className="text-blue-600 dark:text-blue-300 hover:underline">https://readmyfineprint.com</a></p>
             <p className="mt-2"><strong>Data Protection Officer (DPO) - EEA/UK Inquiries:</strong></p>
-            <p>Email: <a href="mailto:dpo@readmyfineprint.com" className="text-blue-600 dark:text-blue-400 hover:underline">dpo@readmyfineprint.com</a></p>
+            <p>Email: <a href="mailto:dpo@readmyfineprint.com" className="text-blue-600 dark:text-blue-300 hover:underline">dpo@readmyfineprint.com</a></p>
           </div>
         </section>
 

@@ -777,13 +777,13 @@ export function BlogAdmin() {
             <Card>
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                 <CardTitle className="text-sm font-medium">Total Posts</CardTitle>
-                <BookOpen className="h-4 w-4 text-muted-foreground" />
+                <BookOpen className="h-4 w-4 text-gray-600 dark:text-gray-300" />
               </CardHeader>
               <CardContent>
                 <div className="text-2xl font-bold">
                   {blogStats?.posts?.total || posts.length}
                 </div>
-                <p className="text-xs text-muted-foreground">
+                <p className="text-xs text-gray-600 dark:text-gray-300">
                   {blogStats?.posts?.published || posts.filter(p => p.status === 'published').length} published
                 </p>
               </CardContent>
@@ -792,13 +792,13 @@ export function BlogAdmin() {
             <Card>
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                 <CardTitle className="text-sm font-medium">Available Topics</CardTitle>
-                <Settings className="h-4 w-4 text-muted-foreground" />
+                <Settings className="h-4 w-4 text-gray-600 dark:text-gray-300" />
               </CardHeader>
               <CardContent>
                 <div className="text-2xl font-bold">
                   {blogStats?.topics?.available || topics.filter(t => !t.isUsed).length}
                 </div>
-                <p className="text-xs text-muted-foreground">
+                <p className="text-xs text-gray-600 dark:text-gray-300">
                   {blogStats?.topics?.total || topics.length} total topics
                 </p>
               </CardContent>
@@ -807,13 +807,13 @@ export function BlogAdmin() {
             <Card>
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                 <CardTitle className="text-sm font-medium">Total Views</CardTitle>
-                <Eye className="h-4 w-4 text-muted-foreground" />
+                <Eye className="h-4 w-4 text-gray-600 dark:text-gray-300" />
               </CardHeader>
               <CardContent>
                 <div className="text-2xl font-bold">
                   {blogStats?.posts?.totalViews?.toLocaleString() || posts.reduce((sum, post) => sum + (post.viewCount || 0), 0).toLocaleString()}
                 </div>
-                <p className="text-xs text-muted-foreground">
+                <p className="text-xs text-gray-600 dark:text-gray-300">
                   Across all posts
                 </p>
               </CardContent>
@@ -822,13 +822,13 @@ export function BlogAdmin() {
             <Card>
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                 <CardTitle className="text-sm font-medium">Scheduler Status</CardTitle>
-                <TrendingUp className="h-4 w-4 text-muted-foreground" />
+                <TrendingUp className="h-4 w-4 text-gray-600 dark:text-gray-300" />
               </CardHeader>
               <CardContent>
                 <div className="text-2xl font-bold">
                   {schedulerStatus?.isRunning ? 'Running' : 'Stopped'}
                 </div>
-                <p className="text-xs text-muted-foreground">
+                <p className="text-xs text-gray-600 dark:text-gray-300">
                   {schedulerStatus?.config.postsPerDay || 0} posts/day
                 </p>
               </CardContent>

@@ -1,0 +1,96 @@
+# CORRECTED Stripe Setup Commands
+# The Stripe CLI uses bracket notation for nested fields
+
+# ==========================================
+# 1. STARTER TIER
+# ==========================================
+
+stripe prices create \
+  --product=prod_T9ekd1JUEWnLso \
+  --unit-amount=900 \
+  --currency=usd \
+  --recurring[interval]=month \
+  --nickname="Starter Monthly"
+
+stripe prices create \
+  --product=prod_T9ekd1JUEWnLso \
+  --unit-amount=9000 \
+  --currency=usd \
+  --recurring[interval]=year \
+  --nickname="Starter Yearly"
+
+
+# ==========================================
+# 2. PROFESSIONAL TIER
+# ==========================================
+
+stripe products create \
+  --name="Professional" \
+  --description="For small teams and freelancers with organizations and workspaces"
+
+# Save the product ID (prod_XXXX), then replace PROF_PRODUCT_ID below:
+
+stripe prices create \
+  --product=PROF_PRODUCT_ID \
+  --unit-amount=2900 \
+  --currency=usd \
+  --recurring[interval]=month \
+  --nickname="Professional Monthly"
+
+stripe prices create \
+  --product=PROF_PRODUCT_ID \
+  --unit-amount=29000 \
+  --currency=usd \
+  --recurring[interval]=year \
+  --nickname="Professional Yearly"
+
+
+# ==========================================
+# 3. BUSINESS TIER
+# ==========================================
+
+stripe products create \
+  --name="Business" \
+  --description="Growing companies with real-time collaboration"
+
+# Save the product ID (prod_XXXX), then replace BIZ_PRODUCT_ID below:
+
+stripe prices create \
+  --product=BIZ_PRODUCT_ID \
+  --unit-amount=9900 \
+  --currency=usd \
+  --recurring[interval]=month \
+  --nickname="Business Monthly"
+
+stripe prices create \
+  --product=BIZ_PRODUCT_ID \
+  --unit-amount=99000 \
+  --currency=usd \
+  --recurring[interval]=year \
+  --nickname="Business Yearly"
+
+
+# ==========================================
+# 4. ENTERPRISE TIER
+# ==========================================
+
+stripe products create \
+  --name="Enterprise" \
+  --description="Large organizations with priority support"
+
+# Save the product ID (prod_XXXX), then replace ENT_PRODUCT_ID below:
+
+stripe prices create \
+  --product=ENT_PRODUCT_ID \
+  --unit-amount=29900 \
+  --currency=usd \
+  --recurring[interval]=month \
+  --nickname="Enterprise Monthly"
+
+stripe prices create \
+  --product=ENT_PRODUCT_ID \
+  --unit-amount=299000 \
+  --currency=usd \
+  --recurring[interval]=year \
+  --nickname="Enterprise Yearly"
+

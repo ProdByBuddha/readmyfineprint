@@ -144,7 +144,7 @@ export function LoginForm({ onLoginSuccess, isAdmin = false, onEmailRecovery }: 
                 <span className="w-full border-t" />
               </div>
               <div className="relative flex justify-center text-xs uppercase">
-                <span className="bg-background px-2 text-muted-foreground">
+                <span className="bg-background px-2 text-gray-600 dark:text-gray-300">
                   Need help?
                 </span>
               </div>
@@ -168,7 +168,7 @@ export function LoginForm({ onLoginSuccess, isAdmin = false, onEmailRecovery }: 
   return (
     <form onSubmit={handleVerifyCode} className="space-y-4">
       <div className="text-center mb-4">
-        <p className="text-sm text-muted-foreground">
+        <p className="text-sm text-gray-600 dark:text-gray-300">
           {isAdmin 
             ? "Code sent to admin emails"
             : `Code sent to ${email}`

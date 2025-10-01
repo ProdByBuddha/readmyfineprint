@@ -166,7 +166,7 @@ export default function TrustPage() {
         <div className="relative container mx-auto px-4 py-20 lg:py-32" data-testid="trust-hero-section">
           <div className="max-w-5xl mx-auto text-center">
             <div className="flex justify-center mb-6">
-              <Badge className="bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300 px-4 py-2 text-sm font-medium" data-testid="badge-enterprise">
+              <Badge className="bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300 px-4 py-2 text-sm font-medium" dark:text-gray-100 data-testid="badge-enterprise">
                 <span className="flex items-center">
                   <Shield className="w-4 h-4 mr-2" />
                   Enterprise-Grade Security
@@ -200,7 +200,7 @@ export default function TrustPage() {
       </section>
 
       {/* Security Metrics Dashboard */}
-      <section className="py-16 bg-white dark:bg-gray-900" data-testid="security-metrics-section">
+      <section className="py-16 bg-white dark:bg-gray-800" data-testid="security-metrics-section">
         <div className="container mx-auto px-4">
           <div className="max-w-6xl mx-auto">
             <h2 className="text-3xl font-bold text-center text-gray-900 dark:text-white mb-12" data-testid="heading-security-metrics">
@@ -277,7 +277,7 @@ export default function TrustPage() {
       </section>
 
       {/* Privacy Guarantees */}
-      <section className="py-16 bg-white dark:bg-gray-900" data-testid="privacy-guarantees-section">
+      <section className="py-16 bg-white dark:bg-gray-800" data-testid="privacy-guarantees-section">
         <div className="container mx-auto px-4">
           <div className="max-w-6xl mx-auto">
             <div className="text-center mb-12">
@@ -336,7 +336,7 @@ export default function TrustPage() {
                 <Card key={index} className="hover:shadow-lg transition-shadow" data-testid={`enterprise-card-${index}`}>
                   <CardHeader>
                     <div className="flex items-center gap-3 mb-2">
-                      <div className="text-blue-600 dark:text-blue-400">
+                      <div className="text-blue-600 dark:text-blue-300">
                         {feature.icon}
                       </div>
                       <Badge 
@@ -368,7 +368,7 @@ export default function TrustPage() {
       </section>
 
       {/* Transparency Reports */}
-      <section className="py-16 bg-white dark:bg-gray-900" data-testid="transparency-section">
+      <section className="py-16 bg-white dark:bg-gray-800" data-testid="transparency-section">
         <div className="container mx-auto px-4">
           <div className="max-w-6xl mx-auto">
             <div className="text-center mb-12">

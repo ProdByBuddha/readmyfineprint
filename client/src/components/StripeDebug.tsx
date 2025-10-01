@@ -85,7 +85,7 @@ export function StripeDebug() {
   }, [stripePublicKey]);
 
   return (
-    <div className="p-4 bg-gray-100 dark:bg-gray-800 rounded-lg">
+    <div className="p-4 bg-gray-100 dark:bg-gray-700 rounded-lg">
       <h3 className="font-bold mb-2">🔍 Stripe Debug Info</h3>
       <div className="space-y-1 text-sm">
         <div>

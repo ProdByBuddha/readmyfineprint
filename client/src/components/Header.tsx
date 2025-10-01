@@ -339,7 +339,7 @@ export function Header() {
                   aria-label="Admin Dashboard"
                   data-testid="nav-admin"
                 >
-                  <Settings className="w-4 h-4 mr-2 text-blue-600 dark:text-blue-400" aria-hidden="true" />
+                  <Settings className="w-4 h-4 mr-2 text-blue-600 dark:text-blue-300" aria-hidden="true" />
                   Admin
                 </Button>
               </Link>
@@ -558,7 +558,7 @@ export function Header() {
                           aria-label="Admin Dashboard"
                           data-testid="nav-admin-mobile"
                         >
-                          <Settings className="w-4 h-4 mr-3 text-blue-600 dark:text-blue-400" aria-hidden="true" />
+                          <Settings className="w-4 h-4 mr-3 text-blue-600 dark:text-blue-300" aria-hidden="true" />
                           Admin
                         </Button>
                       </Link>

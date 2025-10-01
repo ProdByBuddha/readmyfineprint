@@ -293,7 +293,7 @@ export function TotpManager({ onTotpStatusChanged }: TotpManagerProps) {
                         <span className="w-full border-t" />
                       </div>
                       <div className="relative flex justify-center text-xs uppercase">
-                        <span className="bg-background px-2 text-muted-foreground">Or</span>
+                        <span className="bg-background px-2 text-gray-600 dark:text-gray-300">Or</span>
                       </div>
                     </div>
                     

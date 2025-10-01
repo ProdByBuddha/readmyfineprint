@@ -572,7 +572,7 @@ Support our mission: ${window.location.origin + '/donate'}
                     </Badge>
                   </div>
                 </div>
-                <div className="p-3 sm:p-4 bg-white dark:bg-gray-900">
+                <div className="p-3 sm:p-4 bg-white dark:bg-gray-800">
                   <div className="mb-2 sm:mb-3">
                     <h6 className="font-medium text-gray-900 dark:text-white mb-1 text-xs">Plain English Summary:</h6>
                     <p className="text-gray-700 dark:text-gray-300 text-xs leading-relaxed">{section.summary}</p>

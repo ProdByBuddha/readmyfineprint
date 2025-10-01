@@ -55,7 +55,7 @@ export function Footer() {
 
               <div className="text-center mb-6">
                 <div className="w-12 h-12 bg-blue-100 dark:bg-blue-900 rounded-full flex items-center justify-center mx-auto mb-3">
-                  <Share2 className="w-6 h-6 text-blue-600 dark:text-blue-400" />
+                  <Share2 className="w-6 h-6 text-blue-600 dark:text-blue-300" />
                 </div>
                 <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">
                   Share ReadMyFinePrint
@@ -101,7 +101,7 @@ export function Footer() {
             </Link>
             <Link
               to="/cookies"
-              className="inline-flex items-center justify-center gap-1 px-1.5 py-0.5 text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-200 transition-colors"
+              className="inline-flex items-center justify-center gap-1 px-1.5 py-0.5 text-blue-600 dark:text-blue-300 hover:text-blue-800 dark:hover:text-blue-200 transition-colors"
             >
               <Cookie className="w-3 h-3" />
               Cookies
@@ -115,7 +115,7 @@ export function Footer() {
             </Link>
             <button
               onClick={handleShareClick}
-              className="inline-flex items-center justify-center gap-1 px-1.5 py-0.5 text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 transition-colors"
+              className="inline-flex items-center justify-center gap-1 px-1.5 py-0.5 text-blue-600 dark:text-blue-300 hover:text-blue-700 dark:hover:text-blue-300 transition-colors"
             >
               <Share2 className="w-3 h-3" />
               Share
@@ -154,7 +154,7 @@ export function Footer() {
             </Link>
             <Link
               to="/cookies"
-              className="text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-200 transition-all duration-300 ease-in-out inline-flex items-center py-1"
+              className="text-blue-600 dark:text-blue-300 hover:text-blue-800 dark:hover:text-blue-200 transition-all duration-300 ease-in-out inline-flex items-center py-1"
             >
               <Cookie className="w-3 h-3 mr-1" aria-hidden="true" />
               Cookies
@@ -176,7 +176,7 @@ export function Footer() {
               </Link>
               <button
                 onClick={handleShareClick}
-                className="text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 transition-all duration-300 ease-in-out inline-flex items-center py-1"
+                className="text-blue-600 dark:text-blue-300 hover:text-blue-700 dark:hover:text-blue-300 transition-all duration-300 ease-in-out inline-flex items-center py-1"
               >
                 <Share2 className="w-3 h-3 mr-1" aria-hidden="true" />
                 Share

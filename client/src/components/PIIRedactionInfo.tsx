@@ -64,8 +64,8 @@ export function PIIRedactionInfoComponent({ redactionInfo, className = '' }: PII
   // For non-Professional users, show a simple message about analysis completion
   if (!hasProfessionalAccess) {
     return (
-      <Alert className={`bg-green-50 dark:bg-green-900/20 border-green-200 dark:border-green-800 ${className}`}>
-        <Shield className="h-4 w-4 text-green-600" />
+      <Alert className={`bg-green-50 dark:bg-green-900/30 border-green-200 dark:border-green-800 ${className}`}>
+        <Shield className=" dark:text-gray-100h-4 w-4 text-green-600" />
         <AlertDescription className="text-green-700 dark:text-green-300">
           <span className="font-medium">Document analyzed successfully.</span> Your document has been processed safely.
           {' '}<span className="text-xs">
@@ -78,8 +78,8 @@ export function PIIRedactionInfoComponent({ redactionInfo, className = '' }: PII
 
   if (!redactionInfo.hasRedactions) {
     return (
-      <Alert className={`bg-green-50 dark:bg-green-900/20 border-green-200 dark:border-green-800 ${className}`}>
-        <Shield className="h-4 w-4 text-green-600" />
+      <Alert className={`bg-green-50 dark:bg-green-900/30 border-green-200 dark:border-green-800 ${className}`}>
+        <Shield className=" dark:text-gray-100h-4 w-4 text-green-600" />
         <AlertDescription className="text-green-700 dark:text-green-300">
           <span className="font-medium">No sensitive information detected.</span> Your document was automatically scanned and analyzed safely.
         </AlertDescription>
@@ -102,14 +102,14 @@ export function PIIRedactionInfoComponent({ redactionInfo, className = '' }: PII
 
   const getColorForPIIType = (type: PIIMatch['type']) => {
     switch (type) {
-      case 'ssn': return 'bg-red-100 text-red-800 border-red-200 dark:bg-red-900/20 dark:text-red-300 dark:border-red-800';
-      case 'creditCard': return 'bg-red-100 text-red-800 border-red-200 dark:bg-red-900/20 dark:text-red-300 dark:border-red-800';
-      case 'email': return 'bg-orange-100 text-orange-800 border-orange-200 dark:bg-orange-900/20 dark:text-orange-300 dark:border-orange-800';
-      case 'phone': return 'bg-orange-100 text-orange-800 border-orange-200 dark:bg-orange-900/20 dark:text-orange-300 dark:border-orange-800';
-      case 'address': return 'bg-yellow-100 text-yellow-800 border-yellow-200 dark:bg-yellow-900/20 dark:text-yellow-300 dark:border-yellow-800';
-      case 'name': return 'bg-blue-100 text-blue-800 border-blue-200 dark:bg-blue-900/20 dark:text-blue-300 dark:border-blue-800';
-      case 'dob': return 'bg-purple-100 text-purple-800 border-purple-200 dark:bg-purple-900/20 dark:text-purple-300 dark:border-purple-800';
-      default: return 'bg-gray-100 text-gray-800 border-gray-200 dark:bg-gray-900/20 dark:text-gray-300 dark:border-gray-800';
+      case 'ssn': return 'bg-red-100 text-red-800 border-red-200 dark:bg-red-900/30 dark:text-red-300 dark:border-red-800';
+      case 'creditCard': return 'bg-red-100 text-red-800 border-red-200 dark:bg-red-900/30 dark:text-red-300 dark:border-red-800';
+      case 'email': return 'bg-orange-100 text-orange-800 border-orange-200 dark:bg-orange-900/30 dark:text-orange-300 dark:border-orange-800';
+      case 'phone': return 'bg-orange-100 text-orange-800 border-orange-200 dark:bg-orange-900/30 dark:text-orange-300 dark:border-orange-800';
+      case 'address': return 'bg-yellow-100 text-yellow-800 border-yellow-200 dark:bg-yellow-900/30 dark:text-yellow-300 dark:border-yellow-800';
+      case 'name': return 'bg-blue-100 text-blue-800 border-blue-200 dark:bg-blue-900/30 dark:text-blue-300 dark:border-blue-800';
+      case 'dob': return 'bg-purple-100 text-purple-800 border-purple-200 dark:bg-purple-900/30 dark:text-purple-300 dark:border-purple-800';
+      default: return 'bg-gray-100 text-gray-800 border-gray-200 dark:bg-gray-900/30 dark:text-gray-300 dark:border-gray-800';
     }
   };
 
@@ -142,12 +142,12 @@ export function PIIRedactionInfoComponent({ redactionInfo, className = '' }: PII
 
   return (
     <Card className={`border-orange-200 dark:border-orange-800 ${className}`}>
-      <CardHeader className="pb-3">
+      <CardHeader className=" dark:text-gray-100pb-3">
         <CardTitle className="flex items-center space-x-2 text-orange-700 dark:text-orange-300">
           <Shield className="h-5 w-5" />
           <span>Privacy Protection Active</span>
         </CardTitle>
-        <Alert className="bg-orange-50 dark:bg-orange-900/20 border-orange-200 dark:border-orange-800">
+        <Alert className="bg-orange-50 dark:bg-orange-900/30 border-orange-200 dark:border-orange-800" dark:text-gray-100>
           <Lock className="h-4 w-4 text-orange-600" />
           <AlertDescription className="text-orange-700 dark:text-orange-300">
             <span className="font-medium">{redactionInfo.matches.length} sensitive item{redactionInfo.matches.length !== 1 ? 's' : ''} detected and protected.</span> 
@@ -234,7 +234,7 @@ export function PIIRedactionInfoComponent({ redactionInfo, className = '' }: PII
                               </span>
                             </div>
                             {showRedactedValues && (
-                              <span className="text-sm font-mono bg-yellow-100 dark:bg-yellow-900/20 px-2 py-1 rounded border">
+                              <span className="text-sm font-mono bg-yellow-100 dark:bg-yellow-900/30 px-2 py-1 rounded border" dark:text-gray-100>
                                 {match.value}
                               </span>
                             )}
@@ -257,7 +257,7 @@ export function PIIRedactionInfoComponent({ redactionInfo, className = '' }: PII
               </div>
 
               {/* Privacy explanation */}
-              <Alert className="bg-blue-50 dark:bg-blue-900/20 border-blue-200 dark:border-blue-800">
+              <Alert className="bg-blue-50 dark:bg-blue-900/30 border-blue-200 dark:border-blue-800" dark:text-gray-100>
                 <Shield className="h-4 w-4 text-blue-600" />
                 <AlertDescription className="text-blue-700 dark:text-blue-300 text-xs">
                   <strong>How it works:</strong> Every document is automatically scanned for sensitive information before AI analysis. 

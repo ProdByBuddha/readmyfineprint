@@ -295,7 +295,7 @@ export function AdminEmailChangeRequests({ className = '' }: AdminEmailChangeReq
                             <Shield className="h-4 w-4" />
                             <span>Security Questions Provided</span>
                           </h4>
-                          <div className="bg-green-50 dark:bg-green-900/20 p-3 rounded border border-green-200 dark:border-green-800 text-sm text-green-700 dark:text-green-300">
+                          <div className="bg-green-50 dark:bg-green-900/30 p-3 rounded border border-green-200 dark:border-green-800 text-sm text-green-700 dark:text-green-300" dark:text-gray-100>
                             User provided answers to security questions (encrypted)
                           </div>
                         </div>

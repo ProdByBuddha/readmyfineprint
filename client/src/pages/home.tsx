@@ -122,7 +122,7 @@ export default function Home() {
         "Comprehensive analysis of compensation, benefits, non-compete clauses, and termination terms with risk assessment",
       gradient:
         "from-blue-500/20 to-indigo-600/20 dark:from-blue-400/10 dark:to-indigo-500/10",
-      iconColor: "text-blue-600 dark:text-blue-400",
+      iconColor: "text-blue-600 dark:text-blue-300",
     },
     {
       icon: Scale,

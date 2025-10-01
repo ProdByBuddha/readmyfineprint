@@ -7,11 +7,11 @@ export function CookiePolicy() {
         <CardTitle className="text-3xl font-bold text-center">
           Cookie & Device Fingerprint Policy
         </CardTitle>
-        <p className="text-center text-muted-foreground mt-2">
+        <p className="text-center text-gray-600 dark:text-gray-300 mt-2">
           Last Updated: October 1, 2025
         </p>
       </CardHeader>
-      <CardContent className="prose dark:prose-invert max-w-none space-y-6">
+      <CardContent className="prose prose-gray dark:prose-invert dark:text-gray-200 max-w-none space-y-6">
         
         <section>
           <h2 className="text-2xl font-semibold mt-8 mb-4">Introduction</h2>
@@ -38,58 +38,58 @@ export function CookiePolicy() {
           </p>
           
           <div className="overflow-x-auto mt-4">
-            <table className="min-w-full border-collapse border border-gray-300 dark:border-gray-700">
+            <table className="min-w-full border-collapse border border-gray-300 dark:border-gray-600">
               <thead>
-                <tr className="bg-gray-100 dark:bg-gray-800">
-                  <th className="border border-gray-300 dark:border-gray-700 px-4 py-2 text-left">Cookie Name</th>
-                  <th className="border border-gray-300 dark:border-gray-700 px-4 py-2 text-left">Purpose</th>
-                  <th className="border border-gray-300 dark:border-gray-700 px-4 py-2 text-left">Duration</th>
+                <tr className="bg-gray-100 dark:bg-gray-700">
+                  <th className="border border-gray-300 dark:border-gray-600 px-4 py-2 text-left">Cookie Name</th>
+                  <th className="border border-gray-300 dark:border-gray-600 px-4 py-2 text-left">Purpose</th>
+                  <th className="border border-gray-300 dark:border-gray-600 px-4 py-2 text-left">Duration</th>
                 </tr>
               </thead>
               <tbody>
                 <tr>
-                  <td className="border border-gray-300 dark:border-gray-700 px-4 py-2 font-mono text-sm">consent-accepted</td>
-                  <td className="border border-gray-300 dark:border-gray-700 px-4 py-2">
+                  <td className="border border-gray-300 dark:border-gray-600 px-4 py-2 font-mono text-sm">consent-accepted</td>
+                  <td className="border border-gray-300 dark:border-gray-600 px-4 py-2">
                     Stores whether you accepted the legal disclaimer and consent banner.
                   </td>
-                  <td className="border border-gray-300 dark:border-gray-700 px-4 py-2">
+                  <td className="border border-gray-300 dark:border-gray-600 px-4 py-2">
                     Persistent (until you delete it)
                   </td>
                 </tr>
                 <tr>
-                  <td className="border border-gray-300 dark:border-gray-700 px-4 py-2 font-mono text-sm">app-session-id</td>
-                  <td className="border border-gray-300 dark:border-gray-700 px-4 py-2">
+                  <td className="border border-gray-300 dark:border-gray-600 px-4 py-2 font-mono text-sm">app-session-id</td>
+                  <td className="border border-gray-300 dark:border-gray-600 px-4 py-2">
                     Manages your document session in memory and ensures documents are processed only 
                     within your session. Essential for security and document handling.
                   </td>
-                  <td className="border border-gray-300 dark:border-gray-700 px-4 py-2">
+                  <td className="border border-gray-300 dark:border-gray-600 px-4 py-2">
                     Session-based (expires after 30 minutes of inactivity, regardless of page refreshes)
                   </td>
                 </tr>
                 <tr>
-                  <td className="border border-gray-300 dark:border-gray-700 px-4 py-2 font-mono text-sm">sessionId</td>
-                  <td className="border border-gray-300 dark:border-gray-700 px-4 py-2">
+                  <td className="border border-gray-300 dark:border-gray-600 px-4 py-2 font-mono text-sm">sessionId</td>
+                  <td className="border border-gray-300 dark:border-gray-600 px-4 py-2">
                     Authenticates your account and provides access to your subscription features.
                   </td>
-                  <td className="border border-gray-300 dark:border-gray-700 px-4 py-2">
+                  <td className="border border-gray-300 dark:border-gray-600 px-4 py-2">
                     30 days
                   </td>
                 </tr>
                 <tr>
-                  <td className="border border-gray-300 dark:border-gray-700 px-4 py-2 font-mono text-sm">theme-preference</td>
-                  <td className="border border-gray-300 dark:border-gray-700 px-4 py-2">
+                  <td className="border border-gray-300 dark:border-gray-600 px-4 py-2 font-mono text-sm">theme-preference</td>
+                  <td className="border border-gray-300 dark:border-gray-600 px-4 py-2">
                     Stores your dark/light mode selection for a consistent visual experience.
                   </td>
-                  <td className="border border-gray-300 dark:border-gray-700 px-4 py-2">
+                  <td className="border border-gray-300 dark:border-gray-600 px-4 py-2">
                     Persistent
                   </td>
                 </tr>
                 <tr>
-                  <td className="border border-gray-300 dark:border-gray-700 px-4 py-2 font-mono text-sm">cookie-preferences</td>
-                  <td className="border border-gray-300 dark:border-gray-700 px-4 py-2">
+                  <td className="border border-gray-300 dark:border-gray-600 px-4 py-2 font-mono text-sm">cookie-preferences</td>
+                  <td className="border border-gray-300 dark:border-gray-600 px-4 py-2">
                     Records your cookie consent choices (essential, analytics, marketing preferences).
                   </td>
-                  <td className="border border-gray-300 dark:border-gray-700 px-4 py-2">
+                  <td className="border border-gray-300 dark:border-gray-600 px-4 py-2">
                     1 year
                   </td>
                 </tr>
@@ -163,13 +163,13 @@ export function CookiePolicy() {
           </ul>
           <p className="mt-3">
             These cookies are <strong>necessary for billing</strong> and cannot be disabled if you use paid 
-            subscription features. For more information, see <a href="https://stripe.com/privacy" target="_blank" rel="noopener noreferrer" className="text-blue-600 dark:text-blue-400 hover:underline">Stripe's Privacy Policy</a>.
+            subscription features. For more information, see <a href="https://stripe.com/privacy" target="_blank" rel="noopener noreferrer" className="text-blue-600 dark:text-blue-300 hover:underline">Stripe's Privacy Policy</a>.
           </p>
         </section>
 
         <section>
           <h2 className="text-2xl font-semibold mt-8 mb-4">What We Don't Use</h2>
-          <div className="bg-green-50 dark:bg-green-900/20 border-l-4 border-green-500 dark:border-green-600 p-4">
+          <div className="bg-green-50 dark:bg-green-900/30 border-l-4 border-green-500 dark:border-green-500 dark:text-gray-100 p-4" dark:text-gray-100>
             <p className="font-semibold">✅ Your Privacy is Protected:</p>
             <ul className="list-disc pl-6 mt-2 space-y-1">
               <li>❌ No advertising or tracking cookies</li>
@@ -228,7 +228,7 @@ export function CookiePolicy() {
             However, session functionality will be limited.
           </p>
 
-          <div className="bg-yellow-50 dark:bg-yellow-900/20 border-l-4 border-yellow-400 dark:border-yellow-600 p-4 mt-4">
+          <div className="bg-yellow-50 dark:bg-yellow-900/30 border-l-4 border-yellow-400 dark:border-yellow-500 dark:text-gray-100 p-4 mt-4" dark:text-gray-100>
             <p className="font-semibold">⚠️ Important:</p>
             <p className="mt-1">
               Disabling essential cookies will limit the functionality of the Services. You may not be able to 
@@ -278,9 +278,9 @@ export function CookiePolicy() {
           <p>
             If you have questions about our use of cookies or device fingerprints, please contact us:
           </p>
-          <div className="bg-gray-100 dark:bg-gray-800 p-4 rounded-lg mt-3">
-            <p><strong>Email:</strong> <a href="mailto:privacy@readmyfineprint.com" className="text-blue-600 dark:text-blue-400 hover:underline">privacy@readmyfineprint.com</a></p>
-            <p><strong>Website:</strong> <a href="https://readmyfineprint.com" className="text-blue-600 dark:text-blue-400 hover:underline">https://readmyfineprint.com</a></p>
+          <div className="bg-gray-100 dark:bg-gray-700 p-4 rounded-lg mt-3">
+            <p><strong>Email:</strong> <a href="mailto:privacy@readmyfineprint.com" className="text-blue-600 dark:text-blue-300 hover:underline">privacy@readmyfineprint.com</a></p>
+            <p><strong>Website:</strong> <a href="https://readmyfineprint.com" className="text-blue-600 dark:text-blue-300 hover:underline">https://readmyfineprint.com</a></p>
           </div>
         </section>
 

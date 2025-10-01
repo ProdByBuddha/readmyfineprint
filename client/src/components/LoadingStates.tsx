@@ -152,7 +152,7 @@ export function AnalysisProgress({
     if (status === "active") {
       return (
         <div className="w-6 h-6 rounded-full bg-blue-100 dark:bg-blue-900/40 flex items-center justify-center">
-          <Loader2 className="w-3.5 h-3.5 text-blue-600 dark:text-blue-400 animate-spin" aria-hidden="true" />
+          <Loader2 className="w-3.5 h-3.5 text-blue-600 dark:text-blue-300 animate-spin" aria-hidden="true" />
         </div>
       );
     }
@@ -179,8 +179,8 @@ export function AnalysisProgress({
     <div className="flex items-center justify-center min-h-screen py-8">
       <div className="max-w-xl mx-auto w-full space-y-6 text-center">
         <div className="space-y-3">
-          <div className="inline-flex items-center justify-center w-12 h-12 rounded-full bg-blue-100 dark:bg-blue-900/30 mx-auto">
-            <Loader2 className="w-6 h-6 text-blue-600 dark:text-blue-400 animate-spin" aria-hidden="true" />
+          <div className="inline-flex items-center justify-center w-12 h-12 rounded-full bg-blue-100 dark:bg-blue-900/30 mx-auto" dark:text-gray-100>
+            <Loader2 className="w-6 h-6 text-blue-600 dark:text-blue-300 animate-spin" aria-hidden="true" />
           </div>
           <div className="space-y-1">
             <h3 className="text-xl font-semibold text-gray-900 dark:text-white">

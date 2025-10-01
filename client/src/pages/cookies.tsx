@@ -31,7 +31,7 @@ export default function Cookies() {
           <div className="text-center">
             <Cookie className="h-12 w-12 text-primary mx-auto mb-4 animate-pulse" />
             <h1 className="text-3xl font-bold mb-2">Loading Cookie Settings...</h1>
-            <p className="text-lg text-muted-foreground">
+            <p className="text-lg text-gray-600 dark:text-gray-300">
               Please wait while we load your preferences
             </p>
           </div>
@@ -51,7 +51,7 @@ export default function Cookies() {
         <div className="text-center mb-8">
           <Cookie className="h-12 w-12 text-primary mx-auto mb-4" />
           <h1 className="text-3xl font-bold mb-2">Cookie Settings</h1>
-          <p className="text-lg text-muted-foreground">
+          <p className="text-lg text-gray-600 dark:text-gray-300">
             Manage your cookie preferences for ReadMyFinePrint
           </p>
         </div>
@@ -83,7 +83,7 @@ export default function Cookies() {
               <div className="flex items-center justify-between p-4 border rounded-lg">
                 <div>
                   <h4 className="font-medium">Essential Cookies</h4>
-                  <p className="text-sm text-muted-foreground">Required for basic functionality, security, and session management</p>
+                  <p className="text-sm text-gray-600 dark:text-gray-300">Required for basic functionality, security, and session management</p>
                 </div>
                 <Badge variant="secondary">Always Active</Badge>
               </div>
@@ -91,7 +91,7 @@ export default function Cookies() {
               <div className="flex items-center justify-between p-4 border rounded-lg">
                 <div>
                   <h4 className="font-medium">Analytics & Performance</h4>
-                  <p className="text-sm text-muted-foreground">Help us understand usage patterns to improve the service</p>
+                  <p className="text-sm text-gray-600 dark:text-gray-300">Help us understand usage patterns to improve the service</p>
                 </div>
                 <Badge variant="outline">Privacy-First</Badge>
               </div>
@@ -156,7 +156,7 @@ export default function Cookies() {
                 <h4 className="font-medium">Analytics Cookies</h4>
                 <Badge variant="outline">Not Used</Badge>
               </div>
-              <p className="text-sm text-muted-foreground">
+              <p className="text-sm text-gray-600 dark:text-gray-300">
                 We do not use analytics or tracking cookies. Your privacy is our priority.
               </p>
             </div>
@@ -166,7 +166,7 @@ export default function Cookies() {
                 <h4 className="font-medium">Marketing Cookies</h4>
                 <Badge variant="outline">Not Used</Badge>
               </div>
-              <p className="text-sm text-muted-foreground">
+              <p className="text-sm text-gray-600 dark:text-gray-300">
                 We do not use marketing or advertising cookies.
               </p>
             </div>
@@ -208,11 +208,11 @@ export default function Cookies() {
             <div className="bg-blue-50 dark:bg-blue-950/20 border border-blue-200 dark:border-blue-800 rounded-lg p-4 mt-4">
               <p className="text-sm">
                 <strong>Need more details?</strong> Read our full{' '}
-                <a href="/privacy" className="text-blue-600 dark:text-blue-400 hover:underline">
+                <a href="/privacy" className="text-blue-600 dark:text-blue-300 hover:underline">
                   Privacy Policy
                 </a>{' '}
                 and{' '}
-                <a href="/terms" className="text-blue-600 dark:text-blue-400 hover:underline">
+                <a href="/terms" className="text-blue-600 dark:text-blue-300 hover:underline">
                   Terms of Service
                 </a>{' '}
                 for complete information about how we handle your data.

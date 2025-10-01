@@ -1,0 +1,68 @@
+# Stripe Setup Commands
+# Copy and paste these one at a time into your terminal
+
+# ==========================================
+# 1. STARTER TIER (Product exists: prod_T9ekd1JUEWnLso)
+# ==========================================
+
+stripe prices create --product=prod_T9ekd1JUEWnLso --unit-amount=900 --currency=usd --recurring='{"interval":"month"}' --nickname="Starter Monthly"
+
+stripe prices create --product=prod_T9ekd1JUEWnLso --unit-amount=9000 --currency=usd --recurring='{"interval":"year"}' --nickname="Starter Yearly"
+
+
+# ==========================================
+# 2. PROFESSIONAL TIER
+# ==========================================
+
+stripe products create --name="Professional" --description="For small teams and freelancers with organizations and workspaces"
+
+# Copy the product ID from above (prod_XXXX), then run:
+# Replace PROF_PRODUCT_ID with the actual ID
+
+stripe prices create --product=PROF_PRODUCT_ID --unit-amount=2900 --currency=usd --recurring='{"interval":"month"}' --nickname="Professional Monthly"
+
+stripe prices create --product=PROF_PRODUCT_ID --unit-amount=29000 --currency=usd --recurring='{"interval":"year"}' --nickname="Professional Yearly"
+
+
+# ==========================================
+# 3. BUSINESS TIER
+# ==========================================
+
+stripe products create --name="Business" --description="Growing companies with real-time collaboration"
+
+# Copy the product ID from above (prod_XXXX), then run:
+# Replace BIZ_PRODUCT_ID with the actual ID
+
+stripe prices create --product=BIZ_PRODUCT_ID --unit-amount=9900 --currency=usd --recurring='{"interval":"month"}' --nickname="Business Monthly"
+
+stripe prices create --product=BIZ_PRODUCT_ID --unit-amount=99000 --currency='{"interval":"year"}' --nickname="Business Yearly"
+
+
+# ==========================================
+# 4. ENTERPRISE TIER
+# ==========================================
+
+stripe products create --name="Enterprise" --description="Large organizations with priority support"
+
+# Copy the product ID from above (prod_XXXX), then run:
+# Replace ENT_PRODUCT_ID with the actual ID
+
+stripe prices create --product=ENT_PRODUCT_ID --unit-amount=29900 --currency=usd --recurring='{"interval":"month"}' --nickname="Enterprise Monthly"
+
+stripe prices create --product=ENT_PRODUCT_ID --unit-amount=299000 --currency=usd --recurring='{"interval":"year"}' --nickname="Enterprise Yearly"
+
+
+# ==========================================
+# SAVE ALL PRICE IDs
+# ==========================================
+# After running all commands, save the price IDs (price_XXXX) in this format:
+
+STARTER_MONTHLY=price_XXX
+STARTER_YEARLY=price_XXX
+PROFESSIONAL_MONTHLY=price_XXX
+PROFESSIONAL_YEARLY=price_XXX
+BUSINESS_MONTHLY=price_XXX
+BUSINESS_YEARLY=price_XXX
+ENTERPRISE_MONTHLY=price_XXX
+ENTERPRISE_YEARLY=price_XXX
+

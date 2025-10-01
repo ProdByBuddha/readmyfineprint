@@ -155,7 +155,7 @@ const DataExportButton: React.FC = () => {
 
         <div className="space-y-4">
           {!hasDataExportAccess ? (
-            <Alert className="border-orange-200 bg-orange-50 dark:bg-orange-900/20">
+            <Alert className="border-orange-200 bg-orange-50 dark:bg-orange-900/30" dark:text-gray-100>
               <Crown className="h-4 w-4 text-orange-500" />
               <AlertDescription className="text-orange-800 dark:text-orange-200">
                 <div className="font-medium mb-1">Professional Tier Required</div>
@@ -219,7 +219,7 @@ const DataExportButton: React.FC = () => {
                 <span>Important Information</span>
               </CardTitle>
             </CardHeader>
-            <CardContent className="space-y-2 text-sm text-muted-foreground">
+            <CardContent className="space-y-2 text-sm text-gray-600 dark:text-gray-300">
               <p>• The export file contains sensitive personal information</p>
               <p>• Store the file securely and delete when no longer needed</p>
               <p>• IP addresses are hashed for privacy protection</p>
@@ -229,7 +229,7 @@ const DataExportButton: React.FC = () => {
           </Card>
 
           <div className="flex items-center justify-between pt-4">
-            <div className="flex items-center space-x-2 text-sm text-muted-foreground">
+            <div className="flex items-center space-x-2 text-sm text-gray-600 dark:text-gray-300">
               <Clock className="h-4 w-4" />
               <span>Export typically takes 5-10 seconds</span>
             </div>

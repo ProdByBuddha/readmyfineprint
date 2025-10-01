@@ -332,7 +332,7 @@ export function SubscriptionLogin({
                   <span className="w-full border-t" />
                 </div>
                 <div className="relative flex justify-center text-xs uppercase">
-                  <span className="bg-background dark:bg-gray-800 px-2 text-muted-foreground">
+                  <span className="bg-background dark:bg-gray-800 px-2 text-gray-600 dark:text-gray-300">
                     Need help?
                   </span>
                 </div>
@@ -351,7 +351,7 @@ export function SubscriptionLogin({
             </div>
           </form>
 
-          <div className="mt-4 text-sm text-muted-foreground">
+          <div className="mt-4 text-sm text-gray-600 dark:text-gray-300">
             <p>
               🔒 <strong>Secure Login</strong>
             </p>
@@ -468,7 +468,7 @@ export function SubscriptionLogin({
           </div>
         </form>
 
-        <div className="mt-4 text-sm text-muted-foreground">
+        <div className="mt-4 text-sm text-gray-600 dark:text-gray-300">
           <p>
             📧 <strong>Didn't receive the code?</strong>
           </p>
