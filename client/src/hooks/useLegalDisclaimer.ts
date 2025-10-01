@@ -55,6 +55,8 @@ export function useLegalDisclaimer() {
       }
       return false;
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+
   }, []);
 
   // Load disclaimer acceptance from database
@@ -84,6 +86,8 @@ export function useLegalDisclaimer() {
       }
       return null;
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+
   }, []);
 
   // Save disclaimer acceptance to database
@@ -115,6 +119,8 @@ export function useLegalDisclaimer() {
       console.warn('Failed to save legal disclaimer to database:', error);
       return false;
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+
   }, []);
 
   // Initialize disclaimer state
@@ -261,7 +267,9 @@ export function useLegalDisclaimer() {
     };
     
     initialize();
-  }, [initializeDisclaimer]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+
+  }, []);
 
   // Listen for authentication changes
   useEffect(() => {
@@ -283,7 +291,9 @@ export function useLegalDisclaimer() {
       window.removeEventListener('authStateChanged', handleAuthChange);
       window.removeEventListener('authUpdate', handleAuthChange);
     };
-  }, [initializeDisclaimer]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+
+  }, []);
 
   return {
     accepted: state.accepted,

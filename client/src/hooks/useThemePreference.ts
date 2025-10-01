@@ -57,6 +57,8 @@ export function useThemePreference() {
       }
       return false;
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+
   }, []);
 
   // Load theme preference from database
@@ -86,6 +88,8 @@ export function useThemePreference() {
       }
       return null;
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+
   }, []);
 
   // Save theme preference to database
@@ -117,6 +121,8 @@ export function useThemePreference() {
       console.warn('Failed to save theme to database:', error);
       return false;
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+
   }, []);
 
   // Initialize theme preference
@@ -220,7 +226,9 @@ export function useThemePreference() {
     };
     
     initialize();
-  }, [initializeTheme]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+
+  }, []);
 
   // Listen for authentication changes
   useEffect(() => {
@@ -236,7 +244,9 @@ export function useThemePreference() {
       window.removeEventListener('authStateChanged', handleAuthChange);
       window.removeEventListener('authUpdate', handleAuthChange);
     };
-  }, [initializeTheme]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+
+  }, []);
 
   return {
     theme: state.theme,

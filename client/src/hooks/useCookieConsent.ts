@@ -46,6 +46,8 @@ export function useCookieConsent() {
       console.warn('Failed to check authentication status:', error);
       return false;
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+
   }, []);
 
   // Load cookie consent from database
@@ -65,6 +67,8 @@ export function useCookieConsent() {
       console.warn('Failed to load cookie consent from database:', error);
       return null;
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+
   }, []);
 
   // Save cookie consent to database
@@ -88,6 +92,8 @@ export function useCookieConsent() {
       console.warn('Failed to save cookie consent to database:', error);
       return false;
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+
   }, []);
 
   // Get localStorage cookie consent
@@ -110,6 +116,8 @@ export function useCookieConsent() {
       console.warn('Failed to read localStorage cookie consent:', error);
       return { accepted: false, settings: DEFAULT_SETTINGS };
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+
   }, []);
 
   // Save to localStorage
@@ -120,6 +128,8 @@ export function useCookieConsent() {
     } catch (error) {
       console.warn('Failed to save to localStorage:', error);
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+
   }, []);
 
   // Initialize cookie consent
@@ -328,10 +338,13 @@ export function useCookieConsent() {
     safeDispatchEvent('consentRevoked');
   }, [isAuthenticated, saveToDatabase]);
 
-  // Initialize on mount
+  // Initialize on mount (only once)
   useEffect(() => {
     initializeCookieConsent();
-  }, [initializeCookieConsent]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+
+  }, []); // Empty dependency array - only run once on mount
 
   // Listen for authentication changes
   useEffect(() => {
@@ -347,7 +360,9 @@ export function useCookieConsent() {
       window.removeEventListener('authStateChanged', handleAuthChange);
       window.removeEventListener('authUpdate', handleAuthChange);
     };
-  }, [initializeCookieConsent]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+
+  }, []);
 
   return {
     settings: state.settings,

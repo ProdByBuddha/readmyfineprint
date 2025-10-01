@@ -34,6 +34,8 @@ export function useDeviceFingerprint() {
       console.warn('Failed to check authentication status:', error);
       return false;
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+
   }, []);
 
   // Load device fingerprint backup from database
@@ -53,6 +55,8 @@ export function useDeviceFingerprint() {
       console.warn('Failed to load device fingerprint backup from database:', error);
       return null;
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+
   }, []);
 
   // Save device fingerprint backup to database
@@ -76,6 +80,8 @@ export function useDeviceFingerprint() {
       console.warn('Failed to save device fingerprint backup to database:', error);
       return false;
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+
   }, []);
 
   // Get or generate device fingerprint from localStorage
@@ -94,6 +100,8 @@ export function useDeviceFingerprint() {
       // Generate a session-only fingerprint
       return generateDeviceFingerprint();
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+
   }, []);
 
   // Initialize device fingerprint
@@ -241,7 +249,9 @@ export function useDeviceFingerprint() {
   // Initialize on mount
   useEffect(() => {
     initializeDeviceFingerprint();
-  }, [initializeDeviceFingerprint]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+
+  }, []);
 
   // Listen for authentication changes
   useEffect(() => {
@@ -257,7 +267,9 @@ export function useDeviceFingerprint() {
       window.removeEventListener('authStateChanged', handleAuthChange);
       window.removeEventListener('authUpdate', handleAuthChange);
     };
-  }, [initializeDeviceFingerprint]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+
+  }, []);
 
   return {
     fingerprint: state.fingerprint,
