@@ -42,7 +42,7 @@ export function PIIRedactionInfoComponent({ redactionInfo, className = '' }: PII
 
         if (response.ok) {
           const data = await response.json();
-          const tier = data.subscription?.tierId || 'free';
+          const tier = data.tier?.id || 'free';
           
           // Professional tier or higher (professional, business, enterprise, ultimate)
           const professionalTiers = ['professional', 'business', 'enterprise', 'ultimate'];

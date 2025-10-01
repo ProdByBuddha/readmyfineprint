@@ -1,7 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Shield, ThumbsUp, AlertTriangle, XCircle, InfoIcon, FileText, Settings, Crown, Lock, CheckCircle, Zap, Plus, ArrowRight } from "lucide-react";
+import { Shield, ThumbsUp, AlertTriangle, XCircle, InfoIcon, FileText, Settings, Crown, Lock, CheckCircle, Zap, Plus, ArrowRight, Download } from "lucide-react";
 import type { Document, DocumentAnalysis } from "@shared/schema";
 import { exportAnalysisToPDF } from "@/utils/pdfExport";
 import { PIIRedactionInfoComponent } from "@/components/PIIRedactionInfo";
@@ -133,7 +133,7 @@ export function AnalysisResults({ document }: AnalysisResultsProps) {
 
         if (response.ok) {
           const data = await response.json();
-          const tier = data.subscription?.tierId || 'free';
+          const tier = data.tier?.id || 'free';
           setUserTier(tier);
 
           // Starter tier or higher (starter, professional, business, enterprise, ultimate)
@@ -404,8 +404,23 @@ Support our mission: ${window.location.origin + '/donate'}
           className="animate-fade-in-scale space-y-8"
           data-testid="analysis-results-section"
         >
-          {/* New Analysis Button */}
-          <div className="flex justify-end mb-6">
+          {/* Action Buttons */}
+          <div className="flex justify-end gap-3 mb-6">
+            {/* Export Button */}
+            <Button
+              onClick={() => handleExport(exportQuality)}
+              disabled={isExporting}
+              size="lg"
+              variant="outline"
+              className="group border-primary text-primary hover:bg-primary/10 px-6 py-4 text-base font-semibold shadow-lg hover:shadow-primary/20 transition-all duration-300 transform hover:-translate-y-1"
+              aria-label="Export analysis results as PDF"
+              data-testid="button-export-analysis"
+            >
+              <Download className="w-5 h-5 mr-2 group-hover:scale-110 transition-transform duration-300" aria-hidden="true" />
+              {isExporting ? 'Exporting...' : 'Export PDF'}
+            </Button>
+
+            {/* New Analysis Button */}
             <Button
               onClick={handleNewAnalysis}
               size="lg"
