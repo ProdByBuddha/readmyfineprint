@@ -208,22 +208,22 @@ export class AccountDeletionService {
   ): Promise<'deleted' | 'anonymized' | 'retained'> {
     try {
       // Cancel all active subscriptions first
-      const subscriptions = await stripeInstance.subscriptions.list({
+      const subscriptions = await stripe.subscriptions.list({
         customer: stripeCustomerId,
         status: 'active'
       });
 
       for (const subscription of subscriptions.data) {
-        await stripeInstance.subscriptions.cancel(subscription.id);
+        await stripe.subscriptions.cancel(subscription.id);
       }
 
       if (!retainFinancialData) {
         // Delete Stripe customer (loses all payment history)
-        await stripeInstance.customers.del(stripeCustomerId);
+        await stripe.customers.del(stripeCustomerId);
         return 'deleted';
       } else if (anonymizeData) {
         // Anonymize Stripe customer data
-        await stripeInstance.customers.update(stripeCustomerId, {
+        await stripe.customers.update(stripeCustomerId, {
           email: `deleted_user_${randomUUID()}@deleted.local`,
           name: 'Deleted User',
           description: 'Account deleted - retained for compliance',

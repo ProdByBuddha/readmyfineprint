@@ -1,29 +1,70 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Cookie, Shield, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { logConsent } from "@/lib/api";
+import { sessionFetch, getGlobalSessionId } from "@/lib/sessionManager";
 import { safeDispatchEvent } from "@/lib/safeDispatchEvent";
 
 interface CookieConsentBannerProps {
   onAccept: () => void;
 }
 
+const BANNER_DISMISSED_KEY = 'consent-banner-dismissed';
+
 export function CookieConsentBanner({ onAccept }: CookieConsentBannerProps) {
   const [isLogging, setIsLogging] = useState(false);
   const [isVisible, setIsVisible] = useState(true);
+
+  // Check if banner was already dismissed in this session
+  useEffect(() => {
+    try {
+      const wasDismissed = sessionStorage.getItem(BANNER_DISMISSED_KEY);
+      if (wasDismissed === 'true') {
+        setIsVisible(false);
+      }
+    } catch (error) {
+      console.warn('Failed to check banner dismissal state:', error);
+    }
+  }, []);
 
   const handleAccept = async () => {
     setIsLogging(true);
 
     try {
-      // Log consent to server (anonymous, PII-protected)
-      const result = await logConsent();
+      const sessionId = getGlobalSessionId();
+      console.log(`Logging consent from banner with session: ${sessionId.substring(0, 16)}...`);
 
-      // Store acceptance locally regardless of server logging result
+      // Log consent to database using session fetch
+      const response = await sessionFetch('/api/consent', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          ip: 'client-side-consent',
+          userAgent: navigator.userAgent,
+          termsVersion: '1.0',
+        }),
+      });
+
+      const result = await response.json();
+      
+      if (!result.success) {
+        console.warn('Consent logging warning:', result.message);
+        // Don't proceed if consent logging failed
+        setIsLogging(false);
+        return;
+      }
+
+      console.log('✅ Consent logged successfully from banner');
+
+      // Store acceptance locally for backup
       const acceptanceDate = new Date().toISOString();
       localStorage.setItem('readmyfineprint-disclaimer-accepted', 'true');
       localStorage.setItem('readmyfineprint-disclaimer-date', acceptanceDate);
       localStorage.setItem('cookie-consent-accepted', 'true');
+
+      // Clear dismissal flag since they've now accepted
+      sessionStorage.removeItem(BANNER_DISMISSED_KEY);
 
       // Store consent verification data if provided
       if (result.consentId && result.verificationToken) {
@@ -31,26 +72,33 @@ export function CookieConsentBanner({ onAccept }: CookieConsentBannerProps) {
         sessionStorage.setItem('readmyfineprint-verification-token', result.verificationToken);
       }
 
-      if (!result.success) {
-        console.warn('Consent logging warning:', result.message);
-      }
-
     } catch (error) {
-      console.warn('Consent logging failed, but continuing:', error);
-      // Still store locally and continue - don't block user
-      localStorage.setItem('readmyfineprint-disclaimer-accepted', 'true');
-      localStorage.setItem('readmyfineprint-disclaimer-date', new Date().toISOString());
-      localStorage.setItem('cookie-consent-accepted', 'true');
+      console.warn('Consent logging failed:', error);
+      // Don't proceed if consent logging failed
+      setIsLogging(false);
+      return;
     } finally {
       setIsLogging(false);
       setIsVisible(false);
-      // Dispatch custom event to notify other components
+      
+      // Dispatch custom event to notify other components that consent has changed
+      // This will trigger the useCombinedConsent hook to re-check consent status
       safeDispatchEvent('consentChanged');
-      onAccept();
+      
+      // Small delay to ensure state propagates before calling onAccept
+      setTimeout(() => {
+        onAccept();
+      }, 100);
     }
   };
 
   const handleDismiss = () => {
+    // Remember dismissal for this session
+    try {
+      sessionStorage.setItem(BANNER_DISMISSED_KEY, 'true');
+    } catch (error) {
+      console.warn('Failed to save banner dismissal state:', error);
+    }
     setIsVisible(false);
   };
 

@@ -38,13 +38,23 @@ import { useToast } from "@/hooks/use-toast";
 import { safeDispatchEvent } from "@/lib/safeDispatchEvent";
 
 export default function Home() {
-  const { isAccepted: consentAccepted } = useCombinedConsent();
+  const { isAccepted: consentAccepted, isCheckingConsent } = useCombinedConsent();
   const containerRef = usePreventFlicker();
   const [isLoaded, setIsLoaded] = useState<boolean>(false);
   const { toast } = useToast();
 
   const handleStartAnalysisClick = useCallback(
     (event: MouseEvent<HTMLAnchorElement | HTMLButtonElement>) => {
+      // Prevent navigation if consent check is still in progress
+      if (isCheckingConsent) {
+        event.preventDefault();
+        toast({
+          title: "Please wait",
+          description: "Verifying your consent status...",
+        });
+        return;
+      }
+
       if (!consentAccepted) {
         event.preventDefault();
         toast({
@@ -55,11 +65,14 @@ export default function Home() {
         });
 
         safeDispatchEvent("consentRequired", {
-          detail: { reason: "Document analysis requires consent" },
+          detail: { 
+            reason: "Document analysis requires consent",
+            destination: "/upload" // Tell the modal where to redirect after acceptance
+          },
         });
       }
     },
-    [consentAccepted, toast]
+    [consentAccepted, isCheckingConsent, toast]
   );
 
   useEffect(() => {
@@ -174,11 +187,12 @@ export default function Home() {
       {/* Temporarily disabled TradeSecretProtection due to interference with app functionality */}
       {/* <TradeSecretProtection /> */}
       <MobileAppWrapper>
-        {/* Cookie Consent Banner */}
-        {!consentAccepted && (
+          {/* Cookie Consent Banner - only show when not checking and not accepted */}
+        {!isCheckingConsent && !consentAccepted && (
           <CookieConsentBanner
             onAccept={() => {
-              // The event listener in the hook will trigger the update
+              // Wait for consent state to update before any navigation
+              // The consentChanged event will trigger the useCombinedConsent hook to re-check
             }}
           />
         )}
@@ -235,14 +249,14 @@ export default function Home() {
                 <Button
                   className="group bg-gradient-to-r from-primary via-blue-600 to-primary hover:from-primary/90 hover:via-blue-600/90 hover:to-primary/90 text-white px-12 py-5 text-xl font-bold shadow-2xl hover:shadow-primary/25 transition-all duration-500 transform hover:-translate-y-1 hover:scale-105 disabled:opacity-60 disabled:cursor-not-allowed"
                   data-testid="upload-button"
-                  disabled={!consentAccepted}
+                  disabled={!consentAccepted || isCheckingConsent}
                 >
                   <Shield className="w-6 h-6 mr-3 group-hover:rotate-12 transition-transform duration-300" />
-                  Start Free Analysis
+                  {isCheckingConsent ? "Verifying..." : "Start Free Analysis"}
                   <ArrowRight className="w-6 h-6 ml-3 group-hover:translate-x-1 transition-transform duration-300" />
                 </Button>
               </Link>
-              {!consentAccepted && (
+              {!consentAccepted && !isCheckingConsent && (
                 <p className="text-sm text-amber-700 dark:text-amber-300" role="alert">
                   Accept cookies and terms to enable document analysis features.
                 </p>

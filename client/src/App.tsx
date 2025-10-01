@@ -1,4 +1,4 @@
-import { BrowserRouter as Router, Routes, Route, useLocation } from "react-router-dom";
+import { BrowserRouter as Router, Routes, Route, useLocation, useNavigate } from "react-router-dom";
 import { queryClient } from "./lib/queryClient";
 import { QueryClientProvider } from "@tanstack/react-query";
 import { Toaster } from "./components/ui/toaster";
@@ -84,7 +84,9 @@ function AppRouter() {
 // Inner component that has access to SecurityQuestionsProvider context
 function AppContent() {
   const location = useLocation();
+  const navigate = useNavigate();
   const [showConsentModal, setShowConsentModal] = useState(false);
+  const [intendedDestination, setIntendedDestination] = useState<string | null>(null);
   const { toast } = useToast();
   const { requiresSetup, isLoading } = useSecurityQuestions();
   const { 
@@ -192,15 +194,20 @@ function AppContent() {
 
   // Listen for consent requirement events from API calls
   useEffect(() => {
-    const handleConsentRequired = () => {
+    const handleConsentRequired = (event?: CustomEvent) => {
+      // Save the intended destination if provided in the event
+      const destination = event?.detail?.destination;
+      if (destination) {
+        setIntendedDestination(destination);
+      }
       // Consent required - showing consent modal
       setShowConsentModal(true);
     };
 
-    window.addEventListener('consentRequired', handleConsentRequired);
+    window.addEventListener('consentRequired', handleConsentRequired as EventListener);
 
     return () => {
-      window.removeEventListener('consentRequired', handleConsentRequired);
+      window.removeEventListener('consentRequired', handleConsentRequired as EventListener);
     };
   }, []);
 
@@ -224,8 +231,20 @@ function AppContent() {
   const handleConsentAccepted = () => {
     // Consent accepted - hiding modal
     setShowConsentModal(false);
-    // Trigger a page refresh to retry failed requests
-    window.location.reload();
+    
+    // If there's an intended destination, navigate there
+    if (intendedDestination) {
+      console.log(`Navigating to intended destination: ${intendedDestination}`);
+      navigate(intendedDestination);
+      setIntendedDestination(null);
+    } else if (location.pathname === '/') {
+      // If on home page and no specific destination, go to upload page
+      console.log('Navigating to upload page after consent');
+      navigate('/upload');
+    } else {
+      // Otherwise reload current page to retry failed requests
+      window.location.reload();
+    }
   };
 
   return (
