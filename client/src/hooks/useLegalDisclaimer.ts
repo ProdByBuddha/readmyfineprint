@@ -55,7 +55,7 @@ export function useLegalDisclaimer() {
       }
       return false;
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+   
 
   }, []);
 
@@ -86,7 +86,7 @@ export function useLegalDisclaimer() {
       }
       return null;
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+   
 
   }, []);
 
@@ -119,7 +119,7 @@ export function useLegalDisclaimer() {
       console.warn('Failed to save legal disclaimer to database:', error);
       return false;
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+   
 
   }, []);
 
@@ -267,7 +267,7 @@ export function useLegalDisclaimer() {
     };
     
     initialize();
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+   
 
   }, []);
 
@@ -291,7 +291,7 @@ export function useLegalDisclaimer() {
       window.removeEventListener('authStateChanged', handleAuthChange);
       window.removeEventListener('authUpdate', handleAuthChange);
     };
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+   
 
   }, []);
 

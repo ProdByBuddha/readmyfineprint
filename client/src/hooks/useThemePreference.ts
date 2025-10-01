@@ -57,7 +57,7 @@ export function useThemePreference() {
       }
       return false;
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+   
 
   }, []);
 
@@ -88,7 +88,7 @@ export function useThemePreference() {
       }
       return null;
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+   
 
   }, []);
 
@@ -121,7 +121,7 @@ export function useThemePreference() {
       console.warn('Failed to save theme to database:', error);
       return false;
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+   
 
   }, []);
 
@@ -226,7 +226,7 @@ export function useThemePreference() {
     };
     
     initialize();
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+   
 
   }, []);
 
@@ -244,7 +244,7 @@ export function useThemePreference() {
       window.removeEventListener('authStateChanged', handleAuthChange);
       window.removeEventListener('authUpdate', handleAuthChange);
     };
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+   
 
   }, []);
 

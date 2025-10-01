@@ -46,7 +46,7 @@ export function useCookieConsent() {
       console.warn('Failed to check authentication status:', error);
       return false;
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+   
 
   }, []);
 
@@ -67,7 +67,7 @@ export function useCookieConsent() {
       console.warn('Failed to load cookie consent from database:', error);
       return null;
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+   
 
   }, []);
 
@@ -92,7 +92,7 @@ export function useCookieConsent() {
       console.warn('Failed to save cookie consent to database:', error);
       return false;
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+   
 
   }, []);
 
@@ -116,7 +116,7 @@ export function useCookieConsent() {
       console.warn('Failed to read localStorage cookie consent:', error);
       return { accepted: false, settings: DEFAULT_SETTINGS };
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+   
 
   }, []);
 
@@ -128,7 +128,7 @@ export function useCookieConsent() {
     } catch (error) {
       console.warn('Failed to save to localStorage:', error);
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+   
 
   }, []);
 
@@ -341,8 +341,8 @@ export function useCookieConsent() {
   // Initialize on mount (only once)
   useEffect(() => {
     initializeCookieConsent();
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+   
+   
 
   }, []); // Empty dependency array - only run once on mount
 
@@ -360,7 +360,7 @@ export function useCookieConsent() {
       window.removeEventListener('authStateChanged', handleAuthChange);
       window.removeEventListener('authUpdate', handleAuthChange);
     };
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+   
 
   }, []);
 

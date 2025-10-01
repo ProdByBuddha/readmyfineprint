@@ -31,7 +31,7 @@ export function useDonationTracking() {
       console.warn('Failed to check authentication status:', error);
       return false;
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+   
 
   }, []);
 
@@ -52,7 +52,7 @@ export function useDonationTracking() {
       console.warn('Failed to load donation tracking from database:', error);
       return null;
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+   
 
   }, []);
 
@@ -77,7 +77,7 @@ export function useDonationTracking() {
       console.warn('Failed to save donation tracking to database:', error);
       return false;
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+   
 
   }, []);
 
@@ -193,7 +193,7 @@ export function useDonationTracking() {
   // Initialize on mount
   useEffect(() => {
     initializeDonationTracking();
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+   
 
   }, []);
 
@@ -211,7 +211,7 @@ export function useDonationTracking() {
       window.removeEventListener('authStateChanged', handleAuthChange);
       window.removeEventListener('authUpdate', handleAuthChange);
     };
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+   
 
   }, []);
 

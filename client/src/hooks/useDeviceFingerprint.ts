@@ -34,7 +34,7 @@ export function useDeviceFingerprint() {
       console.warn('Failed to check authentication status:', error);
       return false;
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+   
 
   }, []);
 
@@ -55,7 +55,7 @@ export function useDeviceFingerprint() {
       console.warn('Failed to load device fingerprint backup from database:', error);
       return null;
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+   
 
   }, []);
 
@@ -80,7 +80,7 @@ export function useDeviceFingerprint() {
       console.warn('Failed to save device fingerprint backup to database:', error);
       return false;
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+   
 
   }, []);
 
@@ -100,7 +100,7 @@ export function useDeviceFingerprint() {
       // Generate a session-only fingerprint
       return generateDeviceFingerprint();
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+   
 
   }, []);
 
@@ -249,7 +249,7 @@ export function useDeviceFingerprint() {
   // Initialize on mount
   useEffect(() => {
     initializeDeviceFingerprint();
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+   
 
   }, []);
 
@@ -267,7 +267,7 @@ export function useDeviceFingerprint() {
       window.removeEventListener('authStateChanged', handleAuthChange);
       window.removeEventListener('authUpdate', handleAuthChange);
     };
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+   
 
   }, []);
 
