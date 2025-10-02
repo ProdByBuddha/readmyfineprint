@@ -173,7 +173,10 @@ router.post(
       // Create workspace
       const workspace = await workspaceService.createWorkspace({
         orgId,
-        ...validation.data,
+        name: validation.data.name,
+        description: validation.data.description,
+        visibility: validation.data.visibility,
+        isDefault: validation.data.isDefault,
         createdByUserId: userId,
       });
 
@@ -369,7 +372,8 @@ router.post(
 
       const member = await workspaceService.addWorkspaceMember({
         workspaceId,
-        ...validation.data,
+        userId: validation.data.userId,
+        role: validation.data.role,
         addedByUserId,
       });
 

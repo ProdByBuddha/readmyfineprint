@@ -71,7 +71,9 @@ router.post(
       const result = await annotationService.createAnnotationThread({
         workspaceId: req.params.workspaceId,
         userId: req.user!.id,
-        ...parseResult.data,
+        documentId: parseResult.data.documentId,
+        anchor: parseResult.data.anchor,
+        initialComment: parseResult.data.initialComment,
       });
 
       return res.status(201).json(result);

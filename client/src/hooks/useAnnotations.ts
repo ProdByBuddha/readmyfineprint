@@ -1,4 +1,4 @@
-import { useInfiniteQuery, useMutation, useQuery, UseInfiniteQueryResult, UseMutationResult, UseQueryResult } from '@tanstack/react-query';
+import { useInfiniteQuery, useMutation, useQuery, UseInfiniteQueryResult, UseMutationResult, UseQueryResult, InfiniteData } from '@tanstack/react-query';
 import { authFetch } from '@/lib/auth-fetch';
 import { queryClient } from '@/lib/queryClient';
 
@@ -66,7 +66,7 @@ function buildQueryString(params: Record<string, string | number | boolean | und
 export function useAnnotationThreads(
   workspaceId: string | undefined,
   filters: AnnotationThreadListFilters = {}
-): UseInfiniteQueryResult<AnnotationThreadsPage> {
+): UseInfiniteQueryResult<InfiniteData<AnnotationThreadsPage, unknown>, Error> {
   return useInfiniteQuery<AnnotationThreadsPage>({
     queryKey: ['annotations', workspaceId, 'threads', filters],
     enabled: Boolean(workspaceId),
@@ -81,7 +81,7 @@ export function useAnnotationThreads(
         documentId: filters.documentId,
         includeResolved: filters.includeResolved,
         limit: filters.limit,
-        cursor: pageParam,
+        cursor: pageParam as string | undefined,
       });
 
       const response = await authFetch(

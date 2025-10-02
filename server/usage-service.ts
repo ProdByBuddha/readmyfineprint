@@ -219,7 +219,7 @@ export async function getOrgUsage(orgId: string, options: GetOrgUsageOptions = {
     cursor.setUTCDate(cursor.getUTCDate() + 1)
   ) {
     const key = formatDateKey(cursor);
-    const existing = recordsMap.get(key);
+    const existing = recordsMap.get(key) as OrgUsageRecord | undefined;
 
     usage.push(
       existing ?? {
