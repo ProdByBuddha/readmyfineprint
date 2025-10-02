@@ -1613,7 +1613,7 @@ function SystemManagement() {
                 </div>
                 <div className="mt-3 flex items-center justify-between">
                   <p className="text-xs text-slate-500 dark:text-slate-300">Progress: {job.progress}%</p>
-                  <Button variant="outline" size="xs" onClick={() => handleJobAction(job.id)}>
+                  <Button variant="outline" size="sm" onClick={() => handleJobAction(job.id)}>
                     Run now
                   </Button>
                 </div>
