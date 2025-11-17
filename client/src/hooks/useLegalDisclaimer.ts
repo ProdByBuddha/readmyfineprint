@@ -208,34 +208,38 @@ export function useLegalDisclaimer() {
   const acceptDisclaimer = useCallback(async () => {
     // Immediately update UI
     setState(prev => ({ ...prev, accepted: true }));
-    
+
     // Always save to localStorage for backup
     const acceptanceDate = new Date().toISOString();
     localStorage.setItem('readmyfineprint-disclaimer-accepted', 'true');
     localStorage.setItem('readmyfineprint-disclaimer-date', acceptanceDate);
-    
+
     // Only try database in production
     if (!(import.meta.env.DEV || import.meta.env.MODE === 'development')) {
       try {
         const authenticated = await isAuthenticated();
-        
+
         if (authenticated) {
-          // Also save to database for authenticated users
+          // Save to database for authenticated users and WAIT for it
           const saved = await saveToDatabase(true);
-          
+
           if (!saved) {
-            setState(prev => ({ 
-              ...prev, 
+            setState(prev => ({
+              ...prev,
               error: 'Failed to sync disclaimer acceptance to database'
             }));
+            throw new Error('Failed to save disclaimer to database');
           }
+
+          console.log('✅ Legal disclaimer saved to database successfully');
         }
       } catch (error) {
         console.warn('Failed to save disclaimer acceptance:', error);
-        setState(prev => ({ 
-          ...prev, 
+        setState(prev => ({
+          ...prev,
           error: 'Disclaimer saved locally but failed to sync to database'
         }));
+        throw error; // Re-throw so caller knows it failed
       }
     }
   }, [isAuthenticated, saveToDatabase]);

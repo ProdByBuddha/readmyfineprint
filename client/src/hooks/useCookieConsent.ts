@@ -251,10 +251,10 @@ export function useCookieConsent() {
     };
 
     // Immediately update UI
-    setState(prev => ({ 
-      ...prev, 
-      settings: allAcceptedSettings, 
-      isAccepted: true 
+    setState(prev => ({
+      ...prev,
+      settings: allAcceptedSettings,
+      isAccepted: true
     }));
 
     // Always save to localStorage for backup
@@ -266,22 +266,26 @@ export function useCookieConsent() {
         const authenticated = await isAuthenticated();
 
         if (authenticated) {
-          // Also save to database for authenticated users
+          // Save to database for authenticated users and WAIT for it
           const saved = await saveToDatabase(allAcceptedSettings);
 
           if (!saved) {
-            setState(prev => ({ 
-              ...prev, 
+            setState(prev => ({
+              ...prev,
               error: 'Failed to sync cookie consent to database'
             }));
+            throw new Error('Failed to save cookie consent to database');
           }
+
+          console.log('✅ Cookie consent saved to database successfully');
         }
       } catch (error) {
         console.warn('Failed to save cookie consent:', error);
-        setState(prev => ({ 
-          ...prev, 
+        setState(prev => ({
+          ...prev,
           error: 'Cookie consent saved locally but failed to sync to database'
         }));
+        throw error; // Re-throw so caller knows it failed
       }
     }
 
@@ -294,10 +298,10 @@ export function useCookieConsent() {
     const isAccepted = settings.necessary || settings.analytics || settings.marketing;
 
     // Immediately update UI
-    setState(prev => ({ 
-      ...prev, 
-      settings, 
-      isAccepted 
+    setState(prev => ({
+      ...prev,
+      settings,
+      isAccepted
     }));
 
     // Always save to localStorage for backup
@@ -309,22 +313,26 @@ export function useCookieConsent() {
         const authenticated = await isAuthenticated();
 
         if (authenticated) {
-          // Also save to database for authenticated users
+          // Save to database for authenticated users and WAIT for it
           const saved = await saveToDatabase(settings);
 
           if (!saved) {
-            setState(prev => ({ 
-              ...prev, 
+            setState(prev => ({
+              ...prev,
               error: 'Failed to sync cookie consent to database'
             }));
+            throw new Error('Failed to save cookie settings to database');
           }
+
+          console.log('✅ Cookie settings saved to database successfully');
         }
       } catch (error) {
         console.warn('Failed to save cookie consent:', error);
-        setState(prev => ({ 
-          ...prev, 
+        setState(prev => ({
+          ...prev,
           error: 'Cookie consent saved locally but failed to sync to database'
         }));
+        throw error; // Re-throw so caller knows it failed
       }
     }
 

@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { AlertTriangle, Cookie, Shield, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
@@ -23,365 +23,34 @@ let acceptanceTimer: number | null = null;
 // Prevent concurrent consent checks
 let isCheckingGlobally = false;
 
+// Track if we've already initialized consent to prevent double-mounts in StrictMode
+let hasInitializedConsent = false;
+let initializationInProgress = false;
+
 // Combined hook for managing both legal and cookie consent
 export function useCombinedConsent() {
-  const [isAccepted, setIsAccepted] = useState(false);
-  const [isCheckingConsent, setIsCheckingConsent] = useState(true);
-  const [forceUpdate, setForceUpdate] = useState(0);
-
-  // Check current consent status
-  const checkConsentStatus = useCallback(async () => {
-    setIsCheckingConsent(true);
-    try {
-      // In development mode, automatically accept
-      if (import.meta.env.DEV) {
-        console.log('⚠️ Development mode: Auto-accepting consent');
-        setIsAccepted(true);
-        setIsCheckingConsent(false);
-        return;
-      }
-
-      // Check local storage first for immediate response
-      const localConsent = localStorage.getItem('cookie-consent-accepted') === 'true';
-      const localDisclaimer = localStorage.getItem('readmyfineprint-disclaimer-accepted') === 'true';
-
-      if (localConsent && localDisclaimer) {
-        setIsAccepted(true);
-        setIsCheckingConsent(false);
-        return;
-      }
-
-      // If not in localStorage, check with server (for logged-in users)
-      // But don't let this block the UI for too long
-      const timeoutPromise = new Promise((_, reject) => 
-        setTimeout(() => reject(new Error('Consent check timeout')), 3000)
-      );
-
-      const fetchPromise = sessionFetch('/api/consent/verify', {
-        method: 'GET',
-        credentials: 'include'
-      });
-
-      const response = await Promise.race([fetchPromise, timeoutPromise]) as Response;
-
-      if (response.ok) {
-        const result = await response.json();
-        setIsAccepted(result.verified || false);
-      } else {
-        setIsAccepted(false);
-      }
-    } catch (error) {
-      console.warn('Error checking consent status (non-blocking):', error);
-      // Don't block the user - default to false but allow page to continue
-      setIsAccepted(false);
-    } finally {
-      setIsCheckingConsent(false);
-    }
-  }, []);
-
-  useEffect(() => {
-    checkConsentStatus();
-  }, [checkConsentStatus, forceUpdate]);
-
-  // Use the new database-backed hooks
+  // Use the individual hooks - single source of truth
   const { accepted: legalAccepted, loading: legalLoading } = useLegalDisclaimer();
   const { isAccepted: cookieAccepted, loading: cookieLoading } = useCookieConsent();
 
-  // Update combined consent state based on individual consents
+  // Combined states
+  const isAccepted = legalAccepted && cookieAccepted;
+  const isCheckingConsent = legalLoading || cookieLoading;
+
+  // Update global state for other components
   useEffect(() => {
-    if (legalLoading || cookieLoading) {
-      setIsCheckingConsent(true);
-      return;
+    if (!isCheckingConsent) {
+      globalConsentState = {
+        status: isAccepted,
+        timestamp: Date.now(),
+        sessionId: getGlobalSessionId()
+      };
     }
-
-    const combinedAccepted = legalAccepted && cookieAccepted;
-    setIsAccepted(combinedAccepted);
-    setIsCheckingConsent(false);
-
-    // Update global state
-    globalConsentState = { 
-      status: combinedAccepted, 
-      timestamp: Date.now(),
-      sessionId: getGlobalSessionId()
-    };
-  }, [legalAccepted, cookieAccepted, legalLoading, cookieLoading]);
-
-  const checkConsent = useCallback(async () => {
-    // In development mode, rely on the individual hooks and localStorage instead of API calls
-    if (import.meta.env.DEV || import.meta.env.MODE === 'development') {
-      console.log('⚠️ Development mode: Using hooks-based consent verification');
-      // Don't override the state here - let the individual hooks manage it via localStorage
-      return;
-    }
-
-    // Check global cache first to prevent excessive API calls
-    const now = Date.now();
-    if (globalConsentState && (now - globalConsentState.timestamp) < CACHE_DURATION) {
-      setIsAccepted(globalConsentState.status);
-      setIsCheckingConsent(false);
-      return;
-    }
-
-    // Prevent concurrent checks
-    if (isCheckingGlobally) {
-      if (import.meta.env.DEV) {
-        console.log('Consent check already in progress, skipping...');
-      }
-      return;
-    }
-
-    // Set checking state
-    isCheckingGlobally = true;
-    setIsCheckingConsent(true);
-
-    try {
-      const sessionId = getGlobalSessionId();
-      if (import.meta.env.DEV) {
-        console.log(`Checking consent with session: ${sessionId.substring(0, 16)}...`);
-      }
-
-      const response = await sessionFetch('/api/consent/verify', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-      });
-
-      if (response.ok) {
-        const result = await response.json();
-        const hasConsented = result.hasConsented === true;
-
-        if (import.meta.env.DEV) {
-          console.log('Consent check result:', { 
-            hasConsented, 
-            proof: !!result.proof, 
-            sessionId: getGlobalSessionId().substring(0, 16),
-            sessionResult: result 
-          });
-        }
-
-        // Update global state and local state
-        globalConsentState = { status: hasConsented, timestamp: now, sessionId: getGlobalSessionId() };
-        setIsAccepted(hasConsented);
-
-        // Force update to ensure all components sync
-        setForceUpdate(prev => prev + 1);
-      } else {
-        console.warn('Consent check failed with status:', response.status);
-        // Cache negative result briefly to prevent spam
-        globalConsentState = { status: false, timestamp: now };
-        setIsAccepted(false);
-      }
-    } catch (error) {
-      console.warn('Failed to verify consent with database:', error);
-      // Clear global cache and assume no consent to be safe
-      globalConsentState = null;
-      setIsAccepted(false);
-    } finally {
-      isCheckingGlobally = false;
-      setIsCheckingConsent(false);
-    }
-  }, []);
-
-  useEffect(() => {
-    // Check consent on initial mount only if we don't have a recent cache
-    const initialCheck = async () => {
-      const sessionId = getGlobalSessionId();
-
-      // If we have a recent cache entry for this session, use it
-      if (globalConsentState && 
-          globalConsentState.sessionId === sessionId && 
-          (Date.now() - globalConsentState.timestamp) < CACHE_DURATION) {
-        if (import.meta.env.DEV) {
-          console.log(`Using cached consent state for session: ${sessionId.substring(0, 16)}...`);
-        }
-        setIsAccepted(globalConsentState.status);
-        setIsCheckingConsent(false);
-        return;
-      }
-
-      if (import.meta.env.DEV) {
-        console.log(`Initial consent check - session: ${sessionId.substring(0, 16)}...`);
-      }
-      await checkConsent();
-    };
-    initialCheck();
-
-    // Create event handlers with debouncing
-    let debounceTimer: number;
-
-    const handleConsentChange = () => {
-      // Clear global cache when consent changes
-      globalConsentState = null;
-
-      // Debounce multiple consent change events
-      clearTimeout(debounceTimer);
-      debounceTimer = window.setTimeout(() => {
-        console.log('Handling consent change - rechecking consent');
-        checkConsent();
-      }, 100); // Reduced delay for faster updates
-    };
-
-    const handleConsentRevoked = () => {
-      // Clear global cache and update state immediately
-      globalConsentState = null; // Clear cache entirely when revoked
-      setIsAccepted(false);
-      setIsCheckingConsent(false);
-      console.log('Consent revoked - enabling gray mode');
-
-      // Force immediate re-check to ensure all components are synchronized
-      setTimeout(() => {
-        console.log('Re-checking consent after revocation');
-        checkConsent();
-        // Force re-render of all components using this hook
-        setForceUpdate(prev => prev + 1);
-      }, 100);
-    };
-
-    // Listen for custom consent events only
-    window.addEventListener('consentChanged', handleConsentChange);
-    window.addEventListener('consentRevoked', handleConsentRevoked);
-
-    return () => {
-      clearTimeout(debounceTimer);
-      window.removeEventListener('consentChanged', handleConsentChange);
-      window.removeEventListener('consentRevoked', handleConsentRevoked);
-    };
-  }, []);
-
-  const acceptAll = async () => {
-    if (isCheckingConsent) return; // Prevent multiple simultaneous accepts
-
-    // Set loading state
-    setIsCheckingConsent(true);
-
-    // Check if we're in development mode and bypass consent logging
-    if (import.meta.env.DEV || import.meta.env.MODE === 'development') {
-      console.log('⚠️ Development mode: Bypassing consent logging');
-      globalConsentState = { status: true, timestamp: Date.now(), sessionId: getGlobalSessionId() };
-      safeDispatchEvent('consentChanged');
-      setIsAccepted(true);
-      setIsCheckingConsent(false);
-      setForceUpdate(prev => prev + 1);
-      recentlyAccepted = true;
-
-      if (acceptanceTimer) clearTimeout(acceptanceTimer);
-      acceptanceTimer = window.setTimeout(() => {
-        recentlyAccepted = false;
-      }, 2000);
-      return;
-    }
-
-    try {
-      // Log consent to database only - using the global API function that now uses sessionFetch
-      const result = await logConsent();
-
-      if (!result.success) {
-        console.warn('Consent logging warning:', result.message);
-        setIsAccepted(false);
-        setIsCheckingConsent(false);
-        return;
-      }
-
-      // Immediately notify other components of the change
-      globalConsentState = { status: true, timestamp: Date.now(), sessionId: getGlobalSessionId() };
-      safeDispatchEvent('consentChanged');
-      setIsAccepted(true);
-      setIsCheckingConsent(false);
-
-      // Force re-render of all components using this hook
-      setForceUpdate(prev => prev + 1);
-
-      console.log('Consent accepted successfully');
-      recentlyAccepted = true;
-
-      // Clear the recent acceptance flag after some time
-      if (acceptanceTimer) clearTimeout(acceptanceTimer);
-      acceptanceTimer = window.setTimeout(() => {
-        recentlyAccepted = false;
-      }, 2000);
-
-    } catch (error) {
-      console.warn('Consent logging failed:', error);
-      setIsAccepted(false);
-      setIsCheckingConsent(false);
-      return;
-    }
-  };
-
-  const revokeConsent = async () => {
-    if (isCheckingConsent) return; // Prevent multiple simultaneous revocations
-
-    // Set loading state
-    setIsCheckingConsent(true);
-
-    // Check if we're in development mode and bypass consent revocation
-    if (import.meta.env.DEV || import.meta.env.MODE === 'development') {
-      console.log('⚠️ Development mode: Bypassing consent revocation');
-      globalConsentState = null;
-      setIsAccepted(false);
-      setIsCheckingConsent(false);
-      safeDispatchEvent('consentRevoked');
-      setForceUpdate(prev => prev + 1);
-      return;
-    }
-
-    try {
-      const sessionId = getGlobalSessionId();
-      console.log(`Revoking consent with session: ${sessionId.substring(0, 16)}...`);
-
-      const response = await sessionFetch('/api/consent/revoke', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          ip: 'client-side-revoke',
-          userAgent: navigator.userAgent,
-        }),
-      });
-
-      const result = await response.json();
-      if (!result.success) {
-        console.warn('Failed to revoke consent in database:', result.message);
-      }
-
-      // Clear global cache and update state immediately
-      globalConsentState = null; // Clear cache entirely when revoked
-      setIsAccepted(false);
-      setIsCheckingConsent(false);
-
-      // Clear recent acceptance flag when revoking
-      recentlyAccepted = false;
-      if (acceptanceTimer) clearTimeout(acceptanceTimer);
-
-      // Force update for components using this hook immediately
-      setForceUpdate(prev => prev + 1);
-
-      // Single event dispatch for revocation
-      safeDispatchEvent('consentRevoked');
-
-    } catch (error) {
-      console.warn('Failed to revoke consent from database:', error);
-      // Still clear global cache and update state even if revocation failed
-      globalConsentState = null; // Clear cache entirely when revoked
-      setIsAccepted(false);
-      setIsCheckingConsent(false);
-
-      // Clear recent acceptance flag when revoking
-      recentlyAccepted = false;
-      if (acceptanceTimer) clearTimeout(acceptanceTimer);
-
-      safeDispatchEvent('consentRevoked');
-    }
-  };
+  }, [isAccepted, isCheckingConsent]);
 
   return {
     isAccepted,
-    isCheckingConsent,
-    acceptAll,
-    revokeConsent,
-    forceUpdate
+    isCheckingConsent
   };
 }
 
@@ -389,23 +58,49 @@ export function useCombinedConsent() {
 export function CombinedConsent({ onAccept }: CombinedConsentProps) {
   const [isOpen, setIsOpen] = useState(true);
   const [isLogging, setIsLogging] = useState(false);
+  const initRef = useRef(false);
 
   // Use the individual consent hooks to ensure proper state synchronization
   const { acceptDisclaimer } = useLegalDisclaimer();
   const { acceptAllCookies } = useCookieConsent();
 
+  // Check if consent was already handled to prevent double-mount in StrictMode
+  useEffect(() => {
+    if (initRef.current) {
+      console.log('Consent modal already initialized, skipping duplicate mount');
+      return;
+    }
+
+    // Check if consent already accepted in global state
+    if (globalConsentState?.status) {
+      console.log('Consent already accepted in global state, closing modal');
+      setIsOpen(false);
+      return;
+    }
+
+    initRef.current = true;
+  }, []);
+
   const handleAccept = async () => {
+    if (isLogging) return; // Prevent multiple clicks
     setIsLogging(true);
 
     try {
       console.log('Accepting combined consent through individual hooks...');
 
       // Accept both legal disclaimer and cookies using their respective hooks
-      // This ensures localStorage and all states are properly synchronized
+      // IMPORTANT: These NOW properly await the database saves
       await Promise.all([
         acceptDisclaimer(),
         acceptAllCookies()
       ]);
+
+      // Mark as recently accepted to prevent banner flash
+      recentlyAccepted = true;
+      if (acceptanceTimer) clearTimeout(acceptanceTimer);
+      acceptanceTimer = window.setTimeout(() => {
+        recentlyAccepted = false;
+      }, 2000);
 
       // Close modal and call onAccept
       setIsOpen(false);
@@ -415,8 +110,6 @@ export function CombinedConsent({ onAccept }: CombinedConsentProps) {
 
     } catch (error) {
       console.warn('Failed to accept combined consent:', error);
-      setIsLogging(false);
-      return;
     } finally {
       setIsLogging(false);
     }
